@@ -15,6 +15,8 @@ func (m *Module) registerDroppedFiles(r runtime.Registrar) {
 	r.Register("UTIL.ISFILEDROPPED", "util", runtime.AdaptLegacy(m.utilIsFileDropped))
 	r.Register("UTIL.GETDROPPEDFILES", "util", m.utilGetDroppedFiles)
 	r.Register("UTIL.CLEARDROPPEDFILES", "util", runtime.AdaptLegacy(m.utilClearDroppedFiles))
+	r.Register("ISFILEDROPPED", "util", runtime.AdaptLegacy(m.utilIsFileDropped))
+	r.Register("GETDROPPEDFILES", "util", m.utilGetDroppedFiles)
 }
 
 func (m *Module) utilIsFileDropped(args []value.Value) (value.Value, error) {

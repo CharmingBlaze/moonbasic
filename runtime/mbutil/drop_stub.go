@@ -10,13 +10,18 @@ import (
 )
 
 func (m *Module) registerDroppedFiles(r runtime.Registrar) {
-	r.Register("UTIL.ISFILEDROPPED", "util", runtime.AdaptLegacy(func([]value.Value) (value.Value, error) {
+	isDropped := runtime.AdaptLegacy(func([]value.Value) (value.Value, error) {
 		return value.FromBool(false), nil
-	}))
-	r.Register("UTIL.GETDROPPEDFILES", "util", runtime.AdaptLegacy(func([]value.Value) (value.Value, error) {
+	})
+	noRaylib := runtime.AdaptLegacy(func([]value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("UTIL.GETDROPPEDFILES requires CGO (Raylib)")
-	}))
-	r.Register("UTIL.CLEARDROPPEDFILES", "util", runtime.AdaptLegacy(func([]value.Value) (value.Value, error) {
+	})
+	clearDropped := runtime.AdaptLegacy(func([]value.Value) (value.Value, error) {
 		return value.Nil, nil
-	}))
+	})
+	r.Register("UTIL.ISFILEDROPPED", "util", isDropped)
+	r.Register("ISFILEDROPPED", "util", isDropped)
+	r.Register("UTIL.GETDROPPEDFILES", "util", noRaylib)
+	r.Register("GETDROPPEDFILES", "util", noRaylib)
+	r.Register("UTIL.CLEARDROPPEDFILES", "util", clearDropped)
 }

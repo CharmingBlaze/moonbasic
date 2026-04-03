@@ -26,6 +26,22 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("UTIL.CHANGEDIR", "util", m.utilChangeDir)
 	r.Register("UTIL.MAKEDIRECTORY", "util", m.utilMakeDirectory)
 	r.Register("UTIL.ISFILENAMEVALID", "util", m.utilIsFileNameValid)
+
+	// Flat spec names (manifest) → same handlers as UTIL.*.
+	r.Register("FILEEXISTS", "util", m.utilFileExists)
+	r.Register("DIREXISTS", "util", m.utilIsDir)
+	r.Register("READALLTEXT$", "util", m.utilLoadText)
+	r.Register("WRITEALLTEXT", "util", m.utilSaveText)
+	r.Register("MAKEDIR", "util", m.utilMakeDirectory)
+	r.Register("SETDIR", "util", m.utilChangeDir)
+	r.Register("GETFILEEXT$", "util", m.utilGetFileExt)
+	r.Register("GETFILENAME$", "util", m.utilGetFileName)
+	r.Register("GETFILENAMENOEXT$", "util", m.utilGetFileNameNoExt)
+	r.Register("GETFILEPATH$", "util", m.utilGetFilePath)
+	r.Register("GETFILESIZE", "util", m.utilGetFileSize)
+	r.Register("GETFILEMODTIME", "util", m.utilGetFileModTime)
+	r.Register("GETFILES$", "util", m.utilGetDirFiles)
+
 	m.registerDroppedFiles(r)
 }
 

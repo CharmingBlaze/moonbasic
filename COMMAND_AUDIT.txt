@@ -189,13 +189,13 @@ DELETE               PARTIAL  codegen; no testdata exercise
 FOR EACH(Type)       PARTIAL  parser; no testdata exercise
 
 --- FILE I/O (spec names vs shipped FILE.* / UTIL.*) ---
-OPENFILE           MISSING  manifest uses FILE.OPEN; impl runtime/file (CGO)
-CLOSEFILE          MISSING  alias gap; FILE.CLOSE exists
-READFILE$          MISSING  FILE.READLINE line-based; different name/semantics
-WRITEFILE          MISSING  FILE.WRITE always adds newline (acts like WRITEFILELN)
-WRITEFILELN        MISSING  see above
-READALLTEXT$       MISSING  UTIL.LOADTEXT exists — different key
-WRITEALLTEXT       MISSING  UTIL.SAVETEXT exists
+OPENFILE           PARTIAL  runtime/file flat alias → FILE.OPEN; CGO only (stub registers same error as FILE.*)
+CLOSEFILE          PARTIAL  flat → FILE.CLOSE; CGO only
+READFILE$          PARTIAL  flat → FILE.READLINE (line-based); CGO only
+WRITEFILE          PARTIAL  flat → FILE.WRITE (always appends newline)
+WRITEFILELN        PARTIAL  flat → FILE.WRITE (same as WRITEFILE)
+READALLTEXT$       DONE     runtime/mbutil flat → UTIL.LOADTEXT (no dedicated line in file_flat_aliases.mb)
+WRITEALLTEXT       DONE     flat → UTIL.SAVETEXT
 READBYTE           MISSING
 WRITEBYTE          MISSING
 READSHORT          MISSING
@@ -206,31 +206,31 @@ READFLOAT          MISSING
 WRITEFLOAT         MISSING
 READSTRING$        MISSING
 WRITESTRING        MISSING
-FILEPOS            MISSING  FILE.TELL implemented; not in manifest (fixed in this commit)
-SEEKFILE           MISSING  FILE.SEEK implemented; not in manifest (fixed in this commit)
-EOF                MISSING  flat; FILE.EOF exists
-FILESIZE           MISSING  FILE.SIZE implemented; not in manifest (fixed in this commit)
-FILEEXISTS         MISSING  UTIL.FILEEXISTS exists
-DIREXISTS          MISSING  UTIL.ISDIR exists
+FILEPOS            PARTIAL  flat → FILE.TELL; CGO only
+SEEKFILE           PARTIAL  flat → FILE.SEEK; CGO only
+EOF                PARTIAL  flat → FILE.EOF; CGO only
+FILESIZE           PARTIAL  flat → FILE.SIZE; CGO only
+FILEEXISTS         DONE     runtime/mbutil flat → UTIL.FILEEXISTS; testdata/file_flat_aliases.mb
+DIREXISTS          DONE     flat → UTIL.ISDIR; testdata/file_flat_aliases.mb
 DELETEFILE         MISSING
 COPYFILE           MISSING
 MOVEFILE           MISSING
 RENAMEFILE         MISSING
-MAKEDIR            MISSING  UTIL.MAKEDIRECTORY exists
+MAKEDIR            DONE     flat → UTIL.MAKEDIRECTORY
 MAKEDIRS           MISSING
 DELETEDIR          MISSING
 GETDIR$            MISSING  no flat cwd helper (UTIL.CHANGEDIR etc. partial)
-SETDIR             MISSING
-GETFILES$          MISSING  UTIL.GETDIRFILES returns string not array handle
+SETDIR             DONE     flat → UTIL.CHANGEDIR
+GETFILES$          PARTIAL  flat → UTIL.GETDIRFILES; returns string not array handle
 GETDIRS$           MISSING
-GETFILEEXT$        MISSING  UTIL.GETFILEEXT exists
-GETFILENAME$       MISSING  UTIL.GETFILENAME exists
-GETFILENAMENOEXT$  MISSING  UTIL.GETFILENAMENOEXT exists
-GETFILEPATH$       MISSING  UTIL.GETFILEPATH exists
-GETFILESIZE        MISSING  UTIL.GETFILESIZE exists
-GETFILEMODTIME     MISSING  UTIL.GETFILEMODTIME exists
-ISFILEDROPPED      MISSING  UTIL.ISFILEDROPPED exists
-GETDROPPEDFILES    PARTIAL  UTIL.GETDROPPEDFILES exists; spec asked array handle — util returns string
+GETFILEEXT$        DONE     flat → UTIL.GETFILEEXT
+GETFILENAME$       DONE     flat → UTIL.GETFILENAME; testdata/file_flat_aliases.mb
+GETFILENAMENOEXT$  DONE     flat → UTIL.GETFILENAMENOEXT
+GETFILEPATH$       DONE     flat → UTIL.GETFILEPATH
+GETFILESIZE        DONE     flat → UTIL.GETFILESIZE
+GETFILEMODTIME     DONE     flat → UTIL.GETFILEMODTIME
+ISFILEDROPPED      DONE     flat → UTIL.ISFILEDROPPED (CGO Raylib)
+GETDROPPEDFILES    PARTIAL  flat + UTIL.*; spec asked array handle — util returns JSON string
 
 --- DATE / TIME ---
 YEAR             MISSING
@@ -303,7 +303,7 @@ DUPLICATES (0-C) — same behavior without clear alias comment, or dual implemen
 5) ARRAYJOINS / ARRAYJOINS$ — same handler (intentional).
 6) strmod.* vs core — strmod still mirrors some string commands; STRING$ now matches core (first rune). ISNUMERIC rules may still differ (see ISNUMERIC row).
 7) (resolved) Flat BAND…BCOUNT register to the same handlers as core.B* (runtime/bitwise/bitwise.go).
-8) UTIL.* vs spec FILE*/GET* names — same intended surface, different command keys (needs alias layer).
+8) UTIL.* vs spec FILE*/GET* names — flat aliases registered in runtime/mbutil/util.go + file module (see FILE I/O section).
 
 ================================================================================
 MANIFEST / REGISTRY GAPS (0-D) — addressed in this commit where noted

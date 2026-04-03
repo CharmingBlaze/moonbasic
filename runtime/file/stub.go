@@ -28,6 +28,16 @@ var stubNames = []string{
 	"FILE.SEEK",
 	"FILE.TELL",
 	"FILE.SIZE",
+	// Flat aliases (same CGO requirement as FILE.*)
+	"OPENFILE",
+	"CLOSEFILE",
+	"READFILE$",
+	"WRITEFILE",
+	"WRITEFILELN",
+	"EOF",
+	"FILEPOS",
+	"SEEKFILE",
+	"FILESIZE",
 }
 
 // Register implements runtime.Module.

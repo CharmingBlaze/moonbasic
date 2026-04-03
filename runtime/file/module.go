@@ -56,6 +56,25 @@ func (m *Module) Register(r runtime.Registrar) {
 		})
 	}
 	r.Register("FILE.OPEN", "file", m.fileOpen)
+
+	// Flat spec names (manifest) → same behavior as FILE.* (see COMMAND_AUDIT).
+	r.Register("OPENFILE", "file", m.fileOpen)
+	flatForward := []struct{ flat, canon string }{
+		{"CLOSEFILE", "FILE.CLOSE"},
+		{"READFILE$", "FILE.READLINE"},
+		{"WRITEFILE", "FILE.WRITE"},
+		{"WRITEFILELN", "FILE.WRITE"},
+		{"EOF", "FILE.EOF"},
+		{"FILEPOS", "FILE.TELL"},
+		{"SEEKFILE", "FILE.SEEK"},
+		{"FILESIZE", "FILE.SIZE"},
+	}
+	for _, a := range flatForward {
+		canon := a.canon
+		r.Register(a.flat, "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			return m.Run(rt, canon, args...)
+		})
+	}
 }
 
 // Shutdown implements runtime.Module.
