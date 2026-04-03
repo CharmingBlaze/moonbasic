@@ -1,8 +1,9 @@
 moonBASIC command audit (STEP 0)
 ================================
 Authority: compiler/builtinmanifest/commands.json + runtime Register() + testdata/*.mb + *_test.go
-Date: 2026-04-04
+Date: 2026-04-04 (STRING rows refreshed 2026-04-04 — runtime/core_strings.go split into runtime/strings_*.go)
 Note: Manifest path is compiler/builtinmanifest/commands.json (see ARCHITECTURE.md §4).
+VM/runtime: KindString resolves program pool then heap (value.StringAt/…); + and CONCAT intern on heap only (see vm/vm_dispatch.go).
 
 Legend
 ------
@@ -22,50 +23,61 @@ TAB            PARTIAL  runtime/core_console.go:115; no dedicated test
 SPC            PARTIAL  runtime/core_console.go:116; no dedicated test
 
 --- TYPE CONVERSION ---
-INT            DONE     runtime/core_strings.go:25; testdata/string_test.mb
-FLOAT          DONE     runtime/core_strings.go:55; testdata/string_test.mb
-STR$           DONE     runtime/core_strings.go:16; testdata/string_test.mb
-VAL            DONE     runtime/core_strings.go:311; testdata/string_test.mb
-ASC            DONE     runtime/core_strings.go:267; testdata/string_test.mb
-CHR$           DONE     runtime/core_strings.go:254; testdata/string_test.mb
-BOOL           DONE     runtime/core_strings.go:329; no direct test
+INT            DONE     runtime/strings_conv.go; testdata/string_test.mb
+FLOAT          DONE     runtime/strings_conv.go; testdata/string_test.mb
+STR$           DONE     runtime/strings_conv.go; testdata/string_test.mb
+VAL            DONE     runtime/strings_conv.go; testdata/string_test.mb
+ASC            DONE     runtime/strings_conv.go; testdata/string_test.mb
+CHR$           DONE     runtime/strings_conv.go; testdata/string_test.mb
+BOOL           DONE     runtime/strings_conv.go; no direct test
 FIX            PARTIAL  runtime/mathmod/basic.go:75; returns FLOAT not INT per spec; limited test
-TYPEOF         MISSING  no manifest, no Register
-ISNULL         MISSING  no manifest, no Register
-ISHANDLE       MISSING  no manifest, no Register
-ISTYPE         MISSING  no manifest, no Register
+TYPEOF         DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISNULL         DONE     runtime/strings_check.go; testdata/strings_test.mb (nil and handle 0; int 0 is not null)
+ISHANDLE       DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISTYPE         DONE     runtime/strings_check.go; testdata/strings_test.mb
+DUMP           PARTIAL  runtime/strings_check.go; writes to DiagOut; no strings_test.mb line (side-effect only)
 
 --- STRING ---
-LEN            DONE     runtime/core_strings.go:73; testdata/string_test.mb
-LEFT$          DONE     runtime/core_strings.go:86; testdata/string_test.mb
-RIGHT$         DONE     runtime/core_strings.go:107; testdata/string_test.mb
-MID$           PARTIAL  runtime/core_strings.go:128; 1-based + 3-arg manifest only (no 2-arg overload); test uses 3-arg
-UPPER$         DONE     runtime/core_strings.go:161; testdata/string_test.mb
-LOWER$         DONE     runtime/core_strings.go:171; testdata/string_test.mb
-INSTR          PARTIAL  runtime/core_strings.go:223; 1-based, 0 if not found (spec wanted 0-based -1); no 3-arg manifest overload
-TRIM$          DONE     runtime/core_strings.go:181; testdata/string_test.mb
-LTRIM$         DONE     runtime/core_strings.go:335; no string_test line
-RTRIM$         DONE     runtime/core_strings.go:345; no string_test line
-REPLACE$       DONE     runtime/core_strings.go:205; testdata/string_test.mb
-CONTAINS       DONE     runtime/core_strings.go:191; testdata/string_test.mb
-STARTSWITH     DONE     runtime/core_strings.go:450; no string_test line
-ENDSWITH       DONE     runtime/core_strings.go:464; no string_test line
-SPLIT$         PARTIAL  runtime/core_strings.go:478; no string_test line
-JOIN$          PARTIAL  runtime/core_strings.go:507; no string_test line
-SPACE$         DONE     runtime/core_strings.go:355; no string_test line
-STRING$        DONE     runtime/core_strings.go:371; strmod.STRING$ repeats full string vs first rune (behavior diverges — see DUPLICATES)
-REVERSE$       DONE     runtime/core_strings.go:527; no string_test line
-REPEAT$        DONE     runtime/core_strings.go:541; no string_test line
-COUNT$         DONE     runtime/core_strings.go:561; no string_test line
-LSET$          DONE     runtime/core_strings.go:400; no string_test line
-RSET$          DONE     runtime/core_strings.go:425; no string_test line
-ISALPHA        DONE     runtime/core_strings.go:575; no string_test line
-ISNUMERIC      PARTIAL  runtime/core_strings.go:593; strconv.ParseFloat (allows scientific); strmod.ISNUMERIC is digit-only only
-ISALPHANUM     DONE     runtime/core_strings.go:608; no string_test line
-FORMAT$        DONE     runtime/core_strings.go:626; no string_test line
-BIN$           DONE     runtime/core_strings.go:281; testdata/string_test.mb
-HEX$           DONE     runtime/core_strings.go:291; testdata/string_test.mb
-OCT$           DONE     runtime/core_strings.go:301; no string_test line
+LEN            DONE     runtime/strings_conv.go; testdata/string_test.mb
+LEFT$          DONE     runtime/strings_slice.go; testdata/string_test.mb
+RIGHT$         DONE     runtime/strings_slice.go; testdata/string_test.mb
+MID$           DONE     runtime/strings_slice.go; 0-based pos; 2- and 3-arg; testdata/string_test.mb + strings_test.mb
+UPPER$         DONE     runtime/strings_slice.go; testdata/string_test.mb
+LOWER$         DONE     runtime/strings_slice.go; testdata/string_test.mb
+INSTR          DONE     runtime/strings_search.go; 0-based; -1 if not found; 3-arg overload; testdata/strings_test.mb
+TRIM$          DONE     runtime/strings_search.go; testdata/string_test.mb
+LTRIM$         DONE     runtime/strings_search.go; testdata/strings_test.mb (trim family)
+RTRIM$         DONE     runtime/strings_search.go; same
+REPLACE$       DONE     runtime/strings_search.go; testdata/string_test.mb
+CONTAINS       DONE     runtime/strings_search.go; testdata/strings_test.mb
+STARTSWITH     DONE     runtime/strings_search.go; testdata/strings_test.mb
+ENDSWITH       DONE     runtime/strings_search.go; testdata/strings_test.mb
+SPLIT$         DONE     runtime/strings_split.go; testdata/strings_test.mb (+ ARRAYLEN)
+JOIN$          DONE     runtime/strings_split.go; testdata/strings_test.mb
+SPACE$         DONE     runtime/strings_slice.go; testdata/strings_test.mb
+STRING$        DONE     runtime/strings_slice.go; strmod.STRING$ aligned (first rune only); testdata/strings_test.mb
+REVERSE$       DONE     runtime/strings_slice.go; testdata/strings_test.mb
+REPEAT$        DONE     runtime/strings_slice.go; testdata/strings_test.mb
+COUNT$         DONE     runtime/strings_search.go; testdata/strings_test.mb
+LSET$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
+RSET$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
+ISALPHA        DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISNUMERIC      PARTIAL  runtime/strings_check.go; strconv.ParseFloat (allows scientific); strmod.ISNUMERIC digit-only — see DUPLICATES
+ISALPHANUM     DONE     runtime/strings_check.go; testdata/strings_test.mb
+FORMAT$        DONE     runtime/strings_format.go; testdata/strings_test.mb
+BIN$           DONE     runtime/strings_format.go; testdata/string_test.mb
+HEX$           DONE     runtime/strings_format.go; testdata/string_test.mb
+OCT$           DONE     runtime/strings_format.go; testdata/strings_test.mb
+MKSHORT$       PARTIAL  runtime/strings_format.go; no round-trip line in strings_test.mb
+MKINT$         DONE     runtime/strings_format.go; testdata/strings_test.mb (with CVINT)
+MKLONG$        PARTIAL  runtime/strings_format.go; no strings_test.mb line
+MKFLOAT$       PARTIAL  runtime/strings_format.go; no strings_test.mb line
+MKDOUBLE$      PARTIAL  runtime/strings_format.go; no strings_test.mb line
+CVSHORT        PARTIAL  runtime/strings_format.go; no strings_test.mb line
+CVINT          DONE     runtime/strings_format.go; testdata/strings_test.mb (with MKINT$)
+CVLONG         PARTIAL  runtime/strings_format.go; no strings_test.mb line
+CVFLOAT        PARTIAL  runtime/strings_format.go; no strings_test.mb line
+CVDOUBLE       PARTIAL  runtime/strings_format.go; no strings_test.mb line
 
 --- MATH ---
 SIN            PARTIAL  runtime/mathmod/trig.go; testdata/math_test.mb only
@@ -82,7 +94,7 @@ LOG            PARTIAL  runtime/mathmod/basic.go:47; no dedicated test
 LOG2           PARTIAL  runtime/mathmod/basic.go:48; no dedicated test
 LOG10          PARTIAL  runtime/mathmod/basic.go:49; no dedicated test
 POW            PARTIAL  runtime/mathmod/basic.go:53; no dedicated test
-INT            DONE     runtime/core_strings.go:25 (same as type INT)
+INT            DONE     runtime/strings_conv.go (same name as type INT builtin)
 FIX            PARTIAL  returns float (see above)
 FLOOR          PARTIAL  runtime/mathmod/basic.go:54; no dedicated test
 CEIL           PARTIAL  runtime/mathmod/basic.go:55; no dedicated test
@@ -117,8 +129,8 @@ SWITCH         PARTIAL  runtime/mathmod/logic.go:70; manifest fixed 4-arg; real 
 --- ARRAY (builtins) ---
 DIM            DONE     parser/vm (not manifest builtin); testdata/array_test.mb
 REDIM          PARTIAL  parser/vm; weaker test coverage than DIM
-ERASE          PARTIAL  runtime/mbarray/array_ops.go:29; manifest OK; array_test.mb does not call ERASE
-ARRAYLEN       PARTIAL  runtime/mbarray/array_ops.go; no array_test.mb coverage for builtin
+ERASE          PARTIAL  runtime/mbarray/array_ops.go:29; manifest OK; array_test.mb does not call ERASE; strings_test.mb calls ERASE(StringList)
+ARRAYLEN       DONE     runtime/mbarray/array_ops.go; testdata/strings_test.mb (StringList from SPLIT$)
 ARRAYFILL      PARTIAL  same
 ARRAYCOPY      PARTIAL  same
 ARRAYSORT      PARTIAL  same
@@ -263,8 +275,8 @@ TRY/CATCH/ENDTRY    MISSING  no lexer/parser support found
 ASSERT              PARTIAL  DEBUG.ASSERT exists under different name
 
 --- DEBUG ---
-DUMP                MISSING
-TRACE               PARTIAL  CLI --trace; no DUMP/TRACE builtins
+DUMP                PARTIAL  runtime/strings_check.go; see STRING section DUMP row
+TRACE               PARTIAL  CLI --trace; no TRACE builtin
 PRINTAT             MISSING
 PRINTCOLOR          MISSING
 
@@ -279,16 +291,7 @@ COMMAND$            MISSING
 ARGC                MISSING
 
 --- BINARY PACK/UNPACK ---
-MKSHORT$            MISSING
-MKINT$              MISSING
-MKLONG$             MISSING
-MKFLOAT$            MISSING
-MKDOUBLE$           MISSING
-CVSHORT             MISSING
-CVINT               MISSING
-CVLONG              MISSING
-CVFLOAT             MISSING
-CVDOUBLE            MISSING
+(merged into --- STRING --- above: MK*$ / CV* in runtime/strings_format.go)
 
 ================================================================================
 DUPLICATES (0-C) — same behavior without clear alias comment, or dual implementations
@@ -298,7 +301,7 @@ DUPLICATES (0-C) — same behavior without clear alias comment, or dual implemen
 3) ATN / ATAN — both atan (BASIC compat + modern name); intentional.
 4) ARRAYFREE / ERASE — same handler (intentional).
 5) ARRAYJOINS / ARRAYJOINS$ — same handler (intentional).
-6) strmod.* vs core — strmod registers strmod.LSET$, strmod.FORMAT$, etc. (not manifest keys); parallel logic to core for COUNT$/IS*/FORMAT$ with different STRING$/ISNUMERIC rules — consolidate to one canonical Register per name.
+6) strmod.* vs core — strmod still mirrors some string commands; STRING$ now matches core (first rune). ISNUMERIC rules may still differ (see ISNUMERIC row).
 7) core.BAND vs intended BAND — wrong registry key; should be thin alias BAND → same fn as core.BAND or rename registration.
 8) UTIL.* vs spec FILE*/GET* names — same intended surface, different command keys (needs alias layer).
 
@@ -319,3 +322,5 @@ MISSING:  114
 TOTAL:    284
 
 (Control flow + variables + functions counted as grouped rows; INT counted once under TYPE CONVERSION.)
+NOTE: Totals above are from the original STEP 0 audit; rows in TYPE CONVERSION / STRING / ARRAYLEN /
+BINARY PACK were edited in place — recount if you need exact DONE/PARTIAL/MISSING numbers.
