@@ -61,6 +61,8 @@ type Registry struct {
 	DiagOut io.Writer
 	// StackTraceFn is set by vm.VM.Execute while running; natives can call it for DEBUG.STACKTRACE.
 	StackTraceFn func() string
+	// TerminateVM is set by vm.VM.Execute; QUIT/STOP call it to end the program before normal main return.
+	TerminateVM func()
 	// HostArgs is process argv for ARGC / COMMAND$; nil means use os.Args. A non-nil empty slice is a deliberate empty argv.
 	HostArgs []string
 }

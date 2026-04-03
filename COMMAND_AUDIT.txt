@@ -170,10 +170,10 @@ CASE val1 TO val2           MISSING  range CASE not implemented
 CASE IS > val               MISSING  conditional CASE not implemented
 GOTO/GOSUB/RETURN           PARTIAL  tokens exist; coverage varies
 END                         DONE  token END / OpHalt path
-QUIT                        MISSING  no keyword/native
-STOP                        MISSING  no keyword/native
-WAIT                        MISSING  no keyword/native
-SLEEP                       MISSING  no keyword/native (TIME.GET exists)
+QUIT                        DONE     runtime/core_program.go; ends VM via Registry.TerminateVM (vm sets Halted); testdata/control_quit.mb
+STOP                        DONE     same; testdata/control_stop.mb
+WAIT                        DONE     same handler as SLEEP; testdata/control_sleep_wait.mb
+SLEEP                       DONE     runtime/core_program.go; int arg = ms, float = seconds; testdata/control_sleep_wait.mb
 
 --- FUNCTIONS ---
 FUNCTION/ENDFUNCTION/RETURN  DONE  testdata/func_test.mb

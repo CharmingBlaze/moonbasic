@@ -92,6 +92,9 @@ func (v *VM) Execute(prog *opcode.Program) error {
 	v.Registry.StackTraceFn = func() string { return v.FormatCallStack() }
 	defer func() { v.Registry.StackTraceFn = nil }()
 
+	v.Registry.TerminateVM = func() { v.Halted = true }
+	defer func() { v.Registry.TerminateVM = nil }()
+
 	// Push the <MAIN> chunk as our first call frame.
 	v.CallStack.Push(prog.Main, 0, 0)
 
@@ -125,7 +128,7 @@ func (v *VM) Execute(prog *opcode.Program) error {
 		}
 	}
 
-	if v.StackHygieneDebug && len(v.Stack) != 0 {
+	if v.StackHygieneDebug && len(v.Stack) != 0 && !v.Halted {
 		return fmt.Errorf("[moonBASIC] stack hygiene: program finished with %d value(s) on operand stack (expected 0 after statements; see ARCHITECTURE §6)", len(v.Stack))
 	}
 

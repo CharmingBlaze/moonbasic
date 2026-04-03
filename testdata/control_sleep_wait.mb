@@ -1,0 +1,6 @@
+t0 = TIMER()
+SLEEP(80)
+ASSERT(TIMER() - t0 >= 0.05, "SLEEP ms")
+t1 = TIMER()
+WAIT(60)
+ASSERT(TIMER() - t1 >= 0.03, "WAIT ms")

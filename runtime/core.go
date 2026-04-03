@@ -6,4 +6,5 @@ func (r *Registry) InitCore() {
 	registerConsoleIO(r)
 	registerStringBuiltins(r)
 	registerHostArgv(r)
+	registerProgramControl(r)
 }
