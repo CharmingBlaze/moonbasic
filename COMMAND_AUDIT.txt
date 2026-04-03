@@ -233,17 +233,17 @@ ISFILEDROPPED      DONE     flat → UTIL.ISFILEDROPPED (CGO Raylib)
 GETDROPPEDFILES    PARTIAL  flat + UTIL.*; spec asked array handle — util returns JSON string
 
 --- DATE / TIME ---
-YEAR             MISSING
-MONTH            MISSING
-DAY              MISSING
-HOUR             MISSING
-MINUTE           MISSING
-SECOND           MISSING
-MILLISECOND      MISSING
-TIMESTAMP        MISSING
-DATE$            MISSING
-TIME$            MISSING
-DATETIME$        MISSING
+YEAR             DONE     runtime/time/wallclock.go; local wall clock (time.Now); testdata/calendar_hostargs.mb
+MONTH            DONE     runtime/time/wallclock.go; month 1–12
+DAY              DONE     runtime/time/wallclock.go; day of month
+HOUR             DONE     same (0–23 local)
+MINUTE           DONE     same
+SECOND           DONE     same
+MILLISECOND      DONE     same (0–999 from subsecond)
+TIMESTAMP        DONE     same; Unix seconds as float (FromFloat)
+DATE$            DONE     ISO date "YYYY-MM-DD"
+TIME$            DONE     "HH:MM:SS"
+DATETIME$        DONE     "YYYY-MM-DD HH:MM:SS"
 TICKCOUNT        DONE     runtime/time/module.go; ms since host monotonic start (same origin as TIME.GET); testdata/time_assert_env.mb
 TIMER            DONE     runtime/time/module.go; seconds float (alias of TIME.GET semantics); testdata/time_assert_env.mb
 
@@ -287,8 +287,8 @@ RESTORE             MISSING
 REM                 PARTIAL  lexer comment path — verify REM token if distinct from '
 LET                 PARTIAL  optional LET — verify parser
 ENVIRON$            DONE     runtime/system/host.go flat → SYSTEM.GETENV; testdata/time_assert_env.mb
-COMMAND$            MISSING
-ARGC                MISSING
+COMMAND$            DONE     runtime/core_hostargv.go; COMMAND$() = strings.Join(argv," "); COMMAND$(n) = nth arg; argv from Options.HostArgs or os.Args; testdata/calendar_hostargs.mb
+ARGC                DONE     same; len(argv)
 
 --- BINARY PACK/UNPACK ---
 (merged into --- STRING --- above: MK*$ / CV* in runtime/strings_format.go)

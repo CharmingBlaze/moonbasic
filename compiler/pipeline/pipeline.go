@@ -39,8 +39,8 @@ import (
 	mbphysics2d "moonbasic/runtime/physics2d"
 	mbphysics3d "moonbasic/runtime/physics3d"
 	mbsprite "moonbasic/runtime/sprite"
-	mbsystem "moonbasic/runtime/system"
 	"moonbasic/runtime/strmod"
+	mbsystem "moonbasic/runtime/system"
 	mbtime "moonbasic/runtime/time"
 	"moonbasic/runtime/window"
 	"moonbasic/vm"
@@ -57,6 +57,9 @@ type Options struct {
 
 	// ProfileRecorder when non-nil accumulates per-source-line instruction counts during Execute.
 	ProfileRecorder *vm.ProfileRecorder
+
+	// HostArgs is argv for ARGC / COMMAND$; nil leaves Registry.HostArgs nil so those builtins use os.Args.
+	HostArgs []string
 }
 
 // CompileSource parses, analyzes, and generates code from a string.
@@ -143,6 +146,9 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	h := heap.New()
 	reg := runtime.NewRegistry(h)
 	reg.DiagOut = opts.Out
+	if opts.HostArgs != nil {
+		reg.HostArgs = opts.HostArgs
+	}
 	reg.InitCore() // Register core built-ins (PRINT, etc)
 	reg.RegisterModule(bitwise.NewModule())
 	reg.RegisterModule(strmod.NewModule())

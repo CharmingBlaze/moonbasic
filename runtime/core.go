@@ -5,4 +5,5 @@ package runtime
 func (r *Registry) InitCore() {
 	registerConsoleIO(r)
 	registerStringBuiltins(r)
+	registerHostArgv(r)
 }
