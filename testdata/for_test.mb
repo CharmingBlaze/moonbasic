@@ -1,0 +1,7 @@
+FOR i = 1 TO 5
+PRINT(i)
+NEXT i
+
+FOR i = 10 DOWNTO 2 STEP -2
+PRINT(i)
+NEXT i

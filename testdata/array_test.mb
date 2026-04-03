@@ -1,0 +1,19 @@
+DIM arr(5)
+FOR i = 0 TO 4
+arr(i) = i * 10
+NEXT i
+t = STR$(INT(arr(0)))
+FOR j = 1 TO 4
+t = t + "," + STR$(INT(arr(j)))
+NEXT j
+PRINT(t)
+
+DIM m(3, 3)
+FOR r = 0 TO 2
+FOR c = 0 TO 2
+m(r, c) = r * 10 + c
+NEXT c
+NEXT r
+PRINT(INT(m(2, 0)))
+m(1, 1) = 99
+PRINT(INT(m(1, 1)))

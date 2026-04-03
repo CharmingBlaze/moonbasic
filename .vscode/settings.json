@@ -1,0 +1,10 @@
+{
+  "gopls": {
+    "build.env": {
+      "CGO_ENABLED": "0"
+    },
+    "ui.diagnostic.analyses": {
+      "unusedparams": false
+    }
+  }
+}

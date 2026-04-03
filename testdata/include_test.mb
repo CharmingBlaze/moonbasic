@@ -1,0 +1,3 @@
+INCLUDE "lib/mathhelper.mb"
+PRINT(Square(5))
+PRINT(Cube(3))

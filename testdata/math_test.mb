@@ -1,0 +1,4 @@
+x = SIN(1.0)
+PRINT(INT(x * 100 + 0.5) / 100.0)
+y = MATH.SIN(1.0)
+PRINT(INT(y * 100 + 0.5) / 100.0)

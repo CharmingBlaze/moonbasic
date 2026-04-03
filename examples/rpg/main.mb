@@ -1,0 +1,36 @@
+Window.Open(800, 600, "moonBASIC Mini RPG")
+Window.SetFPS(60)
+font = Font.Load("assets/fonts/dm_sans.ttf")
+px = 5
+py = 5
+gold = 0
+path$ = "examples/rpg/save.json"
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = Time.Delta()
+    spd = INT(120 * dt#)
+    IF spd < 1 THEN spd = 1
+    IF Input.KeyDown(KEY_W) THEN py = py - spd
+    IF Input.KeyDown(KEY_S) THEN py = py + spd
+    IF Input.KeyDown(KEY_A) THEN px = px - spd
+    IF Input.KeyDown(KEY_D) THEN px = px + spd
+    IF px < 0 THEN px = 0
+    IF py < 0 THEN py = 0
+    IF px > 760 THEN px = 760
+    IF py > 560 THEN py = 560
+    IF px > 300 AND px < 500 AND py > 200 AND py < 360 THEN gold = gold + 1
+    Render.Clear(25, 30, 45)
+    Draw.Rectangle(300, 200, 200, 160, 80, 120, 60, 255)
+    Draw.Rectangle(px, py, 18, 18, 255, 210, 120, 255)
+    Render.Frame()
+WEND
+jl = JSON.Make()
+JSON.SetInt(jl, "px", px)
+JSON.SetInt(jl, "py", py)
+JSON.SetInt(jl, "gold", gold)
+out$ = JSON.ToString(jl)
+JSON.Free(jl)
+fh2 = FILE.Open(path$, "w")
+FILE.Write(fh2, out$)
+FILE.Close(fh2)
+Font.Free(font)
+Window.Close()

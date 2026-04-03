@@ -1,0 +1,7 @@
+testdata/file_test_out.txt
+/site/
+/site-ci/
+examples/rpg/save.json
+
+# Build artifacts
+*.exe

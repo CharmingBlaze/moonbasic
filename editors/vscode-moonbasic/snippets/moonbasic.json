@@ -1,0 +1,31 @@
+{
+  "While … WEND": {
+    "prefix": "while",
+    "body": ["WHILE ${1:condition}", "\t$0", "WEND"],
+    "description": "WHILE / WEND loop"
+  },
+  "For … Next": {
+    "prefix": "for",
+    "body": [
+      "FOR ${1:i} = ${2:1} TO ${3:10}${4: STEP ${5:1}}",
+      "\t$0",
+      "NEXT ${1:i}"
+    ],
+    "description": "FOR / NEXT loop"
+  },
+  "Function … EndFunction": {
+    "prefix": "function",
+    "body": ["FUNCTION ${1:name}(${2:args})", "\t$0", "ENDFUNCTION"],
+    "description": "FUNCTION / ENDFUNCTION"
+  },
+  "Select … Case": {
+    "prefix": "select",
+    "body": [
+      "SELECT ${1:expr}",
+      "CASE ${2:value}",
+      "\t$0",
+      "ENDSELECT"
+    ],
+    "description": "SELECT / CASE (add more CASE lines as needed)"
+  }
+}

@@ -1,0 +1,2 @@
+DM Sans (Fontsource distribution, latin-400-normal webfont) — licensed under SIL Open Font License 1.1
+The binary in this folder is the upstream DM Sans face; replace with a .ttf from Google Fonts if you need Raylib LoadFont TTF loading specifically.

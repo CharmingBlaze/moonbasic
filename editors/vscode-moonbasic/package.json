@@ -1,0 +1,69 @@
+{
+  "name": "vscode-moonbasic",
+  "displayName": "moonBASIC",
+  "description": "Syntax highlighting, snippets, and LSP for moonBASIC (.mb / .mbc).",
+  "version": "0.1.0",
+  "publisher": "moonbasic",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "moonbasic",
+        "aliases": ["moonBASIC", "MoonBASIC"],
+        "extensions": [".mb"],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "moonbasic-bytecode",
+        "aliases": ["moonBASIC bytecode"],
+        "extensions": [".mbc"]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "moonbasic",
+        "scopeName": "source.moonbasic",
+        "path": "./syntaxes/moonbasic.tmLanguage.json"
+      },
+      {
+        "language": "moonbasic-bytecode",
+        "scopeName": "source.moonbasic",
+        "path": "./syntaxes/moonbasic.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "moonbasic",
+        "path": "./snippets/moonbasic.json"
+      }
+    ],
+    "configuration": {
+      "title": "moonBASIC",
+      "properties": {
+        "moonbasic.languageServerPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the moonbasic executable. When empty, the server is started as `moonbasic` from PATH."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}

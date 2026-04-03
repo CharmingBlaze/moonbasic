@@ -1,0 +1,45 @@
+//go:build !cgo
+
+package mbcollision
+
+import (
+	"fmt"
+
+	"moonbasic/runtime"
+	"moonbasic/vm/value"
+)
+
+const hint = "RAY/BBOX/BSPHERE collision natives require CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
+
+// Register implements runtime.Module.
+func (m *Module) Register(reg runtime.Registrar) {
+	stub := func(name string) runtime.BuiltinFn {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			_ = rt
+			return value.Nil, fmt.Errorf("%s: %s", name, hint)
+		}
+	}
+	names := []string{
+		"RAY.MAKE", "RAY.FREE",
+		"RAY.HITSPHERE_HIT", "RAY.HITSPHERE_DISTANCE", "RAY.HITSPHERE_POINTX", "RAY.HITSPHERE_POINTY", "RAY.HITSPHERE_POINTZ",
+		"RAY.HITSPHERE_NORMALX", "RAY.HITSPHERE_NORMALY", "RAY.HITSPHERE_NORMALZ",
+		"RAY.HITBOX_HIT", "RAY.HITBOX_DISTANCE", "RAY.HITBOX_POINTX", "RAY.HITBOX_POINTY", "RAY.HITBOX_POINTZ",
+		"RAY.HITBOX_NORMALX", "RAY.HITBOX_NORMALY", "RAY.HITBOX_NORMALZ",
+		"RAY.HITPLANE_HIT", "RAY.HITPLANE_DISTANCE", "RAY.HITPLANE_POINTX", "RAY.HITPLANE_POINTY", "RAY.HITPLANE_POINTZ",
+		"RAY.HITPLANE_NORMALX", "RAY.HITPLANE_NORMALY", "RAY.HITPLANE_NORMALZ",
+		"RAY.HITTRIANGLE_HIT", "RAY.HITTRIANGLE_DISTANCE", "RAY.HITTRIANGLE_POINTX", "RAY.HITTRIANGLE_POINTY", "RAY.HITTRIANGLE_POINTZ",
+		"RAY.HITTRIANGLE_NORMALX", "RAY.HITTRIANGLE_NORMALY", "RAY.HITTRIANGLE_NORMALZ",
+		"RAY.HITMESH_HIT", "RAY.HITMESH_DISTANCE", "RAY.HITMESH_POINTX", "RAY.HITMESH_POINTY", "RAY.HITMESH_POINTZ",
+		"RAY.HITMESH_NORMALX", "RAY.HITMESH_NORMALY", "RAY.HITMESH_NORMALZ",
+		"RAY.HITMODEL_HIT", "RAY.HITMODEL_DISTANCE", "RAY.HITMODEL_POINTX", "RAY.HITMODEL_POINTY", "RAY.HITMODEL_POINTZ",
+		"RAY.HITMODEL_NORMALX", "RAY.HITMODEL_NORMALY", "RAY.HITMODEL_NORMALZ",
+		"BBOX.MAKE", "BBOX.FROMMODEL", "BBOX.CHECK", "BBOX.CHECKSPHERE", "BBOX.FREE",
+		"BSPHERE.MAKE", "BSPHERE.CHECK", "BSPHERE.CHECKBOX", "BSPHERE.FREE",
+	}
+	for _, n := range names {
+		reg.Register(n, "collision", stub(n))
+	}
+}
+
+// Shutdown implements runtime.Module.
+func (m *Module) Shutdown() {}

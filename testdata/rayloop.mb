@@ -1,0 +1,7 @@
+; Smoke: open window, color loop, close (requires CGO + Raylib)
+WINDOW.OPEN(800, 600, "moonBASIC")
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(30, 30, 40)
+    RENDER.FRAME()
+WEND
+WINDOW.CLOSE()

@@ -1,0 +1,7 @@
+f = FILE.OPEN("testdata/file_test_out.txt", "w")
+FILE.WRITE(f, "hello")
+FILE.CLOSE(f)
+g = FILE.OPEN("testdata/file_test_out.txt", "r")
+PRINT(FILE.READLINE(g))
+PRINT(FILE.EOF(g))
+FILE.CLOSE(g)

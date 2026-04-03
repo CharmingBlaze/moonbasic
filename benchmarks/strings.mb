@@ -1,0 +1,8 @@
+n = 8000
+i = 0
+s$ = ""
+WHILE i < n
+    s$ = s$ + "x"
+    i = i + 1
+WEND
+PRINT("MOONBENCH ops=" + STR$(n) + " len=" + STR$(LEN(s$)))

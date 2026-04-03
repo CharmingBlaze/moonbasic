@@ -1,0 +1,7 @@
+{
+  "name": "demo_extra",
+  "version": "0.1.0",
+  "description": "Tiny sample library for package manager tests",
+  "moonbasic": ">=1.2.0",
+  "entry_mbc": "demo_extra.mbc"
+}

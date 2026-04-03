@@ -1,0 +1,7 @@
+FUNCTION Square(n)
+RETURN(n * n)
+ENDFUNCTION
+
+FUNCTION Cube(n)
+RETURN(n * n * n)
+ENDFUNCTION

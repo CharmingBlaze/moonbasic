@@ -1,0 +1,31 @@
+Net.Start()
+port = 27777
+server = Net.CreateServer(port, 32)
+done = 0
+WHILE done = 0
+    Net.Update(server)
+    ev = Net.Receive(server)
+    IF ev <> 0 THEN
+        ty = Event.Type(ev)
+        IF ty = 3 THEN
+            raw = Event.Data(ev)
+            rp = Event.Peer(ev)
+            jin = JSON.Parse(raw)
+            IF JSON.GetString(jin, "op") = "hello" THEN
+                jout = JSON.Make()
+                JSON.SetString(jout, "op", "ack")
+                JSON.SetString(jout, "msg", "ok")
+                out$ = JSON.ToString(jout)
+                Peer.Send(rp, 0, out$, 1)
+                JSON.Free(jout)
+            ENDIF
+            JSON.Free(jin)
+        ENDIF
+        IF ty = 2 THEN
+            done = 1
+        ENDIF
+        Event.Free(ev)
+    ENDIF
+WEND
+Net.Close(server)
+Net.Stop()

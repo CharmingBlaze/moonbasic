@@ -1,0 +1,8 @@
+ops = 2000000
+i = 0
+acc = 0
+WHILE i < ops
+    acc = acc + (i - (i / 100) * 100)
+    i = i + 1
+WEND
+PRINT("MOONBENCH ops=" + STR$(ops) + " acc=" + STR$(acc))

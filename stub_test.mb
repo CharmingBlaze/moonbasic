@@ -1,0 +1,6 @@
+; moonBASIC Stub Test
+; Validates that manifested but unimplemented commands return a stub error at runtime
+
+pRiNt("--- Attempting Window.Open (Manifested but Unimplemented) ---")
+Window.Open(800, 600, "Stub Test")
+pRiNt("This line should NOT be reached!")

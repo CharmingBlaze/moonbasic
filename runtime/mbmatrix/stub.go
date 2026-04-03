@@ -1,0 +1,43 @@
+//go:build !cgo
+
+package mbmatrix
+
+import (
+	"fmt"
+
+	"moonbasic/runtime"
+	"moonbasic/vm/value"
+)
+
+const hint = "MAT4/VEC3/VEC2/COLOR natives require CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
+
+// Register implements runtime.Module.
+func (m *Module) Register(reg runtime.Registrar) {
+	stub := func(name string) runtime.BuiltinFn {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			_ = rt
+			return value.Nil, fmt.Errorf("%s: %s", name, hint)
+		}
+	}
+	names := []string{
+		"MAT4.IDENTITY", "MAT4.FROMROTATION", "MAT4.ROTATION", "MAT4.SETROTATION", "MAT4.FROMSCALE", "MAT4.FROMTRANSLATION",
+		"MAT4.LOOKAT", "MAT4.PERSPECTIVE", "MAT4.ORTHO", "MAT4.MULTIPLY", "MAT4.INVERSE", "MAT4.TRANSPOSE",
+		"MAT4.GETELEMENT", "MAT4.TRANSFORMX", "MAT4.TRANSFORMY", "MAT4.TRANSFORMZ", "MAT4.FREE",
+		"VEC3.MAKE", "VEC3.FREE", "VEC3.X", "VEC3.Y", "VEC3.Z", "VEC3.SET",
+		"VEC3.ADD", "VEC3.SUB", "VEC3.MUL", "VEC3.DIV", "VEC3.DOT", "VEC3.CROSS", "VEC3.LENGTH", "VEC3.NORMALIZE",
+		"VEC3.LERP", "VEC3.DISTANCE", "VEC3.REFLECT", "VEC3.NEGATE", "VEC3.EQUALS",
+		"VEC2.MAKE", "VEC2.FREE", "VEC2.X", "VEC2.Y", "VEC2.SET",
+		"VEC2.ADD", "VEC2.SUB", "VEC2.MUL", "VEC2.LENGTH", "VEC2.NORMALIZE", "VEC2.LERP", "VEC2.DISTANCE",
+		"VEC2.ANGLE", "VEC2.ROTATE",
+		"COLOR.RGB", "COLOR.RGBA", "COLOR.HEX", "COLOR.HSV", "COLOR.FREE",
+		"COLOR.R", "COLOR.G", "COLOR.B", "COLOR.A",
+		"COLOR.LERP", "COLOR.FADE", "COLOR.TOHSVX", "COLOR.TOHSVY", "COLOR.TOHSVZ", "COLOR.TOHEX",
+		"COLOR.INVERT", "COLOR.CONTRAST", "COLOR.BRIGHTNESS",
+	}
+	for _, n := range names {
+		reg.Register(n, "matrix", stub(n))
+	}
+}
+
+// Shutdown implements runtime.Module.
+func (m *Module) Shutdown() {}

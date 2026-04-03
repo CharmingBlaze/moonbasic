@@ -1,0 +1,16 @@
+; moonBASIC Loop Test
+; Validates FOR and REPEAT/UNTIL control flow
+
+pRiNt("--- FOR Loop Test (1 TO 5) ---")
+FOR i = 1 TO 5
+    pRiNt("Iteration: ", i)
+NEXT
+
+pRiNt("--- REPEAT/UNTIL Test ---")
+count = 0
+REPEAT
+    count = count + 1
+    pRiNt("Count is: ", count)
+UNTIL count = 3
+
+pRiNt("--- Loop Test DONE ---")

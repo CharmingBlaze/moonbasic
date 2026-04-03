@@ -1,0 +1,30 @@
+IF NOT Window.Open(960, 540, "moonBASIC spinning cube") THEN
+    PRINT("Could not create window")
+    END
+ENDIF
+Window.SetFPS(60)
+
+cam = Camera.Make()
+cam.SetPos(0, 2, 8)
+cam.SetTarget(0, 0, 0)
+cam.SetFOV(45)
+
+cubeMesh = Mesh.MakeCube(2, 2, 2)
+cubeMat = Material.MakeDefault()
+Material.SetColor(cubeMat, MATERIAL_MAP_ALBEDO, 130, 200, 255, 255)
+
+rot = Mat4.Identity()
+angle# = 0
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = Time.Delta()
+    angle# = angle# + 1.1 * dt#
+    Mat4.SetRotation(rot, angle#, angle# * 0.65, angle# * 0.35)
+
+    Render.Clear(12, 14, 22)
+    cam.Begin()
+        Mesh.Draw(cubeMesh, cubeMat, rot)
+    cam.End()
+    Render.Frame()
+WEND
+
+Window.Close()

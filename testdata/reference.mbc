@@ -1,0 +1,85 @@
+Window.Open(1280, 720, "moonBASIC Demo")
+Window.SetFPS(60)
+
+Render.SetSkybox("assets/sky/sunset.ktx2")
+Render.SetIBLIntensity(1.0)
+Render.SetIBLSplit(0.6, 1.2)
+Render.SetShadowMapSize(2048)
+Render.SetAmbient(0.1, 0.1, 0.2)
+
+cam = Camera.Make()
+cam.SetPos(0, 5, -12)
+cam.SetRot(20, 0, 0)
+cam.SetFOV(75)
+
+sun = Light.Make("directional")
+sun.SetDir(-1, -2, -1)
+sun.SetIntensity(1.0)
+sun.SetShadow(TRUE)
+
+terrain = Terrain.Make(256, 256)
+terrain.FillPerlin(0.03, 20)
+terrain.SetLayer(0, Texture.Load("assets/grass.png"))
+terrain.SetLayer(1, Texture.Load("assets/rock.png"))
+terrain.SetSplat(Texture.Load("assets/splat.png"))
+terrain.SetLayerTile(4.0)
+
+robot = Model.Load("assets/robot.mdl")
+robot.SetTexture(Texture.Load("assets/robot.png"))
+
+Physics3D.Start()
+Physics3D.SetGravity(0, -9.8, 0)
+
+ground = Body3D.Make("static")
+ground.AddBox(100, 1, 100)
+ground.SetPos(0, -0.5, 0)
+
+player = Body3D.Make("dynamic")
+player.AddCapsule(0.4, 1.8)
+player.SetPos(0, 5, 0)
+player.SetMass(80)
+
+Physics3D.OnCollision(player, ground, "OnLand")
+
+mus = Audio.LoadMusic("assets/theme.ogg")
+mus.Play()
+
+WHILE NOT Input.KeyDown(KEY_ESCAPE)
+
+    dt# = Time.Delta()
+
+    IF Input.KeyDown(KEY_W) THEN cam.Move(0, 0,  5.0 * dt#)
+    IF Input.KeyDown(KEY_S) THEN cam.Move(0, 0, -5.0 * dt#)
+    IF Input.KeyDown(KEY_A) THEN cam.Move(-5.0 * dt#, 0, 0)
+    IF Input.KeyDown(KEY_D) THEN cam.Move( 5.0 * dt#, 0, 0)
+
+    IF Input.KeyPressed(KEY_SPACE) THEN
+        player.ApplyImpulse(0, 600, 0)
+    ENDIF
+
+    Physics3D.Step()
+    mus.Update()
+
+    robot.SetPos(player.X(), player.Y(), player.Z())
+    robot.Rotate(0, 45 * dt#, 0)
+
+    y# = terrain.Height(cam.X(), cam.Z())
+    cam.SetY(y# + 1.8)
+
+    Render.Clear(10, 10, 20)
+    terrain.Draw()
+    robot.Draw()
+    Render.Frame()
+
+WEND
+
+robot.Free()
+terrain.Free()
+sun.Free()
+mus.Free()
+Physics3D.Stop()
+Window.Close()
+
+FUNCTION OnLand(a, b)
+    Audio.Play(landSnd)
+ENDFUNCTION

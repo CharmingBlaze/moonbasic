@@ -1,0 +1,9 @@
+Window.Open(1280, 720, "moonBASIC")
+Window.SetFPS(60)
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(20, 20, 30)
+    Render.Frame()
+WEND
+
+Window.Close()

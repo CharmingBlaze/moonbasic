@@ -1,0 +1,49 @@
+Net.Start()
+port = 27777
+client = Net.CreateClient()
+peer = Net.Connect(client, "127.0.0.1", port)
+connected = 0
+sent = 0
+gotack = 0
+iter = 0
+WHILE gotack = 0 AND iter < 5000
+    iter = iter + 1
+    Net.Update(client)
+    ev = Net.Receive(client)
+    IF ev <> 0 THEN
+        ty = Event.Type(ev)
+        IF ty = 1 THEN
+            connected = 1
+        ENDIF
+        IF ty = 3 THEN
+            raw = Event.Data(ev)
+            jr = JSON.Parse(raw)
+            IF JSON.GetString(jr, "op") = "ack" THEN
+                gotack = 1
+            ENDIF
+            JSON.Free(jr)
+        ENDIF
+        Event.Free(ev)
+    ENDIF
+    IF connected = 1 AND sent = 0 THEN
+        j = JSON.Make()
+        JSON.SetString(j, "op", "hello")
+        JSON.SetString(j, "from", "client")
+        s$ = JSON.ToString(j)
+        Peer.Send(peer, 0, s$, 1)
+        JSON.Free(j)
+        sent = 1
+    ENDIF
+WEND
+Peer.Disconnect(peer)
+iter2 = 0
+WHILE iter2 < 200
+    iter2 = iter2 + 1
+    Net.Update(client)
+    ev = Net.Receive(client)
+    IF ev <> 0 THEN
+        Event.Free(ev)
+    ENDIF
+WEND
+Net.Close(client)
+Net.Stop()

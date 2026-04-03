@@ -1,0 +1,22 @@
+Window.Open(320, 240, "bench draw")
+Window.SetFPS(0)
+frames = 120
+f = 0
+WHILE f < frames
+    Render.Clear(0, 0, 0)
+    row = 0
+    WHILE row < 13
+        col = 0
+        WHILE col < 16
+            k = row * 16 + col
+            Draw.Rectangle(col * 18, row * 14, 14, 10, k, 100, 150, 255)
+            col = col + 1
+        WEND
+        row = row + 1
+    WEND
+    Render.Frame()
+    f = f + 1
+WEND
+Window.Close()
+fd = frames * 208
+PRINT("MOONBENCH frames=" + STR$(frames) + " draws=" + STR$(fd))

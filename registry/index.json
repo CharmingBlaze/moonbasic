@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "demo_extra": {
+      "version": "0.1.0",
+      "url": "https://example.com/demo_extra-0.1.0.zip",
+      "sha256": ""
+    }
+  }
+}

@@ -1,0 +1,18 @@
+; Milestone 6: Handle-based Types Verification
+TYPE Player
+  FIELD x, y, name$
+END TYPE
+
+p = NEW(Player)
+p.x = 100
+p.y = 200
+p.name = "MoonHero"
+
+PRINT("--- moonBASIC Type Test ---")
+PRINT("Type Instance: Player")
+PRINT("X Coordinate:  ", p.x)
+PRINT("Y Coordinate:  ", p.y)
+PRINT("Player Name:   ", p.name)
+
+DELETE(p)
+PRINT("Cleanup Stage: Done")

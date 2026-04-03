@@ -1,0 +1,62 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "moonBASIC",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#floats" },
+    { "include": "#ints" },
+    { "include": "#namespaceCall" },
+    { "include": "#keywords" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.semicolon.moonbasic",
+      "begin": ";",
+      "end": "$"
+    },
+    "strings": {
+      "name": "string.quoted.double.moonbasic",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.moonbasic",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "floats": {
+      "name": "constant.numeric.float.moonbasic",
+      "match": "(?i)(?<![\\w.])(-)?\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+    },
+    "ints": {
+      "name": "constant.numeric.integer.moonbasic",
+      "match": "(?i)(?<![\\w.])(-)?\\d+\\b"
+    },
+    "namespaceCall": {
+      "name": "entity.name.function.moonbasic",
+      "match": "(?i)[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.moonbasic",
+          "match": "(?i)\\b(IF|THEN|ELSE|ELSEIF|ENDIF|WHILE|WEND|ENDWHILE|FOR|TO|DOWNTO|STEP|NEXT|REPEAT|UNTIL|SELECT|CASE|DEFAULT|ENDSELECT|FUNCTION|ENDFUNCTION|RETURN|TYPE|FIELD|ENDTYPE|NEW|DELETE|EACH|GOTO|GOSUB|DIM|REDIM|PRESERVE|LOCAL|GLOBAL|CONST|STATIC|SWAP|ERASE|INCLUDE|END)\\b"
+        },
+        {
+          "name": "keyword.operator.word.moonbasic",
+          "match": "(?i)\\b(AND|OR|NOT|XOR|MOD|TRUE|FALSE|NULL|PRINT)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.moonbasic", "match": "<>|<=|>=|\\+=|-=|\\*=|/=" },
+        { "name": "keyword.operator.moonbasic", "match": "[=<>+\\-*/^]" }
+      ]
+    }
+  },
+  "scopeName": "source.moonbasic"
+}

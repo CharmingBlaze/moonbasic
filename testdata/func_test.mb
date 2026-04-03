@@ -1,0 +1,19 @@
+FUNCTION Add(a, b)
+RETURN a + b
+ENDFUNCTION
+
+FUNCTION Greet()
+RETURN "Hello moonBASIC"
+ENDFUNCTION
+
+FUNCTION Factorial(n)
+IF n <= 1 THEN
+RETURN 1
+ENDIF
+RETURN n * Factorial(n - 1)
+ENDFUNCTION
+
+PRINT(Add(2, 5))
+PRINT(Greet())
+PRINT(Factorial(5))
+PRINT(Factorial(10))

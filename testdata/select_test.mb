@@ -1,0 +1,9 @@
+x = 2
+SELECT x
+CASE 1
+PRINT("one")
+CASE 2
+PRINT("two")
+DEFAULT
+PRINT("default hit")
+ENDSELECT
