@@ -89,7 +89,7 @@ func (m *Module) arrayFill(rt *runtime.Runtime, args ...value.Value) (value.Valu
 			return value.Nil, err
 		}
 	case heap.ArrayKindBool:
-		b := value.Truthy(args[1], rt.Prog.StringTable)
+		b := value.Truthy(args[1], rt.Prog.StringTable, rt.Heap)
 		f := 0.0
 		if b {
 			f = 1
@@ -142,21 +142,18 @@ func (m *Module) arraySort(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	desc := false
+	var pool []string
+	if rt.Prog != nil {
+		pool = rt.Prog.StringTable
+	}
 	if len(args) == 2 && args[1].Kind == value.KindString {
-		s := strings.ToUpper(rt.Prog.StringTable[args[1].IVal])
+		s := strings.ToUpper(value.StringAt(args[1], pool, rt.Heap))
 		desc = s == "DESC" || s == "DESCENDING"
 	}
-	pool := rt.Prog.StringTable
 	if a.Kind == heap.ArrayKindString {
 		less := func(i, j int32) bool {
-			si := ""
-			sj := ""
-			if int(i) >= 0 && int(i) < len(pool) {
-				si = pool[i]
-			}
-			if int(j) >= 0 && int(j) < len(pool) {
-				sj = pool[j]
-			}
+			si := value.StringAt(value.FromStringIndex(i), pool, rt.Heap)
+			sj := value.StringAt(value.FromStringIndex(j), pool, rt.Heap)
 			return si < sj
 		}
 		if err := a.Sort1D(desc, less); err != nil {
@@ -199,7 +196,7 @@ func (m *Module) arrayFind(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		fi := a.FindStringIndex(want)
 		return value.FromInt(int64(fi)), nil
 	case heap.ArrayKindBool:
-		want := value.Truthy(args[1], rt.Prog.StringTable)
+		want := value.Truthy(args[1], rt.Prog.StringTable, rt.Heap)
 		wf := 0.0
 		if want {
 			wf = 1
@@ -244,7 +241,7 @@ func (m *Module) arrayPush(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		}
 		return value.Nil, a.Push1D(0, int32(args[1].IVal), false)
 	case heap.ArrayKindBool:
-		b := value.Truthy(args[1], rt.Prog.StringTable)
+		b := value.Truthy(args[1], rt.Prog.StringTable, rt.Heap)
 		f := 0.0
 		if b {
 			f = 1
@@ -322,7 +319,7 @@ func (m *Module) arrayUnshift(rt *runtime.Runtime, args ...value.Value) (value.V
 		}
 		return value.Nil, a.Unshift1D(0, int32(args[1].IVal))
 	case heap.ArrayKindBool:
-		b := value.Truthy(args[1], rt.Prog.StringTable)
+		b := value.Truthy(args[1], rt.Prog.StringTable, rt.Heap)
 		f := 0.0
 		if b {
 			f = 1

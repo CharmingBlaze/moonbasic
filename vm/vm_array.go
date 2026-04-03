@@ -33,8 +33,8 @@ func (v *VM) doArrayMake(i opcode.Instruction) error {
 	}
 	kind := arrayKindFromFlags(i.Flags)
 	emptyStr := int32(0)
-	if kind == heap.ArrayKindString && v.Program != nil {
-		emptyStr = v.Program.InternString("")
+	if kind == heap.ArrayKindString {
+		emptyStr = v.Heap.Intern("")
 	}
 	arr, err := heap.NewArrayOfKind(dims, kind, emptyStr)
 	if err != nil {
@@ -142,7 +142,7 @@ func (v *VM) doArraySet(i opcode.Instruction) error {
 			return v.runtimeError(err.Error())
 		}
 	case heap.ArrayKindBool:
-		b := value.Truthy(val, v.Program.StringTable)
+		b := value.Truthy(val, v.Program.StringTable, v.Heap)
 		f := 0.0
 		if b {
 			f = 1

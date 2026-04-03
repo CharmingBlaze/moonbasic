@@ -205,12 +205,7 @@ func dumpArrayLine(rt *Runtime, a *heap.Array) string {
 	case heap.ArrayKindString:
 		for i := 0; i < max; i++ {
 			idx := a.Strings[i]
-			s := value.StringAt(value.FromStringIndex(idx), pool)
-			if s == "" && rt.Heap != nil {
-				if hs, ok := rt.Heap.GetString(idx); ok {
-					s = hs
-				}
-			}
+			s := value.StringAt(value.FromStringIndex(idx), pool, rt.Heap)
 			parts = append(parts, strconv.Quote(s))
 		}
 	}

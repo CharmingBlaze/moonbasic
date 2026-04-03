@@ -77,12 +77,13 @@ func (v *VM) doArithmetic(op opcode.OpCode) error {
 	right := v.pop()
 	left := v.pop()
 	pool := v.Program.StringTable
+	h := v.Heap
 	if left.Kind == value.KindString || right.Kind == value.KindString {
 		if op != opcode.OpAdd {
 			return v.runtimeError("only addition is defined for strings")
 		}
-		s := value.StringAt(left, pool) + value.StringAt(right, pool)
-		v.push(value.FromStringIndex(v.Program.InternString(s)))
+		s := value.StringAt(left, pool, h) + value.StringAt(right, pool, h)
+		v.push(value.FromStringIndex(v.Heap.Intern(s)))
 		return nil
 	}
 	var res value.Value
@@ -124,32 +125,45 @@ func (v *VM) doComparison(op opcode.OpCode) error {
 	right := v.pop()
 	left := v.pop()
 	pool := v.Program.StringTable
+	h := v.Heap
 
 	switch op {
 	case opcode.OpEq:
-		v.push(value.FromBool(value.Equal(left, right)))
+		var eq bool
+		if left.Kind == value.KindString && right.Kind == value.KindString {
+			eq = value.EqualStringValue(left, right, pool, h)
+		} else {
+			eq = value.Equal(left, right)
+		}
+		v.push(value.FromBool(eq))
 	case opcode.OpNeq:
-		v.push(value.FromBool(!value.Equal(left, right)))
+		var eq bool
+		if left.Kind == value.KindString && right.Kind == value.KindString {
+			eq = value.EqualStringValue(left, right, pool, h)
+		} else {
+			eq = value.Equal(left, right)
+		}
+		v.push(value.FromBool(!eq))
 	case opcode.OpLt:
-		res, err := value.Less(left, right, pool)
+		res, err := value.Less(left, right, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
 		v.push(value.FromBool(res))
 	case opcode.OpGt:
-		res, err := value.Less(right, left, pool)
+		res, err := value.Less(right, left, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
 		v.push(value.FromBool(res))
 	case opcode.OpLte:
-		res, err := value.Less(right, left, pool)
+		res, err := value.Less(right, left, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
 		v.push(value.FromBool(!res))
 	case opcode.OpGte:
-		res, err := value.Less(left, right, pool)
+		res, err := value.Less(left, right, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
@@ -160,18 +174,19 @@ func (v *VM) doComparison(op opcode.OpCode) error {
 
 func (v *VM) doLogic(op opcode.OpCode) error {
 	pool := v.Program.StringTable
+	h := v.Heap
 	switch op {
 	case opcode.OpNot:
-		v.push(value.FromBool(!value.Truthy(v.pop(), pool)))
+		v.push(value.FromBool(!value.Truthy(v.pop(), pool, h)))
 	case opcode.OpAnd:
 		r, l := v.pop(), v.pop()
-		v.push(value.FromBool(value.Truthy(l, pool) && value.Truthy(r, pool)))
+		v.push(value.FromBool(value.Truthy(l, pool, h) && value.Truthy(r, pool, h)))
 	case opcode.OpOr:
 		r, l := v.pop(), v.pop()
-		v.push(value.FromBool(value.Truthy(l, pool) || value.Truthy(r, pool)))
+		v.push(value.FromBool(value.Truthy(l, pool, h) || value.Truthy(r, pool, h)))
 	case opcode.OpXor:
 		r, l := v.pop(), v.pop()
-		v.push(value.FromBool(value.Truthy(l, pool) != value.Truthy(r, pool)))
+		v.push(value.FromBool(value.Truthy(l, pool, h) != value.Truthy(r, pool, h)))
 	}
 	return nil
 }
@@ -179,8 +194,9 @@ func (v *VM) doLogic(op opcode.OpCode) error {
 func (v *VM) doConcat() error {
 	r, l := v.pop(), v.pop()
 	pool := v.Program.StringTable
-	s := value.StringAt(l, pool) + value.StringAt(r, pool)
-	v.push(value.FromStringIndex(v.Program.InternString(s)))
+	h := v.Heap
+	s := value.StringAt(l, pool, h) + value.StringAt(r, pool, h)
+	v.push(value.FromStringIndex(v.Heap.Intern(s)))
 	return nil
 }
 

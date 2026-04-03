@@ -28,6 +28,10 @@ PRINT(TYPEOF(42))
 PRINT(TYPEOF(3.14))
 PRINT(TYPEOF("hi"))
 PRINT(ISNULL(NULL))
+PRINT("x" + LEFT$("abc", 1))
+IF LEFT$("abc", 1) = "a" THEN
+PRINT("heap_eq")
+ENDIF
 arr = SPLIT$("a,b,c", ",")
 PRINT(ARRAYLEN(arr))
 PRINT(JOIN$(arr, "-"))

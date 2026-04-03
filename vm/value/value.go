@@ -41,9 +41,16 @@ type Value struct {
 // Global Nil value.
 var Nil = Value{Kind: KindNil}
 
-// FromStringIndex builds a string value from a program string-pool index.
+// FromStringIndex builds a string value from a string-table index (program pool
+// and/or heap after VM seeding; see value.StringAt).
 func FromStringIndex(idx int32) Value {
 	return Value{Kind: KindString, IVal: int64(idx)}
+}
+
+// StringGetter resolves KindString indices that are outside the program pool
+// (e.g. strings interned at runtime via Heap.Intern). Optional; nil means pool-only.
+type StringGetter interface {
+	GetString(idx int32) (string, bool)
 }
 
 func FromInt(v int64) Value    { return Value{Kind: KindInt, IVal: v} }
@@ -69,20 +76,26 @@ func (v Value) StringIndex() int32 {
 	return int32(v.IVal)
 }
 
-// StringAt resolves KindString using the program pool; other kinds use String().
-func StringAt(v Value, pool []string) string {
+// StringAt resolves KindString using the program pool first, then heap (when heap is non-nil).
+// Other kinds use String().
+func StringAt(v Value, pool []string, heap StringGetter) string {
 	if v.Kind != KindString {
 		return v.String()
 	}
 	i := int32(v.IVal)
-	if i < 0 || int(i) >= len(pool) {
-		return ""
+	if i >= 0 && int(i) < len(pool) {
+		return pool[i]
 	}
-	return pool[i]
+	if heap != nil {
+		if s, ok := heap.GetString(i); ok {
+			return s
+		}
+	}
+	return ""
 }
 
-// Truthy returns the BASIC boolean truth value. strPool is required for KindString.
-func Truthy(v Value, strPool []string) bool {
+// Truthy returns the BASIC boolean truth value. strPool and heap are used for KindString.
+func Truthy(v Value, strPool []string, heap StringGetter) bool {
 	switch v.Kind {
 	case KindNil:
 		return false
@@ -91,7 +104,7 @@ func Truthy(v Value, strPool []string) bool {
 	case KindFloat:
 		return v.FVal != 0
 	case KindString:
-		return StringAt(v, strPool) != ""
+		return StringAt(v, strPool, heap) != ""
 	case KindBool:
 		return v.IVal != 0
 	default:
@@ -268,7 +281,8 @@ func Neg(v Value) (Value, error) {
 	}
 }
 
-// Equal compares two values. KindString uses pool index equality (same intern table).
+// Equal compares two values. KindString uses index identity (same intern slot), not text.
+// For lexical equality across pool vs heap indices, use EqualStringValue.
 func Equal(a, b Value) bool {
 	if a.Kind == KindFloat || b.Kind == KindFloat {
 		af, aok := a.ToFloat()
@@ -287,8 +301,16 @@ func Equal(a, b Value) bool {
 	return false
 }
 
-// Less compares values; strPool is used for KindString lexical order.
-func Less(a, b Value, strPool []string) (bool, error) {
+// EqualStringValue returns whether two KindString values denote the same text.
+func EqualStringValue(a, b Value, pool []string, heap StringGetter) bool {
+	if a.Kind != KindString || b.Kind != KindString {
+		return false
+	}
+	return StringAt(a, pool, heap) == StringAt(b, pool, heap)
+}
+
+// Less compares values; strPool and heap are used for KindString lexical order.
+func Less(a, b Value, strPool []string, heap StringGetter) (bool, error) {
 	if a.Kind == KindFloat || b.Kind == KindFloat {
 		af, aok := a.ToFloat()
 		bf, bok := b.ToFloat()
@@ -302,7 +324,7 @@ func Less(a, b Value, strPool []string) (bool, error) {
 		return ai < bi, nil
 	}
 	if a.Kind == KindString && b.Kind == KindString {
-		return StringAt(a, strPool) < StringAt(b, strPool), nil
+		return StringAt(a, strPool, heap) < StringAt(b, strPool, heap), nil
 	}
 	return false, fmt.Errorf("cannot compare %s and %s", a.TypeName(), b.TypeName())
 }

@@ -113,7 +113,7 @@ func (m *Module) debugAssert(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, runtime.Errorf("DEBUG.ASSERT expects (cond?, msg$)")
 	}
 	pool := strPool()
-	if !value.Truthy(args[0], pool) {
+	if !value.Truthy(args[0], pool, rt.Heap) {
 		msg, err := rt.ArgString(args, 1)
 		if err != nil {
 			return value.Nil, err

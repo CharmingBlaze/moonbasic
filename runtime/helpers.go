@@ -68,7 +68,7 @@ func (rt *Runtime) ArgBool(args []value.Value, index int) (bool, error) {
 	if rt.Prog != nil {
 		pool = rt.Prog.StringTable
 	}
-	return value.Truthy(args[index], pool), nil
+	return value.Truthy(args[index], pool, rt.Heap), nil
 }
 
 // RetString creates a string return value.

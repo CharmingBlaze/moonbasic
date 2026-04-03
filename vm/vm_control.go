@@ -16,12 +16,12 @@ func (v *VM) doJump(i opcode.Instruction) error {
 		frame.IP = int(i.Operand)
 	case opcode.OpJumpIfFalse:
 		pool := v.Program.StringTable
-		if !value.Truthy(v.pop(), pool) {
+		if !value.Truthy(v.pop(), pool, v.Heap) {
 			frame.IP = int(i.Operand)
 		}
 	case opcode.OpJumpIfTrue:
 		pool := v.Program.StringTable
-		if value.Truthy(v.pop(), pool) {
+		if value.Truthy(v.pop(), pool, v.Heap) {
 			frame.IP = int(i.Operand)
 		}
 	}

@@ -129,6 +129,6 @@ func registerStringsConv(r Registrar) {
 		if len(args) != 1 {
 			return value.Value{}, Errorf("BOOL expects 1 argument")
 		}
-		return rt.RetBool(value.Truthy(args[0], rt.Prog.StringTable)), nil
+		return rt.RetBool(value.Truthy(args[0], rt.Prog.StringTable, rt.Heap)), nil
 	})
 }

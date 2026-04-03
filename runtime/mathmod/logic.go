@@ -37,9 +37,11 @@ func valuesEqual(rt *runtime.Runtime, a, b value.Value) bool {
 	case value.KindFloat:
 		return a.FVal == b.FVal
 	case value.KindString:
-		s1 := rt.Prog.StringTable[a.IVal]
-		s2 := rt.Prog.StringTable[b.IVal]
-		return s1 == s2
+		var pool []string
+		if rt.Prog != nil {
+			pool = rt.Prog.StringTable
+		}
+		return value.EqualStringValue(a, b, pool, rt.Heap)
 	default:
 		return false
 	}
@@ -49,7 +51,7 @@ func (m *Module) builtinIIF(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("IIF expects 3 arguments (cond, a, b)")
 	}
-	if value.Truthy(args[0], rt.Prog.StringTable) {
+	if value.Truthy(args[0], rt.Prog.StringTable, rt.Heap) {
 		return args[1], nil
 	}
 	return args[2], nil

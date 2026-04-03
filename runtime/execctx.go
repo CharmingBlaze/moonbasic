@@ -32,9 +32,9 @@ func DiagWriter() io.Writer {
 // ArgString resolves a string Value using the active program's string pool.
 func ArgString(v value.Value) string {
 	if execReg == nil || execReg.Prog == nil {
-		return value.StringAt(v, nil)
+		return value.StringAt(v, nil, nil)
 	}
-	return value.StringAt(v, execReg.Prog.StringTable)
+	return value.StringAt(v, execReg.Prog.StringTable, execReg.Heap)
 }
 
 // RetString interns s into the active program pool and returns a string Value.
