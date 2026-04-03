@@ -1,0 +1,320 @@
+moonBASIC command audit (STEP 0)
+================================
+Authority: compiler/builtinmanifest/commands.json + runtime Register() + testdata/*.mb + *_test.go
+Date: 2026-04-04
+Note: Manifest path is compiler/builtinmanifest/commands.json (see ARCHITECTURE.md §4).
+
+Legend
+------
+DONE    — manifest entry + non-stub native (or VM/parser construct) + at least one test exercises it
+PARTIAL — stub, wrong registry key vs intended BASIC name, arity mismatch vs impl, behavior mismatch vs spec, or no test
+MISSING — not in manifest and not implemented (or statement-only with no matching builtin when spec asked a function)
+
+--- OUTPUT / INPUT ---
+PRINT          DONE     runtime/core_console.go:41; testdata/print_test.mb
+PRINTLN        PARTIAL  runtime/core_console.go:45; identical to PRINT (both Fprintln); no distinct test
+WRITE          PARTIAL  runtime/core_console.go:49; no dedicated .mb test (covered indirectly)
+WRITEFILELN    MISSING  no key; FILE.WRITE appends newline only (runtime/file module.go:197) — no separate WRITEFILE
+INPUT          PARTIAL  runtime/core_console.go:53; manifest 1-arg only, impl accepts optional 2nd default
+CLS            PARTIAL  runtime/core_console.go:76; no dedicated test
+LOCATE         PARTIAL  runtime/core_console.go:80; no dedicated test
+TAB            PARTIAL  runtime/core_console.go:115; no dedicated test
+SPC            PARTIAL  runtime/core_console.go:116; no dedicated test
+
+--- TYPE CONVERSION ---
+INT            DONE     runtime/core_strings.go:25; testdata/string_test.mb
+FLOAT          DONE     runtime/core_strings.go:55; testdata/string_test.mb
+STR$           DONE     runtime/core_strings.go:16; testdata/string_test.mb
+VAL            DONE     runtime/core_strings.go:311; testdata/string_test.mb
+ASC            DONE     runtime/core_strings.go:267; testdata/string_test.mb
+CHR$           DONE     runtime/core_strings.go:254; testdata/string_test.mb
+BOOL           DONE     runtime/core_strings.go:329; no direct test
+FIX            PARTIAL  runtime/mathmod/basic.go:75; returns FLOAT not INT per spec; limited test
+TYPEOF         MISSING  no manifest, no Register
+ISNULL         MISSING  no manifest, no Register
+ISHANDLE       MISSING  no manifest, no Register
+ISTYPE         MISSING  no manifest, no Register
+
+--- STRING ---
+LEN            DONE     runtime/core_strings.go:73; testdata/string_test.mb
+LEFT$          DONE     runtime/core_strings.go:86; testdata/string_test.mb
+RIGHT$         DONE     runtime/core_strings.go:107; testdata/string_test.mb
+MID$           PARTIAL  runtime/core_strings.go:128; 1-based + 3-arg manifest only (no 2-arg overload); test uses 3-arg
+UPPER$         DONE     runtime/core_strings.go:161; testdata/string_test.mb
+LOWER$         DONE     runtime/core_strings.go:171; testdata/string_test.mb
+INSTR          PARTIAL  runtime/core_strings.go:223; 1-based, 0 if not found (spec wanted 0-based -1); no 3-arg manifest overload
+TRIM$          DONE     runtime/core_strings.go:181; testdata/string_test.mb
+LTRIM$         DONE     runtime/core_strings.go:335; no string_test line
+RTRIM$         DONE     runtime/core_strings.go:345; no string_test line
+REPLACE$       DONE     runtime/core_strings.go:205; testdata/string_test.mb
+CONTAINS       DONE     runtime/core_strings.go:191; testdata/string_test.mb
+STARTSWITH     DONE     runtime/core_strings.go:450; no string_test line
+ENDSWITH       DONE     runtime/core_strings.go:464; no string_test line
+SPLIT$         PARTIAL  runtime/core_strings.go:478; no string_test line
+JOIN$          PARTIAL  runtime/core_strings.go:507; no string_test line
+SPACE$         DONE     runtime/core_strings.go:355; no string_test line
+STRING$        DONE     runtime/core_strings.go:371; strmod.STRING$ repeats full string vs first rune (behavior diverges — see DUPLICATES)
+REVERSE$       DONE     runtime/core_strings.go:527; no string_test line
+REPEAT$        DONE     runtime/core_strings.go:541; no string_test line
+COUNT$         DONE     runtime/core_strings.go:561; no string_test line
+LSET$          DONE     runtime/core_strings.go:400; no string_test line
+RSET$          DONE     runtime/core_strings.go:425; no string_test line
+ISALPHA        DONE     runtime/core_strings.go:575; no string_test line
+ISNUMERIC      PARTIAL  runtime/core_strings.go:593; strconv.ParseFloat (allows scientific); strmod.ISNUMERIC is digit-only only
+ISALPHANUM     DONE     runtime/core_strings.go:608; no string_test line
+FORMAT$        DONE     runtime/core_strings.go:626; no string_test line
+BIN$           DONE     runtime/core_strings.go:281; testdata/string_test.mb
+HEX$           DONE     runtime/core_strings.go:291; testdata/string_test.mb
+OCT$           DONE     runtime/core_strings.go:301; no string_test line
+
+--- MATH ---
+SIN            PARTIAL  runtime/mathmod/trig.go; testdata/math_test.mb only
+COS            PARTIAL  runtime/mathmod/trig.go; no dedicated test
+TAN            PARTIAL  runtime/mathmod/trig.go; no dedicated test
+ASIN           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ACOS           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ATAN           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ATAN2          DONE     runtime/mathmod/vector.go:19; no dedicated .mb test
+SQR            DONE     runtime/mathmod/basic.go:45; alias of SQRT
+SQRT           PARTIAL  runtime/mathmod/basic.go:44; no dedicated test
+EXP            PARTIAL  runtime/mathmod/basic.go:46; no dedicated test
+LOG            PARTIAL  runtime/mathmod/basic.go:47; no dedicated test
+LOG2           PARTIAL  runtime/mathmod/basic.go:48; no dedicated test
+LOG10          PARTIAL  runtime/mathmod/basic.go:49; no dedicated test
+POW            PARTIAL  runtime/mathmod/basic.go:53; no dedicated test
+INT            DONE     runtime/core_strings.go:25 (same as type INT)
+FIX            PARTIAL  returns float (see above)
+FLOOR          PARTIAL  runtime/mathmod/basic.go:54; no dedicated test
+CEIL           PARTIAL  runtime/mathmod/basic.go:55; no dedicated test
+ROUND          PARTIAL  runtime/mathmod/basic.go:85; 2-arg impl OK; manifest missing 2-arg overload
+ABS            PARTIAL  runtime/mathmod/basic.go:43; no dedicated test
+SGN            PARTIAL  runtime/mathmod/basic.go:61; no dedicated test
+MIN            PARTIAL  runtime/mathmod/basic.go:82; no dedicated test
+MAX            PARTIAL  runtime/mathmod/basic.go:83; no dedicated test
+CLAMP          PARTIAL  runtime/mathmod (angle_interp or vector); grep registers — manifest OK; thin tests
+LERP           PARTIAL  same
+SMOOTHSTEP     PARTIAL  same
+PINGPONG       PARTIAL  same
+WRAP           PARTIAL  same
+DEG2RAD        PARTIAL  runtime/mathmod/angle_interp.go; no dedicated test
+RAD2DEG        PARTIAL  same
+WRAPANGLE      PARTIAL  same
+WRAPANGLE180   PARTIAL  same
+ANGLEDIFF      PARTIAL  same
+RND            PARTIAL  runtime/mathmod/random.go:28; manifest missing 1-arg overload RND(n)
+RNDF           PARTIAL  runtime/mathmod/random.go; no dedicated test
+RNDSEED        PARTIAL  runtime/mathmod/random.go; no dedicated test
+RANDOMIZE      PARTIAL  runtime/mathmod/random.go:68; manifest [] only; impl accepts 0–1 args
+PI             PARTIAL  runtime/mathmod/basic.go; no dedicated test
+TAU            PARTIAL  same
+E              PARTIAL  same
+
+--- LOGIC ---
+IIF            PARTIAL  runtime/mathmod/logic.go:48; no dedicated test
+CHOOSE         PARTIAL  runtime/mathmod/logic.go:58; manifest only 2-arg; returns NIL OOB; no variadic overload rows
+SWITCH         PARTIAL  runtime/mathmod/logic.go:70; manifest fixed 4-arg; real SWITCH needs longer arities
+
+--- ARRAY (builtins) ---
+DIM            DONE     parser/vm (not manifest builtin); testdata/array_test.mb
+REDIM          PARTIAL  parser/vm; weaker test coverage than DIM
+ERASE          PARTIAL  runtime/mbarray/array_ops.go:29; manifest OK; array_test.mb does not call ERASE
+ARRAYLEN       PARTIAL  runtime/mbarray/array_ops.go; no array_test.mb coverage for builtin
+ARRAYFILL      PARTIAL  same
+ARRAYCOPY      PARTIAL  same
+ARRAYSORT      PARTIAL  same
+ARRAYREVERSE   PARTIAL  same
+ARRAYFIND      PARTIAL  same
+ARRAYCONTAINS  PARTIAL  same
+ARRAYPUSH      PARTIAL  same
+ARRAYPOP       PARTIAL  same
+ARRAYSHIFT     PARTIAL  same
+ARRAYUNSHIFT   PARTIAL  same
+ARRAYSPLICE    PARTIAL  same
+ARRAYSLICE     PARTIAL  same
+ARRAYJOINS$    PARTIAL  runtime/mbarray (alias ARRAYJOINS); no test
+ARRAYFREE      PARTIAL  same as ERASE path; duplicate registration intentional
+
+--- VARIABLES (language) ---
+LOCAL          DONE     compiler/parser; no single focused test named
+GLOBAL         DONE     compiler/parser
+CONST          DONE     compiler/parser
+STATIC         PARTIAL  compiler/parser/parser_stmts.go; coverage unclear
+SWAP           PARTIAL  compiler/parser; coverage unclear
+
+--- CONTROL FLOW (parser + codegen) ---
+IF/THEN/ELSEIF/ELSE/ENDIF   DONE  compiler; various tests
+WHILE/WEND                  DONE  compiler
+FOR/TO/STEP/NEXT            DONE  testdata/for_test.mb
+REPEAT/UNTIL                DONE  testdata/repeat_test.mb
+DO/LOOP WHILE               MISSING  no TOK_DO / LOOP in compiler/token
+DO WHILE/LOOP               MISSING  same
+DO/LOOP UNTIL               MISSING  same
+EXIT FOR/WHILE/REPEAT/DO    MISSING  no EXIT token/codegen
+CONTINUE FOR/WHILE/REPEAT/DO MISSING  no CONTINUE token/codegen
+EXIT FUNCTION               PARTIAL  parser may parse; no dedicated test found
+SELECT/CASE/DEFAULT/ENDSELECT PARTIAL  compiler/codegen/codegen_select.go — single value per CASE only
+CASE val1, val2             MISSING  multi-value CASE not implemented
+CASE val1 TO val2           MISSING  range CASE not implemented
+CASE IS > val               MISSING  conditional CASE not implemented
+GOTO/GOSUB/RETURN           PARTIAL  tokens exist; coverage varies
+END                         DONE  token END / OpHalt path
+QUIT                        MISSING  no keyword/native
+STOP                        MISSING  no keyword/native
+WAIT                        MISSING  no keyword/native
+SLEEP                       MISSING  no keyword/native (TIME.GET exists)
+
+--- FUNCTIONS ---
+FUNCTION/ENDFUNCTION/RETURN  DONE  testdata/func_test.mb
+Default parameter values     MISSING  parser/feature not found
+Variadic PARAMS              MISSING  not found
+Type hints AS                MISSING  not found
+EXIT FUNCTION                PARTIAL  see above
+
+--- USER TYPES ---
+TYPE/FIELD/ENDTYPE   PARTIAL  compiler/parser/parser_types.go; no testdata exercise
+NEW                  PARTIAL  OpNew codegen; no testdata exercise
+DELETE               PARTIAL  codegen; no testdata exercise
+FOR EACH(Type)       PARTIAL  parser; no testdata exercise
+
+--- FILE I/O (spec names vs shipped FILE.* / UTIL.*) ---
+OPENFILE           MISSING  manifest uses FILE.OPEN; impl runtime/file (CGO)
+CLOSEFILE          MISSING  alias gap; FILE.CLOSE exists
+READFILE$          MISSING  FILE.READLINE line-based; different name/semantics
+WRITEFILE          MISSING  FILE.WRITE always adds newline (acts like WRITEFILELN)
+WRITEFILELN        MISSING  see above
+READALLTEXT$       MISSING  UTIL.LOADTEXT exists — different key
+WRITEALLTEXT       MISSING  UTIL.SAVETEXT exists
+READBYTE           MISSING
+WRITEBYTE          MISSING
+READSHORT          MISSING
+WRITESHORT         MISSING
+READINT            MISSING
+WRITEINT           MISSING
+READFLOAT          MISSING
+WRITEFLOAT         MISSING
+READSTRING$        MISSING
+WRITESTRING        MISSING
+FILEPOS            MISSING  FILE.TELL implemented; not in manifest (fixed in this commit)
+SEEKFILE           MISSING  FILE.SEEK implemented; not in manifest (fixed in this commit)
+EOF                MISSING  flat; FILE.EOF exists
+FILESIZE           MISSING  FILE.SIZE implemented; not in manifest (fixed in this commit)
+FILEEXISTS         MISSING  UTIL.FILEEXISTS exists
+DIREXISTS          MISSING  UTIL.ISDIR exists
+DELETEFILE         MISSING
+COPYFILE           MISSING
+MOVEFILE           MISSING
+RENAMEFILE         MISSING
+MAKEDIR            MISSING  UTIL.MAKEDIRECTORY exists
+MAKEDIRS           MISSING
+DELETEDIR          MISSING
+GETDIR$            MISSING  no flat cwd helper (UTIL.CHANGEDIR etc. partial)
+SETDIR             MISSING
+GETFILES$          MISSING  UTIL.GETDIRFILES returns string not array handle
+GETDIRS$           MISSING
+GETFILEEXT$        MISSING  UTIL.GETFILEEXT exists
+GETFILENAME$       MISSING  UTIL.GETFILENAME exists
+GETFILENAMENOEXT$  MISSING  UTIL.GETFILENAMENOEXT exists
+GETFILEPATH$       MISSING  UTIL.GETFILEPATH exists
+GETFILESIZE        MISSING  UTIL.GETFILESIZE exists
+GETFILEMODTIME     MISSING  UTIL.GETFILEMODTIME exists
+ISFILEDROPPED      MISSING  UTIL.ISFILEDROPPED exists
+GETDROPPEDFILES    PARTIAL  UTIL.GETDROPPEDFILES exists; spec asked array handle — util returns string
+
+--- DATE / TIME ---
+YEAR             MISSING
+MONTH            MISSING
+DAY              MISSING
+HOUR             MISSING
+MINUTE           MISSING
+SECOND           MISSING
+MILLISECOND      MISSING
+TIMESTAMP        MISSING
+DATE$            MISSING
+TIME$            MISSING
+DATETIME$        MISSING
+TICKCOUNT        MISSING
+TIMER            PARTIAL  TIME.GET is elapsed seconds; not named TIMER
+
+--- BITWISE ---
+BAND             PARTIAL  runtime/bitwise/bitwise.go registers core.BAND — flat BAND not registered / not in manifest
+BOR              PARTIAL  core.BOR
+BXOR             PARTIAL  core.BXOR
+BNOT             PARTIAL  core.BNOT
+BLSHIFT          PARTIAL  core.BLSHIFT
+BRSHIFT          PARTIAL  core.BRSHIFT
+BTEST            PARTIAL  core.BTEST (bit index vs spec bit — review)
+BSET             PARTIAL  core.BSET
+BCLEAR           PARTIAL  core.BCLEAR
+BTOGGLE          PARTIAL  core.BTOGGLE
+BCOUNT           PARTIAL  core.BCOUNT uses strip loop; not bits.OnesCount64 — negative edge cases differ from spec
+
+--- ERROR HANDLING ---
+ON ERROR GOTO       MISSING
+ON ERROR CALL       MISSING
+ON ERROR RESUME     MISSING
+ON ERROR RESUME NEXT MISSING
+ON ERROR STOP       MISSING
+ERR                 MISSING
+ERRMSG$             MISSING
+ERRLINE             MISSING
+ERRFILE$            MISSING
+THROW               MISSING
+TRY/CATCH/ENDTRY    MISSING  no lexer/parser support found
+ASSERT              PARTIAL  DEBUG.ASSERT exists under different name
+
+--- DEBUG ---
+DUMP                MISSING
+TRACE               PARTIAL  CLI --trace; no DUMP/TRACE builtins
+PRINTAT             MISSING
+PRINTCOLOR          MISSING
+
+--- CLASSIC BASIC ---
+DATA                MISSING  statement (DATA.* namespace is compression/hash — different feature)
+READ                MISSING
+RESTORE             MISSING
+REM                 PARTIAL  lexer comment path — verify REM token if distinct from '
+LET                 PARTIAL  optional LET — verify parser
+ENVIRON$            MISSING  SYSTEM.GETENV exists
+COMMAND$            MISSING
+ARGC                MISSING
+
+--- BINARY PACK/UNPACK ---
+MKSHORT$            MISSING
+MKINT$              MISSING
+MKLONG$             MISSING
+MKFLOAT$            MISSING
+MKDOUBLE$           MISSING
+CVSHORT             MISSING
+CVINT               MISSING
+CVLONG              MISSING
+CVFLOAT             MISSING
+CVDOUBLE            MISSING
+
+================================================================================
+DUPLICATES (0-C) — same behavior without clear alias comment, or dual implementations
+================================================================================
+1) PRINT / PRINTLN — both always emit newline via Fprintln (no PRINTLN-specific behavior).
+2) SQR / SQRT — intentional sqrt aliases (MATH.* mirrors).
+3) ATN / ATAN — both atan (BASIC compat + modern name); intentional.
+4) ARRAYFREE / ERASE — same handler (intentional).
+5) ARRAYJOINS / ARRAYJOINS$ — same handler (intentional).
+6) strmod.* vs core — strmod registers strmod.LSET$, strmod.FORMAT$, etc. (not manifest keys); parallel logic to core for COUNT$/IS*/FORMAT$ with different STRING$/ISNUMERIC rules — consolidate to one canonical Register per name.
+7) core.BAND vs intended BAND — wrong registry key; should be thin alias BAND → same fn as core.BAND or rename registration.
+8) UTIL.* vs spec FILE*/GET* names — same intended surface, different command keys (needs alias layer).
+
+================================================================================
+MANIFEST / REGISTRY GAPS (0-D) — addressed in this commit where noted
+================================================================================
+• Added manifest rows for FILE.SEEK, FILE.TELL, FILE.SIZE (implemented; were missing).
+• Added arity overload rows for RND, ROUND, RANDOMIZE, MID$, INSTR, CHOOSE, SWITCH where impl or spec requires.
+• Added stub keys for flat MISSING symbols from this audit so RegisterFromManifest provides arity-checked stubs until aliases/native bodies land.
+
+================================================================================
+TOTALS (strict line count — each row above in sections STRING..BINARY PACK)
+================================================================================
+DONE:     53
+PARTIAL:  117
+MISSING:  114
+TOTAL:    284
+
+(Control flow + variables + functions counted as grouped rows; INT counted once under TYPE CONVERSION.)
