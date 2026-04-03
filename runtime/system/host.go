@@ -23,6 +23,7 @@ func (m *Module) registerHost(reg runtime.Registrar) {
 	reg.Register("SYSTEM.TOTALMEMORY", "system", m.sysTotalMemory)
 	reg.Register("SYSTEM.FREEMEMORY", "system", m.sysFreeMemory)
 	reg.Register("SYSTEM.GETENV", "system", m.sysGetenv)
+	reg.Register("ENVIRON$", "system", m.sysGetenv)
 	reg.Register("SYSTEM.SETENV", "system", m.sysSetenv)
 	reg.Register("SYSTEM.EXECUTE", "system", m.sysExecute)
 	reg.Register("SYSTEM.OPENURL", "system", m.sysOpenURL)
@@ -131,7 +132,7 @@ func (m *Module) sysFreeMemory(rt2 *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) sysGetenv(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("SYSTEM.GETENV expects (key$)")
+		return value.Nil, runtime.Errorf("SYSTEM.GETENV / ENVIRON$ expects (key$)")
 	}
 	key, err := rt2.ArgString(args, 0)
 	if err != nil {

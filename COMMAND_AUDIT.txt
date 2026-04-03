@@ -244,8 +244,8 @@ TIMESTAMP        MISSING
 DATE$            MISSING
 TIME$            MISSING
 DATETIME$        MISSING
-TICKCOUNT        MISSING
-TIMER            PARTIAL  TIME.GET is elapsed seconds; not named TIMER
+TICKCOUNT        DONE     runtime/time/module.go; ms since host monotonic start (same origin as TIME.GET); testdata/time_assert_env.mb
+TIMER            DONE     runtime/time/module.go; seconds float (alias of TIME.GET semantics); testdata/time_assert_env.mb
 
 --- BITWISE ---
 BAND             DONE     runtime/bitwise/bitwise.go; flat + core.BAND; testdata/bitwise_test.mb
@@ -272,7 +272,7 @@ ERRLINE             MISSING
 ERRFILE$            MISSING
 THROW               MISSING
 TRY/CATCH/ENDTRY    MISSING  no lexer/parser support found
-ASSERT              PARTIAL  DEBUG.ASSERT exists under different name
+ASSERT              DONE     runtime/mbdebug flat + DEBUG.ASSERT; testdata/time_assert_env.mb
 
 --- DEBUG ---
 DUMP                PARTIAL  runtime/strings_check.go; see STRING section DUMP row
@@ -286,7 +286,7 @@ READ                MISSING
 RESTORE             MISSING
 REM                 PARTIAL  lexer comment path — verify REM token if distinct from '
 LET                 PARTIAL  optional LET — verify parser
-ENVIRON$            MISSING  SYSTEM.GETENV exists
+ENVIRON$            DONE     runtime/system/host.go flat → SYSTEM.GETENV; testdata/time_assert_env.mb
 COMMAND$            MISSING
 ARGC                MISSING
 

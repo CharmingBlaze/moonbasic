@@ -1,0 +1,5 @@
+PRINT(TIMER() >= 0)
+PRINT(TICKCOUNT() >= 0)
+ASSERT(1, "should not fire")
+ASSERT(2 > 1, "math")
+PRINT(LEN(ENVIRON$("PATH")) + LEN(ENVIRON$("HOME")) + LEN(ENVIRON$("USERPROFILE")) > 0)

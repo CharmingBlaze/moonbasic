@@ -28,6 +28,21 @@ func (m *Module) Register(reg runtime.Registrar) {
 		sec := time.Since(m.start).Seconds()
 		return value.FromFloat(sec), nil
 	})
+	// Flat manifest names (same monotonic origin as TIME.GET).
+	reg.Register("TIMER", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		if len(args) != 0 {
+			return value.Nil, errArgs(0, len(args))
+		}
+		return value.FromFloat(time.Since(m.start).Seconds()), nil
+	})
+	reg.Register("TICKCOUNT", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		if len(args) != 0 {
+			return value.Nil, errArgs(0, len(args))
+		}
+		return value.FromInt(time.Since(m.start).Milliseconds()), nil
+	})
 	registerRaylibTiming(reg)
 }
 

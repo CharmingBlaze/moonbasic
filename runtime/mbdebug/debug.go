@@ -36,6 +36,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("DEBUG.WATCH", "debug", m.debugWatch)
 	r.Register("DEBUG.WATCHCLEAR", "debug", runtime.AdaptLegacy(m.debugWatchClear))
 	r.Register("DEBUG.ASSERT", "debug", m.debugAssert)
+	r.Register("ASSERT", "debug", m.debugAssert)
 	r.Register("DEBUG.BREAKPOINT", "debug", runtime.AdaptLegacy(m.debugBreakpoint))
 	r.Register("DEBUG.LOG", "debug", m.debugLog)
 	r.Register("DEBUG.LOGFILE", "debug", m.debugLogFile)
@@ -110,7 +111,7 @@ func (m *Module) debugWatchClear(args []value.Value) (value.Value, error) {
 
 func (m *Module) debugAssert(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.ASSERT expects (cond?, msg$)")
+		return value.Nil, runtime.Errorf("ASSERT expects (cond?, msg$)")
 	}
 	pool := strPool()
 	if !value.Truthy(args[0], pool, rt.Heap) {
