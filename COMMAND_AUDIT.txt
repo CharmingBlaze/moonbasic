@@ -212,17 +212,17 @@ EOF                PARTIAL  flat → FILE.EOF; CGO only
 FILESIZE           PARTIAL  flat → FILE.SIZE; CGO only
 FILEEXISTS         DONE     runtime/mbutil flat → UTIL.FILEEXISTS; testdata/file_flat_aliases.mb
 DIREXISTS          DONE     flat → UTIL.ISDIR; testdata/file_flat_aliases.mb
-DELETEFILE         MISSING
-COPYFILE           MISSING
-MOVEFILE           MISSING
-RENAMEFILE         MISSING
+DELETEFILE         DONE     runtime/mbutil/util.go + UTIL.DELETEFILE; testdata/file_io_ops.mb
+COPYFILE           DONE     runtime/mbutil + UTIL.COPYFILE; testdata/file_io_ops.mb
+MOVEFILE           DONE     runtime/mbutil + UTIL.MOVEFILE (Rename, else copy+remove); testdata/file_io_ops.mb
+RENAMEFILE         DONE     runtime/mbutil + UTIL.RENAMEFILE; testdata/file_io_ops.mb
 MAKEDIR            DONE     flat → UTIL.MAKEDIRECTORY
-MAKEDIRS           MISSING
-DELETEDIR          MISSING
-GETDIR$            MISSING  no flat cwd helper (UTIL.CHANGEDIR etc. partial)
+MAKEDIRS           DONE     flat + UTIL.MAKEDIRECTORY body (MkdirAll); testdata/file_io_ops.mb
+DELETEDIR          DONE     runtime/mbutil (RemoveAll — recursive); testdata/file_io_ops.mb
+GETDIR$            DONE     runtime/mbutil + UTIL.GETDIR (os.Getwd); testdata/file_io_ops.mb
 SETDIR             DONE     flat → UTIL.CHANGEDIR
 GETFILES$          PARTIAL  flat → UTIL.GETDIRFILES; returns string not array handle
-GETDIRS$           MISSING
+GETDIRS$           DONE     runtime/mbutil + UTIL.GETDIRS (JSON array of subdir names); testdata/file_io_ops.mb
 GETFILEEXT$        DONE     flat → UTIL.GETFILEEXT
 GETFILENAME$       DONE     flat → UTIL.GETFILENAME; testdata/file_flat_aliases.mb
 GETFILENAMENOEXT$  DONE     flat → UTIL.GETFILENAMENOEXT

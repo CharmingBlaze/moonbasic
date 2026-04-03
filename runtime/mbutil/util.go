@@ -10,6 +10,18 @@ import (
 	"moonbasic/vm/value"
 )
 
+func twoStringPaths(rt *runtime.Runtime, args []value.Value, cmd string) (a, b string, err error) {
+	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
+		return "", "", runtime.Errorf("%s expects (path1$, path2$)", cmd)
+	}
+	a, err = rt.ArgString(args, 0)
+	if err != nil {
+		return "", "", err
+	}
+	b, err = rt.ArgString(args, 1)
+	return a, b, err
+}
+
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("UTIL.FILEEXISTS", "util", m.utilFileExists)
@@ -26,6 +38,13 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("UTIL.CHANGEDIR", "util", m.utilChangeDir)
 	r.Register("UTIL.MAKEDIRECTORY", "util", m.utilMakeDirectory)
 	r.Register("UTIL.ISFILENAMEVALID", "util", m.utilIsFileNameValid)
+	r.Register("UTIL.DELETEFILE", "util", m.utilDeleteFile)
+	r.Register("UTIL.COPYFILE", "util", m.utilCopyFile)
+	r.Register("UTIL.RENAMEFILE", "util", m.utilRenameFile)
+	r.Register("UTIL.MOVEFILE", "util", m.utilMoveFile)
+	r.Register("UTIL.DELETEDIR", "util", m.utilDeleteDir)
+	r.Register("UTIL.GETDIR", "util", m.utilGetWd)
+	r.Register("UTIL.GETDIRS", "util", m.utilGetDirSubdirs)
 
 	// Flat spec names (manifest) → same handlers as UTIL.*.
 	r.Register("FILEEXISTS", "util", m.utilFileExists)
@@ -41,6 +60,14 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("GETFILESIZE", "util", m.utilGetFileSize)
 	r.Register("GETFILEMODTIME", "util", m.utilGetFileModTime)
 	r.Register("GETFILES$", "util", m.utilGetDirFiles)
+	r.Register("DELETEFILE", "util", m.utilDeleteFile)
+	r.Register("COPYFILE", "util", m.utilCopyFile)
+	r.Register("RENAMEFILE", "util", m.utilRenameFile)
+	r.Register("MOVEFILE", "util", m.utilMoveFile)
+	r.Register("MAKEDIRS", "util", m.utilMakeDirectory)
+	r.Register("DELETEDIR", "util", m.utilDeleteDir)
+	r.Register("GETDIR$", "util", m.utilGetWd)
+	r.Register("GETDIRS$", "util", m.utilGetDirSubdirs)
 
 	m.registerDroppedFiles(r)
 }
@@ -256,4 +283,101 @@ func (m *Module) utilIsFileNameValid(rt *runtime.Runtime, args ...value.Value) (
 		}
 	}
 	return value.FromBool(!allDots), nil
+}
+
+func (m *Module) utilDeleteFile(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("DELETEFILE expects (path$)")
+	}
+	path, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	err = os.Remove(path)
+	return value.FromBool(err == nil), nil
+}
+
+func (m *Module) utilCopyFile(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	src, dst, err := twoStringPaths(rt, args, "COPYFILE")
+	if err != nil {
+		return value.Nil, err
+	}
+	b, err := os.ReadFile(src)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, os.WriteFile(dst, b, 0644)
+}
+
+func (m *Module) utilRenameFile(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	from, to, err := twoStringPaths(rt, args, "RENAMEFILE")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, os.Rename(from, to)
+}
+
+func (m *Module) utilMoveFile(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	from, to, err := twoStringPaths(rt, args, "MOVEFILE")
+	if err != nil {
+		return value.Nil, err
+	}
+	if err := os.Rename(from, to); err == nil {
+		return value.Nil, nil
+	}
+	b, err := os.ReadFile(from)
+	if err != nil {
+		return value.Nil, err
+	}
+	if err := os.WriteFile(to, b, 0644); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, os.Remove(from)
+}
+
+func (m *Module) utilDeleteDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("DELETEDIR expects (path$)")
+	}
+	path, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, os.RemoveAll(path)
+}
+
+func (m *Module) utilGetWd(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("GETDIR$ expects 0 arguments")
+	}
+	wd, err := os.Getwd()
+	if err != nil {
+		return value.Nil, err
+	}
+	return rt.RetString(wd), nil
+}
+
+func (m *Module) utilGetDirSubdirs(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("GETDIRS$ expects (path$)")
+	}
+	dir, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return value.Nil, err
+	}
+	names := make([]string, 0)
+	for _, e := range entries {
+		if e.IsDir() {
+			names = append(names, e.Name())
+		}
+	}
+	b, err := json.Marshal(names)
+	if err != nil {
+		return value.Nil, err
+	}
+	return rt.RetString(string(b)), nil
 }
