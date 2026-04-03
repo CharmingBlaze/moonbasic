@@ -68,16 +68,16 @@ FORMAT$        DONE     runtime/strings_format.go; testdata/strings_test.mb
 BIN$           DONE     runtime/strings_format.go; testdata/string_test.mb
 HEX$           DONE     runtime/strings_format.go; testdata/string_test.mb
 OCT$           DONE     runtime/strings_format.go; testdata/strings_test.mb
-MKSHORT$       PARTIAL  runtime/strings_format.go; no round-trip line in strings_test.mb
+MKSHORT$       DONE     runtime/strings_format.go; testdata/strings_test.mb (with CVSHORT)
 MKINT$         DONE     runtime/strings_format.go; testdata/strings_test.mb (with CVINT)
-MKLONG$        PARTIAL  runtime/strings_format.go; no strings_test.mb line
-MKFLOAT$       PARTIAL  runtime/strings_format.go; no strings_test.mb line
-MKDOUBLE$      PARTIAL  runtime/strings_format.go; no strings_test.mb line
-CVSHORT        PARTIAL  runtime/strings_format.go; no strings_test.mb line
+MKLONG$        DONE     runtime/strings_format.go; testdata/strings_test.mb (with CVLONG)
+MKFLOAT$       DONE     runtime/strings_format.go; testdata/strings_test.mb (with CVFLOAT)
+MKDOUBLE$      DONE     runtime/strings_format.go; testdata/strings_test.mb (with CVDOUBLE)
+CVSHORT        DONE     runtime/strings_format.go; testdata/strings_test.mb (with MKSHORT$)
 CVINT          DONE     runtime/strings_format.go; testdata/strings_test.mb (with MKINT$)
-CVLONG         PARTIAL  runtime/strings_format.go; no strings_test.mb line
-CVFLOAT        PARTIAL  runtime/strings_format.go; no strings_test.mb line
-CVDOUBLE       PARTIAL  runtime/strings_format.go; no strings_test.mb line
+CVLONG         DONE     runtime/strings_format.go; testdata/strings_test.mb (with MKLONG$)
+CVFLOAT        DONE     runtime/strings_format.go; testdata/strings_test.mb (with MKFLOAT$)
+CVDOUBLE       DONE     runtime/strings_format.go; testdata/strings_test.mb (with MKDOUBLE$)
 
 --- MATH ---
 SIN            PARTIAL  runtime/mathmod/trig.go; testdata/math_test.mb only
@@ -248,17 +248,17 @@ TICKCOUNT        MISSING
 TIMER            PARTIAL  TIME.GET is elapsed seconds; not named TIMER
 
 --- BITWISE ---
-BAND             PARTIAL  runtime/bitwise/bitwise.go registers core.BAND — flat BAND not registered / not in manifest
-BOR              PARTIAL  core.BOR
-BXOR             PARTIAL  core.BXOR
-BNOT             PARTIAL  core.BNOT
-BLSHIFT          PARTIAL  core.BLSHIFT
-BRSHIFT          PARTIAL  core.BRSHIFT
-BTEST            PARTIAL  core.BTEST (bit index vs spec bit — review)
-BSET             PARTIAL  core.BSET
-BCLEAR           PARTIAL  core.BCLEAR
-BTOGGLE          PARTIAL  core.BTOGGLE
-BCOUNT           PARTIAL  core.BCOUNT uses strip loop; not bits.OnesCount64 — negative edge cases differ from spec
+BAND             DONE     runtime/bitwise/bitwise.go; flat + core.BAND; testdata/bitwise_test.mb
+BOR              DONE     same; testdata/bitwise_test.mb
+BXOR             DONE     same; testdata/bitwise_test.mb
+BNOT             DONE     testdata/bitwise_test.mb (BNOT(0) → -1)
+BLSHIFT          DONE     testdata/bitwise_test.mb
+BRSHIFT          DONE     testdata/bitwise_test.mb
+BTEST            DONE     testdata/bitwise_test.mb (bit index)
+BSET             DONE     testdata/bitwise_test.mb
+BCLEAR           DONE     testdata/bitwise_test.mb
+BTOGGLE          DONE     testdata/bitwise_test.mb
+BCOUNT           PARTIAL  testdata/bitwise_test.mb; positive-only strip loop; not bits.OnesCount64 — negative differs from spec
 
 --- ERROR HANDLING ---
 ON ERROR GOTO       MISSING
@@ -302,7 +302,7 @@ DUPLICATES (0-C) — same behavior without clear alias comment, or dual implemen
 4) ARRAYFREE / ERASE — same handler (intentional).
 5) ARRAYJOINS / ARRAYJOINS$ — same handler (intentional).
 6) strmod.* vs core — strmod still mirrors some string commands; STRING$ now matches core (first rune). ISNUMERIC rules may still differ (see ISNUMERIC row).
-7) core.BAND vs intended BAND — wrong registry key; should be thin alias BAND → same fn as core.BAND or rename registration.
+7) (resolved) Flat BAND…BCOUNT register to the same handlers as core.B* (runtime/bitwise/bitwise.go).
 8) UTIL.* vs spec FILE*/GET* names — same intended surface, different command keys (needs alias layer).
 
 ================================================================================

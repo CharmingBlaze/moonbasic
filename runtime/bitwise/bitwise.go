@@ -6,7 +6,13 @@ import (
 )
 
 func registerBitwise(r runtime.Registrar) {
-	r.Register("core.BAND", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	// Manifest uses flat BAND, BOR, …; legacy entries are core.B* — same implementation.
+	reg := func(coreKey, flatKey string, fn runtime.BuiltinFn) {
+		r.Register(coreKey, "bitwise", fn)
+		r.Register(flatKey, "bitwise", fn)
+	}
+
+	reg("core.BAND", "BAND", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -17,7 +23,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a & b), nil
 	})
-	r.Register("core.BOR", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BOR", "BOR", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -28,7 +34,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a | b), nil
 	})
-	r.Register("core.BXOR", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BXOR", "BXOR", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -39,14 +45,14 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a ^ b), nil
 	})
-	r.Register("core.BNOT", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BNOT", "BNOT", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
 		}
 		return rt.RetInt(^a), nil
 	})
-	r.Register("core.BLSHIFT", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BLSHIFT", "BLSHIFT", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -57,7 +63,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a << n), nil
 	})
-	r.Register("core.BRSHIFT", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BRSHIFT", "BRSHIFT", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -68,7 +74,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a >> n), nil
 	})
-	r.Register("core.BTEST", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BTEST", "BTEST", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -79,7 +85,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetBool((a & (1 << bit)) != 0), nil
 	})
-	r.Register("core.BSET", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BSET", "BSET", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -90,7 +96,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a | (1 << bit)), nil
 	})
-	r.Register("core.BCLEAR", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BCLEAR", "BCLEAR", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -101,7 +107,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a &^ (1 << bit)), nil
 	})
-	r.Register("core.BTOGGLE", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BTOGGLE", "BTOGGLE", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
@@ -112,7 +118,7 @@ func registerBitwise(r runtime.Registrar) {
 		}
 		return rt.RetInt(a ^ (1 << bit)), nil
 	})
-	r.Register("core.BCOUNT", "bitwise", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg("core.BCOUNT", "BCOUNT", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		a, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return value.Value{}, err
