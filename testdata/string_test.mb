@@ -1,7 +1,7 @@
 PRINT(INT(LEN("hello")))
 PRINT(LEFT$("hello", 3))
 PRINT(RIGHT$("hello", 3))
-PRINT(MID$("hello", 2, 3))
+PRINT(MID$("hello", 1, 3))
 PRINT(UPPER$("hello"))
 PRINT(LOWER$("Hello"))
 PRINT(TRIM$("  hi  "))

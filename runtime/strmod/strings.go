@@ -6,6 +6,7 @@ import (
 	"moonbasic/vm/value"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 func registerStrings(r runtime.Registrar) {
@@ -53,7 +54,14 @@ func registerStrings(r runtime.Registrar) {
 		if err != nil {
 			return value.Value{}, err
 		}
-		return rt.RetString(strings.Repeat(c, int(n))), nil
+		ch := " "
+		if c != "" {
+			r0, _ := utf8.DecodeRuneInString(c)
+			if r0 != utf8.RuneError {
+				ch = string(r0)
+			}
+		}
+		return rt.RetString(strings.Repeat(ch, int(n))), nil
 	})
 	r.Register("strmod.REVERSE$", "strmod", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		s, err := rt.ArgString(args, 0)

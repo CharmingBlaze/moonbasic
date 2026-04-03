@@ -88,8 +88,10 @@ func New() *Store {
 	return &Store{
 		entries:   make([]Entry, 4096),
 		free:      make([]uint16, 0, 1024),
-		next:      1,            // 0 is reserved / invalid slot
-		strings:   []string{""}, // index 0 is always empty string
+		next:      1, // 0 is reserved / invalid slot
+		// String table is seeded from Program.StringTable in VM.Execute so bytecode
+		// string indices match GetString; see SeedProgramStrings.
+		strings:   nil,
 		stringMap: make(map[string]int32),
 	}
 }
@@ -251,6 +253,28 @@ func Cast[T HeapObject](s *Store, h Handle) (T, error) {
 		return zero, fmt.Errorf("heap: handle %d is %s, but expected type %T", h, obj.TypeName(), zero)
 	}
 	return typed, nil
+}
+
+// SeedProgramStrings replaces the heap string table with a copy of the program's compile-time
+// pool. Bytecode PUSH_STRING and KindString IVal use these indices; without seeding, the heap's
+// default table would shadow index 0 (and break ArgString / builtins for the first literal).
+// Intern appends new strings after this slice.
+func (s *Store) SeedProgramStrings(tab []string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if len(tab) == 0 {
+		s.strings = nil
+		s.stringMap = make(map[string]int32)
+		return
+	}
+	s.strings = make([]string, len(tab))
+	copy(s.strings, tab)
+	s.stringMap = make(map[string]int32, len(tab)*2)
+	for i, str := range s.strings {
+		if _, exists := s.stringMap[str]; !exists {
+			s.stringMap[str] = int32(i)
+		}
+	}
 }
 
 // Intern adds a string to the heap's string table if it doesn't exist, and returns its index.

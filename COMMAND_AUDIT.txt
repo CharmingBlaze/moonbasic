@@ -305,9 +305,10 @@ DUPLICATES (0-C) — same behavior without clear alias comment, or dual implemen
 ================================================================================
 MANIFEST / REGISTRY GAPS (0-D) — addressed in this commit where noted
 ================================================================================
-• Added manifest rows for FILE.SEEK, FILE.TELL, FILE.SIZE (implemented; were missing).
-• Added arity overload rows for RND, ROUND, RANDOMIZE, MID$, INSTR, CHOOSE, SWITCH where impl or spec requires.
-• Added stub keys for flat MISSING symbols from this audit so RegisterFromManifest provides arity-checked stubs until aliases/native bodies land.
+• compiler/builtinmanifest/commands.json: added FILE.SEEK, FILE.TELL, FILE.SIZE (implemented natives; were missing from manifest).
+• Added arity overload rows: RND/MATH.RND (1-arg), ROUND/MATH.ROUND (2-arg), RANDOMIZE (1-arg), MID$ (2-arg), INSTR (3-arg), CHOOSE (3–12 args), SWITCH (4–18 args stepping by pair growth).
+• Appended manifest stub rows for flat MISSING symbols (ARGC, TYPEOF, date/time, classic I/O names, bitwise flats, ERR*/THROW/ASSERT, etc.) so semantic arity checking applies; RegisterFromManifest supplies “not yet implemented” until aliases/native bodies replace stubs.
+• Next implementation pass: register thin aliases (BAND → same fn as core.BAND), wire OPENFILE → FILE.OPEN, remove duplicate strmod.* handlers, and replace stubs with real natives per ARCHITECTURE.md §4 order (RegisterModule before RegisterFromManifest).
 
 ================================================================================
 TOTALS (strict line count — each row above in sections STRING..BINARY PACK)

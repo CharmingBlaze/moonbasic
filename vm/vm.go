@@ -86,6 +86,7 @@ func (v *VM) Execute(prog *opcode.Program) error {
 	v.Program = prog
 	v.Halted = false
 	v.Registry.Prog = prog
+	v.Heap.SeedProgramStrings(prog.StringTable)
 	defer func() { v.Registry.Prog = nil }()
 
 	v.Registry.StackTraceFn = func() string { return v.FormatCallStack() }

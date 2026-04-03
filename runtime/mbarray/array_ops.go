@@ -43,6 +43,11 @@ func (m *Module) arrayLen(rt *runtime.Runtime, args ...value.Value) (value.Value
 	if len(args) < 1 || len(args) > 2 {
 		return value.Nil, fmt.Errorf("ARRAYLEN expects 1 or 2 arguments")
 	}
+	if len(args) == 1 && args[0].Kind == value.KindHandle && m.h != nil {
+		if sl, err := heap.Cast[*heap.StringList](m.h, heap.Handle(args[0].IVal)); err == nil {
+			return value.FromInt(int64(len(sl.Items))), nil
+		}
+	}
 	a, err := m.getArr(args[0], "ARRAYLEN")
 	if err != nil {
 		return value.Nil, err
