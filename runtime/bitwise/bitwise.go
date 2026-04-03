@@ -1,6 +1,8 @@
 package bitwise
 
 import (
+	"math/bits"
+
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
@@ -123,11 +125,7 @@ func registerBitwise(r runtime.Registrar) {
 		if err != nil {
 			return value.Value{}, err
 		}
-		count := 0
-		for a > 0 {
-			a &= (a - 1)
-			count++
-		}
-		return rt.RetInt(int64(count)), nil
+		// Population count of the 64-bit two's-complement pattern (negative values count high bits).
+		return rt.RetInt(int64(bits.OnesCount64(uint64(a)))), nil
 	})
 }

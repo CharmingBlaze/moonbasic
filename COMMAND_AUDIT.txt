@@ -258,7 +258,7 @@ BTEST            DONE     testdata/bitwise_test.mb (bit index)
 BSET             DONE     testdata/bitwise_test.mb
 BCLEAR           DONE     testdata/bitwise_test.mb
 BTOGGLE          DONE     testdata/bitwise_test.mb
-BCOUNT           PARTIAL  testdata/bitwise_test.mb; positive-only strip loop; not bits.OnesCount64 — negative differs from spec
+BCOUNT           DONE     testdata/bitwise_test.mb; bits.OnesCount64(uint64) on int64 pattern (BCOUNT(-1) = 64)
 
 --- ERROR HANDLING ---
 ON ERROR GOTO       MISSING
