@@ -46,13 +46,13 @@ func (m *Module) registerAngleInterp(r runtime.Registrar) {
 		return value.FromFloat(angleDiffDeg(a, b)), nil
 	})
 
-	regFlat("LERP", "MATH.LERP", threeFloat(func(a, b, t float64) float64 { return a + (b-a)*t }))
+	regFlat("LERP", "MATH.LERP", threeFloat(lerpRL55))
 	regFlat("SMOOTHSTEP", "MATH.SMOOTHSTEP", threeFloat(smoothstep))
 	regFlat("CLAMP", "MATH.CLAMP", threeFloat(func(v, lo, hi float64) float64 {
 		if lo > hi {
 			lo, hi = hi, lo
 		}
-		return math.Min(math.Max(v, lo), hi)
+		return clampRL55(v, lo, hi)
 	}))
 	regFlat("PINGPONG", "MATH.PINGPONG", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
@@ -69,7 +69,10 @@ func (m *Module) registerAngleInterp(r runtime.Registrar) {
 		v, _ := args[0].ToFloat()
 		min, _ := args[1].ToFloat()
 		max, _ := args[2].ToFloat()
-		return value.FromFloat(wrapRange(v, min, max)), nil
+		if max < min {
+			min, max = max, min
+		}
+		return value.FromFloat(wrapRL55(v, min, max)), nil
 	})
 }
 
@@ -114,20 +117,4 @@ func pingPong(t, length float64) float64 {
 		return 2*length - t
 	}
 	return t
-}
-
-func wrapRange(v, min, max float64) float64 {
-	if max == min {
-		return min
-	}
-	if max < min {
-		min, max = max, min
-	}
-	span := max - min
-	v -= min
-	v = math.Mod(v, span)
-	if v < 0 {
-		v += span
-	}
-	return v + min
 }

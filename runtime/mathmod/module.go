@@ -1,4 +1,8 @@
 // Package mathmod registers numeric built-ins (flat and MATH.* namespace).
+//
+// CLAMP, LERP, and WRAP use Raylib 5.5 raymath formulas (raymath_rl55.go, matching raylib-go rlClamp/rlLerp/rlWrap).
+// SIN, COS, SQRT, POW, etc. use Go's math package (IEEE 754), same family as typical libm behind Raylib 5.5.
+// The raylib Go package is not imported here: its init() would lock the OS thread for every process.
 package mathmod
 
 import (
