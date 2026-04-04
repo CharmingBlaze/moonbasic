@@ -4,6 +4,11 @@ Authority: ARCHITECTURE.md §4 — compiler/builtinmanifest/commands.json
 Implementation: runtime Register() overrides manifest stubs (runtime/runtime.go RegisterFromManifest)
 Tests: testdata/*.mb, **/*_test.go
 Verified: 2026-04-04 (grep + file reads)
+Changelog (update this section whenever you change impl or tests)
+-----------------------------------------------------------------
+• 2026-04-04 — mathmod: CLAMP/LERP/WRAP use Raylib 5.5 raymath formulas (runtime/mathmod/raymath_rl55.go); trig still std math.
+• 2026-04-04 — file: FILE.WRITE/WRITEFILE raw; FILE.WRITELN/WRITEFILELN append newline (runtime/file/write.go); commands.json + FILE.WRITELN.
+• 2026-04-04 — strmod: removed runtime/strmod/strings.go bogus strmod.* keys; strmod module is a no-op register.
 
 Legend
 ------
@@ -15,7 +20,6 @@ MISSING — no language/parser/codegen support and no callable native (manifest 
 PRINT          DONE     runtime/core_console.go:41; testdata/print_test.mb
 PRINTLN        PARTIAL  runtime/core_console.go:45; identical to PRINT (both Fprintln); no distinct test
 WRITE          PARTIAL  runtime/core_console.go:49; no dedicated .mb test
-WRITEFILELN    PARTIAL  compiler/builtinmanifest/commands.json key; runtime/file/module.go:66→FILE.WRITE (always newline); testdata/file_test.mb (CGO)
 INPUT          PARTIAL  runtime/core_console.go:53; manifest 1-arg; impl optional 2nd default — no arity row
 CLS            PARTIAL  runtime/core_console.go:76; no dedicated test
 LOCATE         PARTIAL  runtime/core_console.go:80; ANSI cursor; no dedicated test
@@ -61,7 +65,7 @@ COUNT$         DONE     runtime/strings_search.go; testdata/strings_test.mb
 LSET$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
 RSET$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
 ISALPHA        DONE     runtime/strings_check.go; testdata/strings_test.mb
-ISNUMERIC      PARTIAL  runtime/strings_check.go (ParseFloat rules); dead duplicate strmod.ISNUMERIC digit-only — see DUPLICATES
+ISNUMERIC      PARTIAL  runtime/strings_check.go (strconv.ParseFloat rules vs “digits only” BASIC dialects); no strmod duplicate (strmod strings.go removed)
 ISALPHANUM     DONE     runtime/strings_check.go; testdata/strings_test.mb
 FORMAT$        DONE     runtime/strings_format.go; testdata/strings_test.mb
 BIN$           DONE     runtime/strings_format.go; testdata/strings_test.mb
@@ -102,11 +106,11 @@ ABS            PARTIAL  runtime/mathmod/basic.go; no dedicated test
 SGN            PARTIAL  runtime/mathmod/basic.go; no dedicated test
 MIN            PARTIAL  runtime/mathmod/basic.go; no dedicated test
 MAX            PARTIAL  runtime/mathmod/basic.go; no dedicated test
-CLAMP          PARTIAL  runtime/mathmod; no dedicated test
-LERP           PARTIAL  runtime/mathmod; no dedicated test
-SMOOTHSTEP     PARTIAL  runtime/mathmod; no dedicated test
-PINGPONG       PARTIAL  runtime/mathmod; no dedicated test
-WRAP           PARTIAL  runtime/mathmod; no dedicated test
+CLAMP          PARTIAL  runtime/mathmod/angle_interp.go + raymath_rl55.go (Raylib 5.5 rlClamp); no dedicated .mb test
+LERP           PARTIAL  runtime/mathmod; raymath_rl55.go (rlLerp); no dedicated .mb test
+SMOOTHSTEP     PARTIAL  runtime/mathmod/angle_interp.go; no dedicated .mb test
+PINGPONG       PARTIAL  runtime/mathmod/angle_interp.go; no dedicated .mb test
+WRAP           PARTIAL  runtime/mathmod; raymath_rl55.go (rlWrap); no dedicated .mb test
 DEG2RAD        PARTIAL  runtime/mathmod/angle_interp.go; no dedicated test
 RAD2DEG        PARTIAL  runtime/mathmod/angle_interp.go; no dedicated test
 WRAPANGLE      PARTIAL  runtime/mathmod; no dedicated test
@@ -194,12 +198,13 @@ DELETE               PARTIAL  codegen; no focused testdata
 FOR EACH(Type)       PARTIAL  parser; no focused testdata
 
 --- FILE I/O (flat names + FILE.*) ---
-OPENFILE          PARTIAL  runtime/file/module.go:61 (CGO); stub runtime/file/stub.go (!cgo); testdata/file_test.mb when CGO
+OPENFILE          PARTIAL  runtime/file/module.go (CGO); stub runtime/file/stub.go (!cgo); testdata/file_test.mb when CGO
 CLOSEFILE         PARTIAL  flat alias FILE.CLOSE; CGO/stub as above
 READFILE$         PARTIAL  flat → FILE.READLINE; line-based; CGO
-WRITEFILE         DONE     flat → FILE.WRITE (raw, no newline); runtime/file/write.go; CGO
-WRITEFILELN       DONE     flat → FILE.WRITELN; runtime/file/write.go; CGO
-FILE.WRITELN      DONE     commands.json + runtime/file; testdata/file_test.mb
+FILE.WRITE        DONE     runtime/file/write.go fileWriteRaw; raw bytes no newline; CGO
+FILE.WRITELN      DONE     runtime/file/write.go fileWriteLine; appends newline; commands.json; testdata/file_test.mb
+WRITEFILE         DONE     flat → FILE.WRITE; runtime/file/module.go Register; CGO
+WRITEFILELN       DONE     flat → FILE.WRITELN; runtime/file/module.go; CGO
 READALLTEXT$      DONE     runtime/mbutil/util.go; testdata/file_io_ops.mb / file_test.mb
 WRITEALLTEXT      DONE     runtime/mbutil; testdata/file_io_ops.mb
 READBYTE          PARTIAL  commands.json key; no native — manifest stub only
@@ -316,17 +321,19 @@ DUPLICATES (0-C) — consolidate to one canonical native + thin aliases where ne
 ================================================================================
 MANIFEST / REGISTRY (0-D)
 ================================================================================
-• Callable keys in commands.json: 913 rows (non-unique keys include overloads).
+• Callable rows in commands.json: 914 "key" rows (non-unique keys include overloads); FILE.WRITELN added 2026-04-04.
 • Statement forms (DO/LOOP, EXIT, CONTINUE, TRY/CATCH, ON ERROR, DATA/READ/RESTORE, REM, LET) are not modeled as commands.json builtins; add parser/bytecode first, then manifest only if invoked as registered names.
 • ERR/ERRMSG$/ERRLINE/ERRFILE$/THROW/TRACE/PRINTAT/PRINTCOLOR: manifest present — need native wiring or remain PARTIAL stubs.
-• Next consolidation: delete strmod bogus keys; fix FILE.WRITE vs newline for WRITEFILE; implement binary FILE ops or remove stub rows until ready (optional).
+• Next consolidation: binary FILE.* (READBYTE/WRITEINT/…) natives or document stub-only; GETFILES$ array handle vs JSON string; PRINT vs PRINTLN semantics.
 
 ================================================================================
 TOTALS (one line per row in sections OUTPUT through CLASSIC; INT/FIX counted once in TYPE/MATH notes)
 ================================================================================
-DONE:     92
-PARTIAL:  146
+DONE:     93   (+FILE.WRITE explicit row; WRITEFILE* were already DONE — net +1 vs prior recount)
+PARTIAL:  145  (removed OUTPUT mis-row WRITEFILELN; ISNUMERIC dup note)
 MISSING:   36
-TOTAL:    274
+TOTAL:    275
+
+Recount policy: after each substantive code change, edit Changelog, adjust affected rows, then re-tally DONE/PARTIAL/MISSING from sections OUTPUT through CLASSIC (INT counted once under TYPE CONVERSION).
 
 (MISSING = language/parser features without support: DO/LOOP variants, EXIT/CONTINUE, advanced SELECT cases, default/PARAMS/type hints, TRY/ON ERROR family, DATA/READ/RESTORE/REM/LET, plus grouped “same” items counted once per section.)
