@@ -2760,7 +2760,16 @@
       "args": [
         "handle",
         "string"
-      ]
+      ],
+      "description": "Write string to file without appending a newline."
+    },
+    {
+      "key": "FILE.WRITELN",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "description": "Write string to file and append a newline."
     },
     {
       "key": "FILE.EOF",

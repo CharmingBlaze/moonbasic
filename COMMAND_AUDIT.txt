@@ -197,8 +197,9 @@ FOR EACH(Type)       PARTIAL  parser; no focused testdata
 OPENFILE          PARTIAL  runtime/file/module.go:61 (CGO); stub runtime/file/stub.go (!cgo); testdata/file_test.mb when CGO
 CLOSEFILE         PARTIAL  flat alias FILE.CLOSE; CGO/stub as above
 READFILE$         PARTIAL  flat → FILE.READLINE; line-based; CGO
-WRITEFILE         PARTIAL  flat → FILE.WRITE; implementation always appends newline (same as WRITEFILELN) — spec mismatch
-WRITEFILELN       PARTIAL  same handler as WRITEFILE; newline always
+WRITEFILE         DONE     flat → FILE.WRITE (raw, no newline); runtime/file/write.go; CGO
+WRITEFILELN       DONE     flat → FILE.WRITELN; runtime/file/write.go; CGO
+FILE.WRITELN      DONE     commands.json + runtime/file; testdata/file_test.mb
 READALLTEXT$      DONE     runtime/mbutil/util.go; testdata/file_io_ops.mb / file_test.mb
 WRITEALLTEXT      DONE     runtime/mbutil; testdata/file_io_ops.mb
 READBYTE          PARTIAL  commands.json key; no native — manifest stub only
@@ -309,8 +310,8 @@ DUPLICATES (0-C) — consolidate to one canonical native + thin aliases where ne
 6) ARRAYJOINS / ARRAYJOINS$ — same handler (intentional).
 7) INT conversion vs “integer division” naming — MATH may expose separate trunc; audit INT once only.
 8) UTIL.* vs flat FILE*/GET* — flat aliases in runtime/mbutil/util.go + file module (intentional).
-9) WRITEFILE vs WRITEFILELN — both forward to FILE.WRITE which always writes newline — accidental duplicate behavior; need WRITEFILE without newline.
-10) runtime/strmod/strings.go registers keys strmod.LSET$, strmod.RSET$, … — not valid script names; dead registrations; core owns LSET$/SPACE$/FORMAT$/etc. Remove or re-register as flat aliases to core.
+9) (resolved) WRITEFILE → FILE.WRITE (raw); WRITEFILELN → FILE.WRITELN (newline).
+10) (resolved) strmod dead strmod.* registrations removed; core owns flat string builtins.
 
 ================================================================================
 MANIFEST / REGISTRY (0-D)
@@ -323,8 +324,8 @@ MANIFEST / REGISTRY (0-D)
 ================================================================================
 TOTALS (one line per row in sections OUTPUT through CLASSIC; INT/FIX counted once in TYPE/MATH notes)
 ================================================================================
-DONE:     89
-PARTIAL:  149
+DONE:     92
+PARTIAL:  146
 MISSING:   36
 TOTAL:    274
 

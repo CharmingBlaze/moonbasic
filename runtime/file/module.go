@@ -40,7 +40,7 @@ func NewModule() *Module { return &Module{} }
 
 func (m *Module) Names() []string {
 	return []string{
-		"FILE.OPENREAD", "FILE.OPENWRITE", "FILE.CLOSE", "FILE.READLINE", "FILE.WRITE", "FILE.EOF",
+		"FILE.OPENREAD", "FILE.OPENWRITE", "FILE.CLOSE", "FILE.READLINE", "FILE.WRITE", "FILE.WRITELN", "FILE.EOF",
 		"FILE.SEEK", "FILE.TELL", "FILE.SIZE",
 	}
 }
@@ -63,7 +63,6 @@ func (m *Module) Register(r runtime.Registrar) {
 		{"CLOSEFILE", "FILE.CLOSE"},
 		{"READFILE$", "FILE.READLINE"},
 		{"WRITEFILE", "FILE.WRITE"},
-		{"WRITEFILELN", "FILE.WRITE"},
 		{"EOF", "FILE.EOF"},
 		{"FILEPOS", "FILE.TELL"},
 		{"SEEKFILE", "FILE.SEEK"},
@@ -75,6 +74,9 @@ func (m *Module) Register(r runtime.Registrar) {
 			return m.Run(rt, canon, args...)
 		})
 	}
+	r.Register("WRITEFILELN", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return m.Run(rt, "FILE.WRITELN", args...)
+	})
 }
 
 // Shutdown implements runtime.Module.
@@ -113,7 +115,9 @@ func (m *Module) Run(rt *runtime.Runtime, name string, args ...value.Value) (val
 	case "FILE.READLINE":
 		return m.fileReadLine(rt, args...)
 	case "FILE.WRITE":
-		return m.fileWrite(rt, args...)
+		return m.fileWriteRaw(rt, args...)
+	case "FILE.WRITELN":
+		return m.fileWriteLine(rt, args...)
 	case "FILE.EOF":
 		return m.fileEOF(args...)
 	case "FILE.SEEK":
@@ -196,25 +200,6 @@ func (m *Module) fileReadLine(rt *runtime.Runtime, args ...value.Value) (value.V
 	line = strings.TrimSuffix(line, "\n")
 	line = strings.TrimSuffix(line, "\r")
 	return rt.RetString(line), nil
-}
-
-func (m *Module) fileWrite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.WRITE expects (handle, text$)")
-	}
-	o, err := heap.Cast[*fileObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil {
-		return value.Nil, err
-	}
-	if o.wr == nil {
-		return value.Nil, fmt.Errorf("file not open for writing")
-	}
-	text, err := rt.ArgString(args, 1)
-	if err != nil {
-		return value.Nil, err
-	}
-	_, err = o.wr.WriteString(text + "\n")
-	return value.Nil, err
 }
 
 func (m *Module) fileEOF(args ...value.Value) (value.Value, error) {

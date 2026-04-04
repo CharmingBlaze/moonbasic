@@ -24,6 +24,7 @@ var stubNames = []string{
 	"FILE.CLOSE",
 	"FILE.READLINE",
 	"FILE.WRITE",
+	"FILE.WRITELN",
 	"FILE.EOF",
 	"FILE.SEEK",
 	"FILE.TELL",
