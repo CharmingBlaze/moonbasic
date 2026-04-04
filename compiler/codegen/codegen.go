@@ -28,6 +28,7 @@ type CodeGen struct {
 	selectTmpID int
 	fnDepth     int    // >0 when emitting a FUNCTION body
 	funcName    string // uppercase function name when fnDepth > 0
+	loopStack   []loopFrame
 }
 
 // New creates a code generator.
@@ -100,6 +101,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 	}
 
 	// 2. Main program
+	g.loopStack = nil
 	for _, st := range tree.Stmts {
 		g.emitStmt(g.Prog.Main, st)
 		if g.err != nil {
@@ -119,6 +121,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 	// 2. Function bodies
 	for _, fn := range tree.Functions {
 		ch := g.Prog.Functions[fn.Name]
+		g.loopStack = nil
 
 		g.fnDepth = 1
 		g.funcName = strings.ToUpper(fn.Name)
@@ -189,6 +192,10 @@ func (g *CodeGen) predeclareStmt(s ast.Stmt) {
 			g.predeclareStmt(st)
 		}
 	case *ast.RepeatNode:
+		for _, st := range n.Body {
+			g.predeclareStmt(st)
+		}
+	case *ast.DoLoopNode:
 		for _, st := range n.Body {
 			g.predeclareStmt(st)
 		}

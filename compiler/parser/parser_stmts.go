@@ -29,6 +29,12 @@ func (p *Parser) parseStmt() (ast.Stmt, error) {
 		return p.parseFor()
 	case token.REPEAT:
 		return p.parseRepeat()
+	case token.DO:
+		return p.parseDo()
+	case token.EXIT:
+		return p.parseExit()
+	case token.CONTINUE:
+		return p.parseContinue()
 	case token.SELECT:
 		return p.parseSelect()
 	case token.DIM, token.REDIM:
@@ -398,7 +404,7 @@ func (p *Parser) parseFor() (ast.Stmt, error) {
 	if err := p.expect(token.NEXT); err != nil {
 		return nil, err
 	}
-	p.skipNewlines()
+	// Optional NEXT var only on the same line as NEXT (do not skip newlines — would eat the next stmt's identifier).
 	if p.cur().Type == token.IDENT {
 		p.advance()
 	}
@@ -424,6 +430,111 @@ func (p *Parser) parseRepeat() (ast.Stmt, error) {
 		return nil, err
 	}
 	return arena.Make(p.ar, ast.RepeatNode{Body: body, Condition: cond, Line: line, Col: col}), nil
+}
+
+func (p *Parser) parseDo() (ast.Stmt, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance() // DO
+	p.skipNewlines()
+	if p.cur().Type == token.WHILE {
+		// DO WHILE cond ... LOOP
+		p.advance()
+		cond, err := p.parseExpr()
+		if err != nil {
+			return nil, err
+		}
+		if p.cur().Type != token.NEWLINE {
+			return nil, p.failf("expected newline after DO WHILE condition")
+		}
+		p.advance()
+		body, err := p.parseStmtBlockUntil([]token.TokenType{token.LOOP})
+		if err != nil {
+			return nil, err
+		}
+		if err := p.expect(token.LOOP); err != nil {
+			return nil, err
+		}
+		return arena.Make(p.ar, ast.DoLoopNode{Kind: ast.DoPreWhile, Cond: cond, Body: body, Line: line, Col: col}), nil
+	}
+	// DO ... LOOP WHILE|UNTIL expr (optional blank lines before first statement)
+	p.skipNewlines()
+	body, err := p.parseStmtBlockUntil([]token.TokenType{token.LOOP})
+	if err != nil {
+		return nil, err
+	}
+	if err := p.expect(token.LOOP); err != nil {
+		return nil, err
+	}
+	p.skipNewlines()
+	switch p.cur().Type {
+	case token.WHILE:
+		p.advance()
+		cond, err2 := p.parseExpr()
+		if err2 != nil {
+			return nil, err2
+		}
+		return arena.Make(p.ar, ast.DoLoopNode{Kind: ast.DoPostWhile, Cond: cond, Body: body, Line: line, Col: col}), nil
+	case token.UNTIL:
+		p.advance()
+		cond, err2 := p.parseExpr()
+		if err2 != nil {
+			return nil, err2
+		}
+		return arena.Make(p.ar, ast.DoLoopNode{Kind: ast.DoPostUntil, Cond: cond, Body: body, Line: line, Col: col}), nil
+	default:
+		return nil, p.failf("expected WHILE or UNTIL after LOOP")
+	}
+}
+
+func (p *Parser) parseExit() (ast.Stmt, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance()
+	p.skipNewlines()
+	var target string
+	switch p.cur().Type {
+	case token.FOR:
+		p.advance()
+		target = "FOR"
+	case token.WHILE:
+		p.advance()
+		target = "WHILE"
+	case token.REPEAT:
+		p.advance()
+		target = "REPEAT"
+	case token.DO:
+		p.advance()
+		target = "DO"
+	case token.FUNCTION:
+		p.advance()
+		target = "FUNCTION"
+	default:
+		return nil, p.failf("EXIT must be followed by FOR, WHILE, REPEAT, DO, or FUNCTION")
+	}
+	return arena.Make(p.ar, ast.ExitStmt{Target: target, Line: line, Col: col}), nil
+}
+
+func (p *Parser) parseContinue() (ast.Stmt, error) {
+	line, col := p.cur().Line, p.cur().Col
+	p.advance()
+	p.skipNewlines()
+	var target string
+	switch p.cur().Type {
+	case token.FOR:
+		p.advance()
+		target = "FOR"
+	case token.WHILE:
+		p.advance()
+		target = "WHILE"
+	case token.REPEAT:
+		p.advance()
+		target = "REPEAT"
+	case token.DO:
+		p.advance()
+		target = "DO"
+	default:
+		return nil, p.failf("CONTINUE must be followed by FOR, WHILE, REPEAT, or DO")
+	}
+	return arena.Make(p.ar, ast.ContinueStmt{Target: target, Line: line, Col: col}), nil
 }
 
 func (p *Parser) parseSelect() (ast.Stmt, error) {

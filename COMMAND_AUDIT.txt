@@ -9,6 +9,8 @@ Changelog (update this section whenever you change impl or tests)
 • 2026-04-04 — mathmod: CLAMP/LERP/WRAP use Raylib 5.5 raymath formulas (runtime/mathmod/raymath_rl55.go); trig still std math.
 • 2026-04-04 — file: FILE.WRITE/WRITEFILE raw; FILE.WRITELN/WRITEFILELN append newline (runtime/file/write.go); commands.json + FILE.WRITELN.
 • 2026-04-04 — strmod: removed runtime/strmod/strings.go bogus strmod.* keys; strmod module is a no-op register.
+• 2026-04-04 — control flow: DO/LOOP WHILE|UNTIL, DO WHILE…LOOP; EXIT/CONTINUE FOR|WHILE|REPEAT|DO; EXIT FUNCTION (compiler/token, parser_stmts, codegen_loopctx.go, codegen_do.go). testdata/do_loop_test.mb, exit_continue_test.mb; CI --check.
+• 2026-04-04 — parser: optional variable after NEXT only on same line as NEXT (no skipNewlines) — fixes swallowing next statement’s identifier.
 
 Legend
 ------
@@ -158,19 +160,19 @@ SWAP           PARTIAL  compiler/parser; coverage unclear
 --- CONTROL FLOW (parser + codegen) ---
 IF/THEN/ELSEIF/ELSE/ENDIF   DONE  compiler; multiple tests
 WHILE/WEND                  DONE  compiler
-FOR/TO/STEP/NEXT            DONE  testdata/for_test.mb
+FOR/TO/STEP/NEXT            DONE  testdata/for_test.mb, exit_continue_test.mb; optional NEXT var only same line as NEXT (parser_stmts.go)
 REPEAT/UNTIL                DONE  testdata/repeat_test.mb
-DO/LOOP WHILE               MISSING  no TOK_DO / TOK_LOOP in compiler/token
-DO WHILE/LOOP               MISSING  same
-DO/LOOP UNTIL               MISSING  same
-EXIT FOR                    MISSING  no EXIT keyword
-EXIT WHILE                  MISSING  same
-EXIT REPEAT                 MISSING  same
-EXIT DO                     MISSING  same
-CONTINUE FOR                MISSING  no CONTINUE keyword
-CONTINUE WHILE              MISSING  same
-CONTINUE REPEAT             MISSING  same
-CONTINUE DO                 MISSING  same
+DO/LOOP WHILE               DONE  token DO/LOOP; parser_stmts parseDo; codegen_do.go; testdata/do_loop_test.mb
+DO WHILE/LOOP               DONE  same
+DO/LOOP UNTIL               DONE  same
+EXIT FOR                    DONE  codegen_loopctx + testdata/exit_continue_test.mb
+EXIT WHILE                  DONE  same
+EXIT REPEAT                 DONE  same
+EXIT DO                     DONE  same
+CONTINUE FOR                DONE  codegen_loopctx + exit_continue_test.mb
+CONTINUE WHILE              DONE  same
+CONTINUE REPEAT             DONE  same (no dedicated line in .mb)
+CONTINUE DO                 DONE  same
 SELECT/CASE/DEFAULT/ENDSELECT  PARTIAL  testdata/select_test.mb; single value per CASE only
 CASE val1, val2, val3       MISSING  multi-value CASE
 CASE val1 TO val2           MISSING  range CASE
@@ -189,7 +191,7 @@ FUNCTION/ENDFUNCTION/RETURN   DONE  testdata/func_test.mb
 Default parameter values      MISSING  parser — not supported
 Variadic PARAMS               MISSING  not supported
 Type hints AS                 MISSING  not supported
-EXIT FUNCTION                 PARTIAL  parse/codegen path unclear; no dedicated test
+EXIT FUNCTION                 DONE  codegen_loopctx emitExitStmt; testdata/exit_continue_test.mb (EarlyExit)
 
 --- USER TYPES ---
 TYPE/FIELD/ENDTYPE   PARTIAL  compiler/parser/parser_types.go; no focused testdata
@@ -329,11 +331,11 @@ MANIFEST / REGISTRY (0-D)
 ================================================================================
 TOTALS (one line per row in sections OUTPUT through CLASSIC; INT/FIX counted once in TYPE/MATH notes)
 ================================================================================
-DONE:     93   (+FILE.WRITE explicit row; WRITEFILE* were already DONE — net +1 vs prior recount)
-PARTIAL:  145  (removed OUTPUT mis-row WRITEFILELN; ISNUMERIC dup note)
-MISSING:   36
+DONE:     105  (control flow DO/EXIT/CONTINUE/EXIT FUNCTION + prior recount)
+PARTIAL:  144  (EXIT FUNCTION moved to DONE)
+MISSING:   25  (DO/LOOP + EXIT/CONTINUE rows moved to DONE)
 TOTAL:    275
 
 Recount policy: after each substantive code change, edit Changelog, adjust affected rows, then re-tally DONE/PARTIAL/MISSING from sections OUTPUT through CLASSIC (INT counted once under TYPE CONVERSION).
 
-(MISSING = language/parser features without support: DO/LOOP variants, EXIT/CONTINUE, advanced SELECT cases, default/PARAMS/type hints, TRY/ON ERROR family, DATA/READ/RESTORE/REM/LET, plus grouped “same” items counted once per section.)
+(MISSING = language/parser features without support: advanced SELECT cases, default/PARAMS/type hints, TRY/ON ERROR family, DATA/READ/RESTORE/REM/LET, plus grouped “same” items counted once per section.)

@@ -85,6 +85,15 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 	case *ast.RepeatNode:
 		g.emitRepeat(ch, n)
 
+	case *ast.DoLoopNode:
+		g.emitDoLoop(ch, n)
+
+	case *ast.ExitStmt:
+		g.emitExitStmt(ch, n)
+
+	case *ast.ContinueStmt:
+		g.emitContinueStmt(ch, n)
+
 	case *ast.SelectNode:
 		g.emitSelect(ch, n)
 
@@ -212,20 +221,17 @@ func (g *CodeGen) emitIf(ch *opcode.Chunk, n *ast.IfNode) {
 }
 
 func (g *CodeGen) emitWhile(ch *opcode.Chunk, n *ast.WhileNode) {
-	startIdx := len(ch.Instructions)
+	startIdx := int32(len(ch.Instructions))
 	g.emitExpr(ch, n.Cond)
-
 	exitJump := ch.Emit(opcode.OpJumpIfFalse, 0, 0, n.Line)
-
+	g.beginLoop("while", startIdx)
 	for _, st := range n.Body {
 		g.emitStmt(ch, st)
 	}
-
-	// Jump back to condition
-	ch.Emit(opcode.OpJump, int32(startIdx), 0, n.Line)
-
-	// Patch exit jump
-	ch.Instructions[exitJump].Operand = int32(len(ch.Instructions))
+	ch.Emit(opcode.OpJump, startIdx, 0, n.Line)
+	leave := len(ch.Instructions)
+	g.endLoop(ch, leave)
+	ch.Instructions[exitJump].Operand = int32(leave)
 }
 
 func (g *CodeGen) emitFor(ch *opcode.Chunk, n *ast.ForNode) {
@@ -256,10 +262,15 @@ func (g *CodeGen) emitFor(ch *opcode.Chunk, n *ast.ForNode) {
 
 	exitJump := ch.Emit(opcode.OpJumpIfFalse, 0, 0, n.Line)
 
+	g.beginLoop("for", -1)
+
 	// 4. Body
 	for _, st := range n.Body {
 		g.emitStmt(ch, st)
 	}
+
+	contIdx := int32(len(ch.Instructions))
+	g.setLoopContinueTarget(contIdx)
 
 	// 5. Increment: var = var + step
 	g.emitExpr(ch, &ast.IdentNode{Name: n.Var, Line: n.Line})
@@ -282,20 +293,21 @@ func (g *CodeGen) emitFor(ch *opcode.Chunk, n *ast.ForNode) {
 	// 6. Jump back
 	ch.Emit(opcode.OpJump, int32(startIdx), 0, n.Line)
 
-	// 7. Patch Exit
-	ch.Instructions[exitJump].Operand = int32(len(ch.Instructions))
+	leave := len(ch.Instructions)
+	g.endLoop(ch, leave)
+	ch.Instructions[exitJump].Operand = int32(leave)
 }
 
 func (g *CodeGen) emitRepeat(ch *opcode.Chunk, n *ast.RepeatNode) {
-	startIdx := len(ch.Instructions)
-
+	startIdx := int32(len(ch.Instructions))
+	g.beginLoop("repeat", startIdx)
 	for _, st := range n.Body {
 		g.emitStmt(ch, st)
 	}
-
 	g.emitExpr(ch, n.Condition)
-	// REPEAT UNTIL cond (Loop while cond is FALSE)
-	ch.Emit(opcode.OpJumpIfFalse, int32(startIdx), 0, n.Line)
+	ch.Emit(opcode.OpJumpIfFalse, startIdx, 0, n.Line)
+	leave := len(ch.Instructions)
+	g.endLoop(ch, leave)
 }
 
 func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallStmt) {

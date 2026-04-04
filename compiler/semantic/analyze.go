@@ -185,6 +185,17 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		if err := a.checkExprCalls(n.Condition); err != nil {
 			return err
 		}
+	case *ast.DoLoopNode:
+		if err := a.checkExprCalls(n.Cond); err != nil {
+			return err
+		}
+		for _, t := range n.Body {
+			if err := a.checkStmt(t); err != nil {
+				return err
+			}
+		}
+	case *ast.ExitStmt, *ast.ContinueStmt:
+		return nil
 	case *ast.SelectNode:
 		if err := a.checkExprCalls(n.Expr); err != nil {
 			return err

@@ -44,6 +44,8 @@ jobs:
       - name: Check integration samples (semantic only)
         run: |
           go run . --check testdata/game_2d.mb
+          go run . --check testdata/do_loop_test.mb
+          go run . --check testdata/exit_continue_test.mb
           go run . --check testdata/phase_d_acceptance.mb
           go run . --check testdata/physics_demo.mb
           go run . --check testdata/net_server.mb
@@ -104,6 +106,8 @@ jobs:
       - name: Check integration samples (semantic only)
         run: |
           go run . --check testdata/game_2d.mb
+          go run . --check testdata/do_loop_test.mb
+          go run . --check testdata/exit_continue_test.mb
           go run . --check testdata/phase_d_acceptance.mb
           go run . --check testdata/physics_demo.mb
           go run . --check testdata/net_server.mb

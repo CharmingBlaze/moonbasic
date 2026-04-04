@@ -200,6 +200,50 @@ type RepeatNode struct {
 func (n *RepeatNode) stmt()          {}
 func (n *RepeatNode) String() string { return "Repeat(...)" }
 
+// DoLoopKind selects DO/LOOP variant (Raylib-style BASIC).
+type DoLoopKind int
+
+const (
+	// DoPostWhile: DO ... LOOP WHILE cond (body runs at least once).
+	DoPostWhile DoLoopKind = iota
+	// DoPostUntil: DO ... LOOP UNTIL cond (exit when cond true).
+	DoPostUntil
+	// DoPreWhile: DO WHILE cond ... LOOP (may skip body).
+	DoPreWhile
+)
+
+// DoLoopNode is DO ... LOOP with WHILE or UNTIL (post-test) or DO WHILE ... LOOP (pre-test).
+type DoLoopNode struct {
+	Kind DoLoopKind
+	Cond Expr
+	Body []Stmt
+	Line int
+	Col  int
+}
+
+func (n *DoLoopNode) stmt()          {}
+func (n *DoLoopNode) String() string { return "DoLoop(...)" }
+
+// ExitStmt is EXIT FOR | EXIT WHILE | EXIT REPEAT | EXIT DO | EXIT FUNCTION.
+type ExitStmt struct {
+	Target string // FOR, WHILE, REPEAT, DO, FUNCTION
+	Line   int
+	Col    int
+}
+
+func (n *ExitStmt) stmt()          {}
+func (n *ExitStmt) String() string { return "Exit(" + n.Target + ")" }
+
+// ContinueStmt is CONTINUE FOR | WHILE | REPEAT | DO.
+type ContinueStmt struct {
+	Target string // FOR, WHILE, REPEAT, DO
+	Line   int
+	Col    int
+}
+
+func (n *ContinueStmt) stmt()          {}
+func (n *ContinueStmt) String() string { return "Continue(" + n.Target + ")" }
+
 // SelectNode is SELECT expr ... CASE ... DEFAULT ... ENDSELECT.
 type SelectNode struct {
 	Expr    Expr

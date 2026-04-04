@@ -1,0 +1,17 @@
+i = 0
+DO
+i = i + 1
+PRINT(i)
+LOOP WHILE i < 3
+
+j = 10
+DO WHILE j < 5
+PRINT("should not print")
+LOOP
+PRINT("j loop done")
+
+k = 0
+DO
+k = k + 1
+LOOP UNTIL k >= 5
+PRINT(k)

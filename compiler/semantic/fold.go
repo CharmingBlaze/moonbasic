@@ -75,6 +75,13 @@ func foldStmt(s ast.Stmt) {
 			foldStmt(t)
 		}
 		n.Condition = foldExpr(n.Condition)
+	case *ast.DoLoopNode:
+		n.Cond = foldExpr(n.Cond)
+		for _, t := range n.Body {
+			foldStmt(t)
+		}
+	case *ast.ExitStmt, *ast.ContinueStmt:
+		// no expressions
 	case *ast.SelectNode:
 		n.Expr = foldExpr(n.Expr)
 		for i := range n.Cases {

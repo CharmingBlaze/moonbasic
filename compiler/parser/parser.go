@@ -155,7 +155,7 @@ func isKeywordUsableAsIdent(tt token.TokenType) bool {
 	case token.IF, token.THEN, token.ELSE, token.ELSEIF, token.ENDIF,
 		token.WHILE, token.WEND, token.ENDWHILE,
 		token.FOR, token.TO, token.DOWNTO, token.STEP, token.NEXT,
-		token.REPEAT, token.UNTIL,
+		token.REPEAT, token.UNTIL, token.DO, token.LOOP, token.EXIT, token.CONTINUE,
 		token.SELECT, token.CASE, token.DEFAULT, token.ENDSELECT,
 		token.FUNCTION, token.ENDFUNCTION, token.RETURN,
 		token.TYPE, token.FIELD, token.ENDTYPE,

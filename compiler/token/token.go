@@ -62,6 +62,10 @@ const (
 	NEXT
 	REPEAT
 	UNTIL
+	DO
+	LOOP
+	EXIT
+	CONTINUE
 	SELECT
 	CASE
 	DEFAULT
@@ -123,6 +127,10 @@ var keywords = map[string]TokenType{
 	"NEXT":        NEXT,
 	"REPEAT":      REPEAT,
 	"UNTIL":       UNTIL,
+	"DO":          DO,
+	"LOOP":        LOOP,
+	"EXIT":        EXIT,
+	"CONTINUE":    CONTINUE,
 	"SELECT":      SELECT,
 	"CASE":        CASE,
 	"DEFAULT":     DEFAULT,
@@ -262,6 +270,14 @@ func (t TokenType) String() string {
 		return "REPEAT"
 	case UNTIL:
 		return "UNTIL"
+	case DO:
+		return "DO"
+	case LOOP:
+		return "LOOP"
+	case EXIT:
+		return "EXIT"
+	case CONTINUE:
+		return "CONTINUE"
 	case SELECT:
 		return "SELECT"
 	case CASE:
