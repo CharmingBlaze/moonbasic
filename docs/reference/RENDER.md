@@ -1,96 +1,126 @@
 # Render Commands
 
-Commands for drawing, clearing the screen, and managing the render state.
+Frame lifecycle and render-state helpers. Drawing itself uses **`Draw.*`**, **`Draw3D.*`**, **`Camera.Begin` / `Camera.End`**, and **`Camera2D.Begin` / `Camera2D.End`** — there are **no** `Render.BeginMode2D` / `Render.BeginMode3D` APIs.
 
-## The Rendering Loop
+## Frame loop
 
-All drawing in moonBASIC happens inside the main game loop. Each frame, you must:
+Each frame:
 
-1.  **Clear the screen**: Call `Render.Clear()` to wipe the previous frame.
-2.  **Enter a drawing mode**: Use `Render.BeginMode2D()` or `cam.Begin()` for 3D.
-3.  **Call drawing commands**: Use `Draw.*`, `Mesh.Draw`, etc.
-4.  **End the mode**: Use `Render.EndMode2D()` or `cam.End()`.
-5.  **Present the frame**: Call `Render.Frame()` to show the result on screen.
+1. **`Render.Clear(...)`** — clear color / depth as configured.
+2. **Optional modes:** `Camera2D.Begin` / `End` for transformed 2D; `Camera.Begin` / `Camera.End` for 3D.
+3. **Draw** — `Draw.*`, `Draw3D.*`, models, etc.
+4. **`Render.Frame()`** — present (swap buffers).
 
 ```basic
 WHILE NOT Window.ShouldClose()
-    ; 1. Clear
     Render.Clear(10, 20, 30)
 
-    ; 2. Begin Mode
-    Render.BeginMode2D()
-        ; 3. Draw
-        Draw.Rect(100, 100, 50, 50, 255, 255, 255, 255)
-    ; 4. End Mode
-    Render.EndMode2D()
+    Camera2D.Begin()
+        Draw.Rectangle(100, 100, 50, 50, 255, 255, 255, 255)
+    Camera2D.End()
 
-    ; 5. Present
     Render.Frame()
 WEND
 ```
 
 ---
 
-## Core Commands
+## Core
 
-### `Render.Clear(r, g, b, [a])`
+### `Render.Clear([...])`
 
-Clears the entire screen to a specific color. The alpha component `a` is optional.
+Overloads (see runtime):
 
-- `r`, `g`, `b`, `a`: The red, green, blue, and alpha components of the color (0-255).
+- **0 args** — default clear.
+- **1 arg** — color **handle**.
+- **3 args** — `r, g, b` (0–255).
+- **4 args** — `r, g, b, a`.
 
----
+Requires an open window (`Window.Open`).
 
 ### `Render.Frame()`
 
-Swaps the back buffer to the front, displaying everything drawn since the last `Render.Clear()` call. This should be called once at the very end of the main loop.
+Presents the frame. Must follow a `Render.Clear` for that frame (runtime enforces an active frame).
 
 ---
 
-## Drawing Modes
-
-### `Render.BeginMode2D()` / `Render.EndMode2D()`
-
-Enters and exits 2D drawing mode. The coordinate system starts at `(0,0)` in the top-left corner. All `Draw.*` commands for 2D shapes, text, and textures must be within this block.
-
----
-
-### `cam.Begin()` / `cam.End()`
-
-Enters and exits 3D drawing mode using a specific camera's perspective. All 3D drawing commands like `Mesh.Draw` and `Model.Draw` must be within this block. See the [Camera Reference](CAMERA.md) for details.
-
----
-
-### `Render.BeginShader(shaderHandle)` / `Render.EndShader()`
-
-Applies a custom shader to all subsequent drawing commands until `Render.EndShader()` is called. See the [Shader Reference](SHADER.md) for details.
-
----
-
-## Utilities
+## Overlay / capture
 
 ### `Render.DrawFPS(x, y)`
 
-Draws the current frames per second at the specified screen coordinates.
+Draws the FPS counter at integer pixel coordinates (registered with the render module).
 
-- `x`, `y`: The position to draw the text.
+### `Render.Screenshot(path$)`
 
----
-
-### `Render.Screenshot(filePath$)`
-
-Saves a screenshot of the current frame to a `.png` file.
-
-- `filePath$`: The path to save the file.
+Writes a PNG screenshot to `path$` (`TakeScreenshot`).
 
 ---
 
-## State Management
+## Blending and depth
 
-### `Render.SetBlend(mode)`
+### `Render.SetBlend(mode)` / `Render.SetBlendMode(mode)`
 
-Sets the blending mode for drawing. This is useful for effects like transparency or additive lighting.
+Alias pair. `mode` is a numeric **Raylib blend mode** (e.g. `BLEND_ALPHA`, `BLEND_ADDITIVE` from key globals).
 
-- `mode`: An integer representing the blend mode. Common values include:
-    - `BLEND_ALPHA`: Standard transparency.
-    - `BLEND_ADDITIVE`: Brightens colors by adding them together.
+### `Render.SetDepthWrite(on)` / `Render.SetDepthMask(on)`
+
+Alias pair. Enables or disables depth **mask** (writing to the depth buffer).
+
+### `Render.SetDepthTest(on)`
+
+Enables or disables depth **testing**.
+
+---
+
+## Raster state
+
+### `Render.SetScissor(x, y, w, h)`
+
+Enables scissor test and sets the rectangle (**integer** components).
+
+### `Render.ClearScissor()`
+
+Disables scissor test.
+
+### `Render.SetWireframe(on)`
+
+Enables or disables wireframe mode (Raylib wire mode).
+
+---
+
+## Window / pipeline hints
+
+### `Render.SetMSAA(on)`
+
+Toggles the **4× MSAA window hint** (affects setup; may require appropriate window flags).
+
+### `Render.SetMode(mode$)`
+
+`"forward"` or `"deferred"` — switches internal 3D render pipeline mode where supported.
+
+### `Render.SetShadowMapSize(size)`
+
+Sets shadow map resolution used by the 3D runtime (numeric size in pixels).
+
+---
+
+## 2D lighting ambient
+
+When the light2d module is enabled (CGO build), ambient tint for the 2D lighting path:
+
+### `Render.Set2DAmbient(r, g, b, a)`
+
+**Four** integer components 0–255.
+
+---
+
+## Shader note
+
+Global **`Render.BeginShader` / `Render.EndShader`** are **not** registered in the current runtime. Use **material/shader** APIs under **`Model.*`** / **`Shader.*`** (see [SHADER.md](SHADER.md)) or post-process paths where implemented.
+
+---
+
+## See also
+
+- [CAMERA.md](CAMERA.md) — 2D/3D camera begin/end.
+- [DRAW2D.md](DRAW2D.md), [DRAW3D.md](DRAW3D.md) — drawing commands.

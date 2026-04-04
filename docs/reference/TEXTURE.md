@@ -1,6 +1,6 @@
 # Texture Commands
 
-Commands for loading and managing texture resources, which are images stored in GPU memory for fast drawing.
+Commands for loading and managing texture resources, which are images stored in GPU memory for fast drawing. For **CPU-side** pixel editing first, see **[IMAGE.md](IMAGE.md)** and **`Texture.FromImage`** below.
 
 ## Core Workflow
 

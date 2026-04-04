@@ -56,7 +56,7 @@ Vec2.Free(p)
 | `Quat.FromAxisAngle(ax#, ay#, az#, angle#)` | Axis need not be normalized; Raylib normalizes internally. |
 | `Quat.Multiply(a, b)` | Returns new quaternion. |
 | `Quat.Slerp(a, b, t#)` | Spherical interpolation, `t` in 0..1. |
-| `Quat.ToMat4(q)` | Returns new `Mat4` handle. |
+| `Quat.ToMat4(q)` | Returns new transform matrix handle (same type as `Transform.*`). |
 | `Quat.ToEuler(q)` | Returns new **Vec3** handle: **X=roll, Y=pitch, Z=yaw** (radians), per Raylib `QuaternionToEuler`. |
 | `Quat.FromVec3ToVec3(from, to)` | Shortest rotation from direction `from` to `to` (new quaternion). |
 | `Quat.FromMat4(mat)` | Rotation part of matrix → quaternion. |
@@ -71,7 +71,7 @@ PRINT "roll=" + STR$(Vec3.X(e))
 Vec3.Free(e)
 m = Quat.ToMat4(q)
 Mesh.Draw(cube, mat, m)
-Mat4.Free(m)
+Transform.Free(m)
 Quat.Free(q)
 ```
 
@@ -79,4 +79,4 @@ Quat.Free(q)
 
 ## See also
 
-- [MAT4.md](MAT4.md) — matrix creation, multiply, transform helpers.
+- [TRANSFORM.md](TRANSFORM.md) — transform matrices; legacy spellings in [MAT4.md](MAT4.md).

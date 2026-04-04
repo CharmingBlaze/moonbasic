@@ -36,6 +36,13 @@ Frees the atlas texture and all associated sprite data.
 
 ---
 
+## See also
+
+- [SPRITE.md](SPRITE.md) — **`Sprite.Draw`**, strip frames, **`Anim.*`**
+- [IMAGE.md](IMAGE.md) — CPU images before GPU upload
+
+---
+
 ## Full Example
 
 Assume you have `game_atlas.png` and `game_atlas.json`, and that the atlas contains `player.png` and `enemy.png`.

@@ -118,7 +118,7 @@ Statements and expressions may use **handle calls**: load a handle (**`cam`**, *
 | **`Camera3D`** | **`BEGIN`**, **`SETPOS`**, **`SETTARGET`**, **`SETFOV`**, **`MOVE`**, **`GETRAY`**, **`GETMATRIX`** | **`CAMERA.<METHOD>`** | yes |
 | **`Camera3D`** | **`END`** | **`CAMERA.END`** | no (Raylib **`EndMode3D`** is global) |
 | **`Mesh`** | **`DRAW`**, **`DRAWROTATED`** | **`MESH.<METHOD>`** | yes |
-| **`Matrix4`** | **`SETROTATION`** | **`MAT4.SETROTATION`** | yes |
+| **`Matrix4`** | **`SETROTATION`** | **`TRANSFORM.SETROTATION`** | yes |
 
 Unmapped **`TypeName.METHOD`** combinations should fail at runtime with an unknown-command error until explicitly wired. Method names are matched **case-insensitively** after **`strings.ToUpper`**.
 
@@ -150,10 +150,10 @@ Canonical program: [`testdata/pretty_window.mb`](testdata/pretty_window.mb) — 
 #### 3D slice (Phase D precursors, same CGO stack)
 Procedural meshes and camera/matrix helpers ship under **`runtime/mbmodel3d`**, **`runtime/mbcamera`**, **`runtime/mbmatrix`** (see **§11** for the full Phase D vision). Current contracts:
 - **`MESH.MAKE*`** / **`MESH.CUBE`** / **`MESH.SPHERE`** / **`MESH.PLANE`**: After allocating a **`meshObj`**, **`allocMesh`** calls **`rl.UploadMesh(&mesh, false)`** so scripts do not need **`MESH.UPLOAD`** for static procedural geometry. **`MESH.UPLOAD`** remains for **dynamic** meshes or re-upload after edits.
-- **`MESH.DRAWROTATED(mesh, mat, rx, ry, rz)`**: Builds an Euler rotation matrix and **`DrawMesh`** (convenience vs **`Mat4` + `MESH.DRAW`**).
+- **`MESH.DRAWROTATED(mesh, mat, rx, ry, rz)`**: Builds an Euler rotation matrix and **`DrawMesh`** (convenience vs **`Transform` + `MESH.DRAW`**).
 - **`CAMERA.MAKE`**: Initializes a sensible default **3D** camera (position **(0, 2, 8)**, target origin, up **+Y**, **45°** FOV, perspective) in **`runtime/camera/raylib_cgo.go`** — scripts may still call **`SetPos` / `SetTarget` / `SetFOV`** for clarity.
-- **`MAT4.ROTATION`**: Alias of **`MAT4.FROMROTATION`** (allocates a new matrix). **`MAT4.SETROTATION(handle, rx, ry, rz)`**: Overwrites the **`Matrix4`** heap object in place (avoids per-frame alloc/free in loops).
-- **Canonical small sample**: [`examples/spin_cube/main.mb`](examples/spin_cube/main.mb) — handle-style **`cam.Begin()` / `cam.End()`**, **`Mat4.Identity`** + **`Mat4.SetRotation`**, no **`Mesh.Upload`**. Larger sample: [`examples/fps/main.mb`](examples/fps/main.mb).
+- **`TRANSFORM.ROTATION`** (legacy **`MAT4.ROTATION`** / **`MAT4.FROMROTATION`**) allocates a new matrix. **`TRANSFORM.SETROTATION(handle, rx, ry, rz)`** overwrites the **`Matrix4`** heap object in place (avoids per-frame alloc/free in loops).
+- **Canonical small sample**: [`examples/spin_cube/main.mb`](examples/spin_cube/main.mb) — handle-style **`cam.Begin()` / `cam.End()`**, **`Transform.Identity`** + **`Transform.SetRotation`**, no **`Mesh.Upload`**. Larger sample: [`examples/fps/main.mb`](examples/fps/main.mb).
 
 ### 10. Phase C runtime modules
 
@@ -171,7 +171,7 @@ New runtime modules follow the same pattern as `runtime/window` and `runtime/inp
 
 Phase D extends the runtime with models, lighting, environment (skybox / IBL / fog), terrain, custom shaders, animation, bones, immediate 3D drawing, shadows, and render-to-texture / post-processing. It is **not** part of the Phase C closure; implement it in ordered milestones (models and debug draw before lighting and shadows).
 
-**Incremental delivery (already in tree):** procedural **`MESH.MAKE*`** with automatic **`UploadMesh`**, **`MESH.DRAW` / `MESH.DRAWROTATED`**, **`CAMERA.*`** 3D mode with **`CAMERA.MAKE`** defaults, **`MAT4.*`** including **`SETROTATION`** and **`ROTATION`**, handle dispatch for **`cam.Begin()`** / **`mesh.Draw(...)`** (**§8.2**), and samples **`examples/spin_cube`**, **`examples/fps`**. These satisfy **early** items in the milestone list below; the acceptance program remains aspirational until lighting, terrain, and shadows are in scope.
+**Incremental delivery (already in tree):** procedural **`MESH.MAKE*`** with automatic **`UploadMesh`**, **`MESH.DRAW` / `MESH.DRAWROTATED`**, **`CAMERA.*`** 3D mode with **`CAMERA.MAKE`** defaults, **`TRANSFORM.*`** (and legacy **`MAT4.*`**) including **`SETROTATION`** and **`ROTATION`**, handle dispatch for **`cam.Begin()`** / **`mesh.Draw(...)`** (**§8.2**), and samples **`examples/spin_cube`**, **`examples/fps`**. These satisfy **early** items in the milestone list below; the acceptance program remains aspirational until lighting, terrain, and shadows are in scope.
 
 - **Authority**: Same rules as §4 and §10 — add each new command to **`compiler/builtinmanifest/commands.json`** first (reuse **`"key"`**; add **overload rows** when the same dotted name needs multiple arities — **§4**). Then implement natives in **`runtime/{name}`** packages with thin **`module.go`**, **`raylib_cgo.go` / `stub.go`** where CGO is required, and **one file per concern** (soft limit ~400 lines, split before ~500).
 - **Registration**: New modules are **`RegisterModule`**’d in **`compiler/pipeline/pipeline.go`** in dependency order, all **before** **`RegisterFromManifest`**.

@@ -98,7 +98,7 @@ WHILE NOT Window.ShouldClose()
     cam.SetPos(player_x#, player_y# + 10, player_z# + 15)
     cam.SetTarget(player_x#, player_y#, player_z#)
 
-    player_transform = Mat4.FromTranslation(player_x#, player_y#, player_z#)
+    player_transform = Transform.Translation(player_x#, player_y#, player_z#)
 
     Render.Clear(20, 30, 40)
     cam.Begin()

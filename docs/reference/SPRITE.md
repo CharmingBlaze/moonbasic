@@ -1,126 +1,121 @@
-# Sprite Commands
+# Sprite — `Sprite.*`, atlas, and `ANIM.*`
 
-Commands for working with animated sprites from Aseprite files.
+Sprites are **GPU textures** (or regions of an atlas) plus **frame layout** and optional **animation** state. They are drawn with **`Sprite.Draw`** (typically inside **`Render.BeginMode2D`** / **`EndMode2D`**).
 
-## Aseprite Workflow
+**Requires CGO** (same as `Texture.*`, `Draw.*`).
 
-moonBASIC has first-class support for `.ase` and `.aseprite` files. The workflow is designed around using **tags** in Aseprite to define your animations.
-
-1.  **Create Animations in Aseprite**: Create your sprite and define animations by creating frame tags (e.g., a tag named "run" that spans frames 1-8).
-2.  **Load Sprite**: Use `Sprite.Load()` to load the `.aseprite` file.
-3.  **Define Animations**: Use `Sprite.DefAnim()` for each tag you want to use in your game.
-4.  **Play Animation**: Call `Sprite.PlayAnim()` to start an animation.
-5.  **Update and Draw**: In your main loop, call `Sprite.UpdateAnim()` to advance the animation timer and `Sprite.Draw()` to show it on screen.
+**Related:** [ATLAS.md](ATLAS.md) for **`Atlas.Load`**, **`Atlas.GetSprite`**, **`Atlas.Free`**.
 
 ---
 
-### `Sprite.Load(filePath$)`
+## `Sprite.Load(path$)`
 
-Loads an Aseprite file and its associated data (layers, frames, tags). Returns a handle to the sprite.
+Loads an image file with Raylib **`LoadTexture`** (e.g. **`.png`**, **`.jpg`**). Returns a **sprite handle** (one full texture, one logical frame until you call **`Sprite.DefAnim`**).
 
-- `filePath$`: The path to the Aseprite file.
-
----
-
-### `Sprite.DefAnim(spriteHandle, animName$)`
-
-Informs moonBASIC about an animation cycle you want to use. This must match the name of a tag in your Aseprite file exactly.
-
-- `spriteHandle`: The handle of the sprite.
-- `animName$`: The name of the animation tag (e.g., "walk", "idle").
+This is **not** an Aseprite/JSON parser; use a **horizontal strip** (all frames same size, laid out left-to-right) or an **atlas** (see below).
 
 ---
 
-### `Sprite.PlayAnim(spriteHandle, animName$)`
+## Horizontal strip animation
 
-Sets the specified animation as the current one to be played.
+### `Sprite.DefAnim(sprite, frameCount$)`
 
-- `spriteHandle`: The handle of the sprite.
-- `animName$`: The name of the animation to play.
+`frameCount$` is a **decimal string** (e.g. `"4"`) = number of **equal-width** frames in a **single row** inside the texture (from the sprite’s source region). Frame width = available width ÷ frame count.
 
----
+### `Sprite.PlayAnim(sprite, name$)`
 
-### `Sprite.UpdateAnim(spriteHandle, deltaTime#)`
+Starts strip playback from frame 0. The **`name$`** argument is accepted for API symmetry but **is not used** by the strip player (reserved for future use).
 
-Updates the sprite's animation playback based on the elapsed time. This should be called every frame for smooth animation.
+### `Sprite.UpdateAnim(sprite, deltaTime#)`
 
-- `spriteHandle`: The handle of the sprite.
-- `deltaTime#`: The time elapsed since the last frame, usually from `Time.Delta()`.
+Advances the strip using the sprite’s internal FPS (default **8**). Pass **`Time.Delta()`** each frame. If the sprite is using the **`ANIM.*`** state machine (**`ANIM.UPDATE`**), **`Sprite.UpdateAnim`** does not advance strip frames (use one system or the other).
 
----
+### `Sprite.Draw(sprite, x, y)`
 
-### `Sprite.Draw(spriteHandle, x, y)`
-
-Draws the current frame of the sprite's active animation at the specified coordinates.
-
-- `spriteHandle`: The handle of the sprite to draw.
-- `x`, `y`: The top-left position to draw the sprite.
+Draws the **current frame** at **screen** `(x, y)`, plus any offset from **`Sprite.SetPos`**.
 
 ---
 
-## Animation State Machine
+## Position offset & hit test
 
-For more complex characters, you can use the `ANIM` commands to build a state machine.
+### `Sprite.SetPos(sprite, x#, y#)` / `Sprite.SetPosition(...)`
 
-### `ANIM.Define(spriteHandle, animName$, startFrame, endFrame, fps#, looping?)`
+Alias pair. Adds a **float** offset to the draw position (useful for sub-pixel movement). **`Sprite.HIT`** uses these offsets with **`frameW` / `frameH`**.
 
-Defines a single animation clip for a sprite.
+### `Sprite.Hit(spriteA, spriteB)`
 
-### `ANIM.AddTransition(spriteHandle, fromAnim$, toAnim$, condition$)`
-
-Creates a transition between two animations that triggers when a parameter (set via `ANIM.SETPARAM`) becomes true.
-
-### `ANIM.SETPARAM(spriteHandle, paramName$, value)`
-
-Sets a parameter in the animation state machine, which can trigger transitions.
-
-### `ANIM.UPDATE(spriteHandle, deltaTime#)`
-
-Updates the animation state machine. Use this instead of `Sprite.UpdateAnim` when using the state machine.
+Returns **`TRUE`** if the two sprites’ **axis-aligned boxes** overlap, using each sprite’s **`SetPos`** and its **frame width/height** (current frame size).
 
 ---
 
-## Full Example
+## Texture atlas workflow
 
-This example assumes you have an Aseprite file named `player.aseprite` with two tags: "idle" and "run".
+Use **`Atlas.Load`**, **`Atlas.GetSprite`**, and **`Atlas.Free`** as documented in **[ATLAS.md](ATLAS.md)**. Each **`Atlas.GetSprite`** handle shares the atlas texture; **`Sprite.Draw`** / **`DefAnim`** work the same as for **`Sprite.Load`**.
+
+---
+
+## `ANIM.*` — frame-range state machine (optional)
+
+For **named clips** (frame index ranges) and **parameter-driven transitions**, use **`ANIM.*`** on the same sprite handle. This is separate from **`Sprite.DefAnim`** strip mode; if **`ANIM.UPDATE`** is in use, **`Sprite.UpdateAnim`** is a no-op for that sprite.
+
+| Command | Arguments | Notes |
+|--------|-----------|--------|
+| `Anim.Define(sprite, name$, first, last, fps#, looping?)` | | Inclusive frame indices; **`looping?`** bool |
+| `Anim.AddTransition(sprite, from$, to$, condition$)` | | See conditions below |
+| `Anim.Update(sprite, dt#)` | | Advance frames + evaluate transitions |
+| `Anim.SetParam(sprite, name$, value)` | | **`value`** numeric or bool; names are compared **case-insensitive** |
+
+### Transition conditions
+
+- **Comparison:** `param >= 1`, `speed == 0`, etc. Left side is a **parameter name** (lowercased internally); right side is a number.
+- **Single name:** uses **bool** param, or numeric truthy float param.
+- **Literals:** `true` / `false`.
+
+---
+
+## Full example (strip)
 
 ```basic
-Window.Open(800, 600, "Sprite Animation Example")
+IF NOT Window.Open(800, 600, "Sprite strip") THEN END
+ENDIF
 Window.SetFPS(60)
 
-; 1. Load sprite
-player = Sprite.Load("player.aseprite")
+; sheet.png = one row of 4 equal frames
+hero = Sprite.Load("sheet.png")
+Sprite.DefAnim(hero, "4")
+Sprite.PlayAnim(hero, "walk")
 
-; 2. Define animations from Aseprite tags
-Sprite.DefAnim(player, "idle")
-Sprite.DefAnim(player, "run")
-
-; 3. Play the initial animation
-Sprite.PlayAnim(player, "idle")
-
-player_x = 350
-player_y = 250
+x# = 300
+y# = 250
 
 WHILE NOT Window.ShouldClose()
-    ; --- LOGIC ---
-    ; Change animation based on input
-    IF Input.KeyDown(KEY_RIGHT) OR Input.KeyDown(KEY_LEFT) THEN
-        Sprite.PlayAnim(player, "run")
-    ELSE
-        Sprite.PlayAnim(player, "idle")
-    ENDIF
+    Sprite.SetPos(hero, x#, y#)
+    Sprite.UpdateAnim(hero, Time.Delta())
 
-    ; 4. Update the animation every frame
-    Sprite.UpdateAnim(player, Time.Delta())
-
-    ; --- DRAWING ---
     Render.Clear(30, 40, 50)
     Render.BeginMode2D()
-        ; 5. Draw the sprite
-        Sprite.Draw(player, player_x, player_y)
+        Sprite.Draw(hero, 0, 0)
     Render.EndMode2D()
     Render.Frame()
 WEND
 
 Window.Close()
 ```
+
+---
+
+## Command checklist (implemented)
+
+**Sprite:** `Load`, `Draw`, `SetPos`, `SetPosition`, `DefAnim`, `PlayAnim`, `UpdateAnim`, `Hit`.
+
+**Atlas:** `Load`, `Free`, `GetSprite` — [ATLAS.md](ATLAS.md).
+
+**Anim:** `Define`, `AddTransition`, `Update`, `SetParam` — this page § **`ANIM.*`**.
+
+---
+
+## See also
+
+- [ATLAS.md](ATLAS.md) — packed sheets + JSON
+- [TEXTURE.md](TEXTURE.md) — raw GPU textures
+- [IMAGE.md](IMAGE.md) — CPU images before upload

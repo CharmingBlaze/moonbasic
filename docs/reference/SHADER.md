@@ -13,26 +13,13 @@ Loads a GLSL vertex and fragment shader from files. Returns a handle to the shad
 
 ---
 
-### `Render.BeginShader(shaderHandle)`
-
-Begins a custom shader mode. All subsequent drawing will be processed by this shader.
-
-- `shaderHandle`: The handle of the shader to use.
+**Note:** The runtime does **not** currently expose global `Render.BeginShader` / `Render.EndShader`. Apply shaders via **`Model.SetMaterialShader`** / material APIs and **`Shader.Set*`** uniforms (below), or other module-specific paths.
 
 ---
 
-### `Render.EndShader()`
+### `Model.SetMaterialShader(model, materialIndex, shaderHandle)`
 
-Ends the custom shader mode.
-
----
-
-### `Material.SetShader(materialHandle, shaderHandle)`
-
-Assigns a custom shader to a material. This is the preferred way to apply shaders to 3D models.
-
-- `materialHandle`: The handle of the material.
-- `shaderHandle`: The handle of the shader.
+Assigns a shader to a **material slot** on a model (`MODEL.SETMATERIALSHADER`).
 
 ---
 

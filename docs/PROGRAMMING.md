@@ -27,7 +27,7 @@ Commands are **type-checked** against the manifest (`compiler/builtinmanifest/co
 | Float | `x#`, `1.5` | `MATH.SIN(angle#)` |
 | String | `msg$`, `"hi"` | `FILE.OPEN(path$, "r")` |
 | Boolean | `ok?`, `TRUE` / `FALSE` | `Input.KeyDown(KEY_SPACE)` |
-| Handle | value from `Load`, `Make`, etc. | `Mesh.Draw(mesh, mat, mat4)` |
+| Handle | value from `Load`, `Make`, etc. | `Mesh.Draw(mesh, mat, transform)` |
 
 Numeric **widening** is allowed where the manifest marks alternatives (many APIs accept int or float for coordinates).
 

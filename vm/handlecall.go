@@ -25,7 +25,7 @@ func handleCallRegistryPrefix(typeName string) string {
 	case "CAMERA2D":
 		return "CAMERA2D."
 	case "MATRIX4":
-		return "MAT4."
+		return "TRANSFORM."
 	default:
 		return strings.ToUpper(strings.TrimSpace(typeName)) + "."
 	}
@@ -141,7 +141,7 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		}
 	case "MATRIX4":
 		if mn == "SETROTATION" {
-			return "MAT4.SETROTATION", true, true
+			return "TRANSFORM.SETROTATION", true, true
 		}
 	case "MESH":
 		switch mn {

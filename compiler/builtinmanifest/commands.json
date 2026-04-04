@@ -4813,6 +4813,167 @@
       "phase": "any"
     },
     {
+      "key": "TRANSFORM.APPLYX",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.APPLYY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.APPLYZ",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.GETELEMENT",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.IDENTITY",
+      "args": [],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.INVERSE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.LOOKAT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.MULTIPLY",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.ORTHO",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.PERSPECTIVE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.ROTATION",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.SCALE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.SETROTATION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.TRANSLATION",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TRANSFORM.TRANSPOSE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
       "key": "MAT4.IDENTITY",
       "args": [],
       "returns": "handle",

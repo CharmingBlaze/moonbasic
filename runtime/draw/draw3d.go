@@ -71,8 +71,8 @@ func (m *Module) drawRay(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawBillboard(args []value.Value) (value.Value, error) {
-	if len(args) != 7 {
-		return value.Nil, fmt.Errorf("DRAW3D.BILLBOARD expects 7 arguments (tex, x,y,z, size, r,g,b,a)")
+	if len(args) != 9 {
+		return value.Nil, fmt.Errorf("DRAW3D.BILLBOARD expects 9 arguments (tex, x,y,z, size, r,g,b,a)")
 	}
 	cam, in3D := mbmodel3d.ActiveCamera3D()
 	if !in3D {
@@ -102,8 +102,8 @@ func (m *Module) drawBillboard(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawBillboardRec(args []value.Value) (value.Value, error) {
-	if len(args) != 13 {
-		return value.Nil, fmt.Errorf("DRAW3D.BILLBOARDREC expects 13 arguments (tex, srcx,srcy,srcw,srch, x,y,z, w,h, r,g,b,a)")
+	if len(args) != 14 {
+		return value.Nil, fmt.Errorf("DRAW3D.BILLBOARDREC expects 14 arguments (tex, srcx,srcy,srcw,srch, x,y,z, w,h, r,g,b,a)")
 	}
 	cam, in3D := mbmodel3d.ActiveCamera3D()
 	if !in3D {
@@ -191,8 +191,8 @@ func (m *Module) drawBBox(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawCapsule(args []value.Value) (value.Value, error) {
-	if len(args) != 12 {
-		return value.Nil, fmt.Errorf("DRAW3D.CAPSULE expects 12 arguments (sx,sy,sz, ex,ey,ez, r, slices, rings, r,g,b,a)")
+	if len(args) != 13 {
+		return value.Nil, fmt.Errorf("DRAW3D.CAPSULE expects 13 arguments (sx,sy,sz, ex,ey,ez, radius, slices, rings, r,g,b,a)")
 	}
 	sx, ok1 := argFloat(args[0])
 	sy, ok2 := argFloat(args[1])
@@ -219,8 +219,8 @@ func (m *Module) drawCapsule(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawCapsuleWires(args []value.Value) (value.Value, error) {
-	if len(args) != 12 {
-		return value.Nil, fmt.Errorf("DRAW3D.CAPSULEWIRES expects 12 arguments (sx,sy,sz, ex,ey,ez, r, slices, rings, r,g,b,a)")
+	if len(args) != 13 {
+		return value.Nil, fmt.Errorf("DRAW3D.CAPSULEWIRES expects 13 arguments (sx,sy,sz, ex,ey,ez, radius, slices, rings, r,g,b,a)")
 	}
 	sx, ok1 := argFloat(args[0])
 	sy, ok2 := argFloat(args[1])

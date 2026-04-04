@@ -22,6 +22,11 @@ func (m *Module) textureFromArg(v value.Value) (rl.Texture2D, error) {
 	return texture.ForBinding(m.h, heap.Handle(v.IVal))
 }
 
+// TextureForBinding resolves a texture handle for Raylib use (decals, particles, etc.).
+func TextureForBinding(store *heap.Store, h heap.Handle) (rl.Texture2D, error) {
+	return texture.ForBinding(store, h)
+}
+
 func registerTextureCmds(m *Module, r runtime.Registrar) {
 	r.Register("DRAW.TEXTURE", "draw", runtime.AdaptLegacy(m.drawTexture))
 	r.Register("DRAW.TEXTUREV", "draw", runtime.AdaptLegacy(m.drawTextureV))
@@ -97,8 +102,62 @@ func (m *Module) drawTextureTiled(args []value.Value) (value.Value, error) {
 	sourceRec := rl.Rectangle{X: srcx, Y: srcy, Width: srcw, Height: srch}
 	destRec := rl.Rectangle{X: dstx, Y: dsty, Width: dstw, Height: dsth}
 	origin := rl.Vector2{X: ox, Y: oy}
-	rl.DrawTextureTiled(tex, sourceRec, destRec, origin, rot, scale, tint)
+	drawTextureTiledRaylib(tex, sourceRec, destRec, origin, rot, scale, tint)
 	return value.Nil, nil
+}
+
+// drawTextureTiledRaylib matches raylib's DrawTextureTiled using DrawTexturePro.
+// raylib-go does not expose DrawTextureTiled; rotation/origin non-zero falls back to a single DrawTexturePro over destRec (stretched, not tiled).
+func drawTextureTiledRaylib(tex rl.Texture2D, sourceRec, destRec rl.Rectangle, origin rl.Vector2, rotation, scale float32, tint color.RGBA) {
+	if scale <= 0 || sourceRec.Width <= 0 || sourceRec.Height <= 0 {
+		return
+	}
+	if rotation != 0 || origin.X != 0 || origin.Y != 0 {
+		rl.DrawTexturePro(tex, sourceRec, destRec, origin, rotation, tint)
+		return
+	}
+	tileW := sourceRec.Width * scale
+	tileH := sourceRec.Height * scale
+	if tileW <= 0 || tileH <= 0 {
+		return
+	}
+	destRight := destRec.X + destRec.Width
+	destBottom := destRec.Y + destRec.Height
+	for tileTop := destRec.Y; tileTop < destBottom; tileTop += tileH {
+		for tileLeft := destRec.X; tileLeft < destRight; tileLeft += tileW {
+			visL := maxFloat32(tileLeft, destRec.X)
+			visR := minFloat32(tileLeft+tileW, destRight)
+			visT := maxFloat32(tileTop, destRec.Y)
+			visB := minFloat32(tileTop+tileH, destBottom)
+			if visL >= visR || visT >= visB {
+				continue
+			}
+			u := visL - tileLeft
+			v := visT - tileTop
+			srcX := sourceRec.X + u/scale
+			srcY := sourceRec.Y + v/scale
+			srcW := (visR - visL) / scale
+			srcH := (visB - visT) / scale
+			rl.DrawTexturePro(tex,
+				rl.Rectangle{X: srcX, Y: srcY, Width: srcW, Height: srcH},
+				rl.Rectangle{X: visL, Y: visT, Width: visR - visL, Height: visB - visT},
+				rl.Vector2{}, 0, tint)
+		}
+	}
+}
+
+func maxFloat32(a, b float32) float32 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func minFloat32(a, b float32) float32 {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func (m *Module) drawTextureFull(args []value.Value) (value.Value, error) {

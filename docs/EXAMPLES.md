@@ -31,7 +31,7 @@ Command names are **case-insensitive** at compile time (`Draw.Text` = `DRAW.TEXT
 
 ## 3D spinning cube — `examples/spin_cube/main.mb`
 
-Camera, mesh, material tint, matrix rotation, optional **ground grid**, and **cleanup** (`Mesh.Free`, `Material.Free`, `Mat4.Free`, `Camera.Free`).
+Camera, mesh, material tint, transform matrix rotation, optional **ground grid**, and **cleanup** (`Mesh.Free`, `Material.Free`, `Transform.Free`, `Camera.Free`).
 
 ```basic
 cam = Camera.Make()
@@ -40,15 +40,15 @@ cam.SetTarget(0, 0, 0)
 cubeMesh = Mesh.MakeCube(2, 2, 2)
 cubeMat = Material.MakeDefault()
 Material.SetColor(cubeMat, MATERIAL_MAP_ALBEDO, 130, 200, 255, 255)
-rot = Mat4.Identity()
+cubeXform = Transform.Identity()
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt# = Time.Delta()
     angle# = angle# + 1.1 * dt#
-    Mat4.SetRotation(rot, angle#, angle# * 0.65, angle# * 0.35)
+    Transform.SetRotation(cubeXform, angle#, angle# * 0.65, angle# * 0.35)
     Render.Clear(12, 14, 22)
     cam.Begin()
-        Mesh.Draw(cubeMesh, cubeMat, rot)
+        Mesh.Draw(cubeMesh, cubeMat, cubeXform)
         Draw.Grid(10, 1.0)
     cam.End()
     Render.Frame()
@@ -56,7 +56,7 @@ WEND
 
 Mesh.Free(cubeMesh)
 Material.Free(cubeMat)
-Mat4.Free(rot)
+Transform.Free(cubeXform)
 Camera.Free(cam)
 Window.Close()
 ```

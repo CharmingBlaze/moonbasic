@@ -172,12 +172,12 @@ cam.SetFOV(45)
 
 cube = Mesh.MakeCube(2, 2, 2)
 mat  = Material.MakeDefault()
-xform = Mat4.Identity()
+xform = Transform.Identity()
 angle# = 0.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     angle# = angle# + 1.5 * Time.Delta()
-    Mat4.SetRotation(xform, angle#, angle# * 0.7, 0)
+    Transform.SetRotation(xform, angle#, angle# * 0.7, 0)
 
     Render.Clear(12, 14, 22)
     cam.Begin()
@@ -189,7 +189,7 @@ WEND
 
 Mesh.Free(cube)
 Material.Free(mat)
-Mat4.Free(xform)
+Transform.Free(xform)
 Camera.Free(cam)
 Window.Close()
 ```

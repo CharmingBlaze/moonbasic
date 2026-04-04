@@ -1,4 +1,4 @@
-// Package mbmatrix implements MAT4.*, VEC3.*, and VEC2.* heap-backed math (Raylib raymath) when CGO is enabled.
+// Package mbmatrix implements TRANSFORM.* / MAT4.*, VEC3.*, and VEC2.* heap-backed math (Raylib raymath) when CGO is enabled.
 package mbmatrix
 
 import "moonbasic/vm/heap"

@@ -13,6 +13,25 @@ import (
 )
 
 func (m *Module) registerMat4(reg runtime.Registrar) {
+	// Transform.* — 4×4 object/world matrices (same heap tag "mat4" as Mat4.*).
+	reg.Register("TRANSFORM.IDENTITY", "mat4", runtime.AdaptLegacy(m.mat4Identity))
+	reg.Register("TRANSFORM.TRANSLATION", "mat4", runtime.AdaptLegacy(m.mat4FromTranslation))
+	reg.Register("TRANSFORM.ROTATION", "mat4", runtime.AdaptLegacy(m.mat4FromRotation))
+	reg.Register("TRANSFORM.SCALE", "mat4", runtime.AdaptLegacy(m.mat4FromScale))
+	reg.Register("TRANSFORM.SETROTATION", "mat4", runtime.AdaptLegacy(m.mat4SetRotation))
+	reg.Register("TRANSFORM.LOOKAT", "mat4", runtime.AdaptLegacy(m.mat4LookAt))
+	reg.Register("TRANSFORM.PERSPECTIVE", "mat4", runtime.AdaptLegacy(m.mat4Perspective))
+	reg.Register("TRANSFORM.ORTHO", "mat4", runtime.AdaptLegacy(m.mat4Ortho))
+	reg.Register("TRANSFORM.MULTIPLY", "mat4", runtime.AdaptLegacy(m.mat4Multiply))
+	reg.Register("TRANSFORM.INVERSE", "mat4", runtime.AdaptLegacy(m.mat4Inverse))
+	reg.Register("TRANSFORM.TRANSPOSE", "mat4", runtime.AdaptLegacy(m.mat4Transpose))
+	reg.Register("TRANSFORM.GETELEMENT", "mat4", runtime.AdaptLegacy(m.mat4GetElement))
+	reg.Register("TRANSFORM.APPLYX", "mat4", runtime.AdaptLegacy(m.transformApplyX))
+	reg.Register("TRANSFORM.APPLYY", "mat4", runtime.AdaptLegacy(m.transformApplyY))
+	reg.Register("TRANSFORM.APPLYZ", "mat4", runtime.AdaptLegacy(m.transformApplyZ))
+	reg.Register("TRANSFORM.FREE", "mat4", runtime.AdaptLegacy(m.mat4Free))
+
+	// Mat4.* — legacy names (same implementations).
 	reg.Register("MAT4.IDENTITY", "mat4", runtime.AdaptLegacy(m.mat4Identity))
 	reg.Register("MAT4.FROMROTATION", "mat4", runtime.AdaptLegacy(m.mat4FromRotation))
 	reg.Register("MAT4.ROTATION", "mat4", runtime.AdaptLegacy(m.mat4FromRotation))
@@ -337,6 +356,18 @@ func (m *Module) mat4TransformY(args []value.Value) (value.Value, error) {
 
 func (m *Module) mat4TransformZ(args []value.Value) (value.Value, error) {
 	return m.mat4TransformComponent(args, "MAT4.TRANSFORMZ", 2)
+}
+
+func (m *Module) transformApplyX(args []value.Value) (value.Value, error) {
+	return m.mat4TransformComponent(args, "TRANSFORM.APPLYX", 0)
+}
+
+func (m *Module) transformApplyY(args []value.Value) (value.Value, error) {
+	return m.mat4TransformComponent(args, "TRANSFORM.APPLYY", 1)
+}
+
+func (m *Module) transformApplyZ(args []value.Value) (value.Value, error) {
+	return m.mat4TransformComponent(args, "TRANSFORM.APPLYZ", 2)
 }
 
 func (m *Module) mat4Free(args []value.Value) (value.Value, error) {

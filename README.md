@@ -35,22 +35,22 @@ cam.SetFOV(45)
 
 cube = Mesh.MakeCube(2, 2, 2)
 mat  = Material.MakeDefault()
-rot  = Mat4.Identity()
+cubeXform  = Transform.Identity()
 angle# = 0.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     angle# = angle# + 45 * Time.Delta()
-    Mat4.SetRotation(rot, 0, angle#, 0)
+    Transform.SetRotation(cubeXform, 0, angle#, 0)
     Render.Clear(12, 14, 22)
     cam.Begin()
-        Mesh.Draw(cube, mat, rot)
+        Mesh.Draw(cube, mat, cubeXform)
     cam.End()
     Render.Frame()
 WEND
 
 Mesh.Free(cube)
 Material.Free(mat)
-Mat4.Free(rot)
+Transform.Free(cubeXform)
 Camera.Free(cam)
 Window.Close()
 ```
@@ -155,10 +155,11 @@ More samples: [examples/README.md](examples/README.md).
 | [Draw 2D](docs/reference/DRAW2D.md) | Rectangles, circles, text, textures. |
 | [GUI (raygui)](docs/reference/GUI.md) | Immediate-mode `GUI.*` widgets. |
 | [Texture](docs/reference/TEXTURE.md) | Load, free, and generate textures. |
+| [Image (CPU)](docs/reference/IMAGE.md) | Pixel buffers, software draw, `Texture.FromImage`. |
 | [Font](docs/reference/FONT.md) | Load custom TTF/OTF fonts. |
-| [Sprite & Atlas](docs/reference/SPRITE.md) | Aseprite animation, texture atlases. |
+| [Sprite & Atlas](docs/reference/SPRITE.md) | Texture strips, **`Anim.*`** FSM, atlases ([ATLAS.md](docs/reference/ATLAS.md)). |
 | [Model, Mesh & Material](docs/reference/MODEL.md) | 3D models, procedural meshes, PBR materials. |
-| [Mat4](docs/reference/MAT4.md) | 4×4 matrix math for transforms. |
+| [Transform](docs/reference/TRANSFORM.md) | 4×4 object/world transform matrices (legacy `Mat4.*` in [MAT4.md](docs/reference/MAT4.md)). |
 | [Shader](docs/reference/SHADER.md) | Load and apply GLSL shaders. |
 | [Light](docs/reference/LIGHT.md) | Directional, point, and spot lights. |
 | [Physics 3D (Jolt)](docs/reference/PHYSICS3D.md) | Rigid bodies, shapes, forces. |

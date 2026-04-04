@@ -854,6 +854,25 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`MAKEDIRS`** - args: string
 
+### TRANSFORM
+
+- **`TRANSFORM.APPLYX`** - args: handle, float, float, float -> returns float
+- **`TRANSFORM.APPLYY`** - args: handle, float, float, float -> returns float
+- **`TRANSFORM.APPLYZ`** - args: handle, float, float, float -> returns float
+- **`TRANSFORM.FREE`** - args: handle
+- **`TRANSFORM.GETELEMENT`** - args: handle, int, int -> returns float
+- **`TRANSFORM.IDENTITY`** - args: (none) -> returns handle
+- **`TRANSFORM.INVERSE`** - args: handle -> returns handle
+- **`TRANSFORM.LOOKAT`** - args: float, float, float, float, float, float, float, float, float -> returns handle
+- **`TRANSFORM.MULTIPLY`** - args: handle, handle -> returns handle
+- **`TRANSFORM.ORTHO`** - args: float, float, float, float, float, float -> returns handle
+- **`TRANSFORM.PERSPECTIVE`** - args: float, float, float, float -> returns handle
+- **`TRANSFORM.ROTATION`** - args: float, float, float -> returns handle
+- **`TRANSFORM.SCALE`** - args: float, float, float -> returns handle
+- **`TRANSFORM.SETROTATION`** - args: handle, float, float, float
+- **`TRANSFORM.TRANSLATION`** - args: float, float, float -> returns handle
+- **`TRANSFORM.TRANSPOSE`** - args: handle -> returns handle
+
 ### MAT4
 
 - **`MAT4.FREE`** - args: handle

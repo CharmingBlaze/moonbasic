@@ -26,12 +26,11 @@ ship_model = Model.Load("assets/ship.glb")
 Draws a complete model, including all of its meshes, using a given transformation matrix.
 
 - `modelHandle`: The handle of the model to draw.
-- `matrixHandle`: A handle to a `Mat4` transformation matrix that defines the model's position, rotation, and scale.
+- `matrixHandle`: A handle to a **transform** matrix (`Transform.*` / legacy `Mat4.*`) that defines the model's position, rotation, and scale.
 
 ```basic
 ; Create a transformation matrix for the ship
-ship_transform = Mat4.Identity()
-Mat4.SetTranslation(ship_transform, 0, 5, 0) ; Move it up
+ship_transform = Transform.Translation(0, 5, 0) ; Position in world space
 
 ; In the main loop
 Render.Clear(0,0,0)
@@ -86,7 +85,7 @@ Draws a single mesh with a specific material and transformation. This is more lo
 ; Create a cube, a material, and a transform
 cube_mesh = Mesh.MakeCube(2, 2, 2)
 my_material = Material.MakeDefault()
-cube_transform = Mat4.Identity()
+cube_transform = Transform.Identity()
 
 ; In the main loop, draw the single mesh
 Mesh.Draw(cube_mesh, my_material, cube_transform)

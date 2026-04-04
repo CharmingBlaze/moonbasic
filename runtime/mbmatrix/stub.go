@@ -9,7 +9,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-const hint = "MAT4/VEC3/VEC2/COLOR natives require CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
+const hint = "TRANSFORM/MAT4/VEC3/VEC2/COLOR natives require CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
 
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
@@ -20,6 +20,9 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 	}
 	names := []string{
+		"TRANSFORM.IDENTITY", "TRANSFORM.TRANSLATION", "TRANSFORM.ROTATION", "TRANSFORM.SCALE", "TRANSFORM.SETROTATION",
+		"TRANSFORM.LOOKAT", "TRANSFORM.PERSPECTIVE", "TRANSFORM.ORTHO", "TRANSFORM.MULTIPLY", "TRANSFORM.INVERSE", "TRANSFORM.TRANSPOSE",
+		"TRANSFORM.GETELEMENT", "TRANSFORM.APPLYX", "TRANSFORM.APPLYY", "TRANSFORM.APPLYZ", "TRANSFORM.FREE",
 		"MAT4.IDENTITY", "MAT4.FROMROTATION", "MAT4.ROTATION", "MAT4.SETROTATION", "MAT4.FROMSCALE", "MAT4.FROMTRANSLATION",
 		"MAT4.LOOKAT", "MAT4.PERSPECTIVE", "MAT4.ORTHO", "MAT4.MULTIPLY", "MAT4.INVERSE", "MAT4.TRANSPOSE",
 		"MAT4.GETELEMENT", "MAT4.TRANSFORMX", "MAT4.TRANSFORMY", "MAT4.TRANSFORMZ", "MAT4.FREE",

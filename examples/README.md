@@ -27,7 +27,7 @@ If you use a compiled `moonbasic` binary, replace `go run .` with `moonbasic`.
 | [gui_basics](gui_basics/main.mb) | raygui: window box, label, button |
 | [gui_theme](gui_theme/main.mb) | `GUI.THEMEAPPLY` — embedded official raygui `.rgs` themes |
 | [gui_form](gui_form/main.mb) | Text field, slider, checkbox, tab bar |
-| [spin_cube](spin_cube/main.mb) | 3D camera, lit cube, grid, resource cleanup |
+| [spin_cube](spin_cube/main.mb) | 3D camera, lit cube, **`Transform.*`** matrix + grid, resource cleanup |
 | [pong](pong/main.mb) | 2D rectangles + default-font HUD |
 | [platformer](platformer/main.mb) | Simple platform collision |
 | [fps](fps/main.mb) | Top-down arena + moving targets |

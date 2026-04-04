@@ -327,14 +327,18 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Render.Clear(r, g, b, [a])` | Clears the screen to a color. Call at the start of each frame. |
+| `Render.Clear(r, g, b, [a])` | Clears the screen (also 0-arg and color-handle overloads). Call at the start of each frame. |
 | `Render.Frame()` | Presents the rendered frame. Call at the end of each frame. |
-| `Render.BeginShader(shaderHandle)` | Applies a custom shader to all subsequent drawing. |
-| `Render.EndShader()` | Ends custom shader mode. |
 | `Render.DrawFPS(x, y)` | Draws the current FPS on screen. |
 | `Render.Screenshot(path$)` | Saves a screenshot to a PNG file. |
-| `Render.SetBlend(mode)` | Sets the blend mode (e.g., `BLEND_ALPHA`, `BLEND_ADDITIVE`). |
-| `Render.SetAmbient(r#, g#, b#)` | Sets the 3D scene's ambient light color (0.0–1.0). |
+| `Render.SetBlend(mode)` / `Render.SetBlendMode(mode)` | Sets the Raylib blend mode (e.g. `BLEND_ALPHA`). |
+| `Render.SetDepthWrite(on)` / `Render.SetDepthTest(on)` | Depth mask / depth test toggles. |
+| `Render.SetScissor(x, y, w, h)` / `Render.ClearScissor()` | Scissor rectangle. |
+| `Render.SetWireframe(on)` | Wireframe drawing mode. |
+| `Render.SetMSAA(on)` | Toggles 4× MSAA window hint. |
+| `Render.SetMode(mode$)` | `"forward"` or `"deferred"` 3D pipeline where supported. |
+| `Render.SetShadowMapSize(size)` | Shadow map resolution (pixels). |
+| `Render.Set2DAmbient(r, g, b, a)` | 2D lighting ambient tint (0–255; light2d / CGO). |
 
 ---
 
@@ -348,30 +352,47 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 | `cam.SetFOV(fov#)` | Sets the vertical field of view in degrees. |
 | `cam.Begin()` | Enters 3D rendering mode with this camera. |
 | `cam.End()` | Exits 3D rendering mode. |
-| `cam.GetMatrix()` | Returns the camera's view matrix handle. |
+| `cam.Move(dx#, dy#, dz#)` | Moves position and target together. |
+| `cam.GetRay(screenX#, screenY#)` | Screen → world ray (6-float array handle). |
+| `Camera.GetViewRay(sx#, sy#, cam, w, h)` | Ray with explicit viewport size. |
+| `cam.GetMatrix()` | Returns matrix handle (`Matrix.Free` to release). |
+| `Camera.GetPos(cam)` / `Camera.GetTarget(cam)` | Vec3 handles for position / target. |
+| `Camera.SetUp(cam, ux#, uy#, uz#)` | Sets the up vector. |
+| `Camera.Free(cam)` | Frees the camera object. |
 | `Camera2D.Make()` | Creates a 2D scrolling camera, returns a handle. |
-| `cam2d.Begin()` | Enters 2D camera rendering mode. |
+| `Camera2D.Begin()` / `Camera2D.Begin(cam2d)` | Identity 2D mode or use a camera handle. |
 | `cam2d.End()` | Exits 2D camera rendering mode. |
 | `cam2d.SetTarget(x#, y#)` | Sets the 2D camera's world target. |
 | `cam2d.SetOffset(x#, y#)` | Sets the screen-space offset (for centering). |
 | `cam2d.SetZoom(zoom#)` | Sets the zoom level (1.0 = normal). |
-| `cam2d.SetRotation(angle#)` | Sets the camera rotation in degrees. |
+| `cam2d.SetRotation(angle#)` | Sets the camera rotation in degrees (Raylib). |
+| `Camera2D.GetMatrix(cam2d)` | 2D camera matrix handle. |
+| `Camera2D.WorldToScreen` / `Camera2D.ScreenToWorld` | Convert points; returns 2-float array handles. |
 
 ---
 
-### Draw — [Reference](reference/DRAW2D.md)
+### Draw (2D) — [Reference](reference/DRAW2D.md)
 
 | Command | Description |
 |---|---|
-| `Draw.Rectangle(x, y, w, h, r, g, b, a)` | Draws a filled rectangle. |
-| `Draw.RectangleRounded(x, y, w, h, radius, r, g, b, a)` | Draws a filled rectangle with rounded corners. |
-| `Draw.Circle(cx, cy, radius, r, g, b, a)` | Draws a filled circle. |
-| `Draw.Line(x1, y1, x2, y2, r, g, b, a)` | Draws a line segment. |
-| `Draw.Text(text$, x, y, size, r, g, b, a)` | Draws text with the default font. |
-| `Draw.TextFont(fontHandle, text$, x, y, size, spacing, r, g, b, a)` | Draws text with a custom font. |
-| `Draw.Texture(texHandle, x, y, [r, g, b, a])` | Draws a texture at a position. |
-| `Draw.TextureNPatch(texHandle, l, t, r, b, x, y, w, h, r, g, b, a)` | Draws a 9-patch texture for UI elements. |
-| `Draw.Grid(slices, spacing#)` | Draws a 3D grid (use inside `cam.Begin()`/`cam.End()`). |
+| `Draw.Rectangle(x, y, w, h, r, g, b, a)` | Filled rectangle. |
+| `Draw.RectangleRounded(...)` | Rounded rectangle. |
+| `Draw.Circle` / `Draw.Ellipse` / `Draw.Ring` / `Draw.Triangle` / `Draw.Poly` | Filled primitives (see reference for wire variants, gradients, arcs). |
+| `Draw.CircleSector` / `Draw.CircleGradient` | Sector and radial gradient. |
+| `Draw.Line` / `Draw.LineEx` / `Draw.LineBezier*` | Lines and Bézier strokes. |
+| `Draw.Spline*` | Splines from a point array + thickness + color. |
+| `Draw.Texture*` / `Draw.TextureNPatch` | Textured quads, tiling, n-patch (tint is **required** on `Draw.Texture`: 7 args). |
+| `Draw.Text` / `Draw.TextEx` / `Draw.TextFont` / `Draw.TextPro` | Text and measurement helpers. |
+
+### Draw (3D) — [Reference](reference/DRAW3D.md)
+
+| Command | Description |
+|---|---|
+| `Draw3D.Grid` / `Draw.Grid` | 3D reference grid (`Camera.Begin` / `End`). |
+| `Draw3D.Line` / `Draw3D.Point` / `Draw3D.Sphere*` / `Draw3D.Cube*` / `Draw3D.Cylinder*` / `Draw3D.Capsule*` / `Draw3D.Plane` / `Draw3D.BBox` | Primitives (see reference for arities). |
+| `Draw3D.Ray` | Debug-draw a ray from a 6-float array handle. |
+| `Draw3D.Billboard` / `Draw3D.BillboardRec` | Textured billboards (require active 3D camera). |
+| `Draw.Line3D` / `Draw.Sphere` / … | **Aliases** of the same `DRAW3D.*` handlers (see [DRAW3D.md](reference/DRAW3D.md)). |
 
 ---
 
@@ -383,6 +404,12 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 | `Texture.Free(handle)` | Unloads a texture from GPU memory. |
 | `Texture.FromImage(imgHandle)` | Creates a GPU texture from an in-memory image. |
 | `Texture.GenWhiteNoise(w, h)` | Generates a white noise texture procedurally. |
+
+---
+
+### Image (CPU) — [Reference](reference/IMAGE.md)
+
+CPU pixel buffers (`Image.*`): load, draw into, resize, color ops, `DrawImage`, alpha bbox, `Clipboard.GetImage`. Upload to the GPU with **`Texture.FromImage`**. Full table in [IMAGE.md](reference/IMAGE.md).
 
 ---
 
@@ -408,18 +435,19 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Sprite & Atlas — [Reference: Sprite](reference/SPRITE.md) · [Atlas](reference/ATLAS.md)
+### Sprite & Atlas — [Sprite](reference/SPRITE.md) · [Atlas](reference/ATLAS.md)
 
 | Command | Description |
 |---|---|
-| `Sprite.Load(path$)` | Loads an `.aseprite` file. Returns a handle. |
-| `Sprite.DefAnim(handle, name$)` | Registers an animation tag for use. |
-| `Sprite.PlayAnim(handle, name$)` | Sets the active animation. |
-| `Sprite.UpdateAnim(handle, dt#)` | Advances the animation timer. Call every frame. |
-| `Sprite.Draw(handle, x, y)` | Draws the current animation frame. |
-| `Atlas.Load(imgPath$, jsonPath$)` | Loads a texture atlas (image + JSON data). |
-| `Atlas.GetSprite(handle, name$)` | Gets a sub-sprite handle from the atlas. |
-| `Atlas.Free(handle)` | Frees the atlas and all its sprites. |
+| `Sprite.Load(path$)` | `LoadTexture` — PNG/JPG strip or atlas texture. Returns a handle. |
+| `Sprite.DefAnim(handle, count$)` | **`count$`** = decimal string, e.g. `"4"` = equal frames in one horizontal row. |
+| `Sprite.PlayAnim(handle, name$)` | Starts strip playback; `name$` is currently unused. |
+| `Sprite.UpdateAnim(handle, dt#)` | Advance strip frames (use **`Time.Delta()`**). No-op if using **`Anim.Update`** FSM. |
+| `Sprite.SetPos` / `Sprite.SetPosition` | Float draw offset; used by **`Sprite.Draw`** and **`Sprite.Hit`**. |
+| `Sprite.Draw(handle, x, y)` | Current frame + offset (use inside **`Render.BeginMode2D`** as needed). |
+| `Sprite.Hit(a, b)` | Axis-aligned overlap using positions + frame sizes. |
+| `Atlas.Load` / `GetSprite` / `Free` | See [ATLAS.md](reference/ATLAS.md). |
+| `Anim.Define` / `AddTransition` / `Update` / `SetParam` | Optional state machine; see [SPRITE.md](reference/SPRITE.md). |
 
 ---
 
@@ -555,20 +583,23 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Mat4 / Matrix Math — [Reference](reference/MAT4.md)
+### Transform (4×4 object/world matrices) — [Reference](reference/TRANSFORM.md)
 
 | Command | Description |
 |---|---|
-| `Mat4.Identity()` | Creates a new identity matrix. Returns a handle. |
-| `Mat4.SetRotation(handle, rx#, ry#, rz#)` | Sets the rotation of an existing matrix (radians). |
-| `Mat4.FromRotation(rx#, ry#, rz#)` | Creates a rotation matrix. Returns a handle. |
-| `Mat4.FromScale(sx#, sy#, sz#)` | Creates a scale matrix. Returns a handle. |
-| `Mat4.FromTranslation(x#, y#, z#)` | Creates a translation matrix. Returns a handle. |
-| `Mat4.Multiply(a, b)` | Multiplies two matrices. Returns a new handle. |
-| `Mat4.Inverse(handle)` | Returns the inverse of a matrix. |
-| `Mat4.Transpose(handle)` | Returns the transpose of a matrix. |
-| `Mat4.LookAt(eyeX#, eyeY#, eyeZ#, atX#, atY#, atZ#, upX#, upY#, upZ#)` | Creates a look-at view matrix. |
-| `Mat4.Free(handle)` | Frees a matrix handle. |
+| `Transform.Identity()` | New identity transform. Returns a handle. |
+| `Transform.Translation(x#, y#, z#)` | World position. |
+| `Transform.Rotation(rx#, ry#, rz#)` | Euler rotation (radians); returns new handle. |
+| `Transform.Scale(sx#, sy#, sz#)` | Scale matrix. |
+| `Transform.SetRotation(handle, rx#, ry#, rz#)` | Updates rotation in place (good in loops). |
+| `Transform.Multiply(a, b)` | Matrix multiply; returns new handle. |
+| `Transform.Inverse(handle)` / `Transform.Transpose(handle)` | Standard matrix ops. |
+| `Transform.LookAt(...)` / `Perspective` / `Ortho` | View / projection helpers. |
+| `Transform.GetElement(handle, row, col)` | One entry (rows/cols 0–3). |
+| `Transform.ApplyX/Y/Z(handle, x#, y#, z#)` | Matrix × point; returns one world component. |
+| `Transform.Free(handle)` | Release the handle. |
+
+Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 
 ---
 
