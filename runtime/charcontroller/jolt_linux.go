@@ -33,7 +33,8 @@ func untrackChar(h heap.Handle) {
 const charDt = float32(1.0 / 60.0)
 
 type charObj struct {
-	cv *jolt.CharacterVirtual
+	cv      *jolt.CharacterVirtual
+	release heap.ReleaseOnce
 }
 
 func (c *charObj) TypeName() string { return "CharController" }
@@ -41,10 +42,12 @@ func (c *charObj) TypeName() string { return "CharController" }
 func (c *charObj) TypeTag() uint16 { return heap.TagCharController }
 
 func (c *charObj) Free() {
-	if c.cv != nil {
-		c.cv.Destroy()
-		c.cv = nil
-	}
+	c.release.Do(func() {
+		if c.cv != nil {
+			c.cv.Destroy()
+			c.cv = nil
+		}
+	})
 }
 
 func registerCharControllerCommands(m *Module, reg runtime.Registrar) {

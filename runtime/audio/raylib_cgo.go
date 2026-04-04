@@ -3,8 +3,6 @@
 package mbaudio
 
 import (
-	"fmt"
-
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
@@ -32,12 +30,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.registerSound(r)
 	m.registerMusic(r)
 	m.registerStreamWaveSound(r)
-	r.Register("AUDIO.PLAY", "audio", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		return value.Nil, fmt.Errorf("AUDIO.PLAY: not implemented")
-	}))
-	r.Register("AUDIO.STOP", "audio", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return value.Nil, nil }))
-	r.Register("AUDIO.PAUSE", "audio", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return value.Nil, nil }))
-	r.Register("AUDIO.RESUME", "audio", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return value.Nil, nil }))
+	m.registerPlayback(r)
+	m.registerAudioProps(r)
 }
 
 // Shutdown implements runtime.Module.

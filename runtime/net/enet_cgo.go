@@ -21,11 +21,13 @@ type queuedEv struct {
 	data  string
 }
 
+// hostObj owns an ENet host; frees peer handles (children) before destroying the host.
 type hostObj struct {
 	host    enet.Host
 	store   *heap.Store
 	peerIDs []int32
 	q       []queuedEv
+	release heap.ReleaseOnce
 }
 
 func (h *hostObj) TypeName() string { return "NetHost" }
@@ -33,22 +35,25 @@ func (h *hostObj) TypeName() string { return "NetHost" }
 func (h *hostObj) TypeTag() uint16 { return heap.TagHost }
 
 func (h *hostObj) Free() {
-	if h.store != nil {
-		ids := append([]int32(nil), h.peerIDs...)
-		h.peerIDs = nil
-		for _, pid := range ids {
-			h.store.Free(pid)
+	h.release.Do(func() {
+		if h.store != nil {
+			ids := append([]int32(nil), h.peerIDs...)
+			h.peerIDs = nil
+			for _, pid := range ids {
+				h.store.Free(pid)
+			}
+			h.store = nil
 		}
-		h.store = nil
-	}
-	if h.host != nil {
-		h.host.Destroy()
-		h.host = nil
-	}
+		if h.host != nil {
+			h.host.Destroy()
+			h.host = nil
+		}
+	})
 }
 
 type peerObj struct {
-	peer enet.Peer
+	peer    enet.Peer
+	release heap.ReleaseOnce
 }
 
 func (p *peerObj) TypeName() string { return "NetPeer" }
@@ -56,10 +61,12 @@ func (p *peerObj) TypeName() string { return "NetPeer" }
 func (p *peerObj) TypeTag() uint16 { return heap.TagPeer }
 
 func (p *peerObj) Free() {
-	if p.peer != nil {
-		p.peer.SetData(nil)
-		p.peer = nil
-	}
+	p.release.Do(func() {
+		if p.peer != nil {
+			p.peer.SetData(nil)
+			p.peer = nil
+		}
+	})
 }
 
 type eventObj struct {

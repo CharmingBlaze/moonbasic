@@ -34,6 +34,8 @@ type tilemapObj struct {
 	collision [][]uint8
 
 	tmxDir string
+
+	release heap.ReleaseOnce
 }
 
 func (o *tilemapObj) TypeName() string { return "Tilemap" }
@@ -41,7 +43,7 @@ func (o *tilemapObj) TypeName() string { return "Tilemap" }
 func (o *tilemapObj) TypeTag() uint16 { return heap.TagTilemap }
 
 func (o *tilemapObj) Free() {
-	rl.UnloadTexture(o.tex)
+	o.release.Do(func() { rl.UnloadTexture(o.tex) })
 }
 
 type tmxMap struct {

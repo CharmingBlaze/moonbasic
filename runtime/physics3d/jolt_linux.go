@@ -37,7 +37,8 @@ type collEvent struct {
 }
 
 type body3dObj struct {
-	id *jolt.BodyID
+	id      *jolt.BodyID
+	release heap.ReleaseOnce
 }
 
 func (b *body3dObj) TypeName() string { return "Body3D" }
@@ -45,15 +46,19 @@ func (b *body3dObj) TypeName() string { return "Body3D" }
 func (b *body3dObj) TypeTag() uint16 { return heap.TagPhysicsBody }
 
 func (b *body3dObj) Free() {
-	if b.id != nil {
-		b.id.Destroy()
-		b.id = nil
-	}
+	b.release.Do(func() {
+		if b.id != nil {
+			b.id.Destroy()
+			b.id = nil
+		}
+	})
 }
 
+// builderObj owns a Jolt shape; destroy shape before COMMIT discards builder (host order).
 type builderObj struct {
-	motion jolt.MotionType
-	shape  *jolt.Shape
+	motion  jolt.MotionType
+	shape   *jolt.Shape
+	release heap.ReleaseOnce
 }
 
 func (b *builderObj) TypeName() string { return "Body3DBuilder" }
@@ -61,10 +66,12 @@ func (b *builderObj) TypeName() string { return "Body3DBuilder" }
 func (b *builderObj) TypeTag() uint16 { return heap.TagPhysicsBuilder }
 
 func (b *builderObj) Free() {
-	if b.shape != nil {
-		b.shape.Destroy()
-		b.shape = nil
-	}
+	b.release.Do(func() {
+		if b.shape != nil {
+			b.shape.Destroy()
+			b.shape = nil
+		}
+	})
 }
 
 // ActiveJoltPhysics exposes the live Jolt world for charcontroller (linux only).
@@ -133,6 +140,8 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("BODY3D.SETPOS", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
 	reg.Register("BODY3D.SETPOSITION", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
 	reg.Register("BODY3D.GETPOS", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdGetPos(m, a) }))
+	reg.Register("BODY3D.ACTIVATE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdActivate(m, a) }))
+	reg.Register("BODY3D.DEACTIVATE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdDeactivate(m, a) }))
 	reg.Register("BODY3D.SETROT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
 	reg.Register("BODY3D.GETROT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdGetRotZero(m, a) }))
 	reg.Register("BODY3D.SETMASS", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
@@ -432,6 +441,42 @@ func bdSetPos(m *Module, args []value.Value) (value.Value, error) {
 	y, _ := args[2].ToFloat()
 	z, _ := args[3].ToFloat()
 	bi.SetPosition(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	return value.Nil, nil
+}
+
+func bdActivate(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.ACTIVATE expects body handle")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return value.Nil, runtime.Errorf("BODY3D.ACTIVATE: physics not started")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	bi.ActivateBody(bo.id)
+	return value.Nil, nil
+}
+
+func bdDeactivate(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.DEACTIVATE expects body handle")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return value.Nil, runtime.Errorf("BODY3D.DEACTIVATE: physics not started")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	bi.DeactivateBody(bo.id)
 	return value.Nil, nil
 }
 

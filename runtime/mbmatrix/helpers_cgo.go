@@ -70,6 +70,17 @@ func (m *Module) vec3FromArgs(args []value.Value, idx int, op string) (rl.Vector
 	return o.v, nil
 }
 
+func (m *Module) quatFromArgs(args []value.Value, idx int, op string) (rl.Quaternion, error) {
+	if idx >= len(args) || args[idx].Kind != value.KindHandle {
+		return rl.Quaternion{}, fmt.Errorf("%s: argument %d must be quaternion handle", op, idx+1)
+	}
+	o, err := heap.Cast[*quatObj](m.h, heap.Handle(args[idx].IVal))
+	if err != nil {
+		return rl.Quaternion{}, fmt.Errorf("%s: %w", op, err)
+	}
+	return o.q, nil
+}
+
 func (m *Module) vec2FromArgs(args []value.Value, idx int, op string) (rl.Vector2, error) {
 	if idx >= len(args) || args[idx].Kind != value.KindHandle {
 		return rl.Vector2{}, fmt.Errorf("%s: argument %d must be vec2 handle", op, idx+1)

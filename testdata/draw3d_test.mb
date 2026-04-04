@@ -1,0 +1,34 @@
+Window.Open(1024, 768, "Draw 3D Test")
+Window.SetFPS(60)
+
+cam = Camera.Make()
+cam.SetPos(5, 5, 10)
+cam.SetTarget(0, 0, 0)
+cam.SetFOV(60)
+
+angle# = 0.0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = Time.Delta()
+    angle# = angle# + 20 * dt#
+
+    Render.Clear(20, 20, 30)
+    cam.Begin()
+        Draw3D.Grid(10, 1.0)
+        Draw3D.Sphere(0, 1, 0, 0.5, 100, 200, 255, 255)
+        Draw3D.SphereWires(-2, 1, 0, 0.5, 16, 16, 255, 100, 100, 255)
+        Draw3D.Cube(2, 0.5, 0, 1, 1, 1, 100, 255, 100, 255)
+        Draw3D.CubeWires(2, 0.5, 0, 1.05, 1.05, 1.05, 255, 255, 50, 200)
+        Draw3D.Cylinder(0, 0, -3, 0.5, 0.5, 2, 12, 255, 180, 50, 255)
+        Draw3D.Plane(0, -0.01, 0, 10, 10, 60, 60, 60, 200)
+        Draw3D.Line(-4,0,-4, 4,0,4, 255, 50, 50, 255)
+        Draw3D.BBox(-1,-1,-4, 1,1,-2, 200, 200, 50, 200)
+    cam.End()
+
+    Draw.Text("Draw3D Test - ESC to quit", 10, 10, 18,
+              255, 255, 200, 255)
+    Render.Frame()
+WEND
+
+cam.Free()
+Window.Close()

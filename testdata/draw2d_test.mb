@@ -1,0 +1,35 @@
+Window.Open(1024, 768, "Draw 2D Test")
+Window.SetFPS(60)
+
+; Test all 2D draw commands visually
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(20, 20, 30)
+
+    ; Shapes
+    Draw.Circle(100, 100, 50, 255, 100, 100, 255)
+    Draw.CircleLines(200, 100, 50, 100, 255, 100, 255)
+    Draw.Ellipse(350, 100, 80, 40, 255, 200, 50, 255)
+    Draw.Ring(500, 100, 30, 60, 0, 270, 16, 50, 150, 255, 255)
+    Draw.Triangle(600,50, 550,150, 650,150, 200, 100, 255, 255)
+    Draw.Poly(800, 100, 6, 50, 0, 255, 180, 50, 255)
+
+    ; Lines
+    Draw.Line(50, 200, 200, 280, 255, 255, 100, 255)
+    Draw.LineEx(220, 200, 370, 280, 4, 100, 200, 255, 255)
+    Draw.LineBezier(400, 200, 550, 280, 3, 255, 150, 50, 255)
+
+    ; Rectangles
+    Draw.RectLines(50, 320, 150, 80, 3, 255, 255, 50, 255)
+    Draw.RectPro(250, 320, 150, 80, 75, 40, 30, 100, 255, 100, 255)
+    Draw.RectGradV(450, 320, 150, 80, 255,50,50,255, 50,50,255,255)
+
+    ; Text
+    Draw.Text("moonBASIC Draw Test", 50, 450, 24,
+              255, 255, 255, 255)
+    Draw.Text("Press ESC to quit", 50, 490, 16,
+              180, 180, 180, 200)
+
+    Render.Frame()
+WEND
+
+Window.Close()

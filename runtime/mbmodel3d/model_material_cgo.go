@@ -8,7 +8,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
-	mbdraw "moonbasic/runtime/draw"
+	"moonbasic/runtime/texture"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -68,7 +68,7 @@ func registerModelMaterial(m *Module, reg runtime.Registrar) {
 		if args[3].Kind != value.KindHandle {
 			return value.Nil, fmt.Errorf("MODEL.SETMATERIALTEXTURE: texture handle required")
 		}
-		tex, err := mbdraw.TextureForBinding(m.h, heap.Handle(args[3].IVal))
+		tex, err := texture.ForBinding(m.h, heap.Handle(args[3].IVal))
 		if err != nil {
 			return value.Nil, fmt.Errorf("MODEL.SETMATERIALTEXTURE: %w", err)
 		}

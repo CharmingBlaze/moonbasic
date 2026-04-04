@@ -1,4 +1,7 @@
-IF NOT Window.Open(960, 540, "moonBASIC spinning cube") THEN
+; 3D demo: camera, rotating cube, ground grid, heap cleanup.
+; Run from repo root: CGO_ENABLED=1 go run . examples/spin_cube/main.mb
+
+IF NOT Window.Open(960, 540, "moonBASIC — spin cube") THEN
     PRINT("Could not create window")
     END
 ENDIF
@@ -15,6 +18,7 @@ Material.SetColor(cubeMat, MATERIAL_MAP_ALBEDO, 130, 200, 255, 255)
 
 rot = Mat4.Identity()
 angle# = 0
+
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt# = Time.Delta()
     angle# = angle# + 1.1 * dt#
@@ -23,8 +27,14 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     Render.Clear(12, 14, 22)
     cam.Begin()
         Mesh.Draw(cubeMesh, cubeMat, rot)
+        Draw.Grid(10, 1.0)
     cam.End()
+    Draw.Text("ESC to quit", 16, 16, 18, 220, 220, 230, 255)
     Render.Frame()
 WEND
 
+Mesh.Free(cubeMesh)
+Material.Free(cubeMat)
+Mat4.Free(rot)
+Camera.Free(cam)
 Window.Close()

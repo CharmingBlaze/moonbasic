@@ -1,0 +1,125 @@
+# 2D Physics Commands
+
+Commands for creating and controlling a 2D physics simulation using Box2D.
+
+## Core Workflow
+
+1.  **Initialize**: Start the physics world with `Physics2D.Start()`.
+2.  **Create Bodies**: Define and create physics bodies (`Body2D.Make`, `Body2D.AddShape`, `Body2D.Commit`).
+3.  **Update**: Advance the simulation each frame with `Physics2D.Step()`.
+4.  **Synchronize**: Use `Body2D.X()` and `Body2D.Y()` to update the positions of your visual shapes.
+5.  **Cleanup**: Shut down the world with `Physics2D.Stop()`.
+
+---
+
+## World Management
+
+### `Physics2D.Start()`
+
+Initializes the 2D physics world.
+
+### `Physics2D.Stop()`
+
+Shuts down the 2D physics simulation.
+
+### `Physics2D.Step()`
+
+Advances the simulation. Call this once per frame.
+
+### `Physics2D.SetGravity(x#, y#)`
+
+Sets the global gravity for the 2D world.
+
+---
+
+## Body Creation
+
+### 1. `Body2D.Make(type$)`
+
+Creates a body definition. `type$` can be `"static"`, `"dynamic"`, or `"kinematic"`.
+
+### 2. `Body2D.AddShape(...)`
+
+Adds a collision shape to the definition.
+
+- `Body2D.AddRect(bodyDefHandle, width#, height#)`
+- `Body2D.AddCircle(bodyDefHandle, radius#)`
+
+### 3. `Body2D.Commit(bodyDefHandle, x#, y#)`
+
+Adds the body to the physics world at the specified position. Returns a handle to the final body.
+
+---
+
+## Body Interaction
+
+### `Body2D.SetPos(bodyHandle, x#, y#)`
+
+Teleports a 2D body to a new position.
+
+### `Body2D.X(bodyHandle)` / `Body2D.Y(bodyHandle)`
+
+Returns the X or Y coordinate of a body's center.
+
+### `Body2D.Rot(bodyHandle)`
+
+Returns the rotation of a body in degrees.
+
+### `Body2D.ApplyForce(bodyHandle, x#, y#)`
+
+Applies a continuous force to the center of a body.
+
+### `Body2D.ApplyImpulse(bodyHandle, x#, y#)`
+
+Applies an instant force impulse.
+
+### `Body2D.Free(bodyHandle)`
+
+Removes a body from the 2D physics simulation.
+
+---
+
+## Full Example: Falling Box
+
+```basic
+Window.Open(800, 600, "2D Physics Example")
+Window.SetFPS(60)
+
+; 1. Initialize Physics World
+Physics2D.Start()
+Physics2D.SetGravity(0, 500) ; Positive Y is down in 2D
+
+; 2. Create a static floor
+floor_def = Body2D.Make("static")
+Body2D.AddRect(floor_def, 800, 50)
+floor_body = Body2D.Commit(floor_def, 400, 575)
+
+; 3. Create a dynamic box
+box_def = Body2D.Make("dynamic")
+Body2D.AddRect(box_def, 40, 40)
+box_body = Body2D.Commit(box_def, 400, 100)
+
+WHILE NOT Window.ShouldClose()
+    ; 4. Update simulation
+    Physics2D.Step()
+
+    Render.Clear(10, 20, 30)
+    Render.BeginMode2D()
+        ; 5. Synchronize visuals
+        box_x = Body2D.X(box_body)
+        box_y = Body2D.Y(box_body)
+        box_rot = Body2D.Rot(box_body)
+
+        ; Draw floor
+        Draw.Rectangle(INT(Body2D.X(floor_body)) - 400, INT(Body2D.Y(floor_body)) - 25, 800, 50, 100, 100, 100, 255)
+        ; Draw box (rotation not visually applied without a sprite, but position is correct)
+        Draw.Rectangle(INT(box_x) - 20, INT(box_y) - 20, 40, 40, 200, 50, 50, 255)
+
+    Render.EndMode2D()
+    Render.Frame()
+WEND
+
+; 6. Cleanup
+Physics2D.Stop()
+Window.Close()
+```

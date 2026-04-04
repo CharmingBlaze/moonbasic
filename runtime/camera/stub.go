@@ -29,6 +29,10 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.GETRAY", "camera", stub("CAMERA.GETRAY"))
 	r.Register("CAMERA.GETVIEWRAY", "camera", stub("CAMERA.GETVIEWRAY"))
 	r.Register("CAMERA.GETMATRIX", "camera", stub("CAMERA.GETMATRIX"))
+	r.Register("CAMERA.GETPOS", "camera", stub("CAMERA.GETPOS"))
+	r.Register("CAMERA.GETTARGET", "camera", stub("CAMERA.GETTARGET"))
+	r.Register("CAMERA.SETUP", "camera", stub("CAMERA.SETUP"))
+	r.Register("CAMERA.FREE", "camera", stub("CAMERA.FREE"))
 	r.Register("MATRIX.FREE", "camera", stub("MATRIX.FREE"))
 	r.Register("CAMERA2D.MAKE", "camera", stub("CAMERA2D.MAKE"))
 	r.Register("CAMERA2D.SETTARGET", "camera", stub("CAMERA2D.SETTARGET"))
@@ -37,6 +41,9 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA2D.SETROTATION", "camera", stub("CAMERA2D.SETROTATION"))
 	r.Register("CAMERA2D.BEGIN", "camera", stub("CAMERA2D.BEGIN"))
 	r.Register("CAMERA2D.END", "camera", stub("CAMERA2D.END"))
+	r.Register("CAMERA2D.GETMATRIX", "camera", stub("CAMERA2D.GETMATRIX"))
+	r.Register("CAMERA2D.WORLDTOSCREEN", "camera", stub("CAMERA2D.WORLDTOSCREEN"))
+	r.Register("CAMERA2D.SCREENTOWORLD", "camera", stub("CAMERA2D.SCREENTOWORLD"))
 }
 
 // Shutdown implements runtime.Module.

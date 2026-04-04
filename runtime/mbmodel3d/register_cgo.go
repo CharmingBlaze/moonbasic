@@ -10,6 +10,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerMeshOps(m, reg)
 	registerMaterialCmds(m, reg)
 	registerShaderCmds(m, reg)
+	registerShaderUniformCmds(m, reg)
 	registerModelLoad(m, reg)
 	registerModelMaterial(m, reg)
 	registerModelTextureStages(m, reg)

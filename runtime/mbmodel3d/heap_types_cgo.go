@@ -8,8 +8,10 @@ import (
 	"moonbasic/vm/heap"
 )
 
+// meshObj owns mesh GPU data uploaded for Raylib; typically freed before parent model is unloaded.
 type meshObj struct {
-	m rl.Mesh
+	m       rl.Mesh
+	release heap.ReleaseOnce
 }
 
 func (o *meshObj) TypeName() string { return "Mesh" }
@@ -17,13 +19,15 @@ func (o *meshObj) TypeName() string { return "Mesh" }
 func (o *meshObj) TypeTag() uint16 { return heap.TagMesh }
 
 func (o *meshObj) Free() {
-	rl.UnloadMesh(&o.m)
+	o.release.Do(func() { rl.UnloadMesh(&o.m) })
 }
 
+// materialObj owns Raylib materials/shaders; if moved==true, ownership transferred to a model — do not unload here.
 type materialObj struct {
-	mat   rl.Material
-	moved bool // after MODEL.SETMATERIAL steal; skip UnloadMaterial on Free
-	pbr   bool // MATERIAL.MAKEPBR: extra uniforms + optional shadow sampling
+	mat     rl.Material
+	moved   bool // after MODEL.SETMATERIAL steal; skip UnloadMaterial on Free
+	pbr     bool // MATERIAL.MAKEPBR: extra uniforms + optional shadow sampling
+	release heap.ReleaseOnce
 }
 
 func (o *materialObj) TypeName() string { return "Material" }
@@ -34,9 +38,10 @@ func (o *materialObj) Free() {
 	if o.moved {
 		return
 	}
-	rl.UnloadMaterial(o.mat)
+	o.release.Do(func() { rl.UnloadMaterial(o.mat) })
 }
 
+// modelObj owns a loaded Raylib model (meshes/materials); unload model before freeing borrowed material handles.
 type modelObj struct {
 	model      rl.Model
 	loadedPath string // set by MODEL.LOAD; used for MODEL.CLONE / MODEL.INSTANCE
@@ -52,6 +57,8 @@ type modelObj struct {
 	depthBits int32 // bitmask: 1=no depth test, 2=no depth write (convention for future draw helpers)
 
 	ambientR, ambientG, ambientB int32
+
+	release heap.ReleaseOnce
 }
 
 func (o *modelObj) TypeName() string { return "Model" }
@@ -59,7 +66,7 @@ func (o *modelObj) TypeName() string { return "Model" }
 func (o *modelObj) TypeTag() uint16 { return heap.TagModel }
 
 func (o *modelObj) Free() {
-	rl.UnloadModel(o.model)
+	o.release.Do(func() { rl.UnloadModel(o.model) })
 }
 
 // instancedModelObj draws many copies of one mesh/material via DrawMeshInstanced.
@@ -71,6 +78,8 @@ type instancedModelObj struct {
 	px, py, pz []float32
 	sx, sy, sz []float32
 	transforms []rl.Matrix
+
+	release heap.ReleaseOnce
 }
 
 func (o *instancedModelObj) TypeName() string { return "InstancedModel" }
@@ -78,7 +87,7 @@ func (o *instancedModelObj) TypeName() string { return "InstancedModel" }
 func (o *instancedModelObj) TypeTag() uint16 { return heap.TagInstancedModel }
 
 func (o *instancedModelObj) Free() {
-	rl.UnloadModel(o.model)
+	o.release.Do(func() { rl.UnloadModel(o.model) })
 }
 
 // lodModelObj holds three detail levels; MODEL.SETLODDISTANCES configures distance bands.
@@ -89,6 +98,8 @@ type lodModelObj struct {
 	band2      float32 // [band1, band2) → LOD2; dist >= band2 → culled
 	configured bool
 	transform  rl.Matrix
+
+	release heap.ReleaseOnce
 }
 
 func (o *lodModelObj) TypeName() string { return "LODModel" }
@@ -96,12 +107,14 @@ func (o *lodModelObj) TypeName() string { return "LODModel" }
 func (o *lodModelObj) TypeTag() uint16 { return heap.TagLODModel }
 
 func (o *lodModelObj) Free() {
-	for i := range o.models {
-		if o.models[i].MeshCount > 0 {
-			rl.UnloadModel(o.models[i])
-			o.models[i] = rl.Model{}
+	o.release.Do(func() {
+		for i := range o.models {
+			if o.models[i].MeshCount > 0 {
+				rl.UnloadModel(o.models[i])
+				o.models[i] = rl.Model{}
+			}
 		}
-	}
+	})
 }
 
 func (o *lodModelObj) worldPos() rl.Vector3 {
@@ -139,7 +152,8 @@ func (o *lodModelObj) pickLOD(cam rl.Vector3) int {
 }
 
 type shaderObj struct {
-	sh rl.Shader
+	sh      rl.Shader
+	release heap.ReleaseOnce
 }
 
 func (o *shaderObj) TypeName() string { return "Shader" }
@@ -147,5 +161,5 @@ func (o *shaderObj) TypeName() string { return "Shader" }
 func (o *shaderObj) TypeTag() uint16 { return heap.TagShader }
 
 func (o *shaderObj) Free() {
-	rl.UnloadShader(o.sh)
+	o.release.Do(func() { rl.UnloadShader(o.sh) })
 }

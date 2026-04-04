@@ -11,67 +11,6 @@ import (
 	"sync"
 )
 
-// MaxSlots is the maximum number of distinct heap slots (0 is invalid).
-const MaxSlots = 65535
-
-const (
-	TagNone uint16 = iota
-	TagInstance
-	TagArray
-	TagSprite
-	TagTexture
-	TagFont
-	TagCamera
-	TagFile
-	TagJSON
-	TagHost
-	TagPeer
-	TagEvent
-	TagPhysicsBody
-	TagPhysicsBuilder
-	TagCharController
-	TagAutomationList
-	TagImage
-	TagMesh
-	TagMaterial
-	TagModel
-	TagShader
-	TagMatrix
-	TagVec2
-	TagVec3
-	TagRay
-	TagBBox
-	TagBSphere
-	TagAudioStream
-	TagWave
-	TagSound
-	TagColor
-	TagMem
-	TagRng
-	TagStringList
-	TagPhysics2D
-	TagBody2D
-	TagLight
-	TagInstancedModel
-	TagLODModel
-	TagParticle
-	TagTilemap
-	TagAtlas
-	TagCamera2D
-	TagLight2D
-	TagPool
-	TagTween
-	TagComputeShader
-	TagShaderBuffer
-	TagDecal
-	TagNav
-	TagPath
-	TagNavAgent
-	TagSteerGroup
-	TagBTree
-	TagLobby
-)
-
 // Handle is an opaque integer index. 0 is always invalid.
 type Handle = int32
 
@@ -85,11 +24,21 @@ type Entry struct {
 }
 
 // HeapObject is the interface for any resource stored in the Heap.
-// It is responsible for releasing its own native resources (raylib, jolt, etc).
+//
+// Memory safety contract (engine rules):
+//   - Free must be idempotent: a second call is a silent no-op. Use [ReleaseOnce] around native
+//     Unload/Destroy/Close paths (Raylib, Jolt, Box2D, ENet, OS).
+//   - Every externally allocated resource must be registered in the [Store] before its handle
+//     is returned to bytecode; [Store.FreeAll] on shutdown must release everything with zero leaks.
+//   - TypeTag must be unique per class so [Cast] produces a clear error on wrong-type handles.
+//   - Where ownership is layered (e.g. shape before body), document order on the concrete type;
+//     parents must not double-free children already freed explicitly.
+//   - Raylib CGO is expected on the main OS thread ([runtime.LockOSThread] in main); do not call
+//     Free from other goroutines unless the concrete type documents thread safety.
 type HeapObject interface {
-	Free()            // Unload/Destroy the underlying resource
+	Free()            // Unload/Destroy the underlying resource (idempotent)
 	TypeName() string // For error messages (e.g., "Texture", "Model")
-	TypeTag() uint16  // Unique ID for the type (must match Entry.TypeTag)
+	TypeTag() uint16  // Unique ID for the type (must match Entry.TypeTag); see heap_tags.go
 }
 
 // Store handles the allocation and lookup of resource handles.

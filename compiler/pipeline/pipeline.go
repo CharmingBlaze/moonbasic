@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	goruntime "runtime"
+	"strings"
 
 	"moonbasic/compiler/arena"
 	"moonbasic/compiler/builtinmanifest"
@@ -25,26 +25,27 @@ import (
 	mbfont "moonbasic/runtime/font"
 	"moonbasic/runtime/input"
 	mbjson "moonbasic/runtime/jsonmod"
-	mblight "moonbasic/runtime/mblight"
-	mblight2d "moonbasic/runtime/mblight2d"
 	"moonbasic/runtime/mathmod"
 	mbarray "moonbasic/runtime/mbarray"
 	mbcollision "moonbasic/runtime/mbcollision"
 	mbdata "moonbasic/runtime/mbdata"
 	mbdebug "moonbasic/runtime/mbdebug"
+	mbevent "moonbasic/runtime/mbevent"
+	mbgui "moonbasic/runtime/mbgui"
 	"moonbasic/runtime/mbimage"
+	mblight "moonbasic/runtime/mblight"
+	mblight2d "moonbasic/runtime/mblight2d"
 	mbmatrix "moonbasic/runtime/mbmatrix"
 	mbmem "moonbasic/runtime/mbmem"
 	"moonbasic/runtime/mbmodel3d"
-	mbevent "moonbasic/runtime/mbevent"
+	mbnav "moonbasic/runtime/mbnav"
 	mbparticles "moonbasic/runtime/mbparticles"
 	mbpool "moonbasic/runtime/mbpool"
+	mbrand "moonbasic/runtime/mbrand"
 	mbscene "moonbasic/runtime/mbscene"
-	mbtween "moonbasic/runtime/mbtween"
 	mbtilemap "moonbasic/runtime/mbtilemap"
 	mbtransition "moonbasic/runtime/mbtransition"
-	mbnav "moonbasic/runtime/mbnav"
-	mbrand "moonbasic/runtime/mbrand"
+	mbtween "moonbasic/runtime/mbtween"
 	mbutil "moonbasic/runtime/mbutil"
 	mbnet "moonbasic/runtime/net"
 	mbphysics2d "moonbasic/runtime/physics2d"
@@ -52,13 +53,14 @@ import (
 	mbsprite "moonbasic/runtime/sprite"
 	"moonbasic/runtime/strmod"
 	mbsystem "moonbasic/runtime/system"
+	"moonbasic/runtime/texture"
 	mbtime "moonbasic/runtime/time"
 	"moonbasic/runtime/window"
 	"moonbasic/vm"
 	"moonbasic/vm/heap"
-	"moonbasic/vm/value"
 	"moonbasic/vm/moon"
 	"moonbasic/vm/opcode"
+	"moonbasic/vm/value"
 )
 
 // Options carries configuration for the VM execution.
@@ -209,6 +211,7 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	reg.RegisterModule(mblight2d.NewModule())
 	reg.RegisterModule(mbtransition.NewModule())
 	reg.RegisterModule(mbfont.NewModule())
+	reg.RegisterModule(mbgui.NewModule())
 	reg.RegisterModule(audMod)
 	reg.RegisterModule(mbjson.NewModule())
 	netMod := mbnet.NewModule()
@@ -251,6 +254,8 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	mbmodel3d.SeedMaterialMapGlobals(machine.Globals)
 	mbmatrix.SeedColorGlobals(h, machine.Globals)
 	mbnet.SeedMultiplayerGlobals(machine.Globals)
+	texture.SeedTextureGlobals(machine.Globals)
+	mbgui.SeedGUIGlobals(machine.Globals)
 	machine.Trace = opts.Trace
 	machine.TraceOut = opts.Out
 	machine.StackHygieneDebug = opts.Debug

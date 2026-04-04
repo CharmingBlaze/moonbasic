@@ -17,8 +17,9 @@ import (
 )
 
 type atlasObj struct {
-	tex   rl.Texture2D
-	rects map[string]rectI32
+	tex     rl.Texture2D
+	rects   map[string]rectI32
+	release heap.ReleaseOnce
 }
 
 type rectI32 struct {
@@ -30,7 +31,7 @@ func (o *atlasObj) TypeName() string { return "Atlas" }
 func (o *atlasObj) TypeTag() uint16 { return heap.TagAtlas }
 
 func (o *atlasObj) Free() {
-	rl.UnloadTexture(o.tex)
+	o.release.Do(func() { rl.UnloadTexture(o.tex) })
 }
 
 func parseAtlasJSON(data []byte) (map[string]rectI32, error) {

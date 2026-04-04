@@ -9,6 +9,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerImageLoad(m, reg)
 	registerImageTransform(m, reg)
 	registerImageDraw(m, reg)
+	registerImageProcess(m, reg)
 	registerImageQuery(m, reg)
 	registerClipboardImage(m, reg)
 }

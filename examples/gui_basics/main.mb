@@ -1,0 +1,29 @@
+; raygui basics: WINDOWBOX, LABEL, BUTTON (requires CGO + raylib + raygui).
+; Run from repo root: CGO_ENABLED=1 go run . examples/gui_basics/main.mb
+
+IF NOT Window.Open(800, 600, "GUI basics") THEN
+    PRINT("Could not open window")
+    END
+ENDIF
+Window.SetFPS(60)
+GUI.Enable()
+
+status$ = "Press OK or close the panel title bar"
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(28, 28, 36)
+
+    IF GUI.WINDOWBOX(40, 40, 520, 320, "GUI.WINDOWBOX") THEN
+        status$ = "Close control clicked"
+    ENDIF
+
+    GUI.LABEL(56, 72, 460, 22, "GUI.LABEL — immediate-mode raygui")
+    IF GUI.BUTTON(56, 100, 120, 28, "OK") THEN
+        status$ = "OK pressed"
+    ENDIF
+    GUI.LABEL(56, 140, 460, 22, status$)
+
+    Draw.Text("ESC to quit (outside raygui)", 16, 580, 16, 180, 180, 190, 255)
+    Render.Frame()
+WEND
+
+Window.Close()

@@ -2840,6 +2840,82 @@
       ]
     },
     {
+      "key": "SHADER.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.GETLOC",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.SETFLOAT",
+      "args": [
+        "handle",
+        "string",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.SETVEC2",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.SETVEC3",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.SETVEC4",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.SETINT",
+      "args": [
+        "handle",
+        "string",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "SHADER.SETTEXTURE",
+      "args": [
+        "handle",
+        "string",
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
       "key": "PHYSICS3D.START",
       "args": []
     },
@@ -3419,6 +3495,88 @@
         "int",
         "int"
       ]
+    },
+    {
+      "key": "IMAGE.DRAWIMAGE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "IMAGE.DITHER",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "IMAGE.MIPMAPS",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "IMAGE.FORMAT",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "IMAGE.DRAWRECTLINES",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "IMAGE.ALPHACROP",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "IMAGE.ALPHACLEAR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int",
+        "float"
+      ],
+      "phase": "any"
     },
     {
       "key": "IMAGE.GETCOLORR",
@@ -4992,6 +5150,50 @@
       "phase": "any"
     },
     {
+      "key": "VEC3.TRANSFORMMAT4",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.ANGLE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.PROJECT",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.ORTHONORMALIZE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.ROTATEBYQUAT",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
       "key": "VEC2.MAKE",
       "args": [
         "float",
@@ -5108,6 +5310,126 @@
       "args": [
         "handle",
         "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.TRANSFORMMAT4",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.IDENTITY",
+      "args": [],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.FROMEULER",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.FROMAXISANGLE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.MULTIPLY",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.SLERP",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.TOMAT4",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.NORMALIZE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.INVERT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.TOEULER",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.FROMVEC3TOVEC3",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.FROMMAT4",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "QUAT.TRANSFORM",
+      "args": [
+        "handle",
+        "handle"
       ],
       "returns": "handle",
       "phase": "any"
@@ -5666,6 +5988,820 @@
     {
       "key": "FONT.DRAWDEFAULT",
       "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.ENABLE",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DISABLE",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LOCK",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.UNLOCK",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.ISLOCKED",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETALPHA",
+      "args": [
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETSTATE",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GETSTATE",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETFONT",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETSTYLE",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GETSTYLE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GETCOLOR",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTEXTSIZE",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTEXTSPACING",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTEXTLINEHEIGHT",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTEXTWRAP",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTEXTALIGN",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTEXTALIGNVERT",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GETTEXTSIZE",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.THEMEAPPLY",
+      "args": [
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.THEMENAMES$",
+      "args": [],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LOADSTYLE",
+      "args": [
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LOADDEFAULTSTYLE",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LOADSTYLEMEM",
+      "args": [
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LOADICONS",
+      "args": [
+        "string",
+        "bool"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LOADICONSMEM",
+      "args": [
+        "string",
+        "bool"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.WINDOWBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GROUPBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LINE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.PANEL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TABBAR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SCROLLPANEL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "float",
+        "float",
+        "float",
+        "float",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LABEL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.BUTTON",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LABELBUTTON",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TOGGLE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "bool"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TOGGLEGROUP",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TOGGLEGROUPAT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TOGGLESLIDER",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.CHECKBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "bool"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COMBOBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DROPDOWNBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "handle"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TEXTBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int",
+        "bool"
+      ],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SPINNER",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int",
+        "int",
+        "int",
+        "bool"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.VALUEBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int",
+        "int",
+        "int",
+        "bool"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.VALUEBOXFLOAT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "float",
+        "string",
+        "bool"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.VALUEBOXFLOATTEXT$",
+      "args": [],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SLIDER",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "string",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SLIDERBAR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "string",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.PROGRESSBAR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "string",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SCROLLBAR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.STATUSBAR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DUMMYREC",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LISTVIEW",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.LISTVIEWEX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COLORPANEL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COLORBARALPHA",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COLORBARHUE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COLORPICKER",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COLORPICKERHSV",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.COLORPANELHSV",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.MESSAGEBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "string",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TEXTINPUTBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "string",
+        "string",
+        "string",
+        "int",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.TEXTINPUTLAST$",
+      "args": [],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GRID",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "string",
+        "float",
+        "int",
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.ENABLETOOLTIP",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DISABLETOOLTIP",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETTOOLTIP",
+      "args": [
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.ICONTEXT",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DRAWICON",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.SETICONSCALE",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GETTEXTWIDTH",
+      "args": [
+        "string"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.FADE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DRAWRECTANGLE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.DRAWTEXT",
+      "args": [
+        "string",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GUI.GETTEXTBOUNDS",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
       "phase": "rendering"
     },
     {
@@ -7035,6 +8171,20 @@
         "handle"
       ],
       "returns": "handle"
+    },
+    {
+      "key": "BODY3D.ACTIVATE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "BODY3D.DEACTIVATE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
     },
     {
       "key": "BODY3D.SETROT",

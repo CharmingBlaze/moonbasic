@@ -55,6 +55,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.GETVIEWRAY", "camera", runtime.AdaptLegacy(m.camGetViewRay))
 	r.Register("CAMERA.GETMATRIX", "camera", runtime.AdaptLegacy(m.camGetMatrix))
 	r.Register("MATRIX.FREE", "camera", runtime.AdaptLegacy(m.matrixFree))
+	m.registerCameraExtras(r)
 	m.registerCamera2D(r)
 }
 

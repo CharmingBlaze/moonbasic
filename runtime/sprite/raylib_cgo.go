@@ -33,6 +33,8 @@ type spriteObj struct {
 	accum     float32
 
 	anim *animMachine
+
+	release heap.ReleaseOnce
 }
 
 func (s *spriteObj) TypeName() string { return "Sprite" }
@@ -40,9 +42,11 @@ func (s *spriteObj) TypeName() string { return "Sprite" }
 func (s *spriteObj) TypeTag() uint16 { return heap.TagSprite }
 
 func (s *spriteObj) Free() {
-	if !s.fromAtlas {
-		rl.UnloadTexture(s.tex)
-	}
+	s.release.Do(func() {
+		if !s.fromAtlas {
+			rl.UnloadTexture(s.tex)
+		}
+	})
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {

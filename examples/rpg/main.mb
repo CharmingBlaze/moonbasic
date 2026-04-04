@@ -1,10 +1,28 @@
-Window.Open(800, 600, "moonBASIC Mini RPG")
+; Walk with WASD in a room; step into the green patch once per visit for gold.
+; Saves rpg_save.json in the current working directory on exit (JSON + FILE).
+; Run from repo root: CGO_ENABLED=1 go run . examples/rpg/main.mb
+
+IF NOT Window.Open(800, 600, "moonBASIC Mini RPG") THEN
+    PRINT("Could not open window")
+    END
+ENDIF
 Window.SetFPS(60)
-font = Font.Load("assets/fonts/dm_sans.ttf")
+
+save$ = "rpg_save.json"
 px = 5
 py = 5
 gold = 0
-path$ = "examples/rpg/save.json"
+wasInZone? = FALSE
+
+IF UTIL.FILEEXISTS(save$) THEN
+    raw$ = READALLTEXT$(save$)
+    jd = JSON.PARSE(raw$)
+    px = JSON.GETINT(jd, "px")
+    py = JSON.GETINT(jd, "py")
+    gold = JSON.GETINT(jd, "gold")
+    JSON.FREE(jd)
+ENDIF
+
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt# = Time.Delta()
     spd = INT(120 * dt#)
@@ -13,24 +31,33 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     IF Input.KeyDown(KEY_S) THEN py = py + spd
     IF Input.KeyDown(KEY_A) THEN px = px - spd
     IF Input.KeyDown(KEY_D) THEN px = px + spd
+
     IF px < 0 THEN px = 0
     IF py < 0 THEN py = 0
     IF px > 760 THEN px = 760
     IF py > 560 THEN py = 560
-    IF px > 300 AND px < 500 AND py > 200 AND py < 360 THEN gold = gold + 1
+
+    inZone? = px > 300 AND px < 500 AND py > 200 AND py < 360
+    IF inZone? AND NOT wasInZone? THEN gold = gold + 1
+    wasInZone? = inZone?
+
     Render.Clear(25, 30, 45)
     Draw.Rectangle(300, 200, 200, 160, 80, 120, 60, 255)
     Draw.Rectangle(px, py, 18, 18, 255, 210, 120, 255)
+    Draw.Text("Gold " + STR$(gold) + "   WASD   ESC quit", 220, 12, 20, 240, 240, 250, 255)
+    Draw.Text("Green = treasure (once per visit)", 250, 570, 16, 180, 200, 180, 255)
     Render.Frame()
 WEND
+
 jl = JSON.Make()
 JSON.SetInt(jl, "px", px)
 JSON.SetInt(jl, "py", py)
 JSON.SetInt(jl, "gold", gold)
 out$ = JSON.ToString(jl)
 JSON.Free(jl)
-fh2 = FILE.Open(path$, "w")
-FILE.Write(fh2, out$)
-FILE.Close(fh2)
-Font.Free(font)
+
+fh = FILE.Open(save$, "w")
+FILE.Write(fh, out$)
+FILE.Close(fh)
+
 Window.Close()

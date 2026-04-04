@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math"
 	"strings"
-	"sync"
 
 	"github.com/codecat/go-enet"
 
@@ -207,7 +206,7 @@ func (m *Module) srvStop(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	gMP.sidMap = make(map[heap.Handle]uint32)
 	gMP.mu.Unlock()
 	if hid != 0 && m.h != nil {
-		_ = netClose(m, []value.Value{value.FromHandle(hid)})
+		_, _ = netClose(m, []value.Value{value.FromHandle(hid)})
 	}
 	return value.Nil, nil
 }
@@ -508,7 +507,7 @@ func (m *Module) cliConnect(rt *runtime.Runtime, args ...value.Value) (value.Val
 	chid := heap.Handle(hv.IVal)
 	peerV, err := m.innerConnectClient(rt, chid, host, uint16(port))
 	if err != nil {
-		_ = netClose(m, []value.Value{value.FromHandle(chid)})
+		_, _ = netClose(m, []value.Value{value.FromHandle(chid)})
 		return value.Nil, err
 	}
 	gMP.mu.Lock()
@@ -549,7 +548,7 @@ func (m *Module) cliStop(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	gMP.serverPeer = 0
 	gMP.mu.Unlock()
 	if cid != 0 && m.h != nil {
-		_ = netClose(m, []value.Value{value.FromHandle(cid)})
+		_, _ = netClose(m, []value.Value{value.FromHandle(cid)})
 	}
 	return value.Nil, nil
 }

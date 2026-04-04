@@ -1,37 +1,51 @@
-Window.Open(960, 540, "moonBASIC Platformer")
+; Minimal platformer: run, jump, one floating platform, ground.
+; Run from repo root: CGO_ENABLED=1 go run . examples/platformer/main.mb
+
+IF NOT Window.Open(960, 540, "moonBASIC Platformer") THEN
+    PRINT("Could not open window")
+    END
+ENDIF
 Window.SetFPS(60)
-font = Font.Load("assets/fonts/dm_sans.ttf")
+
 px# = 120
 py# = 360
 pvx# = 0
 pvy# = 0
 ong = 0
+
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt# = Time.Delta()
     IF Input.KeyDown(KEY_A) THEN pvx# = pvx# - 520 * dt#
     IF Input.KeyDown(KEY_D) THEN pvx# = pvx# + 520 * dt#
     pvx# = pvx# * 0.88
     IF ong = 1 AND Input.KeyDown(KEY_SPACE) THEN pvy# = -420
+
     px# = px# + pvx# * dt#
     py# = py# + pvy# * dt#
     pvy# = pvy# + 980 * dt#
+
     ong = 0
     IF py# > 400 THEN py# = 400
     IF py# >= 398 THEN pvy# = 0
     IF py# >= 398 THEN ong = 1
+
     IF px# < 40 THEN px# = 40
     IF px# > 860 THEN px# = 860
+
     IF px# > 200 AND px# < 520 AND py# > 300 THEN
         py# = 300
         pvy# = 0
         ong = 1
     ENDIF
+
     Render.Clear(30, 40, 55)
     Draw.Rectangle(0, 440, 960, 100, 50, 120, 70, 255)
     Draw.Rectangle(200, 320, 320, 24, 90, 70, 40, 255)
     Draw.Rectangle(580, 260, 200, 20, 90, 70, 40, 255)
     Draw.Rectangle(INT(px#) - 14, INT(py#) - 28, 28, 28, 255, 200, 80, 255)
+
+    Draw.Text("A/D move   SPACE jump   ESC quit", 280, 12, 20, 240, 240, 250, 255)
     Render.Frame()
 WEND
-Font.Free(font)
+
 Window.Close()

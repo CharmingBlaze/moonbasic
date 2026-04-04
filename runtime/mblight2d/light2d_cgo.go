@@ -53,11 +53,12 @@ func RegisterFrameHook(w *window.Module) {
 }
 
 type light2dObj struct {
-	x, y            float32
-	r, g, b, a      uint8
-	radius          float32
-	intensity       float32
-	registered      bool
+	x, y       float32
+	r, g, b, a uint8
+	radius     float32
+	intensity  float32
+	registered bool
+	release    heap.ReleaseOnce
 }
 
 func (o *light2dObj) TypeName() string { return "Light2D" }
@@ -65,10 +66,12 @@ func (o *light2dObj) TypeName() string { return "Light2D" }
 func (o *light2dObj) TypeTag() uint16 { return heap.TagLight2D }
 
 func (o *light2dObj) Free() {
-	if o.registered {
-		unregisterLight(o)
-		o.registered = false
-	}
+	o.release.Do(func() {
+		if o.registered {
+			unregisterLight(o)
+			o.registered = false
+		}
+	})
 }
 
 func (m *Module) requireHeap() error {

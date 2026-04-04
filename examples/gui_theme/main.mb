@@ -1,0 +1,60 @@
+; raygui built-in themes + text styling (CGO + raylib + raygui).
+; Run from repo root: CGO_ENABLED=1 go run . examples/gui_theme/main.mb
+
+IF NOT Window.Open(800, 600, "GUI theme") THEN
+    PRINT("Could not open window")
+    END
+ENDIF
+Window.SetFPS(60)
+GUI.Enable()
+
+; DARK/CYBER/CANDY = official raygui .rgs; LIGHT/DEFAULT/BUILTIN_DARK = moonBASIC helpers
+GUI.THEMEAPPLY("DARK")
+GUI.SETTEXTSIZE(14)
+GUI.SETTEXTSPACING(1)
+
+theme$ = "dark (raygui)"
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(20, 22, 28)
+
+    IF GUI.WINDOWBOX(40, 40, 720, 520, "Theme demo") THEN
+        END
+    ENDIF
+
+    GUI.LABEL(56, 72, 680, 22, "1-3 DARK/LIGHT/DEFAULT   4-6 CYBER/CANDY/TERMINAL (official raygui pack)")
+    IF Input.KeyPressed(KEY_1) THEN
+        GUI.THEMEAPPLY("DARK")
+        theme$ = "dark (raygui)"
+    ENDIF
+    IF Input.KeyPressed(KEY_2) THEN
+        GUI.THEMEAPPLY("LIGHT")
+        theme$ = "light (builtin)"
+    ENDIF
+    IF Input.KeyPressed(KEY_3) THEN
+        GUI.THEMEAPPLY("DEFAULT")
+        theme$ = "default (raylib)"
+    ENDIF
+    IF Input.KeyPressed(KEY_4) THEN
+        GUI.THEMEAPPLY("CYBER")
+        theme$ = "cyber"
+    ENDIF
+    IF Input.KeyPressed(KEY_5) THEN
+        GUI.THEMEAPPLY("CANDY")
+        theme$ = "candy"
+    ENDIF
+    IF Input.KeyPressed(KEY_6) THEN
+        GUI.THEMEAPPLY("TERMINAL")
+        theme$ = "terminal"
+    ENDIF
+
+    GUI.LABEL(56, 104, 680, 22, "Current: " + theme$ + "  text size=" + STR$(GUI.GETTEXTSIZE()))
+
+    IF GUI.BUTTON(56, 140, 200, 32, "Sample button") THEN
+        ; no-op
+    ENDIF
+
+    Draw.Text("ESC to quit", 16, 580, 14, 200, 200, 210, 255)
+    Render.Frame()
+WEND
+
+Window.Close()

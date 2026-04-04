@@ -15,6 +15,7 @@ import (
 
 type computeShaderObj struct {
 	programID uint32
+	release   heap.ReleaseOnce
 }
 
 func (c *computeShaderObj) TypeName() string { return "ComputeShader" }
@@ -22,14 +23,17 @@ func (c *computeShaderObj) TypeName() string { return "ComputeShader" }
 func (c *computeShaderObj) TypeTag() uint16 { return heap.TagComputeShader }
 
 func (c *computeShaderObj) Free() {
-	if c.programID != 0 {
-		rl.UnloadShaderProgram(c.programID)
-		c.programID = 0
-	}
+	c.release.Do(func() {
+		if c.programID != 0 {
+			rl.UnloadShaderProgram(c.programID)
+			c.programID = 0
+		}
+	})
 }
 
 type shaderBufferObj struct {
-	id uint32
+	id      uint32
+	release heap.ReleaseOnce
 }
 
 func (s *shaderBufferObj) TypeName() string { return "ShaderBuffer" }
@@ -37,10 +41,12 @@ func (s *shaderBufferObj) TypeName() string { return "ShaderBuffer" }
 func (s *shaderBufferObj) TypeTag() uint16 { return heap.TagShaderBuffer }
 
 func (s *shaderBufferObj) Free() {
-	if s.id != 0 {
-		rl.UnloadShaderBuffer(s.id)
-		s.id = 0
-	}
+	s.release.Do(func() {
+		if s.id != 0 {
+			rl.UnloadShaderBuffer(s.id)
+			s.id = 0
+		}
+	})
 }
 
 func (m *Module) registerComputeShaderCommands(r runtime.Registrar) {

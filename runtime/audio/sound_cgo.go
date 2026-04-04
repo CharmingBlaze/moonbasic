@@ -5,12 +5,33 @@ package mbaudio
 import (
 	"fmt"
 
+	rl "github.com/gen2brain/raylib-go/raylib"
+
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
 func (m *Module) registerSound(r runtime.Registrar) {
-	r.Register("AUDIO.LOADSOUND", "audio", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		return value.Nil, fmt.Errorf("AUDIO.LOADSOUND: not implemented")
-	}))
+	r.Register("AUDIO.LOADSOUND", "audio", m.soundLoad)
+}
+
+func (m *Module) soundLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("AUDIO.LOADSOUND expects 1 string path")
+	}
+	path, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	initAudioOnce()
+	snd := rl.LoadSound(path)
+	id, err := m.h.Alloc(&soundObj{snd: snd})
+	if err != nil {
+		rl.UnloadSound(snd)
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }

@@ -12,6 +12,12 @@ func SeedInputKeyGlobals(globals map[string]value.Value) {
 	// Subset — extend as INPUT.KEYDOWN coverage grows (see raylib KeyboardKey enum).
 	globals["KEY_ESCAPE"] = value.FromInt(256)
 	globals["KEY_SPACE"] = value.FromInt(32)
+	globals["KEY_1"] = value.FromInt(49)
+	globals["KEY_2"] = value.FromInt(50)
+	globals["KEY_3"] = value.FromInt(51)
+	globals["KEY_4"] = value.FromInt(52)
+	globals["KEY_5"] = value.FromInt(53)
+	globals["KEY_6"] = value.FromInt(54)
 	globals["KEY_W"] = value.FromInt(87)
 	globals["KEY_A"] = value.FromInt(65)
 	globals["KEY_S"] = value.FromInt(83)

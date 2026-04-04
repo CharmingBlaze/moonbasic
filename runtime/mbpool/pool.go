@@ -18,24 +18,28 @@ type poolObj struct {
 	busy    map[heap.Handle]struct{}
 	h       *heap.Store
 	mod     *Module
+	release heap.ReleaseOnce
 }
 
 func (o *poolObj) TypeName() string { return "Pool" }
 
 func (o *poolObj) TypeTag() uint16 { return heap.TagPool }
 
+// Free returns busy and pooled handles to the heap (children) before the pool slot is cleared.
 func (o *poolObj) Free() {
-	if o.h == nil {
-		return
-	}
-	for h := range o.busy {
-		o.h.Free(h)
-	}
-	o.busy = nil
-	for _, h := range o.free {
-		o.h.Free(h)
-	}
-	o.free = nil
+	o.release.Do(func() {
+		if o.h == nil {
+			return
+		}
+		for h := range o.busy {
+			o.h.Free(h)
+		}
+		o.busy = nil
+		for _, h := range o.free {
+			o.h.Free(h)
+		}
+		o.free = nil
+	})
 }
 
 func valToHandle(v value.Value) (heap.Handle, error) {

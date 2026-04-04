@@ -13,9 +13,10 @@ import (
 )
 
 type automationListObj struct {
-	mod  *Module
-	hid  heap.Handle
-	list rl.AutomationEventList
+	mod     *Module
+	hid     heap.Handle
+	list    rl.AutomationEventList
+	release heap.ReleaseOnce
 }
 
 func (o *automationListObj) TypeName() string { return "AutomationEventList" }
@@ -23,8 +24,10 @@ func (o *automationListObj) TypeName() string { return "AutomationEventList" }
 func (o *automationListObj) TypeTag() uint16 { return heap.TagAutomationList }
 
 func (o *automationListObj) Free() {
-	o.mod.detachAutomationList(o.hid)
-	rl.UnloadAutomationEventList(&o.list)
+	o.release.Do(func() {
+		o.mod.detachAutomationList(o.hid)
+		rl.UnloadAutomationEventList(&o.list)
+	})
 }
 
 func (m *Module) detachAutomationList(h heap.Handle) {

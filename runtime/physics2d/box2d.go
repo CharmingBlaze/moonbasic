@@ -17,12 +17,13 @@ type physics2dObj struct {
 	stepRate float64
 	gravityX float64
 	gravityY float64
+	release  heap.ReleaseOnce
 }
 
 func (o *physics2dObj) TypeName() string { return "Physics2D" }
 func (o *physics2dObj) TypeTag() uint16  { return heap.TagPhysics2D }
 func (o *physics2dObj) Free() {
-	globalWorld = nil
+	o.release.Do(func() { globalWorld = nil })
 }
 
 type body2dTemplate struct {
@@ -41,15 +42,19 @@ func (o *body2dTemplate) TypeTag() uint16  { return heap.TagBody2D } // Re-using
 func (o *body2dTemplate) Free()            {}
 
 type body2dObj struct {
-	body *box2d.B2Body
+	body    *box2d.B2Body
+	release heap.ReleaseOnce
 }
 
 func (o *body2dObj) TypeName() string { return "Body2D" }
 func (o *body2dObj) TypeTag() uint16  { return heap.TagBody2D }
 func (o *body2dObj) Free() {
-	if globalWorld != nil && o.body != nil {
-		globalWorld.world.DestroyBody(o.body)
-	}
+	o.release.Do(func() {
+		if globalWorld != nil && o.body != nil {
+			globalWorld.world.DestroyBody(o.body)
+		}
+		o.body = nil
+	})
 }
 
 func (m *Module) Register(r runtime.Registrar) {

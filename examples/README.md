@@ -1,13 +1,46 @@
-# Example games
+# moonBASIC examples
 
-Run from the **repository root** so paths like `assets/fonts/` resolve.
+Runnable sample programs. Run them from the **repository root** so working-directory defaults (e.g. `rpg_save.json`) match the comments in each file.
 
-| Directory | Description |
-|-----------|-------------|
-| [pong](pong/) | Two-paddle pong |
-| [platformer](platformer/) | Jumping and moving platforms |
-| [fps](fps/) | Top-down arena + crosshair |
-| [rpg](rpg/) | Grid movement + JSON save on exit |
-| [racing](racing/) | Top-down car + checkpoints |
+## Requirements
 
-Each `main.mb` is kept short enough to read in one sitting; see per-folder README files for controls.
+- **CGO** enabled and a C toolchain (same as building Raylib).
+- Build or run the driver from this repo, for example:
+
+```bash
+# Linux / macOS
+CGO_ENABLED=1 go run . examples/spin_cube/main.mb
+```
+
+```powershell
+# Windows (PowerShell)
+$env:CGO_ENABLED="1"
+go run . examples\spin_cube\main.mb
+```
+
+If you use a compiled `moonbasic` binary, replace `go run .` with `moonbasic`.
+
+## Index
+
+| Folder | Description |
+|--------|-------------|
+| [gui_basics](gui_basics/main.mb) | raygui: window box, label, button |
+| [gui_theme](gui_theme/main.mb) | `GUI.THEMEAPPLY` — embedded official raygui `.rgs` themes |
+| [gui_form](gui_form/main.mb) | Text field, slider, checkbox, tab bar |
+| [spin_cube](spin_cube/main.mb) | 3D camera, lit cube, grid, resource cleanup |
+| [pong](pong/main.mb) | 2D rectangles + default-font HUD |
+| [platformer](platformer/main.mb) | Simple platform collision |
+| [fps](fps/main.mb) | Top-down arena + moving targets |
+| [racing](racing/main.mb) | Top-down car + checkpoints / lap counter |
+| [rpg](rpg/main.mb) | Tile-style movement + JSON save on exit |
+
+## Fonts and assets
+
+These demos use **`Draw.Text`** for on-screen text so you do **not** need a `.ttf` in `assets/`. For your own projects, add fonts under `assets/fonts/` and use `Font.Load` (see [FONT reference](../docs/reference/FONT.md)).
+
+## Documentation
+
+- [Getting started](../docs/GETTING_STARTED.md) — install, first window
+- [Programming guide](../docs/PROGRAMMING.md) — game loop, namespaces, platforms
+- [Examples (narrative)](../docs/EXAMPLES.md) — same ideas with inline explanations
+- [GUI reference](../docs/reference/GUI.md) — `GUI.*` / raygui

@@ -1,27 +1,36 @@
-Window.Open(960, 540, "moonBASIC Arena (2D)")
+; Top-down arena: WASD move, shoot line toward mouse, moving target blocks.
+; Run from repo root: CGO_ENABLED=1 go run . examples/fps/main.mb
+
+IF NOT Window.Open(960, 540, "moonBASIC Arena (2D)") THEN
+    PRINT("Could not open window")
+    END
+ENDIF
 Window.SetFPS(60)
+
 px# = 480
 py# = 270
-mx = 0
-my = 0
 t1x = 700
 t1y = 120
 t2x = 200
 t2y = 400
 t3x = 520
 t3y = 320
+
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt# = Time.Delta()
     mx = Input.MouseX()
     my = Input.MouseY()
+
     IF Input.KeyDown(KEY_W) THEN py# = py# - 260 * dt#
     IF Input.KeyDown(KEY_S) THEN py# = py# + 260 * dt#
     IF Input.KeyDown(KEY_A) THEN px# = px# - 260 * dt#
     IF Input.KeyDown(KEY_D) THEN px# = px# + 260 * dt#
     px# = MATH.MIN(920, MATH.MAX(20, px#))
     py# = MATH.MIN(520, MATH.MAX(20, py#))
+
     t1x = t1x + INT(40 * MATH.SIN(TIME.GET() * 2))
     t2y = t2y + INT(35 * MATH.COS(TIME.GET() * 1.7))
+
     Render.Clear(10, 12, 20)
     Draw.Rectangle(t1x - 18, t1y - 18, 36, 36, 220, 90, 90, 255)
     Draw.Rectangle(t2x - 18, t2y - 18, 36, 36, 90, 200, 120, 255)
@@ -29,6 +38,9 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     Draw.Rectangle(INT(px#) - 10, INT(py#) - 10, 20, 20, 255, 220, 100, 255)
     Draw.Rectangle(mx - 2, my - 12, 4, 24, 255, 255, 255, 220)
     Draw.Rectangle(mx - 12, my - 2, 24, 4, 255, 255, 255, 220)
+
+    Draw.Text("WASD move   mouse aim   ESC quit", 300, 8, 18, 200, 200, 210, 255)
     Render.Frame()
 WEND
+
 Window.Close()

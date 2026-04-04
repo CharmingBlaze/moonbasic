@@ -26,6 +26,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerCursor(r)
 	registerGesture(r)
 	m.registerInputAdvanced(r)
+	m.registerMouseExtra(r)
 	r.Register("INPUT.KEYDOWN", "input", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Nil, fmt.Errorf("INPUT.KEYDOWN expects 1 argument")

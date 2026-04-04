@@ -13,7 +13,8 @@ import (
 )
 
 type fontObj struct {
-	f rl.Font
+	f       rl.Font
+	release heap.ReleaseOnce
 }
 
 func (o *fontObj) TypeName() string { return "Font" }
@@ -21,7 +22,7 @@ func (o *fontObj) TypeName() string { return "Font" }
 func (o *fontObj) TypeTag() uint16 { return heap.TagFont }
 
 func (o *fontObj) Free() {
-	rl.UnloadFont(o.f)
+	o.release.Do(func() { rl.UnloadFont(o.f) })
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {
@@ -114,4 +115,16 @@ func (m *Module) fontDrawDefault(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("FONT.DRAWDEFAULT expects 0 arguments")
 	}
 	return value.FromHandle(0), nil
+}
+
+// FontForHandle returns the raylib Font for a given heap handle.
+func FontForHandle(store *heap.Store, h heap.Handle) (rl.Font, error) {
+	if h == 0 {
+		return rl.GetFontDefault(), nil
+	}
+	o, err := heap.Cast[*fontObj](store, h)
+	if err != nil {
+		return rl.Font{}, err
+	}
+	return o.f, nil
 }

@@ -13,6 +13,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerCursor(r)
 	registerGesture(r)
 	m.registerInputAdvanced(r)
+	m.registerMouseExtra(r)
 	// Without CGO, keys are never "down" so WHILE NOT Input.KeyDown(...) keeps looping
 	// until the user closes the window (window package stub still errors on OPEN).
 	r.Register("INPUT.KEYDOWN", "input", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {

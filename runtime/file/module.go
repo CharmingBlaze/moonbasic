@@ -14,21 +14,27 @@ import (
 )
 
 type fileObj struct {
-	f    *os.File
-	rd   *bufio.Reader
-	wr   *bufio.Writer
-	name string
+	f       *os.File
+	rd      *bufio.Reader
+	wr      *bufio.Writer
+	name    string
+	release heap.ReleaseOnce
 }
 
 func (o *fileObj) TypeName() string { return "File" }
 func (o *fileObj) TypeTag() uint16  { return heap.TagFile }
 func (o *fileObj) Free() {
-	if o.wr != nil {
-		o.wr.Flush()
-	}
-	if o.f != nil {
-		o.f.Close()
-	}
+	o.release.Do(func() {
+		if o.wr != nil {
+			o.wr.Flush()
+		}
+		if o.f != nil {
+			o.f.Close()
+			o.f = nil
+		}
+		o.wr = nil
+		o.rd = nil
+	})
 }
 
 type Module struct {

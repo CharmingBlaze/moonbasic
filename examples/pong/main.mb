@@ -1,6 +1,12 @@
-Window.Open(960, 540, "moonBASIC Pong")
+; Two-player Pong (W/S vs I/K). HUD uses Draw.Text — no external .ttf required.
+; Run from repo root: CGO_ENABLED=1 go run . examples/pong/main.mb
+
+IF NOT Window.Open(960, 540, "moonBASIC Pong") THEN
+    PRINT("Could not open window")
+    END
+ENDIF
 Window.SetFPS(60)
-font = Font.Load("assets/fonts/dm_sans.ttf")
+
 py1# = 200
 py2# = 200
 bx# = 480
@@ -9,6 +15,7 @@ bvx# = 280
 bvy# = 180
 p1s = 0
 p2s = 0
+
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt# = Time.Delta()
     IF Input.KeyDown(KEY_W) THEN py1# = py1# - 260 * dt#
@@ -17,9 +24,11 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     IF Input.KeyDown(KEY_K) THEN py2# = py2# + 260 * dt#
     py1# = MATH.MIN(420, MATH.MAX(40, py1#))
     py2# = MATH.MIN(420, MATH.MAX(40, py2#))
+
     bx# = bx# + bvx# * dt#
     by# = by# + bvy# * dt#
     IF by# < 20 OR by# > 500 THEN bvy# = 0 - bvy#
+
     IF bx# < 50 THEN
         IF by# > py1# - 50 AND by# < py1# + 90 THEN
             bvx# = 0 - bvx#
@@ -32,6 +41,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
             bvy# = 180
         ENDIF
     ENDIF
+
     IF bx# > 910 THEN
         IF by# > py2# - 50 AND by# < py2# + 90 THEN
             bvx# = 0 - bvx#
@@ -44,12 +54,16 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
             bvy# = 180
         ENDIF
     ENDIF
+
     Render.Clear(15, 18, 28)
     Draw.Rectangle(30, INT(py1#), 16, 80, 220, 240, 255, 255)
     Draw.Rectangle(914, INT(py2#), 16, 80, 255, 180, 120, 255)
     Draw.Rectangle(INT(bx#) - 8, INT(by#) - 8, 16, 16, 255, 255, 255, 255)
     Draw.Rectangle(478, 0, 4, 540, 60, 60, 80, 255)
+
+    Draw.Text("P1: " + STR$(p1s) + "     P2: " + STR$(p2s), 380, 12, 22, 255, 255, 255, 255)
+    Draw.Text("W/S  vs  I/K   ESC quit", 320, 510, 18, 200, 200, 210, 255)
     Render.Frame()
 WEND
-Font.Free(font)
+
 Window.Close()

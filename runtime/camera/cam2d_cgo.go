@@ -8,6 +8,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -37,6 +38,9 @@ func (m *Module) registerCamera2D(reg runtime.Registrar) {
 	reg.Register("CAMERA2D.SETROTATION", "camera", runtime.AdaptLegacy(m.cam2dSetRotation))
 	reg.Register("CAMERA2D.BEGIN", "camera", runtime.AdaptLegacy(m.cam2dBegin))
 	reg.Register("CAMERA2D.END", "camera", runtime.AdaptLegacy(m.cam2dEnd))
+	reg.Register("CAMERA2D.GETMATRIX", "camera", runtime.AdaptLegacy(m.cam2dGetMatrix))
+	reg.Register("CAMERA2D.WORLDTOSCREEN", "camera", runtime.AdaptLegacy(m.cam2dWorldToScreen))
+	reg.Register("CAMERA2D.SCREENTOWORLD", "camera", runtime.AdaptLegacy(m.cam2dScreenToWorld))
 }
 
 func (m *Module) cam2dMake(args []value.Value) (value.Value, error) {
@@ -171,4 +175,77 @@ func (m *Module) cam2dEnd(args []value.Value) (value.Value, error) {
 	}
 	rl.EndMode2D()
 	return value.Nil, nil
+}
+
+func (m *Module) cam2dGetMatrix(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.GETMATRIX: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA2D.GETMATRIX expects camera handle")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.GETMATRIX")
+	if err != nil {
+		return value.Nil, err
+	}
+	mat := rl.GetCameraMatrix2D(o.cam)
+	id, err := mbmatrix.AllocMatrix(m.h, mat)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) cam2dWorldToScreen(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.WORLDTOSCREEN: heap not bound")
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("CAMERA2D.WORLDTOSCREEN expects (camera, worldX, worldY)")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.WORLDTOSCREEN")
+	if err != nil {
+		return value.Nil, err
+	}
+	wx, ok1 := argF(args[1])
+	wy, ok2 := argF(args[2])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("CAMERA2D.WORLDTOSCREEN: coordinates must be numeric")
+	}
+	v := rl.GetWorldToScreen2D(rl.Vector2{X: wx, Y: wy}, o.cam)
+	return m.allocVec2Arr(v.X, v.Y)
+}
+
+func (m *Module) cam2dScreenToWorld(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.SCREENTOWORLD: heap not bound")
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("CAMERA2D.SCREENTOWORLD expects (camera, screenX, screenY)")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.SCREENTOWORLD")
+	if err != nil {
+		return value.Nil, err
+	}
+	sx, ok1 := argF(args[1])
+	sy, ok2 := argF(args[2])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("CAMERA2D.SCREENTOWORLD: coordinates must be numeric")
+	}
+	v := rl.GetScreenToWorld2D(rl.Vector2{X: sx, Y: sy}, o.cam)
+	return m.allocVec2Arr(v.X, v.Y)
+}
+
+func (m *Module) allocVec2Arr(x, y float32) (value.Value, error) {
+	a, err := heap.NewArray([]int64{2})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = a.Set([]int64{0}, float64(x))
+	_ = a.Set([]int64{1}, float64(y))
+	id, err := m.h.Alloc(a)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }
