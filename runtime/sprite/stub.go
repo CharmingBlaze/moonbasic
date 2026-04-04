@@ -22,10 +22,18 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.LOAD", "sprite", stub("SPRITE.LOAD"))
 	reg.Register("SPRITE.DRAW", "sprite", stub("SPRITE.DRAW"))
 	reg.Register("SPRITE.SETPOS", "sprite", stub("SPRITE.SETPOS"))
+	reg.Register("SPRITE.SETPOSITION", "sprite", stub("SPRITE.SETPOSITION"))
 	reg.Register("SPRITE.DEFANIM", "sprite", stub("SPRITE.DEFANIM"))
 	reg.Register("SPRITE.PLAYANIM", "sprite", stub("SPRITE.PLAYANIM"))
 	reg.Register("SPRITE.UPDATEANIM", "sprite", stub("SPRITE.UPDATEANIM"))
 	reg.Register("SPRITE.HIT", "sprite", stub("SPRITE.HIT"))
+	reg.Register("ATLAS.LOAD", "sprite", stub("ATLAS.LOAD"))
+	reg.Register("ATLAS.FREE", "sprite", stub("ATLAS.FREE"))
+	reg.Register("ATLAS.GETSPRITE", "sprite", stub("ATLAS.GETSPRITE"))
+	reg.Register("ANIM.DEFINE", "sprite", stub("ANIM.DEFINE"))
+	reg.Register("ANIM.ADDTRANSITION", "sprite", stub("ANIM.ADDTRANSITION"))
+	reg.Register("ANIM.UPDATE", "sprite", stub("ANIM.UPDATE"))
+	reg.Register("ANIM.SETPARAM", "sprite", stub("ANIM.SETPARAM"))
 }
 
 // Shutdown implements runtime.Module.

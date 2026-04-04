@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	goruntime "runtime"
 
 	"moonbasic/compiler/arena"
@@ -24,6 +25,8 @@ import (
 	mbfont "moonbasic/runtime/font"
 	"moonbasic/runtime/input"
 	mbjson "moonbasic/runtime/jsonmod"
+	mblight "moonbasic/runtime/mblight"
+	mblight2d "moonbasic/runtime/mblight2d"
 	"moonbasic/runtime/mathmod"
 	mbarray "moonbasic/runtime/mbarray"
 	mbcollision "moonbasic/runtime/mbcollision"
@@ -33,6 +36,14 @@ import (
 	mbmatrix "moonbasic/runtime/mbmatrix"
 	mbmem "moonbasic/runtime/mbmem"
 	"moonbasic/runtime/mbmodel3d"
+	mbevent "moonbasic/runtime/mbevent"
+	mbparticles "moonbasic/runtime/mbparticles"
+	mbpool "moonbasic/runtime/mbpool"
+	mbscene "moonbasic/runtime/mbscene"
+	mbtween "moonbasic/runtime/mbtween"
+	mbtilemap "moonbasic/runtime/mbtilemap"
+	mbtransition "moonbasic/runtime/mbtransition"
+	mbnav "moonbasic/runtime/mbnav"
 	mbrand "moonbasic/runtime/mbrand"
 	mbutil "moonbasic/runtime/mbutil"
 	mbnet "moonbasic/runtime/net"
@@ -45,6 +56,7 @@ import (
 	"moonbasic/runtime/window"
 	"moonbasic/vm"
 	"moonbasic/vm/heap"
+	"moonbasic/vm/value"
 	"moonbasic/vm/moon"
 	"moonbasic/vm/opcode"
 )
@@ -157,6 +169,8 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 
 	// Native WINDOW / minimal RENDER (Raylib when CGO enabled; stubs otherwise)
 	winMod := window.NewModule()
+	mblight2d.RegisterFrameHook(winMod)
+	mbtransition.RegisterFrameHook(winMod)
 	winMod.SetFrameEndHook(debugMod.DrawFrameOverlay)
 	winMod.SetDiagnostics(opts.Out, opts.Debug)
 	audMod := mbaudio.NewModule()
@@ -167,6 +181,7 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	reg.RegisterModule(mbmatrix.NewModule())
 	reg.RegisterModule(mbtime.NewModule())
 	reg.RegisterModule(debugMod)
+	reg.RegisterModule(mblight.NewModule())
 	reg.RegisterModule(mbsystem.NewModule())
 	reg.RegisterModule(mbfile.NewModule())
 	reg.RegisterModule(mbmem.NewModule())
@@ -177,12 +192,27 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	reg.RegisterModule(mbdraw.NewModule())
 	reg.RegisterModule(mbimage.NewModule())
 	reg.RegisterModule(mbmodel3d.NewModule())
+	reg.RegisterModule(mbparticles.NewModule())
 	reg.RegisterModule(mbcamera.NewModule())
 	reg.RegisterModule(mbsprite.NewModule())
+	reg.RegisterModule(mbtilemap.NewModule())
+	sceneMod := mbscene.NewModule()
+	poolMod := mbpool.NewModule()
+	tweenMod := mbtween.NewModule()
+	eventMod := mbevent.NewModule()
+	navMod := mbnav.NewModule()
+	reg.RegisterModule(sceneMod)
+	reg.RegisterModule(poolMod)
+	reg.RegisterModule(tweenMod)
+	reg.RegisterModule(eventMod)
+	reg.RegisterModule(navMod)
+	reg.RegisterModule(mblight2d.NewModule())
+	reg.RegisterModule(mbtransition.NewModule())
 	reg.RegisterModule(mbfont.NewModule())
 	reg.RegisterModule(audMod)
 	reg.RegisterModule(mbjson.NewModule())
-	reg.RegisterModule(mbnet.NewModule())
+	netMod := mbnet.NewModule()
+	reg.RegisterModule(netMod)
 
 	// Physics / character: register before manifest so natives win; char before physics3d
 	// so Shutdown frees CharacterVirtual instances before the Jolt world is torn down.
@@ -197,13 +227,30 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 
 	// 2. Setup VM
 	machine := vm.New(reg, h)
+	sceneMod.SetUserInvoker(machine.CallUserFunction)
+	poolMod.SetUserInvoker(machine.CallUserFunction)
+	tweenMod.SetUserInvoker(machine.CallUserFunction)
+	eventMod.SetUserInvoker(machine.CallUserFunction)
+	tweenMod.SetGlobalAccessor(
+		func(k string) (value.Value, bool) {
+			k = strings.ToUpper(strings.TrimSpace(k))
+			v, ok := machine.Globals[k]
+			return v, ok
+		},
+		func(k string, v value.Value) {
+			machine.Globals[strings.ToUpper(strings.TrimSpace(k))] = v
+		},
+	)
 	p3.SetUserInvoker(machine.CallUserFunction)
+	navMod.SetUserInvoker(machine.CallUserFunction)
+	netMod.SetUserInvoker(machine.CallUserFunction)
 	runtime.SeedInputKeyGlobals(machine.Globals)
 	runtime.SeedBlendModeGlobals(machine.Globals)
 	window.SeedWindowFlagGlobals(machine.Globals)
 	input.SeedGestureGlobals(machine.Globals)
 	mbmodel3d.SeedMaterialMapGlobals(machine.Globals)
 	mbmatrix.SeedColorGlobals(h, machine.Globals)
+	mbnet.SeedMultiplayerGlobals(machine.Globals)
 	machine.Trace = opts.Trace
 	machine.TraceOut = opts.Out
 	machine.StackHygieneDebug = opts.Debug

@@ -39,6 +39,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		}
 		return rt.RetString(""), nil
 	})
+	m.registerActionMapping(r)
 }
 
 func (m *Module) Shutdown() {}

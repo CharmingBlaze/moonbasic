@@ -20,6 +20,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	}
 	r.Register("CAMERA.MAKE", "camera", stub("CAMERA.MAKE"))
 	r.Register("CAMERA.SETPOS", "camera", stub("CAMERA.SETPOS"))
+	r.Register("CAMERA.SETPOSITION", "camera", stub("CAMERA.SETPOSITION"))
 	r.Register("CAMERA.SETTARGET", "camera", stub("CAMERA.SETTARGET"))
 	r.Register("CAMERA.SETFOV", "camera", stub("CAMERA.SETFOV"))
 	r.Register("CAMERA.BEGIN", "camera", stub("CAMERA.BEGIN"))
@@ -29,6 +30,11 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.GETVIEWRAY", "camera", stub("CAMERA.GETVIEWRAY"))
 	r.Register("CAMERA.GETMATRIX", "camera", stub("CAMERA.GETMATRIX"))
 	r.Register("MATRIX.FREE", "camera", stub("MATRIX.FREE"))
+	r.Register("CAMERA2D.MAKE", "camera", stub("CAMERA2D.MAKE"))
+	r.Register("CAMERA2D.SETTARGET", "camera", stub("CAMERA2D.SETTARGET"))
+	r.Register("CAMERA2D.SETOFFSET", "camera", stub("CAMERA2D.SETOFFSET"))
+	r.Register("CAMERA2D.SETZOOM", "camera", stub("CAMERA2D.SETZOOM"))
+	r.Register("CAMERA2D.SETROTATION", "camera", stub("CAMERA2D.SETROTATION"))
 	r.Register("CAMERA2D.BEGIN", "camera", stub("CAMERA2D.BEGIN"))
 	r.Register("CAMERA2D.END", "camera", stub("CAMERA2D.END"))
 }

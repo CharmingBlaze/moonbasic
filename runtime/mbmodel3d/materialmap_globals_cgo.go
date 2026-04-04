@@ -26,4 +26,7 @@ func SeedMaterialMapGlobals(globals map[string]value.Value) {
 	globals["MATERIAL_MAP_BRDF"] = value.FromInt(int64(rl.MapBrdf))
 	globals["MATERIAL_MAP_DIFFUSE"] = value.FromInt(int64(rl.MapDiffuse))
 	globals["MATERIAL_MAP_SPECULAR"] = value.FromInt(int64(rl.MapSpecular))
+	// MATERIAL.SETFLOAT(mat, MATERIAL_ROUGHNESS, v) targets maps[roughness].Value (same index as map slot).
+	globals["MATERIAL_ROUGHNESS"] = value.FromInt(int64(rl.MapRoughness))
+	globals["MATERIAL_METALNESS"] = value.FromInt(int64(rl.MapMetalness))
 }

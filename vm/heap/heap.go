@@ -51,6 +51,25 @@ const (
 	TagStringList
 	TagPhysics2D
 	TagBody2D
+	TagLight
+	TagInstancedModel
+	TagLODModel
+	TagParticle
+	TagTilemap
+	TagAtlas
+	TagCamera2D
+	TagLight2D
+	TagPool
+	TagTween
+	TagComputeShader
+	TagShaderBuffer
+	TagDecal
+	TagNav
+	TagPath
+	TagNavAgent
+	TagSteerGroup
+	TagBTree
+	TagLobby
 )
 
 // Handle is an opaque integer index. 0 is always invalid.
@@ -244,13 +263,15 @@ func Cast[T HeapObject](s *Store, h Handle) (T, error) {
 	var zero T
 	obj, ok := s.Get(h)
 	if !ok {
-		return zero, fmt.Errorf("heap: invalid or stale handle %d", h)
+		if h == 0 {
+			return zero, fmt.Errorf("null handle (0): no object is assigned\n  Hint: Assign a handle from MAKE/LOAD before use; 0 means uninitialized.")
+		}
+		return zero, fmt.Errorf("invalid or stale handle %d: slot empty or generation mismatch\n  Hint: The object was freed or the handle is outdated; obtain a new handle and avoid using resources after FREE.", h)
 	}
 	typed, ok := obj.(T)
 	if !ok {
 		// obj.TypeName() is safe because Get() returned ok (obj != nil).
-		// We use %T on the zero value to report the expected type without calling methods on it.
-		return zero, fmt.Errorf("heap: handle %d is %s, but expected type %T", h, obj.TypeName(), zero)
+		return zero, fmt.Errorf("handle %d is %s, but this operation requires a different resource type\n  Hint: Pass the handle returned by the matching MAKE/LOAD for this API (wrong-type handles often come from reusing a variable).", h, obj.TypeName())
 	}
 	return typed, nil
 }

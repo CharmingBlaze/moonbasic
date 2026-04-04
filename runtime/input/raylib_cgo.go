@@ -57,6 +57,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		return value.FromBool(rl.IsKeyReleased(kc)), nil
 	}))
 	r.Register("INPUT.GETKEYNAME", "input", m.inGetKeyName)
+	m.registerActionMapping(r)
 }
 
 func (m *Module) Shutdown() {}

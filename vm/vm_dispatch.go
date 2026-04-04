@@ -296,9 +296,13 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 	// Pop the handle itself
 	v.Stack = v.Stack[:len(v.Stack)-1]
 
-	obj, ok := v.Heap.Get(heap.Handle(hVal.IVal))
+	hid := heap.Handle(hVal.IVal)
+	obj, ok := v.Heap.Get(hid)
 	if !ok {
-		return v.runtimeError("invalid handle for method call")
+		if hid == 0 {
+			return v.runtimeError("method " + methodName + " called on null handle (0)\n  Hint: Initialize the handle from MAKE/LOAD before calling methods.")
+		}
+		return v.runtimeError(fmt.Sprintf("method %s called with invalid handle %d\n  Hint: Object may have been freed; do not use handles after FREE.", methodName, hVal.IVal))
 	}
 
 	typeName := obj.TypeName()
@@ -316,12 +320,12 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 			callArgs = args
 		}
 	} else {
-		callKey = strings.ToUpper(typeName) + "." + strings.ToUpper(methodName)
+		callKey = handleCallRegistryPrefix(typeName) + strings.ToUpper(strings.TrimSpace(methodName))
 		callArgs = args
 	}
 	res, err := v.Registry.Call(callKey, callArgs)
 	if err != nil {
-		return v.runtimeError(err.Error())
+		return v.runtimeError(v.formatHandleCallError(typeName, methodName, callKey, mapped, err))
 	}
 
 	v.push(res)

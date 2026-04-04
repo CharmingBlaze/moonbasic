@@ -55,7 +55,16 @@ func (v *VM) runtimeError(msg string) error {
 	if frame != nil && frame.IP < len(frame.Chunk.SourceLines) {
 		line = int(frame.Chunk.SourceLines[frame.IP])
 	}
-	return fmt.Errorf("[moonBASIC] Runtime Error (Line %d): %s", line, msg)
+	where := "unknown source"
+	if v.Program != nil && v.Program.SourcePath != "" {
+		where = v.Program.SourcePath
+	} else if frame != nil && frame.Chunk != nil && frame.Chunk.Name != "" {
+		where = frame.Chunk.Name
+	}
+	if line >= 1 {
+		return fmt.Errorf("[moonBASIC] Error in %s line %d:\n  %s", where, line, msg)
+	}
+	return fmt.Errorf("[moonBASIC] Error in %s:\n  %s", where, msg)
 }
 
 // Push a value onto the operand stack.

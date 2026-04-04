@@ -36,6 +36,9 @@ type Module struct {
 	// frameEndHook runs just before EndDrawing each RENDER.FRAME (e.g. DEBUG watch overlay).
 	frameEndHook func()
 
+	// frameDrawHooks run after postRenderTargetPresent, before frameEndHook (2D lights, transitions).
+	frameDrawHooks []func()
+
 	h *heap.Store
 
 	autoMu           sync.Mutex
@@ -75,6 +78,17 @@ func (m *Module) SetFrameEndHook(h func()) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.frameEndHook = h
+}
+
+// AppendFrameDrawHook adds a callback run each RENDER.FRAME after the main scene
+// (post RT present) and before the frameEndHook. Used for 2D lighting and transitions.
+func (m *Module) AppendFrameDrawHook(h func()) {
+	if h == nil {
+		return
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.frameDrawHooks = append(m.frameDrawHooks, h)
 }
 
 // BindHeap implements runtime.HeapAware (automation event lists use handles).

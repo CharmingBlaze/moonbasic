@@ -199,9 +199,11 @@ type TypeDef struct {
 // Program is the complete output of the moonBASIC compiler.
 type Program struct {
 	StringTable []string // Interned string literals (shared by all chunks); IR v2 SSOT
-	Main        *Chunk
-	Functions   map[string]*Chunk   // uppercase function name → chunk
-	Types       map[string]*TypeDef // uppercase type name → typedef
+	// SourcePath is the primary source file path passed to the compiler (used in runtime errors).
+	SourcePath string
+	Main       *Chunk
+	Functions  map[string]*Chunk   // uppercase function name → chunk
+	Types      map[string]*TypeDef // uppercase type name → typedef
 }
 
 // InternString adds or returns the index of s in the program string pool.

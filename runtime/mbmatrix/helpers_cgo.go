@@ -12,6 +12,18 @@ import (
 	"moonbasic/vm/value"
 )
 
+// AllocVec3Value allocates a heap-backed vec3 (VEC3.*) for other runtime packages (e.g. steering).
+func AllocVec3Value(h *heap.Store, x, y, z float32) (value.Value, error) {
+	if h == nil {
+		return value.Nil, fmt.Errorf("AllocVec3Value: heap is nil")
+	}
+	id, err := h.Alloc(&vec3Obj{v: rl.Vector3{X: x, Y: y, Z: z}})
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
 func (m *Module) requireHeap() error {
 	if m.h == nil {
 		return runtime.Errorf("matrix/vector builtins: heap not bound")

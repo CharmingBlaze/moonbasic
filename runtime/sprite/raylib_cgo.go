@@ -16,6 +16,13 @@ import (
 
 type spriteObj struct {
 	tex       rl.Texture2D
+	fromAtlas bool
+	srcX      int32
+	srcY      int32
+	// atlasRegionW/H: full atlas rect (used to infer per-frame width for ANIM strips)
+	atlasRegionW int32
+	atlasRegionH int32
+
 	x, y      float32
 	frameW    int32
 	frameH    int32
@@ -24,6 +31,8 @@ type spriteObj struct {
 	playing   bool
 	fps       float32
 	accum     float32
+
+	anim *animMachine
 }
 
 func (s *spriteObj) TypeName() string { return "Sprite" }
@@ -31,7 +40,9 @@ func (s *spriteObj) TypeName() string { return "Sprite" }
 func (s *spriteObj) TypeTag() uint16 { return heap.TagSprite }
 
 func (s *spriteObj) Free() {
-	rl.UnloadTexture(s.tex)
+	if !s.fromAtlas {
+		rl.UnloadTexture(s.tex)
+	}
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {
@@ -66,10 +77,13 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.LOAD", "sprite", m.spLoad)
 	reg.Register("SPRITE.DRAW", "sprite", m.spDraw)
 	reg.Register("SPRITE.SETPOS", "sprite", m.spSetPos)
+	reg.Register("SPRITE.SETPOSITION", "sprite", m.spSetPos)
 	reg.Register("SPRITE.DEFANIM", "sprite", m.spDefAnim)
 	reg.Register("SPRITE.PLAYANIM", "sprite", m.spPlayAnim)
 	reg.Register("SPRITE.UPDATEANIM", "sprite", m.spUpdateAnim)
 	reg.Register("SPRITE.HIT", "sprite", m.spHit)
+	m.registerAtlas(reg)
+	m.registerAnim(reg)
 }
 
 // Shutdown implements runtime.Module.
@@ -88,11 +102,14 @@ func (m *Module) spLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	}
 	t := rl.LoadTexture(path)
 	s := &spriteObj{
-		tex:       t,
-		frameW:    t.Width,
-		frameH:    t.Height,
-		numFrames: 1,
-		fps:       8,
+		tex:          t,
+		fromAtlas:    false,
+		atlasRegionW: t.Width,
+		atlasRegionH: t.Height,
+		frameW:       t.Width,
+		frameH:       t.Height,
+		numFrames:    1,
+		fps:          8,
 	}
 	id, err := m.h.Alloc(s)
 	if err != nil {
@@ -119,13 +136,16 @@ func (m *Module) spDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if !ok1 || !ok2 {
 		return value.Nil, fmt.Errorf("SPRITE.DRAW: x,y must be numeric")
 	}
-	if s.numFrames < 1 {
+	if s.numFrames < 1 && s.anim == nil {
 		return value.Nil, nil
 	}
-	srcX := float32(s.curFrame) * float32(s.frameW)
+	if s.anim != nil {
+		s.syncAnimFrame()
+	}
+	srcX := float32(s.srcX) + float32(s.curFrame)*float32(s.frameW)
 	rec := rl.Rectangle{
 		X:      srcX,
-		Y:      0,
+		Y:      float32(s.srcY),
 		Width:  float32(s.frameW),
 		Height: float32(s.frameH),
 	}
@@ -178,12 +198,13 @@ func (m *Module) spDefAnim(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	if err != nil || n < 1 {
 		return value.Nil, fmt.Errorf("SPRITE.DEFANIM: frame count must be a positive integer string")
 	}
-	if int32(n) > s.tex.Width {
-		return value.Nil, fmt.Errorf("SPRITE.DEFANIM: more frames than texture width")
-	}
 	s.numFrames = n
-	s.frameW = s.tex.Width / int32(n)
-	s.frameH = s.tex.Height
+	avail := s.tex.Width - s.srcX
+	if avail < int32(n) {
+		return value.Nil, fmt.Errorf("SPRITE.DEFANIM: not enough width for frames")
+	}
+	s.frameW = avail / int32(n)
+	s.frameH = s.tex.Height - s.srcY
 	s.curFrame = 0
 	s.accum = 0
 	return value.Nil, nil
@@ -227,6 +248,9 @@ func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.V
 	dt, ok := argF(args[1])
 	if !ok {
 		return value.Nil, fmt.Errorf("SPRITE.UPDATEANIM: delta must be numeric")
+	}
+	if s.anim != nil {
+		return value.Nil, nil
 	}
 	if !s.playing || s.numFrames < 1 || s.fps <= 0 {
 		return value.Nil, nil

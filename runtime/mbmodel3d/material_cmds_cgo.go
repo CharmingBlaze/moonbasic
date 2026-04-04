@@ -29,6 +29,21 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 		return value.FromHandle(id), nil
 	}))
 
+	reg.Register("MATERIAL.MAKEPBR", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 0 {
+			return value.Nil, fmt.Errorf("MATERIAL.MAKEPBR expects no arguments")
+		}
+		mat := makePBRMaterial()
+		id, err := m.h.Alloc(&materialObj{mat: mat, pbr: true})
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromHandle(id), nil
+	}))
+
 	reg.Register("MATERIAL.FREE", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err

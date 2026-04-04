@@ -84,6 +84,20 @@ func (m *Module) getModel(args []value.Value, ix int, op string) (*modelObj, err
 	return heap.Cast[*modelObj](m.h, heap.Handle(args[ix].IVal))
 }
 
+func (m *Module) getInstancedModel(args []value.Value, ix int, op string) (*instancedModelObj, error) {
+	if ix >= len(args) || args[ix].Kind != value.KindHandle {
+		return nil, fmt.Errorf("%s: argument %d must be instanced model handle", op, ix+1)
+	}
+	return heap.Cast[*instancedModelObj](m.h, heap.Handle(args[ix].IVal))
+}
+
+func (m *Module) getLODModel(args []value.Value, ix int, op string) (*lodModelObj, error) {
+	if ix >= len(args) || args[ix].Kind != value.KindHandle {
+		return nil, fmt.Errorf("%s: argument %d must be LOD model handle", op, ix+1)
+	}
+	return heap.Cast[*lodModelObj](m.h, heap.Handle(args[ix].IVal))
+}
+
 func (m *Module) getShader(args []value.Value, ix int, op string) (*shaderObj, error) {
 	if ix >= len(args) || args[ix].Kind != value.KindHandle {
 		return nil, fmt.Errorf("%s: argument %d must be shader handle", op, ix+1)

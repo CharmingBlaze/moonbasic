@@ -1323,6 +1323,16 @@
       ]
     },
     {
+      "key": "RENDER.SET2DAmbIENT",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "RENDER.CLEAR",
       "args": []
     },
@@ -1462,6 +1472,608 @@
       ]
     },
     {
+      "key": "RENDER.SETSHADOWMAPSIZE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "POST.ADD",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "POST.SETPARAM",
+      "args": [
+        "string",
+        "string",
+        "float"
+      ]
+    },
+    {
+      "key": "POST.ADDSHADER",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "RENDER.SETMODE",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "EFFECT.SSAO",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.SSAO",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.SSAO",
+      "args": [
+        "bool",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.SSR",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.SSR",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.SSR",
+      "args": [
+        "bool",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.MOTIONBLUR",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.MOTIONBLUR",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.DEPTHOFFIELD",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.DEPTHOFFIELD",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.DEPTHOFFIELD",
+      "args": [
+        "bool",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.BLOOM",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.BLOOM",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.BLOOM",
+      "args": [
+        "bool",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.TONEMAPPING",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "EFFECT.SHARPEN",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.SHARPEN",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.GRAIN",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.GRAIN",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.VIGNETTE",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.VIGNETTE",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "EFFECT.CHROMATICABERRATION",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "EFFECT.CHROMATICABERRATION",
+      "args": [
+        "bool",
+        "float"
+      ]
+    },
+    {
+      "key": "COMPUTESHADER.LOAD",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "COMPUTESHADER.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "COMPUTESHADER.BUFFERMAKE",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "COMPUTESHADER.BUFFERFREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "COMPUTESHADER.SETBUFFER",
+      "args": [
+        "handle",
+        "int",
+        "handle"
+      ]
+    },
+    {
+      "key": "COMPUTESHADER.SETINT",
+      "args": [
+        "handle",
+        "string",
+        "int"
+      ]
+    },
+    {
+      "key": "COMPUTESHADER.SETFLOAT",
+      "args": [
+        "handle",
+        "string",
+        "float"
+      ]
+    },
+    {
+      "key": "COMPUTESHADER.DISPATCH",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DECAL.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "DECAL.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "DECAL.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "DECAL.SETSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "DECAL.SETLIFETIME",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "DECAL.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NAV.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "NAV.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NAV.SETGRID",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAV.ADDTERRAIN",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "NAV.ADDOBSTACLE",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "NAV.BUILD",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NAV.FINDPATH",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "PATH.ISVALID",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "PATH.NODECOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "PATH.NODEX",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PATH.NODEY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PATH.NODEZ",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PATH.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NAVAGENT.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "NAVAGENT.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NAVAGENT.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.SETSPEED",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.SETMAXFORCE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.APPLYFORCE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.MOVETO",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.ISATDESTINATION",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "NAVAGENT.X",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "NAVAGENT.Y",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "NAVAGENT.Z",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "STEER.GROUPMAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.GROUPADD",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "STEER.GROUPCLEAR",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "STEER.SEEK",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.FLEE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.ARRIVE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.WANDER",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.FLOCK",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.AVOIDOBSTACLES",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "STEER.FOLLOWPATH",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BTREE.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "BTREE.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "BTREE.SEQUENCE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BTREE.ADDCONDITION",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "BTREE.ADDACTION",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "BTREE.RUN",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ]
+    },
+    {
       "key": "RENDER.SETCULLFACE",
       "args": [
         "int"
@@ -1475,6 +2087,28 @@
       "key": "LIGHT.MAKE",
       "args": [
         "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "LIGHT.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "LIGHT.SETDIR",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETSHADOW",
+      "args": [
+        "handle",
+        "bool"
       ]
     },
     {
@@ -1489,6 +2123,26 @@
       "args": [
         "string"
       ]
+    },
+    {
+      "key": "MODEL.LOADLOD",
+      "args": [
+        "string",
+        "string",
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.SETLODDISTANCES",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
     },
     {
       "key": "MODEL.SETGPUSKINNING",
@@ -1607,6 +2261,186 @@
         "handle",
         "float"
       ]
+    },
+    {
+      "key": "MODEL.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.MAKEINSTANCED",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.SETINSTANCEPOS",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.SETINSTANCESCALE",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.UPDATEINSTANCES",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "PARTICLE.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETTEXTURE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETEMITRATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETLIFETIME",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETCOLOREND",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETGRAVITY",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.PLAY",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.DRAW",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
     },
     {
       "key": "MODEL.SETALPHA",
@@ -1954,6 +2788,11 @@
       "args": []
     },
     {
+      "key": "MATERIAL.MAKEPBR",
+      "args": [],
+      "returns": "handle"
+    },
+    {
       "key": "MATERIAL.FREE",
       "args": [
         "handle"
@@ -2089,6 +2928,78 @@
       ],
       "returns": "string",
       "pure": true,
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.MAPKEY",
+      "args": [
+        "string",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.MAPGAMEPADBUTTON",
+      "args": [
+        "string",
+        "int",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.MAPGAMEPADAXIS",
+      "args": [
+        "string",
+        "int",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.ACTIONPRESSED",
+      "args": [
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.ACTIONDOWN",
+      "args": [
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.ACTIONRELEASED",
+      "args": [
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.ACTIONAXIS",
+      "args": [
+        "string"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.SAVEMAPPINGS",
+      "args": [
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.LOADMAPPINGS",
+      "args": [
+        "string"
+      ],
       "phase": "any"
     },
     {
@@ -4783,6 +5694,15 @@
       "phase": "rendering"
     },
     {
+      "key": "SPRITE.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "SPRITE.DEFANIM",
       "args": [
         "handle",
@@ -4815,7 +5735,605 @@
       "phase": "rendering"
     },
     {
+      "key": "TILEMAP.LOAD",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.SETTILESIZE",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.DRAW",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.GETTILE",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.SETTILE",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.ISSOLID",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.WIDTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.HEIGHT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.LAYERCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.LAYERNAME",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.DRAWLAYER",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.COLLISIONAT",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.SETCOLLISION",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.MERGECOLLISIONLAYER",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TILEMAP.ISSOLIDCATEGORY",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "ATLAS.LOAD",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "ATLAS.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "ATLAS.GETSPRITE",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "ANIM.DEFINE",
+      "args": [
+        "handle",
+        "string",
+        "int",
+        "int",
+        "float",
+        "bool"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "ANIM.ADDTRANSITION",
+      "args": [
+        "handle",
+        "string",
+        "string",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "ANIM.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "ANIM.SETPARAM",
+      "args": [
+        "handle",
+        "string",
+        "any"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.SETRADIUS",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.SETINTENSITY",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TRANSITION.FADEOUT",
+      "args": [
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TRANSITION.FADEIN",
+      "args": [
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TRANSITION.ISDONE",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "TRANSITION.WIPE",
+      "args": [
+        "string",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TRANSITION.SETCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.REGISTER",
+      "args": [
+        "string",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.SETHANDLERS",
+      "args": [
+        "string",
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.LOAD",
+      "args": [
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.LOADASYNC",
+      "args": [
+        "string"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.LOADWITHTRANSITION",
+      "args": [
+        "string",
+        "string",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.UPDATE",
+      "args": [
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.DRAW",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.CURRENT",
+      "args": [],
+      "returns": "string",
+      "phase": "rendering"
+    },
+    {
+      "key": "POOL.MAKE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "POOL.SETFACTORY",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "POOL.SETRESET",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "POOL.PREWARM",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "POOL.GET",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "POOL.RETURN",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "POOL.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.TO",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.THEN",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.ONCOMPLETE",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.START",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.LOOP",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.YOYO",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "TWEEN.STOP",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.ON",
+      "args": [
+        "string",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.ONCE",
+      "args": [
+        "string",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.OFF",
+      "args": [
+        "string",
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "EVENT.FIRE",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "phase": "any"
+    },
+    {
       "key": "CAMERA.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETPOSITION",
       "args": [
         "handle",
         "float",
@@ -4889,14 +6407,66 @@
       "args": []
     },
     {
+      "key": "CAMERA2D.BEGIN",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "CAMERA2D.END",
       "args": []
+    },
+    {
+      "key": "CAMERA2D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.SETTARGET",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.SETOFFSET",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.SETZOOM",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.SETROTATION",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
     },
     {
       "key": "BODY3D.MAKE",
       "args": [
         "string"
       ]
+    },
+    {
+      "key": "BODY3D.MAKE",
+      "args": [],
+      "returns": "handle"
     },
     {
       "key": "JOLT.INIT",
@@ -5396,6 +6966,11 @@
       "returns": "handle"
     },
     {
+      "key": "BODY3D.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
       "key": "BODY3D.ADDBOX",
       "args": [
         "handle",
@@ -5438,6 +7013,15 @@
     },
     {
       "key": "BODY3D.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "BODY3D.SETPOSITION",
       "args": [
         "handle",
         "float",
@@ -5729,6 +7313,15 @@
       ]
     },
     {
+      "key": "CHARCONTROLLER.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
       "key": "CHARCONTROLLER.GETPOS",
       "args": [
         "handle"
@@ -5920,6 +7513,389 @@
       "key": "EVENT.FREE",
       "args": [
         "handle"
+      ]
+    },
+    {
+      "key": "EVENT.CHANNEL",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "SERVER.START",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "SERVER.STOP",
+      "args": []
+    },
+    {
+      "key": "SERVER.ONCONNECT",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "SERVER.ONDISCONNECT",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "SERVER.ONMESSAGE",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "SERVER.SYNCENTITY",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "SERVER.SETTICKRATE",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "SERVER.TICK",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "CLIENT.CONNECT",
+      "args": [
+        "string",
+        "int"
+      ]
+    },
+    {
+      "key": "CLIENT.STOP",
+      "args": []
+    },
+    {
+      "key": "CLIENT.ONCONNECT",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "CLIENT.ONMESSAGE",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "CLIENT.ONSYNC",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "CLIENT.TICK",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "LOBBY.CREATE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "LOBBY.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "LOBBY.SETPROPERTY",
+      "args": [
+        "handle",
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "LOBBY.SETHOST",
+      "args": [
+        "handle",
+        "string",
+        "int"
+      ]
+    },
+    {
+      "key": "LOBBY.START",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "LOBBY.FIND",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "LOBBY.GETNAME",
+      "args": [
+        "handle"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "LOBBY.JOIN",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALL",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLTO",
+      "args": [
+        "handle",
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "RPC.CALLSERVER",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
       ]
     },
     {

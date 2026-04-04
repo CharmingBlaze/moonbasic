@@ -106,12 +106,17 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 		if m.h == nil {
 			return value.Nil, runtime.Errorf("BODY3D.MAKE: heap not bound")
 		}
-		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("BODY3D.MAKE expects motion type string")
-		}
-		motion, err := rt.ArgString(args, 0)
-		if err != nil {
-			return value.Nil, err
+		motion := "dynamic"
+		if len(args) == 0 {
+			// default motion type
+		} else if len(args) == 1 && args[0].Kind == value.KindString {
+			var err error
+			motion, err = rt.ArgString(args, 0)
+			if err != nil {
+				return value.Nil, err
+			}
+		} else {
+			return value.Nil, fmt.Errorf("BODY3D.MAKE expects 0 arguments (default DYNAMIC) or 1 motion string (STATIC, KINEMATIC, DYNAMIC)")
 		}
 		b := &builderObj{motion: parseMotion(motion)}
 		bid, err := m.h.Alloc(b)
@@ -126,6 +131,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("BODY3D.ADDMESH", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAddMesh(m, a) }))
 	reg.Register("BODY3D.COMMIT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdCommit(m, a) }))
 	reg.Register("BODY3D.SETPOS", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
+	reg.Register("BODY3D.SETPOSITION", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
 	reg.Register("BODY3D.GETPOS", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdGetPos(m, a) }))
 	reg.Register("BODY3D.SETROT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
 	reg.Register("BODY3D.GETROT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdGetRotZero(m, a) }))

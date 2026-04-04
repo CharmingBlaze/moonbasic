@@ -44,6 +44,10 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("RENDER.CLEAR", "render", m.rClear)
 	reg.Register("RENDER.FRAME", "render", m.rFrame)
 	m.registerRenderAdvanced(reg)
+	m.registerPostCommands(reg)
+	m.registerEffectCommands(reg)
+	m.registerComputeShaderCommands(reg)
+	m.registerDecalCommands(reg)
 	m.registerWindowStateCommands(reg)
 	m.registerAutomationCommands(reg)
 }
@@ -198,7 +202,9 @@ func (m *Module) rClear(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		rl.BeginDrawing()
 		m.inFrame = true
 	}
-	rl.ClearBackground(c)
+	if !postRenderTargetBegin(c) {
+		rl.ClearBackground(c)
+	}
 	return value.Nil, nil
 }
 
@@ -218,6 +224,17 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	}
 	hook := m.frameEndHook
 	m.mu.Unlock()
+
+	postRenderTargetPresent()
+
+	m.mu.Lock()
+	layers := append([]func(){}, m.frameDrawHooks...)
+	m.mu.Unlock()
+	for _, fn := range layers {
+		if fn != nil {
+			fn()
+		}
+	}
 
 	if hook != nil {
 		hook()

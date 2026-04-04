@@ -147,6 +147,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 	}
 
 	opt.OptimizeProgram(g.Prog)
+	g.Prog.SourcePath = g.File
 	return g.Prog, nil
 }
 

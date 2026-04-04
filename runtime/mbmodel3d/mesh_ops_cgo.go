@@ -72,7 +72,24 @@ func registerMeshOps(m *Module, reg runtime.Registrar) {
 				return value.Nil, fmt.Errorf("MESH.DRAW: third argument must be matrix handle or 0")
 			}
 		}
+		if shadowDeferActive() && InCamera3D() {
+			draw3dMu.Lock()
+			deferredMeshes = append(deferredMeshes, deferredMeshRec{
+				meshH: heap.Handle(args[0].IVal),
+				matH:  heap.Handle(args[1].IVal),
+				mtx:   transform,
+			})
+			draw3dMu.Unlock()
+			return value.Nil, nil
+		}
+		son := shadowDeferActive()
+		if mato.pbr && son {
+			bindPBRDrawState(&mato.mat, true)
+		}
 		rl.DrawMesh(mo.m, mato.mat, transform)
+		if mato.pbr && son {
+			clearShadowMapSlot(&mato.mat)
+		}
 		return value.Nil, nil
 	}))
 
@@ -98,7 +115,24 @@ func registerMeshOps(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MESH.DRAWROTATED: rotation angles must be numeric")
 		}
 		transform := rl.MatrixRotateXYZ(rl.Vector3{X: rx, Y: ry, Z: rz})
+		if shadowDeferActive() && InCamera3D() {
+			draw3dMu.Lock()
+			deferredMeshes = append(deferredMeshes, deferredMeshRec{
+				meshH: heap.Handle(args[0].IVal),
+				matH:  heap.Handle(args[1].IVal),
+				mtx:   transform,
+			})
+			draw3dMu.Unlock()
+			return value.Nil, nil
+		}
+		son := shadowDeferActive()
+		if mato.pbr && son {
+			bindPBRDrawState(&mato.mat, true)
+		}
 		rl.DrawMesh(mo.m, mato.mat, transform)
+		if mato.pbr && son {
+			clearShadowMapSlot(&mato.mat)
+		}
 		return value.Nil, nil
 	}))
 

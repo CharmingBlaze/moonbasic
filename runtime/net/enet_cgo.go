@@ -17,6 +17,7 @@ import (
 type queuedEv struct {
 	typ   int32
 	peerH int32
+	ch    uint8
 	data  string
 }
 
@@ -64,6 +65,7 @@ func (p *peerObj) Free() {
 type eventObj struct {
 	typ   int32
 	peerH int32
+	ch    uint8
 	data  string
 }
 
@@ -218,6 +220,11 @@ func registerNetCommands(m *Module, reg runtime.Registrar) {
 		_ = rt
 		return eventFree(m, args)
 	})
+	reg.Register("EVENT.CHANNEL", "event", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		return eventChannel(m, args)
+	})
+	registerHighLevelNet(m, reg)
 }
 
 func shutdownNet(m *Module) {
@@ -225,6 +232,7 @@ func shutdownNet(m *Module) {
 }
 
 func netFullStop(m *Module) {
+	resetMultiplayerState()
 	if m == nil || m.h == nil {
 		g.mu.Lock()
 		defer g.mu.Unlock()
@@ -373,17 +381,18 @@ func pumpHost(m *Module, ho *hostObj) {
 			return
 		case enet.EventConnect:
 			pid := lookupPeerID(ho, ev.GetPeer(), m)
-			ho.q = append(ho.q, queuedEv{typ: 1, peerH: pid})
+			ho.q = append(ho.q, queuedEv{typ: 1, peerH: pid, ch: 0})
 		case enet.EventDisconnect:
 			pid := lookupPeerID(ho, ev.GetPeer(), m)
-			ho.q = append(ho.q, queuedEv{typ: 2, peerH: pid})
+			ho.q = append(ho.q, queuedEv{typ: 2, peerH: pid, ch: 0})
 			removePeerHandle(m, ho, pid)
 		case enet.EventReceive:
 			pkt := ev.GetPacket()
+			ch := ev.GetChannelID()
 			data := string(pkt.GetData())
 			pkt.Destroy()
 			pid := lookupPeerID(ho, ev.GetPeer(), m)
-			ho.q = append(ho.q, queuedEv{typ: 3, peerH: pid, data: data})
+			ho.q = append(ho.q, queuedEv{typ: 3, peerH: pid, ch: ch, data: data})
 		default:
 			return
 		}
@@ -408,29 +417,39 @@ func netUpdate(m *Module, args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func netReceive(m *Module, args []value.Value) (value.Value, error) {
+// netTryPopEvent dequeues the next queued network event for a host, pumping the host first if needed.
+// Returns event handle 0 if none.
+func netTryPopEvent(m *Module, hid heap.Handle) (heap.Handle, error) {
 	if m.h == nil {
-		return value.Nil, runtime.Errorf("NET.RECEIVE: heap not bound")
+		return 0, runtime.Errorf("NET.RECEIVE: heap not bound")
 	}
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("NET.RECEIVE expects host handle")
-	}
-	ho, err := heap.Cast[*hostObj](m.h, heap.Handle(args[0].IVal))
+	ho, err := heap.Cast[*hostObj](m.h, hid)
 	if err != nil {
-		return value.Nil, err
+		return 0, err
 	}
 	if ho.host == nil {
-		return value.Nil, runtime.Errorf("NET.RECEIVE: host closed")
+		return 0, runtime.Errorf("NET.RECEIVE: host closed")
 	}
 	if len(ho.q) == 0 {
 		pumpHost(m, ho)
 	}
 	if len(ho.q) == 0 {
-		return value.FromHandle(0), nil
+		return 0, nil
 	}
 	qe := ho.q[0]
 	ho.q = ho.q[1:]
-	eid, err := m.h.Alloc(&eventObj{typ: qe.typ, peerH: qe.peerH, data: qe.data})
+	eid, err := m.h.Alloc(&eventObj{typ: qe.typ, peerH: qe.peerH, ch: qe.ch, data: qe.data})
+	if err != nil {
+		return 0, err
+	}
+	return eid, nil
+}
+
+func netReceive(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("NET.RECEIVE expects host handle")
+	}
+	eid, err := netTryPopEvent(m, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}

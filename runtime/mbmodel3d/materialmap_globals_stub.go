@@ -22,4 +22,6 @@ func SeedMaterialMapGlobals(globals map[string]value.Value) {
 	globals["MATERIAL_MAP_BRDF"] = value.FromInt(11)
 	globals["MATERIAL_MAP_DIFFUSE"] = value.FromInt(0)
 	globals["MATERIAL_MAP_SPECULAR"] = value.FromInt(1)
+	globals["MATERIAL_ROUGHNESS"] = value.FromInt(3)
+	globals["MATERIAL_METALNESS"] = value.FromInt(1)
 }

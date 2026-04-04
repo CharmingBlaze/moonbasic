@@ -4,10 +4,12 @@ package window
 
 import (
 	"fmt"
+	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/value"
 )
 
@@ -22,6 +24,8 @@ func (m *Module) registerRenderAdvanced(r runtime.Registrar) {
 	r.Register("RENDER.SETWIREFRAME", "window", runtime.AdaptLegacy(m.rSetWireframe))
 	r.Register("RENDER.SCREENSHOT", "window", m.rScreenshot)
 	r.Register("RENDER.SETMSAA", "window", runtime.AdaptLegacy(m.rSetMSAA))
+	r.Register("RENDER.SETSHADOWMAPSIZE", "render", runtime.AdaptLegacy(m.rSetShadowMapSize))
+	r.Register("RENDER.SETMODE", "render", m.rSetRenderMode)
 }
 
 func argTruth(v value.Value) bool {
@@ -139,5 +143,39 @@ func (m *Module) rSetMSAA(args []value.Value) (value.Value, error) {
 	} else {
 		rl.ClearWindowState(rl.FlagMsaa4xHint)
 	}
+	return value.Nil, nil
+}
+
+func (m *Module) rSetRenderMode(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("RENDER.SETMODE expects 1 string (forward, deferred)")
+	}
+	modeStr, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	mode := strings.ToLower(strings.TrimSpace(modeStr))
+	switch mode {
+	case "forward", "deferred":
+		setRenderPipelineMode(mode)
+		return value.Nil, nil
+	default:
+		return value.Nil, fmt.Errorf("RENDER.SETMODE: unknown mode %q (use forward or deferred)", mode)
+	}
+}
+
+func (m *Module) rSetShadowMapSize(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("RENDER.SETSHADOWMAPSIZE expects 1 argument (size in pixels)")
+	}
+	var sz int64
+	if i, ok := args[0].ToInt(); ok {
+		sz = i
+	} else if f, ok := args[0].ToFloat(); ok {
+		sz = int64(f)
+	} else {
+		return value.Nil, fmt.Errorf("RENDER.SETSHADOWMAPSIZE: size must be numeric")
+	}
+	mbmodel3d.SetShadowMapResolution(int32(sz))
 	return value.Nil, nil
 }

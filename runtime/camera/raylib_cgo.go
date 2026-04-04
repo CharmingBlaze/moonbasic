@@ -9,6 +9,7 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
+	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -44,6 +45,7 @@ func argHandle(v value.Value) (heap.Handle, bool) {
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.MAKE", "camera", runtime.AdaptLegacy(m.camMake))
 	r.Register("CAMERA.SETPOS", "camera", runtime.AdaptLegacy(m.camSetPos))
+	r.Register("CAMERA.SETPOSITION", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETTARGET", "camera", runtime.AdaptLegacy(m.camSetTarget))
 	r.Register("CAMERA.SETFOV", "camera", runtime.AdaptLegacy(m.camSetFov))
 	r.Register("CAMERA.BEGIN", "camera", runtime.AdaptLegacy(m.camBegin))
@@ -53,8 +55,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.GETVIEWRAY", "camera", runtime.AdaptLegacy(m.camGetViewRay))
 	r.Register("CAMERA.GETMATRIX", "camera", runtime.AdaptLegacy(m.camGetMatrix))
 	r.Register("MATRIX.FREE", "camera", runtime.AdaptLegacy(m.matrixFree))
-	r.Register("CAMERA2D.BEGIN", "camera", runtime.AdaptLegacy(m.cam2dBegin))
-	r.Register("CAMERA2D.END", "camera", runtime.AdaptLegacy(m.cam2dEnd))
+	m.registerCamera2D(r)
 }
 
 // Shutdown implements runtime.Module.
@@ -159,6 +160,8 @@ func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
+	mbmodel3d.MarkCamera3DBegin(o.cam.Position.X, o.cam.Position.Y, o.cam.Position.Z)
+	mbmodel3d.StoreActiveCamera3D(o.cam)
 	rl.BeginMode3D(o.cam)
 	return value.Nil, nil
 }
@@ -167,6 +170,8 @@ func (m *Module) camEnd(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("CAMERA.END expects 0 arguments")
 	}
+	mbmodel3d.FlushDeferred3D(m.h)
+	mbmodel3d.MarkCamera3DEnd()
 	rl.EndMode3D()
 	return value.Nil, nil
 }
@@ -319,24 +324,3 @@ func (m *Module) matrixFree(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func (m *Module) cam2dBegin(args []value.Value) (value.Value, error) {
-	if len(args) != 0 {
-		return value.Nil, fmt.Errorf("CAMERA2D.BEGIN expects 0 arguments")
-	}
-	cam := rl.Camera2D{
-		Offset:   rl.Vector2{X: 0, Y: 0},
-		Target:   rl.Vector2{X: 0, Y: 0},
-		Rotation: 0,
-		Zoom:     1,
-	}
-	rl.BeginMode2D(cam)
-	return value.Nil, nil
-}
-
-func (m *Module) cam2dEnd(args []value.Value) (value.Value, error) {
-	if len(args) != 0 {
-		return value.Nil, fmt.Errorf("CAMERA2D.END expects 0 arguments")
-	}
-	rl.EndMode2D()
-	return value.Nil, nil
-}

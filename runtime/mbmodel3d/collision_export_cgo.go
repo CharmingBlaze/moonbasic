@@ -25,3 +25,12 @@ func ModelRaylib(s *heap.Store, h heap.Handle) (rl.Model, error) {
 	}
 	return o.model, nil
 }
+
+// ShaderRaylib returns the Raylib shader for a TagShader handle.
+func ShaderRaylib(s *heap.Store, h heap.Handle) (rl.Shader, error) {
+	o, err := heap.Cast[*shaderObj](s, h)
+	if err != nil {
+		return rl.Shader{}, err
+	}
+	return o.sh, nil
+}

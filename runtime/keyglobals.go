@@ -18,4 +18,16 @@ func SeedInputKeyGlobals(globals map[string]value.Value) {
 	globals["KEY_D"] = value.FromInt(68)
 	globals["KEY_I"] = value.FromInt(73)
 	globals["KEY_K"] = value.FromInt(75)
+	// Raylib KeyboardKey — arrows (INPUT.ActionAxis digital defaults use Left/A and Right/D).
+	globals["KEY_LEFT"] = value.FromInt(263)
+	globals["KEY_RIGHT"] = value.FromInt(262)
+	globals["KEY_UP"] = value.FromInt(265)
+	globals["KEY_DOWN"] = value.FromInt(264)
+	// Gamepad — numeric values match raylib GamepadAxis / GamepadButton (CGO builds).
+	globals["GAMEPAD_AXIS_LEFT_X"] = value.FromInt(0)
+	globals["GAMEPAD_AXIS_LEFT_Y"] = value.FromInt(1)
+	globals["GAMEPAD_BUTTON_RIGHT_FACE_DOWN"] = value.FromInt(2)
+	globals["GAMEPAD_BUTTON_RIGHT_FACE_RIGHT"] = value.FromInt(3)
+	globals["GAMEPAD_BUTTON_RIGHT_FACE_LEFT"] = value.FromInt(4)
+	globals["GAMEPAD_BUTTON_RIGHT_FACE_UP"] = value.FromInt(5)
 }

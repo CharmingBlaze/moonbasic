@@ -121,6 +121,17 @@ func (r *Registry) RegisterFromManifest(table *builtinmanifest.Table) {
 	}
 }
 
+// CommandKeys returns a snapshot of registered built-in keys (for diagnostics / did-you-mean).
+func (r *Registry) CommandKeys() []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make([]string, 0, len(r.Commands))
+	for k := range r.Commands {
+		out = append(out, k)
+	}
+	return out
+}
+
 // Call executes a command by its fully qualified name.
 func (r *Registry) Call(name string, args []value.Value) (value.Value, error) {
 	key := strings.ToUpper(name)
@@ -128,7 +139,7 @@ func (r *Registry) Call(name string, args []value.Value) (value.Value, error) {
 	fn, ok := r.Commands[key]
 	r.mu.RUnlock()
 	if !ok {
-		return value.Value{}, fmt.Errorf("unknown command %q", key)
+		return value.Value{}, FormatUnknownRegistryCommand(key, r.CommandKeys())
 	}
 	exit := enterCall(r)
 	defer exit()

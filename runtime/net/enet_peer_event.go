@@ -108,6 +108,20 @@ func peerPing(m *Module, args []value.Value) (value.Value, error) {
 	return value.FromInt(int64(po.peer.GetRoundTripTime())), nil
 }
 
+func eventChannel(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("EVENT.CHANNEL: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("EVENT.CHANNEL expects event handle")
+	}
+	eo, err := heap.Cast[*eventObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromInt(int64(eo.ch)), nil
+}
+
 func eventType(m *Module, args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, runtime.Errorf("EVENT.TYPE: heap not bound")

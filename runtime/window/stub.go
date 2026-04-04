@@ -29,6 +29,10 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("RENDER.CLEAR", "render", stub("RENDER.CLEAR"))
 	reg.Register("RENDER.FRAME", "render", stub("RENDER.FRAME"))
 	m.registerRenderAdvanced(reg)
+	m.registerPostCommands(reg)
+	m.registerEffectCommands(reg)
+	m.registerComputeShaderCommands(reg)
+	m.registerDecalCommands(reg)
 	m.registerWindowStateCommands(reg)
 	m.registerAutomationCommands(reg)
 }

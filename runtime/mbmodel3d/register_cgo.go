@@ -14,6 +14,9 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerModelMaterial(m, reg)
 	registerModelTextureStages(m, reg)
 	registerModelRenderHierarchy(m, reg)
+	registerModelTransform(m, reg)
+	registerModelInstDraw(m, reg)
+	registerModelLOD(m, reg)
 }
 
 // Shutdown implements runtime.Module.

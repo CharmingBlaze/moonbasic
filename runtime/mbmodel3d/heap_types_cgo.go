@@ -23,6 +23,7 @@ func (o *meshObj) Free() {
 type materialObj struct {
 	mat   rl.Material
 	moved bool // after MODEL.SETMATERIAL steal; skip UnloadMaterial on Free
+	pbr   bool // MATERIAL.MAKEPBR: extra uniforms + optional shadow sampling
 }
 
 func (o *materialObj) TypeName() string { return "Material" }
@@ -59,6 +60,82 @@ func (o *modelObj) TypeTag() uint16 { return heap.TagModel }
 
 func (o *modelObj) Free() {
 	rl.UnloadModel(o.model)
+}
+
+// instancedModelObj draws many copies of one mesh/material via DrawMeshInstanced.
+type instancedModelObj struct {
+	model      rl.Model
+	loadedPath string
+	meshIdx    int32
+	count      int
+	px, py, pz []float32
+	sx, sy, sz []float32
+	transforms []rl.Matrix
+}
+
+func (o *instancedModelObj) TypeName() string { return "InstancedModel" }
+
+func (o *instancedModelObj) TypeTag() uint16 { return heap.TagInstancedModel }
+
+func (o *instancedModelObj) Free() {
+	rl.UnloadModel(o.model)
+}
+
+// lodModelObj holds three detail levels; MODEL.SETLODDISTANCES configures distance bands.
+type lodModelObj struct {
+	models     [3]rl.Model
+	band0      float32 // [0, band0) → LOD0 (highest detail)
+	band1      float32 // [band0, band1) → LOD1
+	band2      float32 // [band1, band2) → LOD2; dist >= band2 → culled
+	configured bool
+	transform  rl.Matrix
+}
+
+func (o *lodModelObj) TypeName() string { return "LODModel" }
+
+func (o *lodModelObj) TypeTag() uint16 { return heap.TagLODModel }
+
+func (o *lodModelObj) Free() {
+	for i := range o.models {
+		if o.models[i].MeshCount > 0 {
+			rl.UnloadModel(o.models[i])
+			o.models[i] = rl.Model{}
+		}
+	}
+}
+
+func (o *lodModelObj) worldPos() rl.Vector3 {
+	return rl.Vector3{X: o.transform.M12, Y: o.transform.M13, Z: o.transform.M14}
+}
+
+// pickLOD returns model index 0..2, or -1 if culled / invalid.
+func (o *lodModelObj) pickLOD(cam rl.Vector3) int {
+	if o.models[0].MeshCount == 0 {
+		return -1
+	}
+	d := rl.Vector3Distance(o.worldPos(), cam)
+	if !o.configured {
+		return 0
+	}
+	if d < o.band0 {
+		return 0
+	}
+	if d < o.band1 {
+		if o.models[1].MeshCount > 0 {
+			return 1
+		}
+		return 0
+	}
+	if d < o.band2 {
+		if o.models[2].MeshCount > 0 {
+			return 2
+		}
+		if o.models[1].MeshCount > 0 {
+			return 1
+		}
+		return 0
+	}
+	return -1
 }
 
 type shaderObj struct {
