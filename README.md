@@ -1,10 +1,21 @@
 # moonBASIC
 
-**A modern game programming language for people who want to make games, not fight a compiler.**
+**The most powerful modern BASIC compiler for building real games.**
 
-moonBASIC is a simple, fast, and fun language for making 2D and 3D games. It is inspired by the classic simplicity of **BlitzBasic** and **DarkBASIC**, but built for the modern era with a powerful set of integrated libraries.
+moonBASIC is not a toy interpreter or a nostalgia dialect frozen in the 1980s. It is a **full compiler**—lexer, parser, AST, and bytecode codegen—paired with a **production-grade game runtime**. You write readable BASIC-style source; the toolchain turns it into compact bytecode and runs it on a fast VM wired straight into **raylib**, **Jolt**, **Box2D**, and **ENet**. That combination—classic syntax, modern compilation, and the same libraries serious indie games use—is the bar we set for a **modern BASIC compiler**: maximum reach from a single language, without leaving the BASIC idiom.
 
-Our philosophy is to remove as much friction as possible between an idea and a playable result. This means no complex project setup, no header files, no build system configuration, and a focus on a clean, imperative API. Just write your code and run it.
+If you grew up on **Blitz BASIC** or **DarkBASIC** and wished that spirit existed with today’s graphics, physics, and networking, this is that idea rebuilt for the current era.
+
+---
+
+## Why call it the most powerful modern BASIC?
+
+- **Real compiler, not a line-by-line runner.** Source is parsed into an AST, lowered to bytecode, and executed by a dedicated VM—predictable performance and room to grow.
+- **Scope of the standard library.** One language spans **2D and 3D rendering**, **immediate-mode GUI**, **sprites and atlases**, **shaders and lights**, **tilemaps**, **particles**, **2D and 3D physics**, **character controllers**, **audio**, and **multiplayer networking**—the kind of surface area usually split across many languages and glue code.
+- **Industrial backing where it matters.** The runtime sits on **raylib** (window, GPU, input, audio), **Jolt** and **Box2D** for physics, and **ENet** for UDP game traffic—not stripped-down teaching stubs.
+- **Fast iteration.** The driver is written in **Go**; compile cycles are short so you stay in flow.
+
+“Most powerful” here means **breadth + seriousness of the stack + a proper compile step**, while keeping the **low-friction, imperative BASIC feel**: no project boilerplate, no headers, no CMake ritual—just your `.mb` file and the `moonbasic` binary.
 
 ---
 
@@ -48,38 +59,36 @@ Window.Close()
 
 ## Features
 
--   **Simple Syntax**: A clean, readable syntax inspired by classic BASIC, with modern features like user-defined functions and a dot-notation command system.
--   **2D & 3D Graphics**: A comprehensive set of commands for 2D drawing and 3D model rendering, powered by **raylib**.
--   **Physics**: Integrated 3D physics with **Jolt Physics** and 2D physics with **Box2D**.
--   **Networking**: Built-in support for multiplayer games using **ENet**.
--   **Fast Compilation**: The compiler, written in Go, is extremely fast. Go from code to running program in milliseconds.
--   **Cross-Platform**: Build and run on Windows and Linux.
+- **Modern BASIC syntax** — Familiar control flow and types, plus user-defined functions and a clear `Module.Command` API.
+- **2D & 3D graphics** — Drawing, text, textures, cameras, models, materials, and more, powered by **raylib**.
+- **Physics** — **Jolt** for 3D, **Box2D** for 2D.
+- **Networking** — **ENet** for client/server-style multiplayer over UDP.
+- **Fast compilation** — Go-hosted toolchain; edit, compile, and run in milliseconds.
+- **Cross-platform** — Windows and Linux (with CGO and a C toolchain).
 
 ---
 
 ## Architecture
 
-moonBASIC is a compiled, bytecode-interpreted language. The `moonbasic` executable is a self-contained compiler and virtual machine (VM).
+moonBASIC is a **compiled, bytecode-driven** language. The `moonbasic` executable bundles the compiler and the VM.
 
-1.  **Compile**: When you run `moonbasic mygame.mb`, the compiler first parses your `.mb` source code into an Abstract Syntax Tree (AST).
-2.  **Codegen**: It then walks the AST to generate a compact bytecode program.
-3.  **Execute**: The bytecode is immediately executed by the built-in VM. The VM is written in Go and communicates with the underlying C-based libraries (like raylib and Jolt) via CGo.
+1. **Compile** — `moonbasic mygame.mb` parses `.mb` source into an AST.
+2. **Codegen** — The AST becomes a compact bytecode program.
+3. **Execute** — The VM runs that bytecode and calls into native libraries (**raylib**, **Jolt**, etc.) via **cgo**.
 
-This architecture provides a balance of high-level simplicity for the user and high performance for the game.
+You get BASIC-level simplicity at the keyboard and a structured pipeline under the hood—not a single giant interpreter loop.
 
 ---
 
 ## Technology Stack
 
-moonBASIC stands on the shoulders of giants. It integrates several industry-standard, open-source libraries.
-
 | Library | Version | Purpose |
 |---|---|---|
-| [Go](https://go.dev) | 1.25+ (see `go.mod`) | The core language for the compiler, VM, and runtime.
-| [raylib](https://raylib.com) | 5.5 | The foundation for windowing, rendering, input, and audio.
-| [Jolt Physics](https://github.com/jrouwe/JoltPhysics) | 5.1 | High-performance 3D physics engine.
-| [Box2D](https://box2d.org) | 3.0 | Robust 2D physics engine.
-| [ENet](http://enet.bespin.org) | 1.3 | Reliable UDP networking library.
+| [Go](https://go.dev) | 1.25+ (see `go.mod`) | Compiler, VM, and runtime host. |
+| [raylib](https://raylib.com) | via raylib-go | Windowing, rendering, input, audio. |
+| [Jolt Physics](https://github.com/jrouwe/JoltPhysics) | via jolt-go | 3D rigid-body simulation. |
+| [Box2D](https://box2d.org) | 3.x | 2D physics. |
+| [ENet](http://enet.bespin.org) | 1.3 | Reliable UDP networking. |
 
 ---
 
@@ -87,10 +96,10 @@ moonBASIC stands on the shoulders of giants. It integrates several industry-stan
 
 ### 1. Install Dependencies
 
--   **Go 1.25+** (see `go.mod`)
--   **A C Compiler**: MinGW-w64 on Windows, or GCC on Linux.
+- **Go 1.25+** (see `go.mod`)
+- **A C compiler**: MinGW-w64 on Windows, or GCC on Linux.
 
-See the [Building from Source](docs/BUILDING.md) guide for detailed setup instructions.
+See [Building from Source](docs/BUILDING.md) for detailed setup.
 
 ### 2. Build moonBASIC
 
@@ -109,13 +118,13 @@ CGO_ENABLED=1 go build -o moonbasic .
 
 ### 3. Run Your First Program
 
-From the repo root, run a bundled demo (requires **CGO**):
+From the repo root (requires **CGO**):
 
 ```bash
 CGO_ENABLED=1 go run . examples/spin_cube/main.mb
 ```
 
-Or build the driver and pass any `.mb` file:
+Or use a built binary:
 
 ```bash
 ./moonbasic mygame.mb
@@ -129,10 +138,10 @@ More samples: [examples/README.md](examples/README.md).
 
 | Document | What it covers |
 |---|---|
-| [Getting Started](docs/GETTING_STARTED.md) | Installation, your first window, and key concepts. |
+| [Getting Started](docs/GETTING_STARTED.md) | Installation, first window, core ideas. |
 | [Programming Guide](docs/PROGRAMMING.md) | Game loop, command style, 2D/3D, CGO and platforms. |
-| [Language Reference](docs/LANGUAGE.md) | Variables, types, loops, and functions. |
-| [Command Index](docs/COMMANDS.md) | Every command in one place — built-ins and module commands. |
+| [Language Reference](docs/LANGUAGE.md) | Variables, types, loops, functions. |
+| [Command Index](docs/COMMANDS.md) | Built-ins and module commands in one place. |
 | [Examples](docs/EXAMPLES.md) | Narrated snippets (see also `examples/`). |
 | [Examples (repo)](examples/README.md) | Runnable `main.mb` programs and how to launch them. |
 
@@ -174,7 +183,7 @@ More samples: [examples/README.md](examples/README.md).
 
 ## Contributing
 
-Contributions are welcome! This project is in active development. The best way to get started is to check the `COMMAND_AUDIT.txt` file, which lists all commands and their implementation status (`DONE`, `PARTIAL`, or `MISSING`). Implementing a `PARTIAL` or `MISSING` command is a great first contribution.
+Contributions are welcome. This project is under active development. Start with `COMMAND_AUDIT.txt` for command implementation status (`DONE`, `PARTIAL`, `MISSING`). Closing gaps there is a great first contribution.
 
 ---
 
