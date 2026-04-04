@@ -11,6 +11,7 @@ Changelog (update this section whenever you change impl or tests)
 • 2026-04-04 — strmod: removed runtime/strmod/strings.go bogus strmod.* keys; strmod module is a no-op register.
 • 2026-04-04 — control flow: DO/LOOP WHILE|UNTIL, DO WHILE…LOOP; EXIT/CONTINUE FOR|WHILE|REPEAT|DO; EXIT FUNCTION (compiler/token, parser_stmts, codegen_loopctx.go, codegen_do.go). testdata/do_loop_test.mb, exit_continue_test.mb; CI --check.
 • 2026-04-04 — parser: optional variable after NEXT only on same line as NEXT (no skipNewlines) — fixes swallowing next statement’s identifier.
+• 2026-04-04 — parser: WHILE/FOR/REPEAT/DO/EXIT/CONTINUE parsing moved to parser_stmts_loop.go (line-count seam).
 
 Legend
 ------
