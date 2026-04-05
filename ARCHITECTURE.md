@@ -1,4 +1,4 @@
-# moonBASIC Architecture (v1.2.0)
+# moonBASIC Architecture (v1.2.1)
 ## Mandatory Document for AI Assistants
 
 This document defines the **Ground Truth** for the moonBASIC compiler and runtime. Any changes must adhere to the modular structure and stable APIs defined here. **DO NOT REVERT TO OLD MONOLITHIC VERSIONS.**
@@ -55,6 +55,8 @@ The orchestration logic must live in `compiler/pipeline/pipeline.go`. The CLI dr
 - **Semantic pass** (`compiler/semantic/analyze.go`): Resolves **`NamespaceCallStmt`** and **`NamespaceCallExpr`** with **`LookupArity(ns, method, len(args))`**. If the namespace method exists but no overload matches the argument count → **Compile Error** with **`ArityHint`** (lists valid arities). Unknown **`NS.METHOD`** → **Compile Error** with did-you-mean (**`compiler/semantic/cmdhint.go`**).
 - **Runtime dispatch** (`runtime/runtime.go`): **`RegisterFromManifest`** walks every overload but registers **at most one stub per canonical `Command.Key`** — the first-seen **`Namespace`** wins for the stub closure. Natives that support multiple arities implement **branching on `len(args)`** in one **`BuiltinFn`** (e.g. **`RENDER.CLEAR`** in **`runtime/window/raylib_cgo.go`**).
 - **LSP** (`lsp/server.go`): Hover for a dotted builtin uses **`FirstOverload(key)`** when arity cannot be inferred from the line; multi-arity commands may show only the first signature unless tooling is extended.
+
+**Inventory tooling**: From the repo root, **`python tools/gen_master_audit.py`** regenerates **`MASTER_AUDIT.txt`** (manifest keys vs **`Register("KEY"`** in **`runtime/**/*.go`**, excluding **`*_test.go`**) plus **`MASTER_AUDIT_REGISTERED.txt`**, **`MASTER_AUDIT_MANIFEST.txt`**, and **`MASTER_AUDIT_DUPLICATES.txt`**.
 
 ---
 

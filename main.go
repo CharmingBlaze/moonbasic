@@ -15,6 +15,7 @@ import (
 	"moonbasic/vm"
 )
 
+// Release tags should match this string (e.g. v1.2.1) for distributor scripts that parse --version.
 const version = "1.2.1" // Milestone 5 stable
 
 // printRuntimeBanner writes the same runtime line as --version (for --info runs).

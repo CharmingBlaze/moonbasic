@@ -67,7 +67,7 @@ Dotted commands are grouped by their first segment (e.g. `WINDOW.OPEN` → names
 | `MATH` | 39 | [MATH](reference/MATH.md) |
 | `MATRIX` | 1 | [TRANSFORM](reference/TRANSFORM.md) |
 | `MEM` | 15 | [MEM](reference/MEM.md) |
-| `MESH` | 25 | [MODEL](reference/MODEL.md) |
+| `MESH` | 25 | [MESH](reference/MESH.md), [MODEL](reference/MODEL.md) |
 | `MODEL` | 42 | [MODEL](reference/MODEL.md) |
 | `NAV` | 7 | [NAV_AI](reference/NAV_AI.md) |
 | `NAVAGENT` | 12 | [NAV_AI](reference/NAV_AI.md) |
