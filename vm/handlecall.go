@@ -116,12 +116,26 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		switch mn {
 		case "DRAW":
 			return "MODEL.DRAW", true, true
-		case "SETINSTANCEPOS":
-			return "INSTANCE.SETINSTANCEPOS", true, true
-		case "SETINSTANCESCALE":
-			return "INSTANCE.SETINSTANCESCALE", true, true
-		case "UPDATEINSTANCES":
-			return "INSTANCE.UPDATEINSTANCES", true, true
+		case "FREE":
+			return "INSTANCE.FREE", true, true
+		case "COUNT":
+			return "INSTANCE.COUNT", true, true
+		case "SETINSTANCEPOS", "SETPOS":
+			return "INSTANCE.SETPOS", true, true
+		case "SETINSTANCESCALE", "SETSCALE":
+			return "INSTANCE.SETSCALE", true, true
+		case "SETROT":
+			return "INSTANCE.SETROT", true, true
+		case "SETMATRIX":
+			return "INSTANCE.SETMATRIX", true, true
+		case "SETCOLOR":
+			return "INSTANCE.SETCOLOR", true, true
+		case "UPDATEINSTANCES", "UPDATEBUFFER":
+			return "INSTANCE.UPDATEBUFFER", true, true
+		case "SETCULLDISTANCE":
+			return "INSTANCE.SETCULLDISTANCE", true, true
+		case "DRAWLOD":
+			return "INSTANCE.DRAWLOD", true, true
 		}
 	case "PARTICLE":
 		switch mn {
@@ -199,7 +213,8 @@ func HandleCallSuggestions(typeName string) []string {
 	case "PARTICLE":
 		out = []string{"Draw", "Free", "Play", "SetColor", "SetColorEnd", "SetEmitRate", "SetGravity", "SetLifetime", "SetPos", "SetPosition", "SetSize", "SetTexture", "SetVelocity", "Update"}
 	case "INSTANCEDMODEL":
-		out = []string{"Draw", "SetInstancePos", "SetInstanceScale", "UpdateInstances"}
+		out = []string{"Count", "Draw", "DrawLOD", "Free", "SetColor", "SetCullDistance", "SetInstancePos", "SetInstanceScale",
+			"SetMatrix", "SetPos", "SetRot", "SetScale", "UpdateBuffer", "UpdateInstances"}
 	case "LIGHT":
 		out = []string{"Enable", "Free", "IsEnabled", "SetColor", "SetDir", "SetInnerCone", "SetIntensity",
 			"SetOuterCone", "SetPos", "SetPosition", "SetRange", "SetShadow", "SetShadowBias", "SetTarget"}

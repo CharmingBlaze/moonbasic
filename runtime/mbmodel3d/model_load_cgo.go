@@ -56,7 +56,7 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		return value.FromHandle(id), nil
 	})
 
-	reg.Register("MODEL.FREE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	freeModelOrInst := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -67,7 +67,9 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		return value.Nil, nil
-	}))
+	}
+	reg.Register("MODEL.FREE", "model", runtime.AdaptLegacy(freeModelOrInst))
+	reg.Register("INSTANCE.FREE", "model", runtime.AdaptLegacy(freeModelOrInst))
 
 	reg.Register("MODEL.GETMATERIALCOUNT", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {

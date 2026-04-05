@@ -85,7 +85,12 @@ type instancedModelObj struct {
 	count      int
 	px, py, pz []float32
 	sx, sy, sz []float32
-	transforms []rl.Matrix
+	rx, ry, rz []float32 // radians (MatrixRotateXYZ); used when manual[i] is false
+	cr, cg, cb, ca []float32
+	manual         []bool // true: transforms[i] owned by INSTANCE.SETMATRIX until cleared by SetPos/Rot/Scale
+	transforms     []rl.Matrix
+
+	cullDistance float32 // if > 0, skip draw when camera is farther than this from instance centroid
 
 	release heap.ReleaseOnce
 }
@@ -96,6 +101,41 @@ func (o *instancedModelObj) TypeTag() uint16 { return heap.TagInstancedModel }
 
 func (o *instancedModelObj) Free() {
 	o.release.Do(func() { rl.UnloadModel(o.model) })
+}
+
+func (o *instancedModelObj) anchorPos() rl.Vector3 {
+	if o == nil || o.count <= 0 {
+		return rl.Vector3{}
+	}
+	var sx, sy, sz float32
+	for i := 0; i < o.count; i++ {
+		sx += o.px[i]
+		sy += o.py[i]
+		sz += o.pz[i]
+	}
+	n := float32(o.count)
+	return rl.Vector3{X: sx / n, Y: sy / n, Z: sz / n}
+}
+
+func (o *instancedModelObj) uniformInstanceColors() bool {
+	if o == nil || o.count <= 0 {
+		return true
+	}
+	r0, g0, b0, a0 := o.cr[0], o.cg[0], o.cb[0], o.ca[0]
+	for i := 1; i < o.count; i++ {
+		if o.cr[i] != r0 || o.cg[i] != g0 || o.cb[i] != b0 || o.ca[i] != a0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (o *instancedModelObj) shouldCull() bool {
+	if o == nil || o.cullDistance <= 0 {
+		return false
+	}
+	cam, _ := ViewerPositionForRendering()
+	return rl.Vector3Distance(o.anchorPos(), cam) > o.cullDistance
 }
 
 // lodModelObj holds three detail levels; MODEL.SETLODDISTANCES configures distance bands.

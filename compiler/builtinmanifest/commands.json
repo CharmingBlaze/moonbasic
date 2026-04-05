@@ -2804,6 +2804,103 @@
       ]
     },
     {
+      "key": "INSTANCE.MAKE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "INSTANCE.SETPOS",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.SETROT",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.SETSCALE",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.SETMATRIX",
+      "args": [
+        "handle",
+        "int",
+        "handle"
+      ]
+    },
+    {
+      "key": "INSTANCE.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.UPDATEBUFFER",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "INSTANCE.SETCULLDISTANCE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.COUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "INSTANCE.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "INSTANCE.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "INSTANCE.DRAWLOD",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ]
+    },
+    {
       "key": "MODEL.DRAW",
       "args": [
         "handle"

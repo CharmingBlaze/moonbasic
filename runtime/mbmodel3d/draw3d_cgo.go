@@ -36,7 +36,9 @@ type deferredMeshRec struct {
 }
 
 type instancedDrawRec struct {
-	instH heap.Handle
+	instH    heap.Handle
+	lodMeshH heap.Handle // optional; 0 = use instanced model mesh only
+	lodDist  float32     // distance threshold for LOD mesh (INSTANCE.DRAWLOD / deferred)
 }
 
 func MarkCamera3DBegin(camX, camY, camZ float32) {
@@ -128,7 +130,11 @@ func FlushDeferred3D(h *heap.Store) {
 		if err != nil {
 			continue
 		}
-		drawInstancedColor(io, shadowOn)
+		var lod *meshObj
+		if id.lodMeshH != 0 {
+			lod, _ = heap.Cast[*meshObj](h, id.lodMeshH)
+		}
+		drawInstancedRaster(io, lod, id.lodDist, shadowOn)
 	}
 }
 
@@ -210,7 +216,17 @@ func drawDeferredModelShadowDepth(h *heap.Store, mh heap.Handle) {
 	}
 }
 
-func drawInstancedColor(io *instancedModelObj, shadowOn bool) {
+// drawInstancedRaster draws an instanced batch (immediate MODEL.DRAW, INSTANCE.DRAW, or deferred color pass).
+// When lodMesh is non-nil and lodDist > 0, uses lodMesh for instances beyond the distance threshold
+// (camera to instance centroid). Per-instance colors: uniform tint uses one DrawMeshInstanced; varying
+// tints fall back to per-instance DrawMesh (slower).
+func drawInstancedRaster(io *instancedModelObj, lodMesh *meshObj, lodDist float32, shadowOn bool) {
+	if io == nil {
+		return
+	}
+	if io.shouldCull() {
+		return
+	}
 	if io.meshIdx < 0 || io.meshIdx >= io.model.MeshCount {
 		return
 	}
@@ -220,18 +236,43 @@ func drawInstancedColor(io *instancedModelObj, shadowOn bool) {
 	mm := unsafe.Slice(io.model.MeshMaterial, io.model.MeshCount)
 	mid := mm[mi]
 	mesh := meshes[mi]
+	if lodMesh != nil && lodDist > 0 {
+		cam, _ := ViewerPositionForRendering()
+		if rl.Vector3Distance(io.anchorPos(), cam) > lodDist {
+			mesh = lodMesh.m
+		}
+	}
 	mat := mats[mid]
 	n := io.count
 	if n <= 0 || len(io.transforms) < n {
 		return
 	}
-	if shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled") {
+	shadowed := shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled")
+	if shadowed {
 		rl.SetMaterialTexture(&mat, rl.MapBrdf, shadowRT.Depth)
 		applyPBRUniformsIfAny(&mat, shadowOn)
 	}
-	rl.DrawMeshInstanced(mesh, mat, io.transforms[:n], n)
-	if shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled") {
-		rl.SetMaterialTexture(&mat, rl.MapBrdf, rl.Texture2D{})
+	if shadowed {
+		defer rl.SetMaterialTexture(&mat, rl.MapBrdf, rl.Texture2D{})
+	}
+
+	albedoMap := mat.GetMap(int32(rl.MapAlbedo))
+	if io.uniformInstanceColors() && io.cr[0] == 255 && io.cg[0] == 255 && io.cb[0] == 255 && io.ca[0] == 255 {
+		rl.DrawMeshInstanced(mesh, mat, io.transforms[:n], n)
+		return
+	}
+	if io.uniformInstanceColors() {
+		saved := albedoMap.Color
+		albedoMap.Color = rl.Color{R: uint8(io.cr[0]), G: uint8(io.cg[0]), B: uint8(io.cb[0]), A: uint8(io.ca[0])}
+		rl.DrawMeshInstanced(mesh, mat, io.transforms[:n], n)
+		albedoMap.Color = saved
+		return
+	}
+	for i := 0; i < n; i++ {
+		saved := albedoMap.Color
+		albedoMap.Color = rl.Color{R: uint8(io.cr[i]), G: uint8(io.cg[i]), B: uint8(io.cb[i]), A: uint8(io.ca[i])}
+		rl.DrawMesh(mesh, mat, io.transforms[i])
+		albedoMap.Color = saved
 	}
 }
 
@@ -254,6 +295,9 @@ func renderShadowPassDepth(h *heap.Store, meshes []deferredMeshRec, models []hea
 	for _, id := range inst {
 		io, err := heap.Cast[*instancedModelObj](h, id.instH)
 		if err != nil {
+			continue
+		}
+		if io.shouldCull() {
 			continue
 		}
 		if io.meshIdx < 0 || io.meshIdx >= io.model.MeshCount {
@@ -283,6 +327,9 @@ func lightCamera() rl.Camera3D {
 	}
 	ext := float32(35)
 	center := rl.Vector3{X: 0, Y: 2, Z: 0}
+	if tx, ty, tz, ok2 := mblight.LightShadowTarget(hs, hh); ok2 {
+		center = rl.Vector3{X: tx, Y: ty, Z: tz}
+	}
 	eye := rl.Vector3{
 		X: center.X - dx*ext,
 		Y: center.Y - dy*ext,
@@ -385,6 +432,8 @@ func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool) {
 	hh := mblight.ShadowCasterHandle()
 	lx, ly, lz, _ := mblight.LightDirection(hs, hh)
 	lr, lg, lb := mblight.LightDiffuse(hs, hh)
+	ar, ag, ab := sceneAmbientRGB()
+	sbk := mblight.LightShadowBiasK(hs, hh)
 
 	setInt := func(name string, v int32) {
 		loc := rl.GetShaderLocation(sh, name)
@@ -413,6 +462,8 @@ func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool) {
 	setVec3("camPos", activeCamPos.X, activeCamPos.Y, activeCamPos.Z)
 	setVec3("lightDir", lx, ly, lz)
 	setVec3("lightColor", lr, lg, lb)
+	setVec3("ambientColor", ar, ag, ab)
+	setFloat("shadowBiasK", sbk)
 	setInt("useNormalMap", useNorm)
 	setInt("shadowEnabled", boolToInt(shadowOn))
 	if shadowOn {
