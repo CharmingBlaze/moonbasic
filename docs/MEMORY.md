@@ -39,6 +39,7 @@ flowchart TB
 | **MaterialObject** | Owns material unless `moved` into a model — then model owns it; see [`materialObj`](../runtime/mbmodel3d/heap_types_cgo.go). |
 | **ModelObject** | Owns `rl.Model` (meshes + embedded materials); `UnloadModel` releases children. |
 | **WaterObject / terrain chunkSlot** | Each owns mesh **and** `LoadMaterialDefault()` material — **both** must be unloaded (see terrain/water `Free` and streaming unload). |
+| **NoiseObject** (`NOISE.*`) | Pure Go state (no C allocations). `Free()` clears state; `NOISE.FILLIMAGE` writes pixels via Raylib (`TagImage`) — the **image** handle still owns CPU/GPU resources per `Image` rules. |
 | **Physics** | Bodies/shapes: Jolt destruction order is enforced in [`runtime/physics3d`](../runtime/physics3d/) (Linux); stubs on unsupported OS — see [ARCHITECTURE.md](../ARCHITECTURE.md) §12. |
 
 ## Destruction order (rules of thumb)
@@ -67,6 +68,8 @@ The runtime avoids background workers for terrain mesh builds (main-thread Rayli
 | [`testdata/memtest_freeall.mb`](../testdata/memtest_freeall.mb) | Leak intentional handles; shutdown `FreeAll` must reclaim. |
 | [`testdata/memtest_basic.mb`](../testdata/memtest_basic.mb) | Tight create/free loop. |
 | [`testdata/memtest_streaming.mb`](../testdata/memtest_streaming.mb) | Terrain load/unload churn. |
+| [`testdata/noise_test.mb`](../testdata/noise_test.mb) | `NOISE.*` headless checks. |
+| [`testdata/noise_terrain.mb`](../testdata/noise_terrain.mb) | Windowed noise preview. |
 
 All should pass `go run . --check <file>`.
 

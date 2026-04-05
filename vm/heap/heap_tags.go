@@ -64,4 +64,23 @@ const (
 	TagBTree
 	TagLobby
 	TagQuaternion
+	TagGameTimer
+	TagGameStopwatch
+	TagGameTimerSim
+	TagCSV
+	TagTable
+	TagDB
+	TagDBStmt
+	TagDBRows
+	TagDBTx
+	TagTerrain
+	TagWater
+	TagSky
+	TagCloud
+	TagWeather
+	TagScatterSet
+	TagProp
+	TagBiome
+	TagBiomeMap
+	TagNoise
 )

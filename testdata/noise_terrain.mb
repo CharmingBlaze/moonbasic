@@ -1,0 +1,70 @@
+; Terrain-style preview: layered NOISE.* on a small height buffer, drawn as greyscale pixels
+
+Window.Open(900, 600, "Noise terrain preview")
+Window.SetFPS(60)
+
+WIDTH  = 96
+HEIGHT = 96
+DIM heights#(WIDTH * HEIGHT)
+
+mountains = Noise.MakeFractal(42, 0.003, 6, "ridged")
+plains    = Noise.MakeFractal(42, 0.008, 4, "fbm")
+detail    = Noise.MakePerlin(42, 0.04)
+warp      = Noise.MakeDomainWarp(42, 0.005, 100)
+
+FOR y = 0 TO HEIGHT - 1
+    FOR x = 0 TO WIDTH - 1
+        blend# = (Noise.GetDomainWarped(warp, x, y) + 1) * 0.5
+        m# = Noise.GetNorm(mountains, x, y)
+        p# = Noise.GetNorm(plains, x, y)
+        h# = m# * blend# + p# * (1 - blend#)
+        h# = h# + Noise.GetNorm(detail, x, y) * 0.05
+        IF h# < 0 THEN h# = 0
+        IF h# > 1 THEN h# = 1
+        heights#(y * WIDTH + x) = h#
+    NEXT
+NEXT
+
+Noise.Free(mountains)
+Noise.Free(plains)
+Noise.Free(detail)
+Noise.Free(warp)
+
+sea#   = 0.35
+sand#  = 0.38
+grass# = 0.60
+rock#  = 0.80
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(0, 0, 0)
+
+    FOR py = 0 TO 149
+        FOR px = 0 TO 199
+            sx = INT(px * WIDTH / 200)
+            sy = INT(py * HEIGHT / 150)
+            h# = heights#(sy * WIDTH + sx)
+
+            IF h# < sea# THEN
+                Draw.Pixel(20 + px, 20 + py, 30, 80, 180, 255)
+            ELSEIF h# < sand# THEN
+                Draw.Pixel(20 + px, 20 + py, 220, 200, 120, 255)
+            ELSEIF h# < grass# THEN
+                v = INT(h# * 200)
+                Draw.Pixel(20 + px, 20 + py, 50, v, 40, 255)
+            ELSEIF h# < rock# THEN
+                v = INT(h# * 180)
+                Draw.Pixel(20 + px, 20 + py, v, v - 20, v - 30, 255)
+            ELSE
+                v = INT(200 + h# * 55)
+                Draw.Pixel(20 + px, 20 + py, v, v, v, 255)
+            ENDIF
+        NEXT
+    NEXT
+
+    Draw.Text("NOISE terrain preview  ESC quit", 240, 20, 18, 255, 255, 200, 255)
+    Draw.Text("96x96 ridged + FBM + domain warp", 240, 50, 14, 200, 200, 200, 255)
+    Render.Frame()
+WEND
+
+ERASE(heights#)
+Window.Close()

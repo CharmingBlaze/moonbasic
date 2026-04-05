@@ -26,6 +26,7 @@ Summary (CGo-heavy types):
   TerrainObject       freed bool   chunk Mesh+Mat       TagTerrain      FIX: UnloadMaterial on free/stream/rebuild
 
 Non-CGo / Go-only handles:
+  noiseObj (NOISE.*)     freed bool   Go fields only       TagNoise        OK (NOISE.FILLIMAGE touches TagImage via Raylib)
   BiomeObject, ScatterObject, PropObject, WeatherObject, CloudObject — state only; freed= OK
   SkyObject — no GPU resources; OK
   jsonObj, csvObj, tableObj, dbObj* — Go/sqlite handles; Free closes DB/stmt/rows; OK

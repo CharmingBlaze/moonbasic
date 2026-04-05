@@ -1,0 +1,34 @@
+package noisemod
+
+import "moonbasic/runtime"
+
+func registerNoise(m *Module, r runtime.Registrar) {
+	r.Register("NOISE.MAKE", "noise", m.noiseMake)
+	r.Register("NOISE.FREE", "noise", m.noiseFree)
+	r.Register("NOISE.SETTYPE", "noise", m.noiseSetType)
+	r.Register("NOISE.SETSEED", "noise", m.noiseSetSeed)
+	r.Register("NOISE.SETFREQUENCY", "noise", m.noiseSetFrequency)
+	r.Register("NOISE.SETOCTAVES", "noise", m.noiseSetOctaves)
+	r.Register("NOISE.SETLACUNARITY", "noise", m.noiseSetLacunarity)
+	r.Register("NOISE.SETGAIN", "noise", m.noiseSetGain)
+	r.Register("NOISE.SETWEIGHTEDSTRENGTH", "noise", m.noiseSetWeightedStrength)
+	r.Register("NOISE.SETPINGPONGSTRENGTH", "noise", m.noiseSetPingPongStrength)
+	r.Register("NOISE.SETCELLULARTYPE", "noise", m.noiseSetCellularType)
+	r.Register("NOISE.SETCELLULARDISTANCE", "noise", m.noiseSetCellularDistance)
+	r.Register("NOISE.SETCELLULARJITTER", "noise", m.noiseSetCellularJitter)
+	r.Register("NOISE.SETDOMAINWARPTYPE", "noise", m.noiseSetDomainWarpType)
+	r.Register("NOISE.SETDOMAINWARPAMPLITUDE", "noise", m.noiseSetDomainWarpAmplitude)
+	r.Register("NOISE.GET", "noise", m.noiseGet)
+	r.Register("NOISE.GET3D", "noise", m.noiseGet3D)
+	r.Register("NOISE.GETDOMAINWARPED", "noise", m.noiseGetDomainWarped)
+	r.Register("NOISE.GETNORM", "noise", m.noiseGetNorm)
+	r.Register("NOISE.GETTILEABLE", "noise", m.noiseGetTileable)
+	r.Register("NOISE.FILLARRAY", "noise", m.noiseFillArray)
+	r.Register("NOISE.FILLARRAYNORM", "noise", m.noiseFillArrayNorm)
+	r.Register("NOISE.FILLIMAGE", "noise", m.noiseFillImage)
+	r.Register("NOISE.MAKEPERLIN", "noise", m.noiseMakePerlin)
+	r.Register("NOISE.MAKESIMPLEX", "noise", m.noiseMakeSimplex)
+	r.Register("NOISE.MAKEFRACTAL", "noise", m.noiseMakeFractal)
+	r.Register("NOISE.MAKECELLULAR", "noise", m.noiseMakeCellular)
+	r.Register("NOISE.MAKEDOMAINWARP", "noise", m.noiseMakeDomainWarp)
+}

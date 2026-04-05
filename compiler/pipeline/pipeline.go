@@ -25,6 +25,11 @@ import (
 	mbfont "moonbasic/runtime/font"
 	"moonbasic/runtime/input"
 	mbjson "moonbasic/runtime/jsonmod"
+	mbcsv "moonbasic/runtime/csvmod"
+	mbdb "moonbasic/runtime/dbmod"
+	mbtable "moonbasic/runtime/tablemod"
+	terrain "moonbasic/runtime/terrain"
+	worldmgr "moonbasic/runtime/worldmgr"
 	"moonbasic/runtime/mathmod"
 	mbarray "moonbasic/runtime/mbarray"
 	mbcollision "moonbasic/runtime/mbcollision"
@@ -48,6 +53,8 @@ import (
 	mbtween "moonbasic/runtime/mbtween"
 	mbutil "moonbasic/runtime/mbutil"
 	mbnet "moonbasic/runtime/net"
+	mnoise "moonbasic/runtime/noisemod"
+	mbgame "moonbasic/runtime/mbgame"
 	mbphysics2d "moonbasic/runtime/physics2d"
 	mbphysics3d "moonbasic/runtime/physics3d"
 	mbsprite "moonbasic/runtime/sprite"
@@ -55,6 +62,12 @@ import (
 	mbsystem "moonbasic/runtime/system"
 	"moonbasic/runtime/texture"
 	mbtime "moonbasic/runtime/time"
+	mwater "moonbasic/runtime/water"
+	msky "moonbasic/runtime/sky"
+	mcloud "moonbasic/runtime/cloudmod"
+	mweather "moonbasic/runtime/weathermod"
+	mscatter "moonbasic/runtime/scatter"
+	mbiome "moonbasic/runtime/biome"
 	"moonbasic/runtime/window"
 	"moonbasic/vm"
 	"moonbasic/vm/heap"
@@ -159,6 +172,7 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	// 1. Initialize Runtime
 	h := heap.New()
 	reg := runtime.NewRegistry(h)
+	reg.DebugMode = opts.Debug
 	reg.DiagOut = opts.Out
 	if opts.HostArgs != nil {
 		reg.HostArgs = opts.HostArgs
@@ -214,6 +228,19 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	reg.RegisterModule(mbgui.NewModule())
 	reg.RegisterModule(audMod)
 	reg.RegisterModule(mbjson.NewModule())
+	reg.RegisterModule(mbcsv.NewModule())
+	reg.RegisterModule(mbdb.NewModule())
+	reg.RegisterModule(mbtable.NewModule())
+	terrMod := terrain.NewModule()
+	worldMod := worldmgr.NewModule(terrMod)
+	reg.RegisterModule(terrMod)
+	reg.RegisterModule(worldMod)
+	reg.RegisterModule(mwater.NewModule())
+	reg.RegisterModule(msky.NewModule())
+	reg.RegisterModule(mcloud.NewModule())
+	reg.RegisterModule(mweather.NewModule())
+	reg.RegisterModule(mscatter.NewModule())
+	reg.RegisterModule(mbiome.NewModule())
 	netMod := mbnet.NewModule()
 	reg.RegisterModule(netMod)
 
@@ -224,6 +251,8 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	p3 := mbphysics3d.NewModule()
 	reg.RegisterModule(p3)
 	reg.RegisterModule(mbcollision.NewModule())
+	reg.RegisterModule(mnoise.NewModule())
+	reg.RegisterModule(mbgame.NewModule())
 
 	// Stubs for manifest entries not yet implemented natively
 	reg.RegisterFromManifest(builtinmanifest.Default())

@@ -1816,6 +1816,157 @@
       "returns": "handle"
     },
     {
+      "key": "NOISE.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.FREE",
+      "args": ["handle"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETTYPE",
+      "args": ["handle", "string"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETSEED",
+      "args": ["handle", "int"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETFREQUENCY",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETOCTAVES",
+      "args": ["handle", "int"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETLACUNARITY",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETGAIN",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETWEIGHTEDSTRENGTH",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETPINGPONGSTRENGTH",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETCELLULARTYPE",
+      "args": ["handle", "string"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETCELLULARDISTANCE",
+      "args": ["handle", "string"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETCELLULARJITTER",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETDOMAINWARPTYPE",
+      "args": ["handle", "string"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.SETDOMAINWARPAMPLITUDE",
+      "args": ["handle", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.GET",
+      "args": ["handle", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.GET3D",
+      "args": ["handle", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.GETDOMAINWARPED",
+      "args": ["handle", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.GETNORM",
+      "args": ["handle", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.GETTILEABLE",
+      "args": ["handle", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.FILLARRAY",
+      "args": ["handle", "handle", "int", "int", "float", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.FILLARRAYNORM",
+      "args": ["handle", "handle", "int", "int", "float", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.FILLIMAGE",
+      "args": ["handle", "handle", "float", "float"],
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.MAKEPERLIN",
+      "args": ["int", "float"],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.MAKESIMPLEX",
+      "args": ["int", "float"],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.MAKEFRACTAL",
+      "args": ["int", "float", "int", "string"],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.MAKECELLULAR",
+      "args": ["int", "float", "string"],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "NOISE.MAKEDOMAINWARP",
+      "args": ["int", "float", "float"],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
       "key": "PATH.ISVALID",
       "args": [
         "handle"
