@@ -2,6 +2,8 @@
 
 2D and 3D cameras map to Raylib `Camera2D` / `Camera3D`. In source, use the **`Camera`** and **`Camera2D`** namespaces (calls compile to `CAMERA.*` and `CAMERA2D.*`).
 
+**Threading:** Raylib windowing and GL calls run on the **main thread** (see [ARCHITECTURE.md](../../ARCHITECTURE.md)); do not invoke `CAMERA.*` / `CAMERA2D.*` from background goroutines.
+
 ---
 
 ## 3D camera (`Camera.*`)
@@ -58,6 +60,97 @@ Sets the camera **up** vector (world space).
 
 Frees the camera heap object.
 
+### `Camera.WorldToScreen(camera, wx#, wy#, wz#)`
+
+Projects a **world-space** point through the camera to **screen** coordinates (Raylib **`GetWorldToScreen`**). Returns a **handle** to a **2-float array**: `(screenX, screenY)`. Best used while the same camera is active for rendering (inside your 3D pass).
+
+### `Camera.IsOnScreen(camera, wx#, wy#, wz#)` / `Camera.IsOnScreen(camera, wx#, wy#, wz#, margin#)`
+
+Returns **`TRUE`** if the projected point lies inside the current render rectangle, optionally expanded by **`margin#`** pixels on each side.
+
+### `Camera.MouseRay(camera)`
+
+Like **`Camera.GetRay`**, but uses **`GetMousePosition`** for **`screenX` / `screenY`** and the current render size. Returns a **6-float ray** handle (origin + direction).
+
+---
+
+## Culling and visibility (`Cull.*`)
+
+Open-world and large 3D scenes should **not** issue a draw call for every object every frame. **CPU-side culling** decides visibility **before** `Draw3D.*` / `Model.Draw` / `Terrain.Draw` runs, so the GPU never receives geometry that is certainly invisible.
+
+moonBASIC extracts the **view frustum** automatically when you call **`Camera.Begin`**: it combines Raylib’s projection and view matrices (`projection * view`), derives **six clip planes** (left, right, bottom, top, near, far), and stores **pitch**, **vertical FOV**, and **camera position** for distance and horizon helpers. **`Camera.End`** clears that state.
+
+**Conservative rule:** tests may mark something visible when it is not (false positive); they must **never** hide something that is actually visible (no false negatives). Distance and frustum tests are tuned for that.
+
+### Frustum math (short)
+
+Each plane is `ax + by + cz + d = 0` with a **normalised** normal `(a,b,c)`. A point is on the **visible** side when `ax + by + cz + d > 0`.
+
+- **Sphere:** For each plane, compute `distance = a*cx + b*cy + c*cz + d`. If `distance < -r` for **any** plane, the sphere is entirely outside — **cull**. Otherwise it may intersect the frustum.
+- **AABB (axis-aligned box):** For each plane, pick the **positive vertex**: the corner of the box that is farthest along the plane normal `(a,b,c)` (per axis, use `min` or `max` depending on the sign of `a`, `b`, `c`). If that vertex is behind the plane (`distance < 0`), the whole box is outside — **cull**.
+- **Combined matrix:** Planes come from the **same** `projection * view` as rendering, using the current render aspect ratio at **`Camera.Begin`**. Raylib’s `Matrix` stores rows as `(M0,M4,M8,M12)`, …; **column** vectors are `(M0..M3)`, `(M4..M7)`, `(M8..M11)`, `(M12..M15)`. Gribb–Hartmann combinations `c3 ± c0`, `c3 ± c1`, `c3 ± c2` yield the six planes, then each plane is **normalised** so distances are metric.
+
+### Recommended test order (cheapest first)
+
+1. **`Cull.InRange`** (squared distance, no `sqrt`) — drop far objects.
+2. **`Cull.BehindHorizon`** — cheap reject for terrain when the camera is high (optional; terrain drawing uses this internally).
+3. **`Cull.SphereVisible` / `Cull.AABBVisible` / `Cull.PointVisible`** — frustum tests.
+4. **Occlusion** — Phase B (future); APIs exist now and remain stable.
+
+### When the frustum is “active”
+
+Between **`Camera.Begin`** and **`Camera.End`**, frustum tests use the **current** camera. **`Cull.InRange`**, **`Cull.Distance`**, and **`Cull.DistanceSq`** compare against the **last** camera position captured at **`Camera.Begin`**. If you call **`Cull.SphereVisible`** (or AABB/point) **outside** a Begin/End pair, the implementation returns **`TRUE`** (do not cull) so scripts do not accidentally hide objects; you simply get no frustum benefit until you move the test inside Begin/End.
+
+**`Cull.SetMaxDistance` / `Cull.GetMaxDistance`** set a **global default** draw distance (world units). It is used by:
+
+- **`Cull.InRange(cx, cy, cz)`** (three arguments) — compares to that default.
+- **`Cull.SphereVisible`**, **`Cull.AABBVisible`**, **`Cull.PointVisible`** — apply distance **before** frustum, using the same default.
+
+### Per-command reference
+
+| Command | Arguments | Returns | Notes |
+|--------|-----------|---------|--------|
+| **`Cull.SphereVisible`** | `cx#, cy#, cz#, r#` | `bool` | Inside Begin/End: distance (default max) then frustum. Outside Begin/End: always `TRUE`. |
+| **`Cull.AABBVisible`** | `minX#, minY#, minZ#, maxX#, maxY#, maxZ#` | `bool` | Uses box centre for distance vs default max, then AABB/frustum test. |
+| **`Cull.PointVisible`** | `x#, y#, z#` | `bool` | Cheapest frustum test; still uses default distance first. |
+| **`Cull.InRange`** | `cx#, cy#, cz#` **or** `cx#, cy#, cz#, maxdist#` | `bool` | Three-arg form uses **`Cull.SetMaxDistance`**. If no active Begin, returns **`TRUE`** (no distance reject). |
+| **`Cull.Distance`** | `cx#, cy#, cz#` | `float` | Euclidean distance to last Begin camera; **`0`** if no Begin yet. |
+| **`Cull.DistanceSq`** | `cx#, cy#, cz#` | `float` | Squared distance; no `sqrt`. |
+| **`Cull.BehindHorizon`** | `camera, maxY#, cx#, cz#` | `bool` | **`TRUE`** if terrain/feature top at `maxY` over `(cx,cz)` is fully below the camera’s bottom-of-view angle (uses camera pitch + FOV). Does **not** require Begin/End. |
+| **`Cull.BatchSphere`** | `positions, radii, results` | — | **`positions`**: 1D float array `[x0,y0,z0,x1,y1,z1,…]`. **`radii`**: one float per sphere. **`results`**: bool array (same length as radii). Writes **`TRUE`/`FALSE`** per index. Uses default max distance + frustum when Begin is active. |
+| **`Cull.OcclusionEnable`** | `enable?` | `bool` | Phase A: stores flag; returns **`TRUE`**. Phase B: depth pyramid. |
+| **`Cull.OccluderAdd`** | `model` | — | Phase A: records handle for future use. |
+| **`Cull.OccluderClear`** | — | — | Clears occluder list. |
+| **`Cull.IsOccluded`** | `cx#, cy#, cz#, r#` | `bool` | Phase A: always **`FALSE`**. |
+| **`Cull.SetBackfaceCulling`** | `enable?` | — | Maps to Raylib **`EnableBackfaceCulling`** / **`DisableBackfaceCulling`**. |
+| **`Cull.SetMaxDistance`** | `maxdist#` | — | Default world radius for distance culling. |
+| **`Cull.GetMaxDistance`** | — | `float` | Current default. |
+| **`Cull.StatsReset`** | — | — | Zeros all counters — call **once per frame** before your cull tests if you want clean numbers. |
+| **`Cull.StatsTotal`** | — | `int` | Tests recorded (sphere/AABB/point/batch iteration / horizon). |
+| **`Cull.StatsCulled`** | — | `int` | Count that failed a test (sum of culled outcomes). |
+| **`Cull.StatsVisible`** | — | `int` | Count that passed. |
+| **`Cull.StatsFrustumCulled`** / **`Cull.StatsDistanceCulled`** / **`Cull.StatsHorizonCulled`** / **`Cull.StatsOcclusionCulled`** | — | `int` | Breakdown (occlusion stays **0** in Phase A). |
+
+### Terrain integration
+
+**`Terrain.Draw`** (inside **`Camera.Begin`**) skips chunks that fail, in order:
+
+1. **`BehindHorizonActive`** — uses pitch/FOV from **`Camera.Begin`**.
+2. **`WithinDistanceActive`** — chunk centre vs **`Cull.SetMaxDistance`** default.
+3. **`AABBVisibleActive`** — world AABB from chunk footprint and cached **min/max height** from the heightfield (stored when the chunk mesh is rebuilt).
+
+Chunk **min/max Y** are cached in the terrain runtime so height is not rescanned every frame for drawing or culling. **`Cull.StatsReset`** is **not** called from **`Terrain.Draw`**; reset stats in your own loop when you want a clean HUD.
+
+### Phase B — occlusion
+
+Future work: software depth pyramid / conservative occlusion against terrain. **`Cull.OcclusionEnable`**, **`Cull.OccluderAdd`**, **`Cull.OccluderClear`**, **`Cull.IsOccluded`** keep stable names and arguments; Phase A behaviour is documented above.
+
+### Troubleshooting
+
+- **0% culled, stats idle:** **`Cull.StatsReset`** not called, or cull calls run **outside** **`Camera.Begin`** / **`Camera.End`**, or the camera never moves relative to objects.
+- **Everything culled:** **`Cull.SetMaxDistance`** too small, wrong bounds, or objects placed outside the valid frustum.
+- **Terrain pops or missing chunks:** verify **`World.Update`**, **`Chunk.SetRange`**, and that **`Terrain.Draw`** runs **inside** the same **`Camera.Begin`** used for gameplay.
+
 ---
 
 ## 2D camera (`Camera2D.*`)
@@ -101,3 +194,4 @@ Each returns a **handle** to a **2-float array** `[x#, y#]` for the converted po
 
 - [DRAW2D.md](DRAW2D.md), [DRAW3D.md](DRAW3D.md) — what to draw inside each mode.
 - [RENDER.md](RENDER.md) — `Render.Clear` / `Render.Frame` and GPU state.
+- **Culling** — see **§ Culling and visibility (`Cull.*`)** above; sample: [`testdata/culling_test.mb`](../../testdata/culling_test.mb).
