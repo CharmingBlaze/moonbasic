@@ -1,0 +1,75 @@
+Third-party / advanced library command inventory (moonBASIC runtime)
+======================================================================
+Generated for integration planning. This repo registers natives with
+runtime.Registrar.Register("KEY", ...) — not a symbol named RegisterBuiltin.
+
+Filter used for spec namespaces: NOISE|ECS.|MESH.OPTIM|NAV.|ASSIMP|CGLTF|IMAGE.|STB.|YOJIMBO|ASEPRITE
+
+NAV.* (runtime/mbnav)
+---------------------
+NAV.MAKE                 DONE    runtime/mbnav/register_*.go
+NAV.FREE                 DONE
+NAV.SETGRID              DONE
+NAV.ADDTERRAIN           DONE
+NAV.ADDOBSTACLE          DONE
+NAV.BUILD                DONE
+NAV.FINDPATH             DONE
+
+PATH.* / NAVAGENT.* / STEER.* / BTREE.*  DONE (same package; see mbnav/register_*.go)
+
+MESH.OPTIM* (meshoptimizer)
+----------------------------
+MESH.OPTIMISE            MISSING   (not registered; MESH.* = procedural/raylib mesh ops only)
+
+NOISE.* (stateful noise — runtime/noisemod + runtime/procnoise)
+---------------------------------------------------------------
+NOISE.MAKE               DONE      runtime/noisemod/register.go
+NOISE.FREE               DONE
+NOISE.SETTYPE            DONE
+NOISE.SETSEED            DONE
+NOISE.SETFREQUENCY       DONE
+NOISE.SETOCTAVES         DONE
+NOISE.SETLACUNARITY      DONE
+NOISE.SETGAIN            DONE
+NOISE.SETWEIGHTEDSTRENGTH DONE
+NOISE.SETPINGPONGSTRENGTH DONE
+NOISE.SETCELLULARTYPE    DONE
+NOISE.SETCELLULARDISTANCE DONE
+NOISE.SETCELLULARJITTER  DONE
+NOISE.SETDOMAINWARPTYPE  DONE
+NOISE.SETDOMAINWARPAMPLITUDE DONE
+NOISE.GET                DONE
+NOISE.GET3D              DONE
+NOISE.GETDOMAINWARPED    DONE
+NOISE.GETNORM            DONE
+NOISE.GETTILEABLE        DONE
+NOISE.FILLARRAY          DONE
+NOISE.FILLARRAYNORM      DONE
+NOISE.FILLIMAGE          DONE (CGO: Raylib image pixels; stub error when !cgo)
+NOISE.MAKEPERLIN         DONE
+NOISE.MAKESIMPLEX        DONE
+NOISE.MAKEFRACTAL        DONE
+NOISE.MAKECELLULAR       DONE
+NOISE.MAKEDOMAINWARP     DONE
+
+Note: Legacy global PERLIN / SIMPLEX / VORONOI / FBMNOISE in mbgame still call the same
+runtime/procnoise core (seed 0) for backward compatibility — prefer NOISE.* for stateful setups.
+
+ECS.* (Flecs)
+-------------
+ECS.MAKE                 MISSING   (no runtime/ecsmod)
+
+ASSIMP.*                 MISSING   (no runtime/assimpmod)
+CGLTF.*                  MISSING   (no runtime/cgltfmod)
+
+IMAGE.* (stb via Raylib)
+------------------------
+IMAGE.LOAD, IMAGE.EXPORT, IMAGE.*  DONE   runtime/mbimage (see docs; not duplicated as STB.*)
+
+STB.*                    MISSING   (explicit STB namespace not used — Raylib wraps stb)
+
+YOJIMBO.*                MISSING   (ENet used via NET.* / runtime/net)
+
+ASEPRITE.*               MISSING   (no runtime/aseprite tool module)
+
+End of inventory (2026-04-05).
