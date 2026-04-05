@@ -3422,6 +3422,17 @@
       ]
     },
     {
+      "key": "IMAGE.MAKE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
       "key": "IMAGE.MAKECOPY",
       "args": [
         "handle"

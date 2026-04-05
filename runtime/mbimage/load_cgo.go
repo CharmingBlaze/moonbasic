@@ -51,25 +51,29 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 		return m.allocImage(img, "IMAGE.LOADRAW")
 	})
 
-	reg.Register("IMAGE.MAKEBLANK", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		if err := m.requireHeap(); err != nil {
-			return value.Nil, err
+	makeBlank := func(op string) func([]value.Value) (value.Value, error) {
+		return func(args []value.Value) (value.Value, error) {
+			if err := m.requireHeap(); err != nil {
+				return value.Nil, err
+			}
+			if len(args) != 6 {
+				return value.Nil, fmt.Errorf("%s expects width, height, r, g, b, a", op)
+			}
+			w, ok1 := argInt(args[0])
+			h, ok2 := argInt(args[1])
+			if !ok1 || !ok2 {
+				return value.Nil, fmt.Errorf("%s: width and height must be numeric", op)
+			}
+			col, err := rgbaFromArgs(args[2], args[3], args[4], args[5])
+			if err != nil {
+				return value.Nil, fmt.Errorf("%s: %w", op, err)
+			}
+			img := rl.GenImageColor(int(w), int(h), col)
+			return m.allocImage(img, op)
 		}
-		if len(args) != 6 {
-			return value.Nil, fmt.Errorf("IMAGE.MAKEBLANK expects width, height, r, g, b, a")
-		}
-		w, ok1 := argInt(args[0])
-		h, ok2 := argInt(args[1])
-		if !ok1 || !ok2 {
-			return value.Nil, fmt.Errorf("IMAGE.MAKEBLANK: width and height must be numeric")
-		}
-		col, err := rgbaFromArgs(args[2], args[3], args[4], args[5])
-		if err != nil {
-			return value.Nil, fmt.Errorf("IMAGE.MAKEBLANK: %w", err)
-		}
-		img := rl.GenImageColor(int(w), int(h), col)
-		return m.allocImage(img, "IMAGE.MAKEBLANK")
-	}))
+	}
+	reg.Register("IMAGE.MAKEBLANK", "image", runtime.AdaptLegacy(makeBlank("IMAGE.MAKEBLANK")))
+	reg.Register("IMAGE.MAKE", "image", runtime.AdaptLegacy(makeBlank("IMAGE.MAKE")))
 
 	reg.Register("IMAGE.MAKECOPY", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {

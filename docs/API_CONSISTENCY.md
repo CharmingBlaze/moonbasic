@@ -2,17 +2,39 @@
 
 This document is generated from `compiler/builtinmanifest/commands.json`.
 
-Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository root).
+Refresh: `go run ./tools/apidoc` (from the repository root).
+
+## Related documentation
+
+- **[ERROR_MESSAGES.md](../ERROR_MESSAGES.md)** — compile-time vs runtime errors, did-you-mean, heap handle hints.
+- **[ROADMAP.md](../ROADMAP.md)** — phased engineering plan (polish → rendering → 2D → systems → …).
 
 ## Naming conventions
 
 - **Registry / source form**: `NS.ACTION` in uppercase with a dot (e.g. `CAMERA.SETPOS`).
-- **Handle methods** (on a handle value): `cam.SetPos` dispatches to `CAMERA.SETPOS`. **`SetPosition`** is an alias for **`SetPos`** on spatial types.
-- **Spatial handles** (`Camera3D`, `Body3D`, `CharController`, `Model`, `Sprite`): use **`SetPos`** / `SETPOS` (sprite: x,y; others: x,y,z).
+- **Handle methods** (on a handle value): `cam.SetPos` dispatches to `CAMERA.SETPOS`. **`SetPosition`** is an alias for **`SetPos`** where both are registered (same handler).
+- **Spatial handles** (`Camera3D`, `Body3D`, `Model`, `Sprite`, `Light2D`): use **`SETPOS`** for position. Aliases **`SETPOSITION`** exist for **Camera**, **Model**, **Body3D**, **Sprite**, **Light2D** — same implementation as `SETPOS`.
+- **3D lights** (`LIGHT.*`): directional lights use **`LIGHT.SETDIR(x,y,z)`** (normalized internally), not `SETPOS` — lights are not placed like entities.
 - **`MODEL.SETPOS`**: sets the model root transform to a **translation matrix** (replaces prior rotation/scale on that matrix).
-- **`LIGHT.MAKE`**: zero arguments -> directional, white, intensity 1.0 (config handle for future lighting).
-- **`BODY3D.MAKE`**: zero arguments -> **DYNAMIC** motion builder.
-- **Errors**: include **file and line** when available; unknown commands use **did-you-mean** against the live registry.
+- **Creation verbs**: `*.MAKE` for procedural handles; `*.LOAD` for assets (`SPRITE.LOAD`, `MODEL.LOAD`); materials use `MATERIAL.MAKEDEFAULT` / `MATERIAL.MAKEPBR`.
+
+## Default values (common `Make` paths)
+
+| Command | Defaults |
+|----------|----------|
+| `CAMERA.MAKE` | position (0, 2, 8), target (0, 0, 0), up (0, 1, 0), FOV 45°, perspective |
+| `LIGHT.MAKE` | kind `directional`, white, intensity 1.0, direction toward normalized (-1,-2,-1) |
+| `BODY3D.MAKE` | no args → **DYNAMIC** motion type |
+| `MATERIAL.MAKEDEFAULT` / `MAKEPBR` | see `runtime/mbmodel3d` (material modules) |
+
+## Debug watch overlay
+
+`DEBUG.WATCH(label$, value)` stores rows; `DEBUG.WATCHCLEAR` clears them. With **CGO** and Raylib, the window pipeline may draw a **top-left overlay** each frame (`runtime/mbdebug/overlay_cgo.go`) when **`DEBUG.ENABLE`** was called or the host enabled **`Registry.DebugMode`** (e.g. **`--debug`**). **`DEBUG.DISABLE`** clears the user override. Without CGO, watches are stored but not drawn.
+
+## Errors
+
+- **Compile-time**: unknown `NS.METHOD` → did-you-mean within namespace + manifest listing (see `compiler/semantic/cmdhint.go`).
+- **Runtime**: VM wraps native errors with **source file and line** when available (`vm/vm.go`). Unknown registry keys → `runtime.FormatUnknownRegistryCommand`.
 
 ## Commands by namespace
 
@@ -27,6 +49,13 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### ANGLEDIFF
 
 - **`ANGLEDIFF`** - args: any, any
+
+### ANIM
+
+- **`ANIM.ADDTRANSITION`** - args: handle, string, string, string
+- **`ANIM.DEFINE`** - args: handle, string, int, int, float, bool
+- **`ANIM.SETPARAM`** - args: handle, string, any
+- **`ANIM.UPDATE`** - args: handle, float
 
 ### ARGC
 
@@ -116,6 +145,12 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`ATAN2`** - args: any, any
 
+### ATLAS
+
+- **`ATLAS.FREE`** - args: handle
+- **`ATLAS.GETSPRITE`** - args: handle, string -> returns handle
+- **`ATLAS.LOAD`** - args: string, string -> returns handle
+
 ### ATN
 
 - **`ATN`** - args: any
@@ -200,6 +235,7 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 ### BODY3D
 
+- **`BODY3D.ACTIVATE`** - args: handle
 - **`BODY3D.ADDBOX`** - args: handle, float, float, float
 - **`BODY3D.ADDCAPSULE`** - args: handle, float, float
 - **`BODY3D.ADDMESH`** - args: handle, handle
@@ -207,13 +243,14 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`BODY3D.APPLYFORCE`** - args: handle, float, float, float
 - **`BODY3D.APPLYIMPULSE`** - args: handle, float, float, float
 - **`BODY3D.COMMIT`** - args: handle, float, float, float -> returns handle
+- **`BODY3D.DEACTIVATE`** - args: handle
 - **`BODY3D.FREE`** - args: handle
 - **`BODY3D.GETPOS`** - args: handle -> returns handle
 - **`BODY3D.GETROT`** - args: handle -> returns handle
 - **`BODY3D.MAKE`** - args: (none) -> returns handle
 - **`BODY3D.MAKE`** - args: (none) -> returns handle
-- **`BODY3D.MAKE`** - args: string -> returns handle
 - **`BODY3D.MAKE`** - args: string
+- **`BODY3D.MAKE`** - args: string -> returns handle
 - **`BODY3D.SETANGULARVEL`** - args: handle, float, float, float
 - **`BODY3D.SETFRICTION`** - args: handle, float
 - **`BODY3D.SETLINEARVEL`** - args: handle, float, float, float
@@ -265,6 +302,15 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`BTOGGLE`** - args: any, int
 
+### BTREE
+
+- **`BTREE.ADDACTION`** - args: handle, string
+- **`BTREE.ADDCONDITION`** - args: handle, string
+- **`BTREE.FREE`** - args: handle
+- **`BTREE.MAKE`** - args: (none) -> returns handle
+- **`BTREE.RUN`** - args: handle, handle, float
+- **`BTREE.SEQUENCE`** - args: handle -> returns handle
+
 ### BXOR
 
 - **`BXOR`** - args: any, any
@@ -286,7 +332,13 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### CAMERA2D
 
 - **`CAMERA2D.BEGIN`** - args: (none)
+- **`CAMERA2D.BEGIN`** - args: handle
 - **`CAMERA2D.END`** - args: (none)
+- **`CAMERA2D.MAKE`** - args: (none) -> returns handle
+- **`CAMERA2D.SETOFFSET`** - args: handle, float, float
+- **`CAMERA2D.SETROTATION`** - args: handle, float
+- **`CAMERA2D.SETTARGET`** - args: handle, float, float
+- **`CAMERA2D.SETZOOM`** - args: handle, float
 
 ### CEIL
 
@@ -327,6 +379,15 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`CLAMP`** - args: any, any, any
 
+### CLIENT
+
+- **`CLIENT.CONNECT`** - args: string, int
+- **`CLIENT.ONCONNECT`** - args: string
+- **`CLIENT.ONMESSAGE`** - args: string
+- **`CLIENT.ONSYNC`** - args: string
+- **`CLIENT.STOP`** - args: (none)
+- **`CLIENT.TICK`** - args: float
+
 ### CLIPBOARD
 
 - **`CLIPBOARD.GETIMAGE`** - args: (none) -> returns handle
@@ -364,6 +425,17 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`COMMAND$`** - args: (none)
 - **`COMMAND$`** - args: int
+
+### COMPUTESHADER
+
+- **`COMPUTESHADER.BUFFERFREE`** - args: handle
+- **`COMPUTESHADER.BUFFERMAKE`** - args: int -> returns handle
+- **`COMPUTESHADER.DISPATCH`** - args: handle, int, int, int
+- **`COMPUTESHADER.FREE`** - args: handle
+- **`COMPUTESHADER.LOAD`** - args: string -> returns handle
+- **`COMPUTESHADER.SETBUFFER`** - args: handle, int, handle
+- **`COMPUTESHADER.SETFLOAT`** - args: handle, string, float
+- **`COMPUTESHADER.SETINT`** - args: handle, string, int
 
 ### CONTAINS
 
@@ -453,6 +525,15 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`DEBUG.WATCH`** - args: string, any
 - **`DEBUG.WATCHCLEAR`** - args: (none)
 
+### DECAL
+
+- **`DECAL.DRAW`** - args: handle
+- **`DECAL.FREE`** - args: handle
+- **`DECAL.MAKE`** - args: handle -> returns handle
+- **`DECAL.SETLIFETIME`** - args: handle, float
+- **`DECAL.SETPOS`** - args: handle, float, float, float
+- **`DECAL.SETSIZE`** - args: handle, float, float
+
 ### DEG2RAD
 
 - **`DEG2RAD`** - args: any
@@ -483,6 +564,32 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### E
 
 - **`E`** - args: (none)
+
+### EFFECT
+
+- **`EFFECT.BLOOM`** - args: bool
+- **`EFFECT.BLOOM`** - args: bool, float
+- **`EFFECT.BLOOM`** - args: bool, float, float
+- **`EFFECT.CHROMATICABERRATION`** - args: bool
+- **`EFFECT.CHROMATICABERRATION`** - args: bool, float
+- **`EFFECT.DEPTHOFFIELD`** - args: bool
+- **`EFFECT.DEPTHOFFIELD`** - args: bool, float
+- **`EFFECT.DEPTHOFFIELD`** - args: bool, float, float
+- **`EFFECT.GRAIN`** - args: bool
+- **`EFFECT.GRAIN`** - args: bool, float
+- **`EFFECT.MOTIONBLUR`** - args: bool
+- **`EFFECT.MOTIONBLUR`** - args: bool, float
+- **`EFFECT.SHARPEN`** - args: bool
+- **`EFFECT.SHARPEN`** - args: bool, float
+- **`EFFECT.SSAO`** - args: bool
+- **`EFFECT.SSAO`** - args: bool, float
+- **`EFFECT.SSAO`** - args: bool, float, float
+- **`EFFECT.SSR`** - args: bool
+- **`EFFECT.SSR`** - args: bool, float
+- **`EFFECT.SSR`** - args: bool, float, float
+- **`EFFECT.TONEMAPPING`** - args: string
+- **`EFFECT.VIGNETTE`** - args: bool
+- **`EFFECT.VIGNETTE`** - args: bool, float
 
 ### ENDSWITH
 
@@ -528,7 +635,16 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 ### EVENT
 
+- **`EVENT.CHANNEL`** - args: handle -> returns int
 - **`EVENT.DATA`** - args: handle -> returns string
+- **`EVENT.FIRE`** - args: string
+- **`EVENT.FIRE`** - args: string, any
+- **`EVENT.FIRE`** - args: string, any, any
+- **`EVENT.FIRE`** - args: string, any, any, any
+- **`EVENT.FIRE`** - args: string, any, any, any, any
+- **`EVENT.FIRE`** - args: string, any, any, any, any, any
+- **`EVENT.FIRE`** - args: string, any, any, any, any, any, any
+- **`EVENT.FIRE`** - args: string, any, any, any, any, any, any, any
 - **`EVENT.FREE`** - args: handle
 - **`EVENT.ISPLAYING`** - args: (none) -> returns bool
 - **`EVENT.LISTCLEAR`** - args: handle
@@ -537,6 +653,9 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`EVENT.LISTFREE`** - args: handle
 - **`EVENT.LISTLOAD`** - args: string -> returns handle
 - **`EVENT.LISTMAKE`** - args: string -> returns handle
+- **`EVENT.OFF`** - args: string, string
+- **`EVENT.ON`** - args: string, string
+- **`EVENT.ONCE`** - args: string, string
 - **`EVENT.PEER`** - args: handle -> returns handle
 - **`EVENT.RECPLAYING`** - args: (none) -> returns bool
 - **`EVENT.RECSTART`** - args: (none)
@@ -649,6 +768,86 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`GETFILESIZE`** - args: string
 
+### GUI
+
+- **`GUI.BUTTON`** - args: float, float, float, float, string -> returns bool
+- **`GUI.CHECKBOX`** - args: float, float, float, float, string, bool -> returns bool
+- **`GUI.COLORBARALPHA`** - args: float, float, float, float, string, float -> returns float
+- **`GUI.COLORBARHUE`** - args: float, float, float, float, string, float -> returns float
+- **`GUI.COLORPANEL`** - args: float, float, float, float, string, int, int, int, int -> returns handle
+- **`GUI.COLORPANELHSV`** - args: float, float, float, float, string, handle -> returns int
+- **`GUI.COLORPICKER`** - args: float, float, float, float, string, int, int, int, int -> returns handle
+- **`GUI.COLORPICKERHSV`** - args: float, float, float, float, string, handle -> returns int
+- **`GUI.COMBOBOX`** - args: float, float, float, float, string, int -> returns int
+- **`GUI.DISABLE`** - args: (none)
+- **`GUI.DISABLETOOLTIP`** - args: (none)
+- **`GUI.DRAWICON`** - args: int, int, int, int, int, int, int, int
+- **`GUI.DRAWRECTANGLE`** - args: float, float, float, float, int, int, int, int, int, int, int, int, int
+- **`GUI.DRAWTEXT`** - args: string, float, float, float, float, int, int, int, int, int
+- **`GUI.DROPDOWNBOX`** - args: float, float, float, float, string, handle -> returns bool
+- **`GUI.DUMMYREC`** - args: float, float, float, float, string
+- **`GUI.ENABLE`** - args: (none)
+- **`GUI.ENABLETOOLTIP`** - args: (none)
+- **`GUI.FADE`** - args: int, int, int, int, float -> returns handle
+- **`GUI.GETCOLOR`** - args: int, int -> returns handle
+- **`GUI.GETSTATE`** - args: (none) -> returns int
+- **`GUI.GETSTYLE`** - args: int, int -> returns int
+- **`GUI.GETTEXTBOUNDS`** - args: int, float, float, float, float -> returns handle
+- **`GUI.GETTEXTSIZE`** - args: (none) -> returns int
+- **`GUI.GETTEXTWIDTH`** - args: string -> returns int
+- **`GUI.GRID`** - args: float, float, float, float, string, float, int, handle -> returns int
+- **`GUI.GROUPBOX`** - args: float, float, float, float, string
+- **`GUI.ICONTEXT`** - args: int, string -> returns string
+- **`GUI.ISLOCKED`** - args: (none) -> returns bool
+- **`GUI.LABEL`** - args: float, float, float, float, string
+- **`GUI.LABELBUTTON`** - args: float, float, float, float, string -> returns bool
+- **`GUI.LINE`** - args: float, float, float, float, string
+- **`GUI.LISTVIEW`** - args: float, float, float, float, string, handle -> returns int
+- **`GUI.LISTVIEWEX`** - args: float, float, float, float, string, handle -> returns int
+- **`GUI.LOADDEFAULTSTYLE`** - args: (none)
+- **`GUI.LOADICONS`** - args: string, bool
+- **`GUI.LOADICONSMEM`** - args: string, bool
+- **`GUI.LOADSTYLE`** - args: string
+- **`GUI.LOADSTYLEMEM`** - args: string
+- **`GUI.LOCK`** - args: (none)
+- **`GUI.MESSAGEBOX`** - args: float, float, float, float, string, string, string -> returns int
+- **`GUI.PANEL`** - args: float, float, float, float, string
+- **`GUI.PROGRESSBAR`** - args: float, float, float, float, string, string, float, float, float -> returns float
+- **`GUI.SCROLLBAR`** - args: float, float, float, float, int, int, int -> returns int
+- **`GUI.SCROLLPANEL`** - args: float, float, float, float, string, float, float, float, float, handle
+- **`GUI.SETALPHA`** - args: float
+- **`GUI.SETCOLOR`** - args: int, int, int, int, int, int
+- **`GUI.SETFONT`** - args: handle
+- **`GUI.SETICONSCALE`** - args: int
+- **`GUI.SETSTATE`** - args: int
+- **`GUI.SETSTYLE`** - args: int, int, int
+- **`GUI.SETTEXTALIGN`** - args: int
+- **`GUI.SETTEXTALIGNVERT`** - args: int
+- **`GUI.SETTEXTLINEHEIGHT`** - args: int
+- **`GUI.SETTEXTSIZE`** - args: int
+- **`GUI.SETTEXTSPACING`** - args: int
+- **`GUI.SETTEXTWRAP`** - args: int
+- **`GUI.SETTOOLTIP`** - args: string
+- **`GUI.SLIDER`** - args: float, float, float, float, string, string, float, float, float -> returns float
+- **`GUI.SLIDERBAR`** - args: float, float, float, float, string, string, float, float, float -> returns float
+- **`GUI.SPINNER`** - args: float, float, float, float, string, int, int, int, bool -> returns int
+- **`GUI.STATUSBAR`** - args: float, float, float, float, string
+- **`GUI.TABBAR`** - args: float, float, float, float, string, handle -> returns int
+- **`GUI.TEXTBOX`** - args: float, float, float, float, string, int, bool -> returns string
+- **`GUI.TEXTINPUTBOX`** - args: float, float, float, float, string, string, string, string, int, handle -> returns int
+- **`GUI.TEXTINPUTLAST$`** - args: (none) -> returns string
+- **`GUI.THEMEAPPLY`** - args: string
+- **`GUI.THEMENAMES$`** - args: (none) -> returns string
+- **`GUI.TOGGLE`** - args: float, float, float, float, string, bool -> returns bool
+- **`GUI.TOGGLEGROUP`** - args: float, float, float, float, string -> returns int
+- **`GUI.TOGGLEGROUPAT`** - args: float, float, float, float, string, int -> returns int
+- **`GUI.TOGGLESLIDER`** - args: float, float, float, float, string, int -> returns int
+- **`GUI.UNLOCK`** - args: (none)
+- **`GUI.VALUEBOX`** - args: float, float, float, float, string, int, int, int, bool -> returns int
+- **`GUI.VALUEBOXFLOAT`** - args: float, float, float, float, string, float, string, bool -> returns float
+- **`GUI.VALUEBOXFLOATTEXT$`** - args: (none) -> returns string
+- **`GUI.WINDOWBOX`** - args: float, float, float, float, string -> returns bool
+
 ### HEX$
 
 - **`HEX$`** - args: int
@@ -663,6 +862,8 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 ### IMAGE
 
+- **`IMAGE.ALPHACLEAR`** - args: handle, int, int, int, int, float
+- **`IMAGE.ALPHACROP`** - args: handle, float
 - **`IMAGE.CLEARBACKGROUND`** - args: handle, int, int, int, int
 - **`IMAGE.COLORBRIGHTNESS`** - args: handle, int
 - **`IMAGE.COLORCONTRAST`** - args: handle, float
@@ -671,14 +872,18 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`IMAGE.COLORREPLACE`** - args: handle, int, int, int, int, int, int, int, int
 - **`IMAGE.COLORTINT`** - args: handle, int, int, int, int
 - **`IMAGE.CROP`** - args: handle, int, int, int, int
+- **`IMAGE.DITHER`** - args: handle, int, int, int, int
 - **`IMAGE.DRAWCIRCLE`** - args: handle, int, int, int, int, int, int, int
+- **`IMAGE.DRAWIMAGE`** - args: handle, handle, float, float, float, float, float, float, float, float, int, int, int, int
 - **`IMAGE.DRAWLINE`** - args: handle, int, int, int, int, int, int, int, int
 - **`IMAGE.DRAWPIXEL`** - args: handle, int, int, int, int, int, int
 - **`IMAGE.DRAWRECT`** - args: handle, int, int, int, int, int, int, int, int
+- **`IMAGE.DRAWRECTLINES`** - args: handle, float, float, float, float, int, int, int, int, int
 - **`IMAGE.DRAWTEXT`** - args: handle, int, int, string, int, int, int, int, int
 - **`IMAGE.EXPORT`** - args: handle, string
 - **`IMAGE.FLIPH`** - args: handle
 - **`IMAGE.FLIPV`** - args: handle
+- **`IMAGE.FORMAT`** - args: handle, int
 - **`IMAGE.FREE`** - args: handle
 - **`IMAGE.GETBBOXH`** - args: handle, float
 - **`IMAGE.GETBBOXW`** - args: handle, float
@@ -691,9 +896,11 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`IMAGE.HEIGHT`** - args: handle
 - **`IMAGE.LOAD`** - args: string
 - **`IMAGE.LOADRAW`** - args: string, int, int, int, int
+- **`IMAGE.MAKE`** - args: int, int, int, int, int, int
 - **`IMAGE.MAKEBLANK`** - args: int, int, int, int, int, int
 - **`IMAGE.MAKECOPY`** - args: handle
 - **`IMAGE.MAKETEXT`** - args: string, int, int, int, int, int
+- **`IMAGE.MIPMAPS`** - args: handle
 - **`IMAGE.RESIZE`** - args: handle, int, int
 - **`IMAGE.RESIZENN`** - args: handle, int, int
 - **`IMAGE.ROTATE`** - args: handle, int
@@ -704,6 +911,10 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### INPUT
 
 - **`INPUT`** - args: string -> returns string
+- **`INPUT.ACTIONAXIS`** - args: string -> returns float
+- **`INPUT.ACTIONDOWN`** - args: string -> returns bool
+- **`INPUT.ACTIONPRESSED`** - args: string -> returns bool
+- **`INPUT.ACTIONRELEASED`** - args: string -> returns bool
 - **`INPUT.GAMEPADAXISCOUNT`** - args: int -> returns int
 - **`INPUT.GAMEPADBUTTONCOUNT`** - args: int -> returns int
 - **`INPUT.GETKEYNAME`** - args: int -> returns string
@@ -712,9 +923,14 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`INPUT.KEYDOWN`** - args: any
 - **`INPUT.KEYPRESSED`** - args: any
 - **`INPUT.KEYUP`** - args: any
+- **`INPUT.LOADMAPPINGS`** - args: string
+- **`INPUT.MAPGAMEPADAXIS`** - args: string, int, int
+- **`INPUT.MAPGAMEPADBUTTON`** - args: string, int, int
+- **`INPUT.MAPKEY`** - args: string, int
 - **`INPUT.MOUSEDOWN`** - args: int
 - **`INPUT.MOUSEX`** - args: (none)
 - **`INPUT.MOUSEY`** - args: (none)
+- **`INPUT.SAVEMAPPINGS`** - args: string
 - **`INPUT.SETGAMEPADMAPPINGS`** - args: string -> returns int
 - **`INPUT.SETMOUSEOFFSET`** - args: int, int
 - **`INPUT.SETMOUSESCALE`** - args: float, float
@@ -817,6 +1033,28 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`LIGHT.MAKE`** - args: (none) -> returns handle
 - **`LIGHT.MAKE`** - args: string -> returns handle
+- **`LIGHT.SETDIR`** - args: handle, float, float, float
+- **`LIGHT.SETSHADOW`** - args: handle, bool
+
+### LIGHT2D
+
+- **`LIGHT2D.FREE`** - args: handle
+- **`LIGHT2D.MAKE`** - args: (none) -> returns handle
+- **`LIGHT2D.SETCOLOR`** - args: handle, int, int, int, int
+- **`LIGHT2D.SETINTENSITY`** - args: handle, float
+- **`LIGHT2D.SETPOS`** - args: handle, float, float
+- **`LIGHT2D.SETRADIUS`** - args: handle, float
+
+### LOBBY
+
+- **`LOBBY.CREATE`** - args: string, int -> returns handle
+- **`LOBBY.FIND`** - args: string, string -> returns handle
+- **`LOBBY.FREE`** - args: handle
+- **`LOBBY.GETNAME`** - args: handle -> returns string
+- **`LOBBY.JOIN`** - args: handle
+- **`LOBBY.SETHOST`** - args: handle, string, int
+- **`LOBBY.SETPROPERTY`** - args: handle, string, string
+- **`LOBBY.START`** - args: handle
 
 ### LOCATE
 
@@ -854,25 +1092,6 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`MAKEDIRS`** - args: string
 
-### TRANSFORM
-
-- **`TRANSFORM.APPLYX`** - args: handle, float, float, float -> returns float
-- **`TRANSFORM.APPLYY`** - args: handle, float, float, float -> returns float
-- **`TRANSFORM.APPLYZ`** - args: handle, float, float, float -> returns float
-- **`TRANSFORM.FREE`** - args: handle
-- **`TRANSFORM.GETELEMENT`** - args: handle, int, int -> returns float
-- **`TRANSFORM.IDENTITY`** - args: (none) -> returns handle
-- **`TRANSFORM.INVERSE`** - args: handle -> returns handle
-- **`TRANSFORM.LOOKAT`** - args: float, float, float, float, float, float, float, float, float -> returns handle
-- **`TRANSFORM.MULTIPLY`** - args: handle, handle -> returns handle
-- **`TRANSFORM.ORTHO`** - args: float, float, float, float, float, float -> returns handle
-- **`TRANSFORM.PERSPECTIVE`** - args: float, float, float, float -> returns handle
-- **`TRANSFORM.ROTATION`** - args: float, float, float -> returns handle
-- **`TRANSFORM.SCALE`** - args: float, float, float -> returns handle
-- **`TRANSFORM.SETROTATION`** - args: handle, float, float, float
-- **`TRANSFORM.TRANSLATION`** - args: float, float, float -> returns handle
-- **`TRANSFORM.TRANSPOSE`** - args: handle -> returns handle
-
 ### MAT4
 
 - **`MAT4.FREE`** - args: handle
@@ -897,6 +1116,7 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`MATERIAL.FREE`** - args: handle
 - **`MATERIAL.MAKEDEFAULT`** - args: (none)
+- **`MATERIAL.MAKEPBR`** - args: (none) -> returns handle
 - **`MATERIAL.SETCOLOR`** - args: handle, int, int, int, int, int
 - **`MATERIAL.SETFLOAT`** - args: handle, int, float
 - **`MATERIAL.SETSHADER`** - args: handle, handle
@@ -1042,11 +1262,14 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`MODEL.ATTACHTO`** - args: handle, handle
 - **`MODEL.CLONE`** - args: handle
 - **`MODEL.DETACH`** - args: handle
+- **`MODEL.DRAW`** - args: handle
 - **`MODEL.EXISTS`** - args: handle
 - **`MODEL.FREE`** - args: handle
 - **`MODEL.GETMATERIALCOUNT`** - args: handle
 - **`MODEL.INSTANCE`** - args: handle
 - **`MODEL.LOAD`** - args: string
+- **`MODEL.LOADLOD`** - args: string, string, string -> returns handle
+- **`MODEL.MAKEINSTANCED`** - args: string, int -> returns handle
 - **`MODEL.ROTATETEXTURE`** - args: handle, float
 - **`MODEL.SCALETEXTURE`** - args: handle, float, float
 - **`MODEL.SCROLLTEXTURE`** - args: handle, float, float
@@ -1059,7 +1282,10 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`MODEL.SETEMISSIVE`** - args: handle, int, int, int
 - **`MODEL.SETFOG`** - args: handle, bool
 - **`MODEL.SETGPUSKINNING`** - args: handle, bool
+- **`MODEL.SETINSTANCEPOS`** - args: handle, int, float, float, float
+- **`MODEL.SETINSTANCESCALE`** - args: handle, int, float, float, float
 - **`MODEL.SETLIGHTING`** - args: handle, bool
+- **`MODEL.SETLODDISTANCES`** - args: handle, float, float, float
 - **`MODEL.SETMATERIAL`** - args: handle, int, handle
 - **`MODEL.SETMATERIALSHADER`** - args: handle, int, handle
 - **`MODEL.SETMATERIALTEXTURE`** - args: handle, int, int, handle
@@ -1074,6 +1300,7 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`MODEL.SETSTAGESCROLL`** - args: handle, int, float, float
 - **`MODEL.SETTEXTURESTAGE`** - args: handle, int, handle
 - **`MODEL.SETWIREFRAME`** - args: handle, bool
+- **`MODEL.UPDATEINSTANCES`** - args: handle
 
 ### MONTH
 
@@ -1082,6 +1309,31 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### MOVEFILE
 
 - **`MOVEFILE`** - args: string, string
+
+### NAV
+
+- **`NAV.ADDOBSTACLE`** - args: handle, handle
+- **`NAV.ADDTERRAIN`** - args: handle, handle
+- **`NAV.BUILD`** - args: handle
+- **`NAV.FINDPATH`** - args: handle, float, float, float, float, float, float -> returns handle
+- **`NAV.FREE`** - args: handle
+- **`NAV.MAKE`** - args: (none) -> returns handle
+- **`NAV.SETGRID`** - args: handle, int, int, float, float, float
+
+### NAVAGENT
+
+- **`NAVAGENT.APPLYFORCE`** - args: handle, float, float, float
+- **`NAVAGENT.FREE`** - args: handle
+- **`NAVAGENT.ISATDESTINATION`** - args: handle -> returns bool
+- **`NAVAGENT.MAKE`** - args: handle -> returns handle
+- **`NAVAGENT.MOVETO`** - args: handle, float, float, float
+- **`NAVAGENT.SETMAXFORCE`** - args: handle, float
+- **`NAVAGENT.SETPOS`** - args: handle, float, float, float
+- **`NAVAGENT.SETSPEED`** - args: handle, float
+- **`NAVAGENT.UPDATE`** - args: handle, float
+- **`NAVAGENT.X`** - args: handle -> returns float
+- **`NAVAGENT.Y`** - args: handle -> returns float
+- **`NAVAGENT.Z`** - args: handle -> returns float
 
 ### NET
 
@@ -1099,6 +1351,37 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`NET.STOP`** - args: (none)
 - **`NET.UPDATE`** - args: handle
 
+### NOISE
+
+- **`NOISE.FILLARRAY`** - args: handle, handle, int, int, float, float
+- **`NOISE.FILLARRAYNORM`** - args: handle, handle, int, int, float, float
+- **`NOISE.FILLIMAGE`** - args: handle, handle, float, float
+- **`NOISE.FREE`** - args: handle
+- **`NOISE.GET`** - args: handle, float, float -> returns float
+- **`NOISE.GET3D`** - args: handle, float, float, float -> returns float
+- **`NOISE.GETDOMAINWARPED`** - args: handle, float, float -> returns float
+- **`NOISE.GETNORM`** - args: handle, float, float -> returns float
+- **`NOISE.GETTILEABLE`** - args: handle, float, float, float, float -> returns float
+- **`NOISE.MAKE`** - args: (none) -> returns handle
+- **`NOISE.MAKECELLULAR`** - args: int, float, string -> returns handle
+- **`NOISE.MAKEDOMAINWARP`** - args: int, float, float -> returns handle
+- **`NOISE.MAKEFRACTAL`** - args: int, float, int, string -> returns handle
+- **`NOISE.MAKEPERLIN`** - args: int, float -> returns handle
+- **`NOISE.MAKESIMPLEX`** - args: int, float -> returns handle
+- **`NOISE.SETCELLULARDISTANCE`** - args: handle, string
+- **`NOISE.SETCELLULARJITTER`** - args: handle, float
+- **`NOISE.SETCELLULARTYPE`** - args: handle, string
+- **`NOISE.SETDOMAINWARPAMPLITUDE`** - args: handle, float
+- **`NOISE.SETDOMAINWARPTYPE`** - args: handle, string
+- **`NOISE.SETFREQUENCY`** - args: handle, float
+- **`NOISE.SETGAIN`** - args: handle, float
+- **`NOISE.SETLACUNARITY`** - args: handle, float
+- **`NOISE.SETOCTAVES`** - args: handle, int
+- **`NOISE.SETPINGPONGSTRENGTH`** - args: handle, float
+- **`NOISE.SETSEED`** - args: handle, int
+- **`NOISE.SETTYPE`** - args: handle, string
+- **`NOISE.SETWEIGHTEDSTRENGTH`** - args: handle, float
+
 ### OCT$
 
 - **`OCT$`** - args: int -> returns string
@@ -1106,6 +1389,32 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### OPENFILE
 
 - **`OPENFILE`** - args: string, string
+
+### PARTICLE
+
+- **`PARTICLE.DRAW`** - args: handle
+- **`PARTICLE.FREE`** - args: handle
+- **`PARTICLE.MAKE`** - args: (none) -> returns handle
+- **`PARTICLE.PLAY`** - args: handle
+- **`PARTICLE.SETCOLOR`** - args: handle, int, int, int, int
+- **`PARTICLE.SETCOLOREND`** - args: handle, int, int, int, int
+- **`PARTICLE.SETEMITRATE`** - args: handle, float
+- **`PARTICLE.SETGRAVITY`** - args: handle, float
+- **`PARTICLE.SETLIFETIME`** - args: handle, float, float
+- **`PARTICLE.SETPOS`** - args: handle, float, float, float
+- **`PARTICLE.SETSIZE`** - args: handle, float, float
+- **`PARTICLE.SETTEXTURE`** - args: handle, handle
+- **`PARTICLE.SETVELOCITY`** - args: handle, float, float, float, float
+- **`PARTICLE.UPDATE`** - args: handle, float
+
+### PATH
+
+- **`PATH.FREE`** - args: handle
+- **`PATH.ISVALID`** - args: handle -> returns bool
+- **`PATH.NODECOUNT`** - args: handle -> returns int
+- **`PATH.NODEX`** - args: handle, int -> returns float
+- **`PATH.NODEY`** - args: handle, int -> returns float
+- **`PATH.NODEZ`** - args: handle, int -> returns float
 
 ### PEER
 
@@ -1147,6 +1456,22 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`PINGPONG`** - args: any, any
 
+### POOL
+
+- **`POOL.FREE`** - args: handle
+- **`POOL.GET`** - args: handle -> returns handle
+- **`POOL.MAKE`** - args: string, int -> returns handle
+- **`POOL.PREWARM`** - args: handle
+- **`POOL.RETURN`** - args: handle, handle
+- **`POOL.SETFACTORY`** - args: handle, string
+- **`POOL.SETRESET`** - args: handle, string
+
+### POST
+
+- **`POST.ADD`** - args: string
+- **`POST.ADDSHADER`** - args: handle
+- **`POST.SETPARAM`** - args: string, string, float
+
 ### POW
 
 - **`POW`** - args: any, any
@@ -1166,6 +1491,22 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### PRINTLN
 
 - **`PRINTLN`** - args: any
+
+### QUAT
+
+- **`QUAT.FREE`** - args: handle
+- **`QUAT.FROMAXISANGLE`** - args: float, float, float, float -> returns handle
+- **`QUAT.FROMEULER`** - args: float, float, float -> returns handle
+- **`QUAT.FROMMAT4`** - args: handle -> returns handle
+- **`QUAT.FROMVEC3TOVEC3`** - args: handle, handle -> returns handle
+- **`QUAT.IDENTITY`** - args: (none) -> returns handle
+- **`QUAT.INVERT`** - args: handle -> returns handle
+- **`QUAT.MULTIPLY`** - args: handle, handle -> returns handle
+- **`QUAT.NORMALIZE`** - args: handle -> returns handle
+- **`QUAT.SLERP`** - args: handle, handle, float -> returns handle
+- **`QUAT.TOEULER`** - args: handle -> returns handle
+- **`QUAT.TOMAT4`** - args: handle -> returns handle
+- **`QUAT.TRANSFORM`** - args: handle, handle -> returns handle
 
 ### QUIT
 
@@ -1326,6 +1667,7 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`RENDER.ENDSHADER`** - args: (none)
 - **`RENDER.FRAME`** - args: (none)
 - **`RENDER.SCREENSHOT`** - args: string
+- **`RENDER.SET2DAmbIENT`** - args: int, int, int, int
 - **`RENDER.SETAMBIENT`** - args: float, float, float
 - **`RENDER.SETBLEND`** - args: int
 - **`RENDER.SETBLENDMODE`** - args: int
@@ -1336,8 +1678,10 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`RENDER.SETFPS`** - args: int
 - **`RENDER.SETIBLINTENSITY`** - args: float
 - **`RENDER.SETIBLSPLIT`** - args: float, float
+- **`RENDER.SETMODE`** - args: string
 - **`RENDER.SETMSAA`** - args: bool
 - **`RENDER.SETSCISSOR`** - args: int, int, int, int
+- **`RENDER.SETSHADOWMAPSIZE`** - args: int
 - **`RENDER.SETSHADOWMAPSIZE`** - args: int
 - **`RENDER.SETSKYBOX`** - args: string
 - **`RENDER.SETWIREFRAME`** - args: bool
@@ -1376,6 +1720,33 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`ROUND`** - args: any
 - **`ROUND`** - args: any, any
 
+### RPC
+
+- **`RPC.CALL`** - args: string
+- **`RPC.CALL`** - args: string, any
+- **`RPC.CALL`** - args: string, any, any
+- **`RPC.CALL`** - args: string, any, any, any
+- **`RPC.CALL`** - args: string, any, any, any, any
+- **`RPC.CALL`** - args: string, any, any, any, any, any
+- **`RPC.CALL`** - args: string, any, any, any, any, any, any
+- **`RPC.CALL`** - args: string, any, any, any, any, any, any, any
+- **`RPC.CALLSERVER`** - args: string
+- **`RPC.CALLSERVER`** - args: string, any
+- **`RPC.CALLSERVER`** - args: string, any, any
+- **`RPC.CALLSERVER`** - args: string, any, any, any
+- **`RPC.CALLSERVER`** - args: string, any, any, any, any
+- **`RPC.CALLSERVER`** - args: string, any, any, any, any, any
+- **`RPC.CALLSERVER`** - args: string, any, any, any, any, any, any
+- **`RPC.CALLSERVER`** - args: string, any, any, any, any, any, any, any
+- **`RPC.CALLTO`** - args: handle, string
+- **`RPC.CALLTO`** - args: handle, string, any
+- **`RPC.CALLTO`** - args: handle, string, any, any
+- **`RPC.CALLTO`** - args: handle, string, any, any, any
+- **`RPC.CALLTO`** - args: handle, string, any, any, any, any
+- **`RPC.CALLTO`** - args: handle, string, any, any, any, any, any
+- **`RPC.CALLTO`** - args: handle, string, any, any, any, any, any, any
+- **`RPC.CALLTO`** - args: handle, string, any, any, any, any, any, any, any
+
 ### RSET$
 
 - **`RSET$`** - args: string, int -> returns string
@@ -1384,6 +1755,17 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`RTRIM$`** - args: string -> returns string
 
+### SCENE
+
+- **`SCENE.CURRENT`** - args: (none) -> returns string
+- **`SCENE.DRAW`** - args: (none)
+- **`SCENE.LOAD`** - args: string
+- **`SCENE.LOADASYNC`** - args: string
+- **`SCENE.LOADWITHTRANSITION`** - args: string, string, float
+- **`SCENE.REGISTER`** - args: string, string
+- **`SCENE.SETHANDLERS`** - args: string, string
+- **`SCENE.UPDATE`** - args: float
+
 ### SECOND
 
 - **`SECOND`** - args: (none)
@@ -1391,6 +1773,17 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### SEEKFILE
 
 - **`SEEKFILE`** - args: handle, string, int
+
+### SERVER
+
+- **`SERVER.ONCONNECT`** - args: string
+- **`SERVER.ONDISCONNECT`** - args: string
+- **`SERVER.ONMESSAGE`** - args: string
+- **`SERVER.SETTICKRATE`** - args: float
+- **`SERVER.START`** - args: int, int
+- **`SERVER.STOP`** - args: (none)
+- **`SERVER.SYNCENTITY`** - args: handle, float
+- **`SERVER.TICK`** - args: float
 
 ### SETDIR
 
@@ -1402,7 +1795,15 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 ### SHADER
 
+- **`SHADER.FREE`** - args: handle
+- **`SHADER.GETLOC`** - args: handle, string -> returns int
 - **`SHADER.LOAD`** - args: string, string
+- **`SHADER.SETFLOAT`** - args: handle, string, float
+- **`SHADER.SETINT`** - args: handle, string, int
+- **`SHADER.SETTEXTURE`** - args: handle, string, handle
+- **`SHADER.SETVEC2`** - args: handle, string, float, float
+- **`SHADER.SETVEC3`** - args: handle, string, float, float, float
+- **`SHADER.SETVEC4`** - args: handle, string, float, float, float, float
 
 ### SIN
 
@@ -1455,6 +1856,19 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 ### STARTSWITH
 
 - **`STARTSWITH`** - args: string, string -> returns bool
+
+### STEER
+
+- **`STEER.ARRIVE`** - args: handle, float, float, float, float -> returns handle
+- **`STEER.AVOIDOBSTACLES`** - args: handle, float -> returns handle
+- **`STEER.FLEE`** - args: handle, float, float, float -> returns handle
+- **`STEER.FLOCK`** - args: handle, handle, float, float, float -> returns handle
+- **`STEER.FOLLOWPATH`** - args: handle, handle -> returns handle
+- **`STEER.GROUPADD`** - args: handle, handle
+- **`STEER.GROUPCLEAR`** - args: handle
+- **`STEER.GROUPMAKE`** - args: (none) -> returns handle
+- **`STEER.SEEK`** - args: handle, float, float, float -> returns handle
+- **`STEER.WANDER`** - args: handle, float, float -> returns handle
 
 ### STOP
 
@@ -1527,6 +1941,25 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`TICKCOUNT`** - args: (none)
 
+### TILEMAP
+
+- **`TILEMAP.COLLISIONAT`** - args: handle, int, int -> returns int
+- **`TILEMAP.DRAW`** - args: handle
+- **`TILEMAP.DRAWLAYER`** - args: handle, int
+- **`TILEMAP.FREE`** - args: handle
+- **`TILEMAP.GETTILE`** - args: handle, int, int, int -> returns int
+- **`TILEMAP.HEIGHT`** - args: handle -> returns int
+- **`TILEMAP.ISSOLID`** - args: handle, int, int -> returns bool
+- **`TILEMAP.ISSOLIDCATEGORY`** - args: handle, int, int, int -> returns bool
+- **`TILEMAP.LAYERCOUNT`** - args: handle -> returns int
+- **`TILEMAP.LAYERNAME`** - args: handle, int -> returns string
+- **`TILEMAP.LOAD`** - args: string -> returns handle
+- **`TILEMAP.MERGECOLLISIONLAYER`** - args: handle, int, int
+- **`TILEMAP.SETCOLLISION`** - args: handle, int, int, int
+- **`TILEMAP.SETTILE`** - args: handle, int, int, int, int
+- **`TILEMAP.SETTILESIZE`** - args: handle, int, int
+- **`TILEMAP.WIDTH`** - args: handle -> returns int
+
 ### TIME
 
 - **`TIME.DELTA`** - args: (none)
@@ -1548,9 +1981,48 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 
 - **`TRACE`** - args: any
 
+### TRANSFORM
+
+- **`TRANSFORM.APPLYX`** - args: handle, float, float, float -> returns float
+- **`TRANSFORM.APPLYY`** - args: handle, float, float, float -> returns float
+- **`TRANSFORM.APPLYZ`** - args: handle, float, float, float -> returns float
+- **`TRANSFORM.FREE`** - args: handle
+- **`TRANSFORM.GETELEMENT`** - args: handle, int, int -> returns float
+- **`TRANSFORM.IDENTITY`** - args: (none) -> returns handle
+- **`TRANSFORM.INVERSE`** - args: handle -> returns handle
+- **`TRANSFORM.LOOKAT`** - args: float, float, float, float, float, float, float, float, float -> returns handle
+- **`TRANSFORM.MULTIPLY`** - args: handle, handle -> returns handle
+- **`TRANSFORM.ORTHO`** - args: float, float, float, float, float, float -> returns handle
+- **`TRANSFORM.PERSPECTIVE`** - args: float, float, float, float -> returns handle
+- **`TRANSFORM.ROTATION`** - args: float, float, float -> returns handle
+- **`TRANSFORM.SCALE`** - args: float, float, float -> returns handle
+- **`TRANSFORM.SETROTATION`** - args: handle, float, float, float
+- **`TRANSFORM.TRANSLATION`** - args: float, float, float -> returns handle
+- **`TRANSFORM.TRANSPOSE`** - args: handle -> returns handle
+
+### TRANSITION
+
+- **`TRANSITION.FADEIN`** - args: float
+- **`TRANSITION.FADEOUT`** - args: float
+- **`TRANSITION.ISDONE`** - args: (none) -> returns bool
+- **`TRANSITION.SETCOLOR`** - args: int, int, int, int
+- **`TRANSITION.WIPE`** - args: string, float
+
 ### TRIM$
 
 - **`TRIM$`** - args: string
+
+### TWEEN
+
+- **`TWEEN.LOOP`** - args: handle, int
+- **`TWEEN.MAKE`** - args: (none) -> returns handle
+- **`TWEEN.ONCOMPLETE`** - args: handle, string
+- **`TWEEN.START`** - args: handle
+- **`TWEEN.STOP`** - args: handle
+- **`TWEEN.THEN`** - args: handle, string, float, float, string
+- **`TWEEN.TO`** - args: handle, string, float, float, string
+- **`TWEEN.UPDATE`** - args: handle, float
+- **`TWEEN.YOYO`** - args: handle
 
 ### TYPEOF
 
@@ -1598,12 +2070,14 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`VEC2.ROTATE`** - args: handle, float -> returns handle
 - **`VEC2.SET`** - args: handle, float, float
 - **`VEC2.SUB`** - args: handle, handle -> returns handle
+- **`VEC2.TRANSFORMMAT4`** - args: handle, handle -> returns handle
 - **`VEC2.X`** - args: handle -> returns float
 - **`VEC2.Y`** - args: handle -> returns float
 
 ### VEC3
 
 - **`VEC3.ADD`** - args: handle, handle -> returns handle
+- **`VEC3.ANGLE`** - args: handle, handle -> returns float
 - **`VEC3.CROSS`** - args: handle, handle -> returns handle
 - **`VEC3.DISTANCE`** - args: handle, handle -> returns float
 - **`VEC3.DIV`** - args: handle, float -> returns handle
@@ -1616,9 +2090,13 @@ Refresh: `go run ./tools/apidoc > docs/API_CONSISTENCY.md` (from the repository 
 - **`VEC3.MUL`** - args: handle, float -> returns handle
 - **`VEC3.NEGATE`** - args: handle -> returns handle
 - **`VEC3.NORMALIZE`** - args: handle -> returns handle
+- **`VEC3.ORTHONORMALIZE`** - args: handle, handle
+- **`VEC3.PROJECT`** - args: handle, handle -> returns handle
 - **`VEC3.REFLECT`** - args: handle, handle -> returns handle
+- **`VEC3.ROTATEBYQUAT`** - args: handle, handle -> returns handle
 - **`VEC3.SET`** - args: handle, float, float, float
 - **`VEC3.SUB`** - args: handle, handle -> returns handle
+- **`VEC3.TRANSFORMMAT4`** - args: handle, handle -> returns handle
 - **`VEC3.X`** - args: handle -> returns float
 - **`VEC3.Y`** - args: handle -> returns float
 - **`VEC3.Z`** - args: handle -> returns float

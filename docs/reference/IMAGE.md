@@ -13,6 +13,7 @@
 | `Image.Load(path$)` | file path | handle | `LoadImage` |
 | `Image.LoadRaw(path$, w, h, format, headerSize)` | raw pixel file | handle | Raylib `PixelFormat` as `format` int |
 | `Image.MakeBlank(w, h, r, g, b, a)` | size + clear color | handle | Filled rectangle |
+| `Image.Make(w, h, r, g, b, a)` | same as `MakeBlank` | handle | Alias: `IMAGE.MAKE` — same behavior as `IMAGE.MAKEBLANK` |
 | `Image.MakeCopy(img)` | image handle | handle | Deep copy |
 | `Image.MakeText(text$, fontSize, r, g, b, a)` | string + style | handle | Transparent canvas; draws text with default font (fixed layout heuristic) |
 | `Image.Export(img, path$)` | handle + path | bool | Writes file (format from extension) |
@@ -121,6 +122,14 @@ WEND
 Texture.Free(tex)
 Window.Close()
 ```
+
+---
+
+## Common mistakes
+
+- **Using `Image.*` when you meant GPU drawing** — `Image` is a CPU buffer. To show it on screen, call **`Texture.FromImage`**, draw with **`Draw.Texture`**, then **`Texture.Free`** (and **`Image.Free`** if you no longer need the CPU copy).
+- **Forgetting `Image.Free`** — Each load/create returns a heap handle; leak checks and long-running tools expect paired **`Image.Free`**.
+- **`IMAGE.MAKE` vs `IMAGE.MAKEBLANK`** — They are the same operation; use either name.
 
 ---
 
