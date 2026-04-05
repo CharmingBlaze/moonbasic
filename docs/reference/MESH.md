@@ -1,72 +1,154 @@
 # Mesh — `MESH.*`
 
-CPU mesh geometry for **`MESH.Draw`** / **`MESH.DRAWROTATED`** with a **material** and **matrix** handle. Meshes are **Raylib `Mesh`** values stored in the VM heap (`TagMesh`).
+**CPU mesh geometry** (Raylib `Mesh`) stored in the VM heap (`TypeName` **`Mesh`**, `TagMesh`). Use **`MESH.UPLOAD`** to send vertex data to the GPU, then **`MESH.DRAW`** or **`MESH.DRAWROTATED`** with a **`MATERIAL.*`** handle. Meshes are **not** full **`MODEL.*`** objects (no bundled materials or hierarchy).
 
-**Requires CGO** (same as **`MODEL.*`**, **`Camera.*`**).
+**Requires CGO** (same as **`MODEL.*`**, **`Camera.*`**, **`MATERIAL.*`**).
+
+Registry keys use **dots and uppercase** (e.g. `MESH.MAKECUBE`).
 
 ---
 
-## Procedural generators
+### Mesh.MakeCube / procedural generators
 
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `MESH.MAKEPOLY` | `sides, radius#` | Regular polygon prism |
-| `MESH.MAKEPLANE` | `width#, length#, resX, resZ` | Subdivided plane |
-| `MESH.MAKECUBE` | `width#, height#, length#` | Axis-aligned box |
-| `MESH.MAKESPHERE` | `radius#, rings, slices` | UV sphere |
-| `MESH.MAKECYLINDER` | `radius#, height#, slices` | |
-| `MESH.MAKECONE` | `radius#, height#, slices` | |
-| `MESH.MAKETORUS` | `radius#, size#, radSeg, sides` | |
-| `MESH.MAKEKNOT` | `radius#, size#, radSeg, sides` | Trefoil-style knot |
-| `MESH.MAKEHEIGHTMAP` | `image, sizeX#, sizeY#, sizeZ#` | **Image** heightfield → mesh |
-| `MESH.MAKECUBICMAP` | `image, cubeX#, cubeY#, cubeZ#` | Cubic map from **image** |
+```basic
+m = MESH.MAKECUBE(width#, height#, length#)
+m = MESH.MAKESPHERE(radius#, rings, slices)
+m = MESH.MAKEPLANE(width#, length#, resX, resZ)
+; … see table below
+```
 
-### Legacy aliases (same Raylib generators)
+**Parameters** — Raylib **`GenMesh*`** rules apply (units are world units; planes use **resX/resZ** subdivisions).
 
-| Command | Same as |
-|--------|---------|
+**Returns** — mesh handle.
+
+**Notes** — After **`Window.Open`**, call **`MESH.UPLOAD(m, dynamic?)`** before **`MESH.DRAW`** (Raylib uploads VBOs). **`dynamic?`** is **`TRUE`** if you will **`MESH.UPDATEVERTEX`** every frame.
+
+| Command | Arguments |
+|---|---|
+| `MESH.MAKEPOLY` | `sides, radius#` |
+| `MESH.MAKEPLANE` | `width#, length#, resX, resZ` |
+| `MESH.MAKECUBE` | `width#, height#, length#` |
+| `MESH.MAKESPHERE` | `radius#, rings, slices` |
+| `MESH.MAKECYLINDER` | `radius#, height#, slices` |
+| `MESH.MAKECONE` | `radius#, height#, slices` |
+| `MESH.MAKETORUS` | `radius#, size#, radSeg, sides` |
+| `MESH.MAKEKNOT` | `radius#, size#, radSeg, sides` |
+| `MESH.MAKEHEIGHTMAP` | `image, sizeX#, sizeY#, sizeZ#` |
+| `MESH.MAKECUBICMAP` | `image, cubeX#, cubeY#, cubeZ#` |
+
+### Legacy aliases
+
+| Command | Same generator |
+|---|---|
 | `MESH.CUBE` | `MESH.MAKECUBE` |
 | `MESH.SPHERE` | `MESH.MAKESPHERE` |
 | `MESH.PLANE` | `MESH.MAKEPLANE` |
 
 ---
 
-## GPU upload, draw, edit
+### Mesh.Upload
 
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `MESH.UPLOAD` | `(mesh)` | Uploads mesh to GPU (Raylib `UploadMesh`) |
-| `MESH.DRAW` | `(mesh, material, matrix)` | Standard draw |
-| `MESH.DRAWROTATED` | `(mesh, material, matrix, rotationAxisX, rotationAxisY, rotationAxisZ, angleDeg#)` | Axis-angle variant |
-| `MESH.UPDATEVERTEX` | `(mesh, vertexIndex, x#, y#, z#)` | CPU vertex write |
-| `MESH.GENTANGENTS` | `(mesh)` | Regenerate tangents/binormals |
+```basic
+MESH.UPLOAD(m, dynamic?)
+```
 
----
+Uploads mesh data to the GPU (`UploadMesh`). **`dynamic?`** must be **boolean** — use **`TRUE`** for meshes you update per frame with **`MESH.UPDATEVERTEX`**.
 
-## Bounding box (local mesh bounds)
-
-| Command | Returns |
-|--------|---------|
-| `MESH.GETBBOXMINX` … `MESH.GETBBOXMAXZ` | `(mesh)` → float components |
+> **Common mistake:** Passing **`0`/`1`** instead of **`FALSE`/`TRUE`** — the semantic checker expects a **bool** for the second argument.
 
 ---
 
-## Lifecycle
+### Mesh.Draw
 
-| Command | Notes |
-|--------|--------|
-| `MESH.FREE` | Unloads mesh data (`UnloadMesh`); call when done |
+```basic
+MESH.DRAW(m, material, matrix)
+```
+
+**`matrix`** is a **`MAT4`** handle, or **`0`** for identity. Uses `DrawMesh` with the given **material** and **transform**.
+
+**Phase** — Call inside **`CAMERA.BEGIN`** / **`CAMERA.END`** (3D mode) for correct projection.
+
+---
+
+### Mesh.DrawRotated
+
+```basic
+MESH.DRAWROTATED(m, material, rx#, ry#, rz#)
+```
+
+Builds **`MatrixRotateXYZ(Vector3{rx, ry, rz})`** — angles are **radians** (not degrees). **No** separate axis-angle overload in this binding.
+
+---
+
+### Mesh.UpdateVertex
+
+```basic
+MESH.UPDATEVERTEX(m, idx, x#, y#, z#, nx#, ny#, nz#, u#, v#)
+```
+
+Writes one vertex’s **position**, **normal**, and **UV**. Requires **`MESH.UPLOAD(m, TRUE)`** for dynamic meshes; after edits, Raylib buffer updates run when **`VaoID != 0`**.
+
+---
+
+### Mesh.VertexCount / Mesh.TriangleCount
+
+```basic
+n = MESH.VERTEXCOUNT(m)
+t = MESH.TRIANGLECOUNT(m)
+```
+
+**Returns** — integers from the Raylib **`Mesh`** (after generation).
+
+---
+
+### Bounding box (axis-aligned, local)
+
+```basic
+mnx = MESH.GETBBOXMINX(m)
+; … MESH.GETBBOXMAXZ(m)
+```
+
+Six accessors, each **`(m)`** → float component.
+
+---
+
+### Mesh.GenTangents (`MESH.GENTANGENTS`)
+
+```basic
+MESH.GENTANGENTS(m)
+```
+
+**Current builds:** With **CGO**, this command **errors at runtime** — the **raylib-go** tangent generator is not wired in the CGO `rmodels` path. Do not rely on it until the runtime exposes **`GenMeshTangents`** for CGO builds.
+
+---
+
+### Mesh.Free
+
+```basic
+MESH.FREE(m)
+```
+
+Unloads GPU and CPU mesh data (`UnloadMesh`). Idempotent object **`Free`** via heap; a second **`MESH.FREE`** on the same handle fails (stale handle).
+
+---
+
+## Example (upload, camera, draw)
+
+See **`testdata/mesh_complete_test.mb`**: **`MESH.MAKECUBE`** → **`MESH.UPLOAD`** → **`MATERIAL.MAKEDEFAULT`** → **`CAMERA.BEGIN`** / **`MESH.DRAWROTATED`** / **`CAMERA.END`**.
 
 ---
 
 ## Common mistakes
 
-- **Drawing without upload** — Call **`MESH.UPLOAD`** after procedural generation before **`MESH.DRAW`** in the usual Raylib workflow.
-- **Confusing mesh and model** — A **`MODEL.*`** bundles meshes + materials; **`MESH.*`** is a single mesh + your **`MATERIAL.*`** + **`MAT4` / transform** matrix.
+- **`Window.Open`** first — GPU init must be ready (see test).
+- **Skipping `MESH.UPLOAD`** — draw may fail or warn if the mesh is not uploaded.
+- **`MESH.DRAWROTATED`** — **radians**, not degrees.
+- **Confusing mesh and model** — **`MODEL.*`** loads whole assets; **`MESH.*`** is one mesh + your material + transform.
 
 ---
 
 ## See also
 
-- [MODEL.md](MODEL.md) — full models, hierarchy, materials
-- [IMAGE.md](IMAGE.md) — heightmap / cubicmap source images
+- [MODEL.md](MODEL.md) — full models and materials
+- [IMAGE.md](IMAGE.md) — heightmap / cubicmap sources
+- [CAMERA.md](CAMERA.md) — 3D camera

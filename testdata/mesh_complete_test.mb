@@ -5,6 +5,29 @@ m = MESH.MAKECUBE(1.0, 1.0, 1.0)
 ASSERT(MESH.GETBBOXMINX(m) <= MESH.GETBBOXMAXX(m), "bbox X")
 ASSERT(MESH.GETBBOXMINY(m) <= MESH.GETBBOXMAXY(m), "bbox Y")
 ASSERT(MESH.GETBBOXMINZ(m) <= MESH.GETBBOXMAXZ(m), "bbox Z")
+ASSERT(MESH.VERTEXCOUNT(m) > 0, "vertex count")
+ASSERT(MESH.TRIANGLECOUNT(m) > 0, "triangle count")
+
+MESH.UPLOAD(m, FALSE)
+mat = MATERIAL.MAKEDEFAULT()
+cam = CAMERA.MAKE()
+CAMERA.SETPOS(cam, 0, 2, 4)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+CAMERA.SETFOV(cam, 60)
+
+frames = 0
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(20, 22, 28)
+    CAMERA.BEGIN(cam)
+    MESH.DRAWROTATED(m, mat, 0, 0, 0)
+    CAMERA.END()
+    Render.Frame()
+    frames = frames + 1
+    IF frames >= 2 THEN EXIT WHILE
+WEND
+
+CAMERA.FREE(cam)
+MATERIAL.FREE(mat)
 MESH.FREE(m)
 
 Window.Close()

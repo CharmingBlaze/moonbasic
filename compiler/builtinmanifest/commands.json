@@ -3008,6 +3008,20 @@
       ]
     },
     {
+      "key": "MESH.VERTEXCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MESH.TRIANGLECOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
       "key": "MESH.GENTANGENTS",
       "args": [
         "handle"
@@ -8194,6 +8208,13 @@
     {
       "key": "CAMERA.END",
       "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.FREE",
+      "args": [
+        "handle"
+      ],
       "phase": "rendering"
     },
     {

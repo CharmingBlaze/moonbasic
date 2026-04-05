@@ -242,6 +242,33 @@ func registerMeshOps(m *Module, reg runtime.Registrar) {
 	reg.Register("MESH.GETBBOXMAXY", "mesh", runtime.AdaptLegacy(bboxAxis(4)))
 	reg.Register("MESH.GETBBOXMAXZ", "mesh", runtime.AdaptLegacy(bboxAxis(5)))
 
+	reg.Register("MESH.VERTEXCOUNT", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("MESH.VERTEXCOUNT expects mesh handle")
+		}
+		o, err := m.getMesh(args, 0, "MESH.VERTEXCOUNT")
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromInt(int64(o.m.VertexCount)), nil
+	}))
+	reg.Register("MESH.TRIANGLECOUNT", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("MESH.TRIANGLECOUNT expects mesh handle")
+		}
+		o, err := m.getMesh(args, 0, "MESH.TRIANGLECOUNT")
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromInt(int64(o.m.TriangleCount)), nil
+	}))
+
 	reg.Register("MESH.GENTANGENTS", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err

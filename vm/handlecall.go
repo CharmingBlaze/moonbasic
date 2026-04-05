@@ -148,6 +148,8 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		switch mn {
 		case "DRAW", "DRAWROTATED":
 			return "MESH." + mn, true, true
+		case "VERTEXCOUNT", "TRIANGLECOUNT":
+			return "MESH." + mn, true, true
 		}
 	}
 	return "", false, false
@@ -189,7 +191,7 @@ func HandleCallSuggestions(typeName string) []string {
 	case "MATRIX4":
 		out = []string{"SetRotation"}
 	case "MESH":
-		out = []string{"Draw", "DrawRotated"}
+		out = []string{"Draw", "DrawRotated", "TriangleCount", "VertexCount"}
 	default:
 		return nil
 	}
