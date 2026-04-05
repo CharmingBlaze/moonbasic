@@ -37,6 +37,13 @@ The orchestration logic must live in `compiler/pipeline/pipeline.go`. The CLI dr
 
 **CLI (`main.go`)**: `--compile` writes `<stem>.mbc` next to the source; `--run <file.mbc>` or a **positional** `moonbasic game.mbc` decodes and runs via `RunProgram`. Default: compile from source and run in memory.
 
+#### INCLUDE (compile-time)
+
+- **`INCLUDE "path.mb"`** is expanded in **`compiler/include`** immediately after parse (`ExpandWithArena`), before semantic analysis.
+- Paths resolve relative to the **including** file; if missing, **`TryOpenInclude`** searches **`MOONBASIC_PATH`** and package roots (**`SyncPackageIncludeRoots`** in **`compiler/pipeline/pkgpath.go`**).
+- **Duplicate includes** of the same resolved absolute path are **skipped** (include guard): one parse, one merge — no duplicate top-level statements.
+- **`CompileSource`** may use a single **`arena.Arena`** for the merged parse; the arena is reset after bytecode is produced — no ongoing retention of source text in the VM.
+
 ---
 
 ### 3. MOON bytecode (`.mbc`)
@@ -56,7 +63,7 @@ The orchestration logic must live in `compiler/pipeline/pipeline.go`. The CLI dr
 - **Runtime dispatch** (`runtime/runtime.go`): **`RegisterFromManifest`** walks every overload but registers **at most one stub per canonical `Command.Key`** — the first-seen **`Namespace`** wins for the stub closure. Natives that support multiple arities implement **branching on `len(args)`** in one **`BuiltinFn`** (e.g. **`RENDER.CLEAR`** in **`runtime/window/raylib_cgo.go`**).
 - **LSP** (`lsp/server.go`): Hover for a dotted builtin uses **`FirstOverload(key)`** when arity cannot be inferred from the line; multi-arity commands may show only the first signature unless tooling is extended.
 
-**Inventory tooling**: From the repo root, **`python tools/gen_master_audit.py`** regenerates **`MASTER_AUDIT.txt`** (manifest keys vs **`Register("KEY"`** in **`runtime/**/*.go`**, excluding **`*_test.go`**) plus **`MASTER_AUDIT_REGISTERED.txt`**, **`MASTER_AUDIT_MANIFEST.txt`**, and **`MASTER_AUDIT_DUPLICATES.txt`**.
+**Inventory tooling**: From the repo root, **`python tools/gen_master_audit.py`** regenerates **`MASTER_AUDIT.txt`** (manifest keys vs **`Register("KEY"`** in **`runtime/**/*.go`**, excluding **`*_test.go`**) plus **`MASTER_AUDIT_REGISTERED.txt`**, **`MASTER_AUDIT_MANIFEST.txt`**, **`MASTER_AUDIT_DUPLICATES.txt`**, and **`docs/audit/REFERENCE_KEY_COVERAGE.txt`** (which manifest keys appear verbatim in **`docs/reference/*.md`** and **`compiler/errors/MoonBasic.md`**).
 
 ---
 
