@@ -1,38 +1,28 @@
 # moonBASIC
 
-**The most powerful BASIC compiler ever built for real games—and the most fun way to ship one.**
+**The most powerful modern BASIC compiler for building real games.**
 
-moonBASIC is a **full compiler**: lexer, parser, semantic analyzer, AST, and bytecode codegen, plus a **fast VM** that talks directly to the same native libraries the industry uses for shipping titles. You write imperative BASIC with namespaces like `Window.Open`, `Camera.Begin`, `Physics3D.Step`, and `Net.Update`; the toolchain compiles your `.mb` sources to compact bytecode and runs them with **Go**-hosted tooling and **CGO** bridges into **raylib**, **Jolt**, **Box2D**, and **ENet**.
+moonBASIC is not a toy interpreter or a nostalgia dialect frozen in the 1980s. It is a **full compiler**—lexer, parser, AST, and bytecode codegen—paired with a **production-grade game runtime**. You write readable BASIC-style source; the toolchain turns it into compact bytecode and runs it on a fast VM wired straight into **raylib**, **Jolt**, **Box2D**, and **ENet**. That combination—classic syntax, modern compilation, and the same libraries serious indie games use—is the bar we set for a **modern BASIC compiler**: maximum reach from a single language, without leaving the BASIC idiom.
 
-It is **not** a toy line-by-line interpreter. It is **not** a game engine you wrestle with for days before drawing a triangle. It is a **language and runtime** designed so you **program the game**, not the engine—and so you move fast without giving up serious graphics, physics, or networking.
-
----
-
-## A word from the lab
-
-*Legend has it moonBASIC was forged by **one hundred computer scientists** sealed inside a **secret underground moon base**, where the only entertainment was proving that BASIC could drive a modern GPU and a physics engine without apologizing. Whether or not you believe the base exists, the outcome is real: a compiler and VM engineered with **memory safety and lifecycle discipline** in mind—handles, generations, idempotent `Free`, `Heap.FreeAll` on shutdown—so the fun stays in your game loop, not in chasing leaks.*
-
-*That engineering is also why moonBASIC stays **dynamically typed** at the language level: the compiler is built to work **with** BASIC’s suffix conventions (`name$`, `count#`, `flag?`) and runtime values, and to **catch mistakes** through semantic analysis and manifest-driven builtins—not by forcing you into a second job as a type bureaucrat. You think in game terms; the toolchain keeps the contract between your script and the native stack honest.*
+If you grew up on **Blitz BASIC** or **DarkBASIC** and wished that spirit existed with today’s graphics, physics, and networking, this is that idea rebuilt for the current era.
 
 ---
 
-## Why program in moonBASIC instead of “using a game engine”?
+## Why call it the most powerful modern BASIC?
 
-| You get | What it means |
-|--------|----------------|
-| **A real compile step** | Source → AST → bytecode → VM. Predictable structure, room for optimization, and a clear story when you debug. |
-| **Less ceremony** | No scene-graph religion, no asset pipeline tax for a first prototype—open a window, clear the screen, draw, step physics, send a packet. |
-| **Industry-grade natives** | **raylib** for windowing, drawing, input, and audio. **Jolt** (3D) and **Box2D** (2D) for physics families trusted in production. **ENet** for UDP-style multiplayer—the same *kind* of stack studios reach for when they need performance without writing everything from scratch. |
-| **A huge builtin surface** | Hundreds of dotted commands: rendering, GUI, sprites, tilemaps, particles, lights, shaders, navigation helpers, terrain/world streaming, data (JSON, CSV, tables, SQLite when enabled), noise, networking, and more—see [docs/COMMANDS.md](docs/COMMANDS.md). The checked-in **`MASTER_AUDIT.txt`** compares the manifest to registered natives (see [ARCHITECTURE.md](ARCHITECTURE.md)). |
-| **Rewarding workflow** | You author **your** loop, **your** systems, **your** feel—closer to classic **Blitz** / **DarkBASIC** energy than to configuring someone else’s editor for a week. |
+- **Real compiler, not a line-by-line runner.** Source is parsed into an AST, lowered to bytecode, and executed by a dedicated VM—predictable performance and room to grow.
+- **Scope of the standard library.** One language spans **2D and 3D rendering**, **immediate-mode GUI**, **sprites and atlases**, **shaders and lights**, **tilemaps**, **particles**, **2D and 3D physics**, **character controllers**, **audio**, and **multiplayer networking**—the kind of surface area usually split across many languages and glue code.
+- **Industrial backing where it matters.** The runtime sits on **raylib** (window, GPU, input, audio), **Jolt** and **Box2D** for physics, and **ENet** for UDP game traffic—not stripped-down teaching stubs.
+- **Fast iteration.** The driver is written in **Go**; compile cycles are short so you stay in flow.
+- **Traceable surface area.** The repo ships **`MASTER_AUDIT.txt`**, generated by **`tools/gen_master_audit.py`**, comparing **`commands.json`** to **`Register("…")`** keys—see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-“Faster” here means **faster to a playable build** for many projects: short compile cycles (Go-hosted toolchain), one binary, one language from menu code to netcode—without abandoning the **readable, imperative BASIC** style.
+“Most powerful” here means **breadth + seriousness of the stack + a proper compile step**, while keeping the **low-friction, imperative BASIC feel**: no project boilerplate, no headers, no CMake ritual—just your `.mb` file and the `moonbasic` binary.
 
 ---
 
-## What does code look like?
+## What does it look like?
 
-From [examples/spin_cube](examples/spin_cube/main.mb)—a real window, a camera, a mesh, a frame loop:
+Here is a compact 3D example (the [examples/spin_cube](examples/spin_cube/main.mb) demo adds a grid, `Draw.Text`, and proper `Free` calls):
 
 ```basic
 IF NOT Window.Open(960, 540, "Spinning cube") THEN END
@@ -66,119 +56,139 @@ Camera.Free(cam)
 Window.Close()
 ```
 
-That is **compiled** moonBASIC—not interpreted line noise. Same language scales to terrain, props, physics, and multiplayer as you grow.
+---
+
+## Features
+
+- **Modern BASIC syntax** — Familiar control flow and types, plus user-defined functions and a clear `Module.Command` API.
+- **2D & 3D graphics** — Drawing, text, textures, cameras, models, materials, and more, powered by **raylib**.
+- **Physics** — **Jolt** for 3D, **Box2D** for 2D.
+- **Networking** — **ENet** for client/server-style multiplayer over UDP.
+- **Fast compilation** — Go-hosted toolchain; edit, compile, and run in milliseconds.
+- **Cross-platform** — Windows and Linux (with CGO and a C toolchain).
 
 ---
 
-## How the toolchain fits together
+## Architecture
 
-1. **Edit** `.mb` source (`.mbc` MOON bytecode is optional for shipping or tooling).
-2. **Compile** — parse, analyze, generate IR v2 bytecode ([ARCHITECTURE.md](ARCHITECTURE.md)).
-3. **Run** — VM executes opcodes and dispatches **natives** registered from `compiler/builtinmanifest/commands.json` into modular `runtime/*` packages.
-4. **Native layer** — Raylib on the main OS thread where required; physics and network code behind the same manifest keys with CGO/stub splits where platforms differ.
+moonBASIC is a **compiled, bytecode-driven** language. The `moonbasic` executable bundles the compiler and the VM.
 
-Memory and resource rules are documented for contributors in [docs/MEMORY.md](docs/MEMORY.md): handle tables, idempotent teardown, and how shutdown ties to `Window.Close` and registry shutdown.
+1. **Compile** — `moonbasic mygame.mb` parses `.mb` source into an AST.
+2. **Codegen** — The AST becomes a compact bytecode program.
+3. **Execute** — The VM runs that bytecode and calls into native libraries (**raylib**, **Jolt**, etc.) via **cgo**.
 
----
-
-## Technology stack (what actually ships)
-
-| Piece | Role |
-|-------|------|
-| **[Go](https://go.dev)** | Compiler, VM, runtime orchestration (`go.mod` pins 1.25+). |
-| **[raylib](https://www.raylib.com)** (via [raylib-go](https://github.com/gen2brain/raylib-go)) | Window, rendering, input, audio, images, GPU textures. |
-| **[Jolt Physics](https://github.com/jrouwe/JoltPhysics)** (via [jolt-go](https://github.com/bbitechnologies/jolt-go)) | 3D rigid-body style simulation where the binding is available (see [ARCHITECTURE.md](ARCHITECTURE.md) §12 for platform notes). |
-| **[Box2D](https://box2d.org)** (via [ByteArena/box2d](https://github.com/ByteArena/box2d)) | 2D physics API surface in the manifest. |
-| **[ENet](http://enet.bespin.org)** (via [go-enet](https://github.com/codecat/go-enet)) | Reliable UDP networking for client/server style games. |
-
-These are the **same families** of libraries you will find behind many shipped indie and AA games—wired here so your BASIC calls land on real simulation and real sockets, not toy stubs (stubs exist only where a platform cannot link the native library yet).
+You get BASIC-level simplicity at the keyboard and a structured pipeline under the hood—not a single giant interpreter loop.
 
 ---
 
-## Build & run
+## Technology Stack
 
-**Requirements:** Go **1.25+**, a **C toolchain** (MinGW-w64 on Windows, GCC on Linux), **CGO enabled** for full graphics/physics/net.
+| Library | Version | Purpose |
+|---|---|---|
+| [Go](https://go.dev) | 1.25+ (see `go.mod`) | Compiler, VM, and runtime host. |
+| [raylib](https://raylib.com) | via raylib-go | Windowing, rendering, input, audio. |
+| [Jolt Physics](https://github.com/jrouwe/JoltPhysics) | via jolt-go | 3D rigid-body simulation. |
+| [Box2D](https://box2d.org) | 3.x | 2D physics. |
+| [ENet](http://enet.bespin.org) | 1.3 | Reliable UDP networking. |
+
+---
+
+## Getting Started
+
+### 1. Install Dependencies
+
+- **Go 1.25+** (see `go.mod`)
+- **A C compiler**: MinGW-w64 on Windows, or GCC on Linux.
+
+See [Building from Source](docs/BUILDING.md) for detailed setup.
+
+### 2. Build moonBASIC
 
 ```bash
 git clone https://github.com/CharmingBlaze/moonbasic
 cd moonbasic
 
-# Windows (example: adjust CC to your MinGW gcc)
+# On Windows (in a regular command prompt)
 set CGO_ENABLED=1
 set CC=C:\msys64\mingw64\bin\gcc.exe
 go build -o moonbasic.exe .
 
-# Linux
+# On Linux
 CGO_ENABLED=1 go build -o moonbasic .
 ```
 
-Run a sample from the repo root:
+### 3. Run Your First Program
+
+From the repo root (requires **CGO**):
 
 ```bash
 CGO_ENABLED=1 go run . examples/spin_cube/main.mb
 ```
 
-Deeper setup: [docs/BUILDING.md](docs/BUILDING.md). More runnable projects: [examples/README.md](examples/README.md).
+Or use a built binary:
+
+```bash
+./moonbasic mygame.mb
+```
+
+More samples: [examples/README.md](examples/README.md).
 
 ---
 
-## Documentation map
+## Documentation
 
-| Start here | Why |
-|------------|-----|
-| [Getting Started](docs/GETTING_STARTED.md) | Install, first window, mental model. |
-| [Programming Guide](docs/PROGRAMMING.md) | Game loop, commands, 2D/3D, platforms. |
-| [Language Reference](docs/LANGUAGE.md) | Variables, control flow, functions, suffix types. |
-| [Command Index](docs/COMMANDS.md) | Built-ins in one place. |
-| [Examples](docs/EXAMPLES.md) | Narrated snippets. |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Ground truth for pipeline, registry, phases. |
-| [MEMORY.md](docs/MEMORY.md) | Handles, GC vs native, `FreeAll`. |
+| Document | What it covers |
+|---|---|
+| [Getting Started](docs/GETTING_STARTED.md) | Installation, first window, core ideas. |
+| [Programming Guide](docs/PROGRAMMING.md) | Game loop, command style, 2D/3D, CGO and platforms. |
+| [Language Reference](docs/LANGUAGE.md) | Variables, types, loops, functions. |
+| [Command Index](docs/COMMANDS.md) | Built-ins and module commands in one place. |
+| [Examples](docs/EXAMPLES.md) | Narrated snippets (see also `examples/`). |
+| [Examples (repo)](examples/README.md) | Runnable `main.mb` programs and how to launch them. |
 
-### API reference by module
+### API Reference (by module)
 
-| Module | Topics |
-|--------|--------|
-| [Window](docs/reference/WINDOW.md) | Open/close, monitors, flags |
-| [Render](docs/reference/RENDER.md) | Clear, frame, blend, screenshots |
-| [Camera](docs/reference/CAMERA.md) | 3D and 2D cameras |
-| [Draw 2D](docs/reference/DRAW2D.md) | Primitives, text, textures |
-| [GUI](docs/reference/GUI.md) | Immediate-mode `GUI.*` (raygui) |
-| [Texture](docs/reference/TEXTURE.md) | Load, upload, generate |
-| [Image](docs/reference/IMAGE.md) | CPU images, `Texture.FromImage` |
-| [Font](docs/reference/FONT.md) | TTF/OTF |
-| [Sprite & Atlas](docs/reference/SPRITE.md) | Animation, atlases |
-| [Model / Mesh / Material](docs/reference/MODEL.md) | 3D assets, procedural meshes |
-| [Transform](docs/reference/TRANSFORM.md) | Matrices (`Mat4.*` legacy in [MAT4.md](docs/reference/MAT4.md)) |
-| [Shader](docs/reference/SHADER.md) | GLSL |
-| [Light](docs/reference/LIGHT.md) | Scene lights |
-| [Physics 3D (Jolt)](docs/reference/PHYSICS3D.md) | Rigid bodies, shapes |
-| [Physics 2D (Box2D)](docs/reference/PHYSICS2D.md) | 2D colliders |
-| [Character Controller](docs/reference/CHARCONTROLLER.md) | Kinematic player |
-| [Tilemap](docs/reference/TILEMAP.md) | Tiled `.tmx` |
-| [Particles](docs/reference/PARTICLES.md) | Emitters |
-| [Input](docs/reference/INPUT.md) | Keyboard, mouse, gamepad |
-| [Audio](docs/reference/AUDIO.md) | Sounds, music |
-| [Network (ENet)](docs/reference/NETWORK.md) | Multiplayer |
-| [Math](docs/reference/MATH.md) | Math helpers |
-| [String](docs/reference/STRING.md) | Text |
-| [Array](docs/reference/ARRAY.md) | `DIM`, array ops |
-| [File](docs/reference/FILE.md) | Filesystem |
-| [Time](docs/reference/TIME.md) | Delta time |
-| [Debug](docs/reference/DEBUG.md) | Debug helpers |
-| [Bitwise](docs/reference/BITWISE.md) | Flags |
-| [Console](docs/reference/CONSOLE.md) | `PRINT`, `INPUT` |
-| [System](docs/reference/SYSTEM.md) | Env, argv, clipboard |
-
-More topics (terrain, world, weather, JSON, CSV, noise, …) live under [docs/reference/](docs/reference/) and [docs/COMMANDS.md](docs/COMMANDS.md).
+| Module | Description |
+|---|---|
+| [Window](docs/reference/WINDOW.md) | Open/close window, monitors, flags. |
+| [Render](docs/reference/RENDER.md) | Clear, frame, blend modes, screenshots. |
+| [Camera](docs/reference/CAMERA.md) | 3D camera and 2D scrolling camera. |
+| [Draw 2D](docs/reference/DRAW2D.md) | Rectangles, circles, text, textures. |
+| [GUI (raygui)](docs/reference/GUI.md) | Immediate-mode `GUI.*` widgets. |
+| [Texture](docs/reference/TEXTURE.md) | Load, free, and generate textures. |
+| [Image (CPU)](docs/reference/IMAGE.md) | Pixel buffers, software draw, `Texture.FromImage`. |
+| [Font](docs/reference/FONT.md) | Load custom TTF/OTF fonts. |
+| [Sprite & Atlas](docs/reference/SPRITE.md) | Texture strips, **`Anim.*`** FSM, atlases ([ATLAS.md](docs/reference/ATLAS.md)). |
+| [Model, Mesh & Material](docs/reference/MODEL.md) | 3D models, procedural meshes, PBR materials. |
+| [Transform](docs/reference/TRANSFORM.md) | 4×4 object/world transform matrices (legacy `Mat4.*` in [MAT4.md](docs/reference/MAT4.md)). |
+| [Shader](docs/reference/SHADER.md) | Load and apply GLSL shaders. |
+| [Light](docs/reference/LIGHT.md) | Directional, point, and spot lights. |
+| [Physics 3D (Jolt)](docs/reference/PHYSICS3D.md) | Rigid bodies, shapes, forces. |
+| [Physics 2D (Box2D)](docs/reference/PHYSICS2D.md) | 2D bodies and colliders. |
+| [Character Controller](docs/reference/CHARCONTROLLER.md) | Kinematic player controller. |
+| [Tilemap (Tiled)](docs/reference/TILEMAP.md) | Load .tmx maps, collision, layers. |
+| [Particles](docs/reference/PARTICLES.md) | Emitter-based particle effects. |
+| [Input](docs/reference/INPUT.md) | Keyboard, mouse, gamepad, action maps. |
+| [Audio](docs/reference/AUDIO.md) | Sounds, music streaming, audio streams. |
+| [Network (ENet)](docs/reference/NETWORK.md) | Multiplayer server/client over UDP. |
+| [Math](docs/reference/MATH.md) | Trig, interpolation, randomization. |
+| [String](docs/reference/STRING.md) | String manipulation and parsing. |
+| [Array](docs/reference/ARRAY.md) | DIM arrays and array operations. |
+| [File I/O](docs/reference/FILE.md) | Read/write files and directories. |
+| [Time](docs/reference/TIME.md) | Delta time, wall-clock time. |
+| [Debug](docs/reference/DEBUG.md) | ASSERT and debug utilities. |
+| [Bitwise](docs/reference/BITWISE.md) | Bit flags and manipulation. |
+| [Console](docs/reference/CONSOLE.md) | PRINT, INPUT, CLS. |
+| [System](docs/reference/SYSTEM.md) | Environment, clipboard, command-line args. |
 
 ---
 
 ## Contributing
 
-Issues and PRs welcome. For implementation status of builtins, see `COMMAND_AUDIT.txt` (and related audit files). Closing gaps there is a great first contribution.
+Contributions are welcome. This project is under active development. Start with `COMMAND_AUDIT.txt` for command implementation status (`DONE`, `PARTIAL`, `MISSING`). Closing gaps there is a great first contribution.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+moonBASIC is licensed under the MIT License. See [LICENSE](LICENSE) for details.
