@@ -8256,6 +8256,92 @@
       "phase": "rendering"
     },
     {
+      "key": "CAMERA.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.GETTARGET",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETUP",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.WORLDTOSCREEN",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ISONSCREEN",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ISONSCREEN",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.MOUSERAY",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.LOOKAT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETPROJECTION",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "CAMERA2D.BEGIN",
       "args": []
     },
@@ -8307,6 +8393,41 @@
       "args": [
         "handle",
         "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.GETMATRIX",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.WORLDTOSCREEN",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.SCREENTOWORLD",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.FREE",
+      "args": [
+        "handle"
       ],
       "phase": "rendering"
     },

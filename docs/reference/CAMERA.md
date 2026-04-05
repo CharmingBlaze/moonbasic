@@ -20,6 +20,16 @@ Alias pair; sets the camera **eye** position in world space.
 
 Sets the **look-at** point in world space.
 
+### `Camera.LookAt(camera, x#, y#, z#)`
+
+Alias of **`Camera.SetTarget`** (same arguments and behaviour).
+
+### `Camera.SetProjection(camera, mode%)`
+
+Sets the Raylib projection mode: **`0`** = perspective (**`CameraPerspective`**), **`1`** = orthographic (**`CameraOrthographic`**). In orthographic mode, **`fovy`** is interpreted as the **near-plane height** in world units (Raylib convention).
+
+**Note:** Raylib’s **`Camera3D`** does not store separate **near** / **far** clip distances; clipping uses the engine defaults. For **draw-distance** limits in scripts, use **`Cull.SetMaxDistance`** / **`Cull.InRange`** (see § Culling below), not a hypothetical `CAMERA.SETRANGE`.
+
 ### `Camera.SetFOV(camera, fovy#)`
 
 Vertical field of view in **degrees**.
@@ -179,6 +189,10 @@ Returns a **matrix handle** for `GetCameraMatrix2D` applied to that camera.
 ### `Camera2D.WorldToScreen(camera, worldX#, worldY#)` / `Camera2D.ScreenToWorld(camera, screenX#, screenY#)`
 
 Each returns a **handle** to a **2-float array** `[x#, y#]` for the converted point.
+
+### `Camera2D.Free(camera)`
+
+Frees the **`Camera2D`** heap object (symmetric with **`Camera.Free`** for 3D cameras).
 
 ---
 

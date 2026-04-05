@@ -41,14 +41,15 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		switch mn {
 		case "END":
 			return "CAMERA.END", false, true
-		case "BEGIN", "SETPOS", "SETTARGET", "SETFOV", "MOVE", "GETRAY", "GETVIEWRAY", "GETMATRIX":
+		case "BEGIN", "SETPOS", "SETTARGET", "LOOKAT", "SETFOV", "SETPROJECTION", "MOVE", "GETRAY", "GETVIEWRAY", "GETMATRIX",
+			"GETPOS", "GETTARGET", "SETUP", "FREE", "WORLDTOSCREEN", "ISONSCREEN", "MOUSERAY":
 			return "CAMERA." + mn, true, true
 		}
 	case "CAMERA2D":
 		switch mn {
 		case "END":
 			return "CAMERA2D.END", false, true
-		case "BEGIN", "SETTARGET", "SETOFFSET", "SETZOOM", "SETROTATION":
+		case "BEGIN", "SETTARGET", "SETOFFSET", "SETZOOM", "SETROTATION", "GETMATRIX", "WORLDTOSCREEN", "SCREENTOWORLD", "FREE":
 			return "CAMERA2D." + mn, true, true
 		}
 	case "TILEMAP":
@@ -161,9 +162,10 @@ func HandleCallSuggestions(typeName string) []string {
 	var out []string
 	switch tn {
 	case "CAMERA3D":
-		out = []string{"Begin", "End", "SetPos", "SetPosition", "SetTarget", "SetFOV", "Move", "GetRay", "GetViewRay", "GetMatrix"}
+		out = []string{"Begin", "End", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "IsOnScreen",
+			"LookAt", "MouseRay", "Move", "SetFOV", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen"}
 	case "CAMERA2D":
-		out = []string{"Begin", "End", "SetOffset", "SetRotation", "SetTarget", "SetZoom"}
+		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
 	case "TILEMAP":
 		out = []string{"CollisionAt", "Draw", "DrawLayer", "Free", "GetTile", "Height", "IsSolid", "IsSolidCategory",
 			"LayerCount", "LayerName", "MergeCollisionLayer", "SetCollision", "SetTile", "SetTileSize", "Width"}

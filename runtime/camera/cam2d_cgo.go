@@ -41,6 +41,7 @@ func (m *Module) registerCamera2D(reg runtime.Registrar) {
 	reg.Register("CAMERA2D.GETMATRIX", "camera", runtime.AdaptLegacy(m.cam2dGetMatrix))
 	reg.Register("CAMERA2D.WORLDTOSCREEN", "camera", runtime.AdaptLegacy(m.cam2dWorldToScreen))
 	reg.Register("CAMERA2D.SCREENTOWORLD", "camera", runtime.AdaptLegacy(m.cam2dScreenToWorld))
+	reg.Register("CAMERA2D.FREE", "camera", runtime.AdaptLegacy(m.cam2dFree))
 }
 
 func (m *Module) cam2dMake(args []value.Value) (value.Value, error) {
@@ -174,6 +175,19 @@ func (m *Module) cam2dEnd(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA2D.END expects 0 arguments")
 	}
 	rl.EndMode2D()
+	return value.Nil, nil
+}
+
+func (m *Module) cam2dFree(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.FREE: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA2D.FREE expects camera handle")
+	}
+	if err := m.h.Free(heap.Handle(args[0].IVal)); err != nil {
+		return value.Nil, err
+	}
 	return value.Nil, nil
 }
 

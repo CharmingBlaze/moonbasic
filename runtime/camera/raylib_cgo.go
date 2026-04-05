@@ -47,6 +47,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.SETPOS", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETPOSITION", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETTARGET", "camera", runtime.AdaptLegacy(m.camSetTarget))
+	r.Register("CAMERA.LOOKAT", "camera", runtime.AdaptLegacy(m.camSetTarget))
+	r.Register("CAMERA.SETPROJECTION", "camera", runtime.AdaptLegacy(m.camSetProjection))
 	r.Register("CAMERA.SETFOV", "camera", runtime.AdaptLegacy(m.camSetFov))
 	r.Register("CAMERA.BEGIN", "camera", runtime.AdaptLegacy(m.camBegin))
 	r.Register("CAMERA.END", "camera", runtime.AdaptLegacy(m.camEnd))
@@ -56,7 +58,9 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.GETMATRIX", "camera", runtime.AdaptLegacy(m.camGetMatrix))
 	r.Register("MATRIX.FREE", "camera", runtime.AdaptLegacy(m.matrixFree))
 	m.registerCameraExtras(r)
+	m.registerScreenHelpers(r)
 	m.registerCamera2D(r)
+	m.registerCull(r)
 }
 
 // Shutdown implements runtime.Module.
@@ -129,6 +133,37 @@ func (m *Module) camSetTarget(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
+func (m *Module) camSetProjection(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("CAMERA.SETPROJECTION expects (handle, mode#): 0 perspective, 1 orthographic")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.SETPROJECTION: invalid handle")
+	}
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	var mode int64
+	if i, ok := args[1].ToInt(); ok {
+		mode = i
+	} else if f, ok := args[1].ToFloat(); ok {
+		mode = int64(f)
+	} else {
+		return value.Nil, fmt.Errorf("CAMERA.SETPROJECTION: mode must be numeric (0 or 1)")
+	}
+	switch mode {
+	case 0:
+		o.cam.Projection = rl.CameraPerspective
+	case 1:
+		o.cam.Projection = rl.CameraOrthographic
+	default:
+		return value.Nil, fmt.Errorf("CAMERA.SETPROJECTION: mode must be 0 (perspective) or 1 (orthographic)")
+	}
+	return value.Nil, nil
+}
+
 func (m *Module) camSetFov(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("CAMERA.SETFOV expects 2 arguments (handle, fovy)")
@@ -164,6 +199,13 @@ func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	mbmodel3d.MarkCamera3DBegin(o.cam.Position.X, o.cam.Position.Y, o.cam.Position.Z)
 	mbmodel3d.StoreActiveCamera3D(o.cam)
 	rl.BeginMode3D(o.cam)
+	rw := float32(rl.GetRenderWidth())
+	rh := float32(rl.GetRenderHeight())
+	aspect := float32(16.0 / 9.0)
+	if rh > 0 {
+		aspect = rw / rh
+	}
+	setActiveFrustum(o.cam, aspect)
 	return value.Nil, nil
 }
 
@@ -172,6 +214,7 @@ func (m *Module) camEnd(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.END expects 0 arguments")
 	}
 	mbmodel3d.FlushDeferred3D(m.h)
+	clearActiveFrustum()
 	mbmodel3d.MarkCamera3DEnd()
 	rl.EndMode3D()
 	return value.Nil, nil
@@ -324,4 +367,3 @@ func (m *Module) matrixFree(args []value.Value) (value.Value, error) {
 	}
 	return value.Nil, nil
 }
-

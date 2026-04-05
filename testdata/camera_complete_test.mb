@@ -1,0 +1,94 @@
+Window.Open(320, 240, "camera complete")
+
+Window.SetFPS(60)
+
+
+
+cam = CAMERA.MAKE()
+
+CAMERA.SETPOS(cam, 1, 2, 8)
+
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+CAMERA.SETPROJECTION(cam, 0)
+
+CAMERA.SETFOV(cam, 55)
+
+
+
+vp = CAMERA.GETPOS(cam)
+
+ASSERT(MATH.ABS(Vec3.X(vp) - 1) < 0.001, "getpos x")
+
+ASSERT(MATH.ABS(Vec3.Y(vp) - 2) < 0.001, "getpos y")
+
+ASSERT(MATH.ABS(Vec3.Z(vp) - 8) < 0.001, "getpos z")
+
+Vec3.Free(vp)
+
+
+
+CAMERA.SETPROJECTION(cam, 1)
+
+CAMERA.SETPROJECTION(cam, 0)
+
+
+
+mesh = MESH.MAKECUBE(1.0, 1.0, 1.0)
+
+mdl = MODEL.MAKE(mesh)
+
+MODEL.SETPOS(mdl, 0, 0.5, 0)
+
+
+
+cam2 = CAMERA2D.MAKE()
+
+CAMERA2D.SETTARGET(cam2, 0, 0)
+
+CAMERA2D.SETZOOM(cam2, 1)
+
+
+
+frames = 0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+
+    Render.Clear(10, 12, 18)
+
+    CAMERA.BEGIN(cam)
+
+    MODEL.DRAW(mdl)
+
+    CAMERA.END()
+
+    CAMERA2D.BEGIN(cam2)
+
+    Draw.Rectangle(150, 110, 20, 20, 255, 200, 50, 255)
+
+    CAMERA2D.END()
+
+    Render.Frame()
+
+    frames = frames + 1
+
+    IF frames >= 2 THEN EXIT WHILE
+
+WEND
+
+
+
+CAMERA2D.FREE(cam2)
+
+CAMERA.FREE(cam)
+
+MODEL.FREE(mdl)
+
+MESH.FREE(mesh)
+
+
+
+Window.Close()
+
+PRINT("camera_complete_test ok")
+
