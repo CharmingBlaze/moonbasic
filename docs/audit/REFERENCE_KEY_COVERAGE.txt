@@ -5,7 +5,7 @@
 
 # Per-file hit counts (same key may appear in multiple files)
 # path                                             hits
-compiler/errors/MoonBasic.md                      25
+compiler/errors/MoonBasic.md                      26
 docs/reference/ARRAY.md                           14
 docs/reference/ATLAS.md                           1
 docs/reference/AUDIO.md                           1
@@ -31,10 +31,10 @@ docs/reference/FILE.md                            21
 docs/reference/FONT.md                            4
 docs/reference/GAMEHELPERS.md                     19
 docs/reference/GUI.md                             91
-docs/reference/IMAGE.md                           49
+docs/reference/IMAGE.md                           50
 docs/reference/INPUT.md                           1
 docs/reference/INSTANCE.md                        15
-docs/reference/JSON.md                            15
+docs/reference/JSON.md                            16
 docs/reference/LIGHT.md                           21
 docs/reference/MAT4.md                            1
 docs/reference/MATH.md                            43
@@ -79,7 +79,7 @@ docs/reference/WEATHER.md                         2
 docs/reference/WINDOW.md                          2
 docs/reference/WORLD.md                           3
 
-# Manifest keys with no hit in any scanned doc (893 total)
+# Manifest keys with no hit in any scanned doc (894 total)
 
 ARRAYCONTAINS
 ARRAYFIND
@@ -285,6 +285,7 @@ DECAL.MAKE
 DECAL.SETLIFETIME
 DECAL.SETPOS
 DECAL.SETSIZE
+DRAW.GRID
 DRAW.RECTANGLE
 DRAW.RECTANGLE_ROUNDED
 DRAW.TEXTURENPATCH

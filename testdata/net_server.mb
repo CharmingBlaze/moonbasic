@@ -16,7 +16,7 @@ WHILE done = 0
                 JSON.SetString(jout, "op", "ack")
                 JSON.SetString(jout, "msg", "ok")
                 out$ = JSON.ToString(jout)
-                Peer.Send(rp, 0, out$, 1)
+                Peer.Send(rp, 0, out$, TRUE)
                 JSON.Free(jout)
             ENDIF
             JSON.Free(jin)

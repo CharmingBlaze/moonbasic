@@ -30,7 +30,7 @@ WHILE gotack = 0 AND iter < 5000
         JSON.SetString(j, "op", "hello")
         JSON.SetString(j, "from", "client")
         s$ = JSON.ToString(j)
-        Peer.Send(peer, 0, s$, 1)
+        Peer.Send(peer, 0, s$, TRUE)
         JSON.Free(j)
         sent = 1
     ENDIF

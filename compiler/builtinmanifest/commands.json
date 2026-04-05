@@ -4747,6 +4747,28 @@
       "phase": "rendering"
     },
     {
+      "key": "DRAW.TEXT",
+      "args": [
+        "string",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "DRAW.GRID",
+      "args": [
+        "int",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "DRAW.TEXTURE",
       "args": [
         "handle",
@@ -10312,6 +10334,13 @@
     },
     {
       "key": "JSON.PARSE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JSON.PARSESTRING",
       "args": [
         "string"
       ],
