@@ -1,0 +1,11 @@
+Window.Open(320, 240, "mesh complete")
+Window.SetFPS(60)
+
+m = MESH.MAKECUBE(1.0, 1.0, 1.0)
+ASSERT(MESH.GETBBOXMINX(m) <= MESH.GETBBOXMAXX(m), "bbox X")
+ASSERT(MESH.GETBBOXMINY(m) <= MESH.GETBBOXMAXY(m), "bbox Y")
+ASSERT(MESH.GETBBOXMINZ(m) <= MESH.GETBBOXMAXZ(m), "bbox Z")
+MESH.FREE(m)
+
+Window.Close()
+PRINT("mesh_complete_test ok")
