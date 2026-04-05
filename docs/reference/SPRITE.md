@@ -46,6 +46,14 @@ Alias pair. Adds a **float** offset to the draw position (useful for sub-pixel m
 
 Returns **`TRUE`** if the two sprites’ **axis-aligned boxes** overlap, using each sprite’s **`SetPos`** and its **frame width/height** (current frame size).
 
+### `SpriteCollide(spriteA, spriteB)` (registry: `SPRITECOLLIDE`)
+
+Alias for **`Sprite.Hit`** — same AABB test, DarkBASIC-style name.
+
+### `Sprite.PointHit(sprite, x#, y#)`
+
+Returns **`TRUE`** if **screen** point **`(x, y)`** lies inside the sprite’s current-frame axis-aligned rectangle (**`SetPos`** + frame size).
+
 ---
 
 ## Texture atlas workflow
@@ -104,9 +112,71 @@ Window.Close()
 
 ---
 
+## `SpriteGroup.*` — ordered draws
+
+| Command | Arguments | Notes |
+|--------|-----------|--------|
+| `SpriteGroup.Make` | (none) | Returns a **group** handle (does not own member sprites). |
+| `SpriteGroup.Add` | `(group, sprite)` | Append a **sprite** handle; order is draw order. |
+| `SpriteGroup.Clear` | `(group)` | Remove all members. |
+| `SpriteGroup.Draw` | `(group, x, y)` | Draws each member at the same base **integer** `(x,y)` (same rules as **`Sprite.Draw`**, including **`SetPos`** offsets). |
+| `SpriteGroup.Free` | `(group)` | Frees only the group container. |
+
+---
+
+## `SpriteLayer.*` — layer + z metadata
+
+| Command | Arguments | Notes |
+|--------|-----------|--------|
+| `SpriteLayer.Make` | `(z#)` | Returns a **layer** handle; **`z`** is stored for your own sorting (draw multiple layers in the order you choose). |
+| `SpriteLayer.Add` | `(layer, sprite)` | |
+| `SpriteLayer.SetZ` | `(layer, z#)` | Updates stored **z**. |
+| `SpriteLayer.Draw` | `(layer, x, y)` | Same drawing semantics as **`SpriteGroup.Draw`**. |
+| `SpriteLayer.Free` | `(layer)` | Frees only the layer object. |
+
+---
+
+## `SpriteBatch.*` — repeated placements
+
+| Command | Arguments | Notes |
+|--------|-----------|--------|
+| `SpriteBatch.Make` | (none) | |
+| `SpriteBatch.Add` | `(batch, sprite, x, y)` | Records one draw at **integer** screen `(x,y)` (plus each sprite’s **`SetPos`** offset). |
+| `SpriteBatch.Clear` | `(batch)` | Clears recorded entries. |
+| `SpriteBatch.Draw` | `(batch)` | Executes all recorded draws. |
+| `SpriteBatch.Free` | `(batch)` | |
+
+---
+
+## `SpriteUI.*` — anchor placement
+
+| Command | Arguments | Notes |
+|--------|-----------|--------|
+| `SpriteUI.Make` | `(sprite, anchorX#, anchorY#)` | **Anchors** in **0–1** range (e.g. `0.5, 0.5` = center). |
+| `SpriteUI.Draw` | `(ui, screenW, screenH)` | Positions from **`SCREENW`/`SCREENH`**-style dimensions (pass **`SCREENW()`**, **`SCREENH()`** in game code). |
+| `SpriteUI.Free` | `(ui)` | Frees only the UI wrapper (not the sprite). |
+
+---
+
+## `Particle2D.*` — simple CPU circles
+
+Colored circles (no texture). **`Emit`** appends particles until the pool is full; **`Update`** integrates motion and subtracts **`dt`** from **`life`**.
+
+| Command | Arguments |
+|--------|-----------|
+| `Particle2D.Make` | `(max, r, g, b, a)` |
+| `Particle2D.Emit` | `(p, x, y, vx, vy, life#)` |
+| `Particle2D.Update` | `(p, dt#)` |
+| `Particle2D.Draw` | `(p)` |
+| `Particle2D.Free` | `(p)` |
+
+---
+
 ## Command checklist (implemented)
 
 **Sprite:** `Load`, `Draw`, `SetPos`, `SetPosition`, `DefAnim`, `PlayAnim`, `UpdateAnim`, `Hit`.
+
+**SpriteGroup / SpriteLayer / SpriteBatch / SpriteUI / Particle2D:** commands listed in the sections above.
 
 **Atlas:** `Load`, `Free`, `GetSprite` — [ATLAS.md](ATLAS.md).
 

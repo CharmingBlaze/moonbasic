@@ -2,6 +2,7 @@
 .claude/
 
 testdata/file_test_out.txt
+testdata/sprite_test_texture.png
 /site/
 /site-ci/
 examples/rpg/save.json

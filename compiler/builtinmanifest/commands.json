@@ -7194,6 +7194,192 @@
       "phase": "rendering"
     },
     {
+      "key": "PARTICLE2D.DRAW",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE2D.EMIT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE2D.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE2D.MAKE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE2D.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEBATCH.ADD",
+      "args": [
+        "handle",
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEBATCH.CLEAR",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEBATCH.DRAW",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEBATCH.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEBATCH.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEGROUP.ADD",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEGROUP.CLEAR",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEGROUP.DRAW",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEGROUP.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEGROUP.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITELAYER.ADD",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITELAYER.DRAW",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITELAYER.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITELAYER.MAKE",
+      "args": [
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITELAYER.SETZ",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEUI.DRAW",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEUI.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITEUI.MAKE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
       "key": "TILEMAP.LOAD",
       "args": [
         "string"

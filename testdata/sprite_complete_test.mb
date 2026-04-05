@@ -1,0 +1,46 @@
+Window.Open(320, 240, "sprite complete")
+Window.SetFPS(60)
+
+img = IMAGE.MAKE(8, 8, 255, 40, 20, 255)
+ok = IMAGE.EXPORT(img, "testdata/sprite_test_texture.png")
+ASSERT(ok, "IMAGE.EXPORT for sprite texture")
+IMAGE.FREE(img)
+
+sp = SPRITE.LOAD("testdata/sprite_test_texture.png")
+
+g = SPRITEGROUP.MAKE()
+SPRITEGROUP.ADD(g, sp)
+
+L = SPRITELAYER.MAKE(0.0)
+SPRITELAYER.ADD(L, sp)
+
+bat = SPRITEBATCH.MAKE()
+SPRITEBATCH.ADD(bat, sp, 4, 4)
+
+ui = SPRITEUI.MAKE(sp, 0.0, 0.0)
+
+part = PARTICLE2D.MAKE(8, 255, 200, 100, 220)
+PARTICLE2D.EMIT(part, 20.0, 20.0, 0.0, 0.0, 1.0)
+
+frames = 0
+WHILE TRUE
+    Render.Clear(12, 14, 20)
+    SPRITEGROUP.DRAW(g, 0, 0)
+    SPRITELAYER.DRAW(L, 32, 0)
+    SPRITEBATCH.DRAW(bat)
+    SPRITEUI.DRAW(ui, SCREENW(), SCREENH())
+    PARTICLE2D.UPDATE(part, TIME.DELTA())
+    PARTICLE2D.DRAW(part)
+    Render.Frame()
+    frames = frames + 1
+    IF frames >= 2 THEN EXIT WHILE
+WEND
+
+PARTICLE2D.FREE(part)
+SPRITEUI.FREE(ui)
+SPRITEBATCH.FREE(bat)
+SPRITELAYER.FREE(L)
+SPRITEGROUP.FREE(g)
+
+Window.Close()
+PRINT("sprite_complete_test ok")

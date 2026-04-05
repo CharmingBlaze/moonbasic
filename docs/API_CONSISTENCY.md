@@ -1407,6 +1407,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PARTICLE.SETVELOCITY`** - args: handle, float, float, float, float
 - **`PARTICLE.UPDATE`** - args: handle, float
 
+### PARTICLE2D
+
+- **`PARTICLE2D.DRAW`** - args: handle
+- **`PARTICLE2D.EMIT`** - args: handle, float, float, float, float, float
+- **`PARTICLE2D.FREE`** - args: handle
+- **`PARTICLE2D.MAKE`** - args: int, int, int, int, int -> returns handle
+- **`PARTICLE2D.UPDATE`** - args: handle, float
+
 ### PATH
 
 - **`PATH.FREE`** - args: handle
@@ -1844,6 +1852,36 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SPRITE.SETPOS`** - args: handle, float, float
 - **`SPRITE.SETPOSITION`** - args: handle, float, float
 - **`SPRITE.UPDATEANIM`** - args: handle, float
+
+### SPRITEBATCH
+
+- **`SPRITEBATCH.ADD`** - args: handle, handle, int, int
+- **`SPRITEBATCH.CLEAR`** - args: handle
+- **`SPRITEBATCH.DRAW`** - args: handle
+- **`SPRITEBATCH.FREE`** - args: handle
+- **`SPRITEBATCH.MAKE`** - args: (none) -> returns handle
+
+### SPRITEGROUP
+
+- **`SPRITEGROUP.ADD`** - args: handle, handle
+- **`SPRITEGROUP.CLEAR`** - args: handle
+- **`SPRITEGROUP.DRAW`** - args: handle, int, int
+- **`SPRITEGROUP.FREE`** - args: handle
+- **`SPRITEGROUP.MAKE`** - args: (none) -> returns handle
+
+### SPRITELAYER
+
+- **`SPRITELAYER.ADD`** - args: handle, handle
+- **`SPRITELAYER.DRAW`** - args: handle, int, int
+- **`SPRITELAYER.FREE`** - args: handle
+- **`SPRITELAYER.MAKE`** - args: float -> returns handle
+- **`SPRITELAYER.SETZ`** - args: handle, float
+
+### SPRITEUI
+
+- **`SPRITEUI.DRAW`** - args: handle, int, int
+- **`SPRITEUI.FREE`** - args: handle
+- **`SPRITEUI.MAKE`** - args: handle, float, float -> returns handle
 
 ### SQR
 

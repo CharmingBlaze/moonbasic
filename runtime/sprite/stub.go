@@ -27,6 +27,8 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.PLAYANIM", "sprite", stub("SPRITE.PLAYANIM"))
 	reg.Register("SPRITE.UPDATEANIM", "sprite", stub("SPRITE.UPDATEANIM"))
 	reg.Register("SPRITE.HIT", "sprite", stub("SPRITE.HIT"))
+	reg.Register("SPRITECOLLIDE", "sprite", stub("SPRITECOLLIDE"))
+	reg.Register("SPRITE.POINTHIT", "sprite", stub("SPRITE.POINTHIT"))
 	reg.Register("ATLAS.LOAD", "sprite", stub("ATLAS.LOAD"))
 	reg.Register("ATLAS.FREE", "sprite", stub("ATLAS.FREE"))
 	reg.Register("ATLAS.GETSPRITE", "sprite", stub("ATLAS.GETSPRITE"))
@@ -34,6 +36,18 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("ANIM.ADDTRANSITION", "sprite", stub("ANIM.ADDTRANSITION"))
 	reg.Register("ANIM.UPDATE", "sprite", stub("ANIM.UPDATE"))
 	reg.Register("ANIM.SETPARAM", "sprite", stub("ANIM.SETPARAM"))
+
+	extras := []string{
+		"SPRITEGROUP.MAKE", "SPRITEGROUP.ADD", "SPRITEGROUP.CLEAR", "SPRITEGROUP.DRAW", "SPRITEGROUP.FREE",
+		"SPRITELAYER.MAKE", "SPRITELAYER.ADD", "SPRITELAYER.SETZ", "SPRITELAYER.DRAW", "SPRITELAYER.FREE",
+		"SPRITEBATCH.MAKE", "SPRITEBATCH.ADD", "SPRITEBATCH.CLEAR", "SPRITEBATCH.DRAW", "SPRITEBATCH.FREE",
+		"SPRITEUI.MAKE", "SPRITEUI.DRAW", "SPRITEUI.FREE",
+		"PARTICLE2D.MAKE", "PARTICLE2D.EMIT", "PARTICLE2D.UPDATE", "PARTICLE2D.DRAW", "PARTICLE2D.FREE",
+	}
+	for _, name := range extras {
+		n := name
+		reg.Register(n, "sprite", stub(n))
+	}
 }
 
 // Shutdown implements runtime.Module.

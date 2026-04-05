@@ -86,8 +86,11 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.PLAYANIM", "sprite", m.spPlayAnim)
 	reg.Register("SPRITE.UPDATEANIM", "sprite", m.spUpdateAnim)
 	reg.Register("SPRITE.HIT", "sprite", m.spHit)
+	reg.Register("SPRITECOLLIDE", "sprite", m.spHit)
+	reg.Register("SPRITE.POINTHIT", "sprite", m.spPointHit)
 	m.registerAtlas(reg)
 	m.registerAnim(reg)
+	m.registerSpriteExtras(reg)
 }
 
 // Shutdown implements runtime.Module.
@@ -140,8 +143,16 @@ func (m *Module) spDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if !ok1 || !ok2 {
 		return value.Nil, fmt.Errorf("SPRITE.DRAW: x,y must be numeric")
 	}
+	if err := m.drawSpriteAtScreen(s, x, y); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+// drawSpriteAtScreen draws the sprite’s current frame at integer screen (x,y), plus SetPos offsets.
+func (m *Module) drawSpriteAtScreen(s *spriteObj, screenX, screenY int32) error {
 	if s.numFrames < 1 && s.anim == nil {
-		return value.Nil, nil
+		return nil
 	}
 	if s.anim != nil {
 		s.syncAnimFrame()
@@ -153,10 +164,10 @@ func (m *Module) spDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		Width:  float32(s.frameW),
 		Height: float32(s.frameH),
 	}
-	pos := rl.Vector2{X: float32(x) + s.x, Y: float32(y) + s.y}
+	pos := rl.Vector2{X: float32(screenX) + s.x, Y: float32(screenY) + s.y}
 	tint := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	rl.DrawTextureRec(s.tex, rec, pos, tint)
-	return value.Nil, nil
+	return nil
 }
 
 func (m *Module) spSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -298,4 +309,32 @@ func (m *Module) spHit(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	bh := float64(b.frameH)
 	hit := ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by
 	return value.FromBool(hit), nil
+}
+
+func (m *Module) spPointHit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("SPRITE.POINTHIT expects 3 arguments (handle, x, y)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.POINTHIT: invalid sprite handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	px, ok1 := argF(args[1])
+	py, ok2 := argF(args[2])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("SPRITE.POINTHIT: x and y must be numeric")
+	}
+	sx := float64(s.x)
+	sy := float64(s.y)
+	sw := float64(s.frameW)
+	sh := float64(s.frameH)
+	pxf := float64(px)
+	pyf := float64(py)
+	inside := pxf >= sx && pxf < sx+sw && pyf >= sy && pyf < sy+sh
+	return value.FromBool(inside), nil
 }

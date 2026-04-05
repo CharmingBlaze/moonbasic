@@ -83,4 +83,9 @@ const (
 	TagBiome
 	TagBiomeMap
 	TagNoise
+	TagSpriteGroup
+	TagSpriteLayer
+	TagSpriteBatch
+	TagSpriteUI
+	TagParticle2D
 )
