@@ -1,22 +1,79 @@
-# Raylib extras — window, input, render, draw
+# Raylib extras — window, input, render, draw, system
 
-moonBASIC exposes Raylib through focused namespaces. This page maps **where** common behaviors live; see each topic file for parameters.
+moonBASIC maps Raylib to dotted registry keys (`WINDOW.OPEN`, `INPUT.KEYDOWN`, …). Source code may use **`Window.Open`**, **`Input.KeyDown`**, etc.; those lower-case forms compile to the same keys.
 
-| Namespace | Package | Topics |
-|-----------|---------|--------|
-| `WINDOW.*` | `runtime/window` | Open/close, FPS, VSYNC, flags |
-| `INPUT.*` / `KEY_*` | `runtime/input` | Keyboard, mouse, gamepad |
-| `GESTURE.*` | `runtime/input` | Touch gestures |
-| `RENDER.*` | `runtime/window` + `runtime/draw` | Clear, frame, 2D/3D mode |
-| `DRAW.*` / `DRAW3D.*` | `runtime/draw` | Primitives, text, billboards |
-| `TIME.*` | `runtime/time` | Delta, wall clock |
+**Requires CGO** for the full Raylib stack. Stub builds return errors that mention **`CGO_ENABLED=1`**.
 
-**Requires CGO** for the full Raylib path; stub builds return errors with a **`CGO_ENABLED=1`** hint.
+---
+
+## Namespaces (quick map)
+
+| Area | Registry prefix | Reference |
+|------|------------------|-----------|
+| Window | `WINDOW.*` | This page, [PROGRAMMING.md](../PROGRAMMING.md) |
+| Input | `INPUT.*`, `KEY_*` | [INPUT.md](INPUT.md) |
+| Gestures | `GESTURE.*` | [INPUT.md](INPUT.md) |
+| Render state | `RENDER.*` | [RENDER.md](RENDER.md) |
+| 2D draw | `DRAW.*` | [DRAW2D.md](DRAW2D.md) |
+| 3D draw | `DRAW3D.*` | [DRAW3D.md](DRAW3D.md) |
+| Time | `TIME.*` | [TIME.md](TIME.md) if present, else built-in docs |
+| GPU textures | `TEXTURE.*`, `RENDERTARGET.*` | [TEXTURE.md](TEXTURE.md) |
+| Clipboard | `SYSTEM.GETCLIPBOARD`, `SYSTEM.SETCLIPBOARD` | [SYSTEM.md](SYSTEM.md) if present |
+
+---
+
+## `WINDOW.*` — open window, placement, state
+
+Core lifecycle: **`WINDOW.OPEN`**, **`WINDOW.SETFPS`** / **`WINDOW.SETTARGETFPS`** (alias; both call `SetTargetFPS`), **`WINDOW.CLOSE`**, **`WINDOW.SHOULDCLOSE`**.
+
+**Placement and size (desktop):**
+
+| Command | Role |
+|---------|------|
+| **`WINDOW.SETPOSITION`** `(x, y)` | `SetWindowPosition` |
+| **`WINDOW.SETSIZE`** `(w, h)` | `SetWindowSize` |
+| **`WINDOW.GETPOSITIONX`** / **`WINDOW.GETPOSITIONY`** | Current window position |
+
+**Window chrome:**
+
+| Command | Role |
+|---------|------|
+| **`WINDOW.MINIMIZE`** | `MinimizeWindow` |
+| **`WINDOW.MAXIMIZE`** | `MaximizeWindow` (when resizable) |
+| **`WINDOW.RESTORE`** | `RestoreWindow` |
+| **`WINDOW.TOGGLEFULLSCREEN`** | `ToggleFullscreen` |
+| **`WINDOW.SETTITLE`** | `SetWindowTitle` |
+
+**Flags and monitors:** **`WINDOW.SETFLAG`**, **`WINDOW.CLEARFLAG`**, **`WINDOW.CHECKFLAG`**, min/max size, monitor queries, DPI, icon, opacity — see manifest and `runtime/window/window_state_cgo.go`.
+
+---
+
+## `RENDER.*` — clear, frame, GL-ish state
+
+Handled mainly in **`runtime/window`** (clear/frame, blend, depth, scissor, wireframe, screenshot, MSAA, ambient, shadow map size, IBL, etc.) and **`runtime/mbmodel3d`** for PBR-related hooks. See **[RENDER.md](RENDER.md)** for the full loop and **[LIGHT.md](LIGHT.md)** for lighting-related **`RENDER.SET*`** calls.
+
+---
+
+## `INPUT.*` — keyboard, mouse, gamepad
+
+See **[INPUT.md](INPUT.md)**. Key codes use **`KEY_*`** globals. **`INPUT.GETKEYNAME`** resolves names where supported.
+
+---
+
+## `DRAW.*` / `DRAW3D.*`
+
+Primitives, text, textures, billboards — see **[DRAW2D.md](DRAW2D.md)** and **[DRAW3D.md](DRAW3D.md)**. **`TEXTURE.*`** and **[TEXTURE.md](TEXTURE.md)** cover GPU image handles used by **`Draw.Texture`**.
+
+---
+
+## Clipboard
+
+**`SYSTEM.GETCLIPBOARD`** (returns string) and **`SYSTEM.SETCLIPBOARD`** `(text$)` wrap Raylib clipboard when CGO is enabled; see **`runtime/system/clipboard_cgo.go`**.
 
 ---
 
 ## See also
 
-- [PROGRAMMING.md](../PROGRAMMING.md) — game loop and shutdown
-- [DRAW2D.md](DRAW2D.md) — 2D drawing
-- [INPUT.md](INPUT.md) — input reference
+- [PROGRAMMING.md](../PROGRAMMING.md) — main loop, shutdown
+- [ARCHITECTURE.md](../../ARCHITECTURE.md) — threading and main thread
+- [TEXTURE.md](TEXTURE.md) — render targets and textures

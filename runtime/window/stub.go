@@ -35,6 +35,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	m.registerDecalCommands(reg)
 	m.registerWindowStateCommands(reg)
 	m.registerWindowMetricsCommands(reg)
+	m.registerWindowPlacementCommands(reg)
 	m.registerAutomationCommands(reg)
 }
 

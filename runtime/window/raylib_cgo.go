@@ -50,6 +50,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	m.registerDecalCommands(reg)
 	m.registerWindowStateCommands(reg)
 	m.registerWindowMetricsCommands(reg)
+	m.registerWindowPlacementCommands(reg)
 	m.registerAutomationCommands(reg)
 }
 
@@ -239,6 +240,10 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 	if hook != nil {
 		hook()
+	}
+
+	if rt != nil {
+		rt.FrameCount++
 	}
 
 	m.mu.Lock()

@@ -1,0 +1,22 @@
+Window.Open(320, 240, "raylib extras")
+Window.SetFPS(60)
+Window.SetTargetFPS(60)
+
+x = WINDOW.GETPOSITIONX()
+y = WINDOW.GETPOSITIONY()
+WINDOW.SETPOSITION(x, y)
+
+w = WINDOW.WIDTH()
+h = WINDOW.HEIGHT()
+WINDOW.SETSIZE(INT(w), INT(h))
+
+frames = 0
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(12, 14, 18)
+    Render.Frame()
+    frames = frames + 1
+    IF frames >= 2 THEN EXIT WHILE
+WEND
+
+Window.Close()
+PRINT("raylib_extras_complete_test ok")

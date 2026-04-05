@@ -1148,6 +1148,41 @@
       ]
     },
     {
+      "key": "WINDOW.WIDTH",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "WINDOW.HEIGHT",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "WINDOW.GETFPS",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "WINDOW.ISFULLSCREEN",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "WINDOW.TOGGLEFULLSCREEN",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "WINDOW.ISRESIZED",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
       "key": "WINDOW.SETPOSITION",
       "args": [
         "int",
