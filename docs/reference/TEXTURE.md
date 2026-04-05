@@ -78,3 +78,11 @@ WEND
 Texture.Free(char_tex)
 Window.Close()
 ```
+
+---
+
+## Render targets and atlases
+
+Off-screen **`RenderTexture`** usage and multi-stage post-processing are implemented inside engine modules (e.g. shadow maps, post stack). For **sprite sheets**, prefer **[ATLAS.md](ATLAS.md)** (`ATLAS.*`) so multiple logical sprites share one GPU texture.
+
+---
