@@ -1,125 +1,251 @@
 # Image (CPU) — `Image.*` / `IMAGE.*`
 
-**`Image.*`** commands work with **CPU-side** Raylib images: width × height pixel buffers you can read, write, and process in memory. They are **not** the same as **GPU textures** (`Texture.*`). Typical flow: build or load an image → **`Texture.FromImage`** → draw with **`Draw.Texture`**.
+**CPU-side** pixel buffers (Raylib `Image`): read, mutate, save. **Not** GPU textures (`Texture.*`). Typical pipeline: **`IMAGE.MAKE`** / **`IMAGE.LOAD`** → optional edits → **`TEXTURE.FROMIMAGE`** → **`DRAW.TEXTURE`** on the main framebuffer → free when done.
 
-**Requires CGO** and a Raylib build (same as `Draw.*`, `Texture.*`).
+**Requires CGO** and Raylib (same as `Draw.*`, `Texture.*`).
+
+Registry keys use **dots and uppercase** (e.g. `IMAGE.MAKE`). PascalCase names below match docs/spec style.
 
 ---
 
-## Load, create, export, free
+### Image.Make
 
-| Command | Arguments | Returns | Notes |
-|--------|-----------|---------|--------|
-| `Image.Load(path$)` | file path | handle | `LoadImage` |
-| `Image.LoadRaw(path$, w, h, format, headerSize)` | raw pixel file | handle | Raylib `PixelFormat` as `format` int |
-| `Image.MakeBlank(w, h, r, g, b, a)` | size + clear color | handle | Filled rectangle |
-| `Image.Make(w, h, r, g, b, a)` | same as `MakeBlank` | handle | Alias: `IMAGE.MAKE` — same behavior as `IMAGE.MAKEBLANK` |
-| `Image.MakeCopy(img)` | image handle | handle | Deep copy |
-| `Image.MakeText(text$, fontSize, r, g, b, a)` | string + style | handle | Transparent canvas; draws text with default font (fixed layout heuristic) |
-| `Image.Export(img, path$)` | handle + path | bool | Writes file (format from extension) |
-| `Image.Width(img)` / `Image.Height(img)` | handle | int | |
-| `Image.Free(img)` | handle | — | Releases heap object and Raylib image |
+```basic
+h = IMAGE.MAKE(w, h)
+h = IMAGE.MAKE(w, h, r, g, b, a)
+```
+
+**Two-argument** form creates an **RGBA image filled with transparent black** `(0,0,0,0)`. **Six-argument** form fills with the given **RGBA** (each channel **0–255**).
+
+**Parameters**
+
+| Name | Type | Description |
+|---|---|---|
+| w, h | int | Width and height in pixels. |
+| r, g, b, a | int | Optional. Fill colour; required together with six-arg form. |
+
+**Returns** — handle.
+
+> **Common mistake:** Expecting **`IMAGE.MAKE(w,h)`** to be opaque black — it is **fully transparent** until you **`IMAGE.CLEAR`** or draw.
+
+**Example**
+
+```basic
+img = IMAGE.MAKE(128, 128)
+IMAGE.CLEAR(img, 40, 44, 52, 255)
+```
+
+**See also:** `IMAGE.MAKEBLANK`, `IMAGE.CLEAR`, `TEXTURE.FROMIMAGE`
+
+---
+
+### Image.MakeBlank
+
+```basic
+h = IMAGE.MAKEBLANK(w, h)
+h = IMAGE.MAKEBLANK(w, h, r, g, b, a)
+```
+
+Same behaviour as **`IMAGE.MAKE`** (alias pair). Use either name.
+
+---
+
+### Image.Load
+
+```basic
+h = IMAGE.LOAD(path$)
+```
+
+Loads **PNG, JPG, BMP, TGA, GIF, HDR**, etc. from disk (Raylib). File is read and closed; you receive a **new** image handle.
+
+**Parameters**
+
+| Name | Type | Description |
+|---|---|---|
+| path$ | string | File path. |
+
+**Returns** — handle.
+
+---
+
+### Image.LoadRaw
+
+```basic
+h = IMAGE.LOADRAW(path$, w, h, format, headerSize)
+```
+
+Loads raw pixel data. **`format`** is a Raylib **`PixelFormat`** integer; **`headerSize`** skips bytes at the start of the file.
+
+**See also:** Raylib `PixelFormat` constants.
+
+---
+
+### Image.Copy / Image.MakeCopy
+
+```basic
+h2 = IMAGE.COPY(h)
+h2 = IMAGE.MAKECOPY(h)
+```
+
+**Deep copy** — new handle, duplicated pixels. **`IMAGE.COPY`** and **`IMAGE.MAKECOPY`** are equivalent.
+
+**Parameters**
+
+| Name | Type | Description |
+|---|---|---|
+| h | handle | Source image. |
+
+**Returns** — handle.
+
+---
+
+### Image.Free
+
+```basic
+IMAGE.FREE(h)
+```
+
+Releases the heap slot and Raylib image. A **second** **`IMAGE.FREE`** with the same handle value fails (stale handle), same as other heap objects.
+
+---
+
+### Image.Clear / Image.ClearBackground
+
+```basic
+IMAGE.CLEAR(h, r, g, b, a)
+IMAGE.CLEARBACKGROUND(h, r, g, b, a)
+```
+
+Fills **every pixel** with **RGBA** (0–255 per channel). **`IMAGE.CLEAR`** and **`IMAGE.CLEARBACKGROUND`** are equivalent.
+
+---
+
+### Image.Width / Image.Height
+
+```basic
+w = IMAGE.WIDTH(h)
+h = IMAGE.HEIGHT(h)
+```
+
+**Returns** — integer dimensions.
+
+---
+
+### Image.Export
+
+```basic
+ok = IMAGE.EXPORT(h, path$)
+```
+
+Writes an image file; format from **extension** (e.g. `.png`, `.jpg`, `.bmp`, `.tga`). **Returns** boolean success.
+
+---
+
+## Pixel reads (components)
+
+Use separate channel queries (no array value in core **`IMAGE.*`**):
+
+| Registry | Arguments | Returns |
+|---|---|---|
+| `IMAGE.GETCOLORR` / `G` / `B` / `A` | `(h, x, y)` | int 0–255 |
+
+**Coordinates** are **integer** pixel indices.
+
+---
+
+## Drawing on an image
+
+| Command | Purpose |
+|---|---|
+| `IMAGE.DRAWPIXEL` | Single pixel |
+| `IMAGE.DRAWRECT` | Filled rectangle |
+| `IMAGE.DRAWLINE` | Line |
+| `IMAGE.DRAWCIRCLE` | Filled circle |
+| `IMAGE.DRAWRECTLINES` | Rectangle outline (`float` geometry + thickness) |
+| `IMAGE.DRAWTEXT` | Default font text: `(h, x, y, text$, fontSize, r, g, b, a)` |
+| `IMAGE.DRAWIMAGE` | Blit: source rect → dest rect + tint |
 
 ---
 
 ## Crop, resize, flip, rotate
 
-All of these **mutate** the image in place (Raylib-style).
+All **mutate** in place.
 
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `Image.Crop(img, x, y, w, h)` | int rect | |
-| `Image.Resize(img, newW, newH)` | int | Smooth filter |
-| `Image.ResizeNN(img, newW, newH)` | int | Nearest-neighbor |
-| `Image.FlipH(img)` / `Image.FlipV(img)` | handle | |
-| `Image.Rotate(img, degrees)` | handle, int | Custom angle |
-| `Image.RotateCW(img)` / `Image.RotateCCW(img)` | handle | 90° steps |
-
----
-
-## Color adjustments
-
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `Image.ColorTint(img, r, g, b, a)` | handle + RGBA 0–255 | Multiply tint |
-| `Image.ColorInvert(img)` | handle | |
-| `Image.ColorGrayscale(img)` | handle | |
-| `Image.ColorContrast(img, contrast#)` | handle, float | |
-| `Image.ColorBrightness(img, brightness)` | handle, int | |
-| `Image.ColorReplace(img, r1,g1,b1,a1, r2,g2,b2,a2)` | 8 ints | Replace one exact color with another |
-| `Image.ClearBackground(img, r, g, b, a)` | handle + RGBA | Fills entire image |
+| Command | Notes |
+|---|---|
+| `IMAGE.CROP` | Rectangle crop |
+| `IMAGE.RESIZE` | Bilinear |
+| `IMAGE.RESIZENN` | Nearest-neighbour |
+| `IMAGE.FLIPH` / `IMAGE.FLIPV` | |
+| `IMAGE.ROTATE` | Arbitrary degrees |
+| `IMAGE.ROTATECW` / `IMAGE.ROTATECCW` | 90° steps |
 
 ---
 
-## Drawing **onto** an image
+## Colour adjustments
 
-Pixel coordinates are **integers**; colors are **RGBA 0–255**.
-
-| Command | Arguments |
-|--------|-----------|
-| `Image.DrawPixel(img, x, y, r, g, b, a)` | |
-| `Image.DrawRect(img, x, y, w, h, r, g, b, a)` | filled rect |
-| `Image.DrawLine(img, x1, y1, x2, y2, r, g, b, a)` | |
-| `Image.DrawCircle(img, cx, cy, radius, r, g, b, a)` | filled |
-| `Image.DrawText(img, x, y, text$, fontSize, r, g, b, a)` | default font |
-| `Image.DrawRectLines(img, x#, y#, w#, h#, thick, r, g, b, a)` | stroked rect (`float` position/size) |
+| Command | Notes |
+|---|---|
+| `IMAGE.COLORTINT` | Multiply tint RGBA |
+| `IMAGE.COLORINVERT` | |
+| `IMAGE.COLORGRAYSCALE` | |
+| `IMAGE.COLORCONTRAST` | Numeric contrast |
+| `IMAGE.COLORBRIGHTNESS` | Offset brightness |
+| `IMAGE.COLORREPLACE` | Eight ints: from RGBA → to RGBA |
 
 ---
 
-## Blit, dither, mipmaps, format, alpha tools
+## Blit, mipmaps, format, alpha tools
 
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `Image.DrawImage(dest, src, sx, sy, sw, sh, dx, dy, dw, dh, r, g, b, a)` | source rect → dest rect + tint | `ImageDraw`; both handles must be images |
-| `Image.Dither(img, rBpp, gBpp, bBpp, aBpp)` | handle + 4 ints | Floyd–Steinberg |
-| `Image.Mipmaps(img)` | handle | Builds mip chain in CPU memory |
-| `Image.Format(img, pixelFormatInt)` | handle, int | `PixelFormat` enum value |
-| `Image.AlphaCrop(img, threshold#)` | handle, float | Crop to opaque bounds |
-| `Image.AlphaClear(img, r, g, b, a, threshold#)` | | Pixels below alpha threshold → solid color |
-
----
-
-## Read pixels & alpha bounding box
-
-| Command | Arguments | Returns |
-|--------|-----------|---------|
-| `Image.GetColorR` / `GetColorG` / `GetColorB` / `GetColorA` | `(img, x, y)` | int 0–255 per channel |
-| `Image.GetBBOXX` / `GetBBOXY` / `GetBBOXW` / `GetBBOXH` | `(img, alphaThreshold#)` | int tight bbox (`GetBBOXX` ends in **two X**s — matches `IMAGE.GETBBOXX`) |
+| Command | Notes |
+|---|---|
+| `IMAGE.DITHER` | Floyd–Steinberg; four bpp values |
+| `IMAGE.MIPMAPS` | CPU mipmap chain |
+| `IMAGE.FORMAT` | Convert pixel format (Raylib enum int) |
+| `IMAGE.ALPHACROP` | Crop to non-transparent bounds |
+| `IMAGE.ALPHACLEAR` | Below alpha threshold → solid colour |
 
 ---
 
-## Clipboard → image
+## Alpha bounding box
 
-| Command | Arguments | Returns |
-|--------|-----------|---------|
-| `Clipboard.GetImage()` | (none) | handle |
-
-Returns a **new** image copied from the OS clipboard, or fails if no image is available. Free with **`Image.Free`** when done.
+| Command | Returns |
+|---|---|
+| `IMAGE.GETBBOXX`, `GETBBOXY`, `GETBBOXW`, `GETBBOXH` | `(h, alphaThreshold#)` → int |
 
 ---
 
-## Example: composite, upload, draw
+## Clipboard
+
+| Command | Returns |
+|---|---|
+| `CLIPBOARD.GETIMAGE` | New image handle from OS clipboard (if available) |
+
+---
+
+## Example: composite → texture → draw
 
 ```basic
-IF NOT Window.Open(640, 480, "Image → Texture") THEN END
+IF NOT Window.Open(640, 480, "Image to texture") THEN END
 ENDIF
 Window.SetFPS(60)
 
-a = Image.MakeBlank(128, 128, 40, 40, 50, 255)
-b = Image.MakeBlank(32, 32, 200, 80, 80, 255)
-Image.DrawImage(a, b, 0, 0, 32, 32, 48, 48, 32, 32, 255, 255, 255, 255)
-Image.Free(b)
+a = IMAGE.MAKE(128, 128)
+IMAGE.CLEAR(a, 40, 40, 50, 255)
+b = IMAGE.MAKE(32, 32, 200, 80, 80, 255)
+IMAGE.DRAWIMAGE(a, b, 0, 0, 32, 32, 48, 48, 32, 32, 255, 255, 255, 255)
+IMAGE.FREE(b)
 
-tex = Texture.FromImage(a)
-Image.Free(a)
+tex = TEXTURE.FROMIMAGE(a)
+IMAGE.FREE(a)
 
 WHILE NOT Window.ShouldClose()
     Render.Clear(20, 24, 32)
-    Draw.Texture(tex, 200, 160)
+    DRAW.TEXTURE(tex, 200, 160, 255, 255, 255, 255)
     Render.Frame()
 WEND
 
-Texture.Free(tex)
+TEXTURE.FREE(tex)
 Window.Close()
 ```
 
@@ -127,14 +253,14 @@ Window.Close()
 
 ## Common mistakes
 
-- **Using `Image.*` when you meant GPU drawing** — `Image` is a CPU buffer. To show it on screen, call **`Texture.FromImage`**, draw with **`Draw.Texture`**, then **`Texture.Free`** (and **`Image.Free`** if you no longer need the CPU copy).
-- **Forgetting `Image.Free`** — Each load/create returns a heap handle; leak checks and long-running tools expect paired **`Image.Free`**.
-- **`IMAGE.MAKE` vs `IMAGE.MAKEBLANK`** — They are the same operation; use either name.
+- **`IMAGE.*` vs GPU** — To display pixels, use **`TEXTURE.FROMIMAGE`** then **`DRAW.TEXTURE`** (or equivalent), not **`IMAGE.*`** alone.
+- **Unpaired `IMAGE.FREE`** — Each load/create should be freed when done.
+- **`IMAGE.MAKE(w,h)`** — Transparent, not black-opaque, until you clear or paint.
 
 ---
 
 ## See also
 
-- [TEXTURE.md](TEXTURE.md) — GPU textures, **`Texture.FromImage`**
-- [DRAW2D.md](DRAW2D.md) — screen drawing
-- [FONT.md](FONT.md) — TTF on-screen text (separate from **`Image.DrawText`**)
+- [TEXTURE.md](TEXTURE.md) — **`TEXTURE.FROMIMAGE`**, render targets
+- [DRAW2D.md](DRAW2D.md) — screen-space drawing
+- [FONT.md](FONT.md) — TTF on screen (separate from **`IMAGE.DRAWTEXT`**)

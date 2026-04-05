@@ -51,22 +51,29 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 		return m.allocImage(img, "IMAGE.LOADRAW")
 	})
 
+	// makeBlank accepts (w, h) → transparent black RGBA(0,0,0,0), or (w,h,r,g,b,a) → filled color.
 	makeBlank := func(op string) func([]value.Value) (value.Value, error) {
 		return func(args []value.Value) (value.Value, error) {
 			if err := m.requireHeap(); err != nil {
 				return value.Nil, err
 			}
-			if len(args) != 6 {
-				return value.Nil, fmt.Errorf("%s expects width, height, r, g, b, a", op)
+			if len(args) != 2 && len(args) != 6 {
+				return value.Nil, fmt.Errorf("%s expects (width, height) or (width, height, r, g, b, a)", op)
 			}
 			w, ok1 := argInt(args[0])
 			h, ok2 := argInt(args[1])
 			if !ok1 || !ok2 {
 				return value.Nil, fmt.Errorf("%s: width and height must be numeric", op)
 			}
-			col, err := rgbaFromArgs(args[2], args[3], args[4], args[5])
-			if err != nil {
-				return value.Nil, fmt.Errorf("%s: %w", op, err)
+			var col rl.Color
+			if len(args) == 2 {
+				col = rl.Color{R: 0, G: 0, B: 0, A: 0}
+			} else {
+				c, err := rgbaFromArgs(args[2], args[3], args[4], args[5])
+				if err != nil {
+					return value.Nil, fmt.Errorf("%s: %w", op, err)
+				}
+				col = rl.Color{R: c.R, G: c.G, B: c.B, A: c.A}
 			}
 			img := rl.GenImageColor(int(w), int(h), col)
 			return m.allocImage(img, op)
@@ -75,20 +82,24 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 	reg.Register("IMAGE.MAKEBLANK", "image", runtime.AdaptLegacy(makeBlank("IMAGE.MAKEBLANK")))
 	reg.Register("IMAGE.MAKE", "image", runtime.AdaptLegacy(makeBlank("IMAGE.MAKE")))
 
-	reg.Register("IMAGE.MAKECOPY", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		if err := m.requireHeap(); err != nil {
-			return value.Nil, err
+	makeCopy := func(op string) func([]value.Value) (value.Value, error) {
+		return func(args []value.Value) (value.Value, error) {
+			if err := m.requireHeap(); err != nil {
+				return value.Nil, err
+			}
+			if len(args) != 1 {
+				return value.Nil, fmt.Errorf("%s expects image handle", op)
+			}
+			src, err := m.getImage(args, 0, op)
+			if err != nil {
+				return value.Nil, err
+			}
+			cp := rl.ImageCopy(src)
+			return m.allocImage(cp, op)
 		}
-		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("IMAGE.MAKECOPY expects image handle")
-		}
-		src, err := m.getImage(args, 0, "IMAGE.MAKECOPY")
-		if err != nil {
-			return value.Nil, err
-		}
-		cp := rl.ImageCopy(src)
-		return m.allocImage(cp, "IMAGE.MAKECOPY")
-	}))
+	}
+	reg.Register("IMAGE.MAKECOPY", "image", runtime.AdaptLegacy(makeCopy("IMAGE.MAKECOPY")))
+	reg.Register("IMAGE.COPY", "image", runtime.AdaptLegacy(makeCopy("IMAGE.COPY")))
 
 	// Fixed canvas: GenImageColor + ImageDrawText (not raw GenImageText).
 	reg.Register("IMAGE.MAKETEXT", "image", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

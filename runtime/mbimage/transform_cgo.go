@@ -263,22 +263,26 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("IMAGE.CLEARBACKGROUND", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		if err := m.requireHeap(); err != nil {
-			return value.Nil, err
+	imageClearBackground := func(op string) func([]value.Value) (value.Value, error) {
+		return func(args []value.Value) (value.Value, error) {
+			if err := m.requireHeap(); err != nil {
+				return value.Nil, err
+			}
+			if len(args) != 5 {
+				return value.Nil, fmt.Errorf("%s expects handle, r, g, b, a", op)
+			}
+			img, err := m.getImage(args, 0, op)
+			if err != nil {
+				return value.Nil, err
+			}
+			col, err := rgbaFromArgs(args[1], args[2], args[3], args[4])
+			if err != nil {
+				return value.Nil, fmt.Errorf("%s: %w", op, err)
+			}
+			rl.ImageClearBackground(img, col)
+			return value.Nil, nil
 		}
-		if len(args) != 5 {
-			return value.Nil, fmt.Errorf("IMAGE.CLEARBACKGROUND expects handle, r, g, b, a")
-		}
-		img, err := m.getImage(args, 0, "IMAGE.CLEARBACKGROUND")
-		if err != nil {
-			return value.Nil, err
-		}
-		col, err := rgbaFromArgs(args[1], args[2], args[3], args[4])
-		if err != nil {
-			return value.Nil, fmt.Errorf("IMAGE.CLEARBACKGROUND: %w", err)
-		}
-		rl.ImageClearBackground(img, col)
-		return value.Nil, nil
-	}))
+	}
+	reg.Register("IMAGE.CLEARBACKGROUND", "image", runtime.AdaptLegacy(imageClearBackground("IMAGE.CLEARBACKGROUND")))
+	reg.Register("IMAGE.CLEAR", "image", runtime.AdaptLegacy(imageClearBackground("IMAGE.CLEAR")))
 }

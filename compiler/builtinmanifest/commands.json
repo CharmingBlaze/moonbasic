@@ -3524,9 +3524,23 @@
       "key": "IMAGE.MAKEBLANK",
       "args": [
         "int",
+        "int"
+      ]
+    },
+    {
+      "key": "IMAGE.MAKEBLANK",
+      "args": [
         "int",
         "int",
         "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "IMAGE.MAKE",
+      "args": [
         "int",
         "int"
       ]
@@ -3544,6 +3558,12 @@
     },
     {
       "key": "IMAGE.MAKECOPY",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "IMAGE.COPY",
       "args": [
         "handle"
       ]
@@ -3693,6 +3713,16 @@
     },
     {
       "key": "IMAGE.CLEARBACKGROUND",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "IMAGE.CLEAR",
       "args": [
         "handle",
         "int",

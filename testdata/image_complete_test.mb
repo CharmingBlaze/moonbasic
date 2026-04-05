@@ -1,17 +1,56 @@
-img = IMAGE.MAKE(8, 8, 10, 20, 30, 255)
-ASSERT(IMAGE.WIDTH(img) = 8, "MAKE width")
-ASSERT(IMAGE.HEIGHT(img) = 8, "MAKE height")
+PRINT("=== Image Tests ===")
 
-IMAGE.DRAWPIXEL(img, 0, 0, 1, 2, 3, 255)
-ASSERT(IMAGE.GETCOLORR(img, 0, 0) = 1, "GETCOLORR")
-ASSERT(IMAGE.GETCOLORG(img, 0, 0) = 2, "GETCOLORG")
-ASSERT(IMAGE.GETCOLORB(img, 0, 0) = 3, "GETCOLORB")
-ASSERT(IMAGE.GETCOLORA(img, 0, 0) = 255, "GETCOLORA")
+; Creation: (w,h) = transparent black; (w,h,r,g,b,a) = solid fill
+img = IMAGE.MAKE(64, 64)
+ASSERT(IMAGE.WIDTH(img) = 64, "MAKE 2-arg width")
+ASSERT(IMAGE.HEIGHT(img) = 64, "MAKE 2-arg height")
+ASSERT(IMAGE.GETCOLORA(img, 0, 0) = 0, "MAKE 2-arg transparent A")
+
+IMAGE.CLEAR(img, 100, 150, 200, 255)
+ASSERT(IMAGE.GETCOLORR(img, 0, 0) = 100, "CLEAR R")
+ASSERT(IMAGE.GETCOLORG(img, 0, 0) = 150, "CLEAR G")
+ASSERT(IMAGE.GETCOLORB(img, 0, 0) = 200, "CLEAR B")
+ASSERT(IMAGE.GETCOLORA(img, 0, 0) = 255, "CLEAR A")
+
+IMAGE.DRAWPIXEL(img, 32, 32, 255, 0, 0, 255)
+ASSERT(IMAGE.GETCOLORR(img, 32, 32) = 255, "pixel R")
+ASSERT(IMAGE.GETCOLORG(img, 32, 32) = 0, "pixel G")
+ASSERT(IMAGE.GETCOLORB(img, 32, 32) = 0, "pixel B")
+
+IMAGE.COLORBRIGHTNESS(img, 30)
+IMAGE.COLORCONTRAST(img, 10)
+
+IMAGE.FLIPH(img)
+IMAGE.FLIPV(img)
+IMAGE.ROTATE(img, 90)
+
+ASSERT(IMAGE.WIDTH(img) = 64, "WIDTH after rotate")
+ASSERT(IMAGE.HEIGHT(img) = 64, "HEIGHT after rotate")
+
+IMAGE.DRAWRECT(img, 5, 5, 20, 20, 255, 200, 50, 255)
+IMAGE.DRAWCIRCLE(img, 45, 45, 10, 255, 50, 50, 255)
+IMAGE.DRAWLINE(img, 0, 0, 63, 63, 200, 200, 200, 255)
+IMAGE.DRAWTEXT(img, 2, 2, "Hi", 8, 255, 255, 255, 255)
+
+ok = IMAGE.EXPORT(img, "testdata/image_test_out.png")
+ASSERT(ok, "EXPORT png")
+ASSERT(FILEEXISTS("testdata/image_test_out.png"), "FILEEXISTS out png")
+IMAGE.FREE(img)
+
+; Copy alias + 6-arg solid
+src = IMAGE.MAKE(8, 8, 10, 20, 30, 255)
+dup = IMAGE.COPY(src)
+ASSERT(IMAGE.WIDTH(dup) = 8, "COPY width")
+IMAGE.FREE(dup)
+IMAGE.FREE(src)
 
 img2 = IMAGE.MAKEBLANK(4, 4, 0, 0, 0, 0)
 ASSERT(IMAGE.WIDTH(img2) = 4, "MAKEBLANK width")
 IMAGE.FREE(img2)
 
-IMAGE.FREE(img)
+gen = IMAGE.MAKE(32, 32, 255, 128, 64, 255)
+ok2 = IMAGE.EXPORT(gen, "testdata/image_test.jpg")
+ASSERT(ok2, "EXPORT jpg")
+IMAGE.FREE(gen)
 
-PRINT("image_complete_test ok")
+PRINT("Image tests OK")
