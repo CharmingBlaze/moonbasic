@@ -262,7 +262,8 @@ moonbasic mygame/main.mb
 |---|---|
 | How commands fit together (loop, 2D/3D, CGO) | [Programming Guide](PROGRAMMING.md) |
 | Language syntax (IF, FOR, FUNCTION…) | [Language Reference](LANGUAGE.md) |
-| Every command in one place | [Command Index](COMMANDS.md) |
+| Command index by topic | [Command Index](COMMANDS.md) |
+| Full manifest (every name + arity) | [API_CONSISTENCY.md](API_CONSISTENCY.md) |
 | Copy-paste snippets + narrative | [Examples](EXAMPLES.md) |
 | Runnable programs under `examples/` | [examples/README.md](../examples/README.md) |
 | 2D drawing | [Draw Reference](reference/DRAW2D.md) |

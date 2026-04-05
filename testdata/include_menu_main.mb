@@ -1,0 +1,3 @@
+; Example: INCLUDE merges another .mb file at compile time
+INCLUDE "include_menu_lib.mb"
+PRINT(MenuTitle$())

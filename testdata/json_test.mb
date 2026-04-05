@@ -1,0 +1,7 @@
+; JSON path + PARSESTRING + QUERY (runtime smoke)
+j = JSON.PARSESTRING("{\"spawn\":{\"x\":3,\"y\":4},\"items\":[{\"id\":\"a\",\"qty\":1},{\"id\":\"b\",\"qty\":2}]}")
+PRINT(JSON.GETINT(j, "spawn.x"))
+LIST = JSON.QUERY(j, "items[*].id")
+PRINT(ARRAYLEN(LIST))
+JSON.FREE(j)
+PRINT("json_test ok")

@@ -6,16 +6,23 @@ import (
 	"fmt"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+
+	"moonbasic/runtime"
 )
 
 // DrawFrameOverlay draws DEBUG.WATCH lines on top of the current frame.
 // Called from window.RENDER.FRAME before EndDrawing; requires an active Raylib frame.
 func (m *Module) DrawFrameOverlay() {
+	reg := runtime.ActiveRegistry()
 	m.mu.Lock()
+	user := m.overlayUser
 	lines := make([]watchEntry, len(m.watches))
 	copy(lines, m.watches)
 	m.mu.Unlock()
 	if len(lines) == 0 {
+		return
+	}
+	if reg != nil && !reg.DebugMode && !user {
 		return
 	}
 	const fontSize int32 = 18

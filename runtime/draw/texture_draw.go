@@ -67,8 +67,8 @@ func (m *Module) drawTexture(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawTextureTiled(args []value.Value) (value.Value, error) {
-	if len(args) != 15 {
-		return value.Nil, fmt.Errorf("DRAW.TEXTURETILED expects 15 arguments (handle, srcx,srcy,srcw,srch, dstx,dsty,dstw,dsth, ox,oy, rot, scale, r,g,b,a)")
+	if len(args) != 17 {
+		return value.Nil, fmt.Errorf("DRAW.TEXTURETILED expects 17 arguments (handle, srcx,srcy,srcw,srch, dstx,dsty,dstw,dsth, ox,oy, rot, scale, r,g,b,a)")
 	}
 	tex, err := m.textureFromArg(args[0])
 	if err != nil {
@@ -226,8 +226,8 @@ func (m *Module) drawTextureRec(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawTexturePro(args []value.Value) (value.Value, error) {
-	if len(args) != 17 {
-		return value.Nil, fmt.Errorf("DRAW.TEXTUREPRO expects 17 arguments (handle, srcx,srcy,srcw,srch, dstx,dsty,dstw,dsth, ox,oy, rot, r,g,b,a)")
+	if len(args) != 16 {
+		return value.Nil, fmt.Errorf("DRAW.TEXTUREPRO expects 16 arguments (handle, srcx,srcy,srcw,srch, dstx,dsty,dstw,dsth, ox,oy, rot, r,g,b,a)")
 	}
 	tex, err := m.textureFromArg(args[0])
 	if err != nil {

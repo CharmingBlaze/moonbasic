@@ -31,6 +31,9 @@ func formatMBValueRT(rt *runtime.Runtime, v value.Value) string {
 }
 
 func (m *Module) Register(r runtime.Registrar) {
+	r.Register("DEBUG.ENABLE", "debug", runtime.AdaptLegacy(m.debugEnable))
+	r.Register("DEBUG.DISABLE", "debug", runtime.AdaptLegacy(m.debugDisable))
+	r.Register("DEBUG.ISENABLED", "debug", runtime.AdaptLegacy(m.debugIsEnabled))
 	r.Register("DEBUG.PRINT", "debug", m.debugPrint1)
 	r.Register("DEBUG.PRINTL", "debug", m.debugPrintLabeled)
 	r.Register("DEBUG.WATCH", "debug", m.debugWatch)
@@ -52,10 +55,43 @@ func (m *Module) Register(r runtime.Registrar) {
 func (m *Module) Shutdown() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	m.overlayUser = false
 	m.watches = nil
 	m.profStack = nil
 	m.profSum = nil
 	m.profN = nil
+}
+
+func (m *Module) debugEnable(args []value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("DEBUG.ENABLE expects 0 arguments")
+	}
+	m.mu.Lock()
+	m.overlayUser = true
+	m.mu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) debugDisable(args []value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("DEBUG.DISABLE expects 0 arguments")
+	}
+	m.mu.Lock()
+	m.overlayUser = false
+	m.mu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) debugIsEnabled(args []value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("DEBUG.ISENABLED expects 0 arguments")
+	}
+	reg := runtime.ActiveRegistry()
+	m.mu.Lock()
+	u := m.overlayUser
+	m.mu.Unlock()
+	on := u || (reg != nil && reg.DebugMode)
+	return value.FromBool(on), nil
 }
 
 func (m *Module) debugPrint1(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

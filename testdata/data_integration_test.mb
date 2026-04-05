@@ -1,0 +1,11 @@
+; JSON <-> CSV bridges
+j = JSON.PARSESTRING("[{\"a\":1,\"b\":\"x\"},{\"a\":2,\"b\":\"y\"}]")
+s$ = JSON.TOCSV(j)
+PRINT(s$)
+JSON.FREE(j)
+c = CSV.FROMSTRING(s$)
+j2 = CSV.TOJSON(c)
+PRINT(JSON.TOSTRING(j2))
+JSON.FREE(j2)
+CSV.FREE(c)
+PRINT("data_integration ok")

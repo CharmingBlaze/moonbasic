@@ -11,7 +11,9 @@ import (
 )
 
 // Expand processes INCLUDE directives: merges types, functions, and statement lists;
-// resolves paths relative to the including file; detects cycles and duplicate includes.
+// resolves paths relative to the including file; detects cycles.
+// A given absolute path is expanded at most once per compilation (duplicate INCLUDE is a no-op),
+// avoiding duplicate top-level code and extra parse work.
 func Expand(hostFile string, prog *ast.Program) (*ast.Program, error) {
 	return ExpandWithArena(hostFile, prog, nil)
 }
@@ -88,8 +90,10 @@ func expandStmtSlice(hostAbs string, stmts []ast.Stmt, stack []string, seen map[
 		if stackContains(stack, childAbsFinal) {
 			return nil, fmt.Errorf("[moonBASIC] Error: circular INCLUDE detected: %s", formatCircularChain(stack, childAbsFinal))
 		}
-		if _, dup := seen[childAbsFinal]; dup {
-			return nil, fmt.Errorf("[moonBASIC] Error: duplicate INCLUDE of %q", inc.Path)
+		if _, already := seen[childAbsFinal]; already {
+			// Include-guard: same file requested again (e.g. multiple modules INCLUDE "game.mb").
+			// Skip re-parse and re-merge — statements were inlined on first occurrence.
+			continue
 		}
 		seen[childAbsFinal] = struct{}{}
 

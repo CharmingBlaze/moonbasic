@@ -24,7 +24,7 @@ Sets the **look-at** point in world space.
 
 Alias of **`Camera.SetTarget`** (same arguments and behaviour).
 
-### `Camera.SetProjection(camera, mode%)`
+### `Camera.SetProjection(camera, mode#)`
 
 Sets the Raylib projection mode: **`0`** = perspective (**`CameraPerspective`**), **`1`** = orthographic (**`CameraOrthographic`**). In orthographic mode, **`fovy`** is interpreted as the **near-plane height** in world units (Raylib convention).
 

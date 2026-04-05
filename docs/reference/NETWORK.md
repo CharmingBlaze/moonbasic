@@ -142,3 +142,59 @@ WEND
 Net.Stop()
 Window.Close()
 ```
+
+---
+
+## High-level server, client, RPC, and lobby (CGO)
+
+The same ENet stack also exposes **opinionated** helpers in `runtime/net/mp_high_cgo.go`: a hosted **server tick**, **client tick**, **JSON RPC** over a dedicated channel, and **in-memory lobby** objects. These require **CGO** and a bound heap where noted.
+
+### `SERVER.*` (dedicated host)
+
+| Command | Purpose |
+|---------|---------|
+| `Server.Start(port, maxClients)` | Calls `Net.Start`, creates the server host, stores it globally. Fails if a server is already running. |
+| `Server.Stop()` | Closes the server host and clears sync state. |
+| `Server.OnConnect(functionName$)` / `Server.OnDisconnect(functionName$)` | Register user functions for peer connect/disconnect (names folded uppercase). |
+| `Server.OnMessage(functionName$)` | Handler for non-RPC user traffic (see runtime for wire format). |
+| `Server.SyncEntity(entityHandle, flags)` | Registers a **model** handle for periodic **transform sync** to clients (`flags` bitmask: transform bit = `1`). |
+| `Server.SetTickRate(hz)` | Sets broadcast tick rate for sync flush inside `Server.Tick`. |
+| `Server.Tick(dt#)` | Runs `Net.Update`, drains events, accumulates time, and periodically **broadcasts** transform sync packets. |
+
+### `CLIENT.*`
+
+| Command | Purpose |
+|---------|---------|
+| `Client.Connect(host$, port)` | Starts networking, creates a client host, connects, stores peer globally. |
+| `Client.Stop()` | Closes client and clears peer. |
+| `Client.OnConnect` / `Client.OnMessage` / `Client.OnSync` | Set user function names for connection, generic messages, and **sync** payloads (`Client.OnSync` receives decoded transform updates). |
+| `Client.Tick(dt#)` | `Net.Update` + event drain for the client host. |
+
+### `RPC.*` — JSON remote calls
+
+Wire format is `MBRPC1:` + JSON `{"f":"FUNCNAME","a":[...]}` sent on **channel 2** (`chRPC`), **reliable**.
+
+| Command | Role |
+|---------|------|
+| `RPC.Call(functionName$, ...)` | **Server → all clients** — broadcasts an RPC (server must be running). |
+| `RPC.CallTo(peer, functionName$, ...)` | Send RPC to one **peer** handle. |
+| `RPC.CallServer(functionName$, ...)` | **Client → server** — uses the connected server peer. |
+
+Arguments are encoded as JSON numbers, strings, bools, or **handle ids as floats** (see `valueToJSONArg`). On the **server**, the callee receives **extra trailing peer handle** when your handler is invoked from `handleRPCPacket`.
+
+### `LOBBY.*` — local lobby descriptors
+
+Lightweight **heap** objects for matchmaking metadata (not network discovery by itself):
+
+| Command | Purpose |
+|---------|---------|
+| `Lobby.Create(name$, maxPlayers)` → handle | Allocates a lobby; tracks it in a global list. |
+| `Lobby.Free(lobby)` | Removes and frees the handle. |
+| `Lobby.SetProperty(lobby, key$, value$)` | String properties (keys lowercased). |
+| `Lobby.SetHost(lobby, host$, port)` | Address used by `Lobby.Join`. |
+| `Lobby.Start(lobby)` | Marks lobby started (`started` flag). |
+| `Lobby.Find(key$, value$)` → **heap array handle** | Lobbies whose property matches; handles stored as **floats** in the array (or a one-element array with `0` if none). |
+| `Lobby.GetName(lobby)` → string | |
+| `Lobby.Join(lobby)` | Calls `Client.Connect` with `Lobby`’s host/port (`SETHOST` required). |
+
+For the lower-level **`Net.*` / `Peer.*` / `Event.*`** workflow, see the sections above.

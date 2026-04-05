@@ -1,0 +1,11 @@
+; CSV round-trip + TOJSON
+nl$ = CHR$(10)
+c = CSV.FROMSTRING("name,score" + nl$ + "ada,10" + nl$ + "bob,20")
+rc = CSV.ROWCOUNT(c)
+PRINT(rc)
+j = CSV.TOJSON(c)
+ln = JSON.LEN(j, "")
+PRINT(ln)
+JSON.FREE(j)
+CSV.FREE(c)
+PRINT("csv_test ok")

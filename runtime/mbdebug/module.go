@@ -21,6 +21,9 @@ type profileFrame struct {
 type Module struct {
 	mu sync.Mutex
 
+	// overlayUser: when true, DEBUG.WATCH overlay may draw without Registry.DebugMode (see overlay_cgo.go).
+	overlayUser bool
+
 	watches []watchEntry
 
 	profStack []profileFrame

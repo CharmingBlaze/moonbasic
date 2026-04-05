@@ -2,7 +2,7 @@
 
 This document covers the core features of the moonBASIC language.
 
-For **built-in APIs** (window, draw, time, files, …), how to structure a game loop, and platform notes, see the [Programming Guide](PROGRAMMING.md) and [Command Index](COMMANDS.md).
+For **built-in APIs** (window, draw, time, files, …), how to structure a game loop, and platform notes, see the [Programming Guide](PROGRAMMING.md), [Command Index](COMMANDS.md), and the full registry [API_CONSISTENCY.md](API_CONSISTENCY.md).
 
 ---
 
@@ -176,3 +176,30 @@ FUNCTION CheckValue(val)
     PRINT "Value is valid."
 ENDFUNCTION
 ```
+
+---
+
+## INCLUDE (splitting programs across files)
+
+Use **`INCLUDE "path.mb"`** to merge another source file **at compile time**. The path is resolved relative to the **file that contains the `INCLUDE`**. If the file is not found there, the compiler searches extra roots from **`MOONBASIC_PATH`** and installed package directories (see [PACKAGES.md](PACKAGES.md)).
+
+- **Case**: The keyword is case-insensitive (`include` and `INCLUDE` are the same).
+- **Order**: Types and functions from the included file are pulled in first; then its top-level statements are inserted where the `INCLUDE` line was.
+- **Duplicates**: Including the same file more than once (even from different parents) is **ignored after the first occurrence** — the file is parsed once, so shared modules like `game.mb` or `menu.mb` do not duplicate code or work.
+- **Cycles**: `A` includes `B` includes `A` is an error (clear message at compile time).
+
+Example — main file pulls in a menu module:
+
+```basic
+INCLUDE "menu.mb"
+
+Window.Open(800, 600, "Game")
+; ... rest of main ...
+Window.Close()
+```
+
+Where `menu.mb` might define shared functions or data used by the main game.
+
+Compile-time only: there is **no** runtime cost per frame from `INCLUDE`; the merged program is what gets bytecode-generated. Transient parse memory uses the compiler arena during `moonbasic` / `CompileFile` and is released after compilation.
+
+See also: [MEMORY.md](MEMORY.md) (brief note on compile-time merge).

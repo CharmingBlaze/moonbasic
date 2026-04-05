@@ -17,6 +17,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerDraw3DCmds(m, r)
 	registerDrawNamespaceAliases(m, r)
 	registerCircleExtraCmds(m, r)
+	registerDrawHelperCmds(m, r)
 }
 
 // Shutdown implements runtime.Module.

@@ -31,6 +31,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.registerMusic(r)
 	m.registerStreamWaveSound(r)
 	m.registerPlayback(r)
+	m.registerVarietyPlayback(r)
 	m.registerAudioProps(r)
 }
 

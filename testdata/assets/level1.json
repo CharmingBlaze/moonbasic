@@ -1,0 +1,8 @@
+{
+  "name": "level1",
+  "spawn": { "x": 10, "y": 20 },
+  "items": [
+    { "id": "key", "qty": 1 },
+    { "id": "coin", "qty": 5 }
+  ]
+}

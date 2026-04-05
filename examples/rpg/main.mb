@@ -16,7 +16,7 @@ wasInZone? = FALSE
 
 IF UTIL.FILEEXISTS(save$) THEN
     raw$ = READALLTEXT$(save$)
-    jd = JSON.PARSE(raw$)
+    jd = JSON.PARSESTRING(raw$)
     px = JSON.GETINT(jd, "px")
     py = JSON.GETINT(jd, "py")
     gold = JSON.GETINT(jd, "gold")

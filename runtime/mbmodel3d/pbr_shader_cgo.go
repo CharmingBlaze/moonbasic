@@ -64,6 +64,8 @@ uniform vec3 lightColor;
 uniform int useNormalMap;
 uniform mat4 lightVP;
 uniform int shadowEnabled;
+uniform vec3 ambientColor;
+uniform float shadowBiasK;
 
 float shadowFactor(vec3 N, vec3 L) {
     if (shadowEnabled == 0) return 1.0;
@@ -72,7 +74,8 @@ float shadowFactor(vec3 N, vec3 L) {
     proj.xy = proj.xy * 0.5 + 0.5;
     if (proj.z > 1.0 || proj.x < 0.0 || proj.x > 1.0 || proj.y < 0.0 || proj.y > 1.0)
         return 1.0;
-    float bias = max(0.0008 * (1.0 - dot(N, L)), 0.00015);
+    float bk = max(shadowBiasK, 0.25);
+    float bias = max(0.0008 * bk * (1.0 - dot(N, L)), 0.00015 * bk);
     float d = texture(texture11, proj.xy).r;
     return (proj.z - bias > d) ? 0.35 : 1.0;
 }
@@ -116,7 +119,7 @@ void main() {
     float sh = shadowFactor(N, L);
     vec3 radiance = lightColor * NdotL * sh;
     vec3 Lo = (kD * albedo / 3.14159265 + spec) * radiance;
-    vec3 ambient = albedo * 0.06;
+    vec3 ambient = albedo * ambientColor;
     vec3 color = ambient + Lo;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));

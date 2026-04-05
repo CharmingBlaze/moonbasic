@@ -1,5 +1,9 @@
 # World streaming (`WORLD.*`)
 
+## Role in the stack
+
+**World** does not own heightmap data. It drives **which part of the terrain** should be resident: you set **`WORLD.SETCENTER`** to the player or camera XZ, then **`WORLD.UPDATE`** once per frame so the bound terrain can load/unload **chunks** according to **`CHUNK.SETRANGE`**. Use **`WORLD.PRELOAD`** for a startup burst so the first view is filled in. See the narrative in [ARCHITECTURE.md](../../ARCHITECTURE.md) §11 (*Conceptual overview*).
+
 The **world manager** ties into the active [`terrain`](TERRAIN.md) module: it updates **stream center**, runs **chunk load/unload** each frame, and exposes **preload** and **ready** queries. It does **not** implement separate `REGION.*` file I/O — that remains future work.
 
 **CGO** required for real terrain streaming; stubs fail without it.

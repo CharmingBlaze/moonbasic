@@ -33,6 +33,19 @@ Color components `r, g, b, a` are **0–255** unless noted.
 | `Draw.Poly` | `cx, cy, sides, radius#, rotation#, r, g, b, a` |
 | `Draw.PolyLines` | `cx, cy, sides, radius#, rotation#, thick, r, g, b, a` |
 
+### UI-style helpers
+
+| Command | Arguments (summary) |
+|---------|---------------------|
+| `Draw.ProgressBar` | `x, y, w, h, t#, r, g, b, a` — **`t`** in **0..1**; gray track + filled bar |
+| `Draw.HealthBar` | `x, y, w, h, current#, max#, r, g, b, a` — fill ratio **`current/max`** |
+| `Draw.CenterText` | `text$, y, size, r, g, b, a` — horizontally centered on the screen |
+| `Draw.RightText` | `text$, marginRight, y, size, r, g, b, a` — right-aligned with **`marginRight`** from the right edge |
+| `Draw.ShadowText` | `text$, x, y, size, r, g, b, a` — offset shadow |
+| `Draw.OutlineText` | `text$, x, y, size, r, g, b, a` — 8-neighbor outline |
+| `Draw.Crosshair` | `cx, cy, radius, r, g, b, a` |
+| `Draw.RectGrid` | `x, y, cellW, cellH, cols, rows, line rgba, fill rgba` (14 args) |
+
 ---
 
 ## Lines and splines
@@ -67,7 +80,7 @@ All texture commands take a **texture handle** from `Texture.Load` / `Texture.Fr
 | `Draw.TexturePro` | `tex, src rect (4 floats), dest rect (4 floats), ox#, oy#, rot#, r, g, b, a` |
 | `Draw.TextureFull` | `tex` — stretches full texture to the screen |
 | `Draw.TextureFlipped` | `tex` — draws render-target texture flipped (Y) full screen |
-| `Draw.TextureTiled` | `tex, src rect, dest rect, ox#, oy#, rot#, scale#, r, g, b, a` (15 args). Tiles with `Draw.TexturePro` internally. For **`rot# = 0` and `ox# = oy# = 0`** behavior matches tiled fills; non-zero rotation/origin uses a **single** `Draw.TexturePro` over the destination (not per-tile). |
+| `Draw.TextureTiled` | `tex, src rect (4 floats), dest rect (4 floats), ox#, oy#, rot#, scale#, r, g, b, a` (17 args). Tiles with `Draw.TexturePro` internally. For **`rot# = 0` and `ox# = oy# = 0`** behavior matches tiled fills; non-zero rotation/origin uses a **single** `Draw.TexturePro` over the destination (not per-tile). |
 | `Draw.TextureNPatch` | `tex, L, T, R, B, x, y, w, h, r, g, b, a` — border widths then destination rect |
 
 ---

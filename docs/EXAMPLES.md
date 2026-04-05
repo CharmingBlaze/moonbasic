@@ -27,6 +27,8 @@ See [examples/README.md](../examples/README.md) for the full table and Windows n
 
 Command names are **case-insensitive** at compile time (`Draw.Text` = `DRAW.TEXT`).
 
+For **all commands by namespace**, naming conventions, and `SetPos` / `SetPosition` aliases, see [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`). For errors (did-you-mean, runtime line info) see [ERROR_MESSAGES.md](ERROR_MESSAGES.md). **Live HUD:** `DEBUG.WATCH(label$, value)` each frame (on-screen overlay requires CGO; enable with `DEBUG.ENABLE` or host debug mode — see [DEBUG.md](reference/DEBUG.md)). Shortcuts and instant-game helpers (`SCREENW`, `DT`, collision math, timers, …) are documented under [QOL.md](reference/QOL.md).
+
 ---
 
 ## 3D spinning cube — `examples/spin_cube/main.mb`
@@ -147,5 +149,6 @@ For cross-platform physics, start from [Physics 2D](reference/PHYSICS2D.md) inst
 ## Next steps
 
 - [Programming guide](PROGRAMMING.md) — structure, types, platforms  
-- [Command index](COMMANDS.md) — look up any builtin  
+- [Command index](COMMANDS.md) — topic index; [API_CONSISTENCY.md](API_CONSISTENCY.md) lists every registered builtin  
 - [Getting started](GETTING_STARTED.md) — install and first window  
+- [Camera / culling](reference/CAMERA.md) — CPU frustum and `Cull.*` (section **Culling and visibility**); [`testdata/culling_test.mb`](../testdata/culling_test.mb)  

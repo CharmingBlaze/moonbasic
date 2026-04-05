@@ -4,6 +4,16 @@ Commands to help with debugging and profiling your application.
 
 ---
 
+### `DEBUG.ENABLE` / `DEBUG.DISABLE`
+
+With **CGO** and Raylib, the watch overlay (`DEBUG.WATCH`) is drawn at frame end only when **`Registry.DebugMode`** is true (for example the host passes **`--debug`** / pipeline **`Options.Debug`**) **or** you have called **`DEBUG.ENABLE`**. **`DEBUG.DISABLE`** turns off that user override; if the process is not in debug mode and you have disabled the override, the overlay is not drawn even when watches are stored.
+
+### `DEBUG.ISENABLED`
+
+Returns **`TRUE`** when the overlay is allowed to draw: **`DEBUG.ENABLE`** was used, or **`Registry.DebugMode`** is on. It does not check whether any **`DEBUG.WATCH`** rows exist.
+
+---
+
 ### `ASSERT(condition, message$)`
 
 An assertion is a statement that a condition must be true at a specific point in your program. If the `condition` evaluates to `FALSE`, the program will halt and print the `message$`. This is a powerful tool for catching bugs early.

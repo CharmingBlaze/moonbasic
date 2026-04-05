@@ -1,0 +1,6 @@
+Data module registry audit (generated). Keys are implemented in runtime unless noted.
+JSON.* -> runtime/jsonmod (package mbjson), pure Go
+CSV.* -> runtime/csvmod (package mbcsv), pure Go
+DB.* / ROWS.* -> runtime/dbmod (package mbdb), CGO sqlite3; stubs when !cgo
+TABLE.* -> runtime/tablemod (package mbtable), pure Go
+Pipeline order: jsonmod, csvmod, dbmod, tablemod before RegisterFromManifest (compiler/pipeline/pipeline.go)

@@ -11,9 +11,11 @@ import (
 
 func registerRaylibTiming(reg runtime.Registrar) {
 	reg.Register("TIME.DELTA", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		_ = rt
 		if len(args) != 0 {
 			return value.Nil, errArgs(0, len(args))
+		}
+		if rt != nil && rt.GamePaused {
+			return value.FromFloat(0), nil
 		}
 		return value.FromFloat(float64(rl.GetFrameTime())), nil
 	})

@@ -1,0 +1,74 @@
+# QOL / DarkBASIC-style command matrix (moonBASIC registry keys)
+# Status: DONE = registered + real impl | PARTIAL = stub/CGO-only/partial | MISSING | DOCONLY = docs only
+# Primary: file:line (approximate — use ripgrep for exact line after edits)
+
+# --- Group 1: Game shortcuts (implemented in runtime/mbgame, namespace "game" metadata) ---
+SCREENW                 DONE     runtime/mbgame/shortcuts_cgo.go
+SCREENH                 DONE     runtime/mbgame/shortcuts_cgo.go
+SCREENCX                DONE     runtime/mbgame/shortcuts_cgo.go
+SCREENCY                DONE     runtime/mbgame/shortcuts_cgo.go
+DT                      DONE     runtime/mbgame/shortcuts_cgo.go (delegates TIME.DELTA semantics)
+FPS                     DONE     runtime/mbgame/shortcuts_cgo.go (rl.GetFPS when CGO)
+ELAPSED                 DONE     runtime/mbgame/pause.go (wall-clock since module init; NOT TIME.GET)
+FRAMECOUNT              DONE     runtime/mbgame/pause.go (Registry.FrameCount after RENDER.FRAME)
+ENDGAME                 DONE     runtime/mbgame/shortcuts_cgo.go (calls Registry.TerminateVM; not Window.Close)
+PAUSEGAME               DONE     runtime/mbgame/pause.go
+RESUMEGAME              DONE     runtime/mbgame/pause.go
+GAMEPAUSE               DONE     runtime/mbgame/pause.go
+MX                      DONE     runtime/mbgame/shortcuts_cgo.go
+MY                      DONE     runtime/mbgame/shortcuts_cgo.go
+MDX                     DONE     runtime/mbgame/shortcuts_cgo.go
+MDY                     DONE     runtime/mbgame/shortcuts_cgo.go
+MWHEEL                  DONE     runtime/mbgame/shortcuts_cgo.go
+MLEFT                   DONE     runtime/mbgame/shortcuts_cgo.go
+MRIGHT                  DONE     runtime/mbgame/shortcuts_cgo.go
+MMIDDLE                 DONE     runtime/mbgame/shortcuts_cgo.go
+MLEFTPRESSED            DONE     runtime/mbgame/shortcuts_cgo.go
+MRIGHTPRESSED           DONE     runtime/mbgame/shortcuts_cgo.go
+KEYDOWN                 DONE     runtime/mbgame/shortcuts_cgo.go
+KEYPRESSED              DONE     runtime/mbgame/shortcuts_cgo.go
+KEYRELEASED             DONE     runtime/mbgame/shortcuts_cgo.go
+KEYCHAR                 DONE     runtime/mbgame/shortcuts_cgo.go
+ANYKEY                  DONE     runtime/mbgame/shortcuts_cgo.go
+
+# --- Group 2: Colour (runtime/mbgame pure + register_color_format.go) ---
+RGB ARGB RGBR RGBG RGBB RGBA RGBMIX RGBBRIGHTEN RGBDARKEN RGBFADE  DONE  runtime/mbgame
+COL_WHITE … COL_* constants  DONE  runtime/mbgame/register_color_format.go (as commands returning packed int)
+
+# --- Group 3: Collision math (runtime/mbgame/register_collision.go) ---
+BOXCOLLIDE … DISTANCESQ3D   DONE   runtime/mbgame/register_collision.go
+SPRITECOLLIDE             DONE     runtime/sprite/raylib_cgo.go (alias of SPRITE.HIT)
+SPRITE.POINTHIT           DONE     runtime/sprite/raylib_cgo.go
+
+# --- Group 4: Movement (runtime/mbgame/register_math.go + pure_math.go) ---
+NEWXVALUE NEWYVALUE … WRAPVALUE  DONE  runtime/mbgame
+
+# --- Group 5: Draw helpers ---
+FORMATINT FORMATSCORE FORMATTIME FORMATTIME2  DONE  runtime/mbgame/register_color_format.go
+DRAW.PROGRESSBAR … DRAW.RECTGRID  DONE  runtime/draw/helpers_cgo.go (registry DRAW.*)
+
+# --- Group 6: Easing (runtime/mbgame/register_ease_noise_rand.go) ---
+EASEIN … EASELERP         DONE   runtime/mbgame
+
+# --- Group 7: Timers (runtime/mbgame/timers.go) ---
+TIMER.NEW / RESET / REMAINING / FINISHED / FREE   DONE   wall-clock model
+STOPWATCH.*                                        DONE
+TIMER.MAKE START STOP REWIND UPDATE DONE FRACTION SETLOOP  DONE  runtime/mbgame/timer_sim.go (+ TIMER.REMAINING merged in timers.go)
+
+# --- Group 8–9: Procedural / noise ---
+PERLIN SIMPLEX FBMNOISE …  DONE  runtime/mbgame
+
+# --- Group 10: Config ---
+CONFIG.*                   DONE   runtime/mbgame/config.go (module-backed store; not separate heap TagConfig)
+
+# --- Group 11: Debug ---
+DEBUG.WATCH                DONE   runtime/mbdebug/debug.go
+DEBUG.ENABLE/DISABLE/ISENABLED  DONE  runtime/mbdebug/debug.go + overlay_cgo.go
+
+# --- Group 12: Audio helpers ---
+AUDIO.PLAYVARYSOUND PLAYRNDSOUND  DONE  runtime/audio/variety_cgo.go
+
+# --- Group 13: Screen / camera helpers ---
+CAMERA2D.WORLDTOSCREEN     DONE   runtime/camera/cam2d_cgo.go
+CAMERA.GETRAY GETVIEWRAY    DONE   runtime/camera/raylib_cgo.go
+CAMERA.WORLDTOSCREEN ISONSCREEN MOUSERAY  DONE  runtime/camera/screen_cgo.go

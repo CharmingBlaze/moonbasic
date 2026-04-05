@@ -108,6 +108,14 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("DRAW.BILLBOARDREC", "draw", stub("DRAW.BILLBOARDREC"))
 	r.Register("DRAW.CIRCLESECTOR", "draw", stub("DRAW.CIRCLESECTOR"))
 	r.Register("DRAW.CIRCLEGRADIENT", "draw", stub("DRAW.CIRCLEGRADIENT"))
+	r.Register("DRAW.PROGRESSBAR", "draw", stub("DRAW.PROGRESSBAR"))
+	r.Register("DRAW.HEALTHBAR", "draw", stub("DRAW.HEALTHBAR"))
+	r.Register("DRAW.CENTERTEXT", "draw", stub("DRAW.CENTERTEXT"))
+	r.Register("DRAW.RIGHTTEXT", "draw", stub("DRAW.RIGHTTEXT"))
+	r.Register("DRAW.SHADOWTEXT", "draw", stub("DRAW.SHADOWTEXT"))
+	r.Register("DRAW.OUTLINETEXT", "draw", stub("DRAW.OUTLINETEXT"))
+	r.Register("DRAW.CROSSHAIR", "draw", stub("DRAW.CROSSHAIR"))
+	r.Register("DRAW.RECTGRID", "draw", stub("DRAW.RECTGRID"))
 }
 
 // Shutdown implements runtime.Module.

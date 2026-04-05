@@ -1,0 +1,4 @@
+; Shared menu helpers (included by main)
+FUNCTION MenuTitle$()
+    RETURN "Demo"
+ENDFUNCTION

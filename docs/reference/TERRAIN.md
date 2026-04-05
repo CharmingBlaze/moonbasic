@@ -1,5 +1,11 @@
 # Terrain and chunks (`TERRAIN.*`, `CHUNK.*`)
 
+## How this subsystem fits the open-world stack
+
+This module holds the **2D height grid** and builds **one mesh per loaded chunk** so the whole world is not a single giant draw. **[`WORLD.*`](WORLD.md)** moves the **stream center** (usually camera/player XZ) and calls into terrain so chunks **inside** the load radius get meshes and chunks **outside** the unload radius can be released. **`CHUNK.*`** adjusts streaming distances and answers questions like how many chunks are loaded.
+
+For the **architecture-level** story (terrain vs world, draw order, handles, navigation), read **§11** in [ARCHITECTURE.md](../../ARCHITECTURE.md) (*Open-world runtime* and *Conceptual overview*).
+
 Heightfield terrain with **chunked** mesh generation (Raylib **`GenMeshHeightmap`**), streaming driven by [`WORLD.*`](WORLD.md) and the terrain module’s internal center. **CGO + Raylib** required for draw and mesh build; without CGO, stubs report an error.
 
 **Draw order:** Typically **sky → terrain → opaque props → water → weather** (see [ARCHITECTURE.md](../../ARCHITECTURE.md)).

@@ -65,6 +65,13 @@ type Registry struct {
 	TerminateVM func()
 	// HostArgs is process argv for ARGC / COMMAND$; nil means use os.Args. A non-nil empty slice is a deliberate empty argv.
 	HostArgs []string
+
+	// GamePaused when true makes TIME.DELTA and DT() return 0 (game pause helpers).
+	GamePaused bool
+	// FrameCount increments once per successful RENDER.FRAME (instant game utilities).
+	FrameCount uint64
+	// DebugMode mirrors pipeline Options.Debug (--info): DEBUG.* draw helpers no-op when false.
+	DebugMode bool
 }
 
 // NewRegistry initializes the runtime environment.

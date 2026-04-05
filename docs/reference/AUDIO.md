@@ -36,6 +36,14 @@ Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a handle.
 
 Plays a loaded sound effect. Multiple instances of the same sound can overlap.
 
+### `Audio.PlayVarySound(sound, minPitch#, maxPitch#)`
+
+Picks a **uniform random** pitch between **`minPitch`** and **`maxPitch`**, applies it with **`Audio.SetSoundPitch`**, then plays the sound. Pitch stays on the sound object until changed again.
+
+### `Audio.PlayRndSound(sound1, sound2, ...)`
+
+Plays **one** of the given sound handles, chosen uniformly at random (two to four overloads are listed in the manifest). All arguments must be **sound** handles.
+
 ### `Sound.Free(soundHandle)`
 
 Unloads a sound from memory.

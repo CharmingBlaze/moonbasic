@@ -18,7 +18,7 @@ func (m *Module) inGetKeyName(rt *runtime.Runtime, args ...value.Value) (value.V
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("INPUT.GETKEYNAME expects (key)")
 	}
-	k, err := keyCodeArg(args[0])
+	k, err := KeyCodeFromValue(args[0])
 	if err != nil {
 		return value.Nil, fmt.Errorf("INPUT.GETKEYNAME: %w", err)
 	}

@@ -115,6 +115,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("LIGHT2D.MAKE", "light2d", runtime.AdaptLegacy(m.ldMake))
 	reg.Register("LIGHT2D.FREE", "light2d", runtime.AdaptLegacy(m.ldFree))
 	reg.Register("LIGHT2D.SETPOS", "light2d", runtime.AdaptLegacy(m.ldSetPos))
+	reg.Register("LIGHT2D.SETPOSITION", "light2d", runtime.AdaptLegacy(m.ldSetPos))
 	reg.Register("LIGHT2D.SETCOLOR", "light2d", runtime.AdaptLegacy(m.ldSetColor))
 	reg.Register("LIGHT2D.SETRADIUS", "light2d", runtime.AdaptLegacy(m.ldSetRadius))
 	reg.Register("LIGHT2D.SETINTENSITY", "light2d", runtime.AdaptLegacy(m.ldSetIntensity))

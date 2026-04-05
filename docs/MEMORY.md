@@ -2,6 +2,18 @@
 
 This document describes how **Go**, **CGo/native** (Raylib, optional Jolt/ENet), and the **handle table** interact. It is the reference for contributors auditing leaks or adding new `HeapObject` types.
 
+## 3D shadows and VRAM
+
+The deferred PBR path allocates **one** shadow depth render texture (`RenderTexture2D`) sized **`RENDER.SETSHADOWMAPSIZE` × same** (plus depth buffer). It is reused every frame—**not** per light. Only **one** light may cast shadows at a time (`LIGHT.SETSHADOW`); switching casters reuses the same GPU target.
+
+`LIGHT.*` handles are **CPU-side** (no Raylib objects); freeing a light does **not** free the global shadow map—that lives until resolution changes or the app exits. Lowering **`RENDER.SETSHADOWMAPSIZE`** is the main lever to reduce shadow VRAM.
+
+## Compile-time `INCLUDE`
+
+`INCLUDE "file.mb"` is expanded **before** bytecode generation (`compiler/include`). Each distinct resolved path is read and parsed **once** per compilation; repeated includes of the same file are no-ops (include-guard semantics), so shared libraries do not duplicate statements or AST work.
+
+The pipeline may parse the merged program into a compile-time **arena** (`arena.Arena` in `CompileSource`); that memory is tied to the compile and is reset after the `opcode.Program` is built. **Runtime** memory rules above apply to handles created while the script runs — `INCLUDE` does not add per-frame allocation.
+
 ## Three layers
 
 ```mermaid
@@ -70,6 +82,7 @@ The runtime avoids background workers for terrain mesh builds (main-thread Rayli
 | [`testdata/memtest_streaming.mb`](../testdata/memtest_streaming.mb) | Terrain load/unload churn. |
 | [`testdata/noise_test.mb`](../testdata/noise_test.mb) | `NOISE.*` headless checks. |
 | [`testdata/noise_terrain.mb`](../testdata/noise_terrain.mb) | Windowed noise preview. |
+| [`testdata/include_menu_main.mb`](../testdata/include_menu_main.mb) | `INCLUDE` of a sibling `.mb` file (compile-time merge). |
 
 All should pass `go run . --check <file>`.
 

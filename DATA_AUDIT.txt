@@ -1,0 +1,10 @@
+Data module command inventory (pre/post implementation audit).
+Source: compiler/builtinmanifest/commands.json + runtime Register("...") for data namespaces.
+
+JSON.* — DONE — runtime/jsonmod
+CSV.* — DONE — runtime/csvmod
+DB.* — DONE (CGO) / STUB (!cgo) — runtime/dbmod
+ROWS.* — DONE (CGO) / STUB (!cgo) — runtime/dbmod
+TABLE.* — DONE — runtime/tablemod
+
+See DATA_AUDIT_FINAL.txt for pipeline note.

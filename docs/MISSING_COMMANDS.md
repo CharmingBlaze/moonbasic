@@ -21,6 +21,16 @@ Use **`compiler/builtinmanifest/commands.json`** as the authoritative list of re
 
 | Doc | Topics |
 |-----|--------|
+| [reference/NAV_AI.md](reference/NAV_AI.md) | `NAV.*`, `PATH.*`, `NAVAGENT.*`, `STEER.*`, `BTREE.*` (CGO) |
+| [reference/JSON.md](reference/JSON.md) | `JSON.*` flat object API |
+| [reference/MEM.md](reference/MEM.md) | `MEM.*` binary buffers |
+| [reference/DATA.md](reference/DATA.md) | `DATA.*` compress / Base64 / hashes |
+| [reference/UTIL.md](reference/UTIL.md) | `UTIL.*` paths, I/O helpers, drag-drop |
+| [reference/SCENE.md](reference/SCENE.md) | `SCENE.*` loaders and hooks |
+| [reference/TWEEN.md](reference/TWEEN.md) | `TWEEN.*` |
+| [reference/TRANSITION.md](reference/TRANSITION.md) | `TRANSITION.*` (CGO) |
+| [reference/POOL.md](reference/POOL.md) | `POOL.*` |
+| [reference/NETWORK.md](reference/NETWORK.md) | `SERVER.*`, `CLIENT.*`, `RPC.*`, `LOBBY.*` (CGO high-level section) |
 | [reference/IMAGE.md](reference/IMAGE.md) | `IMAGE.DRAWIMAGE`, `DITHER`, `MIPMAPS`, `FORMAT`, `DRAWRECTLINES`, `ALPHACROP`, `ALPHACLEAR` |
 | [reference/VEC_QUAT.md](reference/VEC_QUAT.md) | `VEC3.TRANSFORMMAT4`, `ANGLE`, `PROJECT`, `ORTHONORMALIZE`, `ROTATEBYQUAT`, `VEC2.TRANSFORMMAT4`, `QUAT.*` (incl. `TOEULER`, `FROMVEC3TOVEC3`, `FROMMAT4`, `TRANSFORM`) |
 | [reference/SHADER.md](reference/SHADER.md) | `SHADER.FREE`, `GETLOC`, `SETFLOAT`/`VEC*`, `SETINT`, `SETTEXTURE` |

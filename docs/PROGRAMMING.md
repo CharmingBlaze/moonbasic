@@ -1,6 +1,6 @@
 # Programming in moonBASIC
 
-This guide explains how **built-in commands** fit together, how to structure programs, and where to look up APIs. Pair it with [Language Reference](LANGUAGE.md) (syntax) and [Command Index](COMMANDS.md) (every symbol).
+This guide explains how **built-in commands** fit together, how to structure programs, and where to look up APIs. Pair it with [Language Reference](LANGUAGE.md) (syntax), [Command Index](COMMANDS.md) (topic index), and [API_CONSISTENCY.md](API_CONSISTENCY.md) (every registered command name and arity, generated from the manifest).
 
 ---
 
@@ -126,7 +126,8 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 | Need | Document |
 |------|----------|
 | Syntax (`IF`, `FUNCTION`, …) | [LANGUAGE.md](LANGUAGE.md) |
-| Alphabetical commands | [COMMANDS.md](COMMANDS.md) |
+| Topic command index | [COMMANDS.md](COMMANDS.md) |
+| Every manifest name (arity, types) | [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`) |
 | Copy-paste samples | [EXAMPLES.md](EXAMPLES.md) |
 | Install & first run | [GETTING_STARTED.md](GETTING_STARTED.md) |
 | Deep dive per topic | [reference/](reference/WINDOW.md) (module pages) |
