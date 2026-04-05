@@ -26,6 +26,8 @@ func handleCallRegistryPrefix(typeName string) string {
 		return "CAMERA2D."
 	case "RENDERTEXTURE":
 		return "RENDERTARGET."
+	case "INSTANCEDMODEL":
+		return "INSTANCE."
 	case "MATRIX4":
 		return "TRANSFORM."
 	default:
@@ -115,11 +117,11 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		case "DRAW":
 			return "MODEL.DRAW", true, true
 		case "SETINSTANCEPOS":
-			return "MODEL.SETINSTANCEPOS", true, true
+			return "INSTANCE.SETINSTANCEPOS", true, true
 		case "SETINSTANCESCALE":
-			return "MODEL.SETINSTANCESCALE", true, true
+			return "INSTANCE.SETINSTANCESCALE", true, true
 		case "UPDATEINSTANCES":
-			return "MODEL.UPDATEINSTANCES", true, true
+			return "INSTANCE.UPDATEINSTANCES", true, true
 		}
 	case "PARTICLE":
 		switch mn {

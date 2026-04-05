@@ -14,7 +14,7 @@ import (
 )
 
 func registerModelInstDraw(m *Module, reg runtime.Registrar) {
-	reg.Register("MODEL.MAKEINSTANCED", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	makeInstanced := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -68,9 +68,11 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		return value.FromHandle(id), nil
-	})
+	}
+	reg.Register("MODEL.MAKEINSTANCED", "model", makeInstanced)
+	reg.Register("INSTANCE.MAKEINSTANCED", "model", makeInstanced)
 
-	reg.Register("MODEL.SETINSTANCEPOS", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	setInstancePos := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -94,9 +96,11 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		i := int(idx)
 		o.px[i], o.py[i], o.pz[i] = x, y, z
 		return value.Nil, nil
-	}))
+	}
+	reg.Register("MODEL.SETINSTANCEPOS", "model", runtime.AdaptLegacy(setInstancePos))
+	reg.Register("INSTANCE.SETINSTANCEPOS", "model", runtime.AdaptLegacy(setInstancePos))
 
-	reg.Register("MODEL.SETINSTANCESCALE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	setInstanceScale := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -120,9 +124,11 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		i := int(idx)
 		o.sx[i], o.sy[i], o.sz[i] = x, y, z
 		return value.Nil, nil
-	}))
+	}
+	reg.Register("MODEL.SETINSTANCESCALE", "model", runtime.AdaptLegacy(setInstanceScale))
+	reg.Register("INSTANCE.SETINSTANCESCALE", "model", runtime.AdaptLegacy(setInstanceScale))
 
-	reg.Register("MODEL.UPDATEINSTANCES", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	updateInstances := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -139,7 +145,9 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 			o.transforms[i] = rl.MatrixMultiply(tr, sc)
 		}
 		return value.Nil, nil
-	}))
+	}
+	reg.Register("MODEL.UPDATEINSTANCES", "model", runtime.AdaptLegacy(updateInstances))
+	reg.Register("INSTANCE.UPDATEINSTANCES", "model", runtime.AdaptLegacy(updateInstances))
 
 	reg.Register("MODEL.DRAW", "model", runtime.AdaptLegacy(m.modelDraw))
 }

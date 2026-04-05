@@ -2770,6 +2770,40 @@
       ]
     },
     {
+      "key": "INSTANCE.MAKEINSTANCED",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "INSTANCE.SETINSTANCEPOS",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.SETINSTANCESCALE",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "INSTANCE.UPDATEINSTANCES",
+      "args": [
+        "handle"
+      ]
+    },
+    {
       "key": "MODEL.DRAW",
       "args": [
         "handle"
