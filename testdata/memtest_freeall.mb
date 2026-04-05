@@ -1,0 +1,13 @@
+; Creates textures without explicit FREE — Store.FreeAll on shutdown must release them.
+; Run under Valgrind on Linux to verify zero CGo leaks.
+
+Window.Open(400, 300, "memtest_freeall")
+Window.SetFPS(60)
+
+FOR i = 1 TO 24
+    t = Texture.GenColor(32, 32, i * 8, i * 4, 200, 255)
+NEXT
+
+PRINT("memtest_freeall: allocated 24 textures (no Texture.Free)")
+Window.Close()
+PRINT("memtest_freeall OK")

@@ -1,0 +1,14 @@
+; Basic create/free cycle for textures (explicit cleanup path).
+
+Window.Open(400, 300, "memtest_basic")
+Window.SetFPS(60)
+
+FOR i = 1 TO 40
+    t = Texture.GenColor(16, 16, i * 4, i * 3, 180, 255)
+    Texture.Free(t)
+NEXT
+
+PRINT("memtest_basic: 40 create/free cycles OK")
+
+Window.Close()
+PRINT("memtest_basic OK")
