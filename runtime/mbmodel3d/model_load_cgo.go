@@ -32,6 +32,30 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		return value.FromHandle(id), nil
 	})
 
+	// MODEL.MAKE wraps LoadModelFromMesh — copies mesh data into a new Model (independent of the mesh handle).
+	reg.Register("MODEL.MAKE", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 || args[0].Kind != value.KindHandle {
+			return value.Nil, fmt.Errorf("MODEL.MAKE expects mesh handle")
+		}
+		o, err := m.getMesh(args, 0, "MODEL.MAKE")
+		if err != nil {
+			return value.Nil, err
+		}
+		mod := rl.LoadModelFromMesh(o.m)
+		o.consumedByModel = true
+		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: ""})
+		if err != nil {
+			o.consumedByModel = false
+			rl.UnloadModel(mod)
+			return value.Nil, err
+		}
+		return value.FromHandle(id), nil
+	})
+
 	reg.Register("MODEL.FREE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err

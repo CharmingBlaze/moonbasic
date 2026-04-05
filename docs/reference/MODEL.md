@@ -1,188 +1,156 @@
-# 3D Model & Mesh Commands
+# Model — `MODEL.*`
 
-Commands for creating, loading, and drawing 3D models and meshes.
+A **model** is a Raylib **`Model`**: meshes, materials, optional animation data, and a root transform. Registry keys use **dots and uppercase** (e.g. `MODEL.LOAD`). This page matches the **current** runtime, not legacy PascalCase-only docs.
 
-**Meshes only:** procedural mesh primitives, bbox queries, and **`MESH.UPLOAD`** are documented in **[MESH.md](MESH.md)** (`MESH.*`).
+**Requires CGO.** See **[MESH.md](MESH.md)** for raw **`MESH.*`** geometry.
 
 ---
 
-## Models
-
-Models are complex objects that contain one or more meshes, along with their own materials and transformation data.
-
-### `Model.Load(filePath$)`
-
-Loads a 3D model from a file (e.g., `.gltf`, `.glb`, `.obj`). This command loads all associated meshes and materials. It returns a handle to the model.
-
-- `filePath$`: The path to the model file.
+### Model.Load
 
 ```basic
-; Load a spaceship model
-ship_model = Model.Load("assets/ship.glb")
+mdl = MODEL.LOAD(path$)
 ```
+
+Loads **GLTF/GLB/OBJ/IQM/B3D** (Raylib loaders). Returns a model handle.
+
+**Returns** — handle.
 
 ---
 
-### `Model.Draw(modelHandle, matrixHandle)`
-
-Draws a complete model, including all of its meshes, using a given transformation matrix.
-
-- `modelHandle`: The handle of the model to draw.
-- `matrixHandle`: A handle to a **transform** matrix (`Transform.*` / legacy `Mat4.*`) that defines the model's position, rotation, and scale.
+### Model.Make
 
 ```basic
-; Create a transformation matrix for the ship
-ship_transform = Transform.Translation(0, 5, 0) ; Position in world space
-
-; In the main loop
-Render.Clear(0,0,0)
-cam.Begin()
-    Model.Draw(ship_model, ship_transform)
-cam.End()
-Render.Frame()
+mdl = MODEL.MAKE(mesh)
 ```
 
----
+Builds a model from an existing **`MESH`** handle via **`LoadModelFromMesh`**. The engine marks the mesh as **consumed by the model**: GPU data is owned by the new model; **`MESH.FREE(mesh)`** does **not** call `UnloadMesh` again (avoids double-free). Always **`MODEL.FREE(mdl)`** to release the model (which unloads the mesh data).
 
-### `Model.SetMaterial(modelHandle, materialIndex, materialHandle)`
-
-Replaces one of a model's existing materials with a new one. This is useful for customizing the appearance of a loaded model.
-
-- `modelHandle`: The handle of the model.
-- `materialIndex`: The zero-based index of the material to replace.
-- `materialHandle`: The handle of the new material.
+> **Common mistake:** Calling **`MESH.FREE`** before **`MODEL.FREE`** expecting to unload VRAM first — with **`MODEL.MAKE`**, free the **model** first, then release the **mesh** handle for the heap slot only.
 
 ---
 
-### `Model.Free(modelHandle)`
-
-Unloads a model and all its associated meshes and materials from memory. This is important for preventing memory leaks.
-
----
-
-## Meshes
-
-Meshes are the building blocks of 3D objects, containing vertex data like positions and texture coordinates. You can create them procedurally or load them as part of a model.
-
-### `Mesh.MakeCube(width#, height#, depth#)`
-
-Creates a procedural cube mesh and returns a handle to it.
+### Model.Draw
 
 ```basic
-; Create a 2x2x2 cube mesh
-cube_mesh = Mesh.MakeCube(2, 2, 2)
+MODEL.DRAW(mdl)
 ```
+
+**One argument** — the model, **LOD model**, or **instanced model** handle. There is **no** separate matrix argument: use **`MODEL.SETPOS`** / internal transforms on the Raylib model (see below).
+
+**Phase:** Call between **`CAMERA.BEGIN`** and **`CAMERA.END`** for 3D.
 
 ---
 
-### `Mesh.Draw(meshHandle, materialHandle, matrixHandle)`
-
-Draws a single mesh with a specific material and transformation. This is more low-level than `Model.Draw`.
-
-- `meshHandle`: The handle of the mesh.
-- `materialHandle`: The handle of the material to apply.
-- `matrixHandle`: The transformation matrix for the mesh.
+### Model.SetPos
 
 ```basic
-; Create a cube, a material, and a transform
-cube_mesh = Mesh.MakeCube(2, 2, 2)
-my_material = Material.MakeDefault()
-cube_transform = Transform.Identity()
-
-; In the main loop, draw the single mesh
-Mesh.Draw(cube_mesh, my_material, cube_transform)
+MODEL.SETPOS(mdl, x#, y#, z#)
+MODEL.SETPOSITION(mdl, x#, y#, z#)
 ```
 
----
-
-### Other Procedural Meshes
-
-- `Mesh.MakeSphere(radius#, rings, slices)`: Creates a sphere.
-- `Mesh.MakePlane(width#, length#, resX, resZ)`: Creates a flat plane.
+Sets the model’s root transform to **translation** (replaces rotation/scale from the previous matrix). Works for **`modelObj`** and **`lodModelObj`**.
 
 ---
 
-### `Mesh.Free(meshHandle)`
-
-Unloads a mesh from memory.
-
----
-
-## Materials
-
-Materials define the surface appearance of a mesh (color, texture, shininess).
-
-### `Material.MakeDefault()`
-
-Creates a new material with default PBR (Physically-Based Rendering) settings. Returns a handle.
-
----
-
-### `Material.MakePBR()`
-
-Creates a full PBR material with support for shadow sampling and additional
-uniform slots. Use this when working with custom PBR shaders.
-
----
-
-### `Material.SetTexture(materialHandle, mapType, textureHandle)`
-
-Assigns a texture to a specific map channel of a material.
-
-- `materialHandle`: The handle of the material.
-- `mapType`: The material map type. Common values:
-  - `MATERIAL_MAP_ALBEDO` (also `MAP_DIFFUSE`) — the base color texture.
-  - `MATERIAL_MAP_METALNESS` — metalness map.
-  - `MATERIAL_MAP_ROUGHNESS` — roughness map.
-  - `MATERIAL_MAP_NORMAL` — normal map.
-- `textureHandle`: The handle of the texture, loaded with `Texture.Load()`.
+### Model.Free
 
 ```basic
-; Create a material and apply a texture to it
-stone_mat = Material.MakeDefault()
-stone_tex = Texture.Load("assets/stone.png")
-Material.SetTexture(stone_mat, MATERIAL_MAP_ALBEDO, stone_tex)
+MODEL.FREE(mdl)
 ```
+
+Unloads the model and meshes/materials (`UnloadModel`). Pair with **`MODEL.LOAD`** / **`MODEL.MAKE`**.
 
 ---
 
-### `Material.SetColor(materialHandle, mapType, r, g, b, a)`
-
-Sets the tint color of a material map slot. This is a fast way to color a mesh
-without needing a texture — the default material renders with this color.
-
-- `mapType`: Typically `MATERIAL_MAP_ALBEDO`.
-- `r`, `g`, `b`, `a`: Color components (0–255).
+### Model.GetMaterialCount
 
 ```basic
-; Create a solid red cube without any texture file
-red_mat = Material.MakeDefault()
-Material.SetColor(red_mat, MATERIAL_MAP_ALBEDO, 220, 50, 50, 255)
+n = MODEL.GETMATERIALCOUNT(mdl)
 ```
 
----
-
-### `Material.SetFloat(materialHandle, mapType, value#)`
-
-Sets the float value of a material map slot. Used for metalness and roughness
-values when not using a texture map.
-
-```basic
-; Make a shiny metal surface
-chrome_mat = Material.MakeDefault()
-Material.SetFloat(chrome_mat, MATERIAL_MAP_METALNESS, 1.0)
-Material.SetFloat(chrome_mat, MATERIAL_MAP_ROUGHNESS, 0.1)
-```
+**Returns** — integer.
 
 ---
 
-### `Material.SetShader(materialHandle, shaderHandle)`
+## Materials and appearance (selected)
 
-Assigns a custom GLSL shader to a material. See [Shader Reference](SHADER.md).
+| Command | Notes |
+|---|---|
+| `MODEL.SETDIFFUSE` | `(mdl, r, g, b)` — albedo tint, 0–255 |
+| `MODEL.SETSPECULAR` / `SETSPECULARPOW` | Specular colour / shininess |
+| `MODEL.SETEMISSIVE` | Emissive colour |
+| `MODEL.SETAMBIENTCOLOR` | Ambient tint |
+| `MODEL.SETALPHA` | Alpha channel on albedo maps |
+| `MODEL.SETMATERIAL` | Replace material by index |
+| `MODEL.SETMATERIALTEXTURE` / `SETMATERIALSHADER` | Per-slot texture/shader |
+| `MODEL.SETMODELMESHMATERIAL` | Assign material index per mesh |
+
+Texture **stage** helpers (`SETTEXTURESTAGE`, `SETSTAGEBLEND`, `SCROLLTEXTURE`, …) are for multi-layer scrolling effects — see runtime registration in **`model_texture_stages_cgo.go`**.
 
 ---
 
-### `Material.Free(materialHandle)`
+## Render state toggles
 
-Frees a material resource. This does not free textures assigned to the material;
-call `Texture.Free()` for those separately.
+| Command | Purpose |
+|---|---|
+| `MODEL.SETWIREFRAME` | Wireframe overlay hint |
+| `MODEL.SETCULL` | Face culling |
+| `MODEL.SETLIGHTING` / `SETFOG` | Lighting / fog hints |
+| `MODEL.SETBLEND` | Blend mode |
+| `MODEL.SETDEPTH` | Depth test/write hints |
+| `MODEL.SETGPUSKINNING` | GPU skinning when available |
+
+---
+
+## Scene graph (handles)
+
+| Command | Notes |
+|---|---|
+| `MODEL.CLONE` | Duplicate model data |
+| `MODEL.INSTANCE` | Shared-mesh instance |
+| `MODEL.ATTACHTO` / `DETACH` | Parent/child |
+| `MODEL.EXISTS` | Valid handle check |
+
+---
+
+## LOD
+
+| Command | Notes |
+|---|---|
+| `MODEL.LOADLOD` | Multiple paths + LOD distances |
+| `MODEL.SETLODDISTANCES` | Per-LOD ranges |
+
+---
+
+## Instancing
+
+| Command | Notes |
+|---|---|
+| `MODEL.MAKEINSTANCED` | `path$`, instance count |
+| `MODEL.SETINSTANCEPOS` / `SETINSTANCESCALE` | Per-instance |
+| `MODEL.UPDATEINSTANCES` | Rebuild instance matrices |
+| `MODEL.DRAW` | Same as regular draw (handles instanced object) |
+
+---
+
+## Example (procedural mesh → model)
+
+See **`testdata/model_complete_test.mb`**: **`MESH.MAKECUBE`** → **`MODEL.MAKE`** → **`MODEL.SETPOS`** / **`MODEL.SETDIFFUSE`** → **`CAMERA.BEGIN`** / **`MODEL.DRAW`** / **`CAMERA.END`**.
+
+---
+
+## Common mistakes
+
+- **`MODEL.DRAW(mdl, matrix)`** — not supported; use **`MODEL.SETPOS`** (and future rotation APIs if added).
+- **`mod` as a variable name** — **`MOD`** is reserved in moonBASIC; use **`mdl`** or **`modelHandle`**.
+- **Double-free after `MODEL.MAKE`** — follow **`MODEL.FREE`** then **`MESH.FREE`** (mesh slot only) as in the test, or read **`consumedByModel`** behaviour above.
+
+---
+
+## See also
+
+- [MESH.md](MESH.md) — procedural meshes, **`MESH.UPLOAD`**, **`MESH.DRAW`**
+- [CAMERA.md](CAMERA.md) — 3D camera
+- [LIGHT.md](LIGHT.md) — PBR lighting
+- [SHADER.md](SHADER.md) — custom materials via shaders

@@ -9,9 +9,12 @@ import (
 )
 
 // meshObj owns mesh GPU data uploaded for Raylib; typically freed before parent model is unloaded.
+// If consumedByModel is set, MODEL.MAKE(LoadModelFromMesh) shares the same Mesh GPU data with a Model —
+// UnloadMesh is deferred to MODEL.FREE; MESH.FREE on the source handle skips GPU unload.
 type meshObj struct {
-	m       rl.Mesh
-	release heap.ReleaseOnce
+	m                 rl.Mesh
+	consumedByModel   bool
+	release           heap.ReleaseOnce
 }
 
 func (o *meshObj) TypeName() string { return "Mesh" }
@@ -19,7 +22,12 @@ func (o *meshObj) TypeName() string { return "Mesh" }
 func (o *meshObj) TypeTag() uint16 { return heap.TagMesh }
 
 func (o *meshObj) Free() {
-	o.release.Do(func() { rl.UnloadMesh(&o.m) })
+	o.release.Do(func() {
+		if o.consumedByModel {
+			return
+		}
+		rl.UnloadMesh(&o.m)
+	})
 }
 
 // materialObj owns Raylib materials/shaders; if moved==true, ownership transferred to a model — do not unload here.
