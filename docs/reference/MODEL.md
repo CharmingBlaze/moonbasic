@@ -2,6 +2,8 @@
 
 Commands for creating, loading, and drawing 3D models and meshes.
 
+**Meshes only:** procedural mesh primitives, bbox queries, and **`MESH.UPLOAD`** are documented in **[MESH.md](MESH.md)** (`MESH.*`).
+
 ---
 
 ## Models
