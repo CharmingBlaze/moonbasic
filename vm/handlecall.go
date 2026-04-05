@@ -24,6 +24,8 @@ func handleCallRegistryPrefix(typeName string) string {
 		return "CAMERA."
 	case "CAMERA2D":
 		return "CAMERA2D."
+	case "RENDERTEXTURE":
+		return "RENDERTARGET."
 	case "MATRIX4":
 		return "TRANSFORM."
 	default:
@@ -51,6 +53,13 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 			return "CAMERA2D.END", false, true
 		case "BEGIN", "SETTARGET", "SETOFFSET", "SETZOOM", "SETROTATION", "GETMATRIX", "WORLDTOSCREEN", "SCREENTOWORLD", "FREE":
 			return "CAMERA2D." + mn, true, true
+		}
+	case "RENDERTEXTURE":
+		switch mn {
+		case "END":
+			return "RENDERTARGET.END", false, true
+		case "BEGIN", "FREE", "TEXTURE":
+			return "RENDERTARGET." + mn, true, true
 		}
 	case "TILEMAP":
 		switch mn {
@@ -166,6 +175,8 @@ func HandleCallSuggestions(typeName string) []string {
 			"LookAt", "MouseRay", "Move", "SetFOV", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen"}
 	case "CAMERA2D":
 		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
+	case "RENDERTEXTURE":
+		out = []string{"Begin", "End", "Free", "Texture"}
 	case "TILEMAP":
 		out = []string{"CollisionAt", "Draw", "DrawLayer", "Free", "GetTile", "Height", "IsSolid", "IsSolidCategory",
 			"LayerCount", "LayerName", "MergeCollisionLayer", "SetCollision", "SetTile", "SetTileSize", "Width"}

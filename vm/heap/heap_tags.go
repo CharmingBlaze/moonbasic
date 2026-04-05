@@ -88,4 +88,5 @@ const (
 	TagSpriteBatch
 	TagSpriteUI
 	TagParticle2D
+	TagRenderTexture
 )

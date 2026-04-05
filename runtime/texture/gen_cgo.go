@@ -15,10 +15,52 @@ import (
 )
 
 func registerTextureGenCmds(m *Module, r runtime.Registrar) {
+	r.Register("TEXTURE.GENWHITENOISE", "texture", runtime.AdaptLegacy(m.texGenWhiteNoise))
 	r.Register("TEXTURE.GENCHECKED", "texture", runtime.AdaptLegacy(m.texGenChecked))
 	r.Register("TEXTURE.GENGRADIENTV", "texture", runtime.AdaptLegacy(m.texGenGradientV))
 	r.Register("TEXTURE.GENGRADIENTH", "texture", runtime.AdaptLegacy(m.texGenGradientH))
 	r.Register("TEXTURE.GENCOLOR", "texture", runtime.AdaptLegacy(m.texGenColor))
+}
+
+func (m *Module) texGenWhiteNoise(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("TEXTURE.GENWHITENOISE: heap not bound")
+	}
+	if len(args) != 2 && len(args) != 3 {
+		return value.Nil, fmt.Errorf("TEXTURE.GENWHITENOISE expects (w, h) or (w, h, factor#)")
+	}
+	w, ok0 := argI32(args[0])
+	h, ok1 := argI32(args[1])
+	if !ok0 || !ok1 {
+		return value.Nil, fmt.Errorf("TEXTURE.GENWHITENOISE: w,h must be numeric")
+	}
+	factor := float32(1)
+	if len(args) == 3 {
+		if f, ok := argF32(args[2]); ok {
+			factor = f
+		} else {
+			return value.Nil, fmt.Errorf("TEXTURE.GENWHITENOISE: factor must be numeric")
+		}
+	}
+	im := rl.GenImageWhiteNoise(int(w), int(h), factor)
+	defer rl.UnloadImage(im)
+	tex := rl.LoadTextureFromImage(im)
+	id, err := m.h.Alloc(&TextureObject{Tex: tex})
+	if err != nil {
+		rl.UnloadTexture(tex)
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func argF32(v value.Value) (float32, bool) {
+	if f, ok := v.ToFloat(); ok {
+		return float32(f), true
+	}
+	if i, ok := v.ToInt(); ok {
+		return float32(i), true
+	}
+	return 0, false
 }
 
 func (m *Module) texGenChecked(args []value.Value) (value.Value, error) {

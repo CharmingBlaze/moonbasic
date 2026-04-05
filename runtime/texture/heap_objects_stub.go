@@ -10,3 +10,10 @@ type TextureObject struct{}
 func (t *TextureObject) TypeName() string { return "Texture" }
 func (t *TextureObject) TypeTag() uint16  { return heap.TagTexture }
 func (t *TextureObject) Free()            {}
+
+// RenderTargetObject is a stub when CGO is off.
+type RenderTargetObject struct{}
+
+func (r *RenderTargetObject) TypeName() string { return "RenderTexture" }
+func (r *RenderTargetObject) TypeTag() uint16  { return heap.TagRenderTexture }
+func (r *RenderTargetObject) Free()            {}

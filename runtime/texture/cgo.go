@@ -8,6 +8,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerTextureLoadCmds(m, r)
 	registerTexturePropCmds(m, r)
 	registerTextureGenCmds(m, r)
+	registerRenderTargetCmds(m, r)
 }
 
 func (m *Module) Shutdown() {}

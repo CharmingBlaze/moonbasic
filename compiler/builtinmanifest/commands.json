@@ -2851,7 +2851,143 @@
       "args": [
         "int",
         "int"
-      ]
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.GENWHITENOISE",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.WIDTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.HEIGHT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.SETFILTER",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.SETWRAP",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.UPDATE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.GENCHECKED",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.GENGRADIENTV",
+      "args": [
+        "int",
+        "int",
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.GENGRADIENTH",
+      "args": [
+        "int",
+        "int",
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.GENCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "RENDERTARGET.MAKE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "RENDERTARGET.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "RENDERTARGET.BEGIN",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "RENDERTARGET.END",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "RENDERTARGET.TEXTURE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
     },
     {
       "key": "MESH.MAKEPOLY",

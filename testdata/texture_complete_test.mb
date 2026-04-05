@@ -1,0 +1,60 @@
+Window.Open(320, 240, "texture complete")
+
+Window.SetFPS(60)
+
+
+
+noise = TEXTURE.GENWHITENOISE(32, 32, 1.0)
+
+ASSERT(TEXTURE.WIDTH(noise) = 32, "noise w")
+
+ASSERT(TEXTURE.HEIGHT(noise) = 32, "noise h")
+
+
+
+rt = RENDERTARGET.MAKE(160, 120)
+
+RENDERTARGET.BEGIN(rt)
+
+Render.Clear(40, 50, 60)
+
+Draw.Rectangle(10, 10, 140, 100, 200, 120, 80, 255)
+
+RENDERTARGET.END()
+
+
+
+tex = RENDERTARGET.TEXTURE(rt)
+
+
+
+frames = 0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+
+    Render.Clear(15, 18, 22)
+
+    Draw.Texture(tex, 0, 0, 255, 255, 255, 255)
+
+    Render.Frame()
+
+    frames = frames + 1
+
+    IF frames >= 2 THEN EXIT WHILE
+
+WEND
+
+
+
+TEXTURE.FREE(tex)
+
+TEXTURE.FREE(noise)
+
+RENDERTARGET.FREE(rt)
+
+
+
+Window.Close()
+
+PRINT("texture_complete_test ok")
+
