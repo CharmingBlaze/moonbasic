@@ -1,10 +1,10 @@
 # Light Commands
 
-Commands for creating and controlling lights in a 3D scene.
+Commands for creating and controlling lights in a 3D scene. The runtime registers **`LIGHT.*`** (see `runtime/mblight`). In source you can write **`Light.Make`** etc.; the compiler emits the same uppercase keys.
 
 ---
 
-### `Light.Make(type$)`
+### `Light.Make` (`LIGHT.MAKE(type$)`)
 
 Creates a new light.
 
@@ -19,7 +19,7 @@ sun = Light.Make("directional")
 
 ---
 
-### `Light.SetDir(lightHandle, x#, y#, z#)`
+### `Light.SetDir` (`LIGHT.SETDIR(lightHandle, x#, y#, z#)`)
 
 Sets the direction for a `"directional"` or `"spot"` light.
 
@@ -28,7 +28,7 @@ Sets the direction for a `"directional"` or `"spot"` light.
 
 ---
 
-### `Light.SetShadow(lightHandle, castShadows?)`
+### `Light.SetShadow` (`LIGHT.SETSHADOW(lightHandle, castShadows?)`)
 
 Enables or disables shadow casting for this light.
 
