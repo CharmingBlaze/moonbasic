@@ -1,0 +1,54 @@
+Open-world command inventory (Step 0)
+Generated before implementation. Status: MISSING = not registered in runtime; PARTIAL = manifest only / stub; DONE = registered + implementation.
+
+Audit command used:
+  grep Register(" runtime/ --glob "*.go" --glob "!*_test.go"
+
+Namespaces TERRAIN CHUNK WORLD WATER SKY CLOUD WEATHER SCATTER PROP FOG WIND BIOME REGION:
+  (none found in runtime at audit time — all listed commands below start as MISSING)
+
+Planned commands (from open-world spec) — initial status:
+TERRAIN.MAKE              MISSING
+TERRAIN.CREATE            MISSING
+TERRAIN.FREE              MISSING
+TERRAIN.SETPOS            MISSING
+TERRAIN.SETCHUNKSIZE      MISSING
+TERRAIN.SETCELLSIZE       MISSING
+TERRAIN.WORLDW            MISSING
+TERRAIN.WORLDH            MISSING
+TERRAIN.FILLPERLIN        MISSING
+TERRAIN.FILLFLAT          MISSING
+TERRAIN.GETHEIGHT         MISSING
+TERRAIN.GETSLOPE          MISSING
+TERRAIN.RAISE             MISSING
+TERRAIN.LOWER             MISSING
+TERRAIN.DRAW              MISSING
+CHUNK.GENERATE            MISSING
+CHUNK.COUNT               MISSING
+CHUNK.SETRANGE            MISSING
+CHUNK.ISLOADED            MISSING
+WORLD.SETCENTER           MISSING
+WORLD.UPDATE              MISSING
+WORLD.STREAMENABLE        MISSING
+WORLD.PRELOAD             MISSING
+WORLD.STATUS$             MISSING
+WORLD.ISREADY             MISSING
+WATER.MAKE                MISSING
+WATER.FREE                MISSING
+WATER.DRAW                MISSING
+WATER.UPDATE              MISSING
+SKY.MAKE                  MISSING
+SKY.FREE                  MISSING
+SKY.DRAW                  MISSING
+SKY.UPDATE                MISSING
+CLOUD.MAKE                MISSING
+WEATHER.MAKE              MISSING
+FOG.ENABLE                MISSING
+WIND.SET                  MISSING
+SCATTER.CREATE            MISSING
+PROP.PLACE                MISSING
+BIOME.MAKE                MISSING
+REGION.LOAD               MISSING
+
+Note: Full spec lists 200+ symbols; this file is expanded in OW_AUDIT_FINAL.txt (Group 11).
+Navigation: existing NAV.* PATH.* NAVAGENT.* in runtime/mbnav — DONE (do not duplicate).
