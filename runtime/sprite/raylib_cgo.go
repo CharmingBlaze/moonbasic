@@ -88,9 +88,21 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.HIT", "sprite", m.spHit)
 	reg.Register("SPRITECOLLIDE", "sprite", m.spHit)
 	reg.Register("SPRITE.POINTHIT", "sprite", m.spPointHit)
+	reg.Register("SPRITE.FREE", "sprite", m.spFree)
 	m.registerAtlas(reg)
 	m.registerAnim(reg)
 	m.registerSpriteExtras(reg)
+}
+
+func (m *Module) spFree(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("SPRITE.FREE: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("SPRITE.FREE expects (sprite)")
+	}
+	return value.Nil, m.h.Free(heap.Handle(args[0].IVal))
 }
 
 // Shutdown implements runtime.Module.

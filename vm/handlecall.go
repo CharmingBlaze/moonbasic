@@ -77,12 +77,13 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		}
 	case "SPRITE":
 		switch mn {
-		case "SETPOS", "DRAW", "DEFANIM", "PLAYANIM", "UPDATEANIM", "HIT":
+		case "SETPOS", "DRAW", "DEFANIM", "PLAYANIM", "UPDATEANIM", "HIT", "FREE":
 			return "SPRITE." + mn, true, true
 		}
 	case "LIGHT":
 		switch mn {
-		case "SETDIR", "SETSHADOW":
+		case "SETDIR", "SETSHADOW", "FREE", "SETCOLOR", "SETINTENSITY", "SETPOSITION", "SETPOS",
+			"SETTARGET", "SETSHADOWBIAS", "SETINNERCONE", "SETOUTERCONE", "SETRANGE", "ENABLE", "ISENABLED":
 			return "LIGHT." + mn, true, true
 		}
 	case "MODEL":
@@ -173,7 +174,7 @@ func HandleCallSuggestions(typeName string) []string {
 	case "CHARCONTROLLER":
 		out = []string{"SetPos", "SetPosition"}
 	case "SPRITE":
-		out = []string{"Draw", "SetPos", "SetPosition", "DefAnim", "PlayAnim", "UpdateAnim", "Hit"}
+		out = []string{"Draw", "Free", "SetPos", "SetPosition", "DefAnim", "PlayAnim", "UpdateAnim", "Hit"}
 	case "MODEL":
 		out = []string{"Draw", "SetPos", "SetPosition"}
 	case "LODMODEL":
@@ -183,7 +184,8 @@ func HandleCallSuggestions(typeName string) []string {
 	case "INSTANCEDMODEL":
 		out = []string{"Draw", "SetInstancePos", "SetInstanceScale", "UpdateInstances"}
 	case "LIGHT":
-		out = []string{"SetDir", "SetShadow"}
+		out = []string{"Enable", "Free", "IsEnabled", "SetColor", "SetDir", "SetInnerCone", "SetIntensity",
+			"SetOuterCone", "SetPos", "SetPosition", "SetRange", "SetShadow", "SetShadowBias", "SetTarget"}
 	case "MATRIX4":
 		out = []string{"SetRotation"}
 	case "MESH":

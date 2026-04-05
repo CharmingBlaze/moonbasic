@@ -80,12 +80,14 @@ func (o *particle2DObj) Free() {}
 func (m *Module) registerSpriteExtras(reg runtime.Registrar) {
 	reg.Register("SPRITEGROUP.MAKE", "sprite", m.sgMake)
 	reg.Register("SPRITEGROUP.ADD", "sprite", m.sgAdd)
+	reg.Register("SPRITEGROUP.REMOVE", "sprite", m.sgRemove)
 	reg.Register("SPRITEGROUP.CLEAR", "sprite", m.sgClear)
 	reg.Register("SPRITEGROUP.DRAW", "sprite", m.sgDraw)
 	reg.Register("SPRITEGROUP.FREE", "sprite", m.sgFree)
 
 	reg.Register("SPRITELAYER.MAKE", "sprite", m.slMake)
 	reg.Register("SPRITELAYER.ADD", "sprite", m.slAdd)
+	reg.Register("SPRITELAYER.CLEAR", "sprite", m.slClear)
 	reg.Register("SPRITELAYER.SETZ", "sprite", m.slSetZ)
 	reg.Register("SPRITELAYER.DRAW", "sprite", m.slDraw)
 	reg.Register("SPRITELAYER.FREE", "sprite", m.slFree)
@@ -141,6 +143,29 @@ func (m *Module) sgAdd(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, fmt.Errorf("SPRITEGROUP.ADD: second argument must be a sprite")
 	}
 	g.children = append(g.children, sh)
+	return value.Nil, nil
+}
+
+func (m *Module) sgRemove(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("SPRITEGROUP.REMOVE expects (group, sprite)")
+	}
+	gh, ok1 := argHandle(args[0])
+	sh, ok2 := argHandle(args[1])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("SPRITEGROUP.REMOVE: handles required")
+	}
+	g, err := heap.Cast[*spriteGroupObj](m.h, gh)
+	if err != nil {
+		return value.Nil, err
+	}
+	for i, h := range g.children {
+		if h == sh {
+			g.children = append(g.children[:i], g.children[i+1:]...)
+			break
+		}
+	}
 	return value.Nil, nil
 }
 
@@ -237,6 +262,23 @@ func (m *Module) slAdd(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, fmt.Errorf("SPRITELAYER.ADD: sprite handle expected")
 	}
 	L.children = append(L.children, sh)
+	return value.Nil, nil
+}
+
+func (m *Module) slClear(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("SPRITELAYER.CLEAR expects (layer)")
+	}
+	lh, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITELAYER.CLEAR: invalid handle")
+	}
+	L, err := heap.Cast[*spriteLayerObj](m.h, lh)
+	if err != nil {
+		return value.Nil, err
+	}
+	L.children = L.children[:0]
 	return value.Nil, nil
 }
 

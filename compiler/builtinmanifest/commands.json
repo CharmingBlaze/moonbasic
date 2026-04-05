@@ -7275,6 +7275,13 @@
       "phase": "rendering"
     },
     {
+      "key": "SPRITE.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "SPRITE.DRAW",
       "args": [
         "handle",
@@ -7330,6 +7337,23 @@
       "args": [
         "handle",
         "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITECOLLIDE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITE.POINTHIT",
+      "args": [
+        "handle",
+        "float",
+        "float"
       ],
       "phase": "rendering"
     },
@@ -7425,6 +7449,14 @@
       "phase": "rendering"
     },
     {
+      "key": "SPRITEGROUP.REMOVE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "SPRITEGROUP.CLEAR",
       "args": [
         "handle"
@@ -7457,6 +7489,13 @@
       "key": "SPRITELAYER.ADD",
       "args": [
         "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITELAYER.CLEAR",
+      "args": [
         "handle"
       ],
       "phase": "rendering"

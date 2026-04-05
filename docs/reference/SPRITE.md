@@ -1,186 +1,246 @@
-# Sprite — `Sprite.*`, atlas, and `ANIM.*`
+# Sprite — `Sprite.*`, groups, layers, batch, UI, `Particle2D`, `ANIM.*`, atlas
 
-Sprites are **GPU textures** (or regions of an atlas) plus **frame layout** and optional **animation** state. They are drawn with **`Sprite.Draw`** (typically inside **`Render.BeginMode2D`** / **`EndMode2D`**).
+Sprites are **GPU textures** (Raylib `Texture2D`) plus **source rectangle**, **frame layout**, and optional **`ANIM.*`** state. Drawing uses **`SPRITE.DRAW`**. When **`RENDER.BEGINMODE2D`** / **`RENDER.ENDMODE2D`** are implemented in your build, wrap draws for **Camera2D**-style views; otherwise draw directly after **`Render.Clear`** (as in **`testdata/sprite_complete_test.mb`**).
 
 **Requires CGO** (same as `Texture.*`, `Draw.*`).
 
-**Related:** [ATLAS.md](ATLAS.md) for **`Atlas.Load`**, **`Atlas.GetSprite`**, **`Atlas.Free`**.
+Registry keys use **dots and uppercase** (e.g. `SPRITE.LOAD`). This document uses **PascalCase** names aligned with specs where helpful.
+
+**Related:** [ATLAS.md](ATLAS.md) (`ATLAS.LOAD`, `ATLAS.GETSPRITE`, `ATLAS.FREE`), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
 
 ---
 
-## `Sprite.Load(path$)`
+### Sprite.Load
 
-Loads an image file with Raylib **`LoadTexture`** (e.g. **`.png`**, **`.jpg`**). Returns a **sprite handle** (one full texture, one logical frame until you call **`Sprite.DefAnim`**).
+```basic
+spr = SPRITE.LOAD(path$)
+```
 
-This is **not** an Aseprite/JSON parser; use a **horizontal strip** (all frames same size, laid out left-to-right) or an **atlas** (see below).
+Loads an image file from disk (**PNG**, **JPG**, etc.). Returns a **sprite handle** covering the full texture as a single frame until you **`SPRITE.DEFANIM`** or use an **atlas** sub-rectangle.
 
----
+**Parameters**
 
-## Horizontal strip animation
+| Name | Type | Description |
+|---|---|---|
+| path$ | string | Path to image file. |
 
-### `Sprite.DefAnim(sprite, frameCount$)`
+**Returns** — handle.
 
-`frameCount$` is a **decimal string** (e.g. `"4"`) = number of **equal-width** frames in a **single row** inside the texture (from the sprite’s source region). Frame width = available width ÷ frame count.
+> **Common mistake:** Expecting **Aseprite JSON** animation import — use a **horizontal strip** with **`SPRITE.DEFANIM`** or **`ATLAS.LOAD`** + **`ATLAS.GETSPRITE`**.
 
-### `Sprite.PlayAnim(sprite, name$)`
-
-Starts strip playback from frame 0. The **`name$`** argument is accepted for API symmetry but **is not used** by the strip player (reserved for future use).
-
-### `Sprite.UpdateAnim(sprite, deltaTime#)`
-
-Advances the strip using the sprite’s internal FPS (default **8**). Pass **`Time.Delta()`** each frame. If the sprite is using the **`ANIM.*`** state machine (**`ANIM.UPDATE`**), **`Sprite.UpdateAnim`** does not advance strip frames (use one system or the other).
-
-### `Sprite.Draw(sprite, x, y)`
-
-Draws the **current frame** at **screen** `(x, y)`, plus any offset from **`Sprite.SetPos`**.
+**See also:** `ATLAS.LOAD`, `SPRITE.DEFANIM`
 
 ---
 
-## Position offset & hit test
+### Sprite.Free
 
-### `Sprite.SetPos(sprite, x#, y#)` / `Sprite.SetPosition(...)`
+```basic
+SPRITE.FREE(spr)
+```
 
-Alias pair. Adds a **float** offset to the draw position (useful for sub-pixel movement). **`Sprite.HIT`** uses these offsets with **`frameW` / `frameH`**.
+Unloads the sprite’s **texture** (unless the sprite came from an **atlas** shared texture) and releases the heap slot. Call when the sprite is no longer needed.
 
-### `Sprite.Hit(spriteA, spriteB)`
+**Parameters**
 
-Returns **`TRUE`** if the two sprites’ **axis-aligned boxes** overlap, using each sprite’s **`SetPos`** and its **frame width/height** (current frame size).
+| Name | Type | Description |
+|---|---|---|
+| spr | handle | Sprite from **`SPRITE.LOAD`** or **`ATLAS.GETSPRITE`**. |
 
-### `SpriteCollide(spriteA, spriteB)` (registry: `SPRITECOLLIDE`)
+> **Common mistake:** Freeing a sprite that is still listed in a **`SPRITEGROUP`** / **`SPRITELAYER`** / **`SPRITEBATCH`** — remove it first or clear the container, or you may hold **stale handles**.
 
-Alias for **`Sprite.Hit`** — same AABB test, DarkBASIC-style name.
-
-### `Sprite.PointHit(sprite, x#, y#)`
-
-Returns **`TRUE`** if **screen** point **`(x, y)`** lies inside the sprite’s current-frame axis-aligned rectangle (**`SetPos`** + frame size).
-
----
-
-## Texture atlas workflow
-
-Use **`Atlas.Load`**, **`Atlas.GetSprite`**, and **`Atlas.Free`** as documented in **[ATLAS.md](ATLAS.md)**. Each **`Atlas.GetSprite`** handle shares the atlas texture; **`Sprite.Draw`** / **`DefAnim`** work the same as for **`Sprite.Load`**.
+**See also:** `SPRITEGROUP.REMOVE`, `ATLAS.FREE`
 
 ---
 
-## `ANIM.*` — frame-range state machine (optional)
+### Sprite.Draw
 
-For **named clips** (frame index ranges) and **parameter-driven transitions**, use **`ANIM.*`** on the same sprite handle. This is separate from **`Sprite.DefAnim`** strip mode; if **`ANIM.UPDATE`** is in use, **`Sprite.UpdateAnim`** is a no-op for that sprite.
+```basic
+SPRITE.DRAW(spr, x, y)
+```
 
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `Anim.Define(sprite, name$, first, last, fps#, looping?)` | | Inclusive frame indices; **`looping?`** bool |
-| `Anim.AddTransition(sprite, from$, to$, condition$)` | | See conditions below |
-| `Anim.Update(sprite, dt#)` | | Advance frames + evaluate transitions |
-| `Anim.SetParam(sprite, name$, value)` | | **`value`** numeric or bool; names are compared **case-insensitive** |
+Draws the **current frame** at **integer** screen **`(x, y)`**, plus **`SPRITE.SETPOS`** offsets (float).
 
-### Transition conditions
+**Parameters**
 
-- **Comparison:** `param >= 1`, `speed == 0`, etc. Left side is a **parameter name** (lowercased internally); right side is a number.
-- **Single name:** uses **bool** param, or numeric truthy float param.
-- **Literals:** `true` / `false`.
+| Name | Type | Description |
+|---|---|---|
+| spr | handle | Sprite handle. |
+| x, y | int | Screen position (pixels). |
+
+**Notes** — Use **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** when your game uses a 2D camera, or **`RENDER.BEGINMODE2D`** when that command is implemented.
 
 ---
 
-## Full example (strip)
+### Sprite.SetPos / Sprite.SetPosition
+
+```basic
+SPRITE.SETPOS(spr, x#, y#)
+SPRITE.SETPOSITION(spr, x#, y#)
+```
+
+**Alias pair.** Adds a **float** offset applied on top of **`SPRITE.DRAW`** / group draw positions. Used for smooth movement and hit tests.
+
+---
+
+### Sprite.DefAnim / Sprite.PlayAnim / Sprite.UpdateAnim
+
+```basic
+SPRITE.DEFANIM(spr, frameCount$)
+SPRITE.PLAYANIM(spr, name$)
+SPRITE.UPDATEANIM(spr, dt#)
+```
+
+**Strip mode:** **`frameCount$`** is a **decimal string** (e.g. `"4"`) = equal-width frames in **one row** inside the texture. Frame width = region width ÷ frame count.
+
+**`SPRITE.PLAYANIM`** accepts **`name$`** for API symmetry; the strip player does not use distinct names yet.
+
+**`SPRITE.UPDATEANIM`** advances time using internal FPS (default **8**). Pass **`TIME.DELTA()`** each frame.
+
+**Note:** If **`ANIM.UPDATE`** drives the same sprite, **`SPRITE.UPDATEANIM`** does not advance strip frames for that object — use **one** animation system per sprite.
+
+---
+
+### Sprite.Hit / Sprite.PointHit / SPRITECOLLIDE
+
+```basic
+hit = SPRITE.HIT(a, b)
+hit = SPRITECOLLIDE(a, b)
+hit = SPRITE.POINTHIT(spr, x#, y#)
+```
+
+**`SPRITE.HIT`** / **`SPRITECOLLIDE`** — axis-aligned box overlap using **`SETPOS`** and current frame size.
+
+**`SPRITE.POINTHIT`** — point-in-rect for **screen** coordinates.
+
+**Returns** — boolean.
+
+---
+
+## SpriteGroup.* (handle-based group)
+
+Groups are **named by handle**, not by string. **`SPRITEGROUP.MAKE`** takes **no arguments** and returns a **group handle**.
+
+| Command | Signature | Notes |
+|---|---|---|
+| `SPRITEGROUP.MAKE` | `()` → handle | New empty group. |
+| `SPRITEGROUP.ADD` | `(group, spr)` | Append sprite. |
+| `SPRITEGROUP.REMOVE` | `(group, spr)` | Remove first occurrence of **spr**; no error if absent. |
+| `SPRITEGROUP.CLEAR` | `(group)` | Remove all members. |
+| `SPRITEGROUP.DRAW` | `(group, x, y)` | Draw each member at base **`(x,y)`** + **`SETPOS`**. |
+| `SPRITEGROUP.FREE` | `(group)` | Frees **only** the group object (not member sprites). |
+
+> **Spec note:** Some docs describe **`SpriteGroup.Make(name$)`** — in moonBASIC the group is a **handle**; use your own string table if you need names.
+
+---
+
+## SpriteLayer.*
+
+| Command | Signature | Notes |
+|---|---|---|
+| `SPRITELAYER.MAKE` | `(z#)` → handle | **`z#`** stored for your sorting; draw order is under your control. |
+| `SPRITELAYER.ADD` | `(layer, spr)` | |
+| `SPRITELAYER.CLEAR` | `(layer)` | Remove all members. |
+| `SPRITELAYER.SETZ` | `(layer, z#)` | Update stored **z**. |
+| `SPRITELAYER.DRAW` | `(layer, x, y)` | Same base position semantics as group draw. |
+| `SPRITELAYER.FREE` | `(layer)` | Frees layer only. |
+
+---
+
+## SpriteBatch.*
+
+Records **multiple** **`(sprite, x, y)`** draws; **`SPRITEBATCH.DRAW`** executes them in order.
+
+| Command | Notes |
+|---|---|
+| `SPRITEBATCH.MAKE` | `()` → handle |
+| `SPRITEBATCH.ADD` | `(batch, spr, x, y)` — **int** positions |
+| `SPRITEBATCH.CLEAR` | `(batch)` |
+| `SPRITEBATCH.DRAW` | `(batch)` |
+| `SPRITEBATCH.FREE` | `(batch)` |
+
+---
+
+## SpriteUI.*
+
+Anchored placement using **fractions of screen size** (e.g. **`0.5, 0.5`** = center).
+
+```basic
+ui = SPRITEUI.MAKE(spr, anchorX#, anchorY#)
+SPRITEUI.DRAW(ui, SCREENW(), SCREENH())
+SPRITEUI.FREE(ui)
+```
+
+**`SPRITEUI.FREE`** releases only the **UI wrapper**; the sprite remains.
+
+---
+
+## Particle2D.* (simple filled circles)
+
+CPU-side **circles** (no texture). **`PARTICLE2D.MAKE(max, r, g, b, a)`** sets pool size and colour; **`EMIT`** adds particles; **`UPDATE`** integrates velocity and **`life`**; **`DRAW`** renders.
+
+| Command | Arguments |
+|---|---|
+| `PARTICLE2D.MAKE` | `(max, r, g, b, a)` |
+| `PARTICLE2D.EMIT` | `(p, x, y, vx, vy, life#)` |
+| `PARTICLE2D.UPDATE` | `(p, dt#)` |
+| `PARTICLE2D.DRAW` | `(p)` |
+| `PARTICLE2D.FREE` | `(p)` |
+
+---
+
+## ANIM.* (optional state machine)
+
+| Command | Purpose |
+|---|---|
+| `ANIM.DEFINE` | Named clip: first/last frame, fps, looping |
+| `ANIM.ADDTRANSITION` | Conditional clip change |
+| `ANIM.UPDATE` | Advance + evaluate transitions |
+| `ANIM.SETPARAM` | Parameters for transition conditions |
+
+See inline tables in earlier revisions of this file for **transition condition** syntax. Do not mix **`ANIM.UPDATE`** with **`SPRITE.UPDATEANIM`** strip advancement on the **same** sprite without understanding the interaction.
+
+---
+
+## Atlas
+
+See **[ATLAS.md](ATLAS.md)** for **`ATLAS.LOAD`**, **`ATLAS.GETSPRITE`**, **`ATLAS.FREE`**.
+
+---
+
+## Example (strip + Mode2D)
 
 ```basic
 IF NOT Window.Open(800, 600, "Sprite strip") THEN END
 ENDIF
 Window.SetFPS(60)
 
-; sheet.png = one row of 4 equal frames
-hero = Sprite.Load("sheet.png")
-Sprite.DefAnim(hero, "4")
-Sprite.PlayAnim(hero, "walk")
+hero = SPRITE.LOAD("sheet.png")
+SPRITE.DEFANIM(hero, "4")
+SPRITE.PLAYANIM(hero, "walk")
 
 x# = 300
 y# = 250
 
 WHILE NOT Window.ShouldClose()
-    Sprite.SetPos(hero, x#, y#)
-    Sprite.UpdateAnim(hero, Time.Delta())
+    SPRITE.SETPOS(hero, x#, y#)
+    SPRITE.UPDATEANIM(hero, TIME.DELTA())
 
     Render.Clear(30, 40, 50)
-    Render.BeginMode2D()
-        Sprite.Draw(hero, 0, 0)
-    Render.EndMode2D()
+    SPRITE.DRAW(hero, 0, 0)
     Render.Frame()
 WEND
 
+SPRITE.FREE(hero)
 Window.Close()
 ```
 
 ---
 
-## `SpriteGroup.*` — ordered draws
+## Common mistakes
 
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `SpriteGroup.Make` | (none) | Returns a **group** handle (does not own member sprites). |
-| `SpriteGroup.Add` | `(group, sprite)` | Append a **sprite** handle; order is draw order. |
-| `SpriteGroup.Clear` | `(group)` | Remove all members. |
-| `SpriteGroup.Draw` | `(group, x, y)` | Draws each member at the same base **integer** `(x,y)` (same rules as **`Sprite.Draw`**, including **`SetPos`** offsets). |
-| `SpriteGroup.Free` | `(group)` | Frees only the group container. |
-
----
-
-## `SpriteLayer.*` — layer + z metadata
-
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `SpriteLayer.Make` | `(z#)` | Returns a **layer** handle; **`z`** is stored for your own sorting (draw multiple layers in the order you choose). |
-| `SpriteLayer.Add` | `(layer, sprite)` | |
-| `SpriteLayer.SetZ` | `(layer, z#)` | Updates stored **z**. |
-| `SpriteLayer.Draw` | `(layer, x, y)` | Same drawing semantics as **`SpriteGroup.Draw`**. |
-| `SpriteLayer.Free` | `(layer)` | Frees only the layer object. |
-
----
-
-## `SpriteBatch.*` — repeated placements
-
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `SpriteBatch.Make` | (none) | |
-| `SpriteBatch.Add` | `(batch, sprite, x, y)` | Records one draw at **integer** screen `(x,y)` (plus each sprite’s **`SetPos`** offset). |
-| `SpriteBatch.Clear` | `(batch)` | Clears recorded entries. |
-| `SpriteBatch.Draw` | `(batch)` | Executes all recorded draws. |
-| `SpriteBatch.Free` | `(batch)` | |
-
----
-
-## `SpriteUI.*` — anchor placement
-
-| Command | Arguments | Notes |
-|--------|-----------|--------|
-| `SpriteUI.Make` | `(sprite, anchorX#, anchorY#)` | **Anchors** in **0–1** range (e.g. `0.5, 0.5` = center). |
-| `SpriteUI.Draw` | `(ui, screenW, screenH)` | Positions from **`SCREENW`/`SCREENH`**-style dimensions (pass **`SCREENW()`**, **`SCREENH()`** in game code). |
-| `SpriteUI.Free` | `(ui)` | Frees only the UI wrapper (not the sprite). |
-
----
-
-## `Particle2D.*` — simple CPU circles
-
-Colored circles (no texture). **`Emit`** appends particles until the pool is full; **`Update`** integrates motion and subtracts **`dt`** from **`life`**.
-
-| Command | Arguments |
-|--------|-----------|
-| `Particle2D.Make` | `(max, r, g, b, a)` |
-| `Particle2D.Emit` | `(p, x, y, vx, vy, life#)` |
-| `Particle2D.Update` | `(p, dt#)` |
-| `Particle2D.Draw` | `(p)` |
-| `Particle2D.Free` | `(p)` |
-
----
-
-## Command checklist (implemented)
-
-**Sprite:** `Load`, `Draw`, `SetPos`, `SetPosition`, `DefAnim`, `PlayAnim`, `UpdateAnim`, `Hit`.
-
-**SpriteGroup / SpriteLayer / SpriteBatch / SpriteUI / Particle2D:** commands listed in the sections above.
-
-**Atlas:** `Load`, `Free`, `GetSprite` — [ATLAS.md](ATLAS.md).
-
-**Anim:** `Define`, `AddTransition`, `Update`, `SetParam` — this page § **`ANIM.*`**.
+- **Skipping `BeginMode2D`** when using cameras or scaled views — align with your **`Camera2D`** setup.
+- **Leaking sprites** — pair **`SPRITE.LOAD`** / **`ATLAS.GETSPRITE`** with **`SPRITE.FREE`** when done (and **`ATLAS.FREE`** for the atlas).
+- **Atlas sprites** — **`SPRITE.FREE`** on an atlas sub-sprite does **not** unload the shared atlas texture (`fromAtlas` path).
 
 ---
 
@@ -189,3 +249,4 @@ Colored circles (no texture). **`Emit`** appends particles until the pool is ful
 - [ATLAS.md](ATLAS.md) — packed sheets + JSON
 - [TEXTURE.md](TEXTURE.md) — raw GPU textures
 - [IMAGE.md](IMAGE.md) — CPU images before upload
+- [DRAW2D.md](DRAW2D.md) — screen drawing helpers
