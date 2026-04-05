@@ -1,8 +1,120 @@
 # moonBASIC Command Index
 
-This page lists every command available in moonBASIC, grouped by category.
+This page is a **topic-oriented** index of moonBASIC built-ins (globals and `NAMESPACE.NAME` APIs). It does not name every overload; the compiler manifest is the source of truth.
 
 **How to use these commands in a real program:** see the [Programming Guide](PROGRAMMING.md) (game loop, types, CGO) and runnable projects under [`examples/`](../examples/README.md). Copy-paste snippets also live in [Examples](EXAMPLES.md).
+
+## Complete registry (every command)
+
+| Resource | Purpose |
+|----------|---------|
+| [`compiler/builtinmanifest/commands.json`](../compiler/builtinmanifest/commands.json) | Machine-readable manifest: **1644** overload rows for the compiler and tools. |
+| [API_CONSISTENCY.md](API_CONSISTENCY.md) | Human-readable list: **every** registered name with argument kinds, grouped by namespace. Regenerate from the repo root: `go run ./tools/apidoc`. |
+
+Use **API_CONSISTENCY.md** when you need to verify that a name exists or which arity the manifest allows. The sections below supplement that with descriptions and links to deep references.
+
+## Engine namespaces (quick map)
+
+Dotted commands are grouped by their first segment (e.g. `WINDOW.OPEN` → namespace `WINDOW`). Namespaces without a dedicated topic page are still fully listed under **API_CONSISTENCY.md**.
+
+| Namespace | Commands | Reference |
+|---:|---:|:---|
+| `(global builtins)` | 202 | Topics below (strings, math, files, …) · [API_CONSISTENCY.md](API_CONSISTENCY.md) |
+| `ANIM` | 4 | [ENTITY](reference/ENTITY.md) |
+| `ATLAS` | 3 | [ATLAS](reference/ATLAS.md) |
+| `AUDIO` | 8 | [AUDIO](reference/AUDIO.md) |
+| `AUDIOSTREAM` | 12 | [AUDIOSTREAM](reference/AUDIOSTREAM.md) |
+| `BBOX` | 5 | [MODEL](reference/MODEL.md) |
+| `BIOME` | 4 | [BIOME](reference/BIOME.md) |
+| `BODY2D` | 17 | [PHYSICS2D](reference/PHYSICS2D.md) |
+| `BODY3D` | 24 | [PHYSICS3D](reference/PHYSICS3D.md) |
+| `BOX2D` | 5 | [PHYSICS2D](reference/PHYSICS2D.md) |
+| `BSPHERE` | 4 | [MODEL](reference/MODEL.md) |
+| `BTREE` | 6 | [NAV_AI](reference/NAV_AI.md) |
+| `CAMERA` | 11 | [CAMERA](reference/CAMERA.md) |
+| `CAMERA2D` | 7 | [CAMERA](reference/CAMERA.md) |
+| `CHARCONTROLLER` | 10 | [CHARCONTROLLER](reference/CHARCONTROLLER.md) |
+| `CHUNK` | 4 | [TERRAIN](reference/TERRAIN.md) |
+| `CLIENT` | 6 | [NETWORK](reference/NETWORK.md) |
+| `CLOUD` | 5 | [CLOUD](reference/CLOUD.md) |
+| `CSV` | 10 | [CSV](reference/CSV.md) |
+| `CLIPBOARD` | 1 | [IMAGE](reference/IMAGE.md) |
+| `COLOR` | 18 | [DRAW2D](reference/DRAW2D.md) |
+| `COMPUTESHADER` | 8 | [SHADER](reference/SHADER.md) |
+| `CURSOR` | 7 | [INPUT](reference/INPUT.md) |
+| `DATA` | 10 | [DATA](reference/DATA.md) |
+| `DB` | 54 | [DATABASE](reference/DATABASE.md) |
+| `DEBUG` | 14 | [DEBUG](reference/DEBUG.md) |
+| `DECAL` | 6 | [RENDER](reference/RENDER.md) |
+| `DRAW` | 4 | [DRAW2D](reference/DRAW2D.md) |
+| `EFFECT` | 10 | [RENDER](reference/RENDER.md) |
+| `ENET` | 7 | [NETWORK](reference/NETWORK.md) |
+| `EVENT` | 21 | [NETWORK](reference/NETWORK.md) |
+| `FILE` | 9 | [FILE](reference/FILE.md) |
+| `FONT` | 4 | [FONT](reference/FONT.md) |
+| `FOG` | 4 | [WEATHER](reference/WEATHER.md) |
+| `GESTURE` | 10 | [INPUT](reference/INPUT.md) |
+| `GUI` | 77 | [GUI](reference/GUI.md) |
+| `IMAGE` | 44 | [IMAGE](reference/IMAGE.md) |
+| `INPUT` | 27 | [INPUT](reference/INPUT.md) |
+| `JOLT` | 19 | [PHYSICS3D](reference/PHYSICS3D.md) |
+| `JSON` | 35 | [JSON](reference/JSON.md) |
+| `LIGHT` | 3 | [LIGHT](reference/LIGHT.md) |
+| `LIGHT2D` | 6 | [RENDER](reference/RENDER.md) |
+| `LOBBY` | 8 | [NETWORK](reference/NETWORK.md) |
+| `MAT4` | 17 | [MAT4](reference/MAT4.md) |
+| `MATERIAL` | 7 | [MODEL](reference/MODEL.md) |
+| `MATH` | 39 | [MATH](reference/MATH.md) |
+| `MATRIX` | 1 | [TRANSFORM](reference/TRANSFORM.md) |
+| `MEM` | 15 | [MEM](reference/MEM.md) |
+| `MESH` | 25 | [MODEL](reference/MODEL.md) |
+| `MODEL` | 42 | [MODEL](reference/MODEL.md) |
+| `NAV` | 7 | [NAV_AI](reference/NAV_AI.md) |
+| `NAVAGENT` | 12 | [NAV_AI](reference/NAV_AI.md) |
+| `NET` | 13 | [NETWORK](reference/NETWORK.md) |
+| `PARTICLE` | 14 | [PARTICLES](reference/PARTICLES.md) |
+| `PATH` | 6 | [NAV_AI](reference/NAV_AI.md) |
+| `PEER` | 4 | [NETWORK](reference/NETWORK.md) |
+| `PHYSICS2D` | 6 | [PHYSICS2D](reference/PHYSICS2D.md) |
+| `PHYSICS3D` | 8 | [PHYSICS3D](reference/PHYSICS3D.md) |
+| `POOL` | 7 | [POOL](reference/POOL.md) |
+| `POST` | 3 | [RENDER](reference/RENDER.md) |
+| `PROP` | 3 | [SCATTER](reference/SCATTER.md) |
+| `QUAT` | 13 | [VEC_QUAT](reference/VEC_QUAT.md) |
+| `RAND` | 4 | [MATH](reference/MATH.md) |
+| `RAY` | 50 | [DRAW3D](reference/DRAW3D.md) |
+| `RAYLIB` | 33 | [WINDOW](reference/WINDOW.md) |
+| `RENDER` | 30 | [RENDER](reference/RENDER.md) |
+| `ROWS` | 5 | [DATABASE](reference/DATABASE.md) |
+| `RPC` | 3 | [NETWORK](reference/NETWORK.md) |
+| `SCENE` | 8 | [SCENE](reference/SCENE.md) |
+| `SCATTER` | 4 | [SCATTER](reference/SCATTER.md) |
+| `SERVER` | 8 | [NETWORK](reference/NETWORK.md) |
+| `SHADER` | 9 | [SHADER](reference/SHADER.md) |
+| `SOUND` | 2 | [AUDIO](reference/AUDIO.md) |
+| `SPRITE` | 8 | [SPRITE](reference/SPRITE.md) |
+| `SKY` | 8 | [SKY](reference/SKY.md) |
+| `STEER` | 10 | [NAV_AI](reference/NAV_AI.md) |
+| `SYSTEM` | 14 | [SYSTEM](reference/SYSTEM.md) |
+| `TABLE` | 21 | [TABLE](reference/TABLE.md) |
+| `TERRAIN` | 12 | [TERRAIN](reference/TERRAIN.md) |
+| `TEXTURE` | 4 | [TEXTURE](reference/TEXTURE.md) |
+| `TILEMAP` | 16 | [TILEMAP](reference/TILEMAP.md) |
+| `TIME` | 2 | [TIME](reference/TIME.md) |
+| `TRANSFORM` | 16 | [TRANSFORM](reference/TRANSFORM.md) |
+| `TRANSITION` | 5 | [TRANSITION](reference/TRANSITION.md) |
+| `TWEEN` | 9 | [TWEEN](reference/TWEEN.md) |
+| `UTIL` | 17 | [UTIL](reference/UTIL.md) |
+| `VEC2` | 15 | [VEC_QUAT](reference/VEC_QUAT.md) |
+| `VEC3` | 24 | [VEC_QUAT](reference/VEC_QUAT.md) |
+| `WAVE` | 6 | [WAVE](reference/WAVE.md) |
+| `WATER` | 11 | [WATER](reference/WATER.md) |
+| `WEATHER` | 7 | [WEATHER](reference/WEATHER.md) |
+| `WIND` | 2 | [WEATHER](reference/WEATHER.md) |
+| `WINDOW` | 29 | [WINDOW](reference/WINDOW.md) |
+| `WORLD` | 6 | [WORLD](reference/WORLD.md) |
+
+---
 
 **Legend:**
 - **[DONE]**: Implemented, tested, and ready to use.
@@ -658,3 +770,32 @@ Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 | `Particle.Update(handle, dt#)` | Advances particle simulation. Call every frame. |
 | `Particle.Draw(handle)` | Draws all active particles. |
 | `Particle.Free(handle)` | Frees the particle emitter. |
+
+---
+
+### Open world — terrain, streaming, water, sky, weather ([TERRAIN](reference/TERRAIN.md), [WORLD](reference/WORLD.md), [WATER](reference/WATER.md), [SKY](reference/SKY.md), [CLOUD](reference/CLOUD.md), [WEATHER](reference/WEATHER.md), [SCATTER](reference/SCATTER.md), [BIOME](reference/BIOME.md), [NAVMESH](reference/NAVMESH.md))
+
+| Command | Description |
+|---|---|
+| `Terrain.Make` / `Terrain.Free` | Create or free heightfield terrain (`TERRAIN.MAKE` overloads: 2 or 3 args). |
+| `Terrain.SetPos` / `SetChunkSize` | World origin and chunk sample size. |
+| `Terrain.FillPerlin` / `FillFlat` | Procedural or flat height fill. |
+| `Terrain.GetHeight` / `GetSlope` | Sample height and slope at XZ. |
+| `Terrain.Raise` / `Lower` | Brush sculpting. |
+| `Terrain.Draw` | Draw loaded chunk meshes. |
+| `Chunk.Generate` / `Count` / `SetRange` / `IsLoaded` | Chunk mesh build and streaming distances. |
+| `World.SetCenter` / `Update` / `StreamEnable` | Streaming focal point and per-frame tick. |
+| `World.Preload` / `Status` / `IsReady` | Preload radius and debug strings. |
+| `Water.Make` / `Free` / `SetPos` | Water plane mesh. |
+| `Water.Draw` / `Update` / `SetWaveHeight` | Render and animate waves. |
+| `Water.GetWaveY` / `GetDepth` / `IsUnder` | Surface and depth queries. |
+| `Water.SetShallowColor` / `SetDeepColor` | Water color tuning. |
+| `Sky.Make` / `Free` / `Update` / `Draw` | Day/night sky dome. |
+| `Sky.SetTime` / `SetDayLength` / `GetTimeHours` / `IsNight` | Time-of-day. |
+| `Cloud.Make` / `Free` / `Update` / `Draw` / `SetCoverage` | Cloud layer state. |
+| `Weather.Make` / `Free` / `Update` / `Draw` / `SetType` / `GetCoverage` / `GetType` | Weather controller. |
+| `Fog.Enable` / `SetNear` / `SetFar` / `SetColor` | Fog distances and color. |
+| `Wind.Set` / `GetStrength` | Wind vector and strength. |
+| `Scatter.Create` / `Free` / `Apply` / `DrawAll` | Scatter instances on terrain. |
+| `Prop.Place` / `Free` / `DrawAll` | Placed prop markers. |
+| `Biome.Make` / `Free` / `SetTemp` / `SetHumidity` | Biome parameters. |

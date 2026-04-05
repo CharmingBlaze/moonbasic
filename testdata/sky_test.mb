@@ -1,0 +1,54 @@
+; Sky module smoke test — CGO + Raylib
+
+
+
+Window.Open(640, 360, "Sky Test")
+
+Window.SetFPS(60)
+
+
+
+sky = Sky.Make()
+
+Sky.SetDayLength(sky, 30)
+
+
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+
+    dt# = Time.Delta()
+
+    Sky.Update(sky, dt#)
+
+    Render.Clear(20, 20, 30)
+
+    cam = Camera.Make()
+
+    Camera.SetPos(cam, 0, 5, 10)
+
+    Camera.SetTarget(cam, 0, 0, 0)
+
+    cam.Begin()
+
+    Sky.Draw(sky)
+
+    Draw3D.Grid(10, 1.0)
+
+    cam.End()
+
+    Camera.Free(cam)
+
+    Draw.Text("Hours " + FORMAT$(Sky.GetTimeHours(sky), "%.1f"), 8, 8, 16, 255, 255, 255, 255)
+
+    Render.Frame()
+
+WEND
+
+
+
+Sky.Free(sky)
+
+Window.Close()
+
+PRINT("Sky test OK")
+

@@ -1,0 +1,160 @@
+; Open-world integration sample — real registry APIs only (CGO + Raylib)
+
+
+
+Window.Open(1280, 720, "Open World Sample")
+
+Window.SetFPS(60)
+
+
+
+terrain = Terrain.Make(400, 400)
+
+Terrain.FillPerlin(terrain, 0.02, 70)
+
+Chunk.SetRange(terrain, 200, 320)
+
+World.SetCenter(200, 200)
+
+World.StreamEnable(TRUE)
+
+World.Preload(terrain, 4)
+
+
+
+water = Water.Make(500, 500)
+
+Water.SetPos(water, 0, -3, 0)
+
+
+
+sky = Sky.Make()
+
+Sky.SetDayLength(sky, 120)
+
+
+
+cloud = Cloud.Make()
+
+Cloud.SetCoverage(cloud, 0.35)
+
+
+
+wx = Weather.Make()
+
+Weather.SetType(wx, "clear")
+
+Wind.Set(0.8, 1, 0.2)
+
+
+
+bio = Biome.Make("temperate")
+
+Biome.SetTemp(bio, 18)
+
+Biome.SetHumidity(bio, 0.55)
+
+
+
+sc = Scatter.Create("foliage")
+
+Scatter.Apply(sc, terrain, 0.2)
+
+
+
+cam = Camera.Make()
+
+cx# = 200
+
+cz# = 220
+
+Camera.SetPos(cam, cx#, 95, cz#)
+
+Camera.SetTarget(cam, cx#, 35, cz# - 40)
+
+
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+
+    dt# = Time.Delta()
+
+    IF Input.KeyDown(KEY_W) THEN cz# = cz# - 40 * dt#
+
+    IF Input.KeyDown(KEY_S) THEN cz# = cz# + 40 * dt#
+
+    IF Input.KeyDown(KEY_A) THEN cx# = cx# - 40 * dt#
+
+    IF Input.KeyDown(KEY_D) THEN cx# = cx# + 40 * dt#
+
+
+
+    Camera.SetPos(cam, cx#, 90, cz#)
+
+    Camera.SetTarget(cam, cx#, 35, cz# - 25)
+
+    World.SetCenter(cx#, cz#)
+
+    World.Update(dt#)
+
+    Sky.Update(sky, dt#)
+
+    Cloud.Update(cloud, dt#)
+
+    Weather.Update(wx, dt#)
+
+    Water.Update(dt#)
+
+
+
+    Render.Clear(90, 120, 160)
+
+    cam.Begin()
+
+    Sky.Draw(sky)
+
+    Cloud.Draw(cloud)
+
+    Terrain.Draw(terrain)
+
+    Scatter.DrawAll(sc)
+
+    Water.Draw(water)
+
+    Weather.Draw(wx)
+
+    Draw3D.Grid(50, 1.0)
+
+    cam.End()
+
+
+
+    Draw.Text("Open world  WASD move  ESC quit", 16, 16, 18, 255, 255, 255, 255)
+
+    Draw.Text("Chunks " + STR$(Chunk.Count(terrain)) + "  Ready " + STR$(World.IsReady(terrain)), 16, 40, 15, 220, 220, 200, 255)
+
+    Render.Frame()
+
+WEND
+
+
+
+Biome.Free(bio)
+
+Weather.Free(wx)
+
+Cloud.Free(cloud)
+
+Sky.Free(sky)
+
+Water.Free(water)
+
+Scatter.Free(sc)
+
+Terrain.Free(terrain)
+
+Camera.Free(cam)
+
+Window.Close()
+
+PRINT("Open world sample OK")
+

@@ -1,0 +1,43 @@
+Open-world command inventory — final (Group 11)
+Generated: post-implementation audit.
+
+Manifest source: compiler/builtinmanifest/commands.json (1644 overload rows; refresh: go run ./tools/apidoc).
+
+Duplicate Register("KEY") check:
+  The same string keys appear in register_cgo.go and register_stub.go pairs per package — mutually exclusive build tags (`//go:build cgo` vs `!cgo`). No duplicate registration at runtime.
+
+Open-world namespaces — status (manifest row + runtime Register + testdata):
+
+TERRAIN.*     DONE  (terrain_basic_test.mb, openworld_complete.mb)
+CHUNK.*       DONE  (same)
+WORLD.*       DONE  (world_streaming_test.mb, openworld_complete.mb)
+WATER.*       DONE  (water_test.mb, openworld_complete.mb)
+SKY.*         DONE  (sky_test.mb, openworld_complete.mb)
+CLOUD.*       DONE  (openworld_complete.mb)
+WEATHER.*     DONE  (weather_test.mb, openworld_complete.mb)
+FOG.*         DONE  (weather_test.mb)
+WIND.*        DONE  (weather_test.mb, openworld_complete.mb)
+SCATTER.*     DONE  (scatter_test.mb, openworld_complete.mb)
+PROP.*        DONE  (scatter_test.mb)
+BIOME.*       DONE  (openworld_complete.mb)
+
+REGION.*      MISSING (not in manifest — deferred per plan)
+
+Navigation:
+  NAV.* PATH.* NAVAGENT.* STEER.* BTREE.* — existing runtime/mbnav (no second NAV.FINDPATH).
+  Terrain integration: docs/reference/NAVMESH.md + NAV_AI.md (NAV.ADDTERRAIN / NAV.BUILD).
+
+Syntax-checked programs (go run . --check):
+  testdata/terrain_basic_test.mb
+  testdata/world_streaming_test.mb
+  testdata/water_test.mb
+  testdata/sky_test.mb
+  testdata/weather_test.mb
+  testdata/scatter_test.mb
+  testdata/openworld_complete.mb
+  testdata/pretty_window.mb
+
+Reference pages:
+  docs/reference/TERRAIN.md, WORLD.md, WATER.md, SKY.md, CLOUD.md, WEATHER.md, SCATTER.md, BIOME.md, NAVMESH.md
+  docs/COMMANDS.md (open-world section)
+  ARCHITECTURE.md (Open-world runtime under Phase D extension)

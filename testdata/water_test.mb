@@ -1,0 +1,64 @@
+; Water module smoke test — CGO + Raylib
+
+
+
+Window.Open(800, 450, "Water Test")
+
+Window.SetFPS(60)
+
+
+
+w = Water.Make(120, 120)
+
+Water.SetPos(w, 0, -2, 0)
+
+Water.SetWaveHeight(w, 0.4)
+
+Water.SetShallowColor(w, 0, 200, 220, 200)
+
+Water.SetDeepColor(w, 0, 40, 90, 240)
+
+
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+
+    dt# = Time.Delta()
+
+    Water.Update(dt#)
+
+    Render.Clear(30, 40, 60)
+
+    cam = Camera.Make()
+
+    Camera.SetPos(cam, 0, 8, 18)
+
+    Camera.SetTarget(cam, 0, 0, 0)
+
+    cam.Begin()
+
+    Draw3D.Grid(20, 1.0)
+
+    Water.Draw(w)
+
+    cam.End()
+
+    Camera.Free(cam)
+
+    wy# = Water.GetWaveY(w, 0, 0)
+
+    dp# = Water.GetDepth(w, 0, 0)
+
+    Draw.Text("WaveY " + FORMAT$(wy#, "%.2f") + "  Depth pt " + FORMAT$(dp#, "%.2f"), 8, 8, 16, 255, 255, 255, 255)
+
+    Render.Frame()
+
+WEND
+
+
+
+Water.Free(w)
+
+Window.Close()
+
+PRINT("Water test OK")
+

@@ -1,0 +1,31 @@
+; Scatter / prop smoke test — CGO + Raylib
+
+Window.Open(960, 540, "Scatter Test")
+Window.SetFPS(60)
+
+t = Terrain.Make(300, 300)
+Terrain.FillPerlin(t, 0.025, 50)
+
+sc = Scatter.Create("grass")
+Scatter.Apply(sc, t, 0.35)
+Prop.Place(t, 120, Terrain.GetHeight(t, 120, 140) + 0.6, 140)
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = Time.Delta()
+    Render.Clear(70, 90, 110)
+    cam = Camera.Make()
+    Camera.SetPos(cam, 150, 85, 220)
+    Camera.SetTarget(cam, 150, 40, 140)
+    cam.Begin()
+    Terrain.Draw(t)
+    Scatter.DrawAll(sc)
+    Prop.DrawAll()
+    cam.End()
+    Camera.Free(cam)
+    Render.Frame()
+WEND
+
+Scatter.Free(sc)
+Terrain.Free(t)
+Window.Close()
+PRINT("Scatter test OK")

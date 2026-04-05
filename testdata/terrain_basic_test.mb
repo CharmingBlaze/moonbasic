@@ -1,0 +1,61 @@
+; Terrain basic test — requires CGO + Raylib
+
+Window.Open(1280, 720, "Terrain Basic Test")
+Window.SetFPS(60)
+
+terrain = Terrain.Make(512, 512)
+Terrain.FillPerlin(terrain, 0.02, 80)
+
+Chunk.SetRange(terrain, 350, 500)
+World.SetCenter(256, 256)
+World.StreamEnable(TRUE)
+World.Preload(terrain, 4)
+
+cam = Camera.Make()
+cx# = 256
+cz# = 280
+Camera.SetPos(cam, cx#, 90, cz#)
+Camera.SetTarget(cam, 256, 40, 200)
+Camera.SetFOV(cam, 75)
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = Time.Delta()
+    IF Input.KeyDown(KEY_W) THEN cz# = cz# - 55 * dt#
+    IF Input.KeyDown(KEY_S) THEN cz# = cz# + 55 * dt#
+    IF Input.KeyDown(KEY_A) THEN cx# = cx# - 55 * dt#
+    IF Input.KeyDown(KEY_D) THEN cx# = cx# + 55 * dt#
+
+    Camera.SetPos(cam, cx#, 90, cz#)
+    Camera.SetTarget(cam, cx#, 40, cz# - 20)
+
+    h# = Terrain.GetHeight(terrain, cx#, cz#)
+    slope# = Terrain.GetSlope(terrain, cx#, cz#)
+
+    IF Input.MouseDown(0) THEN
+        Terrain.Raise(terrain, cx#, cz#, 18, 3 * dt#)
+    ENDIF
+    IF Input.MouseDown(1) THEN
+        Terrain.Lower(terrain, cx#, cz#, 18, 3 * dt#)
+    ENDIF
+
+    World.SetCenter(cx#, cz#)
+    World.Update(dt#)
+
+    Render.Clear(100, 140, 180)
+    cam.Begin()
+    Terrain.Draw(terrain)
+    Draw3D.Grid(40, 1.0)
+    cam.End()
+
+    Draw.Text("Terrain Basic", 20, 20, 18, 255, 255, 255, 255)
+    Draw.Text("WASD move  LMB raise  RMB lower  ESC quit", 20, 44, 14, 200, 200, 200, 200)
+    Draw.Text("Height " + FORMAT$(h#, "%.1f") + "m  Slope " + FORMAT$(slope#, "%.1f") + " deg", 20, 68, 14, 100, 255, 100, 200)
+    Draw.Text("Chunks loaded: " + STR$(Chunk.Count(terrain)), 20, 92, 14, 200, 200, 100, 200)
+    Draw.Text("FPS: " + STR$(TIME.GETFPS()), 20, 116, 14, 200, 200, 200, 200)
+    Render.Frame()
+WEND
+
+Terrain.Free(terrain)
+Camera.Free(cam)
+Window.Close()
+PRINT("Terrain basic test OK")

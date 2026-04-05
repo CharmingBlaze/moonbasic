@@ -1,0 +1,66 @@
+; Weather / fog / wind smoke test — CGO + Raylib
+
+
+
+Window.Open(640, 360, "Weather Test")
+
+Window.SetFPS(60)
+
+
+
+wx = Weather.Make()
+
+Weather.SetType(wx, "rain")
+
+Fog.Enable(TRUE)
+
+Fog.SetNear(8)
+
+Fog.SetFar(120)
+
+Fog.SetColor(180, 190, 200, 255)
+
+Wind.Set(2.5, 1, 0)
+
+
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+
+    dt# = Time.Delta()
+
+    Weather.Update(wx, dt#)
+
+    Render.Clear(60, 70, 85)
+
+    cam = Camera.Make()
+
+    Camera.SetPos(cam, 0, 4, 10)
+
+    Camera.SetTarget(cam, 0, 0, 0)
+
+    cam.Begin()
+
+    Draw3D.Grid(16, 1.0)
+
+    Weather.Draw(wx)
+
+    cam.End()
+
+    Camera.Free(cam)
+
+    Draw.Text("Type " + Weather.GetType(wx) + "  Cov " + FORMAT$(Weather.GetCoverage(wx), "%.2f"), 8, 8, 15, 255, 255, 255, 255)
+
+    Draw.Text("Wind " + FORMAT$(Wind.GetStrength(), "%.2f"), 8, 28, 15, 200, 255, 200, 255)
+
+    Render.Frame()
+
+WEND
+
+
+
+Weather.Free(wx)
+
+Window.Close()
+
+PRINT("Weather test OK")
+
