@@ -1,0 +1,85 @@
+./main.go:112:28: "error: --disasm requires a .mbc file" escapes to heap
+./main.go:112:28: "error: --disasm requires a .mbc file" escapes to heap in run:
+./main.go:124:28: "error: --profile requires a source .mb file" escapes to heap
+./main.go:124:28: "error: --profile requires a source .mb file" escapes to heap in run:
+./main.go:127:31: &vm.ProfileRecorder{...} escapes to heap
+./main.go:127:31: &vm.ProfileRecorder{...} escapes to heap in run:
+./main.go:127:31: make(map[int]uint64) escapes to heap
+./main.go:127:31: make(map[int]uint64) escapes to heap in run:
+./main.go:135:22: "1.2.1" escapes to heap
+./main.go:135:22: "1.2.1" escapes to heap in run:
+./main.go:142:27: "Instruction hotspots (top 10 source lines):" escapes to heap
+./main.go:142:27: "Instruction hotspots (top 10 source lines):" escapes to heap in run:
+./main.go:144:50: e.Line escapes to heap
+./main.go:144:50: e.Line escapes to heap in run:
+./main.go:144:58: e.Count escapes to heap
+./main.go:144:58: e.Count escapes to heap in run:
+./main.go:159:15: "Check: OK" escapes to heap
+./main.go:159:15: "Check: OK" escapes to heap in run:
+./main.go:174:21: "1.2.1" escapes to heap
+./main.go:174:21: "1.2.1" escapes to heap in run:
+./main.go:186:27: "error: --compile expects a source file, not a .mbc bytecode file" escapes to heap
+./main.go:186:27: "error: --compile expects a source file, not a .mbc bytecode file" escapes to heap in compileToMBC:
+./main.go:201:44: out escapes to heap
+./main.go:201:44: out escapes to heap in compileToMBC:
+./main.go:204:39: out escapes to heap
+./main.go:204:39: out escapes to heap in compileToMBC:
+./main.go:211:14: base + ".mbc" escapes to heap
+./main.go:211:14: base + ".mbc" escapes to heap in mbcOutPath:
+./main.go:226:21: "1.2.1" escapes to heap
+./main.go:226:21: "1.2.1" escapes to heap in runMBC:
+./main.go:25:101: "1.2.1" escapes to heap
+./main.go:25:101: "1.2.1" escapes to heap in printRuntimeBanner:
+./main.go:54:15: func literal escapes to heap
+./main.go:54:15: func literal escapes to heap in run:
+./main.go:88:32: "1.2.1" escapes to heap
+./main.go:88:32: "1.2.1" escapes to heap in run:
+./main.go:89:27: "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3" escapes to heap
+./main.go:89:27: "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3" escapes to heap in run:
+./main_disasm.go:26:32: base + ".mb" escapes to heap
+./main_disasm.go:26:32: base + ".mb" escapes to heap in disasmMBC:
+./main_disasm.go:27:36: string(b) escapes to heap
+./main_disasm.go:27:36: string(b) escapes to heap in disasmMBC:
+./main_disasm.go:29:49: path escapes to heap
+./main_disasm.go:29:49: path escapes to heap in disasmMBC:
+./main_pkg.go:15:27: "usage: moonbasic install|list|publish [args]" escapes to heap
+./main_pkg.go:15:27: "usage: moonbasic install|list|publish [args]" escapes to heap in runPackageCLI:
+./main_pkg.go:26:62: args[0] escapes to heap
+./main_pkg.go:26:62: args[0] escapes to heap in runPackageCLI:
+./main_pkg.go:32:23: &flag.FlagSet{...} escapes to heap
+./main_pkg.go:32:23: &flag.FlagSet{...} escapes to heap in cmdInstall:
+./main_pkg.go:32:23: flag.f.defaultUsage escapes to heap
+./main_pkg.go:32:23: flag.f.defaultUsage escapes to heap in cmdInstall:
+./main_pkg.go:39:27: "usage: moonbasic install <name|url|dir|zip>" escapes to heap
+./main_pkg.go:39:27: "usage: moonbasic install <name|url|dir|zip>" escapes to heap in cmdInstall:
+./main_pkg.go:50:23: &flag.FlagSet{...} escapes to heap
+./main_pkg.go:50:23: &flag.FlagSet{...} escapes to heap in cmdList:
+./main_pkg.go:50:23: flag.f.defaultUsage escapes to heap
+./main_pkg.go:50:23: flag.f.defaultUsage escapes to heap in cmdList:
+./main_pkg.go:56:27: "usage: moonbasic list" escapes to heap
+./main_pkg.go:56:27: "usage: moonbasic list" escapes to heap in cmdList:
+./main_pkg.go:67:23: &flag.FlagSet{...} escapes to heap
+./main_pkg.go:67:23: &flag.FlagSet{...} escapes to heap in cmdPublish:
+./main_pkg.go:67:23: flag.f.defaultUsage escapes to heap
+./main_pkg.go:67:23: flag.f.defaultUsage escapes to heap in cmdPublish:
+./main_pkg.go:76:27: "usage: moonbasic publish [-o path.zip] [-upload] <package_dir>" escapes to heap
+./main_pkg.go:76:27: "usage: moonbasic publish [-o path.zip] [-upload] <package_dir>" escapes to heap in cmdPublish:
+./main_pkg.go:87:41: man.Name escapes to heap
+./main_pkg.go:87:41: man.Name escapes to heap in cmdPublish:
+./main_pkg.go:87:51: man.Version escapes to heap
+./main_pkg.go:87:51: man.Version escapes to heap in cmdPublish:
+./main_watch.go:17:27: "error: --watch expects a source .mb file" escapes to heap
+./main_watch.go:17:27: "error: --watch expects a source .mb file" escapes to heap in runWatch:
+./main_watch.go:20:9: func literal escapes to heap
+./main_watch.go:20:9: func literal escapes to heap in runWatch:
+./main_watch.go:34:27: "(watch continues; fix errors and save)" escapes to heap
+./main_watch.go:34:27: "(watch continues; fix errors and save)" escapes to heap in runWatch:
+./main_watch.go:46:44: dir escapes to heap
+./main_watch.go:46:44: dir escapes to heap in runWatch:
+./main_watch.go:49:2: absPath escapes to heap in runWatch:
+./main_watch.go:60:87: filepath.Base(absPath) escapes to heap
+./main_watch.go:60:87: filepath.Base(absPath) escapes to heap in runWatch.runWatch.func2.func3:
+./main_watch.go:79:18: "time: Stop called on uninitialized Timer" escapes to heap
+./main_watch.go:79:18: "time: Stop called on uninitialized Timer" escapes to heap in runWatch:
+./main_watch.go:79:18: func literal escapes to heap
+./main_watch.go:79:18: func literal escapes to heap in runWatch:

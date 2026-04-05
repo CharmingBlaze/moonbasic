@@ -1,0 +1,17 @@
+CGO / native allocation sites (manual inventory, 2026-04-05)
+
+Method: search runtime/**/*.go for rl.Load*, rl.Gen*, rl.Init*, jolt., box2d., enet.
+Exclude lines that are clearly paired with Unload/Free in the same function or HeapObject.Free.
+
+This file is a triage list — each call path must match ownership documented in docs/MEMORY.md
+and HEAP_AUDIT.txt. One-shot init (InitWindow, InitAudioDevice) is torn down by CloseWindow/CloseAudioDevice on shutdown.
+
+Representative high-volume sites:
+- runtime/texture/*.go — GenImage*, LoadTexture* → TextureObject.Free → UnloadTexture
+- runtime/mbmodel3d/* — LoadModel, GenMesh*, LoadMaterialDefault → model/mesh Free paths
+- runtime/terrain/mesh_build.go — GenImageColor, GenMeshHeightmap, LoadMaterialDefault → unload in rebuild/TerrainObject.Free
+- runtime/net/enet_cgo.go — enet.NewHost, peers → hostObj/peerObj Free
+- runtime/physics3d/jolt_linux.go — jolt bodies/shapes → BODY3D.FREE / Physics3D.Stop
+- runtime/window/raylib_cgo.go — InitWindow → CloseWindow
+
+Full line-by-line grep output omitted here; use repository search on rl.Load|rl.Gen|rl.Init under runtime/.

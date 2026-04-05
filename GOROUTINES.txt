@@ -1,0 +1,8 @@
+Goroutine audit (grep "^\s+go " runtime/**/*.go excluding tests):
+
+runtime/system/host.go:216
+  go func() { _ = cmd.Wait() }()
+  Purpose: wait for child process without blocking the native that started it.
+  Lifetime: short; exits when Wait() completes. No reference to heap handles.
+
+No other "go " statements in runtime/ (terrain has no async chunk builders per ARCHITECTURE.md).
