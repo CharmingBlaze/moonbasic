@@ -1,0 +1,24 @@
+Window.Open(280, 200, "game helpers")
+Window.SetFPS(60)
+
+ASSERT(Game.ScreenW() = SCREENW(), "GAME.SCREENW alias")
+ASSERT(Game.ScreenH() = SCREENH(), "GAME.SCREENH alias")
+ASSERT(MATH.ABS(Game.Screencx() - Screencx()) < 0.001, "GAME.SCREENCX alias")
+ASSERT(MATH.ABS(Game.Screency() - Screency()) < 0.001, "GAME.SCREENCY alias")
+
+frames = 0
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt1 = DT()
+    dt2 = Game.Dt()
+    ASSERT(MATH.ABS(dt1 - dt2) < 0.001, "GAME.DT alias")
+    mx1 = MX()
+    mx2 = Game.Mx()
+    ASSERT(mx1 = mx2, "GAME.MX alias")
+    Render.Clear(18, 20, 28)
+    Render.Frame()
+    frames = frames + 1
+    IF frames >= 2 THEN EXIT WHILE
+WEND
+
+Window.Close()
+PRINT("gamehelpers_complete_test ok")

@@ -1215,6 +1215,155 @@
       ]
     },
     {
+      "key": "GAME.SCREENW",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.SCREENH",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.SCREENCX",
+      "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.SCREENCY",
+      "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.DT",
+      "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.FPS",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.ENDGAME",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MX",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MY",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MOUSEX",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MOUSEY",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MDX",
+      "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MDY",
+      "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MWHEEL",
+      "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MLEFT",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MRIGHT",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MMIDDLE",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MLEFTPRESSED",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.MRIGHTPRESSED",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.KEYDOWN",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.KEYPRESSED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.KEYRELEASED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.KEYCHAR",
+      "args": [],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.ANYKEY",
+      "args": [],
+      "returns": "bool",
+      "phase": "rendering"
+    },
+    {
       "key": "WINDOW.SETFLAG",
       "args": [
         "int"
