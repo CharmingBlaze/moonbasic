@@ -13,6 +13,8 @@ import (
 	"moonbasic/vm/value"
 )
 
+// Note: RENDER.SETAMBIENT is implemented here (3D PBR scene ambient); RENDER.SET2DAMBIENT is in mblight2d.
+
 func (m *Module) registerRenderAdvanced(r runtime.Registrar) {
 	r.Register("RENDER.SETBLEND", "window", runtime.AdaptLegacy(m.rSetBlend))
 	r.Register("RENDER.SETBLENDMODE", "window", runtime.AdaptLegacy(m.rSetBlend))
@@ -25,6 +27,7 @@ func (m *Module) registerRenderAdvanced(r runtime.Registrar) {
 	r.Register("RENDER.SCREENSHOT", "window", m.rScreenshot)
 	r.Register("RENDER.SETMSAA", "window", runtime.AdaptLegacy(m.rSetMSAA))
 	r.Register("RENDER.SETSHADOWMAPSIZE", "render", runtime.AdaptLegacy(m.rSetShadowMapSize))
+	r.Register("RENDER.SETAMBIENT", "render", runtime.AdaptLegacy(m.rSetAmbient))
 	r.Register("RENDER.SETMODE", "render", m.rSetRenderMode)
 }
 
@@ -177,5 +180,50 @@ func (m *Module) rSetShadowMapSize(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("RENDER.SETSHADOWMAPSIZE: size must be numeric")
 	}
 	mbmodel3d.SetShadowMapResolution(int32(sz))
+	return value.Nil, nil
+}
+
+// rSetAmbient sets PBR hemispheric ambient tint (per-channel multiplier on albedo, typically 0.02–0.15).
+// Optional fourth argument scales all three channels (0.0–1.0 or 0–255).
+func (m *Module) rSetAmbient(args []value.Value) (value.Value, error) {
+	if len(args) != 3 && len(args) != 4 {
+		return value.Nil, fmt.Errorf("RENDER.SETAMBIENT expects (r#, g#, b#) or (r#, g#, b#, a#) in 0.0–1.0 (or 0–255)")
+	}
+	ch := func(v value.Value) (float32, error) {
+		var f float64
+		if x, ok := v.ToFloat(); ok {
+			f = x
+		} else if i, ok := v.ToInt(); ok {
+			f = float64(i)
+		} else {
+			return 0, fmt.Errorf("RENDER.SETAMBIENT: components must be numeric")
+		}
+		x := float32(f)
+		if x > 1 {
+			x /= 255
+		}
+		return x, nil
+	}
+	rf, err := ch(args[0])
+	if err != nil {
+		return value.Nil, err
+	}
+	gf, err := ch(args[1])
+	if err != nil {
+		return value.Nil, err
+	}
+	bf, err := ch(args[2])
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 3 {
+		mbmodel3d.SetSceneAmbient(rf, gf, bf)
+		return value.Nil, nil
+	}
+	sf, err := ch(args[3])
+	if err != nil {
+		return value.Nil, err
+	}
+	mbmodel3d.SetSceneAmbientScaled(rf, gf, bf, sf)
 	return value.Nil, nil
 }

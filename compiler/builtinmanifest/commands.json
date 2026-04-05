@@ -1323,6 +1323,15 @@
       ]
     },
     {
+      "key": "RENDER.SETAMBIENT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
       "key": "RENDER.SET2DAmbIENT",
       "args": [
         "int",
@@ -2261,6 +2270,107 @@
         "handle",
         "bool"
       ]
+    },
+    {
+      "key": "LIGHT.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "LIGHT.SETCOLOR",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETCOLOR",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETINTENSITY",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETTARGET",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETSHADOWBIAS",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETINNERCONE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETOUTERCONE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.SETRANGE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT.ENABLE",
+      "args": [
+        "handle",
+        "bool"
+      ]
+    },
+    {
+      "key": "LIGHT.ISENABLED",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
     },
     {
       "key": "TERRAIN.MAKE",
