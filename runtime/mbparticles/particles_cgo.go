@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"image/color"
 	"math/rand/v2"
+	"strings"
 	"sync"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	mbcamera "moonbasic/runtime/camera"
 	mbdraw "moonbasic/runtime/draw"
 	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
@@ -20,9 +22,9 @@ import (
 const maxParticles = 16000
 
 var (
-	partDefMu     sync.Mutex
-	partDefTex    rl.Texture2D
-	partDefTexOK  bool
+	partDefMu    sync.Mutex
+	partDefTex   rl.Texture2D
+	partDefTexOK bool
 )
 
 func particleFallbackTex() rl.Texture2D {
@@ -48,9 +50,10 @@ func unloadParticleFallbackTex() {
 }
 
 type particle struct {
-	x, y, z    float32
-	vx, vy, vz float32
-	life, age  float32
+	x, y, z      float32
+	vx, vy, vz   float32
+	life, age    float32
+	size0, size1 float32
 }
 
 type particleObj struct {
@@ -64,16 +67,22 @@ type particleObj struct {
 	vx0, vy0, vz0 float32
 	vspread       float32
 
+	speedMin, speedMax float32
+
 	sr, sg, sb, sa uint8
 	er, eg, eb, ea uint8
 
-	sizeStart, sizeEnd float32
-	gravity            float32
+	sizeStartMin, sizeStartMax float32
+	sizeEndMin, sizeEndMax     float32
+
+	gx, gy, gz float32
 
 	px, py, pz float32
 
-	playing bool
-	parts   []particle
+	playing   bool
+	billboard bool
+
+	parts []particle
 }
 
 func (o *particleObj) TypeName() string { return "Particle" }
@@ -121,11 +130,31 @@ func clampU8(n int32) uint8 {
 	return uint8(n)
 }
 
+func truthy(v value.Value) bool {
+	if v.Kind == value.KindInt {
+		return v.IVal != 0
+	}
+	if v.Kind == value.KindFloat {
+		return v.FVal != 0
+	}
+	return false
+}
+
 func (m *Module) getParticle(args []value.Value, ix int, op string) (*particleObj, error) {
 	if ix >= len(args) || args[ix].Kind != value.KindHandle {
 		return nil, fmt.Errorf("%s: expected particle handle", op)
 	}
 	return heap.Cast[*particleObj](m.h, heap.Handle(args[ix].IVal))
+}
+
+// regDual registers the same handler under PARTICLE.name and PARTICLE3D.name.
+func regDual(reg runtime.Registrar, particleKey string, fn runtime.BuiltinFn) {
+	reg.Register(particleKey, "particle", fn)
+	k3 := strings.Replace(particleKey, "PARTICLE.", "PARTICLE3D.", 1)
+	if k3 == particleKey {
+		panic("regDual: expected PARTICLE. prefix: " + particleKey)
+	}
+	reg.Register(k3, "particle", fn)
 }
 
 func (o *particleObj) spawnOne() {
@@ -140,15 +169,32 @@ func (o *particleObj) spawnOne() {
 	vx := o.vx0 + (rand.Float32()*2-1)*sp
 	vy := o.vy0 + (rand.Float32()*2-1)*sp
 	vz := o.vz0 + (rand.Float32()*2-1)*sp
+	spd := o.speedMin + (o.speedMax-o.speedMin)*rand.Float32()
+	if spd < 0 {
+		spd = 0
+	}
+	vx *= spd
+	vy *= spd
+	vz *= spd
+
+	s0 := o.sizeStartMin + (o.sizeStartMax-o.sizeStartMin)*rand.Float32()
+	s1 := o.sizeEndMin + (o.sizeEndMax-o.sizeEndMin)*rand.Float32()
+	if s0 < 0 {
+		s0 = 0
+	}
+	if s1 < 0 {
+		s1 = 0
+	}
+
 	o.parts = append(o.parts, particle{
 		x: o.px, y: o.py, z: o.pz,
 		vx: vx, vy: vy, vz: vz,
 		life: life, age: 0,
+		size0: s0, size1: s1,
 	})
 }
 
 func (o *particleObj) update(dt float32) {
-	// Integrate & cull dead
 	dst := o.parts[:0]
 	for i := range o.parts {
 		p := &o.parts[i]
@@ -156,7 +202,9 @@ func (o *particleObj) update(dt float32) {
 		if p.age >= p.life {
 			continue
 		}
-		p.vy += o.gravity * dt
+		p.vx += o.gx * dt
+		p.vy += o.gy * dt
+		p.vz += o.gz * dt
 		p.x += p.vx * dt
 		p.y += p.vy * dt
 		p.z += p.vz * dt
@@ -175,7 +223,7 @@ func (o *particleObj) update(dt float32) {
 
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
-	reg.Register("PARTICLE.MAKE", "particle", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.MAKE", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -186,7 +234,10 @@ func (m *Module) Register(reg runtime.Registrar) {
 			lifeMin: 1, lifeMax: 1,
 			sr: 255, sg: 255, sb: 255, sa: 255,
 			er: 255, eg: 255, eb: 255, ea: 0,
-			sizeStart: 0.2, sizeEnd: 0,
+			sizeStartMin: 0.2, sizeStartMax: 0.2,
+			sizeEndMin:   0, sizeEndMax: 0,
+			speedMin:     1, speedMax: 1,
+			billboard:    true,
 		}
 		id, err := m.h.Alloc(o)
 		if err != nil {
@@ -195,7 +246,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.FromHandle(id), nil
 	})
 
-	reg.Register("PARTICLE.FREE", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.FREE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -206,7 +257,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.SETTEXTURE", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETTEXTURE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -224,7 +275,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.SETEMITRATE", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETEMITRATE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -245,8 +296,31 @@ func (m *Module) Register(reg runtime.Registrar) {
 		o.emitRate = rate
 		return value.Nil, nil
 	}))
+	emitRateFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETRATE expects (particle, rate)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETRATE")
+		if err != nil {
+			return value.Nil, err
+		}
+		rate, ok := argFloat(args[1])
+		if !ok {
+			return value.Nil, fmt.Errorf("PARTICLE.SETRATE: rate must be numeric")
+		}
+		if rate < 0 {
+			rate = 0
+		}
+		o.emitRate = rate
+		return value.Nil, nil
+	})
+	reg.Register("PARTICLE.SETRATE", "particle", emitRateFn)
+	reg.Register("PARTICLE3D.SETRATE", "particle", emitRateFn)
 
-	reg.Register("PARTICLE.SETLIFETIME", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETLIFETIME", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -275,7 +349,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.SETVELOCITY", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETVELOCITY", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -301,7 +375,137 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.SETCOLOR", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETDIRECTION", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 4 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETDIRECTION expects (particle, vx, vy, vz)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETDIRECTION")
+		if err != nil {
+			return value.Nil, err
+		}
+		vx, ok1 := argFloat(args[1])
+		vy, ok2 := argFloat(args[2])
+		vz, ok3 := argFloat(args[3])
+		if !ok1 || !ok2 || !ok3 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETDIRECTION: values must be numeric")
+		}
+		o.vx0, o.vy0, o.vz0 = vx, vy, vz
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.SETSPREAD", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETSPREAD expects (particle, angle)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETSPREAD")
+		if err != nil {
+			return value.Nil, err
+		}
+		sp, ok := argFloat(args[1])
+		if !ok {
+			return value.Nil, fmt.Errorf("PARTICLE.SETSPREAD: angle must be numeric")
+		}
+		if sp < 0 {
+			sp = 0
+		}
+		o.vspread = sp
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.SETSPEED", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETSPEED expects (particle, min#, max#)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETSPEED")
+		if err != nil {
+			return value.Nil, err
+		}
+		a, ok1 := argFloat(args[1])
+		b, ok2 := argFloat(args[2])
+		if !ok1 || !ok2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETSPEED: min, max must be numeric")
+		}
+		if a < 0 {
+			a = 0
+		}
+		if b < 0 {
+			b = 0
+		}
+		if a > b {
+			a, b = b, a
+		}
+		o.speedMin, o.speedMax = a, b
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.SETSTARTSIZE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETSTARTSIZE expects (particle, min#, max#)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETSTARTSIZE")
+		if err != nil {
+			return value.Nil, err
+		}
+		a, ok1 := argFloat(args[1])
+		b, ok2 := argFloat(args[2])
+		if !ok1 || !ok2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETSTARTSIZE: min, max must be numeric")
+		}
+		if a > b {
+			a, b = b, a
+		}
+		if a < 0 {
+			a = 0
+		}
+		if b < 0 {
+			b = 0
+		}
+		o.sizeStartMin, o.sizeStartMax = a, b
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.SETENDSIZE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETENDSIZE expects (particle, min#, max#)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETENDSIZE")
+		if err != nil {
+			return value.Nil, err
+		}
+		a, ok1 := argFloat(args[1])
+		b, ok2 := argFloat(args[2])
+		if !ok1 || !ok2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETENDSIZE: min, max must be numeric")
+		}
+		if a > b {
+			a, b = b, a
+		}
+		if a < 0 {
+			a = 0
+		}
+		if b < 0 {
+			b = 0
+		}
+		o.sizeEndMin, o.sizeEndMax = a, b
+		return value.Nil, nil
+	}))
+
+	setColorFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -321,9 +525,12 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 		o.sr, o.sg, o.sb, o.sa = clampU8(r0), clampU8(g0), clampU8(b0), clampU8(a0)
 		return value.Nil, nil
-	}))
+	})
+	regDual(reg, "PARTICLE.SETCOLOR", setColorFn)
+	reg.Register("PARTICLE.SETSTARTCOLOR", "particle", setColorFn)
+	reg.Register("PARTICLE3D.SETSTARTCOLOR", "particle", setColorFn)
 
-	reg.Register("PARTICLE.SETCOLOREND", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	setColorEndFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -343,9 +550,12 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 		o.er, o.eg, o.eb, o.ea = clampU8(r0), clampU8(g0), clampU8(b0), clampU8(a0)
 		return value.Nil, nil
-	}))
+	})
+	regDual(reg, "PARTICLE.SETCOLOREND", setColorEndFn)
+	reg.Register("PARTICLE.SETENDCOLOR", "particle", setColorEndFn)
+	reg.Register("PARTICLE3D.SETENDCOLOR", "particle", setColorEndFn)
 
-	reg.Register("PARTICLE.SETSIZE", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETSIZE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -367,30 +577,41 @@ func (m *Module) Register(reg runtime.Registrar) {
 		if s1 < 0 {
 			s1 = 0
 		}
-		o.sizeStart, o.sizeEnd = s0, s1
+		o.sizeStartMin, o.sizeStartMax = s0, s0
+		o.sizeEndMin, o.sizeEndMax = s1, s1
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.SETGRAVITY", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETGRAVITY", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
-		}
-		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY expects (particle, g)")
 		}
 		o, err := m.getParticle(args, 0, "PARTICLE.SETGRAVITY")
 		if err != nil {
 			return value.Nil, err
 		}
-		g, ok := argFloat(args[1])
-		if !ok {
-			return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY: g must be numeric")
+		if len(args) == 2 {
+			g, ok := argFloat(args[1])
+			if !ok {
+				return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY: g must be numeric")
+			}
+			o.gx, o.gy, o.gz = 0, g, 0
+			return value.Nil, nil
 		}
-		o.gravity = g
-		return value.Nil, nil
+		if len(args) == 4 {
+			gx, ok1 := argFloat(args[1])
+			gy, ok2 := argFloat(args[2])
+			gz, ok3 := argFloat(args[3])
+			if !ok1 || !ok2 || !ok3 {
+				return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY: gx, gy, gz must be numeric")
+			}
+			o.gx, o.gy, o.gz = gx, gy, gz
+			return value.Nil, nil
+		}
+		return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY expects (particle, g) or (particle, gx, gy, gz)")
 	}))
 
-	reg.Register("PARTICLE.SETPOS", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETPOS", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -411,7 +632,53 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.PLAY", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.SETBURST", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETBURST expects (particle, count)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETBURST")
+		if err != nil {
+			return value.Nil, err
+		}
+		n, ok := args[1].ToInt()
+		if !ok {
+			if f, okf := args[1].ToFloat(); okf {
+				n = int64(f)
+			} else {
+				return value.Nil, fmt.Errorf("PARTICLE.SETBURST: count must be numeric")
+			}
+		}
+		if n < 0 {
+			n = 0
+		}
+		if n > 100000 {
+			n = 100000
+		}
+		for i := int64(0); i < n && len(o.parts) < maxParticles; i++ {
+			o.spawnOne()
+		}
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.SETBILLBOARD", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETBILLBOARD expects (particle, enable)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETBILLBOARD")
+		if err != nil {
+			return value.Nil, err
+		}
+		o.billboard = truthy(args[1])
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.PLAY", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -426,7 +693,22 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.UPDATE", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	regDual(reg, "PARTICLE.STOP", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.STOP expects particle handle")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.STOP")
+		if err != nil {
+			return value.Nil, err
+		}
+		o.playing = false
+		return value.Nil, nil
+	}))
+
+	regDual(reg, "PARTICLE.UPDATE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -451,20 +733,32 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	}))
 
-	reg.Register("PARTICLE.DRAW", "particle", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	drawFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
-		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("PARTICLE.DRAW expects particle handle")
+		if len(args) != 1 && len(args) != 2 {
+			return value.Nil, fmt.Errorf("PARTICLE.DRAW expects particle or (particle, camera)")
 		}
 		o, err := m.getParticle(args, 0, "PARTICLE.DRAW")
 		if err != nil {
 			return value.Nil, err
 		}
-		cam, ok := mbmodel3d.ActiveCamera3D()
-		if !ok {
-			return value.Nil, fmt.Errorf("PARTICLE.DRAW: must be called inside CAMERA.Begin ... CAMERA.End")
+		var cam rl.Camera3D
+		if len(args) == 1 {
+			var ok bool
+			cam, ok = mbmodel3d.ActiveCamera3D()
+			if !ok {
+				return value.Nil, fmt.Errorf("PARTICLE.DRAW: use CAMERA.Begin/End or pass camera handle")
+			}
+		} else {
+			if args[1].Kind != value.KindHandle {
+				return value.Nil, fmt.Errorf("PARTICLE.DRAW: camera must be a handle")
+			}
+			cam, err = mbcamera.RayCamera3D(m.h, heap.Handle(args[1].IVal))
+			if err != nil {
+				return value.Nil, fmt.Errorf("PARTICLE.DRAW: %w", err)
+			}
 		}
 		var tex rl.Texture2D
 		if o.texH != 0 {
@@ -489,16 +783,54 @@ func (m *Module) Register(reg runtime.Registrar) {
 			g := uint8(float32(o.sg)*inv + float32(o.eg)*t)
 			b := uint8(float32(o.sb)*inv + float32(o.eb)*t)
 			a := uint8(float32(o.sa)*inv + float32(o.ea)*t)
-			sz := o.sizeStart + (o.sizeEnd-o.sizeStart)*t
+			sz := p.size0 + (p.size1-p.size0)*t
 			if sz < 0 {
 				sz = 0
 			}
 			if a == 0 {
 				continue
 			}
-			rl.DrawBillboard(cam, tex, rl.Vector3{X: p.x, Y: p.y, Z: p.z}, sz, color.RGBA{R: r, G: g, B: b, A: a})
+			pos := rl.Vector3{X: p.x, Y: p.y, Z: p.z}
+			if o.billboard {
+				rl.DrawBillboard(cam, tex, pos, sz, color.RGBA{R: r, G: g, B: b, A: a})
+			} else {
+				rl.DrawCube(pos, sz*0.5, sz*0.5, sz*0.5, color.RGBA{R: r, G: g, B: b, A: a})
+			}
 		}
 		return value.Nil, nil
+	})
+	regDual(reg, "PARTICLE.DRAW", drawFn)
+
+	regDual(reg, "PARTICLE.ISALIVE", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.ISALIVE expects particle handle")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.ISALIVE")
+		if err != nil {
+			return value.Nil, err
+		}
+		alive := o.playing || len(o.parts) > 0
+		if alive {
+			return value.FromInt(1), nil
+		}
+		return value.FromInt(0), nil
+	}))
+
+	regDual(reg, "PARTICLE.COUNT", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.COUNT expects particle handle")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.COUNT")
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromInt(int64(len(o.parts))), nil
 	}))
 }
 

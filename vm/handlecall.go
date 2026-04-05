@@ -143,26 +143,52 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 			return "PARTICLE.SETTEXTURE", true, true
 		case "SETEMITRATE":
 			return "PARTICLE.SETEMITRATE", true, true
+		case "SETRATE":
+			return "PARTICLE.SETRATE", true, true
 		case "SETLIFETIME":
 			return "PARTICLE.SETLIFETIME", true, true
 		case "SETVELOCITY":
 			return "PARTICLE.SETVELOCITY", true, true
+		case "SETDIRECTION":
+			return "PARTICLE.SETDIRECTION", true, true
+		case "SETSPREAD":
+			return "PARTICLE.SETSPREAD", true, true
+		case "SETSPEED":
+			return "PARTICLE.SETSPEED", true, true
+		case "SETSTARTSIZE":
+			return "PARTICLE.SETSTARTSIZE", true, true
+		case "SETENDSIZE":
+			return "PARTICLE.SETENDSIZE", true, true
 		case "SETCOLOR":
 			return "PARTICLE.SETCOLOR", true, true
+		case "SETSTARTCOLOR":
+			return "PARTICLE.SETSTARTCOLOR", true, true
 		case "SETCOLOREND":
 			return "PARTICLE.SETCOLOREND", true, true
+		case "SETENDCOLOR":
+			return "PARTICLE.SETENDCOLOR", true, true
 		case "SETSIZE":
 			return "PARTICLE.SETSIZE", true, true
 		case "SETGRAVITY":
 			return "PARTICLE.SETGRAVITY", true, true
 		case "SETPOS":
 			return "PARTICLE.SETPOS", true, true
+		case "SETBURST":
+			return "PARTICLE.SETBURST", true, true
+		case "SETBILLBOARD":
+			return "PARTICLE.SETBILLBOARD", true, true
 		case "PLAY":
 			return "PARTICLE.PLAY", true, true
+		case "STOP":
+			return "PARTICLE.STOP", true, true
 		case "UPDATE":
 			return "PARTICLE.UPDATE", true, true
 		case "DRAW":
 			return "PARTICLE.DRAW", true, true
+		case "ISALIVE":
+			return "PARTICLE.ISALIVE", true, true
+		case "COUNT":
+			return "PARTICLE.COUNT", true, true
 		case "FREE":
 			return "PARTICLE.FREE", true, true
 		}
@@ -211,7 +237,9 @@ func HandleCallSuggestions(typeName string) []string {
 	case "LODMODEL":
 		out = []string{"Draw", "SetPos", "SetPosition"}
 	case "PARTICLE":
-		out = []string{"Draw", "Free", "Play", "SetColor", "SetColorEnd", "SetEmitRate", "SetGravity", "SetLifetime", "SetPos", "SetPosition", "SetSize", "SetTexture", "SetVelocity", "Update"}
+		out = []string{"Count", "Draw", "Free", "IsAlive", "Play", "SetBillboard", "SetBurst", "SetColor", "SetColorEnd",
+			"SetDirection", "SetEmitRate", "SetEndColor", "SetEndSize", "SetGravity", "SetLifetime", "SetPos", "SetPosition",
+			"SetRate", "SetSize", "SetSpeed", "SetSpread", "SetStartColor", "SetStartSize", "SetTexture", "SetVelocity", "Stop", "Update"}
 	case "INSTANCEDMODEL":
 		out = []string{"Count", "Draw", "DrawLOD", "Free", "SetColor", "SetCullDistance", "SetInstancePos", "SetInstanceScale",
 			"SetMatrix", "SetPos", "SetRot", "SetScale", "UpdateBuffer", "UpdateInstances"}

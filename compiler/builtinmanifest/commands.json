@@ -2995,6 +2995,16 @@
       "phase": "rendering"
     },
     {
+      "key": "PARTICLE.SETGRAVITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "PARTICLE.SETPOS",
       "args": [
         "handle",
@@ -3024,6 +3034,380 @@
       "args": [
         "handle"
       ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.DRAW",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETRATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETDIRECTION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETSPREAD",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETSPEED",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETSTARTSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETENDSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETSTARTCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETENDCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETBURST",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.SETBILLBOARD",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.STOP",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.ISALIVE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.COUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETTEXTURE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETEMITRATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETRATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETLIFETIME",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETDIRECTION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETSPREAD",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETSPEED",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETSTARTSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETENDSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETSTARTCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETCOLOREND",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETENDCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETSIZE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETGRAVITY",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETGRAVITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETBURST",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.SETBILLBOARD",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.PLAY",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.STOP",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.DRAW",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.DRAW",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.ISALIVE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.COUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
       "phase": "rendering"
     },
     {
