@@ -5,17 +5,22 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REG_PAT = re.compile(r'Register\(\s*"([^"]+)"')
-
+# Enhanced regex to find direct registrations AND common local helpers [reg("...")] in modules.
+REG_PAT = re.compile(r'(?:Register|reg|regFlat)\(\s*"([^"]+)"')
 
 def register_key_lines() -> list[str]:
+    """Scan Go source files for registration calls."""
     keys: list[str] = []
+    # Scan main runtime and sub-modules
     for p in (ROOT / "runtime").rglob("*.go"):
         if p.name.endswith("_test.go"):
             continue
-        text = p.read_text(encoding="utf-8", errors="replace")
-        for m in REG_PAT.finditer(text):
-            keys.append(m.group(1))
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+            for m in REG_PAT.finditer(text):
+                keys.append(m.group(1))
+        except Exception:
+            continue
     return keys
 
 

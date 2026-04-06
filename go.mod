@@ -7,6 +7,7 @@ require (
 	github.com/bbitechnologies/jolt-go v0.8.4
 	github.com/codecat/go-enet v0.0.0-20250728072647-ae229138f138
 	github.com/fsnotify/fsnotify v1.8.0
+	// raylib-go: upstream tags raylib/v0.55.x align with Raylib C 5.5; this repo uses a newer raylib-go + raygui revision for the binding API (GUI.*, etc.). See docs/BUILDING.md.
 	github.com/gen2brain/raylib-go/raygui v0.0.0-20260309161816-4c350487f71d
 	github.com/gen2brain/raylib-go/raylib v0.56.0-dev.0.20260309161816-4c350487f71d
 	github.com/klauspost/compress v1.17.0

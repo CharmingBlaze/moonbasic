@@ -39,6 +39,9 @@ type Module struct {
 	// frameDrawHooks run after postRenderTargetPresent, before frameEndHook (2D lights, transitions).
 	frameDrawHooks []func()
 
+	// frameHookScratch holds a copy of frameDrawHooks for RENDER.FRAME without allocating each frame.
+	frameHookScratch []func()
+
 	h *heap.Store
 
 	autoMu           sync.Mutex

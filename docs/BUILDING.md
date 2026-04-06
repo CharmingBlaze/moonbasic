@@ -12,13 +12,33 @@ Before you can build, you need the following software installed on your system.
 - **Go**: Version 1.22 or later. You can download it from the [official Go website](https://go.dev/dl/).
 - **Git**: For cloning the repository.
 
+### raylib-go and “Raylib 5.5”
+
+In **[gen2brain/raylib-go](https://github.com/gen2brain/raylib-go)**, Git tags such as **`raylib/v0.55.0`** / **`v0.55.1`** correspond to bindings for **Raylib C 5.5**. This repository does **not** pin those tags today: it uses a **newer** `raylib` + `raygui` module version (**`v0.56.0-dev`**-style pseudo-version) because **`GUI.*`** and other code target the **current raygui** Go API (`ControlID`, `PropertyID`, `SetAlpha`, color helpers, etc.). Downgrading only the module to **`v0.55.x`** without a large port breaks the build.
+
+For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a **C Raylib** build whose **ABI matches** the **raylib-go** revision you compile against (check upstream release notes for that commit). If you specifically need **Raylib C 5.5** artifacts, pair them with **`raylib-go` `v0.55.x`** only after adapting `runtime/mbgui` and any other API-drift call sites.
+
+### Raylib 5.5 and “Go only” (no CGO / no C compiler)
+
+**What you can get:** On **Windows**, you can build with **`CGO_ENABLED=0`** so the **Go toolchain never invokes a C compiler** and **core `github.com/gen2brain/raylib-go/raylib`** uses the **purego** backend: it loads a prebuilt **`raylib.dll`** at runtime via [`purego`](https://github.com/ebitengine/purego). You still **ship that DLL** (or put it on `PATH`); it is the normal Raylib **native** library, not a second Go implementation of Raylib.
+
+**Raylib 5.5 pairing:** Upstream tags **`raylib/v0.55.x`** are the **Go bindings** aimed at **Raylib C 5.5**. Your **`raylib.dll`** should be a **5.5** build from the same family so symbols match. This repository currently pins a **newer** `raylib-go` revision; for a strict **5.5** stack you would use **`v0.55.x`** bindings **and** a **5.5** DLL once the code is ported (see above).
+
+**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** (SQLite), **ENet**, etc. also need **CGO** if you use those features.
+
+**Linux / macOS:** **gen2brain/raylib-go** does **not** ship a non-CGO desktop Raylib for non-Windows; you link Raylib with **CGO** there.
+
 ### Windows
-- **A C Compiler**: `moonBASIC` relies on `raylib` and other C libraries, so a C compiler is required. We recommend **MinGW-w64**.
-  1.  Install **MSYS2** from [https://www.msys2.org/](https://www.msys2.org/).
-  2.  Open the MSYS2 MINGW64 terminal and install the GCC toolchain:
-      ```bash
-      pacman -S mingw-w64-x86_64-gcc
-      ```
+- **C toolchain (recommended full build)**  
+  For the default **CGO** build (linked **raylib**, **raygui**, ENet, SQLite, etc.), install a C compiler. We recommend **MinGW-w64** via **MSYS2**:
+  1. Install MSYS2 from [https://www.msys2.org/](https://www.msys2.org/).
+  2. In the MSYS2 **MINGW64** shell, install GCC (and optionally `mingw-w64-x86_64-raylib` if you link against the system library):
+     ```bash
+     pacman -S mingw-w64-x86_64-gcc
+     ```
+- **Pure Go on Windows (no CGO)**  
+  You can build with **`CGO_ENABLED=0`** so **core Raylib** comes from **raylib-go’s purego** path (loads **`raylib.dll`** at runtime). **`GUI.*`** uses a **built-in minimal** widget set (see [GUI.md](reference/GUI.md)); full **raygui** still needs **CGO**. Other C-backed features (e.g. **`DB.*`** / SQLite, ENet networking) also require **CGO**.  
+  Place **`raylib.dll`** (matching your Raylib 5.x ABI) next to the executable or on **`PATH`**. **`go test ./...`** with **`CGO_ENABLED=0`** on Windows will initialize Raylib in packages that import it; without the DLL, those tests can panic at startup—use **`go build`** as a compile check, or set **`CGO_ENABLED=1`** for full tests.
 
 ### Linux (Debian / Ubuntu)
 - **A C Compiler and Libraries**: You'll need `gcc` and the development headers for the libraries `raylib` depends on.
@@ -55,6 +75,15 @@ set CC=C:\msys64\mingw64\bin\gcc.exe
 REM Build the executable
 go build -o moonbasic.exe .
 ```
+
+**Optional — Windows without CGO (Raylib purego):** from `cmd` or PowerShell, no MinGW required for the Go link step:
+
+```bat
+set CGO_ENABLED=0
+go build -o moonbasic.exe .
+```
+
+Ensure **`raylib.dll`** is available at runtime. For **full raygui** (`GUI.*`), **`DB.*`**, or ENet, use **`CGO_ENABLED=1`** and a C toolchain as above.
 
 ### 3. Build on Linux
 

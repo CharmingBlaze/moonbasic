@@ -1,16 +1,17 @@
-package runtime
+package strmod
 
 import (
 	"strings"
 	"unicode/utf8"
 
+	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func registerStringsSlice(r Registrar) {
-	r.Register("LEFT$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+func registerStringsSlice(r runtime.Registrar) {
+	r.Register("LEFT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, Errorf("LEFT$ expects 2 arguments")
+			return value.Value{}, runtime.Errorf("LEFT$ expects 2 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -29,9 +30,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(string(runes[:n])), nil
 	})
-	r.Register("RIGHT$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("RIGHT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, Errorf("RIGHT$ expects 2 arguments")
+			return value.Value{}, runtime.Errorf("RIGHT$ expects 2 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -50,9 +51,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(string(runes[len(runes)-int(n):])), nil
 	})
-	r.Register("MID$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("MID$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) < 2 || len(args) > 3 {
-			return value.Value{}, Errorf("MID$ expects 2 or 3 arguments")
+			return value.Value{}, runtime.Errorf("MID$ expects 2 or 3 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -86,29 +87,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(string(runes[i:end])), nil
 	})
-	r.Register("UPPER$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("SPACE$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("UPPER$ expects 1 argument")
-		}
-		s, err := rt.ArgString(args, 0)
-		if err != nil {
-			return value.Value{}, err
-		}
-		return rt.RetString(strings.ToUpper(s)), nil
-	})
-	r.Register("LOWER$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 1 {
-			return value.Value{}, Errorf("LOWER$ expects 1 argument")
-		}
-		s, err := rt.ArgString(args, 0)
-		if err != nil {
-			return value.Value{}, err
-		}
-		return rt.RetString(strings.ToLower(s)), nil
-	})
-	r.Register("SPACE$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 1 {
-			return value.Value{}, Errorf("SPACE$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("SPACE$ expects 1 argument")
 		}
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -118,13 +99,13 @@ func registerStringsSlice(r Registrar) {
 			n = 0
 		}
 		if n > 1<<20 {
-			return value.Value{}, Errorf("SPACE$: n too large")
+			return value.Value{}, runtime.Errorf("SPACE$: n too large")
 		}
 		return rt.RetString(strings.Repeat(" ", int(n))), nil
 	})
-	r.Register("STRING$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("STRING$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, Errorf("STRING$ expects 2 arguments (n, c$)")
+			return value.Value{}, runtime.Errorf("STRING$ expects 2 arguments (n, c$)")
 		}
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -134,7 +115,7 @@ func registerStringsSlice(r Registrar) {
 			n = 0
 		}
 		if n > 1<<20 {
-			return value.Value{}, Errorf("STRING$: n too large")
+			return value.Value{}, runtime.Errorf("STRING$: n too large")
 		}
 		ch := " "
 		if args[1].Kind == value.KindString {
@@ -151,9 +132,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(strings.Repeat(ch, int(n))), nil
 	})
-	r.Register("LSET$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("LSET$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, Errorf("LSET$ expects 2 arguments (s$, width)")
+			return value.Value{}, runtime.Errorf("LSET$ expects 2 arguments (s$, width)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -176,9 +157,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(s + strings.Repeat(" ", pad)), nil
 	})
-	r.Register("RSET$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("RSET$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, Errorf("RSET$ expects 2 arguments (s$, width)")
+			return value.Value{}, runtime.Errorf("RSET$ expects 2 arguments (s$, width)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -201,9 +182,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(strings.Repeat(" ", pad) + s), nil
 	})
-	r.Register("REVERSE$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("REVERSE$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("REVERSE$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("REVERSE$ expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -215,9 +196,9 @@ func registerStringsSlice(r Registrar) {
 		}
 		return rt.RetString(string(runes)), nil
 	})
-	r.Register("REPEAT$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("REPEAT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, Errorf("REPEAT$ expects 2 arguments (s$, n)")
+			return value.Value{}, runtime.Errorf("REPEAT$ expects 2 arguments (s$, n)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -231,7 +212,7 @@ func registerStringsSlice(r Registrar) {
 			return rt.RetString(""), nil
 		}
 		if n > 1<<20 {
-			return value.Value{}, Errorf("REPEAT$: n too large")
+			return value.Value{}, runtime.Errorf("REPEAT$: n too large")
 		}
 		return rt.RetString(strings.Repeat(s, int(n))), nil
 	})

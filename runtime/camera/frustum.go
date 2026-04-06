@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || (windows && !cgo)
 
 // View-frustum planes from combined projection*view (same as Raylib/RHI clip transform).
 // Plane order: Left, Right, Bottom, Top, Near, Far. Stack-only types on extraction/tests — no heap allocs.

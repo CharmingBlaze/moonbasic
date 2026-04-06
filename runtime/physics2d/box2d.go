@@ -15,6 +15,8 @@ import (
 type physics2dObj struct {
 	world    *box2d.B2World
 	stepRate float64
+	velIters int
+	posIters int
 	gravityX float64
 	gravityY float64
 	release  heap.ReleaseOnce
@@ -61,6 +63,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("PHYSICS2D.START", "physics2d", m.phStart)
 	r.Register("PHYSICS2D.STOP", "physics2d", m.phStop)
 	r.Register("PHYSICS2D.SETGRAVITY", "physics2d", m.phSetGravity)
+	r.Register("PHYSICS2D.SETSTEP", "physics2d", m.phSetStep)
+	r.Register("PHYSICS2D.SETITERATIONS", "physics2d", m.phSetIterations)
 	r.Register("PHYSICS2D.STEP", "physics2d", m.phStep)
 
 	r.Register("BODY2D.MAKE", "physics2d", m.bdMake)
@@ -83,6 +87,8 @@ func (m *Module) phStart(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	globalWorld = &physics2dObj{
 		world:    &world,
 		stepRate: 1.0 / 60.0,
+		velIters: 8,
+		posIters: 3,
 		gravityX: 0,
 		gravityY: -9.81,
 	}
@@ -109,11 +115,52 @@ func (m *Module) phSetGravity(rt *runtime.Runtime, args ...value.Value) (value.V
 	return value.Nil, nil
 }
 
+func (m *Module) phSetStep(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if globalWorld == nil {
+		return value.Nil, fmt.Errorf("PHYSICS2D not started")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("PHYSICS2D.SETSTEP expects (dt#)")
+	}
+	dt, err := rt.ArgFloat(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	if dt <= 0 || dt > 1.0 {
+		return value.Nil, fmt.Errorf("PHYSICS2D.SETSTEP: dt must be in (0, 1] seconds")
+	}
+	globalWorld.stepRate = dt
+	return value.Nil, nil
+}
+
+func (m *Module) phSetIterations(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if globalWorld == nil {
+		return value.Nil, fmt.Errorf("PHYSICS2D not started")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PHYSICS2D.SETITERATIONS expects (velocityIters, positionIters)")
+	}
+	vi, err := rt.ArgInt(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	pi, err := rt.ArgInt(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	if vi < 1 || vi > 64 || pi < 1 || pi > 32 {
+		return value.Nil, fmt.Errorf("PHYSICS2D.SETITERATIONS: velocity 1–64, position 1–32")
+	}
+	globalWorld.velIters = int(vi)
+	globalWorld.posIters = int(pi)
+	return value.Nil, nil
+}
+
 func (m *Module) phStep(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, nil
 	}
-	globalWorld.world.Step(globalWorld.stepRate, 8, 3)
+	globalWorld.world.Step(globalWorld.stepRate, globalWorld.velIters, globalWorld.posIters)
 	return value.Nil, nil
 }
 
@@ -199,10 +246,12 @@ func (m *Module) bdCommit(rt *runtime.Runtime, args ...value.Value) (value.Value
 		}
 	}
 
-	// Replace template with real body in place or new handle?
-	// The commands.json says it returns a handle.
 	id, err := m.h.Alloc(&body2dObj{body: body})
 	if err != nil {
+		globalWorld.world.DestroyBody(body)
+		return value.Nil, err
+	}
+	if err := m.h.Free(handle); err != nil {
 		return value.Nil, err
 	}
 	return value.FromHandle(id), nil

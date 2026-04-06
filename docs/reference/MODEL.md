@@ -51,6 +51,8 @@ MODEL.SETPOSITION(mdl, x#, y#, z#)
 
 Sets the model’s root transform to **translation** (replaces rotation/scale from the previous matrix). Works for **`modelObj`** and **`lodModelObj`**.
 
+For the same verbs on other handle types (`LOAD`, `SETPOS`, scale/rotate where available), see **[API_CONVENTIONS.md](API_CONVENTIONS.md)**.
+
 ---
 
 ### Model.Free

@@ -50,6 +50,7 @@ func run() int {
 		profile     = flag.Bool("profile", false, "count VM instructions per source line; print top 10 (source .mb only)")
 		watch       = flag.Bool("watch", false, "recompile and rerun when the source .mb file changes")
 		benchmark   = flag.String("benchmark", "", "run .mb as a benchmark; capture PRINT lines containing MOONBENCH")
+		listBuiltins = flag.Bool("list-builtins", false, "print all registered built-in command keys and exit")
 	)
 
 	flag.Usage = func() {
@@ -88,6 +89,14 @@ func run() int {
 	if *showVer {
 		fmt.Printf("moonBASIC %s\n", version)
 		fmt.Fprintln(os.Stdout, "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3")
+		return 0
+	}
+
+	if *listBuiltins {
+		keys := pipeline.ListBuiltins()
+		for _, k := range keys {
+			fmt.Println(k)
+		}
 		return 0
 	}
 

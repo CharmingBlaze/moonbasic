@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || (windows && !cgo)
 
 package window
 
@@ -230,7 +230,14 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	postRenderTargetPresent()
 
 	m.mu.Lock()
-	layers := append([]func(){}, m.frameDrawHooks...)
+	n := len(m.frameDrawHooks)
+	if cap(m.frameHookScratch) < n {
+		m.frameHookScratch = make([]func(), n)
+	} else {
+		m.frameHookScratch = m.frameHookScratch[:n]
+	}
+	copy(m.frameHookScratch, m.frameDrawHooks)
+	layers := m.frameHookScratch
 	m.mu.Unlock()
 	for _, fn := range layers {
 		if fn != nil {

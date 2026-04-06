@@ -1,9 +1,10 @@
-// Package mbgui registers GUI.* raygui (Raylib immediate-mode widgets) when CGO is enabled.
+// Package mbgui registers GUI.* immediate-mode widgets: full raygui when CGO is enabled,
+// or a minimal Raylib-drawn subset on Windows when CGO is disabled.
 package mbgui
 
 import "moonbasic/vm/heap"
 
-// Module implements raygui bindings for moonBASIC.
+// Module implements GUI bindings for moonBASIC.
 type Module struct {
 	h *heap.Store
 }

@@ -9998,6 +9998,19 @@
       ]
     },
     {
+      "key": "PHYSICS2D.SETSTEP",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "PHYSICS2D.SETITERATIONS",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
       "key": "PHYSICS2D.STEP",
       "args": []
     },
@@ -11602,6 +11615,1266 @@
     {
       "key": "YEAR",
       "args": []
+    },
+    {
+      "key": "DRAW.CIRCLE",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.RECTANGLE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.LINE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.TEXT",
+      "args": [
+        "string",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.RECTANGLE_ROUNDED",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.CIRCLELINES",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.ELLIPSE",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.ELLIPSELINES",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.RING",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.RINGLINES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.TRIANGLE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.TRIANGLELINES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.POLY",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.POLYLINES",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.LINEEX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.LINEBEZIER",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.PIXEL",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.ARC",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.DOT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.GRID2D",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.GETPIXELCOLOR",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "array"
+    },
+    {
+      "key": "DRAW3D.GRID",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "DRAW3D.LINE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.POINT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.SPHERE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.SPHEREWIRES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.CUBE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.CUBEWIRES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.CYLINDER",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.CYLINDERWIRES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.CAPSULE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.CAPSULEWIRES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.PLANE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.BBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.RAY",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.BILLBOARD",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW3D.BILLBOARDREC",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "AUDIO.PLAY",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "AUDIO.STOP",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "AUDIO.PAUSE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "AUDIO.RESUME",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "AUDIO.LOADSOUND",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "AUDIO.LOADMUSIC",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "AUDIO.UPDATEMUSIC",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MUSIC.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "AUDIO.SETSOUNDVOLUME",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "AUDIO.SETSOUNDPITCH",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "AUDIO.SETSOUNDPAN",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "AUDIO.SETMUSICVOLUME",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "AUDIO.SETMUSICPITCH",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "AUDIO.SETMASTERVOLUME",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "AUDIO.ISSOUNDPLAYING",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "AUDIO.ISMUSICPLAYING",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "AUDIO.GETMUSICLENGTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "AUDIO.GETMUSICTIME",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "AUDIO.SEEKMUSIC",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "SKY.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "SKY.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "SKY.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "SKY.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "SKY.SETTIME",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "SKY.SETDAYLENGTH",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "SKY.GETTIMEHOURS",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "SKY.ISNIGHT",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "WEATHER.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "WEATHER.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "WEATHER.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "WEATHER.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "WEATHER.SETTYPE",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "WEATHER.GETCOVERAGE",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "WEATHER.GETTYPE",
+      "args": [
+        "handle"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "FOG.ENABLE",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "FOG.SETNEAR",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "FOG.SETFAR",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "FOG.SETCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "WIND.SET",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "WIND.GETSTRENGTH",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "WATER.MAKE",
+      "args": [
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "WATER.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "WATER.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "WATER.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "WATER.SETHEIGHT",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "WATER.SHOW",
+      "args": [
+        "handle",
+        "bool"
+      ]
+    },
+    {
+      "key": "TIME.GET",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "TIME.DELTA",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "TIME.GETFPS",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "TIMER",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "TICKCOUNT",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "YEAR",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "MONTH",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "DAY",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "HOUR",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "MINUTE",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "SECOND",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "MILLISECOND",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "TIMESTAMP",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "DATE$",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "TIME$",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "DATETIME$",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.FILEEXISTS",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "UTIL.ISDIR",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "UTIL.GETFILEEXT",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.GETFILENAME",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.GETFILENAMENOEXT",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.GETFILEPATH",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.GETFILESIZE",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "UTIL.GETFILEMODTIME",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "UTIL.LOADTEXT",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.SAVETEXT",
+      "args": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "UTIL.GETDIRFILES",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.CHANGEDIR",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "UTIL.MAKEDIRECTORY",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "UTIL.DELETEFILE",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "UTIL.COPYFILE",
+      "args": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "UTIL.RENAMEFILE",
+      "args": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "UTIL.MOVEFILE",
+      "args": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "UTIL.DELETEDIR",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "UTIL.GETDIR",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "UTIL.GETDIRS",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "FILEEXISTS",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "DIREXISTS",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "READALLTEXT$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "WRITEALLTEXT",
+      "args": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "MAKEDIR",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "SETDIR",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "GETFILEEXT$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "GETFILENAME$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "GETFILENAMENOEXT$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "GETFILEPATH$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "GETFILESIZE",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "GETFILEMODTIME",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "GETFILES$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "DELETEFILE",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "COPYFILE",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "RENAMEFILE",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "MOVEFILE",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "MAKEDIRS",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "DELETEDIR",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "GETDIR$",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "GETDIRS$",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "TABLE.CREATE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TABLE.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TABLE.ADDROW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TABLE.ROWCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "TABLE.COLCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "TABLE.GET",
+      "args": [
+        "handle",
+        "int",
+        "string"
+      ]
+    },
+    {
+      "key": "TABLE.SET",
+      "args": [
+        "handle",
+        "int",
+        "string",
+        "any"
+      ]
+    },
+    {
+      "key": "TABLE.TOJSON",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TABLE.FROMJSON",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TABLE.TOCSV",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TABLE.FROMCSV",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
     }
   ]
 }

@@ -15,6 +15,8 @@ The lexer **folds names to uppercase** for lookup. These are the same call:
 
 Use whatever style reads best; examples in the repo often use **Mixed.Case** for namespaces.
 
+**Consistent verbs across types** (`Load` / `SetPos` / `Free`, when to use `Make` vs `Load`, and how rotation differs for cameras vs models): see [API conventions](reference/API_CONVENTIONS.md).
+
 ---
 
 ## 2. Arguments and types
@@ -95,7 +97,7 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 
 ## 6. GUI (`GUI.*`)
 
-`GUI.*` wraps **raygui** (immediate mode: call every frame). Requires a **CGO** build like the rest of Raylib.
+`GUI.*` wraps **raygui** when **CGO** is enabled. On **Windows** with **`CGO_ENABLED=0`**, a **minimal** Raylib-drawn `GUI.*` subset runs instead (not full raygui); see [GUI.md](reference/GUI.md).
 
 - The [GUI reference](reference/GUI.md) is the full catalog: **every `GUI.*` command**, **how to theme and restyle** (`GUI.THEMEAPPLY`, `SETCOLOR`, `SETSTYLE`, `GCTL_*` / `GPROP_*`), and **stateful array handles** (`SCROLLPANEL`, `LISTVIEW`, `DROPDOWNBOX`, …). Use **`GUI.THEMENAMES$`** for the list of built-in / bundled theme names.
 - Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_theme/main.mb`, `examples/gui_form/main.mb`.
@@ -106,7 +108,7 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 
 | Area | Notes |
 |------|--------|
-| **Graphics, audio, window** | Need **CGO** and a C compiler (MinGW on Windows, GCC on Linux). |
+| **Graphics, audio, window** | **Linux / macOS:** **CGO** + C toolchain (linked Raylib). **Windows:** either **CGO** + MinGW, or **`CGO_ENABLED=0`** + **`raylib.dll`** (purego; see [BUILDING.md](BUILDING.md)). **`GUI.*`**: full **raygui** needs **CGO**; **Windows + no CGO** uses the minimal GUI layer. |
 | **Physics 3D** (`Physics3D`, `Body3D`) | Implemented on **Linux x64/arm64** with Jolt; other OS builds use stubs until bindings exist. |
 | **Physics 2D** | Box2D path — see [PHYSICS2D](reference/PHYSICS2D.md). |
 | **gopls / IDE** | If the editor analyzes with `CGO_ENABLED=0`, Raylib symbols may look “missing”; set `buildFlags`: `["-tags=cgo"]` and enable CGO where possible. |
@@ -128,13 +130,31 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 | Syntax (`IF`, `FUNCTION`, …) | [LANGUAGE.md](LANGUAGE.md) |
 | Topic command index | [COMMANDS.md](COMMANDS.md) |
 | Every manifest name (arity, types) | [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`) |
+| Namespace → reference map (counts, blurbs) | [COMMAND_AUDIT.md](COMMAND_AUDIT.md) (`go run ./tools/cmdaudit`) |
+| Consistent verbs (`LOAD`, `SETPOS`, …) | [reference/API_CONVENTIONS.md](reference/API_CONVENTIONS.md) |
 | Copy-paste samples | [EXAMPLES.md](EXAMPLES.md) |
 | Install & first run | [GETTING_STARTED.md](GETTING_STARTED.md) |
 | Deep dive per topic | [reference/](reference/WINDOW.md) (module pages) |
+| Handles, leaks, `FreeAll` | [MEMORY.md](MEMORY.md) |
+| 2D physics tuning (`SetStep`, `SetIterations`) | [reference/PHYSICS2D.md](reference/PHYSICS2D.md) |
+| Purego `GUI.*` (stable rects, internal caps) | [reference/GUI.md](reference/GUI.md) |
 
 ---
 
-## 10. Running repository demos
+## 10. Performance checklist
+
+Use this alongside the loop in **§3**:
+
+- **Motion and animation** — Multiply speeds by **`Time.Delta()`** so gameplay stays consistent when FPS changes.
+- **2D physics** — Call **`Physics2D.Step()`** once per frame in the common case; set **`Physics2D.SetStep(dt#)`** to match that step (e.g. `1/60` with **`Window.SetFPS(60)`**). Tune cost vs stability with **`Physics2D.SetIterations`** — see [PHYSICS2D.md](reference/PHYSICS2D.md).
+- **Heap handles** — Call **`*.Free`** for textures, fonts, sounds, and other handles when you are done, especially in long sessions or when reloading assets. **`Window.Close`** and process shutdown still run **`Heap.FreeAll`** as a safety net — see [MEMORY.md](MEMORY.md).
+- **Churn** — Avoid creating many new handles or large temporary work every frame when you can reuse values or keep allocations outside the inner loop.
+- **Assets** — Prefer texture sizes and counts appropriate for the target resolution; fewer draw state changes usually help.
+- **Platform** — On **Windows**, **`CGO_ENABLED=0`** builds need **`raylib.dll`** on the DLL search path. Full **`Physics3D`** (Jolt) is only on **Linux** with CGO today — see **§7**.
+
+---
+
+## 11. Running repository demos
 
 From the **repository root** (so relative paths behave as documented):
 

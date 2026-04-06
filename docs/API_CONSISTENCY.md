@@ -8,15 +8,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **[ERROR_MESSAGES.md](../ERROR_MESSAGES.md)** — compile-time vs runtime errors, did-you-mean, heap handle hints.
 - **[ROADMAP.md](../ROADMAP.md)** — phased engineering plan (polish → rendering → 2D → systems → …).
+- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace → reference map and overload counts (`go run ./tools/cmdaudit`).
+- **[reference/API_CONVENTIONS.md](../reference/API_CONVENTIONS.md)** — consistent verbs (`LOAD`, `SETPOS`, `SETSCALE`, …) across object types.
 
 ## Naming conventions
 
 - **Registry / source form**: `NS.ACTION` in uppercase with a dot (e.g. `CAMERA.SETPOS`).
 - **Handle methods** (on a handle value): `cam.SetPos` dispatches to `CAMERA.SETPOS`. **`SetPosition`** is an alias for **`SetPos`** where both are registered (same handler).
 - **Spatial handles** (`Camera3D`, `Body3D`, `Model`, `Sprite`, `Light2D`): use **`SETPOS`** for position. Aliases **`SETPOSITION`** exist for **Camera**, **Model**, **Body3D**, **Sprite**, **Light2D** — same implementation as `SETPOS`.
-- **3D lights** (`LIGHT.*`): directional lights use **`LIGHT.SETDIR(x,y,z)`** (normalized internally), not `SETPOS` — lights are not placed like entities.
+- **3D lights** (`LIGHT.*`): use **`LIGHT.SETDIR`** for the directional sun (normalized). **`LIGHT.SETPOS`** stores point/spot position; **`LIGHT.SETTARGET`** moves the shadow frustum look-at; **`RENDER.SETAMBIENT`** sets PBR ambient tint.
 - **`MODEL.SETPOS`**: sets the model root transform to a **translation matrix** (replaces prior rotation/scale on that matrix).
 - **Creation verbs**: `*.MAKE` for procedural handles; `*.LOAD` for assets (`SPRITE.LOAD`, `MODEL.LOAD`); materials use `MATERIAL.MAKEDEFAULT` / `MATERIAL.MAKEPBR`.
+- **Cross-type patterns**: see **[API_CONVENTIONS.md](../reference/API_CONVENTIONS.md)**.
 
 ## Default values (common `Make` paths)
 
@@ -158,13 +161,31 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### AUDIO
 
 - **`AUDIO.CLOSE`** - args: (none)
+- **`AUDIO.GETMUSICLENGTH`** - args: handle -> returns float
+- **`AUDIO.GETMUSICTIME`** - args: handle -> returns float
 - **`AUDIO.INIT`** - args: (none)
+- **`AUDIO.ISMUSICPLAYING`** - args: handle -> returns bool
+- **`AUDIO.ISSOUNDPLAYING`** - args: handle -> returns bool
 - **`AUDIO.LOADMUSIC`** - args: string
+- **`AUDIO.LOADMUSIC`** - args: string -> returns handle
+- **`AUDIO.LOADSOUND`** - args: string -> returns handle
 - **`AUDIO.LOADSOUND`** - args: string
 - **`AUDIO.PAUSE`** - args: (none)
+- **`AUDIO.PAUSE`** - args: handle
+- **`AUDIO.PLAY`** - args: handle
 - **`AUDIO.PLAY`** - args: any
 - **`AUDIO.RESUME`** - args: (none)
+- **`AUDIO.RESUME`** - args: handle
+- **`AUDIO.SEEKMUSIC`** - args: handle, float
+- **`AUDIO.SETMASTERVOLUME`** - args: float
+- **`AUDIO.SETMUSICPITCH`** - args: handle, float
+- **`AUDIO.SETMUSICVOLUME`** - args: handle, float
+- **`AUDIO.SETSOUNDPAN`** - args: handle, float
+- **`AUDIO.SETSOUNDPITCH`** - args: handle, float
+- **`AUDIO.SETSOUNDVOLUME`** - args: handle, float
 - **`AUDIO.STOP`** - args: (none)
+- **`AUDIO.STOP`** - args: handle
+- **`AUDIO.UPDATEMUSIC`** - args: handle
 
 ### AUDIOSTREAM
 
@@ -319,26 +340,40 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`CAMERA.BEGIN`** - args: handle
 - **`CAMERA.END`** - args: (none)
+- **`CAMERA.FREE`** - args: handle
 - **`CAMERA.GETMATRIX`** - args: handle -> returns handle
+- **`CAMERA.GETPOS`** - args: handle -> returns handle
 - **`CAMERA.GETRAY`** - args: handle, float, float
+- **`CAMERA.GETTARGET`** - args: handle -> returns handle
 - **`CAMERA.GETVIEWRAY`** - args: float, float, handle, int, int
+- **`CAMERA.ISONSCREEN`** - args: handle, float, float, float -> returns bool
+- **`CAMERA.ISONSCREEN`** - args: handle, float, float, float, float -> returns bool
+- **`CAMERA.LOOKAT`** - args: handle, float, float, float
 - **`CAMERA.MAKE`** - args: (none)
+- **`CAMERA.MOUSERAY`** - args: handle -> returns handle
 - **`CAMERA.MOVE`** - args: handle, float, float, float
 - **`CAMERA.SETFOV`** - args: handle, float
 - **`CAMERA.SETPOS`** - args: handle, float, float, float
 - **`CAMERA.SETPOSITION`** - args: handle, float, float, float
+- **`CAMERA.SETPROJECTION`** - args: handle, int
 - **`CAMERA.SETTARGET`** - args: handle, float, float, float
+- **`CAMERA.SETUP`** - args: handle, float, float, float
+- **`CAMERA.WORLDTOSCREEN`** - args: handle, float, float, float -> returns handle
 
 ### CAMERA2D
 
 - **`CAMERA2D.BEGIN`** - args: (none)
 - **`CAMERA2D.BEGIN`** - args: handle
 - **`CAMERA2D.END`** - args: (none)
+- **`CAMERA2D.FREE`** - args: handle
+- **`CAMERA2D.GETMATRIX`** - args: handle -> returns handle
 - **`CAMERA2D.MAKE`** - args: (none) -> returns handle
+- **`CAMERA2D.SCREENTOWORLD`** - args: handle, float, float -> returns handle
 - **`CAMERA2D.SETOFFSET`** - args: handle, float, float
 - **`CAMERA2D.SETROTATION`** - args: handle, float
 - **`CAMERA2D.SETTARGET`** - args: handle, float, float
 - **`CAMERA2D.SETZOOM`** - args: handle, float
+- **`CAMERA2D.WORLDTOSCREEN`** - args: handle, float, float -> returns handle
 
 ### CEIL
 
@@ -444,6 +479,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### COPYFILE
 
 - **`COPYFILE`** - args: string, string
+- **`COPYFILE`** - args: string, string -> returns bool
 
 ### COS
 
@@ -499,14 +535,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### DATE$
 
 - **`DATE$`** - args: (none)
+- **`DATE$`** - args: (none) -> returns string
 
 ### DATETIME$
 
 - **`DATETIME$`** - args: (none)
+- **`DATETIME$`** - args: (none) -> returns string
 
 ### DAY
 
 - **`DAY`** - args: (none)
+- **`DAY`** - args: (none) -> returns int
 
 ### DEBUG
 
@@ -541,21 +580,66 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### DELETEDIR
 
 - **`DELETEDIR`** - args: string
+- **`DELETEDIR`** - args: string -> returns bool
 
 ### DELETEFILE
 
 - **`DELETEFILE`** - args: string
+- **`DELETEFILE`** - args: string -> returns bool
 
 ### DIREXISTS
 
 - **`DIREXISTS`** - args: string
+- **`DIREXISTS`** - args: string -> returns bool
 
 ### DRAW
 
+- **`DRAW.ARC`** - args: float, float, float, float, float, float, int, int, int, int
+- **`DRAW.CIRCLE`** - args: int, int, float, int, int, int, int
+- **`DRAW.CIRCLELINES`** - args: int, int, float, int, int, int, int
+- **`DRAW.DOT`** - args: float, float, float, int, int, int, int
+- **`DRAW.ELLIPSE`** - args: int, int, float, float, int, int, int, int
+- **`DRAW.ELLIPSELINES`** - args: int, int, float, float, int, int, int, int
+- **`DRAW.GETPIXELCOLOR`** - args: int, int -> returns array
+- **`DRAW.GRID`** - args: int, float
+- **`DRAW.GRID2D`** - args: int, int, int, int, int
+- **`DRAW.LINE`** - args: int, int, int, int, int, int, int, int
+- **`DRAW.LINEBEZIER`** - args: float, float, float, float, float, int, int, int, int
+- **`DRAW.LINEEX`** - args: float, float, float, float, float, int, int, int, int
+- **`DRAW.PIXEL`** - args: int, int, int, int, int, int
+- **`DRAW.POLY`** - args: float, float, int, float, float, int, int, int, int
+- **`DRAW.POLYLINES`** - args: float, float, int, float, float, float, int, int, int, int
+- **`DRAW.RECTANGLE`** - args: int, int, int, int, int, int, int, int
 - **`DRAW.RECTANGLE`** - args: int, int, int, int, int, int, int, int
 - **`DRAW.RECTANGLE_ROUNDED`** - args: int, int, int, int, int, int, int, int, int
+- **`DRAW.RECTANGLE_ROUNDED`** - args: int, int, int, int, int, int, int, int, int
+- **`DRAW.RING`** - args: float, float, float, float, float, float, int, int, int, int, int
+- **`DRAW.RINGLINES`** - args: float, float, float, float, float, float, int, int, int, int, int
+- **`DRAW.TEXT`** - args: string, int, int, int, int, int, int, int
+- **`DRAW.TEXT`** - args: string, int, int, int, int, int, int, int
 - **`DRAW.TEXTURE`** - args: handle, int, int, int, int, int, int
 - **`DRAW.TEXTURENPATCH`** - args: handle, int, int, int, int, int, int, int, int, int, int, int, int
+- **`DRAW.TRIANGLE`** - args: float, float, float, float, float, float, int, int, int, int
+- **`DRAW.TRIANGLELINES`** - args: float, float, float, float, float, float, int, int, int, int
+
+### DRAW3D
+
+- **`DRAW3D.BBOX`** - args: float, float, float, float, float, float, int, int, int, int
+- **`DRAW3D.BILLBOARD`** - args: handle, float, float, float, float, int, int, int, int
+- **`DRAW3D.BILLBOARDREC`** - args: handle, float, float, float, float, float, float, float, float, float, int, int, int, int
+- **`DRAW3D.CAPSULE`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int
+- **`DRAW3D.CAPSULEWIRES`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int
+- **`DRAW3D.CUBE`** - args: float, float, float, float, float, float, int, int, int, int
+- **`DRAW3D.CUBEWIRES`** - args: float, float, float, float, float, float, int, int, int, int
+- **`DRAW3D.CYLINDER`** - args: float, float, float, float, float, float, int, int, int, int, int
+- **`DRAW3D.CYLINDERWIRES`** - args: float, float, float, float, float, float, int, int, int, int, int
+- **`DRAW3D.GRID`** - args: int, float
+- **`DRAW3D.LINE`** - args: float, float, float, float, float, float, int, int, int, int
+- **`DRAW3D.PLANE`** - args: float, float, float, float, float, int, int, int, int
+- **`DRAW3D.POINT`** - args: float, float, float, int, int, int, int
+- **`DRAW3D.RAY`** - args: handle, int, int, int, int
+- **`DRAW3D.SPHERE`** - args: float, float, float, float, int, int, int, int
+- **`DRAW3D.SPHEREWIRES`** - args: float, float, float, float, int, int, int, int, int, int
 
 ### DUMP
 
@@ -677,12 +761,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`FILE.SEEK`** - args: handle, int
 - **`FILE.SIZE`** - args: handle -> returns int
 - **`FILE.TELL`** - args: handle -> returns int
-- **`FILE.WRITE`** - args: handle, string
-- **`FILE.WRITELN`** - args: handle, string
+- **`FILE.WRITE`** - args: handle, string — Write string to file without appending a newline.
+- **`FILE.WRITELN`** - args: handle, string — Write string to file and append a newline.
 
 ### FILEEXISTS
 
 - **`FILEEXISTS`** - args: string
+- **`FILEEXISTS`** - args: string -> returns bool
 
 ### FILEPOS
 
@@ -704,6 +789,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`FLOOR`** - args: any
 
+### FOG
+
+- **`FOG.ENABLE`** - args: bool
+- **`FOG.SETCOLOR`** - args: int, int, int, int
+- **`FOG.SETFAR`** - args: float
+- **`FOG.SETNEAR`** - args: float
+
 ### FONT
 
 - **`FONT.DRAWDEFAULT`** - args: (none)
@@ -714,6 +806,33 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### FORMAT$
 
 - **`FORMAT$`** - args: any, string -> returns string
+
+### GAME
+
+- **`GAME.ANYKEY`** - args: (none) -> returns bool
+- **`GAME.DT`** - args: (none) -> returns float
+- **`GAME.ENDGAME`** - args: (none)
+- **`GAME.FPS`** - args: (none) -> returns int
+- **`GAME.KEYCHAR`** - args: (none) -> returns int
+- **`GAME.KEYDOWN`** - args: int -> returns bool
+- **`GAME.KEYPRESSED`** - args: int -> returns bool
+- **`GAME.KEYRELEASED`** - args: int -> returns bool
+- **`GAME.MDX`** - args: (none) -> returns float
+- **`GAME.MDY`** - args: (none) -> returns float
+- **`GAME.MLEFT`** - args: (none) -> returns bool
+- **`GAME.MLEFTPRESSED`** - args: (none) -> returns bool
+- **`GAME.MMIDDLE`** - args: (none) -> returns bool
+- **`GAME.MOUSEX`** - args: (none) -> returns int
+- **`GAME.MOUSEY`** - args: (none) -> returns int
+- **`GAME.MRIGHT`** - args: (none) -> returns bool
+- **`GAME.MRIGHTPRESSED`** - args: (none) -> returns bool
+- **`GAME.MWHEEL`** - args: (none) -> returns float
+- **`GAME.MX`** - args: (none) -> returns int
+- **`GAME.MY`** - args: (none) -> returns int
+- **`GAME.SCREENCX`** - args: (none) -> returns float
+- **`GAME.SCREENCY`** - args: (none) -> returns float
+- **`GAME.SCREENH`** - args: (none) -> returns int
+- **`GAME.SCREENW`** - args: (none) -> returns int
 
 ### GESTURE
 
@@ -731,10 +850,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### GETDIR$
 
 - **`GETDIR$`** - args: (none)
+- **`GETDIR$`** - args: (none) -> returns string
 
 ### GETDIRS$
 
 - **`GETDIRS$`** - args: string
+- **`GETDIRS$`** - args: string -> returns string
 
 ### GETDROPPEDFILES
 
@@ -743,30 +864,37 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### GETFILEEXT$
 
 - **`GETFILEEXT$`** - args: string
+- **`GETFILEEXT$`** - args: string -> returns string
 
 ### GETFILEMODTIME
 
 - **`GETFILEMODTIME`** - args: string
+- **`GETFILEMODTIME`** - args: string -> returns int
 
 ### GETFILENAME$
 
 - **`GETFILENAME$`** - args: string
+- **`GETFILENAME$`** - args: string -> returns string
 
 ### GETFILENAMENOEXT$
 
 - **`GETFILENAMENOEXT$`** - args: string
+- **`GETFILENAMENOEXT$`** - args: string -> returns string
 
 ### GETFILEPATH$
 
 - **`GETFILEPATH$`** - args: string
+- **`GETFILEPATH$`** - args: string -> returns string
 
 ### GETFILES$
 
 - **`GETFILES$`** - args: string
+- **`GETFILES$`** - args: string -> returns string
 
 ### GETFILESIZE
 
 - **`GETFILESIZE`** - args: string
+- **`GETFILESIZE`** - args: string -> returns int
 
 ### GUI
 
@@ -855,6 +983,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### HOUR
 
 - **`HOUR`** - args: (none)
+- **`HOUR`** - args: (none) -> returns int
 
 ### IIF
 
@@ -864,6 +993,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`IMAGE.ALPHACLEAR`** - args: handle, int, int, int, int, float
 - **`IMAGE.ALPHACROP`** - args: handle, float
+- **`IMAGE.CLEAR`** - args: handle, int, int, int, int
 - **`IMAGE.CLEARBACKGROUND`** - args: handle, int, int, int, int
 - **`IMAGE.COLORBRIGHTNESS`** - args: handle, int
 - **`IMAGE.COLORCONTRAST`** - args: handle, float
@@ -871,6 +1001,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`IMAGE.COLORINVERT`** - args: handle
 - **`IMAGE.COLORREPLACE`** - args: handle, int, int, int, int, int, int, int, int
 - **`IMAGE.COLORTINT`** - args: handle, int, int, int, int
+- **`IMAGE.COPY`** - args: handle
 - **`IMAGE.CROP`** - args: handle, int, int, int, int
 - **`IMAGE.DITHER`** - args: handle, int, int, int, int
 - **`IMAGE.DRAWCIRCLE`** - args: handle, int, int, int, int, int, int, int
@@ -896,7 +1027,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`IMAGE.HEIGHT`** - args: handle
 - **`IMAGE.LOAD`** - args: string
 - **`IMAGE.LOADRAW`** - args: string, int, int, int, int
+- **`IMAGE.MAKE`** - args: int, int
 - **`IMAGE.MAKE`** - args: int, int, int, int, int, int
+- **`IMAGE.MAKEBLANK`** - args: int, int
 - **`IMAGE.MAKEBLANK`** - args: int, int, int, int, int, int
 - **`IMAGE.MAKECOPY`** - args: handle
 - **`IMAGE.MAKETEXT`** - args: string, int, int, int, int, int
@@ -938,6 +1071,25 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.TOUCHPRESSED`** - args: int -> returns bool
 - **`INPUT.TOUCHX`** - args: int -> returns int
 - **`INPUT.TOUCHY`** - args: int -> returns int
+
+### INSTANCE
+
+- **`INSTANCE.COUNT`** - args: handle -> returns int
+- **`INSTANCE.DRAW`** - args: handle
+- **`INSTANCE.DRAWLOD`** - args: handle, handle, float
+- **`INSTANCE.FREE`** - args: handle
+- **`INSTANCE.MAKE`** - args: handle, int -> returns handle
+- **`INSTANCE.MAKEINSTANCED`** - args: string, int -> returns handle
+- **`INSTANCE.SETCOLOR`** - args: handle, int, float, float, float, float
+- **`INSTANCE.SETCULLDISTANCE`** - args: handle, float
+- **`INSTANCE.SETINSTANCEPOS`** - args: handle, int, float, float, float
+- **`INSTANCE.SETINSTANCESCALE`** - args: handle, int, float, float, float
+- **`INSTANCE.SETMATRIX`** - args: handle, int, handle
+- **`INSTANCE.SETPOS`** - args: handle, int, float, float, float
+- **`INSTANCE.SETROT`** - args: handle, int, float, float, float
+- **`INSTANCE.SETSCALE`** - args: handle, int, float, float, float
+- **`INSTANCE.UPDATEBUFFER`** - args: handle
+- **`INSTANCE.UPDATEINSTANCES`** - args: handle
 
 ### INSTR
 
@@ -1011,6 +1163,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`JSON.GETSTRING`** - args: handle, string -> returns string
 - **`JSON.MAKE`** - args: (none) -> returns handle
 - **`JSON.PARSE`** - args: string -> returns handle
+- **`JSON.PARSESTRING`** - args: string -> returns handle
 - **`JSON.SETBOOL`** - args: handle, string, bool
 - **`JSON.SETFLOAT`** - args: handle, string, float
 - **`JSON.SETINT`** - args: handle, string, int
@@ -1031,10 +1184,23 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### LIGHT
 
+- **`LIGHT.ENABLE`** - args: handle, bool
+- **`LIGHT.FREE`** - args: handle
+- **`LIGHT.ISENABLED`** - args: handle -> returns int
 - **`LIGHT.MAKE`** - args: (none) -> returns handle
 - **`LIGHT.MAKE`** - args: string -> returns handle
+- **`LIGHT.SETCOLOR`** - args: handle, float, float, float
+- **`LIGHT.SETCOLOR`** - args: handle, float, float, float, float
 - **`LIGHT.SETDIR`** - args: handle, float, float, float
+- **`LIGHT.SETINNERCONE`** - args: handle, float
+- **`LIGHT.SETINTENSITY`** - args: handle, float
+- **`LIGHT.SETOUTERCONE`** - args: handle, float
+- **`LIGHT.SETPOS`** - args: handle, float, float, float
+- **`LIGHT.SETPOSITION`** - args: handle, float, float, float
+- **`LIGHT.SETRANGE`** - args: handle, float
 - **`LIGHT.SETSHADOW`** - args: handle, bool
+- **`LIGHT.SETSHADOWBIAS`** - args: handle, float
+- **`LIGHT.SETTARGET`** - args: handle, float, float, float
 
 ### LIGHT2D
 
@@ -1087,10 +1253,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### MAKEDIR
 
 - **`MAKEDIR`** - args: string
+- **`MAKEDIR`** - args: string -> returns bool
 
 ### MAKEDIRS
 
 - **`MAKEDIRS`** - args: string
+- **`MAKEDIRS`** - args: string -> returns bool
 
 ### MAT4
 
@@ -1217,8 +1385,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MESH.MAKETORUS`** - args: float, float, int, int
 - **`MESH.PLANE`** - args: float, float, int, int
 - **`MESH.SPHERE`** - args: float, int, int
+- **`MESH.TRIANGLECOUNT`** - args: handle -> returns int
 - **`MESH.UPDATEVERTEX`** - args: handle, int, float, float, float, float, float, float, float, float
 - **`MESH.UPLOAD`** - args: handle, bool
+- **`MESH.VERTEXCOUNT`** - args: handle -> returns int
 
 ### MID$
 
@@ -1228,6 +1398,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### MILLISECOND
 
 - **`MILLISECOND`** - args: (none)
+- **`MILLISECOND`** - args: (none) -> returns int
 
 ### MIN
 
@@ -1236,6 +1407,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### MINUTE
 
 - **`MINUTE`** - args: (none)
+- **`MINUTE`** - args: (none) -> returns int
 
 ### MKDOUBLE$
 
@@ -1269,6 +1441,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MODEL.INSTANCE`** - args: handle
 - **`MODEL.LOAD`** - args: string
 - **`MODEL.LOADLOD`** - args: string, string, string -> returns handle
+- **`MODEL.MAKE`** - args: handle -> returns handle
 - **`MODEL.MAKEINSTANCED`** - args: string, int -> returns handle
 - **`MODEL.ROTATETEXTURE`** - args: handle, float
 - **`MODEL.SCALETEXTURE`** - args: handle, float, float
@@ -1305,10 +1478,16 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### MONTH
 
 - **`MONTH`** - args: (none)
+- **`MONTH`** - args: (none) -> returns int
 
 ### MOVEFILE
 
 - **`MOVEFILE`** - args: string, string
+- **`MOVEFILE`** - args: string, string -> returns bool
+
+### MUSIC
+
+- **`MUSIC.FREE`** - args: handle
 
 ### NAV
 
@@ -1392,19 +1571,34 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PARTICLE
 
+- **`PARTICLE.COUNT`** - args: handle -> returns int
 - **`PARTICLE.DRAW`** - args: handle
+- **`PARTICLE.DRAW`** - args: handle, handle
 - **`PARTICLE.FREE`** - args: handle
+- **`PARTICLE.ISALIVE`** - args: handle -> returns int
 - **`PARTICLE.MAKE`** - args: (none) -> returns handle
 - **`PARTICLE.PLAY`** - args: handle
+- **`PARTICLE.SETBILLBOARD`** - args: handle, bool
+- **`PARTICLE.SETBURST`** - args: handle, int
 - **`PARTICLE.SETCOLOR`** - args: handle, int, int, int, int
 - **`PARTICLE.SETCOLOREND`** - args: handle, int, int, int, int
+- **`PARTICLE.SETDIRECTION`** - args: handle, float, float, float
 - **`PARTICLE.SETEMITRATE`** - args: handle, float
+- **`PARTICLE.SETENDCOLOR`** - args: handle, int, int, int, int
+- **`PARTICLE.SETENDSIZE`** - args: handle, float, float
 - **`PARTICLE.SETGRAVITY`** - args: handle, float
+- **`PARTICLE.SETGRAVITY`** - args: handle, float, float, float
 - **`PARTICLE.SETLIFETIME`** - args: handle, float, float
 - **`PARTICLE.SETPOS`** - args: handle, float, float, float
+- **`PARTICLE.SETRATE`** - args: handle, float
 - **`PARTICLE.SETSIZE`** - args: handle, float, float
+- **`PARTICLE.SETSPEED`** - args: handle, float, float
+- **`PARTICLE.SETSPREAD`** - args: handle, float
+- **`PARTICLE.SETSTARTCOLOR`** - args: handle, int, int, int, int
+- **`PARTICLE.SETSTARTSIZE`** - args: handle, float, float
 - **`PARTICLE.SETTEXTURE`** - args: handle, handle
 - **`PARTICLE.SETVELOCITY`** - args: handle, float, float, float, float
+- **`PARTICLE.STOP`** - args: handle
 - **`PARTICLE.UPDATE`** - args: handle, float
 
 ### PARTICLE2D
@@ -1414,6 +1608,38 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PARTICLE2D.FREE`** - args: handle
 - **`PARTICLE2D.MAKE`** - args: int, int, int, int, int -> returns handle
 - **`PARTICLE2D.UPDATE`** - args: handle, float
+
+### PARTICLE3D
+
+- **`PARTICLE3D.COUNT`** - args: handle -> returns int
+- **`PARTICLE3D.DRAW`** - args: handle
+- **`PARTICLE3D.DRAW`** - args: handle, handle
+- **`PARTICLE3D.FREE`** - args: handle
+- **`PARTICLE3D.ISALIVE`** - args: handle -> returns int
+- **`PARTICLE3D.MAKE`** - args: (none) -> returns handle
+- **`PARTICLE3D.PLAY`** - args: handle
+- **`PARTICLE3D.SETBILLBOARD`** - args: handle, bool
+- **`PARTICLE3D.SETBURST`** - args: handle, int
+- **`PARTICLE3D.SETCOLOR`** - args: handle, int, int, int, int
+- **`PARTICLE3D.SETCOLOREND`** - args: handle, int, int, int, int
+- **`PARTICLE3D.SETDIRECTION`** - args: handle, float, float, float
+- **`PARTICLE3D.SETEMITRATE`** - args: handle, float
+- **`PARTICLE3D.SETENDCOLOR`** - args: handle, int, int, int, int
+- **`PARTICLE3D.SETENDSIZE`** - args: handle, float, float
+- **`PARTICLE3D.SETGRAVITY`** - args: handle, float
+- **`PARTICLE3D.SETGRAVITY`** - args: handle, float, float, float
+- **`PARTICLE3D.SETLIFETIME`** - args: handle, float, float
+- **`PARTICLE3D.SETPOS`** - args: handle, float, float, float
+- **`PARTICLE3D.SETRATE`** - args: handle, float
+- **`PARTICLE3D.SETSIZE`** - args: handle, float, float
+- **`PARTICLE3D.SETSPEED`** - args: handle, float, float
+- **`PARTICLE3D.SETSPREAD`** - args: handle, float
+- **`PARTICLE3D.SETSTARTCOLOR`** - args: handle, int, int, int, int
+- **`PARTICLE3D.SETSTARTSIZE`** - args: handle, float, float
+- **`PARTICLE3D.SETTEXTURE`** - args: handle, handle
+- **`PARTICLE3D.SETVELOCITY`** - args: handle, float, float, float, float
+- **`PARTICLE3D.STOP`** - args: handle
+- **`PARTICLE3D.UPDATE`** - args: handle, float
 
 ### PATH
 
@@ -1436,6 +1662,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS2D.ONCOLLISION`** - args: handle, handle, string
 - **`PHYSICS2D.PROCESSCOLLISIONS`** - args: (none)
 - **`PHYSICS2D.SETGRAVITY`** - args: float, float
+- **`PHYSICS2D.SETITERATIONS`** - args: int, int
+- **`PHYSICS2D.SETSTEP`** - args: float
 - **`PHYSICS2D.START`** - args: (none)
 - **`PHYSICS2D.STEP`** - args: (none)
 - **`PHYSICS2D.STOP`** - args: (none)
@@ -1486,7 +1714,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PRINT
 
-- **`PRINT`** - args: any
+- **`PRINT`** - args: any — Print values to stdout, space-separated, with newline.
 
 ### PRINTAT
 
@@ -1498,7 +1726,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PRINTLN
 
-- **`PRINTLN`** - args: any
+- **`PRINTLN`** - args: any — Same as PRINT (newline after output).
 
 ### QUAT
 
@@ -1628,6 +1856,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### READALLTEXT$
 
 - **`READALLTEXT$`** - args: string
+- **`READALLTEXT$`** - args: string -> returns string
 
 ### READBYTE
 
@@ -1656,6 +1885,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### RENAMEFILE
 
 - **`RENAMEFILE`** - args: string, string
+- **`RENAMEFILE`** - args: string, string -> returns bool
 
 ### RENDER
 
@@ -1677,6 +1907,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.SCREENSHOT`** - args: string
 - **`RENDER.SET2DAmbIENT`** - args: int, int, int, int
 - **`RENDER.SETAMBIENT`** - args: float, float, float
+- **`RENDER.SETAMBIENT`** - args: float, float, float, float
 - **`RENDER.SETBLEND`** - args: int
 - **`RENDER.SETBLENDMODE`** - args: int
 - **`RENDER.SETCULLFACE`** - args: int
@@ -1693,6 +1924,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.SETSHADOWMAPSIZE`** - args: int
 - **`RENDER.SETSKYBOX`** - args: string
 - **`RENDER.SETWIREFRAME`** - args: bool
+
+### RENDERTARGET
+
+- **`RENDERTARGET.BEGIN`** - args: handle
+- **`RENDERTARGET.END`** - args: (none)
+- **`RENDERTARGET.FREE`** - args: handle
+- **`RENDERTARGET.MAKE`** - args: int, int -> returns handle
+- **`RENDERTARGET.TEXTURE`** - args: handle -> returns handle
 
 ### REPEAT$
 
@@ -1712,7 +1951,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### RND
 
-- **`RND`** - args: (none)
+- **`RND`** - args: (none) — RND() float in [0,1); RND(n) int in [0,n-1] for integer n>=1.
 - **`RND`** - args: any
 
 ### RNDF
@@ -1777,6 +2016,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### SECOND
 
 - **`SECOND`** - args: (none)
+- **`SECOND`** - args: (none) -> returns int
 
 ### SEEKFILE
 
@@ -1796,6 +2036,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### SETDIR
 
 - **`SETDIR`** - args: string
+- **`SETDIR`** - args: string -> returns bool
 
 ### SGN
 
@@ -1816,6 +2057,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### SIN
 
 - **`SIN`** - args: any
+
+### SKY
+
+- **`SKY.DRAW`** - args: handle
+- **`SKY.FREE`** - args: handle
+- **`SKY.GETTIMEHOURS`** - args: handle -> returns float
+- **`SKY.ISNIGHT`** - args: handle -> returns bool
+- **`SKY.MAKE`** - args: (none) -> returns handle
+- **`SKY.SETDAYLENGTH`** - args: handle, float
+- **`SKY.SETTIME`** - args: handle, float
+- **`SKY.UPDATE`** - args: handle, float
 
 ### SLEEP
 
@@ -1846,9 +2098,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`SPRITE.DEFANIM`** - args: handle, string
 - **`SPRITE.DRAW`** - args: handle, int, int
+- **`SPRITE.FREE`** - args: handle
 - **`SPRITE.HIT`** - args: handle, handle
 - **`SPRITE.LOAD`** - args: string
 - **`SPRITE.PLAYANIM`** - args: handle, string
+- **`SPRITE.POINTHIT`** - args: handle, float, float
 - **`SPRITE.SETPOS`** - args: handle, float, float
 - **`SPRITE.SETPOSITION`** - args: handle, float, float
 - **`SPRITE.UPDATEANIM`** - args: handle, float
@@ -1861,6 +2115,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SPRITEBATCH.FREE`** - args: handle
 - **`SPRITEBATCH.MAKE`** - args: (none) -> returns handle
 
+### SPRITECOLLIDE
+
+- **`SPRITECOLLIDE`** - args: handle, handle
+
 ### SPRITEGROUP
 
 - **`SPRITEGROUP.ADD`** - args: handle, handle
@@ -1868,10 +2126,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SPRITEGROUP.DRAW`** - args: handle, int, int
 - **`SPRITEGROUP.FREE`** - args: handle
 - **`SPRITEGROUP.MAKE`** - args: (none) -> returns handle
+- **`SPRITEGROUP.REMOVE`** - args: handle, handle
 
 ### SPRITELAYER
 
 - **`SPRITELAYER.ADD`** - args: handle, handle
+- **`SPRITELAYER.CLEAR`** - args: handle
 - **`SPRITELAYER.DRAW`** - args: handle, int, int
 - **`SPRITELAYER.FREE`** - args: handle
 - **`SPRITELAYER.MAKE`** - args: float -> returns handle
@@ -1952,6 +2212,20 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`TAB`** - args: int
 
+### TABLE
+
+- **`TABLE.ADDROW`** - args: handle
+- **`TABLE.COLCOUNT`** - args: handle -> returns int
+- **`TABLE.CREATE`** - args: string -> returns handle
+- **`TABLE.FREE`** - args: handle
+- **`TABLE.FROMCSV`** - args: handle -> returns handle
+- **`TABLE.FROMJSON`** - args: handle -> returns handle
+- **`TABLE.GET`** - args: handle, int, string
+- **`TABLE.ROWCOUNT`** - args: handle -> returns int
+- **`TABLE.SET`** - args: handle, int, string, any
+- **`TABLE.TOCSV`** - args: handle -> returns handle
+- **`TABLE.TOJSON`** - args: handle -> returns handle
+
 ### TAN
 
 - **`TAN`** - args: any
@@ -1968,8 +2242,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`TEXTURE.FREE`** - args: handle
 - **`TEXTURE.FROMIMAGE`** - args: handle
-- **`TEXTURE.GENWHITENOISE`** - args: int, int
+- **`TEXTURE.GENCHECKED`** - args: int, int, int, int, handle, handle -> returns handle
+- **`TEXTURE.GENCOLOR`** - args: int, int, int, int, int, int -> returns handle
+- **`TEXTURE.GENGRADIENTH`** - args: int, int, handle, handle -> returns handle
+- **`TEXTURE.GENGRADIENTV`** - args: int, int, handle, handle -> returns handle
+- **`TEXTURE.GENWHITENOISE`** - args: int, int -> returns handle
+- **`TEXTURE.GENWHITENOISE`** - args: int, int, float -> returns handle
+- **`TEXTURE.HEIGHT`** - args: handle -> returns int
 - **`TEXTURE.LOAD`** - args: string
+- **`TEXTURE.SETFILTER`** - args: handle, int
+- **`TEXTURE.SETWRAP`** - args: handle, int
+- **`TEXTURE.UPDATE`** - args: handle, handle
+- **`TEXTURE.WIDTH`** - args: handle -> returns int
 
 ### THROW
 
@@ -1978,6 +2262,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TICKCOUNT
 
 - **`TICKCOUNT`** - args: (none)
+- **`TICKCOUNT`** - args: (none) -> returns int
 
 ### TILEMAP
 
@@ -2001,19 +2286,25 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TIME
 
 - **`TIME.DELTA`** - args: (none)
+- **`TIME.DELTA`** - args: (none) -> returns float
 - **`TIME.GET`** - args: (none)
+- **`TIME.GET`** - args: (none) -> returns float
+- **`TIME.GETFPS`** - args: (none) -> returns float
 
 ### TIME$
 
 - **`TIME$`** - args: (none)
+- **`TIME$`** - args: (none) -> returns string
 
 ### TIMER
 
 - **`TIMER`** - args: (none)
+- **`TIMER`** - args: (none) -> returns float
 
 ### TIMESTAMP
 
 - **`TIMESTAMP`** - args: (none)
+- **`TIMESTAMP`** - args: (none) -> returns float
 
 ### TRACE
 
@@ -2073,21 +2364,41 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### UTIL
 
 - **`UTIL.CHANGEDIR`** - args: string -> returns bool
+- **`UTIL.CHANGEDIR`** - args: string -> returns bool
 - **`UTIL.CLEARDROPPEDFILES`** - args: (none)
+- **`UTIL.COPYFILE`** - args: string, string
+- **`UTIL.DELETEDIR`** - args: string
+- **`UTIL.DELETEFILE`** - args: string -> returns bool
 - **`UTIL.FILEEXISTS`** - args: string -> returns bool
+- **`UTIL.FILEEXISTS`** - args: string -> returns bool
+- **`UTIL.GETDIR`** - args: (none) -> returns string
 - **`UTIL.GETDIRFILES`** - args: string -> returns string
+- **`UTIL.GETDIRFILES`** - args: string -> returns string
+- **`UTIL.GETDIRS`** - args: string -> returns string
 - **`UTIL.GETDROPPEDFILES`** - args: (none) -> returns string
 - **`UTIL.GETFILEEXT`** - args: string -> returns string
+- **`UTIL.GETFILEEXT`** - args: string -> returns string
+- **`UTIL.GETFILEMODTIME`** - args: string -> returns int
 - **`UTIL.GETFILEMODTIME`** - args: string -> returns int
 - **`UTIL.GETFILENAME`** - args: string -> returns string
+- **`UTIL.GETFILENAME`** - args: string -> returns string
+- **`UTIL.GETFILENAMENOEXT`** - args: string -> returns string
 - **`UTIL.GETFILENAMENOEXT`** - args: string -> returns string
 - **`UTIL.GETFILEPATH`** - args: string -> returns string
+- **`UTIL.GETFILEPATH`** - args: string -> returns string
 - **`UTIL.GETFILESIZE`** - args: string -> returns int
+- **`UTIL.GETFILESIZE`** - args: string -> returns int
+- **`UTIL.ISDIR`** - args: string -> returns bool
 - **`UTIL.ISDIR`** - args: string -> returns bool
 - **`UTIL.ISFILEDROPPED`** - args: (none) -> returns bool
 - **`UTIL.ISFILENAMEVALID`** - args: string -> returns bool
 - **`UTIL.LOADTEXT`** - args: string -> returns string
+- **`UTIL.LOADTEXT`** - args: string -> returns string
 - **`UTIL.MAKEDIRECTORY`** - args: string -> returns bool
+- **`UTIL.MAKEDIRECTORY`** - args: string -> returns bool
+- **`UTIL.MOVEFILE`** - args: string, string
+- **`UTIL.RENAMEFILE`** - args: string, string
+- **`UTIL.SAVETEXT`** - args: string, string
 - **`UTIL.SAVETEXT`** - args: string, string
 
 ### VAL
@@ -2143,6 +2454,15 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`WAIT`** - args: any
 
+### WATER
+
+- **`WATER.DRAW`** - args: handle
+- **`WATER.FREE`** - args: handle
+- **`WATER.MAKE`** - args: float, int, int, int, int -> returns handle
+- **`WATER.SETHEIGHT`** - args: handle, float
+- **`WATER.SHOW`** - args: handle, bool
+- **`WATER.UPDATE`** - args: handle, float
+
 ### WAVE
 
 - **`WAVE.COPY`** - args: handle -> returns handle
@@ -2152,11 +2472,27 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WAVE.FREE`** - args: handle
 - **`WAVE.LOAD`** - args: string -> returns handle
 
+### WEATHER
+
+- **`WEATHER.DRAW`** - args: handle
+- **`WEATHER.FREE`** - args: handle
+- **`WEATHER.GETCOVERAGE`** - args: handle -> returns float
+- **`WEATHER.GETTYPE`** - args: handle -> returns string
+- **`WEATHER.MAKE`** - args: (none) -> returns handle
+- **`WEATHER.SETTYPE`** - args: handle, string
+- **`WEATHER.UPDATE`** - args: handle, float
+
+### WIND
+
+- **`WIND.GETSTRENGTH`** - args: (none) -> returns float
+- **`WIND.SET`** - args: float, float, float
+
 ### WINDOW
 
 - **`WINDOW.CHECKFLAG`** - args: int -> returns bool
 - **`WINDOW.CLEARFLAG`** - args: int
 - **`WINDOW.CLOSE`** - args: (none)
+- **`WINDOW.GETFPS`** - args: (none) -> returns int
 - **`WINDOW.GETMONITORCOUNT`** - args: (none) -> returns int
 - **`WINDOW.GETMONITORHEIGHT`** - args: int -> returns int
 - **`WINDOW.GETMONITORNAME`** - args: int -> returns string
@@ -2166,6 +2502,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WINDOW.GETPOSITIONY`** - args: (none) -> returns int
 - **`WINDOW.GETSCALEDPIX`** - args: (none) -> returns float
 - **`WINDOW.GETSCALEDPIY`** - args: (none) -> returns float
+- **`WINDOW.HEIGHT`** - args: (none) -> returns int
+- **`WINDOW.ISFULLSCREEN`** - args: (none) -> returns bool
+- **`WINDOW.ISRESIZED`** - args: (none) -> returns bool
 - **`WINDOW.MAXIMIZE`** - args: (none)
 - **`WINDOW.MINIMIZE`** - args: (none)
 - **`WINDOW.OPEN`** - args: int, int, string -> returns bool
@@ -2183,6 +2522,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WINDOW.SETTARGETFPS`** - args: int
 - **`WINDOW.SETTITLE`** - args: string
 - **`WINDOW.SHOULDCLOSE`** - args: (none)
+- **`WINDOW.TOGGLEFULLSCREEN`** - args: (none)
+- **`WINDOW.WIDTH`** - args: (none) -> returns int
 
 ### WRAP
 
@@ -2198,10 +2539,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### WRITE
 
-- **`WRITE`** - args: any
+- **`WRITE`** - args: any — Print values space-separated without newline.
 
 ### WRITEALLTEXT
 
+- **`WRITEALLTEXT`** - args: string, string
 - **`WRITEALLTEXT`** - args: string, string
 
 ### WRITEBYTE
@@ -2235,4 +2577,5 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### YEAR
 
 - **`YEAR`** - args: (none)
+- **`YEAR`** - args: (none) -> returns int
 

@@ -4,7 +4,11 @@ moonBASIC exposes [raygui](https://github.com/raysan5/raygui) as the `GUI.*` nam
 
 Bindings follow [raylib-go raygui](https://github.com/gen2brain/raylib-go/tree/master/raygui) (raygui 4.x). **Every** exported control, style loader, tooltip, icon, and draw helper from that wrapper is available as a `GUI.*` command **except** font retrieval: there is no `GUI.GETFONT` because the active `rl.Font` is owned by raygui (often embedded in `.rgs` themes); double-freeing it through `FONT.FREE` would be unsafe. Use **`FONT.LOAD` + `GUI.SETFONT`** for fonts you allocate yourself.
 
-**Requirements:** **CGO** enabled (same as `DRAW.*`, `WINDOW.*`, `FONT.*`). Without CGO, every `GUI.*` call fails with a clear error.
+**Requirements (full raygui):** **CGO** enabled (same as `DRAW.*`, `WINDOW.*`, `FONT.*`).
+
+**Windows without CGO** (`CGO_ENABLED=0`, Raylib purego / `raylib.dll`): a **minimal** `GUI.*` implementation is built in—labels, buttons, basic toggles/checkboxes/combos, simple sliders, window/panel/group/line, theme defaults, and draw helpers. It is **not** pixel-identical to raygui. Commands that still need the C raygui stack (**`GUI.TEXTBOX`**, color-picker suite, **`GUI.MESSAGEBOX`**, **`GUI.LISTVIEW`**, **`GUI.TABBAR`**, `.rgs` **`GUI.LOADSTYLE`**, **`GUI.SETFONT`** with custom fonts, etc.) return an error asking you to rebuild with **CGO**. See [BUILDING.md](../BUILDING.md).
+
+**Performance (purego GUI):** Internal widget state keys use **rounded pixel rects**. For stateful controls such as **`GUI.TOGGLEGROUP`**, use **stable** `x, y, width, height` (avoid coordinates that drift every frame). If an unusual number of distinct rectangles are used, the runtime may reset cached widget state to bound memory.
 
 ---
 

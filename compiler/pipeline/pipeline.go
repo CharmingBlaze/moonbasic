@@ -157,6 +157,15 @@ func CheckSource(name, src string) error {
 	return an.Run(prog)
 }
 
+// ListBuiltins returns all registered native command keys.
+func ListBuiltins() []string {
+	h := heap.New()
+	reg := runtime.NewRegistry(h)
+	// Use empty options for listing; doesn't matter for registration
+	setupRegistry(reg, h, Options{})
+	return reg.CommandKeys()
+}
+
 // RunProgram initializes the runtime and executes the program in the VM.
 func RunProgram(prog *opcode.Program, opts Options) error {
 	if opts.Out == nil {
@@ -172,6 +181,29 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	// 1. Initialize Runtime
 	h := heap.New()
 	reg := runtime.NewRegistry(h)
+	setupRegistry(reg, h, opts)
+
+	// 2. Setup VM
+	machine := vm.New(reg, h)
+	// Wire up modules that need to call back into the VM (using the machine just created)
+	wireRegistryCallbacks(reg, machine)
+
+	machine.Trace = opts.Trace
+	machine.TraceOut = opts.Out
+	machine.StackHygieneDebug = opts.Debug
+	machine.Profiler = opts.ProfileRecorder
+
+	defer reg.Shutdown() // Raylib + heap cleanup on success or VM error
+
+	// 3. Execution
+	if err := machine.Execute(prog); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.DebugMode = opts.Debug
 	reg.DiagOut = opts.Out
 	if opts.HostArgs != nil {
@@ -213,16 +245,11 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	reg.RegisterModule(mbcamera.NewModule())
 	reg.RegisterModule(mbsprite.NewModule())
 	reg.RegisterModule(mbtilemap.NewModule())
-	sceneMod := mbscene.NewModule()
-	poolMod := mbpool.NewModule()
-	tweenMod := mbtween.NewModule()
-	eventMod := mbevent.NewModule()
-	navMod := mbnav.NewModule()
-	reg.RegisterModule(sceneMod)
-	reg.RegisterModule(poolMod)
-	reg.RegisterModule(tweenMod)
-	reg.RegisterModule(eventMod)
-	reg.RegisterModule(navMod)
+	reg.RegisterModule(mbscene.NewModule())
+	reg.RegisterModule(mbpool.NewModule())
+	reg.RegisterModule(mbtween.NewModule())
+	reg.RegisterModule(mbevent.NewModule())
+	reg.RegisterModule(mbnav.NewModule())
 	reg.RegisterModule(mblight2d.NewModule())
 	reg.RegisterModule(mbtransition.NewModule())
 	reg.RegisterModule(mbfont.NewModule())
@@ -242,41 +269,83 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	reg.RegisterModule(mweather.NewModule())
 	reg.RegisterModule(mscatter.NewModule())
 	reg.RegisterModule(mbiome.NewModule())
-	netMod := mbnet.NewModule()
-	reg.RegisterModule(netMod)
+	reg.RegisterModule(mbnet.NewModule())
 
 	// Physics / character: register before manifest so natives win; char before physics3d
 	// so Shutdown frees CharacterVirtual instances before the Jolt world is torn down.
 	reg.RegisterModule(mbcharcontroller.NewModule())
 	reg.RegisterModule(mbphysics2d.NewModule())
-	p3 := mbphysics3d.NewModule()
-	reg.RegisterModule(p3)
+	reg.RegisterModule(mbphysics3d.NewModule())
 	reg.RegisterModule(mbcollision.NewModule())
 	reg.RegisterModule(mnoise.NewModule())
 	reg.RegisterModule(mbgame.NewModule())
 
 	// Stubs for manifest entries not yet implemented natively
 	reg.RegisterFromManifest(builtinmanifest.Default())
+}
 
-	// 2. Setup VM
-	machine := vm.New(reg, h)
-	sceneMod.SetUserInvoker(machine.CallUserFunction)
-	poolMod.SetUserInvoker(machine.CallUserFunction)
-	tweenMod.SetUserInvoker(machine.CallUserFunction)
-	eventMod.SetUserInvoker(machine.CallUserFunction)
-	tweenMod.SetGlobalAccessor(
-		func(k string) (value.Value, bool) {
-			k = strings.ToUpper(strings.TrimSpace(k))
-			v, ok := machine.Globals[k]
-			return v, ok
-		},
-		func(k string, v value.Value) {
-			machine.Globals[strings.ToUpper(strings.TrimSpace(k))] = v
-		},
-	)
-	p3.SetUserInvoker(machine.CallUserFunction)
-	navMod.SetUserInvoker(machine.CallUserFunction)
-	netMod.SetUserInvoker(machine.CallUserFunction)
+func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {
+	// Find modules that need callbacks
+	var sceneMod *mbscene.Module
+	var poolMod *mbpool.Module
+	var tweenMod *mbtween.Module
+	var eventMod *mbevent.Module
+	var p3 *mbphysics3d.Module
+	var navMod *mbnav.Module
+	var netMod *mbnet.Module
+
+	for _, m := range reg.Modules {
+		switch mod := m.(type) {
+		case *mbscene.Module:
+			sceneMod = mod
+		case *mbpool.Module:
+			poolMod = mod
+		case *mbtween.Module:
+			tweenMod = mod
+		case *mbevent.Module:
+			eventMod = mod
+		case *mbphysics3d.Module:
+			p3 = mod
+		case *mbnav.Module:
+			navMod = mod
+		case *mbnet.Module:
+			netMod = mod
+		}
+	}
+
+	if sceneMod != nil {
+		sceneMod.SetUserInvoker(machine.CallUserFunction)
+	}
+	if poolMod != nil {
+		poolMod.SetUserInvoker(machine.CallUserFunction)
+	}
+	if tweenMod != nil {
+		tweenMod.SetUserInvoker(machine.CallUserFunction)
+		tweenMod.SetGlobalAccessor(
+			func(k string) (value.Value, bool) {
+				k = strings.ToUpper(strings.TrimSpace(k))
+				v, ok := machine.Globals[k]
+				return v, ok
+			},
+			func(k string, v value.Value) {
+				machine.Globals[strings.ToUpper(strings.TrimSpace(k))] = v
+			},
+		)
+	}
+	if eventMod != nil {
+		eventMod.SetUserInvoker(machine.CallUserFunction)
+	}
+	if p3 != nil {
+		p3.SetUserInvoker(machine.CallUserFunction)
+	}
+	if navMod != nil {
+		navMod.SetUserInvoker(machine.CallUserFunction)
+	}
+	if netMod != nil {
+		netMod.SetUserInvoker(machine.CallUserFunction)
+	}
+
+	h := reg.Heap
 	runtime.SeedInputKeyGlobals(machine.Globals)
 	runtime.SeedBlendModeGlobals(machine.Globals)
 	window.SeedWindowFlagGlobals(machine.Globals)
@@ -286,20 +355,8 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 	mbnet.SeedMultiplayerGlobals(machine.Globals)
 	texture.SeedTextureGlobals(machine.Globals)
 	mbgui.SeedGUIGlobals(machine.Globals)
-	machine.Trace = opts.Trace
-	machine.TraceOut = opts.Out
-	machine.StackHygieneDebug = opts.Debug
-	machine.Profiler = opts.ProfileRecorder
-
-	defer reg.Shutdown() // Raylib + heap cleanup on success or VM error
-
-	// 3. Execution
-	if err := machine.Execute(prog); err != nil {
-		return err
-	}
-
-	return nil
 }
+
 
 // EncodeMOON serializes a compiled program to MOON container bytes (.mbc).
 func EncodeMOON(prog *opcode.Program) ([]byte, error) {

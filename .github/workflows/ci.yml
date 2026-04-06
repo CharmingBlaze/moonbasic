@@ -140,6 +140,21 @@ jobs:
           CGO_ENABLED: '1'
           CC: ${{ steps.msys2.outputs.msys2-location }}\mingw64\bin\gcc.exe
 
+  # Compile-only: core Raylib via raylib-go purego (no C compiler). raygui/DB/ENet still need CGO in full builds.
+  windows_purego:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.3'
+
+      - name: Build with CGO disabled (purego Raylib bindings)
+        run: go build -o moonbasic_purego.exe .
+        env:
+          CGO_ENABLED: '0'
+
   stub-only:
     runs-on: ubuntu-latest
     steps:

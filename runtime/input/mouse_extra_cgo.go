@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || (windows && !cgo)
 
 package input
 
@@ -89,7 +89,7 @@ func (m *Module) inSetMousePos(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 {
 		return value.Nil, fmt.Errorf("INPUT.SETMOUSEPOS: x,y must be numeric")
 	}
-	rl.SetMousePosition(int(x), int(y))
+	setMousePositionCompat(int(x), int(y))
 	return value.Nil, nil
 }
 

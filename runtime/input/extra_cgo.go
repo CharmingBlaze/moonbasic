@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || (windows && !cgo)
 
 package input
 
@@ -112,7 +112,7 @@ func (m *Module) inSetMouseOffset(args []value.Value) (value.Value, error) {
 			return value.Nil, fmt.Errorf("INPUT.SETMOUSEOFFSET: y must be numeric")
 		}
 	}
-	rl.SetMouseOffset(int(x), int(y))
+	setMouseOffsetCompat(int(x), int(y))
 	return value.Nil, nil
 }
 

@@ -1,4 +1,4 @@
-//go:build !cgo
+//go:build !cgo && !windows
 
 package mbgui
 
@@ -9,7 +9,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-const hint = "GUI.* natives require CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
+const hint = "GUI.* requires CGO (raygui-go wraps C): set CGO_ENABLED=1 and a C toolchain, then rebuild (on Windows with CGO off, use the built-in minimal Raylib GUI instead)"
 
 var guiStubNames = []string{
 	"GUI.ENABLE", "GUI.DISABLE", "GUI.LOCK", "GUI.UNLOCK", "GUI.ISLOCKED",

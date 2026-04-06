@@ -1,4 +1,4 @@
-package runtime
+package strmod
 
 import (
 	"encoding/binary"
@@ -7,13 +7,14 @@ import (
 	"strconv"
 	"strings"
 
+	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func registerStringsFormat(r Registrar) {
-	r.Register("BIN$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+func registerStringsFormat(r runtime.Registrar) {
+	r.Register("BIN$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("BIN$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("BIN$ expects 1 argument")
 		}
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -21,9 +22,9 @@ func registerStringsFormat(r Registrar) {
 		}
 		return rt.RetString(strconv.FormatInt(n, 2)), nil
 	})
-	r.Register("HEX$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("HEX$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("HEX$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("HEX$ expects 1 argument")
 		}
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -31,9 +32,9 @@ func registerStringsFormat(r Registrar) {
 		}
 		return rt.RetString(strings.ToUpper(strconv.FormatInt(n, 16))), nil
 	})
-	r.Register("OCT$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("OCT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("OCT$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("OCT$ expects 1 argument")
 		}
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -41,9 +42,9 @@ func registerStringsFormat(r Registrar) {
 		}
 		return rt.RetString(strconv.FormatInt(n, 8)), nil
 	})
-	r.Register("FORMAT$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("FORMAT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 || args[1].Kind != value.KindString {
-			return value.Value{}, Errorf("FORMAT$ expects (v, pattern$)")
+			return value.Value{}, runtime.Errorf("FORMAT$ expects (v, pattern$)")
 		}
 		pat, err := rt.ArgString(args, 1)
 		if err != nil {
@@ -71,7 +72,7 @@ func registerStringsFormat(r Registrar) {
 		}
 	})
 
-	r.Register("MKSHORT$", "core", mkFixedLE(2, func(b []byte, rt *Runtime, args []value.Value) error {
+	r.Register("MKSHORT$", "core", mkFixedLE(2, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return err
@@ -79,7 +80,7 @@ func registerStringsFormat(r Registrar) {
 		binary.LittleEndian.PutUint16(b, uint16(int16(n)))
 		return nil
 	}))
-	r.Register("MKINT$", "core", mkFixedLE(4, func(b []byte, rt *Runtime, args []value.Value) error {
+	r.Register("MKINT$", "core", mkFixedLE(4, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return err
@@ -87,7 +88,7 @@ func registerStringsFormat(r Registrar) {
 		binary.LittleEndian.PutUint32(b, uint32(int32(n)))
 		return nil
 	}))
-	r.Register("MKLONG$", "core", mkFixedLE(8, func(b []byte, rt *Runtime, args []value.Value) error {
+	r.Register("MKLONG$", "core", mkFixedLE(8, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return err
@@ -95,7 +96,7 @@ func registerStringsFormat(r Registrar) {
 		binary.LittleEndian.PutUint64(b, uint64(n))
 		return nil
 	}))
-	r.Register("MKFLOAT$", "core", mkFixedLE(4, func(b []byte, rt *Runtime, args []value.Value) error {
+	r.Register("MKFLOAT$", "core", mkFixedLE(4, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		f, ok := args[0].ToFloat()
 		if !ok {
 			if args[0].Kind == value.KindInt {
@@ -104,12 +105,12 @@ func registerStringsFormat(r Registrar) {
 			}
 		}
 		if !ok {
-			return Errorf("MKFLOAT$: numeric expected")
+			return runtime.Errorf("MKFLOAT$: numeric expected")
 		}
 		binary.LittleEndian.PutUint32(b, math.Float32bits(float32(f)))
 		return nil
 	}))
-	r.Register("MKDOUBLE$", "core", mkFixedLE(8, func(b []byte, rt *Runtime, args []value.Value) error {
+	r.Register("MKDOUBLE$", "core", mkFixedLE(8, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		f, ok := args[0].ToFloat()
 		if !ok {
 			if args[0].Kind == value.KindInt {
@@ -118,15 +119,15 @@ func registerStringsFormat(r Registrar) {
 			}
 		}
 		if !ok {
-			return Errorf("MKDOUBLE$: numeric expected")
+			return runtime.Errorf("MKDOUBLE$: numeric expected")
 		}
 		binary.LittleEndian.PutUint64(b, math.Float64bits(f))
 		return nil
 	}))
 
-	r.Register("CVSHORT", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CVSHORT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("CVSHORT expects 1 string argument")
+			return value.Value{}, runtime.Errorf("CVSHORT expects 1 string argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -138,9 +139,9 @@ func registerStringsFormat(r Registrar) {
 		}
 		return value.FromInt(int64(int16(binary.LittleEndian.Uint16(b[:2])))), nil
 	})
-	r.Register("CVINT", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CVINT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("CVINT expects 1 string argument")
+			return value.Value{}, runtime.Errorf("CVINT expects 1 string argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -152,9 +153,9 @@ func registerStringsFormat(r Registrar) {
 		}
 		return value.FromInt(int64(int32(binary.LittleEndian.Uint32(b[:4])))), nil
 	})
-	r.Register("CVLONG", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CVLONG", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("CVLONG expects 1 string argument")
+			return value.Value{}, runtime.Errorf("CVLONG expects 1 string argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -166,9 +167,9 @@ func registerStringsFormat(r Registrar) {
 		}
 		return value.FromInt(int64(binary.LittleEndian.Uint64(b[:8]))), nil
 	})
-	r.Register("CVFLOAT", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CVFLOAT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("CVFLOAT expects 1 string argument")
+			return value.Value{}, runtime.Errorf("CVFLOAT expects 1 string argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -181,9 +182,9 @@ func registerStringsFormat(r Registrar) {
 		u := binary.LittleEndian.Uint32(b[:4])
 		return value.FromFloat(float64(math.Float32frombits(u))), nil
 	})
-	r.Register("CVDOUBLE", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CVDOUBLE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("CVDOUBLE expects 1 string argument")
+			return value.Value{}, runtime.Errorf("CVDOUBLE expects 1 string argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -198,10 +199,10 @@ func registerStringsFormat(r Registrar) {
 	})
 }
 
-func mkFixedLE(n int, fill func([]byte, *Runtime, []value.Value) error) BuiltinFn {
-	return func(rt *Runtime, args ...value.Value) (value.Value, error) {
+func mkFixedLE(n int, fill func([]byte, *runtime.Runtime, []value.Value) error) runtime.BuiltinFn {
+	return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("expects 1 argument")
+			return value.Value{}, runtime.Errorf("expects 1 argument")
 		}
 		b := make([]byte, n)
 		if err := fill(b, rt, args); err != nil {

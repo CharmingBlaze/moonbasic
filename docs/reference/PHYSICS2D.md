@@ -30,6 +30,14 @@ Advances the simulation. Call this once per frame.
 
 Sets the global gravity for the 2D world.
 
+### `Physics2D.SetStep(dt#)`
+
+Sets the simulation timestep in **seconds** passed to Box2D each `Physics2D.Step()` (default `1/60`). `dt` must be greater than 0 and at most 1. Match this to your frame time when you call `Step` once per frame (e.g. use `1/60` for a 60 FPS loop).
+
+### `Physics2D.SetIterations(velocity%, position%)`
+
+Sets Box2D solver iterations (defaults **8** velocity, **3** position). Lower values are faster but less stable for stacks and joints; allowed ranges are velocity **1–64** and position **1–32**.
+
 ---
 
 ## Body Creation
@@ -47,7 +55,7 @@ Adds a collision shape to the definition.
 
 ### 3. `Body2D.Commit(bodyDefHandle, x#, y#)`
 
-Adds the body to the physics world at the specified position. Returns a handle to the final body.
+Adds the body to the physics world at the specified position. Returns a handle to the final body. The **definition** handle is consumed and must not be used again (do not `Free` it yourself).
 
 ---
 

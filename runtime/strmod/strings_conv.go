@@ -1,4 +1,4 @@
-package runtime
+package strmod
 
 import (
 	"math"
@@ -6,22 +6,23 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func registerStringsConv(r Registrar) {
-	r.Register("STR$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+func registerStringsConv(r runtime.Registrar) {
+	r.Register("STR$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("STR$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("STR$ expects 1 argument")
 		}
 		if args[0].Kind == value.KindString {
 			return args[0], nil
 		}
 		return rt.RetString(args[0].String()), nil
 	})
-	r.Register("INT", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("INT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("INT expects 1 argument")
+			return value.Value{}, runtime.Errorf("INT expects 1 argument")
 		}
 		v := args[0]
 		if v.Kind == value.KindString {
@@ -49,9 +50,9 @@ func registerStringsConv(r Registrar) {
 		}
 		return value.FromInt(0), nil
 	})
-	r.Register("FLOAT", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("FLOAT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("FLOAT expects 1 argument")
+			return value.Value{}, runtime.Errorf("FLOAT expects 1 argument")
 		}
 		f, ok := args[0].ToFloat()
 		if !ok {
@@ -67,9 +68,9 @@ func registerStringsConv(r Registrar) {
 		}
 		return value.FromFloat(f), nil
 	})
-	r.Register("LEN", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("LEN", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("LEN expects 1 argument")
+			return value.Value{}, runtime.Errorf("LEN expects 1 argument")
 		}
 		if args[0].Kind != value.KindString {
 			return value.FromInt(0), nil
@@ -80,9 +81,9 @@ func registerStringsConv(r Registrar) {
 		}
 		return value.FromInt(int64(utf8.RuneCountInString(s))), nil
 	})
-	r.Register("CHR$", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CHR$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("CHR$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("CHR$ expects 1 argument")
 		}
 		c, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -93,9 +94,9 @@ func registerStringsConv(r Registrar) {
 		}
 		return rt.RetString(string(rune(c))), nil
 	})
-	r.Register("ASC", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("ASC", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("ASC expects 1 argument")
+			return value.Value{}, runtime.Errorf("ASC expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -107,9 +108,9 @@ func registerStringsConv(r Registrar) {
 		r0, _ := utf8.DecodeRuneInString(s)
 		return value.FromInt(int64(r0)), nil
 	})
-	r.Register("VAL", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("VAL", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Value{}, Errorf("VAL expects 1 string argument")
+			return value.Value{}, runtime.Errorf("VAL expects 1 string argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -125,9 +126,9 @@ func registerStringsConv(r Registrar) {
 		}
 		return value.FromFloat(v), nil
 	})
-	r.Register("BOOL", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("BOOL", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, Errorf("BOOL expects 1 argument")
+			return value.Value{}, runtime.Errorf("BOOL expects 1 argument")
 		}
 		return rt.RetBool(value.Truthy(args[0], rt.Prog.StringTable, rt.Heap)), nil
 	})

@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || (windows && !cgo)
 
 package mbmodel3d
 
@@ -258,13 +258,13 @@ func drawInstancedRaster(io *instancedModelObj, lodMesh *meshObj, lodDist float3
 
 	albedoMap := mat.GetMap(int32(rl.MapAlbedo))
 	if io.uniformInstanceColors() && io.cr[0] == 255 && io.cg[0] == 255 && io.cb[0] == 255 && io.ca[0] == 255 {
-		rl.DrawMeshInstanced(mesh, mat, io.transforms[:n], n)
+		drawMeshInstancedCompat(mesh, mat, io.transforms[:n], n)
 		return
 	}
 	if io.uniformInstanceColors() {
 		saved := albedoMap.Color
 		albedoMap.Color = rl.Color{R: uint8(io.cr[0]), G: uint8(io.cg[0]), B: uint8(io.cb[0]), A: uint8(io.ca[0])}
-		rl.DrawMeshInstanced(mesh, mat, io.transforms[:n], n)
+		drawMeshInstancedCompat(mesh, mat, io.transforms[:n], n)
 		albedoMap.Color = saved
 		return
 	}
@@ -309,7 +309,7 @@ func renderShadowPassDepth(h *heap.Store, meshes []deferredMeshRec, models []hea
 			continue
 		}
 		meshes := io.model.GetMeshes()
-		rl.DrawMeshInstanced(meshes[mi], depthDrawMat, io.transforms[:n], n)
+		drawMeshInstancedCompat(meshes[mi], depthDrawMat, io.transforms[:n], n)
 	}
 
 	rl.EndMode3D()

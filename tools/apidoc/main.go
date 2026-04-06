@@ -13,10 +13,11 @@ import (
 
 type root struct {
 	Commands []struct {
-		Key       string   `json:"key"`
-		Args      []string `json:"args"`
-		Returns   string   `json:"returns,omitempty"`
-		Namespace string   `json:"namespace,omitempty"`
+		Key         string   `json:"key"`
+		Args        []string `json:"args"`
+		Returns     string   `json:"returns,omitempty"`
+		Namespace   string   `json:"namespace,omitempty"`
+		Description string   `json:"description,omitempty"`
 	} `json:"commands"`
 }
 
@@ -33,8 +34,8 @@ func main() {
 		os.Exit(1)
 	}
 	type sig struct {
-		key, ret string
-		args     []string
+		key, ret, desc string
+		args           []string
 	}
 	byNS := make(map[string][]sig)
 	for _, c := range r.Commands {
@@ -43,7 +44,7 @@ func main() {
 		if c.Namespace != "" {
 			ns = strings.ToUpper(c.Namespace)
 		}
-		byNS[ns] = append(byNS[ns], sig{key: c.Key, ret: c.Returns, args: c.Args})
+		byNS[ns] = append(byNS[ns], sig{key: c.Key, ret: c.Returns, args: c.Args, desc: c.Description})
 	}
 	nss := make([]string, 0, len(byNS))
 	for ns := range byNS {
@@ -57,14 +58,17 @@ func main() {
 	b.WriteString("Refresh: `go run ./tools/apidoc` (from the repository root).\n\n")
 	b.WriteString("## Related documentation\n\n")
 	b.WriteString("- **[ERROR_MESSAGES.md](../ERROR_MESSAGES.md)** — compile-time vs runtime errors, did-you-mean, heap handle hints.\n")
-	b.WriteString("- **[ROADMAP.md](../ROADMAP.md)** — phased engineering plan (polish → rendering → 2D → systems → …).\n\n")
+	b.WriteString("- **[ROADMAP.md](../ROADMAP.md)** — phased engineering plan (polish → rendering → 2D → systems → …).\n")
+	b.WriteString("- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace → reference map and overload counts (`go run ./tools/cmdaudit`).\n")
+	b.WriteString("- **[reference/API_CONVENTIONS.md](../reference/API_CONVENTIONS.md)** — consistent verbs (`LOAD`, `SETPOS`, `SETSCALE`, …) across object types.\n\n")
 	b.WriteString("## Naming conventions\n\n")
 	b.WriteString("- **Registry / source form**: `NS.ACTION` in uppercase with a dot (e.g. `CAMERA.SETPOS`).\n")
 	b.WriteString("- **Handle methods** (on a handle value): `cam.SetPos` dispatches to `CAMERA.SETPOS`. **`SetPosition`** is an alias for **`SetPos`** where both are registered (same handler).\n")
 	b.WriteString("- **Spatial handles** (`Camera3D`, `Body3D`, `Model`, `Sprite`, `Light2D`): use **`SETPOS`** for position. Aliases **`SETPOSITION`** exist for **Camera**, **Model**, **Body3D**, **Sprite**, **Light2D** — same implementation as `SETPOS`.\n")
 	b.WriteString("- **3D lights** (`LIGHT.*`): use **`LIGHT.SETDIR`** for the directional sun (normalized). **`LIGHT.SETPOS`** stores point/spot position; **`LIGHT.SETTARGET`** moves the shadow frustum look-at; **`RENDER.SETAMBIENT`** sets PBR ambient tint.\n")
 	b.WriteString("- **`MODEL.SETPOS`**: sets the model root transform to a **translation matrix** (replaces prior rotation/scale on that matrix).\n")
-	b.WriteString("- **Creation verbs**: `*.MAKE` for procedural handles; `*.LOAD` for assets (`SPRITE.LOAD`, `MODEL.LOAD`); materials use `MATERIAL.MAKEDEFAULT` / `MATERIAL.MAKEPBR`.\n\n")
+	b.WriteString("- **Creation verbs**: `*.MAKE` for procedural handles; `*.LOAD` for assets (`SPRITE.LOAD`, `MODEL.LOAD`); materials use `MATERIAL.MAKEDEFAULT` / `MATERIAL.MAKEPBR`.\n")
+	b.WriteString("- **Cross-type patterns**: see **[API_CONVENTIONS.md](../reference/API_CONVENTIONS.md)**.\n\n")
 	b.WriteString("## Default values (common `Make` paths)\n\n")
 	b.WriteString("| Command | Defaults |\n")
 	b.WriteString("|----------|----------|\n")
@@ -102,6 +106,10 @@ func main() {
 			if e.ret != "" {
 				b.WriteString(" -> returns ")
 				b.WriteString(e.ret)
+			}
+			if strings.TrimSpace(e.desc) != "" {
+				b.WriteString(" — ")
+				b.WriteString(strings.TrimSpace(e.desc))
 			}
 			b.WriteString("\n")
 		}
