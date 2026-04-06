@@ -32,6 +32,22 @@ func registerDraw3DCmds(m *Module, r runtime.Registrar) {
 	r.Register("DRAW3D.RAY", "draw", runtime.AdaptLegacy(m.drawRay))
 	r.Register("DRAW3D.BILLBOARD", "draw", runtime.AdaptLegacy(m.drawBillboard))
 	r.Register("DRAW3D.BILLBOARDREC", "draw", runtime.AdaptLegacy(m.drawBillboardRec))
+
+	registerDraw3DShortNames(m, r)
+}
+
+// registerDraw3DShortNames registers global short names (same handlers as Draw3D.*).
+// See docs/reference/DRAW3D.md ("Short names").
+func registerDraw3DShortNames(m *Module, r runtime.Registrar) {
+	r.Register("BOX", "draw", runtime.AdaptLegacy(m.drawCube))
+	r.Register("BOXW", "draw", runtime.AdaptLegacy(m.drawCubeWires))
+	r.Register("WIRECUBE", "draw", runtime.AdaptLegacy(m.drawCubeWires)) // Blitz3D WireCube
+	r.Register("BALL", "draw", runtime.AdaptLegacy(m.drawSphere))
+	r.Register("BALLW", "draw", runtime.AdaptLegacy(m.drawSphereWires))
+	r.Register("GRID3", "draw", runtime.AdaptLegacy(m.drawGrid))
+	r.Register("FLAT", "draw", runtime.AdaptLegacy(m.drawPlane))
+	r.Register("CAP", "draw", runtime.AdaptLegacy(m.drawCapsule))
+	r.Register("CAPW", "draw", runtime.AdaptLegacy(m.drawCapsuleWires))
 }
 
 func (m *Module) drawRay(args []value.Value) (value.Value, error) {
@@ -445,7 +461,7 @@ func (m *Module) drawPoint3D(args []value.Value) (value.Value, error) {
 
 func (m *Module) drawGrid(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("GRID expects 2 arguments (slices, spacing)")
+		return value.Nil, fmt.Errorf("DRAW3D.GRID expects 2 arguments (slices, spacing)")
 	}
 	slices, ok1 := argInt(args[0])
 	spacing, ok2 := argFloat(args[1])

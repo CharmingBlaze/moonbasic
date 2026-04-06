@@ -12,6 +12,12 @@ func normalizeHandleMethod(mn string) string {
 	switch mn {
 	case "SETPOSITION":
 		return "SETPOS"
+	case "POS":
+		return "SETPOS"
+	case "FOV":
+		return "SETFOV"
+	case "LOOK":
+		return "LOOKAT"
 	default:
 		return mn
 	}
@@ -46,8 +52,31 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		case "END":
 			return "CAMERA.END", false, true
 		case "BEGIN", "SETPOS", "SETTARGET", "LOOKAT", "SETFOV", "SETPROJECTION", "MOVE", "GETRAY", "GETVIEWRAY", "GETMATRIX",
-			"GETPOS", "GETTARGET", "SETUP", "FREE", "WORLDTOSCREEN", "ISONSCREEN", "MOUSERAY":
+			"GETPOS", "GETTARGET", "SETUP", "FREE", "WORLDTOSCREEN", "ISONSCREEN", "MOUSERAY", "ZOOM", "ORBIT", "SETORBIT":
 			return "CAMERA." + mn, true, true
+		}
+	case "ENTITYREF":
+		switch mn {
+		case "POS", "SETPOSITION", "SETPOS":
+			return "ENTITY.SETPOSITION", true, true
+		case "SCALE":
+			return "ENTITY.SCALE", true, true
+		case "ROT":
+			return "ENTITY.ROTATEENTITY", true, true
+		case "TURN":
+			return "ENTITY.TURNENTITY", true, true
+		case "MOVE":
+			return "ENTITY.TRANSLATE", true, true
+		case "COL", "COLOR":
+			return "ENTITY.COLOR", true, true
+		case "A":
+			return "ENTITY.ALPHA", true, true
+		case "FREE":
+			return "ENTITY.FREE", true, true
+		case "HIDE":
+			return "ENTITY.HIDE", true, true
+		case "SHOW":
+			return "ENTITY.SHOW", true, true
 		}
 	case "CAMERA2D":
 		switch mn {
@@ -213,8 +242,10 @@ func HandleCallSuggestions(typeName string) []string {
 	var out []string
 	switch tn {
 	case "CAMERA3D":
-		out = []string{"Begin", "End", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "IsOnScreen",
-			"LookAt", "MouseRay", "Move", "SetFOV", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen"}
+		out = []string{"Begin", "End", "FOV", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "IsOnScreen",
+			"Look", "LookAt", "MouseRay", "Move", "Orbit", "Pos", "SetFOV", "SetOrbit", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen", "Zoom"}
+	case "ENTITYREF":
+		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "Pos", "Rot", "Scale", "Show", "Turn"}
 	case "CAMERA2D":
 		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
 	case "RENDERTEXTURE":

@@ -63,6 +63,8 @@ type Registry struct {
 	StackTraceFn func() string
 	// TerminateVM is set by vm.VM.Execute; QUIT/STOP call it to end the program before normal main return.
 	TerminateVM func()
+	// EraseAllHandlesFn is set by vm.VM.Execute; FREE.ALL calls it to free every heap object and null handle slots.
+	EraseAllHandlesFn func() error
 	// HostArgs is process argv for ARGC / COMMAND$; nil means use os.Args. A non-nil empty slice is a deliberate empty argv.
 	HostArgs []string
 

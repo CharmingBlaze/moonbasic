@@ -239,4 +239,7 @@ func (m *Module) registerCollisionBuiltins(r runtime.Registrar) {
 	r.Register("LANDBOXES", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return landBoxes(rt, args...)
 	})
+	r.Register("LANDBOX", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return landBoxes(rt, args...)
+	})
 }

@@ -896,21 +896,10 @@ func (m *Module) entFree(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
 	st := m.store()
-	e := st.ents[id]
-	if e == nil {
+	if st.ents[id] == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	if e.hasRLModel {
-		if len(e.modelAnims) > 0 {
-			rl.UnloadModelAnimations(e.modelAnims)
-			e.modelAnims = nil
-		}
-		rl.UnloadModel(e.rlModel)
-	}
-	if e.name != "" {
-		delete(st.byName, strings.ToUpper(e.name))
-	}
-	delete(st.ents, id)
+	m.purgeEntityByID(id)
 	return value.Nil, nil
 }
 

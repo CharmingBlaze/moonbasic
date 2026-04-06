@@ -1,0 +1,8 @@
+; compile-only: ENTITYREF dot-syntax + CAM alias (method calls use parentheses)
+cube = CUBE()
+cube.Pos(0, 1, 2)
+cube.Scale(1, 1, 1)
+cube.Col(255, 128, 64)
+cam = CAM()
+cam.FOV(55)
+PRINT("blitz entity dot OK")

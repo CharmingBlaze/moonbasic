@@ -168,7 +168,7 @@ All math functions are also available as `MATH.name(...)` (e.g. `MATH.SIN`, `MAT
 
 - `DIM` **[DONE]**: Declares an array (including **`DIM name AS TypeName(n)`** for record types — see [LANGUAGE.md](LANGUAGE.md)).
 - `REDIM` **[PARTIAL]**: Coming soon.
-- `ERASE` **[DONE]**: Frees a `DIM` or typed array — see [ARRAY.md](reference/ARRAY.md).
+- `ERASE` **[DONE]**: Frees a `DIM` or typed array — see [ARRAY.md](reference/ARRAY.md). **`ERASE ALL`** frees the entire VM heap; **`FREE.ALL`** is the same as a callable — [MEMORY.md](MEMORY.md).
 - `ARRAYLEN` **[DONE]**: Returns the length of an array.
 - `ARRAYFILL` **[PARTIAL]**: Coming soon.
 - `ARRAYCOPY` **[PARTIAL]**: Coming soon.
@@ -414,9 +414,10 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 |---|---|
 | `Draw3D.Grid` / `Draw.Grid` | 3D reference grid (`Camera.Begin` / `End`). |
 | `Draw3D.Line` / `Draw3D.Point` / `Draw3D.Sphere*` / `Draw3D.Cube*` / `Draw3D.Cylinder*` / `Draw3D.Capsule*` / `Draw3D.Plane` / `Draw3D.BBox` | Primitives (see reference for arities). |
+| `BOX` / `BOXW` / `WIRECUBE` / `BALL` / `BALLW` / `GRID3` / `FLAT` / `CAP` / `CAPW` | **Short global names** — same handlers as `DRAW3D.CUBE` / `CUBEWIRES` / … (`WIRECUBE` = Blitz **WireCube** — see [DRAW3D.md](reference/DRAW3D.md), [BLITZ3D.md](reference/BLITZ3D.md)). |
 | `Draw3D.Ray` | Debug-draw a ray from a 6-float array handle. |
 | `Draw3D.Billboard` / `Draw3D.BillboardRec` | Textured billboards (require active 3D camera). |
-| `Draw.Line3D` / `Draw.Sphere` / … | **Aliases** of the same `DRAW3D.*` handlers (see [DRAW3D.md](reference/DRAW3D.md)). |
+| `Draw.Line3D` / `Draw.Sphere` / … | **`Draw.*`** aliases of the same `DRAW3D.*` handlers (see [DRAW3D.md](reference/DRAW3D.md)). |
 
 ---
 

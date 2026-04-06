@@ -19,6 +19,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		}
 	}
 	r.Register("CAMERA.MAKE", "camera", stub("CAMERA.MAKE"))
+	r.Register("CAM", "camera", stub("CAM"))
 	r.Register("CAMERA.SETPOS", "camera", stub("CAMERA.SETPOS"))
 	r.Register("CAMERA.SETPOSITION", "camera", stub("CAMERA.SETPOSITION"))
 	r.Register("CAMERA.SETTARGET", "camera", stub("CAMERA.SETTARGET"))

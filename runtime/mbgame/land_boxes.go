@@ -12,11 +12,11 @@ import (
 // parallel float arrays (same layout as BOXTOPLAND per box). 0 means no landing on any box.
 func landBoxes(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 12 {
-		return value.Nil, fmt.Errorf("LANDBOXES expects 12 arguments (px#, py#, pz#, pvy#, pr#, plx#, ply#, plz#, plw#, plh#, pld#, count)")
+		return value.Nil, fmt.Errorf("LANDBOXES/LANDBOX expects 12 arguments (px#, py#, pz#, pvy#, pr#, plx#, ply#, plz#, plw#, plh#, pld#, count)")
 	}
 	h := rt.Heap
 	if h == nil {
-		return value.Nil, fmt.Errorf("LANDBOXES: heap not available")
+		return value.Nil, fmt.Errorf("LANDBOXES/LANDBOX: heap not available")
 	}
 	px, ok1 := args[0].ToFloat()
 	py, ok2 := args[1].ToFloat()
@@ -24,7 +24,7 @@ func landBoxes(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	pvy, ok4 := args[3].ToFloat()
 	pr, ok5 := args[4].ToFloat()
 	if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 {
-		return value.Nil, fmt.Errorf("LANDBOXES: first five arguments must be numeric")
+		return value.Nil, fmt.Errorf("LANDBOXES/LANDBOX: first five arguments must be numeric")
 	}
 	hx, err := arrayHandleArg(args[5], "plx#")
 	if err != nil {
@@ -56,7 +56,7 @@ func landBoxes(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	} else if f, okf := args[11].ToFloat(); okf {
 		n = int(f)
 	} else {
-		return value.Nil, fmt.Errorf("LANDBOXES: count must be numeric")
+		return value.Nil, fmt.Errorf("LANDBOXES/LANDBOX: count must be numeric")
 	}
 	if n < 0 {
 		n = 0
@@ -70,7 +70,7 @@ func landBoxes(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		bh, okh := h.ArrayGetFloat(hh, int64(i))
 		bd, okd := h.ArrayGetFloat(hd, int64(i))
 		if !okx || !oky || !okz || !okw || !okh || !okd {
-			return value.Nil, fmt.Errorf("LANDBOXES: could not read platform index %d", i)
+			return value.Nil, fmt.Errorf("LANDBOXES/LANDBOX: could not read platform index %d", i)
 		}
 		snap := BoxTopLandSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
 		if snap > best {
@@ -82,7 +82,7 @@ func landBoxes(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 
 func arrayHandleArg(v value.Value, name string) (heap.Handle, error) {
 	if v.Kind != value.KindHandle {
-		return 0, fmt.Errorf("LANDBOXES: %s must be an array handle", name)
+		return 0, fmt.Errorf("LANDBOXES/LANDBOX: %s must be an array handle", name)
 	}
 	return heap.Handle(v.IVal), nil
 }

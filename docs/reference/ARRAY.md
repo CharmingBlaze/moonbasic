@@ -58,6 +58,10 @@ PRINT ARRAYLEN(my_array) ; Outputs 20
 
 Frees the memory used by an array. This is especially important for arrays returned by commands like `SPLIT$`.
 
+### `FREE.ALL`
+
+Frees **all** VM heap objects and clears every handle-typed **global** and **stack** slot (same as the statement **`ERASE ALL`**). See [MEMORY.md](../MEMORY.md).
+
 ---
 
 ## Full Example: Populating and Reading an Array

@@ -27,6 +27,7 @@ func registerAll(m *Module, r runtime.Registrar) {
 	r.Register("ARRAYJOINS$", "array", m.arrayJoins)
 	r.Register("ARRAYFREE", "array", m.arrayFree)
 	r.Register("ERASE", "array", m.arrayFree)
+	r.Register("FREE.ALL", "array", m.freeAll)
 }
 
 func (m *Module) getArr(v value.Value, op string) (*heap.Array, error) {
@@ -436,4 +437,14 @@ func (m *Module) arrayFree(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) freeAll(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("FREE.ALL expects 0 arguments")
+	}
+	if rt.EraseAllHandlesFn == nil {
+		return value.Nil, runtime.Errorf("FREE.ALL is only available while a program is running")
+	}
+	return value.Nil, rt.EraseAllHandlesFn()
 }

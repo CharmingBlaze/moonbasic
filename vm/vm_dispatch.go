@@ -58,6 +58,9 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 			_ = v.Heap.Free(heap.Handle(h.IVal))
 		}
 
+	case opcode.OpEraseAll:
+		return v.EraseAllHandles()
+
 	case opcode.OpArrayMake:
 		return v.doArrayMake(i)
 	case opcode.OpArrayGet:
@@ -309,6 +312,12 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 		return v.runtimeError(fmt.Sprintf("method %s called with invalid handle %d\n  Hint: Object may have been freed; do not use handles after FREE.", methodName, hVal.IVal))
 	}
 
+	// ENTITYREF wraps an integer entity id; ENTITY.* builtins expect that id as the first argument, not a heap handle.
+	firstReceiver := hVal
+	if er, ok := obj.(*heap.EntityRef); ok {
+		firstReceiver = value.FromInt(er.ID)
+	}
+
 	typeName := obj.TypeName()
 	methUp := strings.ToUpper(strings.TrimSpace(methodName))
 	key, prepend, mapped := handleCallBuiltin(typeName, methUp)
@@ -318,7 +327,7 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 		callKey = key
 		if prepend {
 			callArgs = make([]value.Value, 0, len(args)+1)
-			callArgs = append(callArgs, hVal)
+			callArgs = append(callArgs, firstReceiver)
 			callArgs = append(callArgs, args...)
 		} else {
 			callArgs = args

@@ -1,6 +1,23 @@
 # moonBASIC memory model (entity / scene)
 
-This document describes **ownership and cleanup** for the **ENTITY** module paths that use **raylib** (`rl.Model`, `rl.ModelAnimation`, procedural meshes). It is the reference for `ENTITY.LOADMESH`, `ENTITY.CREATEMESH`, `ENTITY.LOADANIMATEDMESH`, `ENTITY.COPY`, `ENTITY.SAVESCENE` / `ENTITY.LOADSCENE`, and `ENTITY.CLEARSCENE`.
+## VM heap: `ERASE ALL` / `FREE.ALL`
+
+**`ERASE ALL`** (statement) and **`FREE.ALL`** (builtin, no arguments) do the same thing:
+
+1. Call **`heap.Store.FreeAll`** — every registered **`HeapObject`** is released (including nested handles inside handle-arrays, with correct ordering).
+2. Set every **`KindHandle`** value in **global variables** and on the **operand stack** to **null**, so scripts cannot keep stale integer handles.
+
+Use this when tearing down a program or resetting a scene’s VM-backed resources in one step instead of many **`ERASE`** lines. **Do not** rely on it mid-expression: any handle temporarily on the stack for a pending operation would be cleared.
+
+**Example:** [`examples/mario64/main_orbit_simple.mb`](../examples/mario64/main_orbit_simple.mb) ends with **`ERASE ALL`** then **`Window.Close()`** after the main loop (camera + platform **`DIM`** arrays are VM handles).
+
+**Not covered:** numeric **entity IDs** from **`ENTITY.***` are **not** VM heap handles — use **`ENTITY.CLEARSCENE`** / **`ENTITY.FREE`** as before. **Window**, **input**, and other non–heap-backed state are unchanged.
+
+The identifier **`ALL`** is reserved for this statement form; do not use **`ALL`** as a variable name if you need **`ERASE varname`** for a single array.
+
+---
+
+This document also describes **ownership and cleanup** for the **ENTITY** module paths that use **raylib** (`rl.Model`, `rl.ModelAnimation`, procedural meshes). It is the reference for `ENTITY.LOADMESH`, `ENTITY.CREATEMESH`, `ENTITY.LOADANIMATEDMESH`, `ENTITY.COPY`, `ENTITY.SAVESCENE` / `ENTITY.LOADSCENE`, and `ENTITY.CLEARSCENE`.
 
 ## Three layers (short)
 
@@ -33,3 +50,9 @@ Successful loads validate `MeshCount > 0` after `LoadModel` / `LoadModelFromMesh
 ## ENTITY.CLEARSCENE
 
 Clears groups, resets `nextID` to 1, and frees every entity by calling **`entFree`** for each id so Raylib resources are always released.
+
+---
+
+## Game orbit helpers (`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`)
+
+These **`GAME`** builtins return **numeric floats only** (radians or distance delta). They do **not** allocate VM heap objects — **no `ERASE`**. Pair them with your own **`camYaw#` / `camPitch#` / `camDist#`** variables and **`Camera.SetOrbit`** (see [GAMEHELPERS.md](reference/GAMEHELPERS.md)).

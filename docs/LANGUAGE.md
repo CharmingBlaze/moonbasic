@@ -60,6 +60,8 @@ Read and write fields with **dot notation** on an indexed element: `arr(i).field
 
 **`ERASE(name)`** frees a typed array the same way as other `DIM` arrays when you are done with it. See [Array commands](reference/ARRAY.md) for `DIM`, lengths, and heap behaviour.
 
+**`ERASE ALL`** (the identifier **`ALL`**, case-insensitive) frees **every** VM heap object (arrays, cameras, textures, models, etc.), then sets **all** global and operand-stack values that held a handle to **null**. Equivalent callable form: **`FREE.ALL`**. Use at shutdown or scene resets — not in the middle of an expression. Does **not** replace **`ENTITY.CLEARSCENE`** / **`ENTITY.FREE`** for numeric entity IDs. Avoid naming a variable **`ALL`** if you need per-variable **`ERASE`**. Details: [MEMORY.md](MEMORY.md).
+
 ---
 
 ## Control Flow

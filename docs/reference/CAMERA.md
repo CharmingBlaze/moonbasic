@@ -10,9 +10,9 @@ Blitz3D-style **`Camera.Turn`**, **`Rotate`**, **`Orbit`**, **`Zoom`**, **`Follo
 
 ## 3D camera (`Camera.*`)
 
-### `Camera.Make()`
+### `Camera.Make()` / `Cam()` / `CAM()`
 
-Creates a default perspective camera. Returns a **handle** (`Camera3D`).
+Creates a default perspective camera. Returns a **handle** (`Camera3D`). **`Cam`** and **`CAM`** are aliases of **`Camera.Make`** (short Blitz-style names). Dot-syntax on the handle uses normal call syntax, for example **`cam.Pos(x,y,z)`**, **`cam.FOV(55)`**, **`cam.Orbit(tx,ty,tz,yaw,pitch,dist)`**, **`cam.LookAt(x,y,z)`**, **`cam.Zoom(amount)`** — see [BLITZ3D.md](BLITZ3D.md).
 
 ### `Camera.SetPos(camera, x#, y#, z#)` / `Camera.SetPosition(...)`
 
@@ -65,6 +65,8 @@ Translates **both** position and target by the delta (pan/strafe/fly without cha
 ### `Camera.SetOrbit(camera, tx#, ty#, tz#, yaw#, pitch#, distance#)`
 
 Third-person **spherical** orbit: places the eye on a shell around the target `(tx,ty,tz)` using **yaw** and **pitch** (radians) and **distance** (world units). Yaw follows the usual XZ orbit (sine on X, cosine on Z); pitch raises/lowers the camera.
+
+**Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw#` / `pitch#` / `dist#`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw#`**.
 
 ### `Camera.OrbitAround(camera, tx#, ty#, tz#, yaw#, distance#, cameraY#)` / `Camera.OrbitAroundDeg(...)`
 

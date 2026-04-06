@@ -4,6 +4,22 @@ Primitive 3D drawing via Raylib. **Call these between `Camera.Begin(cam)` and `C
 
 moonBASIC registers each command as **`Draw3D.*`** and also exposes the same behavior under **`Draw.*`** aliases (for example `Draw.Grid` → `DRAW3D.GRID`). Use either style; they are equivalent.
 
+### Short global names (easier to type)
+
+These builtins are **aliases** of the matching **`DRAW3D.*`** command (same argument lists). Handy in tight loops; long forms remain supported.
+
+| Short | Same as — meaning |
+|-------|---------------------|
+| **`BOX`** | `DRAW3D.CUBE` — solid axis-aligned box |
+| **`BOXW`** | `DRAW3D.CUBEWIRES` — wire box |
+| **`WIRECUBE`** | Same as **`BOXW`** — Blitz3D **`WireCube`** spelling |
+| **`BALL`** | `DRAW3D.SPHERE` — solid sphere |
+| **`BALLW`** | `DRAW3D.SPHEREWIRES` — wire sphere |
+| **`GRID3`** | `DRAW3D.GRID` — XZ reference grid |
+| **`FLAT`** | `DRAW3D.PLANE` — horizontal plane patch |
+| **`CAP`** | `DRAW3D.CAPSULE` — solid capsule |
+| **`CAPW`** | `DRAW3D.CAPSULEWIRES` — wire capsule |
+
 | `Draw3D` / `Draw` alias | Notes |
 |-------------------------|--------|
 | `Draw3D.Grid` / `Draw.Grid` | 2D name; same as `Draw3D.GRID`. |

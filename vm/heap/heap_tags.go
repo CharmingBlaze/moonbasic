@@ -89,4 +89,5 @@ const (
 	TagSpriteUI
 	TagParticle2D
 	TagRenderTexture
+	TagEntityRef // Blitz-style entity id wrapper for handle.Method dot syntax
 )

@@ -64,10 +64,12 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("ENTITY.UPDATE", "entity", runtime.AdaptLegacy(m.entUpdate))
 	r.Register("ENTITY.DRAWALL", "entity", runtime.AdaptLegacy(m.entDrawAll))
 	r.Register("CAMERA.FOLLOWENTITY", "entity", m.camFollowEntity)
+	registerBlitzEntityHandles(m, r)
 }
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {
+	clearEntityRefFreeHookIfOwner(m)
 	delete(entityStores, m)
 }
 

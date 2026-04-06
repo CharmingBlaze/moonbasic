@@ -4,6 +4,78 @@ High-level commands inspired by Blitz3D naming. **3D camera** and **entity** nat
 
 ---
 
+## Mental model: Blitz3D → moonBASIC
+
+| Blitz3D idea | moonBASIC |
+|--------------|-----------|
+| **`Graphics3D width, height, depth`** | **`Window.Open(w, h, title$)`** — depth is handled by the 3D camera / Z-buffer, not a third dimension argument. |
+| **`AmbientLight` / `CameraClsMode`** | **`Render.Clear(r,g,b)`** before **`Camera.Begin`**; sky colour is your clear. |
+| **`CreateCamera` / orbit the view** | **`cam = Camera.Make()`** then **`Camera.SetOrbit`** or **`Camera.Orbit`** (same math — see [CAMERA.md](CAMERA.md)). Third-person yaw/pitch/distance helpers: **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** ([GAMEHELPERS.md](GAMEHELPERS.md)). |
+| **`WireCube` / `Cube` (immediate)** | Short globals **`WIRECUBE`** / **`BOX`** (same as **`DRAW3D.CUBEWIRES`** / **`DRAW3D.CUBE`**) — see [DRAW3D.md](DRAW3D.md). |
+| **`MoveEntity` / `PositionEntity`** | **`Entity.MoveEntity`** / **`Entity.PositionEntity`** for **entity ids**; **dot-syntax** on **`CUBE`/`SPHERE`** handles below; for raw floats + **`LANDBOXES`** / **`LANDBOX`**, see **`examples/mario64/main_orbit_simple.mb`**. |
+| **`KeyHit` / `KeyDown`** | Flat **`KEYHIT(key)`** / **`KEYDOWN(key)`** (also **`GAME.KEYHIT`** / **`GAME.KEYDOWN`**). |
+| **`MouseXSpeed()` / `MouseYSpeed()`** | **`MOUSEXSPEED`** / **`MOUSEYSPEED`** or **`MDX`** / **`MDY`**. |
+| **`EndGraphics`** | **`Window.Close()`** after **`ERASE ALL`** if you used VM handles — [MEMORY.md](../MEMORY.md). |
+
+**Reference sketch** (immediate-mode 3D + orbit, no entities): [`examples/mario64/main_orbit_simple.mb`](../../examples/mario64/main_orbit_simple.mb) — **`DT`**, **`KEYHIT`**, **`BOX`**, **`WIRECUBE`**, **`FLAT`**, **`GRID3`**, **`Camera.SetOrbit`**, **`ERASE ALL`**.
+
+---
+
+## Dot-syntax entities (`CUBE` / `SPHERE` → `ENTITYREF`)
+
+Blitz3D used commands like **`ScaleEntity`**, **`PositionEntity`**, **`EntityColor`**. moonBASIC keeps the same **runtime** (**`ENTITY.*`** with integer ids) but also exposes **short constructors** that return a **heap handle** (**`ENTITYREF`**) so you can use **modern dot-syntax**:
+
+```moonbasic
+cube = CUBE()           ; or CUBE(w#, h#, d#)
+cube.Pos(0, 1.2, 5)
+cube.Scale(3, 0.35, 3)
+cube.Col(255, 140, 96)
+
+player = SPHERE(0.45)
+player.Pos(px#, py#, pz#)
+player.Col(40, 95, 200)
+```
+
+Handle methods are normal calls: **`receiver.Method(args)`** (parentheses required), not Blitz’s space-separated **`PositionEntity id, x, y, z`** form.
+
+| Dot method | Maps to | Notes |
+|------------|---------|--------|
+| **`Pos`** | **`Entity.SetPosition`** | Position in world space |
+| **`Scale`** | **`Entity.Scale`** | Non-uniform scale |
+| **`Rot`** | **`Entity.RotateEntity`** | **Absolute** euler (**radians**): pitch, yaw, roll |
+| **`Turn`** | **`Entity.TurnEntity`** | **Incremental** euler (**radians**) |
+| **`Move`** | **`Entity.Translate`** | World-space delta (**`Entity.Translate`**) |
+| **`Col`** / **`Color`** | **`Entity.Color`** | RGB **0–255** |
+| **`A`** | **`Entity.Alpha`** | |
+| **`Free`** | **`Entity.Free`** | Unloads native resources; invalidates the handle |
+| **`Hide`** / **`Show`** | **`Entity.Hide`** / **`Show`** | |
+
+**Immediate-mode** drawing (**`BOX`**, **`WIRECUBE`**, **`DRAW3D.SPHERE`**, …) is unchanged: those are **not** entity constructors. **`SPHERE(radius)`** here is the **entity** primitive; for one-off draws, use **`BALL`** / **`DRAW3D.SPHERE`** (see [DRAW3D.md](DRAW3D.md)).
+
+---
+
+## Short camera handle (`CAM()` / `Cam()`)
+
+**`cam = CAM()`** (alias of **`Camera.Make`**) returns the same **`Camera3D`** handle as **`Camera.Make`**. Prefer **dot methods** on the handle for short code:
+
+| Dot (as a call) | Registry |
+|-----|----------|
+| **`cam.Pos(x,y,z)`** | **`Camera.SetPos`** |
+| **`cam.FOV(deg)`** | **`Camera.SetFOV`** |
+| **`cam.Look(...)`** / **`cam.LookAt(...)`** | **`Camera.LookAt`** (same as **`SetTarget`**) |
+| **`cam.Orbit(...)`** / **`cam.SetOrbit(...)`** | **`Camera.SetOrbit`** |
+| **`cam.Zoom(amount)`** | **`Camera.Zoom`** |
+
+See [CAMERA.md](CAMERA.md) for full **`CAMERA.*`** reference.
+
+---
+
+## Landing helper alias
+
+**`LANDBOX`** is an alias of **`LANDBOXES`** (same 12 arguments). See [GAMEHELPERS.md](GAMEHELPERS.md).
+
+---
+
 ## Camera (`Camera.*` → `CAMERA.*`)
 
 | Command | Purpose |

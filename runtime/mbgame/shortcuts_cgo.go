@@ -4,6 +4,7 @@ package mbgame
 
 import (
 	"fmt"
+	"math"
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/input"
@@ -266,6 +267,67 @@ func (m *Module) registerShortcuts(r runtime.Registrar) {
 			return value.FromBool(false), nil
 		}
 		return value.FromBool(rl.IsGamepadButtonDown(gp, btn)), nil
+	})
+
+	// Third-person orbit input (no heap — float deltas only). See docs/reference/GAMEHELPERS.md.
+	regLegacy2("ORBITYAWDELTA", "GAME.ORBITYAWDELTA", func(args []value.Value) (value.Value, error) {
+		if len(args) != 5 {
+			return value.Nil, fmt.Errorf("ORBITYAWDELTA expects 5 arguments (dt#, mouseSens#, negKey, posKey, degPerSec#)")
+		}
+		dt, ok0 := args[0].ToFloat()
+		mouseSens, ok1 := args[1].ToFloat()
+		degPerSec, ok4 := args[4].ToFloat()
+		if !ok0 || !ok1 || !ok4 {
+			return value.Nil, fmt.Errorf("ORBITYAWDELTA: dt, mouseSens, degPerSec must be numeric")
+		}
+		kn, err := input.KeyCodeFromValue(args[2])
+		if err != nil {
+			return value.Nil, err
+		}
+		kp, err := input.KeyCodeFromValue(args[3])
+		if err != nil {
+			return value.Nil, err
+		}
+		var ax float64
+		neg := rl.IsKeyDown(kn)
+		pos := rl.IsKeyDown(kp)
+		if pos && !neg {
+			ax = 1.0
+		} else if neg && !pos {
+			ax = -1.0
+		}
+		keyboardDelta := ax * (degPerSec * math.Pi / 180.0) * dt
+		mouseDelta := 0.0
+		if rl.IsMouseButtonDown(rl.MouseRightButton) {
+			d := rl.GetMouseDelta()
+			mouseDelta = float64(d.X) * mouseSens
+		}
+		return value.FromFloat(keyboardDelta + mouseDelta), nil
+	})
+	regLegacy2("ORBITPITCHDELTA", "GAME.ORBITPITCHDELTA", func(args []value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("ORBITPITCHDELTA expects 1 argument (mouseSens#)")
+		}
+		s, ok := args[0].ToFloat()
+		if !ok {
+			return value.Nil, fmt.Errorf("ORBITPITCHDELTA: mouseSens must be numeric")
+		}
+		if !rl.IsMouseButtonDown(rl.MouseRightButton) {
+			return value.FromFloat(0), nil
+		}
+		d := rl.GetMouseDelta()
+		return value.FromFloat(-float64(d.Y) * s), nil
+	})
+	regLegacy2("ORBITDISTDELTA", "GAME.ORBITDISTDELTA", func(args []value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("ORBITDISTDELTA expects 1 argument (wheelScale#)")
+		}
+		s, ok := args[0].ToFloat()
+		if !ok {
+			return value.Nil, fmt.Errorf("ORBITDISTDELTA: wheelScale must be numeric")
+		}
+		w := float64(rl.GetMouseWheelMove())
+		return value.FromFloat(-w * s), nil
 	})
 }
 

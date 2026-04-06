@@ -91,6 +91,7 @@ const (
 	OpArrayRedim // Operand: dimension count; Flags: 1=preserve contents; stack: handle, dim0..dimN-1 (last dim pushed last)
 	OpArrayMakeTyped // Operand: type name index in Chunk.Names; Flags: dimension count; stack: dim sizes (same as ARRAY_MAKE)
 	OpNewFilled      // Operand: type name index; Flags: argument count; stack: field values in declaration order
+	OpEraseAll       // ERASE ALL — frees entire heap, nulls handle values in globals and operand stack
 )
 
 // Instruction is a fixed-width VM decoded unit (8 bytes, IR v2).
@@ -119,7 +120,7 @@ func (op OpCode) String() string {
 		"CALL_BUILTIN", "CALL_USER", "CALL_HANDLE", "RETURN", "RETURN_VOID",
 		"ARRAY_MAKE", "ARRAY_GET", "ARRAY_SET",
 		"NEW", "DELETE", "FIELD_GET", "FIELD_SET", "HALT",
-		"SWAP", "ARRAY_REDIM", "ARRAY_MAKE_TYPED", "NEW_FILLED",
+		"SWAP", "ARRAY_REDIM", "ARRAY_MAKE_TYPED", "NEW_FILLED", "ERASE_ALL",
 	}
 	if int(op) < 0 || int(op) >= len(names) {
 		return fmt.Sprintf("OP_%d", int(op))

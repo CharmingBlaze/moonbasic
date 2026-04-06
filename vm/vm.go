@@ -104,6 +104,9 @@ func (v *VM) Execute(prog *opcode.Program) error {
 	v.Registry.TerminateVM = func() { v.Halted = true }
 	defer func() { v.Registry.TerminateVM = nil }()
 
+	v.Registry.EraseAllHandlesFn = v.EraseAllHandles
+	defer func() { v.Registry.EraseAllHandlesFn = nil }()
+
 	// Push the <MAIN> chunk as our first call frame.
 	v.CallStack.Push(prog.Main, 0, 0)
 
@@ -141,6 +144,27 @@ func (v *VM) Execute(prog *opcode.Program) error {
 		return fmt.Errorf("[moonBASIC] stack hygiene: program finished with %d value(s) on operand stack (expected 0 after statements; see ARCHITECTURE §6)", len(v.Stack))
 	}
 
+	return nil
+}
+
+// EraseAllHandles runs [heap.Store.FreeAll], then sets every [value.KindHandle] in [VM.Globals]
+// and on the operand stack to nil. Intended for ERASE ALL / FREE.ALL when tearing down resources;
+// do not use in the middle of an expression that still expects a handle on the stack.
+func (v *VM) EraseAllHandles() error {
+	if v.Heap == nil {
+		return fmt.Errorf("EraseAllHandles: heap not bound")
+	}
+	v.Heap.FreeAll()
+	for name, val := range v.Globals {
+		if val.Kind == value.KindHandle {
+			v.Globals[name] = value.Nil
+		}
+	}
+	for i := range v.Stack {
+		if v.Stack[i].Kind == value.KindHandle {
+			v.Stack[i] = value.Nil
+		}
+	}
 	return nil
 }
 

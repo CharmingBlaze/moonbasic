@@ -54,6 +54,7 @@ func argHandle(v value.Value) (heap.Handle, bool) {
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.MAKE", "camera", runtime.AdaptLegacy(m.camMake))
+	r.Register("CAM", "camera", runtime.AdaptLegacy(m.camMake))
 	r.Register("CAMERA.SETPOS", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETPOSITION", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETTARGET", "camera", runtime.AdaptLegacy(m.camSetTarget))

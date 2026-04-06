@@ -369,7 +369,7 @@ type SwapStmt struct {
 func (n *SwapStmt) stmt()          {}
 func (n *SwapStmt) String() string { return fmt.Sprintf("Swap(%s,%s)", n.A, n.B) }
 
-// EraseStmt is ERASE arr — frees heap array and sets variable to NULL.
+// EraseStmt is ERASE name — frees heap array and sets variable to NULL, or ERASE ALL (see codegen).
 type EraseStmt struct {
 	Name string
 	Line int

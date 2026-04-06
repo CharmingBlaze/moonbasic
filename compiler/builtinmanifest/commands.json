@@ -1419,6 +1419,26 @@
       "description": "Best BOXTOPLAND snap Y over count boxes (parallel float arrays)"
     },
     {
+      "key": "LANDBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias of LANDBOXES"
+    },
+    {
       "key": "PLAYER.MOVERELATIVE",
       "args": [
         "float",
@@ -1470,6 +1490,62 @@
     {
       "key": "GAME.MWHEEL",
       "args": [],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.ORBITDISTDELTA",
+      "args": [
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.ORBITPITCHDELTA",
+      "args": [
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "GAME.ORBITYAWDELTA",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "ORBITDISTDELTA",
+      "args": [
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "ORBITPITCHDELTA",
+      "args": [
+        "float"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "ORBITYAWDELTA",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int",
+        "float"
+      ],
       "returns": "float",
       "phase": "rendering"
     },
@@ -2602,6 +2678,12 @@
     {
       "key": "CAMERA.MAKE",
       "args": []
+    },
+    {
+      "key": "CAM",
+      "args": [],
+      "returns": "handle",
+      "description": "Alias of CAMERA.MAKE — short Blitz-style 3D camera constructor"
     },
     {
       "key": "LIGHT.MAKE",
@@ -12262,6 +12344,10 @@
       ]
     },
     {
+      "key": "FREE.ALL",
+      "args": []
+    },
+    {
       "key": "ARGC",
       "args": []
     },
@@ -13202,6 +13288,145 @@
         "int",
         "int"
       ]
+    },
+    {
+      "key": "BOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.CUBE — solid axis-aligned box"
+    },
+    {
+      "key": "BOXW",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.CUBEWIRES — wire box"
+    },
+    {
+      "key": "WIRECUBE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.CUBEWIRES (Blitz3D WireCube spelling)"
+    },
+    {
+      "key": "BALL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.SPHERE — solid sphere"
+    },
+    {
+      "key": "BALLW",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.SPHEREWIRES — wire sphere"
+    },
+    {
+      "key": "GRID3",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "alias of DRAW3D.GRID — XZ reference grid"
+    },
+    {
+      "key": "FLAT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.PLANE — horizontal plane patch"
+    },
+    {
+      "key": "CAP",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.CAPSULE — solid capsule"
+    },
+    {
+      "key": "CAPW",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "alias of DRAW3D.CAPSULEWIRES — wire capsule"
     },
     {
       "key": "DRAW3D.CYLINDER",
@@ -14795,6 +15020,22 @@
       "returns": "int"
     },
     {
+      "key": "CUBE",
+      "args": [],
+      "returns": "handle",
+      "description": "Blitz-style static box entity (1×1×1); use CUBE(w,h,d) for dimensions — ENTITYREF handle"
+    },
+    {
+      "key": "CUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Blitz-style static box entity — ENTITYREF handle"
+    },
+    {
       "key": "ENTITY.CREATECUBE",
       "args": [
         "float",
@@ -14802,6 +15043,23 @@
         "float"
       ],
       "returns": "int"
+    },
+    {
+      "key": "SPHERE",
+      "args": [
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Blitz-style static sphere entity — ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)"
+    },
+    {
+      "key": "SPHERE",
+      "args": [
+        "float",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Blitz-style static sphere entity — ENTITYREF handle"
     },
     {
       "key": "ENTITY.CREATESPHERE",

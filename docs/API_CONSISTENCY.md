@@ -360,6 +360,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.GETVIEWRAY`** - args: float, float, handle, int, int
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float -> returns bool
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float, float -> returns bool
+- **`CAM`** - args: (none) -> returns handle — alias of **`CAMERA.MAKE`**
 - **`CAMERA.LOOKAT`** - args: handle, float, float, float
 - **`CAMERA.MAKE`** - args: (none)
 - **`CAMERA.MOUSERAY`** - args: handle -> returns handle
@@ -560,6 +561,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CVSHORT
 
 - **`CVSHORT`** - args: string
+
+### CUBE
+
+- **`CUBE`** - args: (none) -> returns handle — static box entity (**ENTITYREF**)
+- **`CUBE`** - args: float, float, float -> returns handle
 
 ### DATA
 
@@ -838,6 +844,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### ERASE
 
 - **`ERASE`** - args: handle
+
+### FREE.ALL
+
+- **`FREE.ALL`** - args: (none) — frees entire VM heap and nulls handle slots (same as **`ERASE ALL`**)
 
 ### ERR
 
@@ -1338,6 +1348,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`JSON.SETINT`** - args: handle, string, int
 - **`JSON.SETSTRING`** - args: handle, string, string
 - **`JSON.TOSTRING`** - args: handle -> returns string
+
+### LANDBOX
+
+- **`LANDBOX`** - args: float, float, float, float, float, any, any, any, any, any, any, any -> returns float — alias of **`LANDBOXES`**
 
 ### LANDBOXES
 
@@ -2329,6 +2343,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`SOUND.FREE`** - args: handle
 - **`SOUND.FROMWAVE`** - args: handle -> returns handle
+
+### SPHERE
+
+- **`SPHERE`** - args: float -> returns handle — static sphere entity (**ENTITYREF**)
+- **`SPHERE`** - args: float, int -> returns handle
 
 ### SPACE$
 

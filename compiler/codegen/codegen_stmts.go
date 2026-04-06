@@ -3,6 +3,7 @@ package codegen
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"moonbasic/compiler/ast"
 	"moonbasic/compiler/symtable"
@@ -146,6 +147,10 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 		ch.Emit(opcode.OpPop, 0, 0, n.Line)
 
 	case *ast.EraseStmt:
+		if strings.EqualFold(n.Name, "ALL") {
+			ch.Emit(opcode.OpEraseAll, 0, 0, n.Line)
+			break
+		}
 		g.emitLoadNamed(ch, n.Name, n.Line)
 		ch.Emit(opcode.OpDelete, 0, 0, n.Line)
 		ch.Emit(opcode.OpPushNull, 0, 0, n.Line)

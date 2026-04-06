@@ -120,6 +120,7 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 - **`DIM plat AS Platform(4)`** — array of a **record type** defined with **`TYPE` … `ENDTYPE`** (see [LANGUAGE.md](LANGUAGE.md)). Use **`plat(i) = Platform(...)`** and **`plat(i).field`**.
 - Some builtins return **handles** to heap arrays (e.g. `MEASURETEXTEX`, `GUI.GETCOLOR`). Index with the same `arr(i)` syntax as `DIM` arrays.
 - **`ERASE(name)`** — frees a `DIM` array or typed array and clears the variable when you no longer need it.
+- **`ERASE ALL`** / **`FREE.ALL`** — frees every VM heap object and nulls handle variables; see [MEMORY.md](MEMORY.md).
 - **`ARRAYFREE(handle)`** when you are done with a heap array you no longer need.
 
 ---
