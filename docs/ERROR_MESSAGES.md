@@ -10,6 +10,7 @@ When a call does not match the manifest (`compiler/builtinmanifest/commands.json
 - **Did-you-mean** — if another command in the same namespace is within edit distance ≤ 3 of the method name, the compiler suggests it (`compiler/semantic/cmdhint.go`).
 - **Wrong arity** — `NS.METHOD: no overload matches N argument(s)` plus an arity hint from the manifest.
 - **Wrong argument types** — which argument index, expected vs got, and a short fix hint.
+- **Record types (`TYPE` … `ENDTYPE`)** — unknown field name, wrong **`TypeName(...)`** field count vs the type definition, or field type mismatch (messages name the type and field).
 
 Source location always includes **file, line, column** and a **source line** excerpt when available (`compiler/errors`).
 

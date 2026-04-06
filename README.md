@@ -25,8 +25,7 @@ If you grew up on **Blitz BASIC** or **DarkBASIC** and wished that spirit existe
 Here is a compact 3D example (the [examples/spin_cube](examples/spin_cube/main.mb) demo adds a grid, `Draw.Text`, and proper `Free` calls):
 
 ```basic
-IF NOT Window.Open(960, 540, "Spinning cube") THEN END
-ENDIF
+Window.Open(960, 540, "Spinning cube")
 Window.SetFPS(60)
 
 cam = Camera.Make()

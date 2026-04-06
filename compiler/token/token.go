@@ -87,6 +87,7 @@ const (
 	XOR
 	MOD
 	DIM
+	AS
 	REDIM
 	PRESERVE
 	LOCAL
@@ -152,6 +153,7 @@ var keywords = map[string]TokenType{
 	"XOR":         XOR,
 	"MOD":         MOD,
 	"DIM":         DIM,
+	"AS":          AS,
 	"REDIM":       REDIM,
 	"PRESERVE":    PRESERVE,
 	"LOCAL":       LOCAL,
@@ -318,6 +320,8 @@ func (t TokenType) String() string {
 		return "XOR"
 	case MOD:
 		return "MOD"
+	case AS:
+		return "AS"
 	case DIM:
 		return "DIM"
 	case REDIM:

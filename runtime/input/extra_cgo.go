@@ -18,6 +18,7 @@ func (m *Module) registerInputAdvanced(r runtime.Registrar) {
 	r.Register("INPUT.MOUSEX", "input", runtime.AdaptLegacy(m.inMouseX))
 	r.Register("INPUT.MOUSEY", "input", runtime.AdaptLegacy(m.inMouseY))
 	r.Register("INPUT.MOUSEDOWN", "input", runtime.AdaptLegacy(m.inMouseDown))
+	r.Register("INPUT.MOUSEHIT", "input", runtime.AdaptLegacy(m.inMouseHit))
 	r.Register("INPUT.SETMOUSESCALE", "input", runtime.AdaptLegacy(m.inSetMouseScale))
 	r.Register("INPUT.SETMOUSEOFFSET", "input", runtime.AdaptLegacy(m.inSetMouseOffset))
 	r.Register("INPUT.GETMOUSEWORLDPOS", "input", runtime.AdaptLegacy(m.inGetMouseWorldPos))
@@ -66,6 +67,17 @@ func (m *Module) inMouseDown(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("INPUT.MOUSEDOWN: %w", err)
 	}
 	return value.FromBool(rl.IsMouseButtonDown(b)), nil
+}
+
+func (m *Module) inMouseHit(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("INPUT.MOUSEHIT expects 1 argument (button int)")
+	}
+	b, err := argMouseButton(args[0])
+	if err != nil {
+		return value.Nil, fmt.Errorf("INPUT.MOUSEHIT: %w", err)
+	}
+	return value.FromBool(rl.IsMouseButtonPressed(b)), nil
 }
 
 func (m *Module) inSetMouseScale(args []value.Value) (value.Value, error) {

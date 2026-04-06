@@ -1,0 +1,6 @@
+; RAY2D — unit ray along +X from origin toward circle at (5,0) r=1 → hit at x=4
+PRINT(RAY2D.HITCIRCLE_HIT(0, 0, 1, 0, 5, 0, 1))
+PRINT(FORMAT$(RAY2D.HITCIRCLE_DISTANCE(0, 0, 1, 0, 5, 0, 1), "%.1f"))
+; Ray vs rect [0,0]-[10,10] from (-1,5) direction +X
+PRINT(RAY2D.HITRECT_HIT(-1, 5, 1, 0, 0, 0, 10, 10))
+PRINT("RAY2D test OK")

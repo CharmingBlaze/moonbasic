@@ -24,6 +24,7 @@ func registerWeather(m *Module, r runtime.Registrar) {
 	r.Register("FOG.SETNEAR", "fog", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return fogSetNear(m, rt, args...) })
 	r.Register("FOG.SETFAR", "fog", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return fogSetFar(m, rt, args...) })
 	r.Register("FOG.SETCOLOR", "fog", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return fogSetColor(m, rt, args...) })
+	r.Register("FOG.SETRANGE", "fog", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return fogSetRange(m, rt, args...) })
 
 	r.Register("WIND.SET", "wind", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return windSet(m, rt, args...) })
 	r.Register("WIND.GETSTRENGTH", "wind", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return windGetStrength(m, rt, args...) })
@@ -166,6 +167,23 @@ func fogSetFar(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 		return value.Nil, err
 	}
 	m.FogFar = float32(v)
+	return value.Nil, nil
+}
+
+func fogSetRange(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("FOG.SETRANGE expects (near#, far#)")
+	}
+	near, err := rt.ArgFloat(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	far, err := rt.ArgFloat(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	m.FogNear = float32(near)
+	m.FogFar = float32(far)
 	return value.Nil, nil
 }
 

@@ -131,17 +131,30 @@ func (s *Store) Get(h Handle) (HeapObject, bool) {
 
 // Free explicitly releases and removes an object from the heap.
 func (s *Store) Free(h Handle) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.freeLocked(h)
+}
+
+// freeLocked frees a handle; mutex must be held. Recurses into handle arrays.
+func (s *Store) freeLocked(h Handle) error {
 	slot, gen := decodeHandle(h)
 	if h == 0 || int(slot) >= len(s.entries) {
 		return fmt.Errorf("heap: invalid handle %d", h)
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	e := &s.entries[slot]
 	if e.Obj == nil || e.Gen != gen {
 		return fmt.Errorf("heap: handle %d is stale or already freed", h)
+	}
+
+	if a, ok := e.Obj.(*Array); ok && a.Kind == ArrayKindHandle && len(a.Handles) > 0 {
+		kids := append([]int32(nil), a.Handles...)
+		for _, hid := range kids {
+			if hid != 0 {
+				_ = s.freeLocked(Handle(hid))
+			}
+		}
 	}
 
 	e.Obj.Free()

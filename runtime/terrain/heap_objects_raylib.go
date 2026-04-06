@@ -1,3 +1,5 @@
+//go:build cgo || (windows && !cgo)
+
 package terrain
 
 import (
@@ -34,7 +36,6 @@ type TerrainObject struct {
 	freed bool
 }
 
-// chunkSlot owns GPU mesh and default material per loaded chunk (see rebuildChunkMesh).
 // chunkSlot owns GPU mesh and default material for one terrain chunk (rebuildChunkMesh).
 type chunkSlot struct {
 	Mesh       rl.Mesh

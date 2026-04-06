@@ -7,6 +7,7 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/input"
+	mbtime "moonbasic/runtime/time"
 	"moonbasic/vm/value"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -54,10 +55,7 @@ func (m *Module) registerShortcuts(r runtime.Registrar) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("DT expects 0 arguments")
 		}
-		if rt != nil && rt.GamePaused {
-			return value.FromFloat(0), nil
-		}
-		return value.FromFloat(float64(rl.GetFrameTime())), nil
+		return value.FromFloat(mbtime.DeltaSeconds(rt)), nil
 	})
 	regLegacy2("FPS", "GAME.FPS", func(args []value.Value) (value.Value, error) {
 		if len(args) != 0 {
@@ -199,4 +197,99 @@ func (m *Module) registerShortcuts(r runtime.Registrar) {
 		}
 		return value.FromBool(false), nil
 	})
+
+	// Blitz-style aliases (see docs/reference/BLITZ3D.md)
+	regLegacy2("KEYHIT", "GAME.KEYHIT", func(args []value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("KEYHIT expects 1 argument")
+		}
+		kc, err := input.KeyCodeFromValue(args[0])
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromBool(rl.IsKeyPressed(kc)), nil
+	})
+	regLegacy2("MOUSEXSPEED", "GAME.MOUSEXSPEED", func(args []value.Value) (value.Value, error) {
+		if len(args) != 0 {
+			return value.Nil, fmt.Errorf("MOUSEXSPEED expects 0 arguments")
+		}
+		d := rl.GetMouseDelta()
+		return value.FromFloat(float64(d.X)), nil
+	})
+	regLegacy2("MOUSEYSPEED", "GAME.MOUSEYSPEED", func(args []value.Value) (value.Value, error) {
+		if len(args) != 0 {
+			return value.Nil, fmt.Errorf("MOUSEYSPEED expects 0 arguments")
+		}
+		d := rl.GetMouseDelta()
+		return value.FromFloat(float64(d.Y)), nil
+	})
+	regLegacy2("JOYX", "GAME.JOYX", func(args []value.Value) (value.Value, error) {
+		gp, ax, err := joyAxisArgs(args, rl.GamepadAxisLeftX)
+		if err != nil {
+			return value.Nil, err
+		}
+		if !rl.IsGamepadAvailable(gp) {
+			return value.FromFloat(0), nil
+		}
+		return value.FromFloat(float64(rl.GetGamepadAxisMovement(gp, ax))), nil
+	})
+	regLegacy2("JOYY", "GAME.JOYY", func(args []value.Value) (value.Value, error) {
+		gp, ax, err := joyAxisArgs(args, rl.GamepadAxisLeftY)
+		if err != nil {
+			return value.Nil, err
+		}
+		if !rl.IsGamepadAvailable(gp) {
+			return value.FromFloat(0), nil
+		}
+		return value.FromFloat(float64(rl.GetGamepadAxisMovement(gp, ax))), nil
+	})
+	regLegacy2("JOYBUTTON", "GAME.JOYBUTTON", func(args []value.Value) (value.Value, error) {
+		var gp, btn int32
+		switch len(args) {
+		case 1:
+			b, ok := args[0].ToInt()
+			if !ok || b < 0 {
+				return value.Nil, fmt.Errorf("JOYBUTTON: button index must be non-negative int")
+			}
+			gp, btn = 0, int32(b)
+		case 2:
+			g, ok1 := args[0].ToInt()
+			b, ok2 := args[1].ToInt()
+			if !ok1 || g < 0 || !ok2 || b < 0 {
+				return value.Nil, fmt.Errorf("JOYBUTTON: (gamepad#, button#) must be non-negative ints")
+			}
+			gp, btn = int32(g), int32(b)
+		default:
+			return value.Nil, fmt.Errorf("JOYBUTTON expects 1 or 2 arguments")
+		}
+		if !rl.IsGamepadAvailable(gp) {
+			return value.FromBool(false), nil
+		}
+		return value.FromBool(rl.IsGamepadButtonDown(gp, btn)), nil
+	})
+}
+
+func joyAxisArgs(args []value.Value, defaultAxis int32) (gp int32, ax int32, err error) {
+	switch len(args) {
+	case 0:
+		return 0, defaultAxis, nil
+	case 1:
+		i, ok := args[0].ToInt()
+		if !ok || i < 0 {
+			return 0, 0, fmt.Errorf("JOYX/JOYY: gamepad index must be non-negative int")
+		}
+		return int32(i), defaultAxis, nil
+	case 2:
+		i, ok := args[0].ToInt()
+		if !ok || i < 0 {
+			return 0, 0, fmt.Errorf("JOYX/JOYY: gamepad index must be non-negative int")
+		}
+		a, ok2 := args[1].ToInt()
+		if !ok2 || a < 0 {
+			return 0, 0, fmt.Errorf("JOYX/JOYY: axis index must be non-negative int")
+		}
+		return int32(i), int32(a), nil
+	default:
+		return 0, 0, fmt.Errorf("JOYX/JOYY: expected 0–2 arguments")
+	}
 }

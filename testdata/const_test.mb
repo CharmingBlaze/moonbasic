@@ -1,0 +1,8 @@
+; CONST types: float #, int default, string $
+CONST SPEED# = 10.0
+CONST COUNT = 100
+CONST NAME$ = "Bob"
+PRINT(SPEED#)
+PRINT(COUNT)
+PRINT(NAME$)
+PRINT("const_test OK")

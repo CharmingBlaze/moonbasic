@@ -225,28 +225,37 @@ func (p *Parser) parsePostfixChain(base ast.Expr) (ast.Expr, error) {
 				base = arena.Make(p.ar, ast.IndexExpr{Base: base, Index: args, Line: p.cur().Line, Col: p.cur().Col})
 			}
 		case token.DOT:
-			id, ok := base.(*ast.IdentNode)
-			if !ok {
-				return nil, p.failf("method call requires simple identifier receiver")
-			}
 			p.advance()
 			meth, err := p.expectIdent()
 			if err != nil {
 				return nil, err
 			}
-			if p.cur().Type == token.LPAREN {
-				args, err := p.parseArgList()
-				if err != nil {
-					return nil, err
-				}
-				if p.sym.IsVar(id.Name) {
-					base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: id.Name, Method: meth, Args: args, Line: id.Line, Col: id.Col})
+			switch id := base.(type) {
+			case *ast.IdentNode:
+				if p.cur().Type == token.LPAREN {
+					args, err := p.parseArgList()
+					if err != nil {
+						return nil, err
+					}
+					if p.sym.IsVar(id.Name) {
+						base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: id.Name, Method: meth, Args: args, Line: id.Line, Col: id.Col})
+					} else {
+						base = arena.Make(p.ar, ast.NamespaceCallExpr{NS: id.Name, Method: meth, Args: args, Line: id.Line, Col: id.Col})
+					}
 				} else {
-					base = arena.Make(p.ar, ast.NamespaceCallExpr{NS: id.Name, Method: meth, Args: args, Line: id.Line, Col: id.Col})
+					base = arena.Make(p.ar, ast.FieldAccessNode{Object: id.Name, Field: meth, Line: id.Line, Col: id.Col})
 				}
-			} else {
-				// No parens = Field Access (e.g. p.name)
-				base = arena.Make(p.ar, ast.FieldAccessNode{Object: id.Name, Field: meth, Line: id.Line, Col: id.Col})
+			case *ast.IndexExpr:
+				arrID, ok := id.Base.(*ast.IdentNode)
+				if !ok {
+					return nil, p.failf("indexed field access requires a named array")
+				}
+				if p.cur().Type == token.LPAREN {
+					return nil, p.failf("cannot call method on array element (use a variable)")
+				}
+				base = arena.Make(p.ar, ast.IndexFieldExpr{Array: arrID.Name, Index: id.Index, Field: meth, Line: id.Line, Col: id.Col})
+			default:
+				return nil, p.failf("field access requires identifier or array index expression")
 			}
 		default:
 			return base, nil

@@ -14,6 +14,7 @@ func (m *Module) registerInputAdvanced(reg runtime.Registrar) {
 	reg.Register("INPUT.MOUSEX", "input", stubErr(hint, "INPUT.MOUSEX"))
 	reg.Register("INPUT.MOUSEY", "input", stubErr(hint, "INPUT.MOUSEY"))
 	reg.Register("INPUT.MOUSEDOWN", "input", stubErr(hint, "INPUT.MOUSEDOWN"))
+	reg.Register("INPUT.MOUSEHIT", "input", stubErr(hint, "INPUT.MOUSEHIT"))
 	reg.Register("INPUT.SETMOUSESCALE", "input", stubErr(hint, "INPUT.SETMOUSESCALE"))
 	reg.Register("INPUT.SETMOUSEOFFSET", "input", stubErr(hint, "INPUT.SETMOUSEOFFSET"))
 	reg.Register("INPUT.GETMOUSEWORLDPOS", "input", stubErr(hint, "INPUT.GETMOUSEWORLDPOS"))

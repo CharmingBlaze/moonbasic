@@ -6,6 +6,8 @@
 
 ---
 
+Blitz3D-style **`Camera.Turn`**, **`Rotate`**, **`Orbit`**, **`Zoom`**, **`Follow`**, and entity-based **`Camera.FollowEntity`** are documented in **[BLITZ3D.md](BLITZ3D.md)**.
+
 ## 3D camera (`Camera.*`)
 
 ### `Camera.Make()`
@@ -28,7 +30,21 @@ Alias of **`Camera.SetTarget`** (same arguments and behaviour).
 
 Sets the Raylib projection mode: **`0`** = perspective (**`CameraPerspective`**), **`1`** = orthographic (**`CameraOrthographic`**). In orthographic mode, **`fovy`** is interpreted as the **near-plane height** in world units (Raylib convention).
 
-**Note:** Raylib’s **`Camera3D`** does not store separate **near** / **far** clip distances; clipping uses the engine defaults. For **draw-distance** limits in scripts, use **`Cull.SetMaxDistance`** / **`Cull.InRange`** (see § Culling below), not a hypothetical `CAMERA.SETRANGE`.
+### `Camera.SetRange(camera, near#, far#)`
+
+Calls **`rl.SetClipPlanes`** before **`Camera.Begin`** for that camera (when **near** &lt; **far** and both positive). This is separate from software **`Cull.*`** distance tests.
+
+### `Camera.SetActive(camera)` / `Camera.GetActive()`
+
+**`SetActive`** records the handle for tooling; **`GetActive`** returns the last handle passed to **`Camera.Begin`** (or **`SetActive`**), or **0** if none.
+
+### `Camera.WorldToScreen2D(camera, wx#, wy#, wz#)`
+
+Alias of **`Camera.WorldToScreen`** — returns a **2-element** float array **\[sx, sy\]**.
+
+### `Camera.SetFPSMode(camera, sensitivity#)` / `Camera.ClearFPSMode(camera)` / `Camera.UpdateFPS(camera)`
+
+**`SetFPSMode`** disables the OS cursor; each frame call **`Camera.UpdateFPS`** to run Raylib **`UpdateCamera`** in **first-person** mode. **`ClearFPSMode`** shows the cursor again.
 
 ### `Camera.SetFOV(camera, fovy#)`
 
@@ -46,9 +62,19 @@ Ends 3D mode (flushes deferred 3D work, then `EndMode3D`).
 
 Translates **both** position and target by the delta (pan/strafe/fly without changing orientation).
 
+### `Camera.SetOrbit(camera, tx#, ty#, tz#, yaw#, pitch#, distance#)`
+
+Third-person **spherical** orbit: places the eye on a shell around the target `(tx,ty,tz)` using **yaw** and **pitch** (radians) and **distance** (world units). Yaw follows the usual XZ orbit (sine on X, cosine on Z); pitch raises/lowers the camera.
+
+### `Camera.OrbitAround(camera, tx#, ty#, tz#, yaw#, distance#, cameraY#)` / `Camera.OrbitAroundDeg(...)`
+
+Simpler **third-person** placement: camera stays at fixed world height **`cameraY#`**, orbiting the target on the **XZ** plane at **distance** from `(tx,tz)`, with horizontal angle **`yaw#`** in **radians** (`OrbitAround`) or **degrees** (`OrbitAroundDeg`). Sets both position and target (target is `(tx,ty,tz)`).
+
+**Keyboard orbit:** store **`yaw#`** in radians, then each frame add **`Input.AxisDeg(negKey, posKey, degreesPerSec#, dt#)`** (same as **`Input.Axis` × `DEGPERSEC`**). Move the player with **`MOVESTEPX`/`MOVESTEPZ`** or **`MOVEX`/`MOVEZ`** × speed × **`dt#`** using the same **`yaw#`** so walking matches the camera. See **`examples/mario64/main_v2.mb`** and [INPUT.md](INPUT.md).
+
 ### `Camera.GetRay(camera, screenX#, screenY#)`
 
-Screen-space to world **ray** for the **current render size**. Returns a **handle** to a **6-float array**: origin `(x,y,z)` then direction `(dx,dy,dz)`. Use with `Draw3D.Ray` or your own picking.
+Screen-space to world **ray** for the **current render size**. Returns a **handle** to a **6-float array**: origin `(x,y,z)` then direction `(dx,dy,dz)`. Use with `Draw3D.Ray`, **`RAY.MAKE`** with the same six components, or **`RAY.HITSPHERE_*`** / other **`RAY.HIT*_*`** queries — see **[RAYCAST.md](RAYCAST.md)**.
 
 ### `Camera.GetViewRay(screenX#, screenY#, camera, width, height)`
 
@@ -193,6 +219,18 @@ Each returns a **handle** to a **2-float array** `[x#, y#]` for the converted po
 ### `Camera2D.Free(camera)`
 
 Frees the **`Camera2D`** heap object (symmetric with **`Camera.Free`** for 3D cameras).
+
+### `Camera2D.Follow(camera, sprite, speed#, dt#)`
+
+Smoothly moves the camera **target** toward the sprite’s world position (requires **`SPRITE.*`**).
+
+### `Camera2D.ZoomToMouse(camera, delta#)` / `Camera2D.ZoomIn` / `Camera2D.ZoomOut`
+
+**`ZoomToMouse`** adjusts zoom while keeping the world point under the cursor fixed; **`ZoomIn`** / **`ZoomOut`** add or subtract zoom amount.
+
+### `Camera2D.Rotation` / `Camera2D.TargetX` / `Camera2D.TargetY`
+
+Read rotation (degrees) and target **X** / **Y**.
 
 ---
 

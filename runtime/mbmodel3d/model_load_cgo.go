@@ -25,7 +25,7 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		mod := rl.LoadModel(path)
-		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: path})
+		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: path, animSpeed: 1})
 		if err != nil {
 			return value.Nil, err
 		}
@@ -47,7 +47,7 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		}
 		mod := rl.LoadModelFromMesh(o.m)
 		o.consumedByModel = true
-		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: ""})
+		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: "", animSpeed: 1})
 		if err != nil {
 			o.consumedByModel = false
 			rl.UnloadModel(mod)

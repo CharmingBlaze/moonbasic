@@ -4,6 +4,7 @@ package window
 
 import (
 	"fmt"
+	"os"
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
@@ -38,6 +39,7 @@ func clampU8(v int64) uint8 {
 
 func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("WINDOW.OPEN", "window", m.wOpen)
+	reg.Register("WINDOW.CANOPEN", "window", m.wCanOpen)
 	reg.Register("WINDOW.SETFPS", "window", m.wSetFPS)
 	reg.Register("WINDOW.CLOSE", "window", m.wClose)
 	reg.Register("WINDOW.SHOULDCLOSE", "window", m.wShouldClose)
@@ -84,7 +86,8 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		rl.CloseWindow()
 		m.opened = false
 		m.inFrame = false
-		return value.FromBool(false), nil
+		fmt.Fprintf(os.Stderr, "moonBASIC: could not open window %dx%d %q\n", w, h, title)
+		os.Exit(1)
 	}
 	m.opened = true
 	m.inFrame = false
@@ -92,7 +95,28 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	if m.onAudioOpen != nil {
 		m.onAudioOpen()
 	}
-	return value.FromBool(true), nil
+	return value.Nil, nil
+}
+
+func (m *Module) wCanOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("WINDOW.CANOPEN expects 3 arguments (width, height, title$)")
+	}
+	w, okw := argInt(args[0])
+	h, okh := argInt(args[1])
+	if !okw || !okh {
+		return value.Nil, fmt.Errorf("WINDOW.CANOPEN: width and height must be numeric")
+	}
+	if args[2].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("WINDOW.CANOPEN: title must be a string")
+	}
+	title, err := rt.ArgString(args, 2)
+	if err != nil {
+		return value.Nil, err
+	}
+	ok := w > 0 && h > 0 && title != ""
+	return value.FromBool(ok), nil
 }
 
 func (m *Module) wSetFPS(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

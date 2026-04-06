@@ -117,10 +117,13 @@ func (p *Parser) parseTypeDef() (*ast.TypeDef, error) {
 			p.advance()
 			break
 		}
-		if p.cur().Type != token.FIELD {
-			return nil, p.failf("expected FIELD or ENDTYPE, got %s", p.cur().Type.String())
+		if p.cur().Type == token.FIELD {
+			p.advance()
 		}
-		p.advance()
+		// Comma-separated field names (with optional FIELD keyword on the line).
+		if p.cur().Type != token.IDENT {
+			return nil, p.failf("expected FIELD, identifier, or ENDTYPE, got %s", p.cur().Type.String())
+		}
 		for {
 			fname, err2 := p.expectIdent()
 			if err2 != nil {

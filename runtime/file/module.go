@@ -83,6 +83,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("WRITEFILELN", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return m.Run(rt, "FILE.WRITELN", args...)
 	})
+	m.registerFileExtras(r)
 }
 
 // Shutdown implements runtime.Module.

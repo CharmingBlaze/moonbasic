@@ -33,6 +33,7 @@ If you use a compiled `moonbasic` binary, replace `go run .` with `moonbasic`.
 | [fps](fps/main.mb) | Top-down arena + moving targets |
 | [racing](racing/main.mb) | Top-down car + checkpoints / lap counter |
 | [rpg](rpg/main.mb) | Tile-style movement + JSON save on exit |
+| [mario64](mario64/README.md) | 3D hop — **`README.md`** compares `main.mb` / `main_v2.mb` / `main_v3.mb` (orbit camera, platforms) |
 
 ## Fonts and assets
 

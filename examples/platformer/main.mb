@@ -1,10 +1,7 @@
 ; Minimal platformer: run, jump, one floating platform, ground.
 ; Run from repo root: CGO_ENABLED=1 go run . examples/platformer/main.mb
 
-IF NOT Window.Open(960, 540, "moonBASIC Platformer") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(960, 540, "moonBASIC Platformer")
 Window.SetFPS(60)
 
 px# = 120

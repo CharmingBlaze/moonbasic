@@ -75,6 +75,22 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("BODY2D.Y", "physics2d", m.bdY)
 	r.Register("BODY2D.ROT", "physics2d", m.bdRot)
 	r.Register("BODY2D.FREE", "physics2d", m.bdFree)
+
+	r.Register("BODY2D.SETPOS", "physics2d", m.bdSetPos)
+	r.Register("BODY2D.GETPOS", "physics2d", m.bdGetPos)
+	r.Register("BODY2D.SETROT", "physics2d", m.bdSetRot)
+	r.Register("BODY2D.GETROT", "physics2d", m.bdGetRot)
+	r.Register("BODY2D.SETMASS", "physics2d", m.bdSetMass)
+	r.Register("BODY2D.SETFRICTION", "physics2d", m.bdSetFriction)
+	r.Register("BODY2D.SETRESTITUTION", "physics2d", m.bdSetRestitution)
+	r.Register("BODY2D.APPLYFORCE", "physics2d", m.bdApplyForce)
+	r.Register("BODY2D.APPLYIMPULSE", "physics2d", m.bdApplyImpulse)
+
+	// BOX2D aliases (legacy compatible names)
+	r.Register("BOX2D.WORLDCREATE", "physics2d", m.phStart)
+	r.Register("BOX2D.BODYCREATE", "physics2d", m.bdMake)
+	r.Register("BOX2D.FIXTUREBOX", "physics2d", m.bdAddRect)
+	r.Register("BOX2D.FIXTURECIRCLE", "physics2d", m.bdAddCircle)
 }
 
 var globalWorld *physics2dObj
@@ -258,7 +274,7 @@ func (m *Module) bdCommit(rt *runtime.Runtime, args ...value.Value) (value.Value
 }
 
 func (m *Module) bdX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	o, err := heap.Cast[*body2dObj](m.h, heap.Handle(args[0].IVal))
+	o, err := m.getBody(args, 0, "BODY2D.X")
 	if err != nil {
 		return value.Nil, err
 	}
@@ -266,7 +282,7 @@ func (m *Module) bdX(rt *runtime.Runtime, args ...value.Value) (value.Value, err
 }
 
 func (m *Module) bdY(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	o, err := heap.Cast[*body2dObj](m.h, heap.Handle(args[0].IVal))
+	o, err := m.getBody(args, 0, "BODY2D.Y")
 	if err != nil {
 		return value.Nil, err
 	}
@@ -274,7 +290,7 @@ func (m *Module) bdY(rt *runtime.Runtime, args ...value.Value) (value.Value, err
 }
 
 func (m *Module) bdRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	o, err := heap.Cast[*body2dObj](m.h, heap.Handle(args[0].IVal))
+	o, err := m.getBody(args, 0, "BODY2D.ROT")
 	if err != nil {
 		return value.Nil, err
 	}
@@ -282,8 +298,143 @@ func (m *Module) bdRot(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 }
 
 func (m *Module) bdFree(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY2D.FREE expects handle")
+	}
 	if err := m.h.Free(heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, err
 	}
+	return value.Nil, nil
+}
+
+func (m *Module) getBody(args []value.Value, ix int, op string) (*body2dObj, error) {
+	if ix >= len(args) || args[ix].Kind != value.KindHandle {
+		return nil, fmt.Errorf("%s: expected Body2D handle", op)
+	}
+	return heap.Cast[*body2dObj](m.h, heap.Handle(args[ix].IVal))
+}
+
+func (m *Module) bdSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETPOS")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("BODY2D.SETPOS expects (handle, x, y)")
+	}
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	o.body.SetTransform(box2d.MakeB2Vec2(x, y), o.body.GetAngle())
+	return value.Nil, nil
+}
+
+func (m *Module) bdGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETPOS")
+	if err != nil {
+		return value.Nil, err
+	}
+	pos := o.body.GetPosition()
+	p := heap.NewInstance("Point2D")
+	p.SetField("x", value.FromFloat(pos.X))
+	p.SetField("y", value.FromFloat(pos.Y))
+	id, err := m.h.Alloc(p)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) bdSetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETROT")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("BODY2D.SETROT expects (handle, angle#)")
+	}
+	a, _ := args[1].ToFloat()
+	o.body.SetTransform(o.body.GetPosition(), a)
+	return value.Nil, nil
+}
+
+func (m *Module) bdGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETROT")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(o.body.GetAngle()), nil
+}
+
+func (m *Module) bdSetMass(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETMASS")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("BODY2D.SETMASS expects (handle, mass#)")
+	}
+	mval, _ := args[1].ToFloat()
+	var data box2d.B2MassData
+	o.body.GetMassData(&data)
+	data.Mass = float64(mval)
+	o.body.SetMassData(&data)
+	return value.Nil, nil
+}
+
+func (m *Module) bdSetFriction(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETFRICTION")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("BODY2D.SETFRICTION expects (handle, friction#)")
+	}
+	fval, _ := args[1].ToFloat()
+	for f := o.body.GetFixtureList(); f != nil; f = f.GetNext() {
+		f.SetFriction(fval)
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) bdSetRestitution(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETRESTITUTION")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("BODY2D.SETRESTITUTION expects (handle, bouncy#)")
+	}
+	rval, _ := args[1].ToFloat()
+	for f := o.body.GetFixtureList(); f != nil; f = f.GetNext() {
+		f.SetRestitution(rval)
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) bdApplyForce(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.APPLYFORCE")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("BODY2D.APPLYFORCE expects (handle, fx#, fy#)")
+	}
+	fx, _ := args[1].ToFloat()
+	fy, _ := args[2].ToFloat()
+	o.body.ApplyForceToCenter(box2d.MakeB2Vec2(fx, fy), true)
+	return value.Nil, nil
+}
+
+func (m *Module) bdApplyImpulse(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.APPLYIMPULSE")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("BODY2D.APPLYIMPULSE expects (handle, ix#, iy#)")
+	}
+	ix, _ := args[1].ToFloat()
+	iy, _ := args[2].ToFloat()
+	o.body.ApplyLinearImpulseToCenter(box2d.MakeB2Vec2(ix, iy), true)
 	return value.Nil, nil
 }

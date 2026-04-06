@@ -127,6 +127,45 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 			}
 			p.skipNewlines()
 			switch p.cur().Type {
+			case token.DOT:
+				p.advance()
+				field, errDot := p.expectIdent()
+				if errDot != nil {
+					return nil, errDot
+				}
+				p.skipNewlines()
+				switch p.cur().Type {
+				case token.EQ:
+					p.advance()
+					rhs, err2 := p.parseExpr()
+					if err2 != nil {
+						return nil, err2
+					}
+					return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: rhs, Line: line, Col: col}), nil
+				case token.PLUSEQ, token.MINUSEQ, token.STAREQ, token.SLASHEQ:
+					op := p.cur().Type
+					p.advance()
+					rhs, err2 := p.parseExpr()
+					if err2 != nil {
+						return nil, err2
+					}
+					var binOp string
+					switch op {
+					case token.PLUSEQ:
+						binOp = "+"
+					case token.MINUSEQ:
+						binOp = "-"
+					case token.STAREQ:
+						binOp = "*"
+					case token.SLASHEQ:
+						binOp = "/"
+					}
+					load := arena.Make(p.ar, ast.IndexFieldExpr{Array: name, Index: args, Field: field, Line: line, Col: col})
+					bin := arena.Make(p.ar, ast.BinopNode{Op: binOp, Left: load, Right: rhs, Line: line, Col: col})
+					return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: bin, Line: line, Col: col}), nil
+				default:
+					return nil, p.failf("expected '=' or compound assign after %s(...).%s", name, field)
+				}
 			case token.EQ:
 				p.advance()
 				rhs, err2 := p.parseExpr()
@@ -375,13 +414,22 @@ func (p *Parser) parseDim() (ast.Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+	elemType := ""
+	if !isRedim && p.cur().Type == token.AS {
+		p.advance()
+		tn, err2 := p.expectIdent()
+		if err2 != nil {
+			return nil, err2
+		}
+		elemType = tn
+	}
 	args, err := p.parseArgList()
 	if err != nil {
 		return nil, err
 	}
 	p.defineAssignedName(name)
 	return arena.Make(p.ar, ast.DimNode{
-		Name: name, Dims: args, Line: line, Col: col,
+		Name: name, ElemType: elemType, Dims: args, Line: line, Col: col,
 		IsRedim: isRedim, Preserve: preserve,
 	}), nil
 }

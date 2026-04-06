@@ -34,6 +34,32 @@ ENDFUNCTION
 - **`LOCAL`**: Declare a variable that only exists within the current `FUNCTION`.
 - **`STATIC`**: Declare a variable inside a function that retains its value between function calls.
 
+### Record types (`TYPE` … `ENDTYPE`)
+
+You can define **named record types** at global scope (before use). Fields use the same **suffix rules** as variables (`#` float, `$` string, `?` boolean, plain name = integer). Types are **value data only** (no methods).
+
+```basic
+TYPE Platform
+    x#, y#, z#
+    w#, h#, d#
+    r, g, b
+ENDTYPE
+```
+
+Allocate a **typed array** with **`DIM name AS TypeName(count)`**. Indices run from `0` to `count - 1`. Set an element with the **`TypeName(...)` constructor**, passing values in **field declaration order**:
+
+```basic
+CONST N = 4
+DIM plat AS Platform(N)
+plat(0) = Platform(0.0, 1.5, 6.0, 4.0, 0.4, 4.0, 255, 60, 200)
+PRINT plat(0).x#
+plat(0).r = 200
+```
+
+Read and write fields with **dot notation** on an indexed element: `arr(i).field` or `arr(i).field# = expr`.
+
+**`ERASE(name)`** frees a typed array the same way as other `DIM` arrays when you are done with it. See [Array commands](reference/ARRAY.md) for `DIM`, lengths, and heap behaviour.
+
 ---
 
 ## Control Flow
@@ -162,6 +188,32 @@ PRINT result ; Outputs 15
 ### Returning Values
 
 Use the `RETURN` keyword to send a value back from a function. The type of the returned value is determined by the value itself (e.g., `RETURN 5` returns an integer, `RETURN "hello"` returns a string).
+
+### Multiple results with a float array
+
+There is no multi-value `RETURN` tuple yet. For landing on a box top from a sphere, **`BOXTOPLAND`** returns a **single float** (landing centre Y or `0.0`) — see [GAMEHELPERS.md](reference/GAMEHELPERS.md). For other cases where you need two or more numbers, pack them into a **small float array** and return that handle. The caller reads `result#(0)`, `result#(1)`, then **`ERASE(result#)`** when done.
+
+```basic
+FUNCTION PlatformSnap(px#, py#, pz#, pvy#, pr#, bx#, by#, bz#, bw#, bh#, bd#)
+    DIM r#(2)
+    r#(0) = 0.0
+    r#(1) = py#
+    landY# = BOXTOPLAND(px#, py#, pz#, pvy#, pr#, bx#, by#, bz#, bw#, bh#, bd#)
+    IF landY# > 0.0 THEN
+        r#(0) = 1.0
+        r#(1) = landY#
+    ENDIF
+    RETURN r#
+ENDFUNCTION
+
+h# = PlatformSnap(px#, py#, pz#, pvy#, pr#, 0.0, 1.5, 6.0, 4.0, 0.4, 4.0)
+IF h#(0) THEN
+    py# = h#(1)
+ENDIF
+ERASE h#
+```
+
+Use **`LOCAL`** inside `FUNCTION` for temporaries so names do not collide with globals.
 
 ### Exiting Functions
 

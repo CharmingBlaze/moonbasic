@@ -1,91 +1,35 @@
-# moonBASIC memory model
+# moonBASIC memory model (entity / scene)
 
-This document describes how **Go**, **CGo/native** (Raylib, optional Jolt/ENet), and the **handle table** interact. It is the reference for contributors auditing leaks or adding new `HeapObject` types.
+This document describes **ownership and cleanup** for the **ENTITY** module paths that use **raylib** (`rl.Model`, `rl.ModelAnimation`, procedural meshes). It is the reference for `ENTITY.LOADMESH`, `ENTITY.CREATEMESH`, `ENTITY.LOADANIMATEDMESH`, `ENTITY.COPY`, `ENTITY.SAVESCENE` / `ENTITY.LOADSCENE`, and `ENTITY.CLEARSCENE`.
 
-## 3D shadows and VRAM
+## Three layers (short)
 
-The deferred PBR path allocates **one** shadow depth render texture (`RenderTexture2D`) sized **`RENDER.SETSHADOWMAPSIZE` × same** (plus depth buffer). It is reused every frame—**not** per light. Only **one** light may cast shadows at a time (`LIGHT.SETSHADOW`); switching casters reuses the same GPU target.
+1. **Go heap** — `ent` structs, maps, slices: freed when unreferenced (GC).
+2. **CGo / raylib** — `rl.LoadModel`, `rl.LoadModelAnimations`, `rl.GenMeshCube` / `rl.LoadModelFromMesh`: **not** visible to the Go GC; must be released with `rl.UnloadModel` / `rl.UnloadModelAnimations` / `rl.UnloadMesh` as documented by raylib.
+3. **Entity IDs** — integer handles into `entityStore.ents`; **not** the same as VM heap handles. Lifetime is managed only by **ENTITY.FREE** and **ENTITY.CLEARSCENE** (and failed **ENTITY.LOADSCENE** rollback — see below).
 
-`LIGHT.*` handles are **CPU-side** (no Raylib objects); freeing a light does **not** free the global shadow map—that lives until resolution changes or the app exits. Lowering **`RENDER.SETSHADOWMAPSIZE`** is the main lever to reduce shadow VRAM.
+## What each entity owns
 
-## Compile-time `INCLUDE`
+| Field / state | Owned? | Released in |
+|---------------|--------|-------------|
+| `rlModel` when `hasRLModel` | Yes | `entFree`: `UnloadModelAnimations` then `UnloadModel` |
+| `modelAnims` | Yes | `entFree`: `UnloadModelAnimations` before model |
+| Procedural mesh used only to build the model | Yes (transient) | `CREATEMESH` / scene mesh: `UnloadMesh` immediately after `LoadModelFromMesh` |
 
-`INCLUDE "file.mb"` is expanded **before** bytecode generation (`compiler/include`). Each distinct resolved path is read and parsed **once** per compilation; repeated includes of the same file are no-ops (include-guard semantics), so shared libraries do not duplicate statements or AST work.
+**Destruction order** (required by raylib): unload **animations first**, then **model**.
 
-The pipeline may parse the merged program into a compile-time **arena** (`arena.Arena` in `CompileSource`); that memory is tied to the compile and is reset after the `opcode.Program` is built. **Runtime** memory rules above apply to handles created while the script runs — `INCLUDE` does not add per-frame allocation.
+## ENTITY.LOADSCENE and partial failure
 
-## Three layers
+`ENTITY.LOADSCENE` clears the scene, then builds entities in a loop. If **any** step fails after Raylib resources were created, the implementation sets a **rollback** flag: on return with error it calls **`ENTITY.CLEARSCENE`**, which walks all entities and calls **`ENTITY.FREE`** for each, so **no `rl.Model` / animation array is left allocated** for entities that were only partially loaded.
 
-```mermaid
-flowchart TB
-  subgraph goLayer [Go heap]
-    structs[Structs slices maps]
-  end
-  subgraph cgoLayer [Native resources]
-    rl[Raylib textures meshes shaders]
-    phy[Jolt / ENet / optional libs]
-  end
-  subgraph handleLayer [Handle table vm/heap.Store]
-    ho[HeapObject.Free]
-  end
-  structs --> ho
-  ho --> rl
-  ho --> phy
-```
+Successful loads validate `MeshCount > 0` after `LoadModel` / `LoadModelFromMesh` so empty failed loads do not commit live entities.
 
-1. **Go heap** — Managed by the GC. Ordinary Go values, slices backing arrays, string pool metadata in the heap store, etc.
-2. **CGo / native** — **Not** traced by the Go GC. Every `rl.Load*`, `rl.GenMesh*`, `enet.NewHost`, Jolt body/shape, etc. must have a matching `Unload*`, `Destroy`, or library-specific teardown. These calls run inside `HeapObject.Free()` (or module shutdown for globals such as `CloseWindow`).
-3. **Handle table** — `vm/heap.Store` registers each resource that is exposed to moonBASIC as an opaque handle. See [`vm/heap/heap.go`](../vm/heap/heap.go): `Alloc`, `Free`, `FreeAll`, generation bits for use-after-free detection.
+## ENTITY.LOADMESH, ENTITY.CREATEMESH, ENTITY.COPY
 
-## Contracts (from `HeapObject` comments)
+- **LOADMESH** loads the model **before** allocating a new entity id. If the load is empty (`MeshCount <= 0`), the model is **unloaded** and the function returns an error **without** consuming the next id.
+- **CREATEMESH** unloads the mesh after `LoadModelFromMesh`; if the model is invalid, it **unloads the model** and returns an error **without** registering an entity.
+- **COPY** reloads from `loadPath` for mesh-backed entities. It **rejects** duplication of procedural meshes without a path (e.g. **CREATEMESH**) **before** allocating a new id. Failed `LoadModel` results in **UnloadModel** and an error **without** bumping `nextID`.
 
-- **`Free()` must be idempotent.** Prefer [`heap.ReleaseOnce`](../vm/heap/release_once.go) around Raylib/Jolt unload paths, or an early `if freed { return }` with `freed = true` at the end.
-- **`TypeTag()` must be unique** per class — see [`vm/heap/heap_tags.go`](../vm/heap/heap_tags.go). Wrong-type `Cast` is a deliberate error.
-- **`Store.FreeAll()`** walks all slots and calls `Free()` on live objects — used at process teardown and when [`Window.Close`](../runtime/window/raylib_cgo.go) frees the heap mid-script. Scripts **should** call `*.Free` for long-running games; `FreeAll` is the safety net.
+## ENTITY.CLEARSCENE
 
-## Owned vs shared (examples)
-
-| Pattern | Rule |
-|--------|------|
-| **TextureObject** | Owns `rl.Texture2D`; always `UnloadTexture` in `Free`. |
-| **MaterialObject** | Owns material unless `moved` into a model — then model owns it; see [`materialObj`](../runtime/mbmodel3d/heap_types_cgo.go). |
-| **ModelObject** | Owns `rl.Model` (meshes + embedded materials); `UnloadModel` releases children. |
-| **WaterObject / terrain chunkSlot** | Each owns mesh **and** `LoadMaterialDefault()` material — **both** must be unloaded (see terrain/water `Free` and streaming unload). |
-| **NoiseObject** (`NOISE.*`) | Pure Go state (no C allocations). `Free()` clears state; `NOISE.FILLIMAGE` writes pixels via Raylib (`TagImage`) — the **image** handle still owns CPU/GPU resources per `Image` rules. |
-| **Physics** | Bodies/shapes: Jolt destruction order is enforced in [`runtime/physics3d`](../runtime/physics3d/) (Linux); stubs on unsupported OS — see [ARCHITECTURE.md](../ARCHITECTURE.md) §12. |
-
-## Destruction order (rules of thumb)
-
-| Resource | Free before / notes |
-|----------|---------------------|
-| Model animations | Before parent model if using separate animation APIs (Raylib `UnloadModelAnimation` / model unload order in `modelObj`). |
-| Model | Unloads meshes/materials it owns. |
-| Terrain chunk | `UnloadMaterial` then `UnloadMesh` when evicting a chunk or on full `TerrainObject.Free`. |
-| ENet host | Destroying host disconnects peers; peer handles become invalid — see [`runtime/net`](../runtime/net/). |
-
-## Goroutines
-
-The runtime avoids background workers for terrain mesh builds (main-thread Raylib). A grep for `go ` under `runtime/` shows only short-lived helpers (e.g. process wait) — see `GOROUTINES.txt` in the repo root for the audit snapshot.
-
-## Verification
-
-- **Unit tests:** `go test ./vm/heap/...` — includes `FreeAll` and double-free-on-handle behavior.
-- **Baselines:** `RACE_BASELINE.txt`, `GCCHECK_BASELINE.txt`, `ESCAPE_ANALYSIS.txt` (committed; re-run after large changes).
-- **Valgrind:** Linux/WSL — run `go build -o moonbasic_test .` then `valgrind --leak-check=full ./moonbasic_test testdata/memtest_freeall.mb` (see `VALGRIND_BASELINE.txt` placeholder on Windows).
-
-## Test programs
-
-| File | Purpose |
-|------|---------|
-| [`testdata/memtest_freeall.mb`](../testdata/memtest_freeall.mb) | Leak intentional handles; shutdown `FreeAll` must reclaim. |
-| [`testdata/memtest_basic.mb`](../testdata/memtest_basic.mb) | Tight create/free loop. |
-| [`testdata/memtest_streaming.mb`](../testdata/memtest_streaming.mb) | Terrain load/unload churn. |
-| [`testdata/noise_test.mb`](../testdata/noise_test.mb) | `NOISE.*` headless checks. |
-| [`testdata/noise_terrain.mb`](../testdata/noise_terrain.mb) | Windowed noise preview. |
-| [`testdata/include_menu_main.mb`](../testdata/include_menu_main.mb) | `INCLUDE` of a sibling `.mb` file (compile-time merge). |
-
-All should pass `go run . --check <file>`.
-
-## Per-frame allocation budget
-
-Hot paths (VM inner loop, frustum tests, per-pixel work) should avoid unnecessary allocations. Full `DEBUG.FRAMEALLOC` is not part of the core engine yet; use `runtime.MemStats` in profiling builds if needed. Escape analysis: `go build -gcflags="-m"` (see `ESCAPE_ANALYSIS.txt`).
+Clears groups, resets `nextID` to 1, and frees every entity by calling **`entFree`** for each id so Raylib resources are always released.

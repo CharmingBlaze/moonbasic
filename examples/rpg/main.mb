@@ -2,10 +2,7 @@
 ; Saves rpg_save.json in the current working directory on exit (JSON + FILE).
 ; Run from repo root: CGO_ENABLED=1 go run . examples/rpg/main.mb
 
-IF NOT Window.Open(800, 600, "moonBASIC Mini RPG") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(800, 600, "moonBASIC Mini RPG")
 Window.SetFPS(60)
 
 save$ = "rpg_save.json"

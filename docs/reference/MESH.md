@@ -130,6 +130,18 @@ MESH.FREE(m)
 
 Unloads GPU and CPU mesh data (`UnloadMesh`). Idempotent object **`Free`** via heap; a second **`MESH.FREE`** on the same handle fails (stale handle).
 
+**`MESH.LOAD(path$)`** — loads the **first submesh** of a file via Raylib **`LoadModel`**; the runtime keeps the parent model alive until **`MESH.FREE`** (do not mix with manual unload of the same file elsewhere).
+
+**`MESH.EXPORT(m, path$)`** — writes **`ExportMesh`** (e.g. OBJ).
+
+**`MESH.GETBOUNDS(m)`** — returns a **6-element float array** `[minX,minY,minZ,maxX,maxY,maxZ]` (caller should **`ERASE`** when done).
+
+**`MESH.DRAWAT(m, material, x#, y#, z#)`** — draws with **`MatrixTranslate`** (identity rotation).
+
+**`MESH.DRAWINSTANCED(m, material, transforms_array, count)`** — **`transforms_array`** is a flat float array of **`count×16`** values (column-major **`MAT4`** per instance).
+
+**`MESH.MAKECUSTOM(verts, indices)`** — **`verts`** length **`8×N`** (`x,y,z,nx,ny,nz,u,v` per vertex); **`indices`** length **`3×T`** (triangle list). **`MESH.MAKECAPSULE`** and **meshoptimizer**-style **`MESH.OPTIMISE*`** are not available in this binding (runtime returns a clear error).
+
 ---
 
 ## Example (upload, camera, draw)

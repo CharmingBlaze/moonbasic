@@ -32,6 +32,15 @@ func (m *Module) registerVec3(reg runtime.Registrar) {
 	reg.Register("VEC3.REFLECT", "vec3", runtime.AdaptLegacy(m.vec3Reflect))
 	reg.Register("VEC3.NEGATE", "vec3", runtime.AdaptLegacy(m.vec3Negate))
 	reg.Register("VEC3.EQUALS", "vec3", runtime.AdaptLegacy(m.vec3Equals))
+
+	reg.Register("VEC3.VEC3", "vec3", runtime.AdaptLegacy(m.vec3Make))
+	reg.Register("VEC3.VECADD", "vec3", runtime.AdaptLegacy(m.vec3Add))
+	reg.Register("VEC3.VECSUB", "vec3", runtime.AdaptLegacy(m.vec3Sub))
+	reg.Register("VEC3.VECSCALE", "vec3", runtime.AdaptLegacy(m.vec3Mul))
+	reg.Register("VEC3.VECNORMALIZE", "vec3", runtime.AdaptLegacy(m.vec3Normalize))
+	reg.Register("VEC3.VECDOT", "vec3", runtime.AdaptLegacy(m.vec3Dot))
+	reg.Register("VEC3.VECCROSS", "vec3", runtime.AdaptLegacy(m.vec3Cross))
+	reg.Register("VEC3.VECLENGTH", "vec3", runtime.AdaptLegacy(m.vec3Length))
 }
 
 func (m *Module) allocVec3(v rl.Vector3) (value.Value, error) {

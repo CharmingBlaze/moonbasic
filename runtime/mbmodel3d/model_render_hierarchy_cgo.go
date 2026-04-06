@@ -336,7 +336,7 @@ func (m *Module) modelReloadCopy(args []value.Value, op string) (value.Value, er
 		return value.Nil, fmt.Errorf("%s: source model has no file path (only models from MODEL.LOAD can be cloned/instanced)", op)
 	}
 	mod := rl.LoadModel(src.loadedPath)
-	id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: src.loadedPath})
+	id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: src.loadedPath, animSpeed: 1})
 	if err != nil {
 		rl.UnloadModel(mod)
 		return value.Nil, err

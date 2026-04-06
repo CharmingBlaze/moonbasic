@@ -1,0 +1,25 @@
+moonBASIC ergonomics audit (examples/mario64/main_v2.mb --check)
+
+Tracked with `go run . --check examples/mario64/main_v2.mb` during implementation.
+
+Resolved (no longer reported):
+- WINDOW.OPEN void + failure exits process — manifest + runtime
+- Flat SIN/COS/CLAMP/MIN/MAX/DEGPERSEC, BOXTOPLAND, CAMERA.ORBITAROUND, TIME.SETMAXDELTA — registry + runtime
+- Unary minus before calls — parser already supported; testdata/unary_minus_test.mb
+- Time.Delta / DT clamp — runtime/time DeltaSeconds + SetMaxDelta
+- Draw3D.Grid — canonical; Draw.Grid remains alias to same implementation
+- CONST float/int/string — testdata/const_test.mb
+
+Docs/examples:
+- docs/reference/INPUT.md — KEYDOWN vs KEYPRESSED table
+- docs/reference/GAMEHELPERS.md — BOXTOPLAND + simple physics
+- docs/LANGUAGE.md — multi-return via array + LOCAL
+- docs/reference/CAMERA.md — SetOrbit / OrbitAround
+- examples/mario64/main_v2.mb — rewritten demo
+- examples/mario64/main.mb — Draw3D.Grid
+
+Build fix (unrelated API drift):
+- runtime/physics2d/box2d.go — B2MassData.M renamed upstream to Mass
+
+Test updates:
+- compiler/builtinmanifest/manifest_test.go — WINDOW.OPEN returns void

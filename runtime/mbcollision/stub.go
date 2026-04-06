@@ -13,6 +13,7 @@ const hint = "RAY/BBOX/BSPHERE collision natives require CGO: set CGO_ENABLED=1 
 
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
+	m.registerRay2DBuiltins(reg)
 	stub := func(name string) runtime.BuiltinFn {
 		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 			_ = rt

@@ -1,10 +1,7 @@
 ; raygui basics: WINDOWBOX, LABEL, BUTTON (requires CGO + raylib + raygui).
 ; Run from repo root: CGO_ENABLED=1 go run . examples/gui_basics/main.mb
 
-IF NOT Window.Open(800, 600, "GUI basics") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(800, 600, "GUI basics")
 Window.SetFPS(60)
 GUI.Enable()
 

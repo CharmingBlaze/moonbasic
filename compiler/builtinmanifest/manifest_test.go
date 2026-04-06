@@ -32,7 +32,7 @@ func TestManifestOptionalMetadata(t *testing.T) {
 	if c.Phase != "init" {
 		t.Fatalf("WINDOW.OPEN phase: got %q want init", c.Phase)
 	}
-	if c.Returns != "bool" {
-		t.Fatalf("WINDOW.OPEN returns: got %q want bool", c.Returns)
+	if c.Returns != "" {
+		t.Fatalf("WINDOW.OPEN returns: got %q want void (empty)", c.Returns)
 	}
 }

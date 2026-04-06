@@ -302,9 +302,10 @@ type LabelNode struct {
 func (n *LabelNode) stmt()          {}
 func (n *LabelNode) String() string { return fmt.Sprintf("Label(.%s)", n.Name) }
 
-// DimNode is DIM name(dim...) or REDIM [PRESERVE] name(dim...).
+// DimNode is DIM name(dim...) or REDIM [PRESERVE] name(dim...), or DIM name AS Type(dim...) for typed handle arrays.
 type DimNode struct {
 	Name     string
+	ElemType string // non-empty: array of heap instances of this TYPE
 	Dims     []Expr
 	IsRedim  bool
 	Preserve bool // REDIM always preserves data in moonBASIC; PRESERVE is accepted for readability
@@ -561,6 +562,31 @@ type IndexExpr struct {
 
 func (n *IndexExpr) expr()          {}
 func (n *IndexExpr) String() string { return fmt.Sprintf("%s[...]", n.Base.String()) }
+
+// IndexFieldExpr is arr(idx...).field — read a field on an array element (handle).
+type IndexFieldExpr struct {
+	Array string
+	Index []Expr
+	Field string
+	Line  int
+	Col   int
+}
+
+func (n *IndexFieldExpr) expr()          {}
+func (n *IndexFieldExpr) String() string { return fmt.Sprintf("%s(...).%s", n.Array, n.Field) }
+
+// IndexFieldAssignNode is arr(idx...).field = expr.
+type IndexFieldAssignNode struct {
+	Array string
+	Index []Expr
+	Field string
+	Expr  Expr
+	Line  int
+	Col   int
+}
+
+func (n *IndexFieldAssignNode) stmt()          {}
+func (n *IndexFieldAssignNode) String() string { return fmt.Sprintf("IndexFieldAssign(%s.%s)", n.Array, n.Field) }
 
 // GroupedExpr is ( expr ).
 type GroupedExpr struct {

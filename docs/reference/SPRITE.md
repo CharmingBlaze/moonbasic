@@ -210,8 +210,7 @@ See **[ATLAS.md](ATLAS.md)** for **`ATLAS.LOAD`**, **`ATLAS.GETSPRITE`**, **`ATL
 ## Example (strip + Mode2D)
 
 ```basic
-IF NOT Window.Open(800, 600, "Sprite strip") THEN END
-ENDIF
+Window.Open(800, 600, "Sprite strip")
 Window.SetFPS(60)
 
 hero = SPRITE.LOAD("sheet.png")

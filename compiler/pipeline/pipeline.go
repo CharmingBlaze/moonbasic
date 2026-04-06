@@ -36,6 +36,7 @@ import (
 	mbdebug "moonbasic/runtime/mbdebug"
 	mbevent "moonbasic/runtime/mbevent"
 	mbgame "moonbasic/runtime/mbgame"
+	mbentity "moonbasic/runtime/mbentity"
 	mbgui "moonbasic/runtime/mbgui"
 	"moonbasic/runtime/mbimage"
 	mblight "moonbasic/runtime/mblight"
@@ -278,6 +279,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbphysics3d.NewModule())
 	reg.RegisterModule(mbcollision.NewModule())
 	reg.RegisterModule(mnoise.NewModule())
+	reg.RegisterModule(mbentity.NewModule())
 	reg.RegisterModule(mbgame.NewModule())
 
 	// Stubs for manifest entries not yet implemented natively

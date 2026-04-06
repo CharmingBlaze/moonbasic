@@ -30,6 +30,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.registerAngleInterp(r)
 	m.registerRandom(r)
 	m.registerLogic(r)
+	m.registerMovement(r)
 }
 
 // Shutdown implements runtime.Module.

@@ -14,10 +14,7 @@ func registerRaylibTiming(reg runtime.Registrar) {
 		if len(args) != 0 {
 			return value.Nil, errArgs(0, len(args))
 		}
-		if rt != nil && rt.GamePaused {
-			return value.FromFloat(0), nil
-		}
-		return value.FromFloat(float64(rl.GetFrameTime())), nil
+		return value.FromFloat(DeltaSeconds(rt)), nil
 	})
 	reg.Register("TIME.GETFPS", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		_ = rt

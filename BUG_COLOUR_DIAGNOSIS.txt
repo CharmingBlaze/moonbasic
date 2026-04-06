@@ -1,0 +1,28 @@
+CAUSE: A global per-frame 2D "ambient darkness" overlay registered for all CGO programs. The
+       mblight2d package hooks drawLightOverlay into RENDER.FRAME (compiler/pipeline/pipeline.go:
+       mblight2d.RegisterFrameHook(winMod)). Each frame, after the game draws, drawLightOverlay
+       draws a full-viewport BLACK rectangle with alpha (255 - average(ambient R,G,B)). When the
+       default ambient was (30, 30, 50), average ≈ 36, so alpha ≈ 219 — a near-opaque black layer
+       on top of every Draw.Rectangle / Draw.Text / sprite pass. This is not gamma, not raylib
+       InitWindow flags, and not an incorrect rl.Color in DRAW.RECTANGLE.
+
+FILE:  runtime/mblight2d/light2d_cgo.go
+
+CODE:  Overlay logic (still present; only the default ambient changed):
+         Lines 254-259: avg := (ar+ag+ab)/3; if avg < 255, DrawRectangle full screen black A=(255-avg)
+
+       Fix (default ambient — lines 18-24):
+         ambient = struct{ R, G, B, A uint8 }{255, 255, 255, 255}
+         So avg == 255, overlay alpha == 0, no rectangle. Games using LIGHT2D call
+         RENDER.SET2DAMBIENT with lower RGB (e.g. 30,30,50) when they want the dark overlay.
+
+FIX:   Default ambient (255, 255, 255, 255) so unlit 2D programs see correct colours.
+
+CHECKLIST (requested greps — summary):
+  1-A: InitWindow in runtime/window/raylib_cgo.go — no HDR/linear flags at open; flags opt-in.
+  1-B: RENDER.CLEAR uses rl.ClearBackground(rl.Color) — correct.
+  1-C: DRAW.RECTANGLE passes bytes to rl.DrawRectangle — no gamma (runtime/draw/shapes.go).
+  1-D: No sRGB/gamma on 2D draw path; pow(1/2.2) only in mbmodel3d PBR shader.
+  1-E: Default blend is raylib default; mblight2d restores BlendAlpha after additive light pass.
+  1-F: Plain 2D does not require BeginMode2D for Draw.Rectangle.
+  1-G: No stray shader on stock 2D; post stack off unless POST/EFFECT/SETMODE deferred.

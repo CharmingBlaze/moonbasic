@@ -26,6 +26,7 @@ func registerWeather(m *Module, r runtime.Registrar) {
 	r.Register("FOG.SETNEAR", "fog", h("FOG.SETNEAR"))
 	r.Register("FOG.SETFAR", "fog", h("FOG.SETFAR"))
 	r.Register("FOG.SETCOLOR", "fog", h("FOG.SETCOLOR"))
+	r.Register("FOG.SETRANGE", "fog", h("FOG.SETRANGE"))
 	r.Register("WIND.SET", "wind", h("WIND.SET"))
 	r.Register("WIND.GETSTRENGTH", "wind", h("WIND.GETSTRENGTH"))
 }

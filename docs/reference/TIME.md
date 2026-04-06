@@ -16,6 +16,10 @@ Commands for getting the current time, date, and measuring elapsed time.
 
 Returns the time in seconds that has passed since the last frame.
 
+By default the value is **clamped** to at most **0.05** seconds (so a hitch longer than ~20 FPS does not apply a huge delta to physics). **`GAME.DT()`** / **`DT()`** use the same clamped value.
+
+- **`Time.SetMaxDelta(seconds#)`** — set a different cap; use **`<= 0`** to **disable** clamping if you manage timing yourself.
+
 ```basic
 ; Move the player at 200 pixels per second, regardless of FPS
 speed# = 200.0

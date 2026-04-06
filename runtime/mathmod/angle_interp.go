@@ -35,6 +35,18 @@ func (m *Module) registerAngleInterp(r runtime.Registrar) {
 
 	regFlat("DEG2RAD", "MATH.DEG2RAD", oneFloat(func(d float64) float64 { return d * math.Pi / 180 }))
 	regFlat("RAD2DEG", "MATH.RAD2DEG", oneFloat(func(r float64) float64 { return r * 180 / math.Pi }))
+	regFlat("SIND", "MATH.SIND", oneFloat(func(d float64) float64 { return math.Sin(d * math.Pi / 180.0) }))
+	regFlat("COSD", "MATH.COSD", oneFloat(func(d float64) float64 { return math.Cos(d * math.Pi / 180.0) }))
+	regFlat("TAND", "MATH.TAND", oneFloat(func(d float64) float64 { return math.Tan(d * math.Pi / 180.0) }))
+	regFlat("DEGPERSEC", "MATH.DEGPERSEC", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		if len(args) != 2 {
+			return value.Nil, errNArgs(2, len(args))
+		}
+		deg, _ := args[0].ToFloat()
+		dt, _ := args[1].ToFloat()
+		return value.FromFloat((deg * math.Pi / 180.0) * dt), nil
+	})
 	regFlat("WRAPANGLE", "MATH.WRAPANGLE", oneFloat(wrapAngle360))
 	regFlat("WRAPANGLE180", "MATH.WRAPANGLE180", oneFloat(wrapAngle180))
 	regFlat("ANGLEDIFF", "MATH.ANGLEDIFF", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

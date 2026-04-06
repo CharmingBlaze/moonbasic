@@ -10,6 +10,7 @@ import (
 
 func (m *Module) registerLogic(r runtime.Registrar) {
 	r.Register("IIF", "math", m.builtinIIF)
+	r.Register("IIF$", "math", m.builtinIIF)
 	r.Register("CHOOSE", "math", m.builtinChoose)
 	r.Register("SWITCH", "math", m.builtinSwitch)
 }

@@ -58,7 +58,7 @@ func (m *Module) registerBasic(r runtime.Registrar) {
 	regFlat("TAU", "MATH.TAU", zeroFloat(2*math.Pi))
 	regFlat("E", "MATH.E", zeroFloat(math.E))
 
-	regFlat("SGN", "MATH.SGN", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	sgnFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Nil, errNArgs(1, len(args))
 		}
@@ -71,7 +71,9 @@ func (m *Module) registerBasic(r runtime.Registrar) {
 		default:
 			return value.FromInt(0), nil
 		}
-	})
+	}
+	regFlat("SGN", "MATH.SGN", sgnFn)
+	regFlat("SIGN", "MATH.SIGN", sgnFn)
 	regFlat("FIX", "MATH.FIX", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Nil, errNArgs(1, len(args))

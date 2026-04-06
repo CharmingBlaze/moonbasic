@@ -147,12 +147,18 @@ All math functions are also available as `MATH.name(...)` (e.g. `MATH.SIN`, `MAT
 - `PI()` **[DONE]**: Returns π (3.14159...).
 - `TAU()` **[DONE]**: Returns τ = 2π.
 - `E()` **[DONE]**: Returns Euler's number (2.71828...).
+- `MOVEX(yaw#, forward#, strafe#)` **[DONE]**: Camera-relative world X on the XZ plane — see [Math Reference](reference/MATH.md).
+- `MOVEZ(yaw#, forward#, strafe#)` **[DONE]**: Camera-relative world Z on the XZ plane — see [Math Reference](reference/MATH.md).
+- `MOVESTEPX` / `MOVESTEPZ` **[DONE]**: **`MOVEX`/`MOVEZ` × speed × `dt`** — see [Math Reference](reference/MATH.md).
+- `LANDBOXES(...)` **[DONE]**: Best **`BOXTOPLAND`** snap Y over parallel box arrays — see [Game helpers](reference/GAMEHELPERS.md).
+- `PLAYER.MOVERELATIVE(...)` **[DONE]**: 2-float **`[dx,dz]`** handle — same as **`MOVESTEPX`/`MOVESTEPZ`** — see [Game helpers](reference/GAMEHELPERS.md).
 
 ---
 
 ## Logic
 
-- `IIF(condition, trueVal, falseVal)` **[DONE]**: Returns `trueVal` if condition is true, otherwise `falseVal`. Inline if-then-else.
+- `IIF(condition, trueVal, falseVal)` **[DONE]**: Returns `trueVal` if condition is true, otherwise `falseVal`. Inline if-then-else. **Both branches are evaluated.**
+- `IIF$(condition, trueVal$, falseVal$)` **[DONE]**: String variant of `IIF` — see [Math Reference](reference/MATH.md).
 - `CHOOSE(index, val1, val2, ...)` **[DONE]**: Returns the value at position `index` (1-based) from the argument list.
 - `SWITCH(expr, case1, val1, ..., caseN, valN, default)` **[DONE]**: Returns the value paired with the first matching case, or `default` if none match.
 
@@ -160,9 +166,9 @@ All math functions are also available as `MATH.name(...)` (e.g. `MATH.SIN`, `MAT
 
 ## Array Operations
 
-- `DIM` **[DONE]**: Declares an array.
+- `DIM` **[DONE]**: Declares an array (including **`DIM name AS TypeName(n)`** for record types — see [LANGUAGE.md](LANGUAGE.md)).
 - `REDIM` **[PARTIAL]**: Coming soon.
-- `ERASE` **[PARTIAL]**: Coming soon.
+- `ERASE` **[DONE]**: Frees a `DIM` or typed array — see [ARRAY.md](reference/ARRAY.md).
 - `ARRAYLEN` **[DONE]**: Returns the length of an array.
 - `ARRAYFILL` **[PARTIAL]**: Coming soon.
 - `ARRAYCOPY` **[PARTIAL]**: Coming soon.
@@ -313,7 +319,8 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Window.Open(w, h, title$)` | Opens the window. Must be the first command called. |
+| `Window.Open(w, h, title$)` | Opens the window (no return value). On failure, prints to stderr and exits. Must be the first window command. |
+| `Window.CanOpen(w, h, title$)` | Returns `TRUE` if size/title are valid for opening; use to branch without calling `Open`. |
 | `Window.Close()` | Closes the window and exits. |
 | `Window.ShouldClose()` | Returns `TRUE` when the user requests close (use in main loop). |
 | `Window.SetFPS(fps)` | Sets the target frame rate. |
@@ -597,6 +604,23 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 |---|---|
 | `Time.Delta()` | Returns seconds elapsed since last frame. Use this for frame-rate-independent movement. |
 | `Time.Get()` | Returns total seconds elapsed since the program started. |
+
+---
+
+### Input — [Reference](reference/INPUT.md)
+
+Keyboard, mouse, gamepad, and **action mapping**. Short names such as **`KEYDOWN`** mirror **`Input.KeyDown`**.
+
+| Command | Description |
+|---|---|
+| `Input.KeyDown` / `KEYDOWN` | True while a key is held. |
+| `Input.KeyPressed` / `KEYPRESSED` | True only on the first frame a key is pressed. |
+| `Input.Axis(negKey, posKey)` | Float in `{-1, 0, 1}` from two keys — ideal with **`MOVEX` / `MOVEZ`** or **`MOVESTEPX` / `MOVESTEPZ`**. |
+| `Input.AxisDeg(negKey, posKey, degPerSec#, dt#)` | **`Input.Axis` × `DEGPERSEC`** — radians to add this frame (e.g. camera yaw). |
+| `Input.Orbit(...)` | Alias of **`Input.AxisDeg`**. |
+| `Input.Movement2D(...)` | 2-float array **`[forward, strafe]`**; **ERASE** when done — [INPUT.md](reference/INPUT.md). |
+
+Full list: [INPUT.md](reference/INPUT.md).
 
 ---
 

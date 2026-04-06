@@ -5,7 +5,8 @@
 
 # Per-file hit counts (same key may appear in multiple files)
 # path                                             hits
-compiler/errors/MoonBasic.md                      26
+compiler/errors/MoonBasic.md                      28
+docs/reference/API_CONVENTIONS.md                 19
 docs/reference/ARRAY.md                           14
 docs/reference/ATLAS.md                           1
 docs/reference/AUDIO.md                           1
@@ -29,13 +30,13 @@ docs/reference/EASING.md                          3
 docs/reference/ENTITY.md                          1
 docs/reference/FILE.md                            21
 docs/reference/FONT.md                            4
-docs/reference/GAMEHELPERS.md                     19
+docs/reference/GAMEHELPERS.md                     4
 docs/reference/GUI.md                             91
 docs/reference/IMAGE.md                           50
-docs/reference/INPUT.md                           1
+docs/reference/INPUT.md                           2
 docs/reference/INSTANCE.md                        29
 docs/reference/JSON.md                            16
-docs/reference/LIGHT.md                           21
+docs/reference/LIGHT.md                           22
 docs/reference/MAT4.md                            1
 docs/reference/MATH.md                            43
 docs/reference/MEM.md                             1
@@ -45,7 +46,7 @@ docs/reference/MOVEMENT.md                        3
 docs/reference/NAVMESH.md                         4
 docs/reference/NAV_AI.md                          12
 docs/reference/NETWORK.md                         3
-docs/reference/NOISE.md                           4
+docs/reference/NOISE.md                           5
 docs/reference/PARTICLE.md                        37
 docs/reference/PARTICLES.md                       23
 docs/reference/PHYSICS2D.md                       2
@@ -63,11 +64,11 @@ docs/reference/SPRITE.md                          51
 docs/reference/STRING.md                          20
 docs/reference/SYSTEM.md                          6
 docs/reference/TABLE.md                           16
-docs/reference/TERRAIN.md                         2
+docs/reference/TERRAIN.md                         3
 docs/reference/TEXTURE.md                         25
 docs/reference/TILEMAP.md                         3
-docs/reference/TIME.md                            14
-docs/reference/TIMER.md                           3
+docs/reference/TIME.md                            15
+docs/reference/TIMER.md                           4
 docs/reference/TRANSFORM.md                       2
 docs/reference/TRANSITION.md                      4
 docs/reference/TWEEN.md                           1
@@ -77,9 +78,9 @@ docs/reference/WATER.md                           2
 docs/reference/WAVE.md                            5
 docs/reference/WEATHER.md                         2
 docs/reference/WINDOW.md                          2
-docs/reference/WORLD.md                           3
+docs/reference/WORLD.md                           7
 
-# Manifest keys with no hit in any scanned doc (989 total)
+# Manifest keys with no hit in any scanned doc (1034 total)
 
 ARRAYCONTAINS
 ARRAYFIND
@@ -163,7 +164,6 @@ BODY3D.SETANGULARVEL
 BODY3D.SETFRICTION
 BODY3D.SETLINEARVEL
 BODY3D.SETMASS
-BODY3D.SETPOS
 BODY3D.SETPOSITION
 BODY3D.SETRESTITUTION
 BODY3D.SETROT
@@ -193,11 +193,12 @@ CAMERA.GETTARGET
 CAMERA.GETVIEWRAY
 CAMERA.ISONSCREEN
 CAMERA.LOOKAT
-CAMERA.MAKE
 CAMERA.MOUSERAY
 CAMERA.MOVE
+CAMERA.ORBITAROUND
+CAMERA.ORBITAROUNDEG
 CAMERA.SETFOV
-CAMERA.SETPOS
+CAMERA.SETORBIT
 CAMERA.SETPOSITION
 CAMERA.SETPROJECTION
 CAMERA.SETTARGET
@@ -223,6 +224,9 @@ CHARCONTROLLER.X
 CHARCONTROLLER.Y
 CHARCONTROLLER.Z
 CHOOSE
+CHUNK.COUNT
+CHUNK.GENERATE
+CHUNK.ISLOADED
 CLIENT.CONNECT
 CLIENT.ONCONNECT
 CLIENT.ONMESSAGE
@@ -255,6 +259,7 @@ COMPUTESHADER.LOAD
 COMPUTESHADER.SETBUFFER
 COMPUTESHADER.SETFLOAT
 COMPUTESHADER.SETINT
+COSD
 COUNT$
 CURSOR.DISABLE
 CURSOR.ENABLE
@@ -297,6 +302,7 @@ DECAL.MAKE
 DECAL.SETLIFETIME
 DECAL.SETPOS
 DECAL.SETSIZE
+DEGPERSEC
 DRAW.ARC
 DRAW.CIRCLE
 DRAW.CIRCLELINES
@@ -391,7 +397,10 @@ FOG.SETNEAR
 FONT.DRAWDEFAULT
 FONT.LOADBDF
 GAME.ANYKEY
+GAME.ENDGAME
+GAME.FPS
 GAME.KEYCHAR
+GAME.KEYDOWN
 GAME.KEYPRESSED
 GAME.KEYRELEASED
 GAME.MDX
@@ -406,6 +415,10 @@ GAME.MRIGHTPRESSED
 GAME.MWHEEL
 GAME.MX
 GAME.MY
+GAME.SCREENCX
+GAME.SCREENCY
+GAME.SCREENH
+GAME.SCREENW
 GESTURE.ENABLE
 GESTURE.GETDETECTED
 GESTURE.GETDRAGANGLE
@@ -447,7 +460,10 @@ INPUT.LOADMAPPINGS
 INPUT.MAPGAMEPADAXIS
 INPUT.MAPGAMEPADBUTTON
 INPUT.MAPKEY
+INPUT.MOUSEDELTAX
+INPUT.MOUSEDELTAY
 INPUT.MOUSEDOWN
+INPUT.MOUSEWHEELMOVE
 INPUT.MOUSEX
 INPUT.MOUSEY
 INPUT.SAVEMAPPINGS
@@ -494,6 +510,7 @@ LIGHT2D.MAKE
 LIGHT2D.SETCOLOR
 LIGHT2D.SETINTENSITY
 LIGHT2D.SETPOS
+LIGHT2D.SETPOSITION
 LIGHT2D.SETRADIUS
 LOBBY.CREATE
 LOBBY.FIND
@@ -538,7 +555,9 @@ MATH.ATAN2
 MATH.ATN
 MATH.CEIL
 MATH.COS
+MATH.COSD
 MATH.DEG2RAD
+MATH.DEGPERSEC
 MATH.E
 MATH.EXP
 MATH.FIX
@@ -558,10 +577,13 @@ MATH.RNDF
 MATH.RNDSEED
 MATH.ROUND
 MATH.SGN
+MATH.SIGN
+MATH.SIND
 MATH.SMOOTHSTEP
 MATH.SQR
 MATH.SQRT
 MATH.TAN
+MATH.TAND
 MATH.TAU
 MATH.WRAP
 MATH.WRAPANGLE
@@ -878,6 +900,7 @@ SHADER.SETTEXTURE
 SHADER.SETVEC2
 SHADER.SETVEC3
 SHADER.SETVEC4
+SIND
 SKY.DRAW
 SKY.FREE
 SKY.GETTIMEHOURS
@@ -900,6 +923,9 @@ STEER.GROUPCLEAR
 STEER.GROUPMAKE
 STEER.SEEK
 STEER.WANDER
+STOPWATCH.ELAPSED
+STOPWATCH.FREE
+STOPWATCH.RESET
 STRING$
 SWITCH
 SYSTEM.CPUNAME
@@ -913,7 +939,15 @@ SYSTEM.OPENURL
 SYSTEM.SETENV
 SYSTEM.TOTALMEMORY
 SYSTEM.USERNAME
+TERRAIN.DRAW
+TERRAIN.FILLFLAT
+TERRAIN.FREE
+TERRAIN.GETHEIGHT
+TERRAIN.GETSLOPE
+TERRAIN.LOWER
 TERRAIN.MAKE
+TERRAIN.RAISE
+TERRAIN.SETPOS
 THROW
 TILEMAP.COLLISIONAT
 TILEMAP.DRAW
@@ -932,6 +966,7 @@ TILEMAP.SETTILE
 TILEMAP.SETTILESIZE
 TILEMAP.WIDTH
 TIME.GETFPS
+TIME.SETMAXDELTA
 TIMESTAMP
 TRANSFORM.APPLYX
 TRANSFORM.APPLYY
@@ -1026,8 +1061,15 @@ VEC3.Z
 WAIT
 WATER.DRAW
 WATER.FREE
+WATER.GETDEPTH
+WATER.GETWAVEY
+WATER.ISUNDER
 WATER.MAKE
+WATER.SETDEEPCOLOR
 WATER.SETHEIGHT
+WATER.SETPOS
+WATER.SETSHALLOWCOLOR
+WATER.SETWAVEHEIGHT
 WATER.SHOW
 WATER.UPDATE
 WAVE.COPY
@@ -1045,6 +1087,7 @@ WEATHER.SETTYPE
 WEATHER.UPDATE
 WIND.GETSTRENGTH
 WIND.SET
+WINDOW.CANOPEN
 WINDOW.GETFPS
 WINDOW.GETMONITORCOUNT
 WINDOW.GETMONITORHEIGHT
@@ -1063,6 +1106,9 @@ WINDOW.SETMONITOR
 WINDOW.SETOPACITY
 WINDOW.SETSTATE
 WINDOW.WIDTH
+WORLD.ISREADY
+WORLD.STATUS
+WORLD.STREAMENABLE
 WRITEBYTE
 WRITEFILE
 WRITEFILELN

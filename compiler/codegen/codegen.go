@@ -100,6 +100,14 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 		g.Prog.Functions[fn.Name] = opcode.NewChunk(fn.Name)
 	}
 
+	// User-defined TYPE metadata (needed when emitting main: constructors use Prog.Types)
+	for _, t := range tree.Types {
+		g.Prog.Types[t.Name] = &opcode.TypeDef{
+			Name:   t.Name,
+			Fields: t.Fields,
+		}
+	}
+
 	// 2. Main program
 	g.loopStack = nil
 	for _, st := range tree.Stmts {
@@ -110,15 +118,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 	}
 	g.Prog.Main.Emit(opcode.OpHalt, 0, 0, 0)
 
-	// 1. Types
-	for _, t := range tree.Types {
-		g.Prog.Types[t.Name] = &opcode.TypeDef{
-			Name:   t.Name,
-			Fields: t.Fields,
-		}
-	}
-
-	// 2. Function bodies
+	// 3. Function bodies
 	for _, fn := range tree.Functions {
 		ch := g.Prog.Functions[fn.Name]
 		g.loopStack = nil

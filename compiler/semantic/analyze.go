@@ -21,6 +21,8 @@ type Analyzer struct {
 
 	// Milestone 6: User-defined Types
 	Types map[string]*ast.TypeDef
+
+	funcNames map[string]bool // user FUNCTION names (uppercase)
 }
 
 // DefaultAnalyzer uses the built-in command manifest and enables folding.
@@ -57,6 +59,11 @@ func (a *Analyzer) typeError(line, col int, msg, hint string) error {
 }
 
 func (a *Analyzer) checkProgram(prog *ast.Program) error {
+	a.funcNames = make(map[string]bool)
+	for _, f := range prog.Functions {
+		a.funcNames[f.Name] = true
+	}
+
 	// 0. Register Types (Pass 0)
 	for _, t := range prog.Types {
 		if _, exists := a.Types[t.Name]; exists {
@@ -107,6 +114,13 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 	case *ast.AssignNode:
 		return a.checkExprCalls(n.Expr)
 	case *ast.IndexAssignNode:
+		for _, e := range n.Index {
+			if err := a.checkExprCalls(e); err != nil {
+				return err
+			}
+		}
+		return a.checkExprCalls(n.Expr)
+	case *ast.IndexFieldAssignNode:
 		for _, e := range n.Index {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
@@ -270,7 +284,26 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 	case *ast.GroupedExpr:
 		return a.checkExprCalls(n.Inner)
 	case *ast.CallExprNode:
+		if td, ok := a.Types[n.Name]; ok && !a.funcNames[n.Name] {
+			if len(n.Args) != len(td.Fields) {
+				return a.typeError(n.Line, n.Col,
+					fmt.Sprintf("type %s constructor expects %d arguments, got %d", n.Name, len(td.Fields), len(n.Args)),
+					"Pass one value per field in declaration order.")
+			}
+			for _, arg := range n.Args {
+				if err := a.checkExprCalls(arg); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
 		for _, arg := range n.Args {
+			if err := a.checkExprCalls(arg); err != nil {
+				return err
+			}
+		}
+	case *ast.IndexFieldExpr:
+		for _, arg := range n.Index {
 			if err := a.checkExprCalls(arg); err != nil {
 				return err
 			}

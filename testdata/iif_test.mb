@@ -1,0 +1,8 @@
+PRINT(IIF(TRUE, 10, 20))
+PRINT(IIF(FALSE, 10, 20))
+PRINT(IIF$(TRUE, "yes", "no"))
+PRINT(IIF$(FALSE, "yes", "no"))
+x = 5
+PRINT(IIF(x > 3, 100, 200))
+PRINT(IIF(x > 9, 100, 200))
+PRINT("IIF test OK")

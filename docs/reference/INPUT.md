@@ -8,19 +8,81 @@ Commands for handling keyboard, mouse, and gamepad input.
 
 These commands directly query the state of a specific key or button.
 
-### `Input.KeyDown(key)`
+### `Input.KeyDown(key)` / flat `KEYDOWN(key)`
 
 Returns `TRUE` if the specified key is currently being held down.
 
 - `key`: The key code to check (e.g., `KEY_SPACE`, `KEY_W`).
+- **`KEYDOWN`** is the same behaviour as **`Input.KeyDown`** (shorter name for game loops).
 
-### `Input.KeyPressed(key)`
+### `Input.KeyPressed(key)` / flat `KEYPRESSED(key)`
 
-Returns `TRUE` only on the frame the specified key was first pressed. Useful for single-trigger events like jumping.
+Returns `TRUE` only on the frame the specified key was first pressed. Use this for **jump**, **shoot**, **menu confirm**, or any action that should fire **once per press**.
 
 ### `Input.KeyUp(key)`
 
 Returns `TRUE` only on the frame the specified key was released.
+
+### `Input.Axis(negKey, posKey)` → **float**
+
+Returns a **discrete axis** in **`{-1.0, 0.0, 1.0}`** from two key codes. Use for **WASD-style** movement without separate accumulators:
+
+- **`1.0`** — `posKey` is held and `negKey` is not.
+- **`-1.0`** — `negKey` is held and `posKey` is not.
+- **`0.0`** — both held, or neither held.
+
+```basic
+f# = Input.Axis(KEY_S, KEY_W)   ; forward: W positive, S negative (if your camera treats +f as forward, swap keys)
+s# = Input.Axis(KEY_A, KEY_D)   ; strafe: D positive, A negative
+```
+
+The registry name is **`INPUT.AXIS`** (see [API_CONSISTENCY.md](../API_CONSISTENCY.md)).
+
+### `Input.AxisDeg(negKey, posKey, degreesPerSec#, dt#)` → **float**
+
+Bundled **rotation delta** for this frame: **same result** as **`Input.Axis(negKey, posKey) * DEGPERSEC(degreesPerSec#, dt#)`** — radians to add to a yaw (e.g. **`camYaw#`**). Registry: **`INPUT.AXISDEG`**.
+
+```basic
+camYaw# = camYaw# + Input.AxisDeg(KEY_Q, KEY_E, 77.0, dt#)
+```
+
+### `Input.Orbit(negKey, posKey, degreesPerSec#, dt#)` → **float**
+
+**Alias** of **`Input.AxisDeg`** (registry **`INPUT.ORBIT`**) — same arguments and result; use whichever reads clearer for camera orbit.
+
+---
+
+### `Input.Movement2D(keyBack, keyForward, keyLeft, keyRight)` → **handle**
+
+Returns a **2-float array** **`[forwardAxis, strafeAxis]`** using two **`Input.Axis`** pairs — same as:
+
+```basic
+f# = Input.Axis(KEY_S, KEY_W)
+s# = Input.Axis(KEY_A, KEY_D)
+```
+
+Registry: **`INPUT.MOVEMENT2D`**. **ERASE** the handle when you no longer need it (each frame if you allocate every frame). For zero extra allocations, call **`Input.Axis`** twice instead.
+
+---
+
+Typical use: **Q/E orbit** with **`Camera.OrbitAround`** — see **`examples/mario64/main_v2.mb`** and [CAMERA.md](CAMERA.md).
+
+---
+
+### When to use which (keyboard)
+
+| API | Fires when | Good for |
+|-----|------------|----------|
+| **`KEYDOWN` / `Input.KeyDown`** | Every frame while held | Movement, strafe, holding a key to rotate |
+| **`KEYPRESSED` / `Input.KeyPressed`** | First frame only | Jump, fire once, UI toggle |
+| **`KEYRELEASED` / `Input.KeyReleased`** | The frame the key goes up | Charge attacks, hold-to-aim release |
+
+Example: move with **`KEYDOWN`**, jump with **`KEYPRESSED`** so holding space does not retrigger mid-air.
+
+```basic
+IF KEYDOWN(KEY_W) THEN player_z# = player_z# - speed# * DT()
+IF on_ground? AND KEYPRESSED(KEY_SPACE) THEN vel_y# = jump_strength#
+```
 
 ---
 

@@ -67,6 +67,41 @@ y# = SIN(angle#) * radius#
 
 ---
 
+## Camera-relative movement (`MOVEX` / `MOVEZ`)
+
+Helpers for **third-person** or **orbit-camera** movement on the **XZ plane**. Pass the camera **yaw** in **radians**, plus **forward** and **strafe** inputs (typically `-1` … `1` from **`Input.Axis`**).
+
+| Command | Returns |
+|---|---|
+| `MOVEX(yaw#, forward#, strafe#)` | X world component: `-SIN(yaw)*forward + COS(yaw)*strafe`. |
+| `MOVEZ(yaw#, forward#, strafe#)` | Z world component: `-COS(yaw)*forward - SIN(yaw)*strafe`. |
+| `MOVESTEPX(yaw#, forward#, strafe#, speed#, dt#)` | Same as **`MOVEX(...)*speed*dt`** — world **X** delta for one frame. |
+| `MOVESTEPZ(yaw#, forward#, strafe#, speed#, dt#)` | Same as **`MOVEZ(...)*speed*dt`** — world **Z** delta for one frame. |
+
+```basic
+px# = px# + MOVEX(camYaw#, f#, s#) * speed# * dt#
+pz# = pz# + MOVEZ(camYaw#, f#, s#) * speed# * dt#
+
+; or one call per axis (bundles × speed × dt):
+px# = px# + MOVESTEPX(camYaw#, f#, s#, speed#, dt#)
+pz# = pz# + MOVESTEPZ(camYaw#, f#, s#, speed#, dt#)
+```
+
+Together they match **forward = −Z** and **right = +X** when **`yaw = 0`**. See [INPUT.md](INPUT.md) and [CAMERA.md](CAMERA.md).
+
+---
+
+## Inline conditional (`IIF` / `IIF$`)
+
+| Command | Returns |
+|---|---|
+| `IIF(condition?, trueVal, falseVal)` | `trueVal` if `condition` is true, else `falseVal`. **Both branches are evaluated** (not short-circuit). |
+| `IIF$(condition?, true$, false$)` | Same for strings. |
+
+Use for compact HUD colours or labels; for side effects, prefer **`IF` / `ENDIF`**.
+
+---
+
 ## Interpolation & Easing
 
 | Command | Returns |

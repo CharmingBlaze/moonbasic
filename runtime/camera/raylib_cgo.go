@@ -4,6 +4,7 @@ package mbcamera
 
 import (
 	"fmt"
+	"math"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
@@ -16,6 +17,15 @@ import (
 
 type camObj struct {
 	cam rl.Camera3D
+
+	shakeMag  float32
+	shakeTime float32
+
+	useClip       bool
+	clipNear      float64
+	clipFar       float64
+	fpsMode       bool
+	fpsSensitivity float32
 }
 
 func (c *camObj) TypeName() string { return "Camera3D" }
@@ -54,13 +64,17 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.END", "camera", runtime.AdaptLegacy(m.camEnd))
 	r.Register("CAMERA.MOVE", "camera", runtime.AdaptLegacy(m.camMove))
 	r.Register("CAMERA.GETRAY", "camera", runtime.AdaptLegacy(m.camGetRay))
+	r.Register("CAMERA.PICK", "camera", runtime.AdaptLegacy(m.camGetRay))
+	r.Register("CAMERA.SHAKE", "camera", runtime.AdaptLegacy(m.camShake))
 	r.Register("CAMERA.GETVIEWRAY", "camera", runtime.AdaptLegacy(m.camGetViewRay))
 	r.Register("CAMERA.GETMATRIX", "camera", runtime.AdaptLegacy(m.camGetMatrix))
 	r.Register("MATRIX.FREE", "camera", runtime.AdaptLegacy(m.matrixFree))
 	m.registerCameraExtras(r)
+	m.registerBlitzCamera(r)
 	m.registerScreenHelpers(r)
 	m.registerCamera2D(r)
 	m.registerCull(r)
+	registerCameraMore(m, r)
 }
 
 // Shutdown implements runtime.Module.
@@ -184,6 +198,28 @@ func (m *Module) camSetFov(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
+func (m *Module) camShake(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("CAMERA.SHAKE expects (camera, amount#, duration#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.SHAKE: invalid camera handle")
+	}
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	amt, ok1 := argF(args[1])
+	dur, ok2 := argF(args[2])
+	if !ok1 || !ok2 || dur < 0 {
+		return value.Nil, fmt.Errorf("CAMERA.SHAKE: amount and duration must be numeric")
+	}
+	o.shakeMag = amt
+	o.shakeTime = dur
+	return value.Nil, nil
+}
+
 func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("CAMERA.BEGIN expects 1 argument (handle)")
@@ -196,16 +232,39 @@ func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	mbmodel3d.MarkCamera3DBegin(o.cam.Position.X, o.cam.Position.Y, o.cam.Position.Z)
-	mbmodel3d.StoreActiveCamera3D(o.cam)
-	rl.BeginMode3D(o.cam)
+	cam := o.cam
+	if o.shakeTime > 0 && o.shakeMag > 0 {
+		dt := rl.GetFrameTime()
+		o.shakeTime -= dt
+		if o.shakeTime < 0 {
+			o.shakeTime = 0
+		}
+		t := float64(rl.GetTime())
+		mag := float64(o.shakeMag) * 0.02
+		ox := float32(math.Sin(t*50.0) * mag)
+		oy := float32(math.Cos(t*43.0) * mag)
+		oz := float32(math.Sin(t*37.0) * mag)
+		cam.Position.X += ox
+		cam.Position.Y += oy
+		cam.Position.Z += oz
+		cam.Target.X += ox * 0.5
+		cam.Target.Y += oy * 0.5
+		cam.Target.Z += oz * 0.5
+	}
+	if o.useClip {
+		rl.SetClipPlanes(o.clipNear, o.clipFar)
+	}
+	mbmodel3d.MarkCamera3DBegin(cam.Position.X, cam.Position.Y, cam.Position.Z)
+	mbmodel3d.StoreActiveCamera3D(cam)
+	m.lastActive3D = h
+	rl.BeginMode3D(cam)
 	rw := float32(rl.GetRenderWidth())
 	rh := float32(rl.GetRenderHeight())
 	aspect := float32(16.0 / 9.0)
 	if rh > 0 {
 		aspect = rw / rh
 	}
-	setActiveFrustum(o.cam, aspect)
+	setActiveFrustum(cam, aspect)
 	return value.Nil, nil
 }
 

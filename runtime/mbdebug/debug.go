@@ -49,6 +49,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("DEBUG.STACKTRACE", "debug", runtime.AdaptLegacy(m.debugStackTrace))
 	r.Register("DEBUG.HEAPSTATS", "debug", runtime.AdaptLegacy(m.debugHeapStats))
 	r.Register("DEBUG.GCSTATS", "debug", runtime.AdaptLegacy(m.debugGCStats))
+	m.registerDebugDraw3D(r)
 }
 
 // Shutdown implements runtime.Module.

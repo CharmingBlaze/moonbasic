@@ -155,6 +155,26 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("BODY3D.Y", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAxis(m, a, 1) }))
 	reg.Register("BODY3D.Z", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAxis(m, a, 2) }))
 	reg.Register("BODY3D.FREE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdFree(m, a) }))
+
+	// Blitz-style PHYSICS.* aliases (same implementation as PHYSICS3D.*).
+	reg.Register("PHYSICS.START", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStart(m, a) }))
+	reg.Register("PHYSICS.STOP", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStop(m, a) }))
+	reg.Register("PHYSICS.SETGRAVITY", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetGravity(m, a) }))
+	reg.Register("PHYSICS.STEP", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStep(m, a) }))
+	reg.Register("PHYSICS.SETSUBSTEPS", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetSubsteps(m, a) }))
+	reg.Register("PHYSICS.RAYCAST", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phRaycast(m, a) }))
+	reg.Register("PHYSICS.SPHERECAST", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("PHYSICS.SPHERECAST: not implemented; use PHYSICS.RAYCAST or BODY3D queries")
+	}))
+	reg.Register("PHYSICS.BOXCAST", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("PHYSICS.BOXCAST: not implemented; use PHYSICS.RAYCAST or BODY3D queries")
+	}))
+	reg.Register("PHYSICS.ENABLE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("PHYSICS.ENABLE: use BODY3D.ACTIVATE on a physics body handle")
+	}))
+	reg.Register("PHYSICS.DISABLE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("PHYSICS.DISABLE: use BODY3D.DEACTIVATE on a physics body handle")
+	}))
 }
 
 func shutdownPhysics3D(m *Module) {

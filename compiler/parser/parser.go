@@ -162,7 +162,7 @@ func isKeywordUsableAsIdent(tt token.TokenType) bool {
 		token.NEW, token.DELETE, token.EACH,
 		token.GOTO, token.GOSUB,
 		token.AND, token.OR, token.NOT, token.XOR, token.MOD,
-		token.DIM, token.REDIM, token.PRESERVE, token.LOCAL, token.GLOBAL, token.CONST,
+		token.DIM, token.AS, token.REDIM, token.PRESERVE, token.LOCAL, token.GLOBAL, token.CONST,
 		token.STATIC, token.SWAP, token.ERASE,
 		token.INCLUDE, token.TRUE, token.FALSE, token.NULL, token.END:
 		return true

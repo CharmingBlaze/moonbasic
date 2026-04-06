@@ -66,6 +66,9 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 	case *ast.FieldAssignNode:
 		g.emitFieldAssign(ch, n)
 
+	case *ast.IndexFieldAssignNode:
+		g.emitIndexFieldAssign(ch, n)
+
 	case *ast.DeleteStmt:
 		g.emitExpr(ch, n.Expr) // Push handle
 		ch.Emit(opcode.OpDelete, 0, 0, n.Line)
@@ -327,6 +330,18 @@ func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallSt
 	ch.Emit(opcode.OpCallBuiltin, idx, ac, n.Line)
 
 	// 4. Pop return value (engine commands as statements must be clean)
+	ch.Emit(opcode.OpPop, 0, 0, n.Line)
+}
+
+func (g *CodeGen) emitIndexFieldAssign(ch *opcode.Chunk, n *ast.IndexFieldAssignNode) {
+	g.emitLoadNamed(ch, n.Array, n.Line)
+	for _, ix := range n.Index {
+		g.emitExpr(ch, ix)
+	}
+	ch.Emit(opcode.OpArrayGet, int32(len(n.Index)), 0, n.Line)
+	g.emitExpr(ch, n.Expr)
+	fidx := ch.AddName(n.Field)
+	ch.Emit(opcode.OpFieldSet, fidx, 0, n.Line)
 	ch.Emit(opcode.OpPop, 0, 0, n.Line)
 }
 

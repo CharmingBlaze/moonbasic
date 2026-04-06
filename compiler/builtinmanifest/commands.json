@@ -509,6 +509,112 @@
       ]
     },
     {
+      "key": "SIGN",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "MATH.SIGN",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "SIND",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "MATH.SIND",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "COSD",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "MATH.COSD",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "TAND",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "MATH.TAND",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "DEGPERSEC",
+      "args": [
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "MATH.DEGPERSEC",
+      "args": [
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "MOVEX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Camera-relative world X on XZ plane: yaw#, forward#, strafe#"
+    },
+    {
+      "key": "MOVEZ",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Camera-relative world Z on XZ plane: yaw#, forward#, strafe#"
+    },
+    {
+      "key": "MOVESTEPX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as MOVEX(yaw,f,s)*speed*dt — world X delta this frame"
+    },
+    {
+      "key": "MOVESTEPZ",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as MOVEZ(yaw,f,s)*speed*dt — world Z delta this frame"
+    },
+    {
       "key": "FIX",
       "args": [
         "any"
@@ -619,6 +725,15 @@
         "any",
         "any"
       ]
+    },
+    {
+      "key": "IIF$",
+      "args": [
+        "any",
+        "any",
+        "any"
+      ],
+      "description": "Inline conditional returning a string; both branches evaluated"
     },
     {
       "key": "CHOOSE",
@@ -1124,6 +1239,15 @@
         "int",
         "string"
       ],
+      "phase": "init"
+    },
+    {
+      "key": "WINDOW.CANOPEN",
+      "args": [
+        "int",
+        "int",
+        "string"
+      ],
       "returns": "bool",
       "phase": "init"
     },
@@ -1254,6 +1378,58 @@
       "key": "GAME.ENDGAME",
       "args": [],
       "phase": "rendering"
+    },
+    {
+      "key": "BOXTOPLAND",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Sphere vs box top: landing centre Y or 0.0 if no landing"
+    },
+    {
+      "key": "LANDBOXES",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Best BOXTOPLAND snap Y over count boxes (parallel float arrays)"
+    },
+    {
+      "key": "PLAYER.MOVERELATIVE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "MOVESTEPX/Z combined — 2-float array [dx,dz]; ERASE when done"
     },
     {
       "key": "GAME.MX",
@@ -2907,6 +3083,352 @@
       ]
     },
     {
+      "key": "MODEL.SETROT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.SETMETAL",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.SETROUGH",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.ADDCHILD",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.ANIMCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MODEL.ANIMDONE",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "MODEL.ANIMNAME$",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "MODEL.CHILDCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MODEL.DRAWAT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.DRAWEX",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.DRAWWIRES",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MODEL.GETCHILD",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.GETFRAME",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MODEL.GETPARENT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.GETSCALE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.HIDE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.ISPLAYING",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "MODEL.ISVISIBLE",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "MODEL.LIMBCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MODEL.LIMBX",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MODEL.LOADANIMATIONS",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "MODEL.LOOP",
+      "args": [
+        "handle",
+        "bool"
+      ]
+    },
+    {
+      "key": "MODEL.MOVE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.PLAY",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "MODEL.PLAYIDX",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "MODEL.REMOVECHILD",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.ROTATE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.SETCASTSHADOW",
+      "args": [
+        "handle",
+        "bool"
+      ]
+    },
+    {
+      "key": "MODEL.SETLIMBPOS",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.SETMATRIX",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.SETRECEIVESHADOW",
+      "args": [
+        "handle",
+        "bool"
+      ]
+    },
+    {
+      "key": "MODEL.SETSCALE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.SETSCALEUNIFORM",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.SETSPEED",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.SHOW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.STOP",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MODEL.TOTALFRAMES",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MODEL.UPDATEANIM",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "MODEL.X",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MODEL.Y",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MODEL.Z",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "PARTICLE.MAKE",
       "args": [],
       "returns": "handle",
@@ -3902,8 +4424,156 @@
       ]
     },
     {
+      "key": "MESH.DRAWAT",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MESH.DRAWINSTANCED",
+      "args": [
+        "handle",
+        "handle",
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "MESH.EXPORT",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "MESH.GENERATEBOUNDS",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.GENERATELOD",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MESH.GENERATELODCHAIN",
+      "args": [
+        "handle",
+        "any"
+      ]
+    },
+    {
+      "key": "MESH.GENERATENORMALS",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.GETBOUNDS",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MESH.LOAD",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MESH.MAKECAPSULE",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "MESH.MAKECUSTOM",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MESH.OPTIMISEALL",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMISEFETCH",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMISEOVERDRAW",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMISEVERTEXCACHE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMIZEALL",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMIZEFETCH",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMIZEOVERDRAW",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "MESH.OPTIMIZEVERTEXCACHE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "MESH.UPDATEVERTICES",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
       "key": "MATERIAL.MAKEDEFAULT",
       "args": []
+    },
+    {
+      "key": "MATERIAL.CREATE",
+      "args": [],
+      "returns": "handle"
     },
     {
       "key": "MATERIAL.MAKEPBR",
@@ -4116,6 +4786,52 @@
       ]
     },
     {
+      "key": "INPUT.AXIS",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Two-key axis: -1, 0, or 1 (negKey vs posKey)"
+    },
+    {
+      "key": "INPUT.AXISDEG",
+      "args": [
+        "any",
+        "any",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) — radians this frame"
+    },
+    {
+      "key": "INPUT.ORBIT",
+      "args": [
+        "any",
+        "any",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias of INPUT.AXISDEG — orbit / yaw delta this frame"
+    },
+    {
+      "key": "INPUT.MOVEMENT2D",
+      "args": [
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "2-float array [forward, strafe] from two Axis pairs; ERASE when done"
+    },
+    {
       "key": "INPUT.GETKEYNAME",
       "args": [
         "int"
@@ -4209,6 +4925,31 @@
       "args": [
         "int"
       ]
+    },
+    {
+      "key": "INPUT.MOUSEHIT",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "INPUT.MOUSEDELTAX",
+      "args": [],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.MOUSEDELTAY",
+      "args": [],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.MOUSEWHEELMOVE",
+      "args": [],
+      "returns": "float",
+      "phase": "any"
     },
     {
       "key": "INPUT.SETMOUSESCALE",
@@ -4802,6 +5543,13 @@
       "args": []
     },
     {
+      "key": "TIME.SETMAXDELTA",
+      "args": [
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
       "key": "TIME.GET",
       "args": []
     },
@@ -4893,6 +5641,36 @@
       "args": [
         "any"
       ]
+    },
+    {
+      "key": "DEBUG.DRAWLINE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "DEBUG.DRAWBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
     },
     {
       "key": "DEBUG.PRINTL",
@@ -5025,6 +5803,27 @@
         "handle"
       ],
       "returns": "int"
+    },
+    {
+      "key": "FILE.EXISTS",
+      "args": [
+        "any"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "FILE.READALLTEXT",
+      "args": [
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "FILE.WRITEALLTEXT",
+      "args": [
+        "any",
+        "any"
+      ]
     },
     {
       "key": "AUDIO.INIT",
@@ -5909,6 +6708,82 @@
       "phase": "any"
     },
     {
+      "key": "RAY2D.HITCIRCLE_HIT",
+      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "returns": "bool",
+      "phase": "any",
+      "description": "2D ray vs circle — hit?"
+    },
+    {
+      "key": "RAY2D.HITCIRCLE_DISTANCE",
+      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any",
+      "description": "Distance along ray to hit (0 if miss)"
+    },
+    {
+      "key": "RAY2D.HITCIRCLE_POINTX",
+      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITCIRCLE_POINTY",
+      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITRECT_HIT",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "bool",
+      "phase": "any",
+      "description": "2D ray vs axis-aligned rect (minx,miny,maxx,maxy)"
+    },
+    {
+      "key": "RAY2D.HITRECT_DISTANCE",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITRECT_POINTX",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITRECT_POINTY",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITSEGMENT_HIT",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "bool",
+      "phase": "any",
+      "description": "2D ray vs segment (x1,y1)-(x2,y2)"
+    },
+    {
+      "key": "RAY2D.HITSEGMENT_DISTANCE",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITSEGMENT_POINTX",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITSEGMENT_POINTY",
+      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
       "key": "BBOX.MAKE",
       "args": [
         "float",
@@ -6333,6 +7208,77 @@
         "float"
       ],
       "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VEC3",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECADD",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECSUB",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECSCALE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECNORMALIZE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECDOT",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECCROSS",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.VECLENGTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
       "phase": "any"
     },
     {
@@ -9064,6 +10010,45 @@
       "phase": "rendering"
     },
     {
+      "key": "CAMERA.SETORBIT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ORBITAROUND",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ORBITAROUNDEG",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "CAMERA.BEGIN",
       "args": [
         "handle"
@@ -9286,6 +10271,119 @@
       "args": [
         "handle"
       ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.FOLLOW",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.ROTATION",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.TARGETX",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.TARGETY",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.ZOOMIN",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.ZOOMOUT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.ZOOMTOMOUSE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.CLEARFPSMODE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.GETACTIVE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETRANGE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETACTIVE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETFPSMODE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.UPDATEFPS",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.WORLDTOSCREEN2D",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
       "phase": "rendering"
     },
     {
@@ -9790,6 +10888,71 @@
       "phase": "any"
     },
     {
+      "key": "PHYSICS.START",
+      "args": []
+    },
+    {
+      "key": "PHYSICS.STOP",
+      "args": []
+    },
+    {
+      "key": "PHYSICS.SETGRAVITY",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "PHYSICS.STEP",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "PHYSICS.SETSUBSTEPS",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "PHYSICS.RAYCAST",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "PHYSICS.SPHERECAST",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "PHYSICS.BOXCAST",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "PHYSICS.ENABLE",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "PHYSICS.DISABLE",
+      "args": [
+        "any"
+      ]
+    },
+    {
       "key": "BODY3D.MAKE",
       "args": [
         "string"
@@ -10225,6 +11388,46 @@
     },
     {
       "key": "CHARCONTROLLER.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "CONTROLLER.CREATE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "CONTROLLER.MOVE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "CONTROLLER.GROUNDED",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "CONTROLLER.JUMP",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "CONTROLLER.FREE",
       "args": [
         "handle"
       ]
@@ -10839,6 +12042,20 @@
         "string"
       ],
       "returns": "handle"
+    },
+    {
+      "key": "JSON.LOADFILE",
+      "args": [
+        "any"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JSON.SAVEFILE",
+      "args": [
+        "any",
+        "any"
+      ]
     },
     {
       "key": "JSON.MAKE",
@@ -12368,6 +13585,13 @@
       ]
     },
     {
+      "key": "FOG.SETRANGE",
+      "args": [
+        "float",
+        "float"
+      ]
+    },
+    {
       "key": "FOG.SETCOLOR",
       "args": [
         "int",
@@ -12875,6 +14099,1234 @@
         "handle"
       ],
       "returns": "handle"
+    },
+    {
+      "key": "WATER.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "WATER.SETWAVEHEIGHT",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "WATER.GETWAVEY",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "WATER.GETDEPTH",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "WATER.ISUNDER",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "WATER.SETSHALLOWCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "WATER.SETDEEPCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "LIGHT2D.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "LIGHT2D.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "LIGHT2D.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT2D.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT2D.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "LIGHT2D.SETRADIUS",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "LIGHT2D.SETINTENSITY",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "RENDER.SET2DAMBIENT",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "TERRAIN.MAKE",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TERRAIN.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TERRAIN.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "TERRAIN.SETCHUNKSIZE",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "TERRAIN.FILLPERLIN",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "TERRAIN.FILLFLAT",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "TERRAIN.GETHEIGHT",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "TERRAIN.GETSLOPE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "TERRAIN.RAISE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "TERRAIN.LOWER",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "TERRAIN.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "CHUNK.GENERATE",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "CHUNK.COUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "CHUNK.SETRANGE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "CHUNK.ISLOADED",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "WORLD.SETCENTER",
+      "args": [
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "WORLD.UPDATE",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "WORLD.STREAMENABLE",
+      "args": [
+        "bool"
+      ]
+    },
+    {
+      "key": "WORLD.PRELOAD",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "WORLD.STATUS",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "WORLD.ISREADY",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "STOPWATCH.NEW",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "STOPWATCH.RESET",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "STOPWATCH.ELAPSED",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "STOPWATCH.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "RAY.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "RAY.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "BBOX.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BBOX.FROMMODEL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BBOX.CHECK",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "BBOX.CHECKSPHERE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "BBOX.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "CAMERA.TURN",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ROTATE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ORBIT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.ZOOM",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.FOLLOW",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.FOLLOWENTITY",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SHAKE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.PICK",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETTARGETENTITY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.CAMERAFOLLOW",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SCENE.CLEARSCENE",
+      "args": []
+    },
+    {
+      "key": "SCENE.SAVESCENE",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "SCENE.LOADSCENE",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.CLEARSCENE",
+      "args": []
+    },
+    {
+      "key": "ENTITY.SAVESCENE",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.LOADSCENE",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.GROUPCREATE",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.GROUPADD",
+      "args": [
+        "any",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.GROUPREMOVE",
+      "args": [
+        "any",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.ENTITIESINGROUP",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.ENTITIESINRADIUS",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.ENTITIESINBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.CREATE",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATEBOX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.SETPOSITION",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.GETPOSITION",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.MOVE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.TRANSLATE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.ROTATE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SCALE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.COLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.RADIUS",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.BOX",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.COLLIDED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.COLLISIONOTHER",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.FLOOR",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.SETGRAVITY",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.JUMP",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.UPDATE",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.DRAWALL",
+      "args": []
+    },
+    {
+      "key": "ENTITY.CREATEENTITY",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATECUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATESPHERE",
+      "args": [
+        "float",
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATECYLINDER",
+      "args": [
+        "float",
+        "float",
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATEPLANE",
+      "args": [
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATEMESH",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.LOADMESH",
+      "args": [
+        "any"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.LOADANIMATEDMESH",
+      "args": [
+        "any"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.POSITIONENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.ROTATEENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.TURNENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.MOVEENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.TRANSLATEENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.GRAVITY",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.ENTITYX",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ENTITYY",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ENTITYZ",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ENTITYPITCH",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ENTITYYAW",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ENTITYROLL",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.PARENT",
+      "args": [
+        "int",
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.PARENTCLEAR",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.ALPHA",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SHININESS",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.TEXTURE",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.FX",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.BLEND",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.ORDER",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.TYPE",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.COLLIDE",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.COLLISIONX",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.COLLISIONY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.COLLISIONZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.COLLISIONNX",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.COLLISIONNY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.COLLISIONNZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.DISTANCE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.VELOCITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.ADDFORCE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SLIDE",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.PICK",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.PICKMODE",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.POINTENTITY",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.ALIGNTOVECTOR",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.ANIMATE",
+      "args": [
+        "int",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.SETANIMTIME",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.ANIMTIME",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ANIMLENGTH",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.HIDE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.SHOW",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.FREE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.COPY",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.SETNAME",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.FIND",
+      "args": [
+        "any"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.MOVERELATIVE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.APPLYGRAVITY",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.GROUNDED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.SETMASS",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SETFRICTION",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SETBOUNCE",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "CAMERA.ORBITENTITY",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "INPUT.KEYHIT",
+      "args": [
+        "any"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "INPUT.MOUSEXSPEED",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "INPUT.MOUSEYSPEED",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "INPUT.JOYX",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "INPUT.JOYY",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "INPUT.JOYBUTTON",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "INPUT.JOYDOWN",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "GAME.KEYHIT",
+      "args": [
+        "any"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "GAME.MOUSEXSPEED",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "GAME.MOUSEYSPEED",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "GAME.JOYX",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "GAME.JOYY",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "GAME.JOYBUTTON",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
     }
   ]
 }

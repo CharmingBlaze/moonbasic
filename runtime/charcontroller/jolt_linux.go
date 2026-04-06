@@ -81,6 +81,14 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARCONTROLLER.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		return ccFree(m, args)
 	}))
+
+	reg.Register("CONTROLLER.CREATE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccMake(m, args) }))
+	reg.Register("CONTROLLER.MOVE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccMove(m, args) }))
+	reg.Register("CONTROLLER.GROUNDED", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccIsGrounded(m, args) }))
+	reg.Register("CONTROLLER.JUMP", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("CONTROLLER.JUMP: not implemented; apply upward velocity via CHARCONTROLLER.MOVE or physics")
+	}))
+	reg.Register("CONTROLLER.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccFree(m, args) }))
 }
 
 func shutdownCharController(m *Module) {

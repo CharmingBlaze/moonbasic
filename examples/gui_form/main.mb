@@ -1,10 +1,7 @@
 ; raygui form controls: TEXTBOX, SLIDER, CHECKBOX, TABBAR. Requires CGO.
 ; Run from repo root: CGO_ENABLED=1 go run . examples/gui_form/main.mb
 
-IF NOT Window.Open(880, 520, "GUI form demo") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(880, 520, "GUI form demo")
 Window.SetFPS(60)
 GUI.Enable()
 

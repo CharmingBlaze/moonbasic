@@ -1,0 +1,5 @@
+; MOVESTEPX/Z and INPUT.AXISDEG math (no window) — stub input returns 0 for axis helpers
+PRINT(MOVESTEPX(0.0, 1.0, 0.0, 10.0, 0.1))
+PRINT(MOVESTEPZ(0.0, 1.0, 0.0, 10.0, 0.1))
+PRINT(Input.AxisDeg(KEY_Q, KEY_E, 90.0, 0.05))
+PRINT("MOVESTEP / AXISDEG test OK")

@@ -66,6 +66,10 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 		return v.doArraySet(i)
 	case opcode.OpArrayRedim:
 		return v.doArrayRedim(i)
+	case opcode.OpArrayMakeTyped:
+		return v.doArrayMakeTyped(i)
+	case opcode.OpNewFilled:
+		return v.doNewFilled(i)
 
 	default:
 		return v.runtimeError(fmt.Sprintf("unknown or unimplemented opcode: %s", i.Op.String()))

@@ -1,10 +1,7 @@
 ; Two-player Pong (W/S vs I/K). HUD uses Draw.Text — no external .ttf required.
 ; Run from repo root: CGO_ENABLED=1 go run . examples/pong/main.mb
 
-IF NOT Window.Open(960, 540, "moonBASIC Pong") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(960, 540, "moonBASIC Pong")
 Window.SetFPS(60)
 
 py1# = 200

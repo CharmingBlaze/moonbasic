@@ -1,10 +1,7 @@
 ; raygui built-in themes + text styling (CGO + raylib + raygui).
 ; Run from repo root: CGO_ENABLED=1 go run . examples/gui_theme/main.mb
 
-IF NOT Window.Open(800, 600, "GUI theme") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(800, 600, "GUI theme")
 Window.SetFPS(60)
 GUI.Enable()
 

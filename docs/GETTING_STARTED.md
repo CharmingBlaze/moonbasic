@@ -80,10 +80,7 @@ Hello, moonBASIC!
 Create `window.mb`:
 
 ```basic
-IF NOT Window.Open(960, 540, "Hello Window") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(960, 540, "Hello Window")
 Window.SetFPS(60)
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
@@ -103,6 +100,8 @@ moonbasic window.mb
 
 You should see a dark blue window with white text. Press the window's close button to exit.
 
+If opening the window fails (invalid size, unavailable display, etc.), the runtime prints a short message to **stderr** and the process exits—you do not need `IF NOT Window.Open …` in every program. Use **`Window.CanOpen`** only when you must choose a fallback resolution or show your own error without opening.
+
 ---
 
 ## Your First Game Loop
@@ -111,10 +110,7 @@ moonBASIC games follow a simple pattern:
 
 ```basic
 ; 1. Setup — runs once
-IF NOT Window.Open(800, 600, "My Game") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(800, 600, "My Game")
 Window.SetFPS(60)
 
 player_x# = 400
@@ -159,10 +155,7 @@ Key concepts:
 For 3D scenes, wrap your drawing commands in `cam.Begin()` / `cam.End()`:
 
 ```basic
-IF NOT Window.Open(960, 540, "3D Cube") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(960, 540, "3D Cube")
 Window.SetFPS(60)
 
 cam = Camera.Make()
@@ -182,7 +175,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     Render.Clear(12, 14, 22)
     cam.Begin()
         Mesh.Draw(cube, mat, xform)
-        Draw.Grid(20, 1.0)
+        Draw3D.Grid(20, 1.0)
     cam.End()
     Render.Frame()
 WEND

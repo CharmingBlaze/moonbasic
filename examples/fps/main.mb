@@ -1,10 +1,7 @@
 ; Top-down arena: WASD move, shoot line toward mouse, moving target blocks.
 ; Run from repo root: CGO_ENABLED=1 go run . examples/fps/main.mb
 
-IF NOT Window.Open(960, 540, "moonBASIC Arena (2D)") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(960, 540, "moonBASIC Arena (2D)")
 Window.SetFPS(60)
 
 px# = 480

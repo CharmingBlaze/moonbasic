@@ -5,8 +5,9 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Enhanced regex to find direct registrations AND common local helpers [reg("...")] in modules.
-REG_PAT = re.compile(r'(?:Register|reg|regFlat)\(\s*"([^"]+)"')
+# Enhanced regex to find strings inside Register / reg / regFlat or similar calls.
+REG_PAT = re.compile(r'(?:Register|reg|regFlat|reg_alias|RegisterModule)\((.*)\)')
+STR_PAT = re.compile(r'"([^"]+)"')
 
 def register_key_lines() -> list[str]:
     """Scan Go source files for registration calls."""
@@ -17,8 +18,15 @@ def register_key_lines() -> list[str]:
             continue
         try:
             text = p.read_text(encoding="utf-8", errors="replace")
-            for m in REG_PAT.finditer(text):
-                keys.append(m.group(1))
+            for line in text.splitlines():
+                if "Register" in line or 'reg("' in line or 'regFlat("' in line:
+                    # Find all strings in this registration-looking line.
+                    for m in STR_PAT.finditer(line):
+                        s = m.group(1)
+                        # Filter out things that are clearly not command keys (namespaces/package names).
+                        if s in ("bitwise", "physics2d", "game", "table", "util", "time", "weather", "sky", "water", "draw", "draw3d", "audio", "mblight2d", "mbscene"):
+                            continue
+                        keys.append(s)
         except Exception:
             continue
     return keys

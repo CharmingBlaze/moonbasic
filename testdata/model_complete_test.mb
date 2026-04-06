@@ -1,32 +1,63 @@
-Window.Open(320, 240, "model complete")
+Window.Open(1280, 720, "Model Complete Test")
 Window.SetFPS(60)
 
-mesh = MESH.MAKECUBE(2.0, 2.0, 2.0)
-mdl = MODEL.MAKE(mesh)
-ASSERT(MODEL.GETMATERIALCOUNT(mdl) >= 1, "material count")
+cam = Camera.Make()
+Camera.SetPos(cam, 0, 3, 10)
+Camera.SetTarget(cam, 0, 1, 0)
+Camera.SetFOV(cam, 60)
 
-MODEL.SETPOS(mdl, -3, 1, 0)
-MODEL.SETDIFFUSE(mdl, 100, 180, 255)
+sun = Light.Make("directional")
+Light.SetDir(sun, -1, -2, -1)
+Light.SetIntensity(sun, 1.2)
 
-cam = CAMERA.MAKE()
-CAMERA.SETPOS(cam, 0, 3, 10)
-CAMERA.SETTARGET(cam, 0, 1, 0)
-CAMERA.SETFOV(cam, 60)
+cubeMesh = Mesh.MakeCube(2, 2, 2)
+sphereMesh = Mesh.MakeSphere(1, 16, 16)
+planeMesh = Mesh.MakePlane(10, 10, 1, 1)
 
-frames = 0
+cube = Model.Make(cubeMesh)
+sphere = Model.Make(sphereMesh)
+plane = Model.Make(planeMesh)
+
+Model.SetPos(cube, -3, 1, 0)
+Model.SetPos(sphere, 3, 1, 0)
+Model.SetPos(plane, 0, 0, 0)
+
+Model.SetColor(cube, 100, 180, 255, 255)
+Model.SetColor(sphere, 255, 150, 80, 255)
+Model.SetColor(plane, 80, 140, 80, 255)
+
+Model.SetRough(cube, 0.8)
+Model.SetMetal(sphere, 0.9)
+
+angle# = 0.0
+
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = Time.Delta()
+    angle# = angle# + 30 * dt#
+
+    Model.SetRot(cube, 0, angle#, 0)
+    Model.SetRot(sphere, angle# * 0.5, 0, angle# * 0.3)
+
     Render.Clear(20, 25, 35)
-    CAMERA.BEGIN(cam)
-    MODEL.DRAW(mdl)
-    CAMERA.END()
+    Camera.Begin(cam)
+        Model.Draw(cube)
+        Model.Draw(sphere)
+        Model.Draw(plane)
+        Draw3D.Grid(10, 1.0)
+    Camera.End()
+
+    Draw.Text("Model Complete Test", 20, 20, 18, 255,255,200,255)
+    Draw.Text("Cube / Sphere / Plane", 20, 48, 14, 200,200,200,200)
+    Draw.Text("FPS: " + STR$(Window.GetFPS()), 20, 70, 14, 200,200,200,200)
     Render.Frame()
-    frames = frames + 1
-    IF frames >= 2 THEN EXIT WHILE
 WEND
 
-CAMERA.FREE(cam)
-MODEL.FREE(mdl)
-MESH.FREE(mesh)
-
+Model.Free(cube)
+Model.Free(sphere)
+Model.Free(plane)
+Mesh.Free(cubeMesh)
+Mesh.Free(sphereMesh)
+Mesh.Free(planeMesh)
+Light.Free(sun)
+Camera.Free(cam)
 Window.Close()
-PRINT("model_complete_test ok")

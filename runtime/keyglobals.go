@@ -22,6 +22,8 @@ func SeedInputKeyGlobals(globals map[string]value.Value) {
 	globals["KEY_A"] = value.FromInt(65)
 	globals["KEY_S"] = value.FromInt(83)
 	globals["KEY_D"] = value.FromInt(68)
+	globals["KEY_Q"] = value.FromInt(81)
+	globals["KEY_E"] = value.FromInt(69)
 	globals["KEY_I"] = value.FromInt(73)
 	globals["KEY_K"] = value.FromInt(75)
 	// Raylib KeyboardKey — arrows (INPUT.ActionAxis digital defaults use Left/A and Right/D).

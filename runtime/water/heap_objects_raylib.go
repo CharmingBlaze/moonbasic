@@ -1,3 +1,5 @@
+//go:build cgo || (windows && !cgo)
+
 package water
 
 import (
@@ -30,7 +32,6 @@ func (w *WaterObject) Free() {
 	if w.freed {
 		return
 	}
-	// Owns mesh from GenMeshPlane and material from LoadMaterialDefault — release both.
 	if w.Mesh.TriangleCount > 0 {
 		rl.UnloadMesh(&w.Mesh)
 	}

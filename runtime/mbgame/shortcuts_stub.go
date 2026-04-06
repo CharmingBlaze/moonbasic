@@ -36,6 +36,7 @@ func (m *Module) registerShortcuts(r runtime.Registrar) {
 		"MX", "MY", "MOUSEX", "MOUSEY", "MDX", "MDY", "MWHEEL",
 		"MLEFT", "MRIGHT", "MMIDDLE", "MLEFTPRESSED", "MRIGHTPRESSED",
 		"KEYDOWN", "KEYPRESSED", "KEYRELEASED", "KEYCHAR", "ANYKEY",
+		"KEYHIT", "MOUSEXSPEED", "MOUSEYSPEED", "JOYX", "JOYY", "JOYBUTTON",
 	}
 	for _, n := range names {
 		r.Register(n, "game", err(n))

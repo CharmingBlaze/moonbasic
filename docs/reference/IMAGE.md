@@ -226,8 +226,7 @@ All **mutate** in place.
 ## Example: composite → texture → draw
 
 ```basic
-IF NOT Window.Open(640, 480, "Image to texture") THEN END
-ENDIF
+Window.Open(640, 480, "Image to texture")
 Window.SetFPS(60)
 
 a = IMAGE.MAKE(128, 128)

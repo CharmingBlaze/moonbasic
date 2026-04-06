@@ -17,6 +17,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerGesture(r)
 	m.registerInputAdvanced(r)
 	m.registerMouseExtra(r)
+	registerAxis(r)
+	registerMovement2D(m, r)
 	r.Register("INPUT.KEYDOWN", "input", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Nil, fmt.Errorf("INPUT.KEYDOWN expects 1 argument")
@@ -48,6 +50,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		return value.FromBool(rl.IsKeyReleased(kc)), nil
 	}))
 	r.Register("INPUT.GETKEYNAME", "input", m.inGetKeyName)
+	m.registerBlitzAliases(r)
 	m.registerActionMapping(r)
 }
 

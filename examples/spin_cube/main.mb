@@ -1,10 +1,7 @@
 ; 3D demo: camera, rotating cube, ground grid, heap cleanup.
 ; Run from repo root: CGO_ENABLED=1 go run . examples/spin_cube/main.mb
 
-IF NOT Window.Open(960, 540, "moonBASIC — spin cube") THEN
-    PRINT("Could not create window")
-    END
-ENDIF
+Window.Open(960, 540, "moonBASIC — spin cube")
 Window.SetFPS(60)
 
 cam = Camera.Make()

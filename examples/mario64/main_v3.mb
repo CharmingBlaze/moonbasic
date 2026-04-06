@@ -1,0 +1,92 @@
+; 3D Hop v3 — TYPE + DIM AS, mouse orbit, MOVESTEPX/Z, BOXTOPLAND Y, IIF$
+; Run: CGO_ENABLED=1 go run . examples/mario64/main_v3.mb
+
+Window.Open(960, 540, "moonBASIC 3D Hop v3")
+Window.SetFPS(60)
+
+CONST MOUSE_ORBIT_SENS# = 0.0055
+CONST MOVE_SPEED# = 11.0
+CONST PLAYER_R# = 0.45
+CONST GRAVITY# = -26.0
+CONST JUMP# = 10.5
+CONST CAM_DIST# = 7.5
+CONST CAM_HEIGHT# = 3.8
+CONST PLAT_N = 4
+
+TYPE Platform
+    X#, Y#, Z#
+    W#, H#, D#
+    R, G, B
+ENDTYPE
+
+cam = Camera.Make()
+cam.SetFOV(55)
+
+px# = 0.0
+py# = PLAYER_R#
+pz# = 0.0
+pvy# = 0.0
+ong? = FALSE
+camYaw# = 0.0
+
+DIM plat AS Platform(PLAT_N)
+plat(0) = Platform(0.0, 1.5, 6.0, 4.0, 0.4, 4.0, 255, 60, 200)
+plat(1) = Platform(-3.5, 2.5, 10.0, 2.5, 0.35, 2.5, 40, 255, 230)
+plat(2) = Platform(4.0, 3.2, 14.0, 2.0, 0.3, 2.0, 120, 255, 80)
+plat(3) = Platform(0.0, 4.0, 18.0, 3.0, 0.35, 3.0, 255, 210, 60)
+
+WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = DT()
+
+    ; Orbit: mouse X (pixels this frame) → yaw; optional Q/E for keyboard
+    camYaw# = camYaw# + FLOAT(Input.MouseDeltaX()) * MOUSE_ORBIT_SENS#
+    camYaw# = camYaw# + Input.Orbit(KEY_Q, KEY_E, 77.0, dt#)
+
+    f# = Input.Axis(KEY_S, KEY_W)
+    s# = Input.Axis(KEY_A, KEY_D)
+
+    px# = CLAMP(px# + MOVESTEPX(camYaw#, f#, s#, MOVE_SPEED#, dt#), -17.0, 17.0)
+    pz# = CLAMP(pz# + MOVESTEPZ(camYaw#, f#, s#, MOVE_SPEED#, dt#), -17.0, 22.0)
+
+    IF ong? AND KEYPRESSED(KEY_SPACE) THEN pvy# = JUMP#
+    pvy# = pvy# + GRAVITY# * dt#
+    py# = py# + pvy# * dt#
+
+    ong? = FALSE
+    FOR i = 0 TO PLAT_N - 1
+        landY# = BOXTOPLAND(px#, py#, pz#, pvy#, PLAYER_R#, plat(i).X#, plat(i).Y#, plat(i).Z#, plat(i).W#, plat(i).H#, plat(i).D#)
+        IF landY# > 0.0 THEN
+            py# = landY#
+            pvy# = 0.0
+            ong? = TRUE
+        ENDIF
+    NEXT
+
+    IF NOT ong? AND py# - PLAYER_R# <= 0.02 AND pvy# <= 0.0 THEN
+        py# = PLAYER_R#
+        pvy# = 0.0
+        ong? = TRUE
+    ENDIF
+
+    Camera.OrbitAround(cam, px#, py# + 0.2, pz#, camYaw#, CAM_DIST#, CAM_HEIGHT#)
+
+    Render.Clear(72, 92, 140)
+    cam.Begin()
+        Draw3D.Plane(0.0, 0.0, 0.0, 48.0, 48.0, 55, 78, 120, 255)
+        Draw3D.Grid(24, 1.0)
+        FOR i = 0 TO PLAT_N - 1
+            Draw3D.Cube(plat(i).X#, plat(i).Y#, plat(i).Z#, plat(i).W#, plat(i).H#, plat(i).D#, plat(i).R, plat(i).G, plat(i).B, 255)
+            Draw3D.CubeWires(plat(i).X#, plat(i).Y#, plat(i).Z#, plat(i).W# + 0.05, plat(i).H# + 0.05, plat(i).D# + 0.05, 255, 255, 255, 180)
+        NEXT
+        Draw3D.Capsule(px#, py# - 0.42, pz#, px#, py# + 0.48, pz#, 0.38, 10, 12, 255, 95, 255, 255)
+        Draw3D.Sphere(px#, py# + 0.72, pz#, 0.24, 70, 255, 140, 255)
+    cam.End()
+
+    Draw.Text("Mouse orbit   WASD move   Q/E orbit   SPACE jump   ESC", 60, 12, 17, 245, 250, 255, 255)
+    Draw.Text(IIF$(ong?, "On ground", "Air"), 16, 36, 16, IIF(ong?, 160, 255), IIF(ong?, 255, 220), IIF(ong?, 190, 130), 255)
+    Render.Frame()
+WEND
+
+ERASE(plat)
+Camera.Free(cam)
+Window.Close()

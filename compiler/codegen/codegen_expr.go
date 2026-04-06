@@ -86,6 +86,18 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) {
 		}
 
 	case *ast.CallExprNode:
+		if td, ok := g.Prog.Types[n.Name]; ok && g.Prog.Functions[n.Name] == nil {
+			if len(n.Args) != len(td.Fields) {
+				g.codegenError(n.Line, n.Col, fmt.Sprintf("type %s constructor: wrong field count", n.Name), "")
+				return
+			}
+			for _, a := range n.Args {
+				g.emitExpr(ch, a)
+			}
+			idx := ch.AddName(n.Name)
+			ch.Emit(opcode.OpNewFilled, idx, uint8(len(n.Args)), n.Line)
+			break
+		}
 		for _, a := range n.Args {
 			g.emitExpr(ch, a)
 		}
@@ -135,6 +147,15 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) {
 			ch.Emit(opcode.OpLoadGlobal, idx, 0, n.Line)
 		}
 		// 2. Emit FieldGet
+		fidx := ch.AddName(n.Field)
+		ch.Emit(opcode.OpFieldGet, fidx, 0, n.Line)
+
+	case *ast.IndexFieldExpr:
+		g.emitLoadNamed(ch, n.Array, n.Line)
+		for _, ix := range n.Index {
+			g.emitExpr(ch, ix)
+		}
+		ch.Emit(opcode.OpArrayGet, int32(len(n.Index)), 0, n.Line)
 		fidx := ch.AddName(n.Field)
 		ch.Emit(opcode.OpFieldGet, fidx, 0, n.Line)
 

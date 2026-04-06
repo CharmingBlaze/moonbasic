@@ -35,10 +35,14 @@ Window.Close()
 
 ### `Window.Open(width, height, title$)`
 
-Initializes the window and sets its dimensions and title. This must be the first window command called.
+Initializes the window and sets its dimensions and title. This must be the first window command called. **`Window.Open` does not return a value.** If the window cannot be created, the runtime prints a short message to **stderr** and **exits the process** (so you do not need `IF NOT Window.Open ...` boilerplate in every program).
 
 -   `width`, `height`: The dimensions of the window's client area in pixels.
 -   `title$`: The text to display in the window's title bar.
+
+### `Window.CanOpen(width, height, title$)`
+
+Returns **`TRUE`** if the given size and non-empty title are acceptable **before** calling `Window.Open`. Use this when you need to choose a fallback resolution or show a custom error without letting `Window.Open` terminate the process.
 
 ---
 

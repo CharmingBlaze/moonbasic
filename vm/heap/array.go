@@ -13,15 +13,18 @@ const (
 	ArrayKindFloat ArrayKind = iota
 	ArrayKindString
 	ArrayKindBool
+	ArrayKindHandle // elements are heap handles (e.g. TYPE instances)
 )
 
 // Array is a dense 0-based array stored on the heap as a handle.
 // Float and bool elements use Floats; bool is stored as 0/1.
 // String elements use Strings (program string-pool indices).
+// Handle elements use Handles (raw heap IDs; 0 = null).
 type Array struct {
 	Dims    []int64
 	Floats  []float64
 	Strings []int32
+	Handles []int32
 	Kind    ArrayKind
 	empty   bool
 }
@@ -63,6 +66,8 @@ func NewArrayOfKind(dims []int64, kind ArrayKind, emptyStrIdx int32) (*Array, er
 		for i := range a.Strings {
 			a.Strings[i] = emptyStrIdx
 		}
+	case ArrayKindHandle:
+		a.Handles = make([]int32, n)
 	default:
 		return nil, fmt.Errorf("array: unknown kind")
 	}
@@ -80,6 +85,32 @@ func (a *Array) Free() {
 	a.empty = true
 	a.Floats = nil
 	a.Strings = nil
+	a.Handles = nil
+}
+
+// GetHandle returns the heap handle id at indices (ArrayKindHandle only).
+func (a *Array) GetHandle(indices []int64) (int32, error) {
+	if a.Kind != ArrayKindHandle {
+		return 0, fmt.Errorf("array: not a handle array")
+	}
+	li, err := a.linearIndex(indices)
+	if err != nil {
+		return 0, err
+	}
+	return a.Handles[li], nil
+}
+
+// SetHandle sets the handle at indices (ArrayKindHandle only).
+func (a *Array) SetHandle(indices []int64, hid int32) error {
+	if a.Kind != ArrayKindHandle {
+		return fmt.Errorf("array: not a handle array")
+	}
+	li, err := a.linearIndex(indices)
+	if err != nil {
+		return err
+	}
+	a.Handles[li] = hid
+	return nil
 }
 
 func (a *Array) totalLen() int {
@@ -113,7 +144,7 @@ func (a *Array) linearIndex(indices []int64) (int, error) {
 
 // GetFloat returns the numeric element at indices (float or bool storage).
 func (a *Array) GetFloat(indices []int64) (float64, error) {
-	if a.Kind == ArrayKindString {
+	if a.Kind == ArrayKindString || a.Kind == ArrayKindHandle {
 		return 0, fmt.Errorf("array: not a numeric array")
 	}
 	li, err := a.linearIndex(indices)

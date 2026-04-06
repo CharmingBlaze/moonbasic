@@ -28,6 +28,11 @@ func foldStmt(s ast.Stmt) {
 			n.Index[i] = foldExpr(n.Index[i])
 		}
 		n.Expr = foldExpr(n.Expr)
+	case *ast.IndexFieldAssignNode:
+		for i := range n.Index {
+			n.Index[i] = foldExpr(n.Index[i])
+		}
+		n.Expr = foldExpr(n.Expr)
 	case *ast.FieldAssignNode:
 		n.Expr = foldExpr(n.Expr)
 	case *ast.CallStmtNode:
@@ -157,6 +162,11 @@ func foldExpr(e ast.Expr) ast.Expr {
 		return n
 	case *ast.IndexExpr:
 		n.Base = foldExpr(n.Base)
+		for i := range n.Index {
+			n.Index[i] = foldExpr(n.Index[i])
+		}
+		return n
+	case *ast.IndexFieldExpr:
 		for i := range n.Index {
 			n.Index[i] = foldExpr(n.Index[i])
 		}

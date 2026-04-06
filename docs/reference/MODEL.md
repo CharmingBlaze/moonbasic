@@ -138,13 +138,36 @@ Texture **stage** helpers (`SETTEXTURESTAGE`, `SETSTAGEBLEND`, `SCROLLTEXTURE`, 
 
 ## Example (procedural mesh → model)
 
-See **`testdata/model_complete_test.mb`**: **`MESH.MAKECUBE`** → **`MODEL.MAKE`** → **`MODEL.SETPOS`** / **`MODEL.SETDIFFUSE`** → **`CAMERA.BEGIN`** / **`MODEL.DRAW`** / **`CAMERA.END`**.
+See **`testdata/model_complete_test.mb`**: **`MESH.MAKECUBE`** → **`MODEL.MAKE`** → **`MODEL.SETPOS`** / **`MODEL.SETCOLOR`** / **`MODEL.SETROT`** → **`CAMERA.BEGIN`** / **`MODEL.DRAW`** / **`CAMERA.END`**.
+
+---
+
+### Transforms, draw variants, PBR-ish params
+
+| Command | Purpose |
+|---|---|
+| `MODEL.MOVE` | Translate by **`dx,dy,dz`** (left-multiplies transform). |
+| `MODEL.X` / `Y` / `Z` | Read translation from the model matrix. |
+| `MODEL.SETROT` / `ROTATE` | Set or delta **Euler** rotation (radians), preserving position. |
+| `MODEL.GETROT` | Returns **3-float array** (Euler from matrix; caller **`ERASE`**). |
+| `MODEL.SETSCALE` / `SETSCALEUNIFORM` / `GETSCALE` | Non-uniform or uniform scale; **GETSCALE** estimates scale from column lengths. |
+| `MODEL.SETMATRIX` | Replace transform from a **`MAT4`** handle. |
+| `MODEL.DRAWAT` | One-shot draw with **position + Euler + scale** (saves/restores model matrix). |
+| `MODEL.DRAWEX` | **`DrawModelEx`**: axis **`ax,ay,az`**, **angle** (radians), scale, tint **RGBA**. |
+| `MODEL.DRAWWIRES` | Wireframe overlay (`DrawModelWires`). |
+| `MODEL.SETCOLOR` | Sets **albedo** tint on all materials (**RGBA**). |
+| `MODEL.SETMETAL` / `SETROUGH` | Writes **`Material.Params[0]` / `[1]`** (convention for default/PBR materials). |
+| `MODEL.HIDE` / `SHOW` / `ISVISIBLE` | Skip **`MODEL.DRAW`** when hidden. |
+
+### Animation (external clip file)
+
+After **`MODEL.LOAD`**, call **`MODEL.LOADANIMATIONS(model, path$)`** (same format Raylib supports for **`LoadModelAnimations`**). Then **`MODEL.PLAYIDX`**, **`MODEL.UPDATEANIM(model, dt#)`**, **`MODEL.STOP`**, **`MODEL.LOOP`**, **`MODEL.SETSPEED`** (multiplier). **`MODEL.ANIMNAME$(model, idx)`** returns the clip name. **`MODEL.PLAY(model, name$)`** is not wired — use **`PLAYIDX`**.
 
 ---
 
 ## Common mistakes
 
-- **`MODEL.DRAW(mdl, matrix)`** — not supported; use **`MODEL.SETPOS`** (and future rotation APIs if added).
+- **`MODEL.DRAW(mdl, matrix)`** — not supported; use **`MODEL.SETPOS`** / **`SETMATRIX`** / **`DRAWAT`**.
 - **`mod` as a variable name** — **`MOD`** is reserved in moonBASIC; use **`mdl`** or **`modelHandle`**.
 - **Double-free after `MODEL.MAKE`** — follow **`MODEL.FREE`** then **`MESH.FREE`** (mesh slot only) as in the test, or read **`consumedByModel`** behaviour above.
 

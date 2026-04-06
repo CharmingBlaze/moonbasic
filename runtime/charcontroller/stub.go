@@ -24,6 +24,7 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 		"CHARCONTROLLER.MOVE", "CHARCONTROLLER.ISGROUNDED",
 		"CHARCONTROLLER.X", "CHARCONTROLLER.Y", "CHARCONTROLLER.Z",
 		"CHARCONTROLLER.FREE",
+		"CONTROLLER.CREATE", "CONTROLLER.MOVE", "CONTROLLER.GROUNDED", "CONTROLLER.JUMP", "CONTROLLER.FREE",
 	} {
 		reg.Register(k, "charcontroller", stub(k))
 	}

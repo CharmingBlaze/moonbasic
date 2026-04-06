@@ -400,6 +400,9 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 	h := heap.Handle(args[0].IVal)
 
 	if o, err := heap.Cast[*modelObj](m.h, h); err == nil {
+		if o.hidden {
+			return value.Nil, nil
+		}
 		if shadowDeferActive() && InCamera3D() {
 			draw3dMu.Lock()
 			deferredModels = append(deferredModels, h)

@@ -42,10 +42,7 @@ Variable types follow **suffix rules** (`$` string, `#` float, `?` bool, none = 
 Almost all graphical programs follow this shape:
 
 ```basic
-IF NOT Window.Open(960, 540, "Title") THEN
-    PRINT "Could not open window"
-    END
-ENDIF
+Window.Open(960, 540, "Title")
 Window.SetFPS(60)
 
 ; setup handles, load assets, set variables
@@ -75,6 +72,8 @@ Rules of thumb:
 - **`Time.Delta()`** — seconds since last frame; multiply speeds by `dt#` for **frame-rate-independent** motion.
 - **`Window.ShouldClose()`** — true when the user closes the window.
 - **`Input.KeyDown(KEY_ESCAPE)`** — common explicit quit.
+
+moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt#`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell.
 
 ---
 
@@ -118,7 +117,9 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 ## 8. Arrays, `DIM`, and handles
 
 - **`DIM a(10)`** — numeric array; indices `0` … `9`.
+- **`DIM plat AS Platform(4)`** — array of a **record type** defined with **`TYPE` … `ENDTYPE`** (see [LANGUAGE.md](LANGUAGE.md)). Use **`plat(i) = Platform(...)`** and **`plat(i).field`**.
 - Some builtins return **handles** to heap arrays (e.g. `MEASURETEXTEX`, `GUI.GETCOLOR`). Index with the same `arr(i)` syntax as `DIM` arrays.
+- **`ERASE(name)`** — frees a `DIM` array or typed array and clears the variable when you no longer need it.
 - **`ARRAYFREE(handle)`** when you are done with a heap array you no longer need.
 
 ---

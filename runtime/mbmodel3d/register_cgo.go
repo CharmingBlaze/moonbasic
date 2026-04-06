@@ -8,6 +8,7 @@ import "moonbasic/runtime"
 func (m *Module) Register(reg runtime.Registrar) {
 	registerMeshGen(m, reg)
 	registerMeshOps(m, reg)
+	registerMeshComplete(m, reg)
 	registerMaterialCmds(m, reg)
 	registerShaderCmds(m, reg)
 	registerShaderUniformCmds(m, reg)
@@ -18,6 +19,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerModelTransform(m, reg)
 	registerModelInstDraw(m, reg)
 	registerModelLOD(m, reg)
+	registerModelComplete(m, reg)
 }
 
 // Shutdown implements runtime.Module.

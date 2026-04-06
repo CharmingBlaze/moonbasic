@@ -6,6 +6,9 @@ import "moonbasic/vm/heap"
 // Module holds 3D/2D camera natives.
 type Module struct {
 	h *heap.Store
+
+	// lastActive3D is set by CAMERA.BEGIN for CAMERA.GETACTIVE / shadow helpers.
+	lastActive3D heap.Handle
 }
 
 // NewModule creates a camera module.

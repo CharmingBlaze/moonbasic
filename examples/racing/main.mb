@@ -1,10 +1,7 @@
 ; Top-down racing: steer A/D, throttle W, brake S. Gold tile = checkpoint, cyan = finish line.
 ; Run from repo root: CGO_ENABLED=1 go run . examples/racing/main.mb
 
-IF NOT Window.Open(960, 540, "moonBASIC Racing") THEN
-    PRINT("Could not open window")
-    END
-ENDIF
+Window.Open(960, 540, "moonBASIC Racing")
 Window.SetFPS(60)
 
 cx# = 480

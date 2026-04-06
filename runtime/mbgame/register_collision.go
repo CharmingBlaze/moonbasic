@@ -219,4 +219,24 @@ func (m *Module) registerCollisionBuiltins(r runtime.Registrar) {
 		}
 		return value.FromFloat(distanceSq3D(fs[0], fs[1], fs[2], fs[3], fs[4], fs[5])), nil
 	}))
+	// BOXTOPLAND: sphere (center px,py,pz radius pr) landing on top face of AABB box (center bx,by,bz size bw,bh,bd), pvy<=0
+	r.Register("BOXTOPLAND", "game", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if len(args) != 11 {
+			return value.Nil, fmt.Errorf("BOXTOPLAND expects 11 arguments (px,py,pz,pvy,pr, bx,by,bz,bw,bh,bd)")
+		}
+		fs := make([]float64, 11)
+		for i := 0; i < 11; i++ {
+			f, ok := argF(args[i])
+			if !ok {
+				return value.Nil, fmt.Errorf("BOXTOPLAND: numeric arguments required")
+			}
+			fs[i] = f
+		}
+		px, py, pz, pvy, pr := fs[0], fs[1], fs[2], fs[3], fs[4]
+		bx, by, bz, bw, bh, bd := fs[5], fs[6], fs[7], fs[8], fs[9], fs[10]
+		return value.FromFloat(BoxTopLandSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)), nil
+	}))
+	r.Register("LANDBOXES", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return landBoxes(rt, args...)
+	})
 }

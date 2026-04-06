@@ -18,7 +18,7 @@ See [examples/README.md](../examples/README.md) for the full table and Windows n
 
 | Idea | Typical API |
 |------|-------------|
-| Open window | `Window.Open(w, h, title$)` — check return or use `IF NOT Window.Open(...) THEN ... ENDIF` |
+| Open window | `Window.Open(w, h, title$)` — on failure the runtime prints to stderr and exits; use `Window.CanOpen` if you must branch without opening |
 | Frame timing | `Window.SetFPS(60)`, then each frame `Time.Delta()` for movement |
 | Quit | `Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose()` |
 | Clear + present | `Render.Clear(r,g,b)` … `Render.Frame()` |
@@ -62,6 +62,12 @@ Transform.Free(cubeXform)
 Camera.Free(cam)
 Window.Close()
 ```
+
+---
+
+## 3D hop (orbit camera + platforms) — `examples/mario64/`
+
+Third-person hop on a plane and boxes. **`examples/mario64/README.md`** compares three sources: verbose **`main.mb`**, commented **`main_v2.mb`** (parallel arrays + helpers), compact **`main_v3.mb`** (**`TYPE`**). Uses **`Camera.OrbitAround`**, **`Input.Axis`** / **`Input.AxisDeg`**, **`MOVESTEPX`/`MOVESTEPZ`** (or **`MOVEX`/`MOVEZ`**), **`BOXTOPLAND`**, **`IIF$`**. See [CAMERA.md](reference/CAMERA.md), [INPUT.md](reference/INPUT.md), [GAMEHELPERS.md](reference/GAMEHELPERS.md), [MATH.md](reference/MATH.md), [LANGUAGE.md](LANGUAGE.md).
 
 ---
 
@@ -143,6 +149,7 @@ For cross-platform physics, start from [Physics 2D](reference/PHYSICS2D.md) inst
 | Arena | `examples/fps/main.mb` | WASD + oscillating targets + `TIME.GET` |
 | Racing | `examples/racing/main.mb` | Steer / accelerate + lap line |
 | Mini RPG | `examples/rpg/main.mb` | Move in a room, gold counter, `JSON` + `FILE` save on exit |
+| 3D hop | `examples/mario64/README.md` | **`README`** compares **`main.mb`** / **`main_v2.mb`** / **`main_v3.mb`** — orbit **`Camera.OrbitAround`**, **`Input.Axis`**, **`MOVEX`/`MOVEZ`**, **`BOXTOPLAND`**, **`IIF$`** |
 
 ---
 

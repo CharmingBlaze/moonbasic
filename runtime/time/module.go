@@ -44,6 +44,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.FromInt(time.Since(m.start).Milliseconds()), nil
 	})
 	registerWallClock(reg)
+	registerDeltaCapCommands(reg)
 	registerRaylibTiming(reg)
 }
 

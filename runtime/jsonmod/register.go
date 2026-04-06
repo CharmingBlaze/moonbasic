@@ -7,6 +7,7 @@ import (
 
 func registerJSONCommands(m *Module, r runtime.Registrar) {
 	r.Register("JSON.PARSE", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jParse(m, rt, args...) })
+	r.Register("JSON.LOADFILE", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jParse(m, rt, args...) })
 	r.Register("JSON.PARSESTRING", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jParseString(m, rt, args...) })
 	r.Register("JSON.MAKE", "json", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return jMake(m, a) }))
 	r.Register("JSON.MAKEARRAY", "json", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return jMakeArray(m, a) }))
@@ -37,6 +38,7 @@ func registerJSONCommands(m *Module, r runtime.Registrar) {
 	r.Register("JSON.PRETTY", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jPretty(m, rt, args...) })
 	r.Register("JSON.MINIFY", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jMinify(m, rt, args...) })
 	r.Register("JSON.TOFILE", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jToFile(m, rt, args...) })
+	r.Register("JSON.SAVEFILE", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jToFile(m, rt, args...) })
 	r.Register("JSON.TOFILEPRETTY", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jToFilePretty(m, rt, args...) })
 	r.Register("JSON.TOCSV", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jToCSV(m, rt, args...) })
 

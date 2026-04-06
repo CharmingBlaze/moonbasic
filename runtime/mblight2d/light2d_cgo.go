@@ -17,7 +17,11 @@ import (
 
 var (
 	lightMu sync.Mutex
-	ambient = struct{ R, G, B, A uint8 }{30, 30, 50, 255}
+	// Default "full brightness": no darkening overlay. Games that use LIGHT2D should call
+	// RENDER.SET2DAMBIENT with lower RGB for mood (e.g. 30,30,50). Previously the default was
+	// dark, which applied a near-opaque black rectangle every frame to all programs, including
+	// unlit 2D-only demos.
+	ambient = struct{ R, G, B, A uint8 }{255, 255, 255, 255}
 	lights  []*light2dObj
 )
 

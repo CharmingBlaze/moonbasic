@@ -11,10 +11,18 @@ import (
 // meshObj owns mesh GPU data uploaded for Raylib; typically freed before parent model is unloaded.
 // If consumedByModel is set, MODEL.MAKE(LoadModelFromMesh) shares the same Mesh GPU data with a Model —
 // UnloadMesh is deferred to MODEL.FREE; MESH.FREE on the source handle skips GPU unload.
+// If backingModel.MeshCount > 0, this mesh came from MESH.LOAD (first submesh of a loaded model);
+// Free() calls UnloadModel(backingModel) and must not UnloadMesh separately.
+// pin* slices are non-nil for MESH.MAKECUSTOM — keep vertex RAM alive for Raylib pointers.
 type meshObj struct {
-	m                 rl.Mesh
-	consumedByModel   bool
-	release           heap.ReleaseOnce
+	m               rl.Mesh
+	consumedByModel bool
+	backingModel    rl.Model
+	pinVerts        []float32
+	pinNorms        []float32
+	pinUVs          []float32
+	pinIdx          []uint16
+	release         heap.ReleaseOnce
 }
 
 func (o *meshObj) TypeName() string { return "Mesh" }
@@ -23,6 +31,11 @@ func (o *meshObj) TypeTag() uint16 { return heap.TagMesh }
 
 func (o *meshObj) Free() {
 	o.release.Do(func() {
+		if o.backingModel.MeshCount > 0 {
+			rl.UnloadModel(o.backingModel)
+			o.backingModel = rl.Model{}
+			return
+		}
 		if o.consumedByModel {
 			return
 		}
@@ -66,6 +79,16 @@ type modelObj struct {
 
 	ambientR, ambientG, ambientB int32
 
+	hidden bool // when true, MODEL.DRAW skips
+
+	// Optional: loaded via MODEL.LOADANIMATIONS(model, path$); freed before model.
+	anims       []rl.ModelAnimation
+	animIdx     int
+	animFrame   float32
+	animPlaying bool
+	animLoop    bool
+	animSpeed   float32 // 1 = default
+
 	release heap.ReleaseOnce
 }
 
@@ -74,7 +97,13 @@ func (o *modelObj) TypeName() string { return "Model" }
 func (o *modelObj) TypeTag() uint16 { return heap.TagModel }
 
 func (o *modelObj) Free() {
-	o.release.Do(func() { rl.UnloadModel(o.model) })
+	o.release.Do(func() {
+		if len(o.anims) > 0 {
+			rl.UnloadModelAnimations(o.anims)
+			o.anims = nil
+		}
+		rl.UnloadModel(o.model)
+	})
 }
 
 // instancedModelObj draws many copies of one mesh/material via DrawMeshInstanced.

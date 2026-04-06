@@ -23,6 +23,7 @@ func stubFn(hint string) func(string) runtime.BuiltinFn {
 func (m *Module) Register(reg runtime.Registrar) {
 	stub := stubFn(stubHint)
 	reg.Register("WINDOW.OPEN", "window", stub("WINDOW.OPEN"))
+	reg.Register("WINDOW.CANOPEN", "window", stub("WINDOW.CANOPEN"))
 	reg.Register("WINDOW.SETFPS", "window", stub("WINDOW.SETFPS"))
 	reg.Register("WINDOW.CLOSE", "window", stub("WINDOW.CLOSE"))
 	reg.Register("WINDOW.SHOULDCLOSE", "window", stub("WINDOW.SHOULDCLOSE"))

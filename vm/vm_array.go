@@ -8,6 +8,20 @@ import (
 	"moonbasic/vm/value"
 )
 
+func dimsFromLinear(dims []int64, li int64) []int64 {
+	out := make([]int64, len(dims))
+	rem := li
+	for i := 0; i < len(dims); i++ {
+		stride := int64(1)
+		for j := i + 1; j < len(dims); j++ {
+			stride *= dims[j]
+		}
+		out[i] = rem / stride
+		rem %= stride
+	}
+	return out
+}
+
 func arrayKindFromFlags(f uint8) heap.ArrayKind {
 	switch f {
 	case 1:
@@ -85,6 +99,12 @@ func (v *VM) doArrayGet(i opcode.Instruction) error {
 		return v.runtimeError(fmt.Sprintf("ARRAYGET: expected array, got %s", obj.TypeName()))
 	}
 	switch arr.Kind {
+	case heap.ArrayKindHandle:
+		hid, err := arr.GetHandle(indices)
+		if err != nil {
+			return v.runtimeError(err.Error())
+		}
+		v.push(value.FromHandle(heap.Handle(hid)))
 	case heap.ArrayKindString:
 		si, err := arr.GetStringIndex(indices)
 		if err != nil {
@@ -134,6 +154,21 @@ func (v *VM) doArraySet(i opcode.Instruction) error {
 		return v.runtimeError(fmt.Sprintf("ARRAYSET: expected array, got %s", obj.TypeName()))
 	}
 	switch arr.Kind {
+	case heap.ArrayKindHandle:
+		if val.Kind != value.KindHandle {
+			return v.runtimeError("ARRAYSET: handle array expects handle value")
+		}
+		newH := int32(val.IVal)
+		oldH, err := arr.GetHandle(indices)
+		if err != nil {
+			return v.runtimeError(err.Error())
+		}
+		if oldH != 0 && oldH != newH {
+			_ = v.Heap.Free(heap.Handle(oldH))
+		}
+		if err := arr.SetHandle(indices, newH); err != nil {
+			return v.runtimeError(err.Error())
+		}
 	case heap.ArrayKindString:
 		if val.Kind != value.KindString {
 			return v.runtimeError("ARRAYSET: string array expects string value")
@@ -196,5 +231,73 @@ func (v *VM) doArrayRedim(i opcode.Instruction) error {
 	if err := arr.Redim(dims, preserve); err != nil {
 		return v.runtimeError(err.Error())
 	}
+	return nil
+}
+
+func (v *VM) doArrayMakeTyped(i opcode.Instruction) error {
+	ch := v.CallStack.Top().Chunk
+	nd := int(i.Flags)
+	typeName := ch.Names[i.Operand]
+	if _, ok := v.Program.Types[typeName]; !ok {
+		return v.runtimeError("ARRAY_MAKE_TYPED: unknown type " + typeName)
+	}
+	if len(v.Stack) < nd {
+		return v.runtimeError("ARRAY_MAKE_TYPED: stack underflow")
+	}
+	dims := make([]int64, nd)
+	for j := nd - 1; j >= 0; j-- {
+		dims[j] = v.popInt64ForDim()
+	}
+	arr, err := heap.NewArrayOfKind(dims, heap.ArrayKindHandle, 0)
+	if err != nil {
+		return v.runtimeError(err.Error())
+	}
+	n := arr.TotalElements()
+	for li := 0; li < n; li++ {
+		idxs := dimsFromLinear(arr.Dims, int64(li))
+		inst := heap.NewInstance(typeName)
+		hid, err2 := v.Heap.Alloc(inst)
+		if err2 != nil {
+			return v.runtimeError(err2.Error())
+		}
+		if err := arr.SetHandle(idxs, int32(hid)); err != nil {
+			return v.runtimeError(err.Error())
+		}
+	}
+	ah, err := v.Heap.Alloc(arr)
+	if err != nil {
+		return v.runtimeError(err.Error())
+	}
+	v.push(value.FromHandle(ah))
+	return nil
+}
+
+func (v *VM) doNewFilled(i opcode.Instruction) error {
+	ch := v.CallStack.Top().Chunk
+	typeName := ch.Names[i.Operand]
+	nf := int(i.Flags)
+	td, ok := v.Program.Types[typeName]
+	if !ok {
+		return v.runtimeError("NEW_FILLED: unknown type " + typeName)
+	}
+	if nf != len(td.Fields) {
+		return v.runtimeError(fmt.Sprintf("NEW_FILLED: %s needs %d fields, got %d", typeName, len(td.Fields), nf))
+	}
+	if len(v.Stack) < nf {
+		return v.runtimeError("NEW_FILLED: stack underflow")
+	}
+	vals := make([]value.Value, nf)
+	for j := nf - 1; j >= 0; j-- {
+		vals[j] = v.pop()
+	}
+	inst := heap.NewInstance(typeName)
+	for j, fn := range td.Fields {
+		inst.SetField(fn, vals[j])
+	}
+	hid, err := v.Heap.Alloc(inst)
+	if err != nil {
+		return v.runtimeError(err.Error())
+	}
+	v.push(value.FromHandle(hid))
 	return nil
 }
