@@ -1,8 +1,16 @@
-Goroutine audit (grep "^\s+go " runtime/**/*.go excluding tests):
+Goroutine launch audit (`go func(` in moonbasic + internal; excluding third_party except note).
 
-runtime/system/host.go:216
+moonbasic/runtime/system/host.go:216
   go func() { _ = cmd.Wait() }()
-  Purpose: wait for child process without blocking the native that started it.
-  Lifetime: short; exits when Wait() completes. No reference to heap handles.
+  — Waits on subprocess; terminates when command exits (no leak).
 
-No other "go " statements in runtime/ (terrain has no async chunk builders per ARCHITECTURE.md).
+moonbasic/internal/bench/capture.go:20
+  — Benchmark harness only.
+
+vm/heap/release_once_test.go
+  — Concurrent Free() test.
+
+third_party/go-enet/test/*.go
+  — Upstream ENet tests only.
+
+No terrain async chunk-build goroutines found under `go func(` in runtime/ at time of audit (verify if streaming adds goroutines later).

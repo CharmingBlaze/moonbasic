@@ -34,6 +34,13 @@ func TestFreeAllInvokesFreeOnEveryLiveObject(t *testing.T) {
 	}
 }
 
+func TestHandleZeroIsInvalid(t *testing.T) {
+	s := New()
+	if _, ok := s.Get(0); ok {
+		t.Fatal("handle 0 must be invalid")
+	}
+}
+
 func TestFreeInvalidHandleTwiceErrors(t *testing.T) {
 	s := New()
 	h, err := s.Alloc(dummyObj{})

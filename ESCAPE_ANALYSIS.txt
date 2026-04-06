@@ -1,41 +1,44 @@
-./main.go:112:28: "error: --disasm requires a .mbc file" escapes to heap
-./main.go:112:28: "error: --disasm requires a .mbc file" escapes to heap in run:
-./main.go:124:28: "error: --profile requires a source .mb file" escapes to heap
-./main.go:124:28: "error: --profile requires a source .mb file" escapes to heap in run:
-./main.go:127:31: &vm.ProfileRecorder{...} escapes to heap
-./main.go:127:31: &vm.ProfileRecorder{...} escapes to heap in run:
-./main.go:127:31: make(map[int]uint64) escapes to heap
-./main.go:127:31: make(map[int]uint64) escapes to heap in run:
-./main.go:135:22: "1.2.1" escapes to heap
-./main.go:135:22: "1.2.1" escapes to heap in run:
-./main.go:142:27: "Instruction hotspots (top 10 source lines):" escapes to heap
-./main.go:142:27: "Instruction hotspots (top 10 source lines):" escapes to heap in run:
-./main.go:144:50: e.Line escapes to heap
-./main.go:144:50: e.Line escapes to heap in run:
-./main.go:144:58: e.Count escapes to heap
-./main.go:144:58: e.Count escapes to heap in run:
-./main.go:159:15: "Check: OK" escapes to heap
-./main.go:159:15: "Check: OK" escapes to heap in run:
-./main.go:174:21: "1.2.1" escapes to heap
-./main.go:174:21: "1.2.1" escapes to heap in run:
-./main.go:186:27: "error: --compile expects a source file, not a .mbc bytecode file" escapes to heap
-./main.go:186:27: "error: --compile expects a source file, not a .mbc bytecode file" escapes to heap in compileToMBC:
-./main.go:201:44: out escapes to heap
-./main.go:201:44: out escapes to heap in compileToMBC:
-./main.go:204:39: out escapes to heap
-./main.go:204:39: out escapes to heap in compileToMBC:
-./main.go:211:14: base + ".mbc" escapes to heap
-./main.go:211:14: base + ".mbc" escapes to heap in mbcOutPath:
-./main.go:226:21: "1.2.1" escapes to heap
-./main.go:226:21: "1.2.1" escapes to heap in runMBC:
-./main.go:25:101: "1.2.1" escapes to heap
-./main.go:25:101: "1.2.1" escapes to heap in printRuntimeBanner:
-./main.go:54:15: func literal escapes to heap
-./main.go:54:15: func literal escapes to heap in run:
-./main.go:88:32: "1.2.1" escapes to heap
-./main.go:88:32: "1.2.1" escapes to heap in run:
-./main.go:89:27: "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3" escapes to heap
-./main.go:89:27: "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3" escapes to heap in run:
+﻿
+./main.go:122:28: "error: --disasm requires a .mbc file" escapes to heap
+./main.go:122:28: "error: --disasm requires a .mbc file" escapes to heap in run:
+./main.go:134:28: "error: --profile requires a source .mb file" escapes to heap
+./main.go:134:28: "error: --profile requires a source .mb file" escapes to heap in run:
+./main.go:137:31: &vm.ProfileRecorder{...} escapes to heap
+./main.go:137:31: &vm.ProfileRecorder{...} escapes to heap in run:
+./main.go:137:31: make(map[int]uint64) escapes to heap
+./main.go:137:31: make(map[int]uint64) escapes to heap in run:
+./main.go:145:22: "1.2.1" escapes to heap
+./main.go:145:22: "1.2.1" escapes to heap in run:
+./main.go:152:27: "Instruction hotspots (top 10 source lines):" escapes to heap
+./main.go:152:27: "Instruction hotspots (top 10 source lines):" escapes to heap in run:
+./main.go:154:50: e.Line escapes to heap
+./main.go:154:50: e.Line escapes to heap in run:
+./main.go:154:58: e.Count escapes to heap
+./main.go:154:58: e.Count escapes to heap in run:
+./main.go:169:15: "Check: OK" escapes to heap
+./main.go:169:15: "Check: OK" escapes to heap in run:
+./main.go:184:21: "1.2.1" escapes to heap
+./main.go:184:21: "1.2.1" escapes to heap in run:
+./main.go:196:27: "error: --compile expects a source file, not a .mbc bytecode file" escapes to heap
+./main.go:196:27: "error: --compile expects a source file, not a .mbc bytecode file" escapes to heap in compileToMBC:
+./main.go:211:44: out escapes to heap
+./main.go:211:44: out escapes to heap in compileToMBC:
+./main.go:214:39: out escapes to heap
+./main.go:214:39: out escapes to heap in compileToMBC:
+./main.go:221:14: base + ".mbc" escapes to heap
+./main.go:221:14: base + ".mbc" escapes to heap in mbcOutPath:
+./main.go:236:21: "1.2.1" escapes to heap
+./main.go:236:21: "1.2.1" escapes to heap in runMBC:
+./main.go:26:101: "1.2.1" escapes to heap
+./main.go:26:101: "1.2.1" escapes to heap in printRuntimeBanner:
+./main.go:56:15: func literal escapes to heap
+./main.go:56:15: func literal escapes to heap in run:
+./main.go:90:32: "1.2.1" escapes to heap
+./main.go:90:32: "1.2.1" escapes to heap in run:
+./main.go:91:27: "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3" escapes to heap
+./main.go:91:27: "Runtime: Go 1.22 | raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3" escapes to heap in run:
+./main.go:98:16: k escapes to heap
+./main.go:98:16: k escapes to heap in run:
 ./main_disasm.go:26:32: base + ".mb" escapes to heap
 ./main_disasm.go:26:32: base + ".mb" escapes to heap in disasmMBC:
 ./main_disasm.go:27:36: string(b) escapes to heap
@@ -83,3 +86,5 @@
 ./main_watch.go:79:18: "time: Stop called on uninitialized Timer" escapes to heap in runWatch:
 ./main_watch.go:79:18: func literal escapes to heap
 ./main_watch.go:79:18: func literal escapes to heap in runWatch:
+
+

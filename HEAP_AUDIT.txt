@@ -1,44 +1,29 @@
-moonBASIC HeapObject audit (vm/heap + runtime)
-Generated: memory safety audit pass
+moonBASIC HeapObject audit (runtime + vm/heap)
+Generated: 2026-04-06
 
-Rules checked:
-  - Idempotent Free: heap.ReleaseOnce OR early freed return (see vm/heap/heap.go contract)
-  - TypeTag: unique per vm/heap/heap_tags.go iota order
-  - CGo: native resources released in Free() or documented non-owned
+CONTRACT (see vm/heap/heap.go HeapObject)
+  - Free() must be idempotent. Implementations use either:
+      * heap.ReleaseOnce around native cleanup, OR
+      * an explicit `if freed { return }` + freed=true pattern.
+  - TypeTag() must return a unique value per class — tags are iota in vm/heap/heap_tags.go (append only, never reorder).
+  - CGo / native resources must be released in Free(); Store.FreeAll() walks every live slot and calls Free().
 
-Summary (CGo-heavy types):
-  TextureObject       ReleaseOnce  UnloadTexture        TagTexture      OK
-  meshObj             ReleaseOnce  UnloadMesh           TagMesh         OK
-  materialObj         ReleaseOnce  UnloadMaterial*      TagMaterial     OK (* skip if moved)
-  modelObj            ReleaseOnce  UnloadModel          TagModel        OK
-  instancedModelObj   ReleaseOnce  UnloadModel          TagInstancedModel OK
-  lodModelObj         ReleaseOnce  UnloadModel x3       TagLODModel     OK
-  shaderObj           ReleaseOnce  UnloadShader         TagShader       OK
-  imageObj            ReleaseOnce  UnloadImage          TagImage        OK
-  fontObj             ReleaseOnce  UnloadFont           TagFont         OK
-  audioStreamObj      ReleaseOnce  CloseAudioStream     TagAudioStream  OK
-  waveObj             ReleaseOnce  UnloadWave           TagWave         OK
-  soundObj            ReleaseOnce  UnloadSound          TagSound        OK
-  musicObj            ReleaseOnce  UnloadMusicStream    TagMusic        OK
-  hostObj/peerObj     ENet destroy/disconnect patterns  TagHost/Peer    OK (review enet_cgo.go)
-  body3dObj (Linux)   Jolt remove/destroy               TagPhysicsBody  OK
-  WaterObject         freed bool   Mesh+Material        TagWater        FIX: UnloadMaterial added
-  TerrainObject       freed bool   chunk Mesh+Mat       TagTerrain      FIX: UnloadMaterial on free/stream/rebuild
+PROPERTY MATRIX (representative types; full list follows heap_tags.go)
 
-Non-CGo / Go-only handles:
-  noiseObj (NOISE.*)     freed bool   Go fields only       TagNoise        OK (NOISE.FILLIMAGE touches TagImage via Raylib)
-  BiomeObject, ScatterObject, PropObject, WeatherObject, CloudObject — state only; freed= OK
-  SkyObject — no GPU resources; OK
-  jsonObj, csvObj, tableObj, dbObj* — Go/sqlite handles; Free closes DB/stmt/rows; OK
-  mbmem, mbrand, tween, nav*, etc. — documented in respective files
+  TextureObject       idempotent Free? YES (ReleaseOnce + UnloadTexture)  CGo? YES  Tag TagTexture
+  RenderTargetObject  idempotent Free? YES (UnloadRenderTexture once)      CGo? YES  Tag TagRenderTexture
+  Model / Mesh / Shader / Material / Instanced / LOD — mbmodel3d/*         CGo? YES  unload order documented per type
+  Physics3D body3dObj jolt_linux.go                                      CGo? YES  body remove → destroy → shape Release
+  Physics2D body2dObj box2d.go                                            CGo? YES  world destroys fixtures with body
+  Joint2D joint2dObj                                                     CGo? YES  joint before bodies (script contract)
+  Host / Peer / Event / Packet — net/*                                   CGo? YES  host destroy; packet destroy after copy
+  TerrainObject terrain/*                                                CGo? YES  chunk mesh + Jolt order in unload path
+  ENTITY paths (not VM heap tags for rl.Model) — see docs/MEMORY.md      Raylib order: animations before model
 
-Aggregates (not separate HeapObjects):
-  Terrain chunkSlot — owned by TerrainObject; cleanup must mirror Free + streaming unload
+DUPLICATE TypeTag CHECK: tags are single iota chain — no duplicate uint16 values by construction.
 
-Known fixes applied in same commit batch as this file:
-  - WaterObject.Free: UnloadMaterial after UnloadMesh
-  - terrain rebuildChunkMesh: UnloadMaterial old mat before replacing
-  - terrain TickStreaming: UnloadMaterial when unloading chunk
-  - TerrainObject.Free: UnloadMaterial per loaded chunk
+NOT HEAP OBJECTS: entity integer IDs, raw globals — managed by ENTITY.* and docs/MEMORY.md entity table.
 
-Duplicate TypeTag check: manual review of heap_tags.go — single iota chain, no duplicate values.
+NOTES
+  - Second Free(handle) on the same handle returns error (stale handle); object Free() remains idempotent.
+  - Handle 0 is always invalid; Get(0) returns (nil, false).

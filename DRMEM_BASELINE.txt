@@ -1,0 +1,8 @@
+Dr. Memory baseline — not run in this automated session.
+
+On Windows, from repo root (with Dr. Memory on PATH):
+
+  go build -o moonbasic_test.exe .
+  drmemory -- moonbasic_test.exe testdata/print_test.mb
+
+Save full tool output here for regression comparison.

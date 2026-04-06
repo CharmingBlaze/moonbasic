@@ -53,6 +53,73 @@ Clears groups, resets `nextID` to 1, and frees every entity by calling **`entFre
 
 ---
 
+## VM heap tags (physics / net)
+
+These use the same **`FREE`** / **`ERASE`** rules as other **`KindHandle`** objects:
+
+| Handle | Typical free |
+|--------|----------------|
+| **`JOINT2D.*`** | **`JOINT2D.FREE`** |
+| **`PACKET.CREATE`** (or after **`PEER.SENDPACKET`**, ownership transfers—see [network-enet.md](reference/moonbasic-command-set/network-enet.md)) | **`PACKET.FREE`** if not sent |
+
+---
+
 ## Game orbit helpers (`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`)
 
 These **`GAME`** builtins return **numeric floats only** (radians or distance delta). They do **not** allocate VM heap objects — **no `ERASE`**. Pair them with your own **`camYaw#` / `camPitch#` / `camDist#`** variables and **`Camera.SetOrbit`** (see [GAMEHELPERS.md](reference/GAMEHELPERS.md)).
+
+---
+
+## Runtime heap: three layers and the handle table
+
+This section complements the **ENTITY** tables above. VM **`KindHandle`** values index **`heap.Store`** (`vm/heap`).
+
+| Layer | What | Who frees |
+|-------|------|-----------|
+| **Go heap** | Slices, maps, strings, channels | GC when unreachable |
+| **CGo (raylib, Jolt, Box2D, ENet, OS)** | Textures, models, bodies, hosts | Explicit **`Unload` / `Destroy` / `Release`** in **`HeapObject.Free()`** or subsystem teardown |
+| **Handle table** | Opaque **`int32`** handles (generation + slot) | **`Store.Free`**, **`Store.FreeAll`**, **`ERASE ALL` / `FREE.ALL`**, pipeline shutdown |
+
+The GC does **not** see C allocations: setting a Go field to `nil` does not free GPU or physics memory.
+
+### Idempotent `Free()` — `ReleaseOnce` vs `freed bool`
+
+`HeapObject.Free()` must be safe to call more than once. Implementations typically use:
+
+- **`heap.ReleaseOnce`** — wraps the native cleanup so only the first call runs (see `vm/heap/release_once.go`), or
+- an explicit **`if o.freed { return }`** with **`o.freed = true`** at the end.
+
+Either pattern satisfies the contract in `heap.go`.
+
+### Owned vs shared (textures)
+
+**`TextureObject`** (`runtime/texture/heap_objects_cgo.go`) uses **`Borrowed`**: when true (e.g. view from a render target’s texture), **`Free()`** does **not** unload the GPU texture — the owning **`RenderTargetObject`** does.
+
+### Destruction order (native)
+
+| Resource | Must be freed before / ordering notes |
+|----------|--------------------------------------|
+| **Jolt constraint / joint** | Remove from world before destroying bodies that still reference it (script/API contract) |
+| **Jolt body** | Remove from world → destroy body → **`shape.Release()`** after the body is gone |
+| **Model animations** | **`UnloadModelAnimation`** (each) before **`UnloadModel`** |
+| **Terrain chunk** | Remove physics body from world → destroy body → release shape → **`UnloadMesh`** (see terrain unload path) |
+| **ENet** | **`enet_packet_destroy`** after copying data out; host **`Destroy`** disconnects peers |
+
+### `Store.FreeAll` guarantee
+
+On shutdown, **`RunProgram`** tears down the registry and calls **`Store.FreeAll`**, which walks **every** slot and invokes **`HeapObject.Free()`** on live objects. Long-running games should still **`FREE`** / **`ERASE`** handles they no longer need to cap memory during play; shutdown is the safety net for leaks of VM handles.
+
+### Audit baselines (repo root)
+
+Optional regression artifacts (see **`ARCHITECTURE.md`** for optional Valgrind/gccheckmark notes):
+
+- **`RACE_BASELINE.txt`** — `go test -race ./...`
+- **`GCCHECK_BASELINE.txt`** — `GODEBUG=gccheckmark=1 go test ./...`
+- **`ESCAPE_ANALYSIS.txt`** — `go build -gcflags="-m -m"` (main package; CLI-heavy escapes are expected)
+- **`CGO_ALLOCS.txt`** — grep of raylib/Jolt/ENet allocation sites to cross-check **`Free()`**
+- **`HEAP_AUDIT.txt`** — HeapObject contract checklist
+- **`VALGRIND_BASELINE.txt`**, **`DRMEM_BASELINE.txt`** — placeholders on Windows; run on Linux or with Dr. Memory locally
+
+### Hot-path allocations
+
+The VM execute loop and per-frame draw paths should avoid unnecessary allocations. Profile with **`go test -bench`**, **`runtime/pprof`**, or **`GODEBUG=gctrace=1`**; there is no moonBASIC **`DEBUG.FRAMEALLOC`** builtin yet — use Go tooling for engine-side regression.

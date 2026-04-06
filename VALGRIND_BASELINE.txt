@@ -1,4 +1,10 @@
-Valgrind baseline: N/A on this Windows dev host.
-Run on Linux CI or WSL:
+Valgrind baseline — not run in this workspace (Windows host).
+
+To capture on Linux or WSL from repo root:
+
   go build -o moonbasic_test .
-  valgrind --leak-check=full --error-exitcode=1 ./moonbasic_test testdata/print_test.mb
+  valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all \
+    --error-exitcode=1 ./moonbasic_test testdata/print_test.mb \
+    2> VALGRIND_BASELINE.txt
+
+Expected when integrated: ERROR SUMMARY: 0 errors from 0 contexts (or document any known Raylib/GL driver noise).
