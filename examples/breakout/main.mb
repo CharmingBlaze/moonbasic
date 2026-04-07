@@ -1,8 +1,8 @@
-; Breakout — mouse or A/D paddle, SPACE serves the ball. Run from repo root:
-;   CGO_ENABLED=1 go run . examples/breakout/main.mb
+; Breakout - mouse or A/D paddle, SPACE serves the ball
+; Run from repo root: CGO_ENABLED=1 go run . examples/breakout/main.mb
 
-Window.Open(960, 540, "moonBASIC Breakout")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "moonBASIC Breakout")
+WINDOW.SETFPS(60)
 
 DIM br(8, 5)
 FOR r = 0 TO 4
@@ -21,20 +21,20 @@ alive? = FALSE
 score = 0
 broken = 0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
-    mx# = FLOAT(Input.MouseX())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt# = TIME.DELTA()
+    mx# = FLOAT(INPUT.MOUSEX())
     px# = mx# - 50
     IF px# < 20 THEN px# = 20
     IF px# > 860 THEN px# = 860
-    IF Input.KeyDown(KEY_A) THEN px# = px# - 400 * dt#
-    IF Input.KeyDown(KEY_D) THEN px# = px# + 400 * dt#
+    IF INPUT.KEYDOWN(KEY_A) THEN px# = px# - 400 * dt#
+    IF INPUT.KEYDOWN(KEY_D) THEN px# = px# + 400 * dt#
 
     ; Waiting on paddle — stick ball and launch with SPACE (KeyDown is reliable here)
     IF NOT alive? AND broken < 40 THEN
         bx# = px# + 50
         by# = py# - 12
-        IF Input.KeyDown(KEY_SPACE) THEN
+        IF INPUT.KEYDOWN(KEY_SPACE) THEN
             alive? = TRUE
             bvx# = 260
             bvy# = -280
@@ -84,32 +84,32 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     ENDIF
 
     ; Slate background (was almost black on some displays)
-    Render.Clear(52, 62, 88)
+    RENDER.CLEAR(52, 62, 88)
     FOR r = 0 TO 4
         FOR c = 0 TO 7
             IF br(c, r) = 1 THEN
                 ; Bright rows: red / orange / yellow / green / blue-violet
-                IF r = 0 THEN Draw.Rectangle(40 + c * 108, 50 + r * 34, 100, 28, 255, 95, 95, 255)
-                IF r = 1 THEN Draw.Rectangle(40 + c * 108, 50 + r * 34, 100, 28, 255, 175, 65, 255)
-                IF r = 2 THEN Draw.Rectangle(40 + c * 108, 50 + r * 34, 100, 28, 255, 235, 85, 255)
-                IF r = 3 THEN Draw.Rectangle(40 + c * 108, 50 + r * 34, 100, 28, 95, 230, 130, 255)
-                IF r = 4 THEN Draw.Rectangle(40 + c * 108, 50 + r * 34, 100, 28, 130, 195, 255, 255)
+                IF r = 0 THEN DRAW.RECTANGLE(40 + c * 108, 50 + r * 34, 100, 28, 255, 95, 95, 255)
+                IF r = 1 THEN DRAW.RECTANGLE(40 + c * 108, 50 + r * 34, 100, 28, 255, 175, 65, 255)
+                IF r = 2 THEN DRAW.RECTANGLE(40 + c * 108, 50 + r * 34, 100, 28, 255, 235, 85, 255)
+                IF r = 3 THEN DRAW.RECTANGLE(40 + c * 108, 50 + r * 34, 100, 28, 95, 230, 130, 255)
+                IF r = 4 THEN DRAW.RECTANGLE(40 + c * 108, 50 + r * 34, 100, 28, 130, 195, 255, 255)
             ENDIF
         NEXT c
     NEXT r
 
-    Draw.Rectangle(INT(px#), INT(py#), 100, 14, 240, 248, 255, 255)
-    Draw.Rectangle(INT(bx#) - 6, INT(by#) - 6, 12, 12, 255, 255, 60, 255)
+    DRAW.RECTANGLE(INT(px#), INT(py#), 100, 14, 240, 248, 255, 255)
+    DRAW.RECTANGLE(INT(bx#) - 6, INT(by#) - 6, 12, 12, 255, 255, 60, 255)
 
-    Draw.Text("Score " + STR$(score), 24, 12, 22, 255, 255, 255, 255)
-    Draw.Text("Mouse or A/D   SPACE serve / relaunch   ESC quit", 160, 510, 18, 230, 235, 245, 255)
+    DRAW.TEXT("Score " + STR$(score), 24, 12, 22, 255, 255, 255, 255)
+    DRAW.TEXT("Mouse or A/D   SPACE serve / relaunch   ESC quit", 160, 510, 18, 230, 235, 245, 255)
     IF NOT alive? AND broken < 40 THEN
-        Draw.Text("Press SPACE to serve", 340, 280, 24, 255, 245, 90, 255)
+        DRAW.TEXT("Press SPACE to serve", 340, 280, 24, 255, 245, 90, 255)
     ENDIF
     IF broken >= 40 THEN
-        Draw.Text("YOU WIN — ESC", 360, 240, 26, 120, 255, 200, 255)
+        DRAW.TEXT("YOU WIN - ESC", 360, 240, 26, 120, 255, 200, 255)
     ENDIF
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()

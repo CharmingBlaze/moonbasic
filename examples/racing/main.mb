@@ -1,8 +1,8 @@
-; Top-down racing: steer A/D, throttle W, brake S. Gold tile = checkpoint, cyan = finish line.
+; Top-down racing: steer A/D, throttle W, brake S. Gold tile = checkpoint, cyan = finish line
 ; Run from repo root: CGO_ENABLED=1 go run . examples/racing/main.mb
 
-Window.Open(960, 540, "moonBASIC Racing")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "moonBASIC Racing")
+WINDOW.SETFPS(60)
 
 cx# = 480
 cy# = 400
@@ -11,12 +11,12 @@ vspd# = 0
 lap = 0
 checkpoint = 0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
-    IF Input.KeyDown(KEY_A) THEN ang# = ang# - 2.4 * dt#
-    IF Input.KeyDown(KEY_D) THEN ang# = ang# + 2.4 * dt#
-    IF Input.KeyDown(KEY_W) THEN vspd# = MATH.MIN(420, vspd# + 380 * dt#)
-    IF Input.KeyDown(KEY_S) THEN vspd# = MATH.MAX(0, vspd# - 520 * dt#)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt# = TIME.DELTA()
+    IF INPUT.KEYDOWN(KEY_A) THEN ang# = ang# - 2.4 * dt#
+    IF INPUT.KEYDOWN(KEY_D) THEN ang# = ang# + 2.4 * dt#
+    IF INPUT.KEYDOWN(KEY_W) THEN vspd# = MATH.MIN(420, vspd# + 380 * dt#)
+    IF INPUT.KEYDOWN(KEY_S) THEN vspd# = MATH.MAX(0, vspd# - 520 * dt#)
     vspd# = vspd# * 0.985
 
     cx# = cx# + MATH.COS(ang#) * vspd# * dt#
@@ -33,20 +33,20 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         checkpoint = 0
     ENDIF
 
-    Render.Clear(18, 22, 28)
-    Draw.Rectangle(80, 80, 800, 380, 35, 35, 40, 255)
-    Draw.Rectangle(120, 120, 720, 300, 50, 50, 55, 255)
-    Draw.Rectangle(700, 60, 40, 40, 200, 200, 80, 255)
-    Draw.Rectangle(120, 360, 40, 40, 80, 200, 200, 255)
+    RENDER.CLEAR(18, 22, 28)
+    DRAW.RECTANGLE(80, 80, 800, 380, 35, 35, 40, 255)
+    DRAW.RECTANGLE(120, 120, 720, 300, 50, 50, 55, 255)
+    DRAW.RECTANGLE(700, 60, 40, 40, 200, 200, 80, 255)
+    DRAW.RECTANGLE(120, 360, 40, 40, 80, 200, 200, 255)
 
     ca# = MATH.COS(ang#) * 22
     sa# = MATH.SIN(ang#) * 22
-    Draw.Rectangle(INT(cx# + ca#) - 10, INT(cy# + sa#) - 6, 20, 12, 255, 80, 80, 255)
-    Draw.Rectangle(INT(cx# - ca#) - 10, INT(cy# - sa#) - 6, 20, 12, 200, 200, 220, 255)
+    DRAW.RECTANGLE(INT(cx# + ca#) - 10, INT(cy# + sa#) - 6, 20, 12, 255, 80, 80, 255)
+    DRAW.RECTANGLE(INT(cx# - ca#) - 10, INT(cy# - sa#) - 6, 20, 12, 200, 200, 220, 255)
 
-    Draw.Text("Lap " + STR$(lap) + "   checkpoint=" + STR$(checkpoint), 16, 12, 20, 230, 230, 240, 255)
-    Draw.Text("A/D steer   W gas   S brake   ESC quit", 260, 510, 18, 190, 190, 200, 255)
-    Render.Frame()
+    DRAW.TEXT("Lap " + STR$(lap) + "   checkpoint=" + STR$(checkpoint), 16, 12, 20, 230, 230, 240, 255)
+    DRAW.TEXT("A/D steer   W gas   S brake   ESC quit", 260, 510, 18, 190, 190, 200, 255)
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()

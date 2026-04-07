@@ -1,37 +1,37 @@
-; 3D demo: camera, rotating cube, ground grid, heap cleanup.
+; 3D demo: camera, rotating cube, ground grid, heap cleanup
 ; Run from repo root: CGO_ENABLED=1 go run . examples/spin_cube/main.mb
 
-Window.Open(960, 540, "moonBASIC — spin cube")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "moonBASIC - spin cube")
+WINDOW.SETFPS(60)
 
-cam = Camera.Make()
-cam.SetPos(0, 2, 8)
-cam.SetTarget(0, 0, 0)
-cam.SetFOV(45)
+cam = CAMERA.CREATE()
+CAMERA.SETPOSITION(cam, 0, 2, 8)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+CAMERA.SETFOV(cam, 45)
 
-cubeMesh = Mesh.MakeCube(2, 2, 2)
-cubeMat = Material.MakeDefault()
-Material.SetColor(cubeMat, MATERIAL_MAP_ALBEDO, 130, 200, 255, 255)
+cubeMesh = MESH.CREATECUBE(2, 2, 2)
+cubeMat = MATERIAL.CREATEDEFAULT()
+MATERIAL.SETCOLOR(cubeMat, MATERIAL_MAP_ALBEDO, 130, 200, 255, 255)
 
-cubeXform = Transform.Identity()
+cubeXform = TRANSFORM.IDENTITY()
 angle# = 0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt# = TIME.DELTA()
     angle# = angle# + 1.1 * dt#
-    Transform.SetRotation(cubeXform, angle#, angle# * 0.65, angle# * 0.35)
+    TRANSFORM.SETROTATION(cubeXform, angle#, angle# * 0.65, angle# * 0.35)
 
-    Render.Clear(12, 14, 22)
-    cam.Begin()
-        Mesh.Draw(cubeMesh, cubeMat, cubeXform)
-        Draw.Grid(10, 1.0)
-    cam.End()
-    Draw.Text("ESC to quit", 16, 16, 18, 220, 220, 230, 255)
-    Render.Frame()
+    RENDER.CLEAR(12, 14, 22)
+    CAMERA.BEGIN(cam)
+        MESH.DRAW(cubeMesh, cubeMat, cubeXform)
+        DRAW.GRID(10, 1.0)
+    CAMERA.END(cam)
+    DRAW.TEXT("ESC to quit", 16, 16, 18, 220, 220, 230, 255)
+    RENDER.FRAME()
 WEND
 
-Mesh.Free(cubeMesh)
-Material.Free(cubeMat)
-Transform.Free(cubeXform)
-Camera.Free(cam)
-Window.Close()
+MESH.FREE(cubeMesh)
+MATERIAL.FREE(cubeMat)
+TRANSFORM.FREE(cubeXform)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()

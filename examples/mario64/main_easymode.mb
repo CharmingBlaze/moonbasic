@@ -2,14 +2,14 @@
 ; Featuring: Batch 6 Atmospheric Fog, Material Alpha, and Definitive Documentation.
 ; --------------------------------------------------------------------------------
 
-Window.Open(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
-SetFPS(60)
+WINDOW.OPEN(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
+WINDOW.SETFPS(60)
 
 ; 1. Batch 6: Environmental Atmosphere
 COLORPRINT(0, 180, 255, "System: Initializing Batch 6 Atmosphere (Fog & Materials)...")
-FOGMODE(1)        ; Linear Fog
-FOGCOLOR(0, 0, 20) ; Match the dark night sky
-FOGDENSITY(0.05)   ; Atmospheric thickness
+WORLD.FOGMODE(1)        ; Linear Fog
+WORLD.FOGCOLOR(0, 0, 20) ; Match the dark night sky
+WORLD.FOGDENSITY(0.05)   ; Atmospheric thickness
 
 ; Configuration
 CONST MOVE_SPEED# = 12.0
@@ -84,28 +84,28 @@ camPitch# = 0.3
 COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 
 ; Main Game Loop
-WHILE NOT (KEYHIT(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = DT()
+WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt# = TIME.DELTA()
 
     ; 1. Input: Camera Orbiting
-    camYaw# = camYaw# + MOUSEDX() * MOUSE_SENSITIVITY#
-    camPitch# = camPitch# - MOUSEDY() * MOUSE_SENSITIVITY#
+    camYaw# = camYaw# + INPUT.MOUSEDX() * MOUSE_SENSITIVITY#
+    camPitch# = camPitch# - INPUT.MOUSEDY() * MOUSE_SENSITIVITY#
     IF camPitch# > 1.4 THEN camPitch# = 1.4
     IF camPitch# < -0.1 THEN camPitch# = -0.1
     
     ; 2. Input: Player Movement
-    moveF# = Axis(KEY_S, KEY_W)
-    moveS# = Axis(KEY_A, KEY_D)
+    moveF# = AXIS(KEY_S, KEY_W)
+    moveS# = AXIS(KEY_A, KEY_D)
     
     vx# = MOVESTEPX(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
     vz# = MOVESTEPZ(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
-    MoveEntity(player, vx#, 0, vz#)
+    MOVEENTITY(player, vx#, 0, vz#)
 
     ; 3. Automatic World Simulation
-    UPDW(dt#)
+    WORLD.UPDATE(dt#)
 
     ; 4. Jumping
-    IF ENTITYFLOOR(player) AND KEYHIT(KEY_SPACE) THEN EntityJump(player, JUMP_FORCE#)
+    IF ENTITYFLOOR(player) AND INPUT.KEYHIT(KEY_SPACE) THEN ENTITYJUMP(player, JUMP_FORCE#)
 
     ; 5. Collectible Check
     px# = ENTX(player)
@@ -128,28 +128,28 @@ WHILE NOT (KEYHIT(KEY_ESCAPE) OR Window.ShouldClose())
     cam.orbit(px#, py# + 0.5, pz#, camYaw#, camPitch#, CAM_DIST#)
 
     ; 7. Rendering
-    SkyColor(0, 0, 15) ; Deep night sky
-    cam.begin()
+    SKYCOLOR(0, 0, 15) ; Deep night sky
+    CAMERA.BEGIN(cam)
         FOR i = 0 TO 3
-            EntityColor(plats(i).ent, plats(i).r, plats(i).g, plats(i).b, 255)
+            ENTITY.COLOR(plats(i).ent, plats(i).r, plats(i).g, plats(i).b, 255)
         NEXT
         ENTITY.DRAWALL()
-        DRAWEMITTER(starEmit)
+        PARTICLES.DRAWEMITTER(starEmit)
         
         ; Batch 6: Professional debug primitives
-        LINE3D(px#, py#, pz#, px#, py# + 2.0, pz#, 0, 255, 0, 255) ; Green Up-Vector
-    cam.end()
+        DRAW.LINE3D(px#, py#, pz#, px#, py# + 2.0, pz#, 0, 255, 0, 255) ; Green Up-Vector
+    CAMERA.END(cam)
 
     ; 8. HUD & UI Overlay
-    Draw.Text("STARS: " + STR$(score) + " / 5", 20, 20, 24, 255, 255, 100, 255)
-    Draw.Text("MOUSE to Orbit  |  WASD to Move  |  SPACE to Jump", 20, 540, 18, 255, 255, 255, 255)
+    DRAW.TEXT("STARS: " + STR$(score) + " / 5", 20, 20, 24, 255, 255, 100, 255)
+    DRAW.TEXT("MOUSE to Orbit  |  WASD to Move  |  SPACE to Jump", 20, 540, 18, 255, 255, 255, 255)
 
-    rh = ScreenWidth() - 250
-    Draw.Text("FPS: " + STR$(FPS()), rh, 20, 20, 0, 255, 0, 255)
-    Draw.Text("TIME: " + STR$(Millisecs()), rh, 45, 20, 200, 200, 255, 255)
-    Draw.Text("MIST ACTIVE: YES", rh, 70, 20, 150, 150, 255, 255)
+    rh = SCREENWIDTH() - 250
+    DRAW.TEXT("FPS: " + STR$(FPS()), rh, 20, 20, 0, 255, 0, 255)
+    DRAW.TEXT("TIME: " + STR$(MILLISECS()), rh, 45, 20, 200, 200, 255, 255)
+    DRAW.TEXT("MIST ACTIVE: YES", rh, 70, 20, 150, 150, 255, 255)
 
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()

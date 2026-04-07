@@ -1,9 +1,9 @@
-; Walk with WASD in a room; step into the green patch once per visit for gold.
-; Saves rpg_save.json in the current working directory on exit (JSON + FILE).
+; Walk with WASD in a room; step into the green patch once per visit for gold
+; Saves rpg_save.json in the current working directory on exit (JSON + FILE)
 ; Run from repo root: CGO_ENABLED=1 go run . examples/rpg/main.mb
 
-Window.Open(800, 600, "moonBASIC Mini RPG")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "moonBASIC Mini RPG")
+WINDOW.SETFPS(60)
 
 save$ = "rpg_save.json"
 px = 5
@@ -11,8 +11,8 @@ py = 5
 gold = 0
 wasInZone? = FALSE
 
-IF UTIL.FILEEXISTS(save$) THEN
-    raw$ = READALLTEXT$(save$)
+IF FILE.EXISTS(save$) THEN
+    raw$ = FILE.READALLTEXT(save$)
     jd = JSON.PARSESTRING(raw$)
     px = JSON.GETINT(jd, "px")
     py = JSON.GETINT(jd, "py")
@@ -20,14 +20,14 @@ IF UTIL.FILEEXISTS(save$) THEN
     JSON.FREE(jd)
 ENDIF
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt# = TIME.DELTA()
     spd = INT(120 * dt#)
     IF spd < 1 THEN spd = 1
-    IF Input.KeyDown(KEY_W) THEN py = py - spd
-    IF Input.KeyDown(KEY_S) THEN py = py + spd
-    IF Input.KeyDown(KEY_A) THEN px = px - spd
-    IF Input.KeyDown(KEY_D) THEN px = px + spd
+    IF INPUT.KEYDOWN(KEY_W) THEN py = py - spd
+    IF INPUT.KEYDOWN(KEY_S) THEN py = py + spd
+    IF INPUT.KEYDOWN(KEY_A) THEN px = px - spd
+    IF INPUT.KEYDOWN(KEY_D) THEN px = px + spd
 
     IF px < 0 THEN px = 0
     IF py < 0 THEN py = 0
@@ -38,23 +38,23 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     IF inZone? AND NOT wasInZone? THEN gold = gold + 1
     wasInZone? = inZone?
 
-    Render.Clear(25, 30, 45)
-    Draw.Rectangle(300, 200, 200, 160, 80, 120, 60, 255)
-    Draw.Rectangle(px, py, 18, 18, 255, 210, 120, 255)
-    Draw.Text("Gold " + STR$(gold) + "   WASD   ESC quit", 220, 12, 20, 240, 240, 250, 255)
-    Draw.Text("Green = treasure (once per visit)", 250, 570, 16, 180, 200, 180, 255)
-    Render.Frame()
+    RENDER.CLEAR(25, 30, 45)
+    DRAW.RECTANGLE(300, 200, 200, 160, 80, 120, 60, 255)
+    DRAW.RECTANGLE(px, py, 18, 18, 255, 210, 120, 255)
+    DRAW.TEXT("Gold " + STR$(gold) + "   WASD   ESC quit", 220, 12, 20, 240, 240, 250, 255)
+    DRAW.TEXT("Green = treasure (once per visit)", 250, 570, 16, 180, 200, 180, 255)
+    RENDER.FRAME()
 WEND
 
-jl = JSON.Make()
-JSON.SetInt(jl, "px", px)
-JSON.SetInt(jl, "py", py)
-JSON.SetInt(jl, "gold", gold)
-out$ = JSON.ToString(jl)
-JSON.Free(jl)
+jl = JSON.MAKE()
+JSON.SETINT(jl, "px", px)
+JSON.SETINT(jl, "py", py)
+JSON.SETINT(jl, "gold", gold)
+out$ = JSON.TOSTRING(jl)
+JSON.FREE(jl)
 
-fh = FILE.Open(save$, "w")
-FILE.Write(fh, out$)
-FILE.Close(fh)
+fh = FILE.OPEN(save$, "w")
+FILE.WRITE(fh, out$)
+FILE.CLOSE(fh)
 
-Window.Close()
+WINDOW.CLOSE()

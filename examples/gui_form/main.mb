@@ -1,9 +1,9 @@
-; raygui form controls: TEXTBOX, SLIDER, CHECKBOX, TABBAR. Requires CGO.
+; raygui form controls: TEXTBOX, SLIDER, CHECKBOX, TABBAR. Requires CGO
 ; Run from repo root: CGO_ENABLED=1 go run . examples/gui_form/main.mb
 
-Window.Open(880, 520, "GUI form demo")
-Window.SetFPS(60)
-GUI.Enable()
+WINDOW.OPEN(880, 520, "GUI form demo")
+WINDOW.SETFPS(60)
+GUI.ENABLE()
 
 name$ = "player"
 volume# = 65.0
@@ -14,8 +14,8 @@ DIM tabs(1)
 tabs(0) = 0
 tabClose = 0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    Render.Clear(24, 26, 32)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(24, 26, 32)
 
     GUI.LABEL(20, 16, 800, 22, "GUI.TEXTBOX / SLIDER / CHECKBOX / TABBAR")
 
@@ -34,8 +34,8 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     GUI.LABEL(20, 200, 620, 22, "Active tab index = " + STR$(INT(tabs(0))) + "   volume = " + STR$(INT(volume#)) + "   tabClose code = " + STR$(tabClose))
 
-    Draw.Text("ESC quit", 16, 500, 16, 160, 160, 170, 255)
-    Render.Frame()
+    DRAW.TEXT("ESC quit", 16, 500, 16, 160, 160, 170, 255)
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()
