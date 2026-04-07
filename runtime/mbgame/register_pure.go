@@ -5,6 +5,8 @@ import "moonbasic/runtime"
 func (m *Module) registerPure(r runtime.Registrar) {
 	m.registerCollisionBuiltins(r)
 	m.registerPlayerHelpers(r)
+	m.registerPlayer2D(r)
+	m.registerMoverFacade(r)
 	m.registerMathBuiltins(r)
 	m.registerColorFormatBuiltins(r)
 	m.registerEaseNoiseRandBuiltins(r)

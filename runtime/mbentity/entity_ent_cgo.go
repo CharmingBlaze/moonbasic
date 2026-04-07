@@ -55,11 +55,14 @@ type ent struct {
 
 	collided  bool
 	otherID   int64
+	hits      []int64
 	collType  int32
 	hasHit    bool
 	hitX, hitY, hitZ   float32
 	hitNX, hitNY, hitNZ float32
 
+	isSprite  bool
+	spriteMode int32 // 1=y-billboard, 2=full-billboard, 3=static
 	parentID int64
 	name     string
 

@@ -33,10 +33,20 @@ type body2dTemplate struct {
 	fixtures []fixtureDef
 }
 
+type fixtureKind byte
+
+const (
+	fdRect fixtureKind = iota
+	fdCircle
+	fdPoly
+)
+
+// fixtureDef describes one shape before COMMIT.
 type fixtureDef struct {
-	isRect bool
-	w, h   float64
-	radius float64
+	kind                           fixtureKind
+	w, h, radius                   float64
+	verts                          []box2d.B2Vec2
+	density, friction, restitution float64
 }
 
 func (o *body2dTemplate) TypeName() string { return "Body2DTemplate" }
@@ -85,6 +95,19 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("BODY2D.SETRESTITUTION", "physics2d", m.bdSetRestitution)
 	r.Register("BODY2D.APPLYFORCE", "physics2d", m.bdApplyForce)
 	r.Register("BODY2D.APPLYIMPULSE", "physics2d", m.bdApplyImpulse)
+	r.Register("BODY2D.ADDPOLYGON", "physics2d", m.bdAddPolygon)
+	r.Register("BODY2D.SETLINEARVELOCITY", "physics2d", m.bdSetLinearVel)
+	r.Register("BODY2D.SETANGULARVELOCITY", "physics2d", m.bdSetAngularVel)
+	r.Register("BODY2D.COLLIDED", "physics2d", m.bdCollided)
+	r.Register("BODY2D.COLLISIONOTHER", "physics2d", m.bdCollisionOther)
+	r.Register("BODY2D.COLLISIONNORMAL", "physics2d", m.bdCollisionNormal)
+	r.Register("BODY2D.COLLISIONPOINT", "physics2d", m.bdCollisionPoint)
+	r.Register("PHYSICS2D.DEBUGDRAW", "physics2d", m.phDebugDraw)
+	r.Register("PHYSICS2D.GETDEBUGSEGMENTS", "physics2d", m.phGetDebugSegments)
+	r.Register("JOINT2D.DISTANCE", "physics2d", m.jtDistance)
+	r.Register("JOINT2D.REVOLUTE", "physics2d", m.jtRevolute)
+	r.Register("JOINT2D.PRISMATIC", "physics2d", m.jtPrismatic)
+	r.Register("JOINT2D.FREE", "physics2d", m.jtFree)
 
 	// BOX2D aliases (legacy compatible names)
 	r.Register("BOX2D.WORLDCREATE", "physics2d", m.phStart)
@@ -99,20 +122,28 @@ func (m *Module) phStart(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	if globalWorld != nil {
 		return value.Nil, nil
 	}
-	world := box2d.MakeB2World(box2d.MakeB2Vec2(0, -9.81))
+	gx, gy := 0.0, -9.81
+	if len(args) == 2 {
+		gx, _ = args[0].ToFloat()
+		gy, _ = args[1].ToFloat()
+	} else if len(args) != 0 {
+		return value.Nil, fmt.Errorf("PHYSICS2D.START expects 0 arguments or (gx#, gy#)")
+	}
+	world := box2d.MakeB2World(box2d.MakeB2Vec2(gx, gy))
 	globalWorld = &physics2dObj{
 		world:    &world,
 		stepRate: 1.0 / 60.0,
 		velIters: 8,
 		posIters: 3,
-		gravityX: 0,
-		gravityY: -9.81,
+		gravityX: gx,
+		gravityY: gy,
 	}
 	return value.Nil, nil
 }
 
 func (m *Module) phStop(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	globalWorld = nil
+	clearPhysics2dAux()
 	return value.Nil, nil
 }
 
@@ -177,6 +208,7 @@ func (m *Module) phStep(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		return value.Nil, nil
 	}
 	globalWorld.world.Step(globalWorld.stepRate, globalWorld.velIters, globalWorld.posIters)
+	syncContactsAfterStep(m)
 	return value.Nil, nil
 }
 
@@ -197,8 +229,8 @@ func (m *Module) bdMake(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 }
 
 func (m *Module) bdAddRect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("BODY2D.ADDRECT expects (handle, w, h)")
+	if len(args) != 3 && len(args) != 6 {
+		return value.Nil, fmt.Errorf("BODY2D.ADDRECT expects (handle, w#, h#) or (handle, w#, h#, density#, friction#, restitution#)")
 	}
 	tmp, err := heap.Cast[*body2dTemplate](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -206,20 +238,62 @@ func (m *Module) bdAddRect(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	}
 	w, _ := args[1].ToFloat()
 	h, _ := args[2].ToFloat()
-	tmp.fixtures = append(tmp.fixtures, fixtureDef{isRect: true, w: w, h: h})
+	d, f, r := 1.0, 0.2, 0.0
+	if len(args) == 6 {
+		d, _ = args[3].ToFloat()
+		f, _ = args[4].ToFloat()
+		r, _ = args[5].ToFloat()
+	}
+	tmp.fixtures = append(tmp.fixtures, fixtureDef{kind: fdRect, w: w, h: h, density: d, friction: f, restitution: r})
 	return value.Nil, nil
 }
 
 func (m *Module) bdAddCircle(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("BODY2D.ADDCIRCLE expects (handle, radius)")
+	if len(args) != 2 && len(args) != 5 {
+		return value.Nil, fmt.Errorf("BODY2D.ADDCIRCLE expects (handle, radius#) or (handle, radius#, density#, friction#, restitution#)")
 	}
 	tmp, err := heap.Cast[*body2dTemplate](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
-	r, _ := args[1].ToFloat()
-	tmp.fixtures = append(tmp.fixtures, fixtureDef{isRect: false, radius: r})
+	rad, _ := args[1].ToFloat()
+	d, f, r := 1.0, 0.2, 0.0
+	if len(args) == 5 {
+		d, _ = args[2].ToFloat()
+		f, _ = args[3].ToFloat()
+		r, _ = args[4].ToFloat()
+	}
+	tmp.fixtures = append(tmp.fixtures, fixtureDef{kind: fdCircle, radius: rad, density: d, friction: f, restitution: r})
+	return value.Nil, nil
+}
+
+func (m *Module) bdAddPolygon(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY2D.ADDPOLYGON expects (template, points[])")
+	}
+	tmp, err := heap.Cast[*body2dTemplate](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.Cast[*heap.Array](m.h, heap.Handle(args[1].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if arr.Kind != heap.ArrayKindFloat {
+		return value.Nil, fmt.Errorf("BODY2D.ADDPOLYGON: float array required")
+	}
+	n := len(arr.Floats)
+	if n < 6 || n%2 != 0 {
+		return value.Nil, fmt.Errorf("BODY2D.ADDPOLYGON: need at least 3 (x,y) pairs in flat array")
+	}
+	verts := make([]box2d.B2Vec2, n/2)
+	for i := 0; i < n/2; i++ {
+		verts[i].X = arr.Floats[i*2]
+		verts[i].Y = arr.Floats[i*2+1]
+	}
+	tmp.fixtures = append(tmp.fixtures, fixtureDef{
+		kind: fdPoly, verts: verts, density: 1, friction: 0.2, restitution: 0,
+	})
 	return value.Nil, nil
 }
 
@@ -251,14 +325,25 @@ func (m *Module) bdCommit(rt *runtime.Runtime, args ...value.Value) (value.Value
 
 	body := globalWorld.world.CreateBody(&bd)
 	for _, f := range tmp.fixtures {
-		if f.isRect {
+		switch f.kind {
+		case fdRect:
 			shape := box2d.MakeB2PolygonShape()
 			shape.SetAsBox(f.w/2, f.h/2)
-			body.CreateFixture(&shape, 1.0)
-		} else {
+			fix := body.CreateFixture(&shape, f.density)
+			fix.SetFriction(f.friction)
+			fix.SetRestitution(f.restitution)
+		case fdCircle:
 			shape := box2d.MakeB2CircleShape()
 			shape.M_radius = f.radius
-			body.CreateFixture(&shape, 1.0)
+			fix := body.CreateFixture(&shape, f.density)
+			fix.SetFriction(f.friction)
+			fix.SetRestitution(f.restitution)
+		case fdPoly:
+			shape := box2d.MakeB2PolygonShape()
+			shape.Set(f.verts, len(f.verts))
+			fix := body.CreateFixture(&shape, f.density)
+			fix.SetFriction(f.friction)
+			fix.SetRestitution(f.restitution)
 		}
 	}
 
@@ -267,6 +352,7 @@ func (m *Module) bdCommit(rt *runtime.Runtime, args ...value.Value) (value.Value
 		globalWorld.world.DestroyBody(body)
 		return value.Nil, err
 	}
+	body.SetUserData(int64(id))
 	if err := m.h.Free(handle); err != nil {
 		return value.Nil, err
 	}

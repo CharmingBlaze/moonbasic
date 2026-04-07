@@ -1,0 +1,155 @@
+; star_road_easy.mb — Premium 'MoonBASIC' Game Engine Showcase
+; Featuring: Batch 6 Atmospheric Fog, Material Alpha, and Definitive Documentation.
+; --------------------------------------------------------------------------------
+
+Window.Open(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
+SetFPS(60)
+
+; 1. Batch 6: Environmental Atmosphere
+COLORPRINT(0, 180, 255, "System: Initializing Batch 6 Atmosphere (Fog & Materials)...")
+FOGMODE(1)        ; Linear Fog
+FOGCOLOR(0, 0, 20) ; Match the dark night sky
+FOGDENSITY(0.05)   ; Atmospheric thickness
+
+; Configuration
+CONST MOVE_SPEED# = 12.0
+CONST JUMP_FORCE# = 9.0
+CONST CAM_DIST# = 9.5
+CONST MOUSE_SENSITIVITY# = 0.005
+
+; Initialize Camera
+cam = CreateCamera()
+cam.fov(60)
+
+; Initialize Player
+player = CreateSphere()
+ENTRAD(player, 0.5)
+ENTTYPE(player, 1)
+POSENT(player, 0, 1.5, 0)
+SetGravity(player, -25.0)
+
+; Initialize Particles
+starEmit = CREATEEMITTER()
+PARTICLECOLOR(starEmit, 255, 255, 0, 255)
+PARTICLESPEED(starEmit, 5.0, 15.0)
+PARTICLELIFE(starEmit, 0.4, 0.8)
+
+; Initialize World Collision Rules
+COLLISIONS(1, 2, 2, 2) ; Player vs Platforms (Slide)
+
+; World Objects (Static Platforms)
+TYPE Platform
+    ent
+    r, g, b
+ENDTYPE
+
+DIM plats AS Platform(5)
+plats(0) = Platform(CreateCube(), 100, 200, 100) ; Floor
+SCALENT(plats(0).ent, 30, 1, 30)
+POSENT(plats(0).ent, 0, 0, 0)
+ENTTYPE(plats(0).ent, 2)
+
+plats(1) = Platform(CreateCube(), 150, 150, 255) ; Step 1
+SCALENT(plats(1).ent, 4, 1, 4)
+POSENT(plats(1).ent, 8, 2, 8)
+ENTTYPE(plats(1).ent, 2)
+
+plats(2) = Platform(CreateCube(), 255, 150, 150) ; Step 2
+SCALENT(plats(2).ent, 4, 1, 4)
+POSENT(plats(2).ent, 12, 4, 12)
+ENTTYPE(plats(2).ent, 2)
+
+plats(3) = Platform(CreateCube(), 255, 255, 100) ; Goal
+SCALENT(plats(3).ent, 6, 1, 6)
+POSENT(plats(3).ent, 16, 6, 16)
+ENTTYPE(plats(3).ent, 2)
+; Batch 6: Set Goal to be semi-transparent
+ENTITYALPHA(plats(3).ent, 0.6)
+
+; Stars (Collection Goal)
+DIM starEnts(5)
+DIM starActive(5)
+FOR i = 0 TO 4
+    starEnts(i) = CreateSphere()
+    SCALENT(starEnts(i), 0.4, 0.4, 0.4)
+    POSENT(starEnts(i), RAND(-15, 15), 1.5 + RND(0, 4), RAND(-15, 15))
+    EntityColor(starEnts(i), 255, 255, 0, 255)
+    starActive(i) = 1
+NEXT
+
+score = 0
+camYaw# = 0.0
+camPitch# = 0.3
+
+COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
+
+; Main Game Loop
+WHILE NOT (KEYHIT(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = DT()
+
+    ; 1. Input: Camera Orbiting
+    camYaw# = camYaw# + MOUSEDX() * MOUSE_SENSITIVITY#
+    camPitch# = camPitch# - MOUSEDY() * MOUSE_SENSITIVITY#
+    IF camPitch# > 1.4 THEN camPitch# = 1.4
+    IF camPitch# < -0.1 THEN camPitch# = -0.1
+    
+    ; 2. Input: Player Movement
+    moveF# = Axis(KEY_S, KEY_W)
+    moveS# = Axis(KEY_A, KEY_D)
+    
+    vx# = MOVESTEPX(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
+    vz# = MOVESTEPZ(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
+    MoveEntity(player, vx#, 0, vz#)
+
+    ; 3. Automatic World Simulation
+    UPDW(dt#)
+
+    ; 4. Jumping
+    IF ENTITYFLOOR(player) AND KEYHIT(KEY_SPACE) THEN EntityJump(player, JUMP_FORCE#)
+
+    ; 5. Collectible Check
+    px# = ENTX(player)
+    py# = ENTY(player)
+    pz# = ENTZ(player)
+    
+    FOR i = 0 TO 4
+        IF starActive(i) = 1 THEN
+            dist# = DIST3D(px#, py#, pz#, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
+            IF dist# < 1.1 THEN
+                starActive(i) = 0
+                score = score + 1
+                HideEntity(starEnts(i))
+                EMITTERPOS(starEmit, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
+                EMITPARTICLE(starEmit, 30)
+            ENDIF
+        ENDIF
+    NEXT
+
+    cam.orbit(px#, py# + 0.5, pz#, camYaw#, camPitch#, CAM_DIST#)
+
+    ; 7. Rendering
+    SkyColor(0, 0, 15) ; Deep night sky
+    cam.begin()
+        FOR i = 0 TO 3
+            EntityColor(plats(i).ent, plats(i).r, plats(i).g, plats(i).b, 255)
+        NEXT
+        ENTITY.DRAWALL()
+        DRAWEMITTER(starEmit)
+        
+        ; Batch 6: Professional debug primitives
+        LINE3D(px#, py#, pz#, px#, py# + 2.0, pz#, 0, 255, 0, 255) ; Green Up-Vector
+    cam.end()
+
+    ; 8. HUD & UI Overlay
+    Draw.Text("STARS: " + STR$(score) + " / 5", 20, 20, 24, 255, 255, 100, 255)
+    Draw.Text("MOUSE to Orbit  |  WASD to Move  |  SPACE to Jump", 20, 540, 18, 255, 255, 255, 255)
+
+    rh = ScreenWidth() - 250
+    Draw.Text("FPS: " + STR$(FPS()), rh, 20, 20, 0, 255, 0, 255)
+    Draw.Text("TIME: " + STR$(Millisecs()), rh, 45, 20, 200, 200, 255, 255)
+    Draw.Text("MIST ACTIVE: YES", rh, 70, 20, 150, 150, 255, 255)
+
+    Render.Frame()
+WEND
+
+Window.Close()

@@ -2,6 +2,8 @@
 
 Commands for creating and controlling a 2D physics simulation using Box2D.
 
+**Registry names** use the **`PHYSICS2D.*`** / **`BODY2D.*`** / **`JOINT2D.*`** prefixes (e.g. **`PHYSICS2D.START`**, **`BODY2D.MAKE`**). A full teaching-oriented map (Designed → Implementation → memory) is in [moonbasic-command-set/physics-2d.md](moonbasic-command-set/physics-2d.md).
+
 ## Core Workflow
 
 1.  **Initialize**: Start the physics world with `Physics2D.Start()`.

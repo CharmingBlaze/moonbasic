@@ -17,6 +17,8 @@ import (
 func registerTexturePropCmds(m *Module, r runtime.Registrar) {
 	r.Register("TEXTURE.WIDTH", "texture", runtime.AdaptLegacy(m.texWidth))
 	r.Register("TEXTURE.HEIGHT", "texture", runtime.AdaptLegacy(m.texHeight))
+	r.Register("TEXTUREWIDTH", "texture", runtime.AdaptLegacy(m.texWidth))   // Blitz-style flat alias
+	r.Register("TEXTUREHEIGHT", "texture", runtime.AdaptLegacy(m.texHeight)) // Blitz-style flat alias
 	r.Register("TEXTURE.SETFILTER", "texture", runtime.AdaptLegacy(m.texSetFilter))
 	r.Register("TEXTURE.SETWRAP", "texture", runtime.AdaptLegacy(m.texSetWrap))
 	r.Register("TEXTURE.UPDATE", "texture", runtime.AdaptLegacy(m.texUpdate))

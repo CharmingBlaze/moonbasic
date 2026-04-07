@@ -114,4 +114,61 @@ func registerConsoleIO(r Registrar) {
 	}
 	r.Register("TAB", "core", spacesFn("TAB"))
 	r.Register("SPC", "core", spacesFn("SPC"))
+
+	r.Register("HELP", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("HELP expects 1 argument (commandName$)")
+		}
+		cmd, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+		sig, ok := helpMap[strings.ToUpper(cmd)]
+		if !ok {
+			fmt.Fprintf(rt.DiagOut, "HELP: No documentation found for '%s'\n", cmd)
+			return value.Nil, nil
+		}
+		fmt.Fprintf(rt.DiagOut, "\x1b[1;36m>> %s \x1b[1;33m%s\x1b[0m\n", strings.ToUpper(cmd), sig)
+		return value.Nil, nil
+	})
+
+	r.Register("COLORPRINT", "core", func(rt *Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) < 4 {
+			return value.Nil, fmt.Errorf("COLORPRINT expects (r, g, b, text...): too few arguments")
+		}
+		r, _ := rt.ArgInt(args, 0)
+		g, _ := rt.ArgInt(args, 1)
+		b, _ := rt.ArgInt(args, 2)
+		out := rt.formatPrintParts(args[3:])
+		// ANSI TRUECOLOR
+		fmt.Fprintf(rt.DiagOut, "\x1b[38;2;%d;%d;%dm%s\x1b[0m\n", r, g, b, out)
+		return value.Nil, nil
+	})
+}
+
+var helpMap = map[string]string{
+	"POSENT":         "(entity, x#, y#, z#)  - Position an entity in 3D space.",
+	"ROTENT":         "(entity, p#, y#, r#)  - Rotate an entity (Euler angles).",
+	"SCALENT":        "(entity, x#, y#, z#)  - Scale an entity.",
+	"ENTHIT":         "(entity, type%)      - Returns handle of entity hit during last UpdateWorld.",
+	"HITCOUNT":       "(entity)              - Returns number of active collisions.",
+	"HITENT":         "(entity, index%)      - Get hit entity handle by index.",
+	"UPDW":           "(dt#)                 - Step world simulation (Physics, Collision, Particles).",
+	"ENTRAD":         "(entity, radius#)     - Set sphere collision radius.",
+	"ENTTYPE":        "(entity, type%)       - Set collision group (1-32).",
+	"CREATECAMERA":   "()                    - Create a new 3D camera entity.",
+	"LOADMESH":       "(path$)               - Load a static 3D model.",
+	"LOADSPRITE":     "(path$)               - Create a 3D billboard sprite.",
+	"UPDATEWORLD":    "(dt#)                 - Professional coordinator for physics & particles.",
+	"POSITIONENTITY": "(entity, x#, y#, z#)  - Full name for POSENT.",
+	"ROTATEENTITY":   "(entity, p#, y#, r#)  - Full name for ROTENT.",
+	"ENTITYTYPE":     "(entity, type%)       - Full name for ENTTYPE.",
+	"SKYCOLOR":       "(r, g, b)             - Set clear color.",
+	"CREATESPHERE":   "(radius#, segs%)      - Create a sphere entity.",
+	"CREATECUBE":     "(w#, h#, d#)          - Create a box entity.",
+	"MOUSEHIT":       "(button%)             - 1 if button was pressed this frame.",
+	"MOUSEX":         "()                    - Current screen mouse X.",
+	"MOUSEY":         "()                    - Current screen mouse Y.",
+	"STR$":           "(value)               - Convert value to string.",
+	"Window.Open":    "(w, h, title$)       - Initialize display.",
 }

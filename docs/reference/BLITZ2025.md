@@ -2,6 +2,8 @@
 
 MoonBASIC uses **dotted command names** (`ENTITY.*`, `CAMERA.*`, …). This page maps common Blitz-style names to **built-in equivalents** (aliases share the same implementation; no duplicate semantics).
 
+For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plot, CreateCube, CameraZoom, LoadTexture, …) and their moonBASIC counterparts, see **[BLITZ_COMMAND_INDEX.md](BLITZ_COMMAND_INDEX.md)**.
+
 ---
 
 ## 1. Scene and world

@@ -5,15 +5,23 @@ import (
 	"strings"
 
 	"moonbasic/runtime"
+	"moonbasic/vm/heap"
 )
 
-// normalizeHandleMethod maps legacy or verbose names to the canonical verb used in the registry.
 func normalizeHandleMethod(mn string) string {
 	switch mn {
-	case "SETPOSITION":
+	case "SETPOSITION", "POSITION", "POS":
 		return "SETPOS"
-	case "POS":
-		return "SETPOS"
+	case "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		return "SETROT"
+	case "SETSCALE", "SCALE":
+		return "SETSCALE"
+	case "SETSIZE", "SIZE":
+		return "SETSIZE"
+	case "SETCOLOR", "COLOR", "COL":
+		return "SETCOLOR"
+	case "SETALPHA", "ALPHA", "A":
+		return "SETALPHA"
 	case "FOV":
 		return "SETFOV"
 	case "LOOK":
@@ -24,52 +32,91 @@ func normalizeHandleMethod(mn string) string {
 }
 
 // handleCallRegistryPrefix returns the dotted namespace prefix for handle-typed registry keys (e.g. CAMERA for Camera3D).
-func handleCallRegistryPrefix(typeName string) string {
-	switch strings.ToUpper(strings.TrimSpace(typeName)) {
-	case "CAMERA3D":
+func handleCallRegistryPrefix(tag uint16) string {
+	switch tag {
+	case heap.TagCamera:
 		return "CAMERA."
-	case "CAMERA2D":
+	case heap.TagCamera2D:
 		return "CAMERA2D."
-	case "RENDERTEXTURE":
+	case heap.TagRenderTexture:
 		return "RENDERTARGET."
-	case "INSTANCEDMODEL":
+	case heap.TagInstancedModel:
 		return "INSTANCE."
-	case "MATRIX4":
+	case heap.TagMatrix:
 		return "TRANSFORM."
+	case heap.TagPhysicsBody:
+		return "BODY3D."
+	case heap.TagBody2D:
+		return "PHYSICS2D."
+	case heap.TagPeer:
+		return "PEER."
+	case heap.TagSound, heap.TagMusic, heap.TagAudioStream, heap.TagWave:
+		return "AUDIO."
+	case heap.TagTexture:
+		return "TEXTURE."
+	case heap.TagImage:
+		return "IMAGE."
+	case heap.TagMesh:
+		return "MESH."
+	case heap.TagFont:
+		return "FONT."
+	case heap.TagSprite:
+		return "SPRITE."
+	case heap.TagLight:
+		return "LIGHT."
+	case heap.TagLight2D:
+		return "LIGHT2D."
+	case heap.TagParticle:
+		return "PARTICLE."
+	case heap.TagTilemap:
+		return "TILEMAP."
+	case heap.TagAtlas:
+		return "ATLAS."
+	case heap.TagCharController:
+		return "CHARCONTROLLER."
+	case heap.TagModel, heap.TagLODModel:
+		return "MODEL."
 	default:
-		return strings.ToUpper(strings.TrimSpace(typeName)) + "."
+		return ""
 	}
 }
 
-// handleCallBuiltin maps heap TypeName + script method to a registry command key and whether
+// handleCallBuiltin maps heap TypeTag + script method to a registry command key and whether
 // the receiver handle is passed as the first argument to that builtin.
-func handleCallBuiltin(typeName, method string) (registryKey string, prependReceiver bool, ok bool) {
-	tn := strings.ToUpper(strings.TrimSpace(typeName))
+func handleCallBuiltin(tag uint16, method string) (registryKey string, prependReceiver bool, ok bool) {
 	mn := normalizeHandleMethod(strings.ToUpper(strings.TrimSpace(method)))
-	switch tn {
-	case "CAMERA3D":
+	switch tag {
+	case heap.TagCamera:
 		switch mn {
 		case "END":
 			return "CAMERA.END", false, true
 		case "BEGIN", "SETPOS", "SETTARGET", "LOOKAT", "SETFOV", "SETPROJECTION", "MOVE", "GETRAY", "GETVIEWRAY", "GETMATRIX",
 			"GETPOS", "GETTARGET", "SETUP", "FREE", "WORLDTOSCREEN", "ISONSCREEN", "MOUSERAY", "ZOOM", "ORBIT", "SETORBIT":
 			return "CAMERA." + mn, true, true
+		case "SETROT":
+			return "CAMERA.ROTATE", true, true
+		case "TURN":
+			return "CAMERA.TURN", true, true
+		case "FOLLOW":
+			return "CAMERA.FOLLOWENTITY", true, true
+		case "SHAKE":
+			return "CAMERA.SHAKE", true, true
+		case "PICK":
+			return "CAMERA.PICK", true, true
 		}
-	case "ENTITYREF":
+	case heap.TagEntityRef:
 		switch mn {
-		case "POS", "SETPOSITION", "SETPOS":
+		case "SETPOS", "MOVE":
 			return "ENTITY.SETPOSITION", true, true
-		case "SCALE":
+		case "SETSCALE":
 			return "ENTITY.SCALE", true, true
-		case "ROT":
+		case "SETROT":
 			return "ENTITY.ROTATEENTITY", true, true
 		case "TURN":
 			return "ENTITY.TURNENTITY", true, true
-		case "MOVE":
-			return "ENTITY.TRANSLATE", true, true
-		case "COL", "COLOR":
+		case "SETCOLOR":
 			return "ENTITY.COLOR", true, true
-		case "A":
+		case "SETALPHA":
 			return "ENTITY.ALPHA", true, true
 		case "FREE":
 			return "ENTITY.FREE", true, true
@@ -78,70 +125,113 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		case "SHOW":
 			return "ENTITY.SHOW", true, true
 		}
-	case "CAMERA2D":
+	case heap.TagCamera2D:
 		switch mn {
 		case "END":
 			return "CAMERA2D.END", false, true
-		case "BEGIN", "SETTARGET", "SETOFFSET", "SETZOOM", "SETROTATION", "GETMATRIX", "WORLDTOSCREEN", "SCREENTOWORLD", "FREE":
+		case "BEGIN", "SETTARGET", "SETOFFSET", "SETZOOM", "SETROTATION", "GETMATRIX", "WORLDTOSCREEN", "SCREENTOWORLD", "FREE", "FOLLOW":
 			return "CAMERA2D." + mn, true, true
+		case "SETPOS", "TARGET":
+			return "CAMERA2D.SETTARGET", true, true
+		case "OFFSET":
+			return "CAMERA2D.SETOFFSET", true, true
+		case "ZOOM":
+			return "CAMERA2D.SETZOOM", true, true
+		case "SETROT", "ROT":
+			return "CAMERA2D.SETROTATION", true, true
 		}
-	case "RENDERTEXTURE":
+	case heap.TagRenderTexture:
 		switch mn {
 		case "END":
 			return "RENDERTARGET.END", false, true
 		case "BEGIN", "FREE", "TEXTURE":
 			return "RENDERTARGET." + mn, true, true
 		}
-	case "TILEMAP":
+	case heap.TagTilemap:
 		switch mn {
 		case "FREE", "SETTILESIZE", "DRAW", "DRAWLAYER", "GETTILE", "SETTILE", "ISSOLID", "ISSOLIDCATEGORY",
 			"WIDTH", "HEIGHT", "LAYERCOUNT", "LAYERNAME", "COLLISIONAT", "SETCOLLISION", "MERGECOLLISIONLAYER":
 			return "TILEMAP." + mn, true, true
 		}
-	case "ATLAS":
+	case heap.TagAtlas:
 		switch mn {
 		case "FREE", "GETSPRITE":
 			return "ATLAS." + mn, true, true
 		}
-	case "LIGHT2D":
+	case heap.TagLight2D:
 		switch mn {
 		case "FREE", "SETPOS", "SETCOLOR", "SETRADIUS", "SETINTENSITY":
 			return "LIGHT2D." + mn, true, true
 		}
-	case "BODY3D":
-		if mn == "SETPOS" {
+	case heap.TagPhysicsBody:
+		switch mn {
+		case "SETPOS":
 			return "BODY3D.SETPOS", true, true
+		case "SETROT":
+			return "BODY3D.SETROT", true, true
+		case "SETSCALE":
+			return "BODY3D.SETSCALE", true, true
+		case "SETVELOCITY", "SETVEL":
+			return "BODY3D.SETLINEARVELOCITY", true, true
+		case "ADDFORCE", "FORCE":
+			return "BODY3D.ADDFORCE", true, true
+		case "ADDIMPULSE", "IMPULSE":
+			return "BODY3D.ADDIMPULSE", true, true
+		case "FREE":
+			return "BODY3D.FREE", true, true
 		}
-	case "CHARCONTROLLER":
-		if mn == "SETPOS" {
+	case heap.TagBody2D:
+		switch mn {
+		case "SETPOS":
+			return "PHYSICS2D.SETBODYPOSITION", true, true
+		case "SETVELOCITY", "SETVEL":
+			return "PHYSICS2D.SETBODYLINEARVELOCITY", true, true
+		case "FREE":
+			return "PHYSICS2D.DESTROYBODY", true, true
+		}
+	case heap.TagPeer:
+		switch mn {
+		case "SEND", "SENDPACKET":
+			return "PEER.SENDPACKET", true, true
+		case "PING":
+			return "PEER.PING", true, true
+		case "DISCONNECT":
+			return "PEER.DISCONNECT", true, true
+		case "IP":
+			return "PEER.IP", true, true
+		}
+	case heap.TagCharController:
+		switch mn {
+		case "SETPOS":
 			return "CHARCONTROLLER.SETPOS", true, true
+		case "MOVE":
+			return "CHARCONTROLLER.MOVE", true, true
+		case "FREE":
+			return "CHARCONTROLLER.FREE", true, true
 		}
-	case "SPRITE":
+	case heap.TagSprite:
 		switch mn {
 		case "SETPOS", "DRAW", "DEFANIM", "PLAYANIM", "UPDATEANIM", "HIT", "FREE":
 			return "SPRITE." + mn, true, true
 		}
-	case "LIGHT":
+	case heap.TagLight:
 		switch mn {
 		case "SETDIR", "SETSHADOW", "FREE", "SETCOLOR", "SETINTENSITY", "SETPOSITION", "SETPOS",
 			"SETTARGET", "SETSHADOWBIAS", "SETINNERCONE", "SETOUTERCONE", "SETRANGE", "ENABLE", "ISENABLED":
 			return "LIGHT." + mn, true, true
 		}
-	case "MODEL":
+	case heap.TagModel, heap.TagLODModel:
 		switch mn {
 		case "SETPOS":
 			return "MODEL.SETPOS", true, true
+		case "SETROT":
+			return "MODEL.SETROT", true, true
+		case "SETSCALE":
+			return "MODEL.SETSCALE", true, true
 		case "DRAW":
 			return "MODEL.DRAW", true, true
 		}
-	case "LODMODEL":
-		switch mn {
-		case "SETPOS", "SETPOSITION":
-			return "MODEL.SETPOS", true, true
-		case "DRAW":
-			return "MODEL.DRAW", true, true
-		}
-	case "INSTANCEDMODEL":
+	case heap.TagInstancedModel:
 		switch mn {
 		case "DRAW":
 			return "MODEL.DRAW", true, true
@@ -166,7 +256,7 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		case "DRAWLOD":
 			return "INSTANCE.DRAWLOD", true, true
 		}
-	case "PARTICLE":
+	case heap.TagParticle:
 		switch mn {
 		case "SETTEXTURE":
 			return "PARTICLE.SETTEXTURE", true, true
@@ -221,66 +311,296 @@ func handleCallBuiltin(typeName, method string) (registryKey string, prependRece
 		case "FREE":
 			return "PARTICLE.FREE", true, true
 		}
-	case "MATRIX4":
+	case heap.TagMatrix:
 		if mn == "SETROTATION" {
 			return "TRANSFORM.SETROTATION", true, true
 		}
-	case "MESH":
+	case heap.TagMesh:
 		switch mn {
-		case "DRAW", "DRAWROTATED":
+		case "DRAW", "DRAWROTATED", "FREE":
 			return "MESH." + mn, true, true
 		case "VERTEXCOUNT", "TRIANGLECOUNT":
 			return "MESH." + mn, true, true
+		}
+	case heap.TagDrawPrim3D:
+		switch mn {
+		case "POS", "SETPOS":
+			return "DRAWPRIM3D.POS", true, true
+		case "SIZE":
+			return "DRAWPRIM3D.SIZE", true, true
+		case "COLOR":
+			return "DRAWPRIM3D.COLOR", true, true
+		case "COL":
+			return "DRAWPRIM3D.COL", true, true
+		case "WIRE":
+			return "DRAWPRIM3D.WIRE", true, true
+		case "RADIUS":
+			return "DRAWPRIM3D.RADIUS", true, true
+		case "ENDPOINT":
+			return "DRAWPRIM3D.ENDPOINT", true, true
+		case "CYL":
+			return "DRAWPRIM3D.CYL", true, true
+		case "BBOX":
+			return "DRAWPRIM3D.BBOX", true, true
+		case "SLICES":
+			return "DRAWPRIM3D.SLICES", true, true
+		case "RINGS":
+			return "DRAWPRIM3D.RINGS", true, true
+		case "GRID":
+			return "DRAWPRIM3D.GRID", true, true
+		case "SETRAY":
+			return "DRAWPRIM3D.SETRAY", true, true
+		case "SETTEXTURE":
+			return "DRAWPRIM3D.SETTEXTURE", true, true
+		case "SRCTEX":
+			return "DRAWPRIM3D.SRCTEX", true, true
+		case "DRAW":
+			return "DRAWPRIM3D.DRAW", true, true
+		case "FREE":
+			return "DRAWPRIM3D.FREE", true, true
+		}
+	case heap.TagDrawPrim2D:
+		switch mn {
+		case "POS", "SETPOS":
+			return "DRAWPRIM2D.POS", true, true
+		case "SIZE":
+			return "DRAWPRIM2D.SIZE", true, true
+		case "COLOR":
+			return "DRAWPRIM2D.COLOR", true, true
+		case "COL":
+			return "DRAWPRIM2D.COL", true, true
+		case "OUTLINE":
+			return "DRAWPRIM2D.OUTLINE", true, true
+		case "P2":
+			return "DRAWPRIM2D.P2", true, true
+		case "P3":
+			return "DRAWPRIM2D.P3", true, true
+		case "RING":
+			return "DRAWPRIM2D.RING", true, true
+		case "SEGS":
+			return "DRAWPRIM2D.SEGS", true, true
+		case "SIDES":
+			return "DRAWPRIM2D.SIDES", true, true
+		case "ROT":
+			return "DRAWPRIM2D.ROT", true, true
+		case "THICK":
+			return "DRAWPRIM2D.THICK", true, true
+		case "DRAW":
+			return "DRAWPRIM2D.DRAW", true, true
+		case "FREE":
+			return "DRAWPRIM2D.FREE", true, true
+		}
+	case heap.TagTextDraw:
+		switch mn {
+		case "POS", "SETPOS":
+			return "TEXTDRAW.POS", true, true
+		case "SIZE":
+			return "TEXTDRAW.SIZE", true, true
+		case "COLOR":
+			return "TEXTDRAW.COLOR", true, true
+		case "COL":
+			return "TEXTDRAW.COL", true, true
+		case "SETTEXT":
+			return "TEXTDRAW.SETTEXT", true, true
+		case "DRAW":
+			return "TEXTDRAW.DRAW", true, true
+		case "FREE":
+			return "TEXTDRAW.FREE", true, true
+		}
+	case heap.TagTextDrawEx:
+		switch mn {
+		case "POS", "SETPOS":
+			return "TEXTEXOBJ.POS", true, true
+		case "SIZE":
+			return "TEXTEXOBJ.SIZE", true, true
+		case "SPACING":
+			return "TEXTEXOBJ.SPACING", true, true
+		case "COLOR":
+			return "TEXTEXOBJ.COLOR", true, true
+		case "COL":
+			return "TEXTEXOBJ.COLOR", true, true
+		case "SETTEXT":
+			return "TEXTEXOBJ.SETTEXT", true, true
+		case "DRAW":
+			return "TEXTEXOBJ.DRAW", true, true
+		case "FREE":
+			return "TEXTEXOBJ.FREE", true, true
+		}
+	case heap.TagTextureDraw:
+		switch mn {
+		case "POS", "SETPOS":
+			return "DRAWTEX2.POS", true, true
+		case "COLOR", "COL":
+			return "DRAWTEX2.COLOR", true, true
+		case "SETTEXTURE": // Covers DRAWTEX2, DRAWTEXREC, DRAWTEXPRO
+			return "DRAWTEX2.SETTEXTURE", true, true
+		case "DRAW":
+			return "DRAWTEX2.DRAW", true, true
+		case "FREE":
+			return "DRAWTEX2.FREE", true, true
+		case "SRC":
+			return "DRAWTEXREC.SRC", true, true
+		case "DST":
+			return "DRAWTEXPRO.DST", true, true
+		case "ORIGIN":
+			return "DRAWTEXPRO.ORIGIN", true, true
+		case "ROT":
+			return "DRAWTEXPRO.ROT", true, true
+		}
+	case heap.TagInputFacade:
+		switch mn {
+		case "DX":
+			return "MOUSE.DX", true, true
+		case "DY":
+			return "MOUSE.DY", true, true
+		case "WHEEL":
+			return "MOUSE.WHEEL", true, true
+		case "DOWN": // Mouse, Key
+			return "MOUSE.DOWN", true, true
+		case "PRESSED":
+			return "MOUSE.PRESSED", true, true
+		case "RELEASED":
+			return "MOUSE.RELEASED", true, true
+		case "HIT":
+			return "KEY.HIT", true, true
+		case "UP":
+			return "KEY.UP", true, true
+		case "AXIS":
+			return "GAMEPAD.AXIS", true, true
+		case "BUTTON":
+			return "GAMEPAD.BUTTON", true, true
+		}
+	case heap.TagSound, heap.TagAudioStream, heap.TagWave:
+		switch mn {
+		case "PLAY":
+			return "AUDIO.PLAY", true, true
+		case "STOP":
+			return "AUDIO.STOP", true, true
+		case "SETVOLUME", "VOLUME":
+			return "AUDIO.SETSOUNDVOLUME", true, true
+		case "FREE":
+			return "AUDIO.FREESOUND", true, true
+		}
+	case heap.TagMusic:
+		switch mn {
+		case "PLAY":
+			return "AUDIO.PLAY", true, true
+		case "STOP":
+			return "AUDIO.STOP", true, true
+		case "SETVOLUME", "VOLUME":
+			return "AUDIO.SETMUSICVOLUME", true, true
+		case "FREE":
+			return "AUDIO.FREEMUSIC", true, true
+		}
+	case heap.TagTexture, heap.TagImage:
+		pre := "TEXTURE"
+		if tag == heap.TagImage {
+			pre = "IMAGE"
+		}
+		switch mn {
+		case "DRAW":
+			return pre + ".DRAW", true, true
+		case "WIDTH":
+			return pre + ".WIDTH", true, true
+		case "HEIGHT":
+			return pre + ".HEIGHT", true, true
+		case "FREE":
+			return pre + ".FREE", true, true
+		}
+	case heap.TagFont:
+		switch mn {
+		case "WIDTH", "TEXTWIDTH":
+			return "FONT.TEXTWIDTH", true, true
+		case "HEIGHT", "TEXTHEIGHT":
+			return "FONT.TEXTHEIGHT", true, true
+		case "FREE":
+			return "FONT.FREE", true, true
+		}
+	case heap.TagMoverFacade:
+		switch mn {
+		case "MOVEXZ":
+			return "MOVER.MOVEXZ", true, true
+		case "MOVESTEPX":
+			return "MOVER.MOVESTEPX", true, true
+		case "MOVESTEPZ":
+			return "MOVER.MOVESTEPZ", true, true
+		case "LAND":
+			return "MOVER.LAND", true, true
+		case "MOVEREL":
+			return "MOVER.MOVEREL", true, true
+		case "FREE":
+			return "MOVER.FREE", true, true
 		}
 	}
 	return "", false, false
 }
 
-// HandleCallSuggestions lists common script-side method names for a handle TypeName (error hints).
-func HandleCallSuggestions(typeName string) []string {
-	tn := strings.ToUpper(strings.TrimSpace(typeName))
+// HandleCallSuggestions lists common script-side method names for a handle type (error hints).
+func HandleCallSuggestions(tag uint16) []string {
 	var out []string
-	switch tn {
-	case "CAMERA3D":
+	switch tag {
+	case heap.TagCamera:
 		out = []string{"Begin", "End", "FOV", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "IsOnScreen",
 			"Look", "LookAt", "MouseRay", "Move", "Orbit", "Pos", "SetFOV", "SetOrbit", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen", "Zoom"}
-	case "ENTITYREF":
+	case heap.TagEntityRef:
 		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "Pos", "Rot", "Scale", "Show", "Turn"}
-	case "CAMERA2D":
+	case heap.TagCamera2D:
 		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
-	case "RENDERTEXTURE":
+	case heap.TagRenderTexture:
 		out = []string{"Begin", "End", "Free", "Texture"}
-	case "TILEMAP":
+	case heap.TagTilemap:
 		out = []string{"CollisionAt", "Draw", "DrawLayer", "Free", "GetTile", "Height", "IsSolid", "IsSolidCategory",
 			"LayerCount", "LayerName", "MergeCollisionLayer", "SetCollision", "SetTile", "SetTileSize", "Width"}
-	case "ATLAS":
+	case heap.TagAtlas:
 		out = []string{"Free", "GetSprite"}
-	case "LIGHT2D":
+	case heap.TagLight2D:
 		out = []string{"Free", "SetColor", "SetIntensity", "SetPos", "SetRadius"}
-	case "BODY3D":
+	case heap.TagPhysicsBody:
+		out = []string{"AddForce", "AddImpulse", "Force", "Free", "Impulse", "Pos", "Rot", "Scale", "SetPos", "SetPosition", "SetRot", "SetVelocity", "Vel", "Velocity"}
+	case heap.TagBody2D:
+		out = []string{"Free", "Pos", "SetPos", "SetVel", "SetVelocity", "Vel", "Velocity"}
+	case heap.TagPeer:
+		out = []string{"Disconnect", "IP", "Ping", "Send", "SendPacket"}
+	case heap.TagSound:
+		out = []string{"Free", "Pause", "Play", "Resume", "SetVolume", "Stop", "Volume"}
+	case heap.TagMusic:
+		out = []string{"Free", "Pause", "Play", "Resume", "SetVolume", "Stop", "Volume"}
+	case heap.TagCharController:
 		out = []string{"SetPos", "SetPosition"}
-	case "CHARCONTROLLER":
-		out = []string{"SetPos", "SetPosition"}
-	case "SPRITE":
+	case heap.TagSprite:
 		out = []string{"Draw", "Free", "SetPos", "SetPosition", "DefAnim", "PlayAnim", "UpdateAnim", "Hit"}
-	case "MODEL":
+	case heap.TagModel, heap.TagLODModel:
 		out = []string{"Draw", "SetPos", "SetPosition"}
-	case "LODMODEL":
-		out = []string{"Draw", "SetPos", "SetPosition"}
-	case "PARTICLE":
+	case heap.TagParticle:
 		out = []string{"Count", "Draw", "Free", "IsAlive", "Play", "SetBillboard", "SetBurst", "SetColor", "SetColorEnd",
 			"SetDirection", "SetEmitRate", "SetEndColor", "SetEndSize", "SetGravity", "SetLifetime", "SetPos", "SetPosition",
 			"SetRate", "SetSize", "SetSpeed", "SetSpread", "SetStartColor", "SetStartSize", "SetTexture", "SetVelocity", "Stop", "Update"}
-	case "INSTANCEDMODEL":
+	case heap.TagInstancedModel:
 		out = []string{"Count", "Draw", "DrawLOD", "Free", "SetColor", "SetCullDistance", "SetInstancePos", "SetInstanceScale",
 			"SetMatrix", "SetPos", "SetRot", "SetScale", "UpdateBuffer", "UpdateInstances"}
-	case "LIGHT":
+	case heap.TagLight:
 		out = []string{"Enable", "Free", "IsEnabled", "SetColor", "SetDir", "SetInnerCone", "SetIntensity",
 			"SetOuterCone", "SetPos", "SetPosition", "SetRange", "SetShadow", "SetShadowBias", "SetTarget"}
-	case "MATRIX4":
+	case heap.TagMatrix:
 		out = []string{"SetRotation"}
-	case "MESH":
-		out = []string{"Draw", "DrawRotated", "TriangleCount", "VertexCount"}
+	case heap.TagMesh:
+		out = []string{"Draw", "DrawRotated", "Free", "TriangleCount", "VertexCount"}
+	case heap.TagFont:
+		out = []string{"Free", "Height", "TextHeight", "TextWidth", "Width"}
+	case heap.TagDrawPrim3D:
+		out = []string{"Pos", "Size", "Color", "Col", "Wire", "Radius", "EndPoint", "Cyl", "BBox", "Slices", "Rings", "Grid", "SetRay", "SetTexture", "SrcTex", "Draw", "Free"}
+	case heap.TagDrawPrim2D:
+		out = []string{"Pos", "Size", "Color", "Col", "Outline", "P2", "P3", "Draw", "Free"}
+	case heap.TagTextDraw:
+		out = []string{"Pos", "Size", "Color", "Col", "SetText", "Draw", "Free"}
+	case heap.TagTextDrawEx:
+		out = []string{"Pos", "Size", "Spacing", "Color", "Col", "SetText", "Draw", "Free"}
+	case heap.TagTextureDraw:
+		out = []string{"Pos", "Color", "Col", "SetTexture", "Src", "Dst", "Origin", "Rot", "Draw", "Free"}
+	case heap.TagInputFacade:
+		out = []string{"DX", "DY", "Wheel", "Down", "Pressed", "Released", "Hit", "Up", "Axis", "Button"}
+	case heap.TagMoverFacade:
+		out = []string{"MoveXZ", "MoveStepX", "MoveStepZ", "Land", "MoveRel", "Free"}
 	default:
 		return nil
 	}
@@ -300,19 +620,19 @@ func filterRegistryKeysByPrefix(keys []string, prefix string) []string {
 }
 
 // formatHandleCallError enriches a failed handle method dispatch with type-specific hints.
-func (v *VM) formatHandleCallError(typeName, methodName, callKey string, mapped bool, err error) string {
+func (v *VM) formatHandleCallError(tag uint16, typeName, methodName, callKey string, mapped bool, err error) string {
 	msg := err.Error()
 	if mapped {
 		return msg
 	}
-	prefix := handleCallRegistryPrefix(typeName)
+	prefix := handleCallRegistryPrefix(tag)
 	keys := v.Registry.CommandKeys()
 	prefixed := filterRegistryKeysByPrefix(keys, prefix)
 	if alt, ok := runtime.BestSimilarCommand(callKey, prefixed, 3); ok {
 		return msg + "\n  Did you mean " + alt + "?"
 	}
-	if sug := HandleCallSuggestions(typeName); len(sug) > 0 {
-		return msg + "\n  Hint: For " + typeName + " handles use methods like " + strings.Join(sug, ", ") + "."
+	if sug := HandleCallSuggestions(tag); len(sug) > 0 {
+		return msg + "\n  Hint: For this handle type use methods like " + strings.Join(sug, ", ") + "."
 	}
 	return msg + "\n  Hint: See docs/API_CONSISTENCY.md for handle methods vs NS.COMMAND calls."
 }

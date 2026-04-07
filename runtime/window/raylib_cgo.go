@@ -54,6 +54,13 @@ func (m *Module) Register(reg runtime.Registrar) {
 	m.registerWindowMetricsCommands(reg)
 	m.registerWindowPlacementCommands(reg)
 	m.registerAutomationCommands(reg)
+
+	// Global shorthands (Easy Mode)
+	reg.Register("SKYCOLOR", "draw", m.rClear)
+	reg.Register("FPS", "window", runtime.AdaptLegacy(m.wGetFPS))
+	reg.Register("AMBIENTLIGHT", "draw", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.Nil, nil
+	})
 }
 
 func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

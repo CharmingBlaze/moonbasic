@@ -250,13 +250,19 @@ type sceneFileV1 struct {
 type sceneEntRec struct {
 	K int `json:"k"`
 
-	PX, PY, PZ       float32 `json:"px,omitempty"`
+	PX float32 `json:"px,omitempty"`
+	PY float32 `json:"py,omitempty"`
+	PZ float32 `json:"pz,omitempty"`
 	Pitch float32 `json:"pitch,omitempty"`
 	Yaw   float32 `json:"yaw,omitempty"`
 	Roll  float32 `json:"roll,omitempty"`
-	SX, SY, SZ       float32 `json:"sx,omitempty"`
+	SX float32 `json:"sx,omitempty"`
+	SY float32 `json:"sy,omitempty"`
+	SZ float32 `json:"sz,omitempty"`
 
-	W, H, D float32 `json:"w,omitempty"`
+	W float32 `json:"w,omitempty"`
+	H float32 `json:"h,omitempty"`
+	D float32 `json:"d,omitempty"`
 	Rad     float32 `json:"rad,omitempty"`
 	CylH    float32 `json:"cylh,omitempty"`
 	SegH    int32   `json:"segh,omitempty"`

@@ -2,6 +2,8 @@
 
 Commands for creating multiplayer games using ENet.
 
+**Registry names** use **`NET.*`**, **`PEER.*`**, **`EVENT.*`**, **`PACKET.*`**, plus helpers **`NETSEND*`** / **`NETREAD*`** (see [moonbasic-command-set/network-enet.md](moonbasic-command-set/network-enet.md) and [network-helpers.md](moonbasic-command-set/network-helpers.md)). **`PEER.SEND`** takes **`(peer, channel, data$, reliable)`** (channel before the string).
+
 ## Core Workflow
 
 1.  **Initialize**: Call `Net.Start()` once.

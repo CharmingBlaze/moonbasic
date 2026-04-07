@@ -11,6 +11,7 @@ import (
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbgame"
 	"moonbasic/runtime/mbmatrix"
+	"moonbasic/runtime/mbmodel3d"
 	mbtime "moonbasic/runtime/time"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -20,11 +21,18 @@ import (
 
 var entityStores = make(map[*Module]*entityStore)
 
+type collRule struct {
+	src, dst int32
+	method   int32 // 1=Sph-Sph, 2=Sph-Box, 3=Sph-Mesh
+	response int32 // 1=Stop, 2=Slide, 3=Slide (no grav)
+}
+
 type entityStore struct {
 	ents    map[int64]*ent
 	nextID  int64
 	byName  map[string]int64
 	groups  map[string]map[int64]struct{}
+	rules   []collRule
 }
 
 func (m *Module) store() *entityStore {
@@ -56,12 +64,19 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("ENTITY.COLOR", "entity", runtime.AdaptLegacy(m.entColor))
 	r.Register("ENTITY.RADIUS", "entity", runtime.AdaptLegacy(m.entRadius))
 	r.Register("ENTITY.BOX", "entity", runtime.AdaptLegacy(m.entBox))
-	r.Register("ENTITY.COLLIDED", "entity", runtime.AdaptLegacy(m.entCollided))
-	r.Register("ENTITY.COLLISIONOTHER", "entity", runtime.AdaptLegacy(m.entCollisionOther))
-	r.Register("ENTITY.FLOOR", "entity", runtime.AdaptLegacy(m.entFloor))
-	r.Register("ENTITY.SETGRAVITY", "entity", runtime.AdaptLegacy(m.entSetGravity))
-	r.Register("ENTITY.JUMP", "entity", runtime.AdaptLegacy(m.entJump))
+	r.Register("ENTITY.TYPE", "entity", runtime.AdaptLegacy(m.entType))
+	r.Register("ENTITYTYPE", "entity", runtime.AdaptLegacy(m.entType))
+	r.Register("COLLISIONS", "entity", runtime.AdaptLegacy(m.entCollisions))
+	r.Register("ENTITYRADIUS", "entity", runtime.AdaptLegacy(m.entRadius))
+	r.Register("SPHERECOLLIDE", "entity", runtime.AdaptLegacy(m.entRadius))
+
 	r.Register("ENTITY.UPDATE", "entity", runtime.AdaptLegacy(m.entUpdate))
+	r.Register("UPDATEWORLD", "entity", runtime.AdaptLegacy(m.entUpdate))
+	r.Register("RESETENTITY", "entity", runtime.AdaptLegacy(m.entReset))
+	r.Register("ENTITYCOLLIDED", "entity", runtime.AdaptLegacy(m.entCollidedType))
+	r.Register("COUNTCOLLISIONS", "entity", runtime.AdaptLegacy(m.entCountCollisions))
+	r.Register("GETCOLLISIONENTITY", "entity", runtime.AdaptLegacy(m.entGetCollisionEntity))
+
 	r.Register("ENTITY.DRAWALL", "entity", runtime.AdaptLegacy(m.entDrawAll))
 	r.Register("CAMERA.FOLLOWENTITY", "entity", m.camFollowEntity)
 	registerBlitzEntityHandles(m, r)
@@ -520,18 +535,37 @@ func (m *Module) entJump(args []value.Value) (value.Value, error) {
 
 func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.UPDATE expects 1 argument (dt#)")
+		return value.Nil, fmt.Errorf("UPDATEWORLD expects (dt#)")
 	}
 	dt, ok := argF32(args[0])
 	if !ok || dt <= 0 {
-		return value.Nil, fmt.Errorf("ENTITY.UPDATE: dt must be positive")
+		return value.Nil, fmt.Errorf("UPDATEWORLD: dt must be positive")
 	}
-	for _, e := range m.store().ents {
+
+	st := m.store()
+
+	// 1. Clear frame collision state
+	for _, e := range st.ents {
 		e.collided = false
-		e.otherID = 0
+		e.hits = e.hits[:0]
 		e.hasHit = false
 	}
-	for _, e := range m.store().ents {
+
+	// 2. Discover and update all particle emitters in the heap
+	if m.h != nil {
+		partHandles := m.h.FilterByType(heap.TagParticle)
+		for _, h := range partHandles {
+			if obj, ok := m.h.Get(h); ok {
+				// We know it's a *particleObj based on TagParticle
+				if p, ok := obj.(interface{ Update(float32) }); ok {
+					p.Update(dt)
+				}
+			}
+		}
+	}
+
+	// 3. Update entity positions (gravity + velocity)
+	for _, e := range st.ents {
 		if e.static {
 			continue
 		}
@@ -540,12 +574,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		nw := rl.Vector3Add(wp, rl.Vector3Scale(e.vel, dt))
 		m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
 
-		if e.useSphere {
-			m.resolveSphereVsStatics(e)
-		} else {
-			m.resolveBoxVsStatics(e)
-		}
-		e.onGround = false
+		// Basic ground snapping / floor check
 		if e.useSphere {
 			wp2 := m.worldPos(e)
 			px, py, pz := float64(wp2.X), float64(wp2.Y), float64(wp2.Z)
@@ -553,7 +582,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 			pr := float64(e.radius)
 			var bestSnap float64
 			found := false
-			for _, s := range m.store().ents {
+			for _, s := range st.ents {
 				if !s.static {
 					continue
 				}
@@ -573,11 +602,17 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 					e.vel.Y = 0
 				}
 				e.onGround = true
+			} else {
+				e.onGround = false
 			}
 		}
 	}
-	m.pairwiseDynamic()
-	for _, e := range m.store().ents {
+
+	// 4. Resolve Global Collision Rules
+	m.resolveRules()
+
+	// 5. Update Animations
+	for _, e := range st.ents {
 		if len(e.modelAnims) == 0 {
 			continue
 		}
@@ -780,6 +815,10 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 		if e == nil || e.hidden || e.kind == entKindEmpty {
 			continue
 		}
+		if e.isSprite {
+			drawList = append(drawList, e)
+			continue
+		}
 		switch e.kind {
 		case entKindBox, entKindSphere, entKindCylinder, entKindPlane, entKindMesh, entKindModel:
 			drawList = append(drawList, e)
@@ -791,6 +830,19 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 	for _, e := range drawList {
 		wp := m.worldPos(e)
 		col := entTint(e)
+		if e.isSprite && e.texHandle != 0 {
+			if obj, ok := m.h.Get(e.texHandle); ok {
+				if to, ok := obj.(*textureObj); ok {
+					cam, okCam := mbmodel3d.ActiveCamera3D()
+					if okCam {
+						src := rl.Rectangle{X: 0, Y: 0, Width: float32(to.tex.Width), Height: float32(to.tex.Height)}
+						size := rl.Vector2{X: e.w * e.scale.X, Y: e.h * e.scale.Y}
+						rl.DrawBillboardRec(cam, to.tex, src, wp, size, col)
+					}
+				}
+			}
+			continue
+		}
 		switch e.kind {
 		case entKindBox:
 			rl.DrawCube(wp, e.w*e.scale.X, e.h*e.scale.Y, e.d*e.scale.Z, col)
@@ -868,4 +920,156 @@ func argF32(v value.Value) (float32, bool) {
 		return float32(i), true
 	}
 	return 0, false
+}
+
+func (m *Module) entCollisions(args []value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("COLLISIONS expects (srcType, dstType, method, response)")
+	}
+	src, _ := args[0].ToInt()
+	dst, _ := args[1].ToInt()
+	meth, _ := args[2].ToInt()
+	resp, _ := args[3].ToInt()
+	m.store().rules = append(m.store().rules, collRule{
+		src: int32(src), dst: int32(dst),
+		method: int32(meth), response: int32(resp),
+	})
+	return value.Nil, nil
+}
+
+func (m *Module) entReset(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("RESETENTITY expects entity#")
+	}
+	id, _ := args[0].ToInt()
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	e.vel = rl.Vector3{}
+	e.collided = false
+	e.hits = nil
+	return value.Nil, nil
+}
+
+func (m *Module) entCollidedType(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENTITYCOLLIDED expects (entity#, targetType)")
+	}
+	id, _ := args[0].ToInt()
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	tp, _ := args[1].ToInt()
+	for _, rid := range e.hits {
+		re := m.store().ents[rid]
+		if re != nil && re.collType == int32(tp) {
+			return value.FromInt(rid), nil
+		}
+	}
+	return value.FromInt(0), nil
+}
+
+func (m *Module) entCountCollisions(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("COUNTCOLLISIONS expects entity#")
+	}
+	id, _ := args[0].ToInt()
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	return value.FromInt(int64(len(e.hits))), nil
+}
+
+func (m *Module) entGetCollisionEntity(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("GETCOLLISIONENTITY expects (entity#, index)")
+	}
+	id, _ := args[0].ToInt()
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	idx, _ := args[1].ToInt()
+	if idx < 0 || int(idx) >= len(e.hits) {
+		return value.FromInt(0), nil
+	}
+	return value.FromInt(e.hits[idx]), nil
+}
+
+func (m *Module) resolveRules() {
+	st := m.store()
+	if len(st.rules) == 0 {
+		return
+	}
+	for _, r := range st.rules {
+		m.applyRule(r)
+	}
+}
+
+func (m *Module) applyRule(rule collRule) {
+	st := m.store()
+	var srcs []*ent
+	var dsts []*ent
+	for _, e := range st.ents {
+		if e.collType == rule.src {
+			srcs = append(srcs, e)
+		}
+		if e.collType == rule.dst {
+			dsts = append(dsts, e)
+		}
+	}
+	for _, s := range srcs {
+		for _, d := range dsts {
+			if s == d {
+				continue
+			}
+			m.checkAndResolve(s, d, rule)
+		}
+	}
+}
+
+func (m *Module) checkAndResolve(s, d *ent, rule collRule) {
+	ps := m.worldPos(s)
+	// Sph-Sph
+	if rule.method == 1 {
+		ps := m.worldPos(s)
+		pd := m.worldPos(d)
+		dist := rl.Vector3Distance(ps, pd)
+		sum := s.radius + d.radius
+		if dist < sum && dist > 1e-6 {
+			n := rl.Vector3Normalize(rl.Vector3Subtract(ps, pd))
+			pen := sum - dist
+			m.resolveResponse(s, d, n, pen, rule.response)
+		}
+	} else if rule.method == 2 { // Sph-Box
+		mn, mx := m.aabbWorldMinMax(d)
+		closest := rl.Vector3{
+			X: float32(math.Max(float64(mn.X), math.Min(float64(ps.X), float64(mx.X)))),
+			Y: float32(math.Max(float64(mn.Y), math.Min(float64(ps.Y), float64(mx.Y)))),
+			Z: float32(math.Max(float64(mn.Z), math.Min(float64(ps.Z), float64(mx.Z)))),
+		}
+		dist := rl.Vector3Distance(ps, closest)
+		if dist < s.radius && dist > 1e-6 {
+			n := rl.Vector3Normalize(rl.Vector3Subtract(ps, closest))
+			pen := s.radius - dist
+			m.resolveResponse(s, d, n, pen, rule.response)
+		}
+	}
+}
+
+func (m *Module) resolveResponse(s, d *ent, n rl.Vector3, pen float32, resp int32) {
+	ps := m.worldPos(s)
+	ps = rl.Vector3Add(ps, rl.Vector3Scale(n, pen))
+	m.setLocalFromWorld(s, ps.X, ps.Y, ps.Z)
+	s.collided = true
+	s.hits = append(s.hits, d.id)
+	if resp >= 2 { // Slide
+		vn := rl.Vector3Scale(n, rl.Vector3DotProduct(s.vel, n))
+		s.vel = rl.Vector3Subtract(s.vel, vn)
+	} else if resp == 1 { // Stop
+		s.vel = rl.Vector3{}
+	}
 }

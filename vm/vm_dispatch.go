@@ -318,9 +318,9 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 		firstReceiver = value.FromInt(er.ID)
 	}
 
+	tag := obj.TypeTag()
 	typeName := obj.TypeName()
-	methUp := strings.ToUpper(strings.TrimSpace(methodName))
-	key, prepend, mapped := handleCallBuiltin(typeName, methUp)
+	key, prepend, mapped := handleCallBuiltin(tag, methodName)
 	var callArgs []value.Value
 	var callKey string
 	if mapped {
@@ -333,12 +333,16 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 			callArgs = args
 		}
 	} else {
-		callKey = handleCallRegistryPrefix(typeName) + strings.ToUpper(strings.TrimSpace(methodName))
+		prefix := handleCallRegistryPrefix(tag)
+		if prefix == "" {
+			prefix = strings.ToUpper(strings.TrimSpace(typeName)) + "."
+		}
+		callKey = prefix + strings.ToUpper(strings.TrimSpace(methodName))
 		callArgs = args
 	}
 	res, err := v.Registry.Call(callKey, callArgs)
 	if err != nil {
-		return v.runtimeError(v.formatHandleCallError(typeName, methodName, callKey, mapped, err))
+		return v.runtimeError(v.formatHandleCallError(tag, typeName, methodName, callKey, mapped, err))
 	}
 
 	v.push(res)

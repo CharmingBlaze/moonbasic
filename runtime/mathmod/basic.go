@@ -5,6 +5,8 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 func (m *Module) registerBasic(r runtime.Registrar) {
@@ -98,5 +100,49 @@ func (m *Module) registerBasic(r runtime.Registrar) {
 			return value.FromFloat(x), nil
 		}
 		return value.FromFloat(math.Round(x*p) / p), nil
+	})
+
+	r.Register("DIST3D", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 6 {
+			return value.Nil, errNArgs(6, len(args))
+		}
+		x1, _ := args[0].ToFloat()
+		y1, _ := args[1].ToFloat()
+		z1, _ := args[2].ToFloat()
+		x2, _ := args[3].ToFloat()
+		y2, _ := args[4].ToFloat()
+		z2, _ := args[5].ToFloat()
+		dx := x2 - x1
+		dy := y2 - y1
+		dz := z2 - z1
+		return value.FromFloat(math.Sqrt(dx*dx + dy*dy + dz*dz)), nil
+	})
+
+	r.Register("CURVE", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, errNArgs(3, len(args))
+		}
+		v, _ := args[0].ToFloat()
+		target, _ := args[1].ToFloat()
+		div, _ := args[2].ToFloat()
+		if div < 1 {
+			div = 1
+		}
+		return value.FromFloat(v + (target-v)/div), nil
+	})
+
+	r.Register("WRAPANGLE", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, errNArgs(1, len(args))
+		}
+		a, _ := args[0].ToFloat()
+		return value.FromFloat(math.Mod(a, 360.0)), nil
+	})
+
+	r.Register("MILLISECS", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 0 {
+			return value.Nil, errNArgs(0, len(args))
+		}
+		return value.FromInt(int64(rl.GetTime() * 1000.0)), nil
 	})
 }

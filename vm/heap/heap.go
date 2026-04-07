@@ -220,6 +220,20 @@ func (s *Store) Count() int {
 	return n
 }
 
+// FilterByType returns handles for all active objects of a specific type.
+func (s *Store) FilterByType(tag uint16) []Handle {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var res []Handle
+	for i := range s.entries {
+		e := &s.entries[i]
+		if e.Obj != nil && e.TypeTag == tag {
+			res = append(res, encodeHandle(uint16(i), e.Gen))
+		}
+	}
+	return res
+}
+
 // Cast is a helper to retrieve an object and cast it to a specific type.
 func Cast[T HeapObject](s *Store, h Handle) (T, error) {
 	var zero T

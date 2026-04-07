@@ -1,0 +1,143 @@
+; Star Road v4 — spiral platforms, collect 5 gold stars (distance pickup), Mario-style hop.
+; Run: CGO_ENABLED=1 go run . examples/mario64/main_v4.mb
+
+Window.Open(1024, 576, "moonBASIC — Star Road v4")
+Window.SetFPS(60)
+
+CONST MOUSE_ORBIT_SENS# = 0.0055
+CONST MOVE_SPEED# = 11.0
+CONST PLAYER_R# = 0.45
+CONST GRAVITY# = -26.0
+CONST JUMP# = 10.5
+CONST CAM_DIST# = 8.0
+CONST CAM_HEIGHT# = 3.9
+CONST PLAT_N = 6
+CONST STAR_N = 5
+CONST PICKUP_R# = 1.05
+
+TYPE Platform
+    X#, Y#, Z#
+    W#, H#, D#
+    R, G, B
+ENDTYPE
+
+cam = Camera.Make()
+cam.SetFOV(56)
+
+px# = 0.0
+py# = PLAYER_R#
+pz# = 0.0
+pvy# = 0.0
+ong? = FALSE
+camYaw# = 0.0
+
+; Spiral staircase: start near origin, curve +Z and +X, rise
+DIM plat AS Platform(PLAT_N)
+plat(0) = Platform(0.0, 1.2, 5.0, 3.5, 0.35, 3.5, 90, 200, 255)
+plat(1) = Platform(2.2, 2.0, 8.5, 3.0, 0.35, 3.0, 120, 220, 255)
+plat(2) = Platform(-1.0, 2.8, 11.5, 2.8, 0.32, 2.8, 255, 180, 90)
+plat(3) = Platform(3.5, 3.6, 14.0, 2.6, 0.32, 2.6, 255, 230, 120)
+plat(4) = Platform(-2.5, 4.4, 16.5, 2.4, 0.3, 2.4, 200, 255, 140)
+plat(5) = Platform(1.0, 5.2, 19.5, 4.0, 0.35, 4.0, 255, 215, 60)
+
+; Star positions (near platform tops)
+DIM sx#(STAR_N)
+DIM sy#(STAR_N)
+DIM sz#(STAR_N)
+DIM starOn(STAR_N)
+
+sx#(0) = 0.0 : sy#(0) = 2.0 : sz#(0) = 5.0
+sx#(1) = 2.2 : sy#(1) = 2.85 : sz#(1) = 8.5
+sx#(2) = -1.0 : sy#(2) = 3.65 : sz#(2) = 11.5
+sx#(3) = 3.5 : sy#(3) = 4.45 : sz#(3) = 14.0
+sx#(4) = 1.0 : sy#(4) = 5.65 : sz#(4) = 19.5
+
+FOR i = 0 TO STAR_N - 1
+    starOn(i) = 1
+NEXT
+
+score = 0
+courseDone? = FALSE
+
+WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
+    dt# = DT()
+
+    camYaw# = camYaw# + FLOAT(Input.MouseDeltaX()) * MOUSE_ORBIT_SENS#
+    camYaw# = camYaw# + Input.Orbit(KEY_Q, KEY_E, 77.0, dt#)
+
+    f# = Input.Axis(KEY_S, KEY_W)
+    s# = Input.Axis(KEY_A, KEY_D)
+    px# = CLAMP(px# + MOVESTEPX(camYaw#, f#, s#, MOVE_SPEED#, dt#), -20.0, 24.0)
+    pz# = CLAMP(pz# + MOVESTEPZ(camYaw#, f#, s#, MOVE_SPEED#, dt#), -18.0, 26.0)
+
+    IF ong? AND KEYPRESSED(KEY_SPACE) THEN pvy# = JUMP#
+    pvy# = pvy# + GRAVITY# * dt#
+    py# = py# + pvy# * dt#
+
+    ong? = FALSE
+    FOR i = 0 TO PLAT_N - 1
+        landY# = BOXTOPLAND(px#, py#, pz#, pvy#, PLAYER_R#, plat(i).X#, plat(i).Y#, plat(i).Z#, plat(i).W#, plat(i).H#, plat(i).D#)
+        IF landY# > 0.0 THEN
+            py# = landY#
+            pvy# = 0.0
+            ong? = TRUE
+        ENDIF
+    NEXT
+
+    IF NOT ong? AND py# - PLAYER_R# <= 0.02 AND pvy# <= 0.0 THEN
+        py# = PLAYER_R#
+        pvy# = 0.0
+        ong? = TRUE
+    ENDIF
+
+    ; Collect stars
+    IF NOT courseDone? THEN
+        FOR i = 0 TO STAR_N - 1
+            IF starOn(i) = 1 THEN
+                dx# = px# - sx#(i)
+                dy# = py# - sy#(i)
+                dz# = pz# - sz#(i)
+                d# = SQRT(dx# * dx# + dy# * dy# + dz# * dz#)
+                IF d# < PICKUP_R# THEN
+                    starOn(i) = 0
+                    score = score + 1
+                ENDIF
+            ENDIF
+        NEXT
+        IF score >= STAR_N THEN courseDone? = TRUE
+    ENDIF
+
+    Camera.OrbitAround(cam, px#, py# + 0.2, pz#, camYaw#, CAM_DIST#, CAM_HEIGHT#)
+
+    Render.Clear(135, 185, 235)
+    cam.Begin()
+        Draw3D.Plane(0.0, 0.0, 0.0, 56.0, 56.0, 70, 140, 95, 255)
+        Draw3D.Grid(28, 1.0)
+        FOR i = 0 TO PLAT_N - 1
+            Draw3D.Cube(plat(i).X#, plat(i).Y#, plat(i).Z#, plat(i).W#, plat(i).H#, plat(i).D#, plat(i).R, plat(i).G, plat(i).B, 255)
+            Draw3D.CubeWires(plat(i).X#, plat(i).Y#, plat(i).Z#, plat(i).W# + 0.04, plat(i).H# + 0.04, plat(i).D# + 0.04, 40, 40, 40, 160)
+        NEXT
+        ; Player (M-ish: red cap, blue overalls vibe)
+        Draw3D.Capsule(px#, py# - 0.42, pz#, px#, py# + 0.48, pz#, 0.38, 10, 12, 60, 110, 255, 255)
+        Draw3D.Sphere(px#, py# + 0.72, pz#, 0.24, 255, 80, 80, 255)
+        ; Stars (gold spheres + wire outline)
+        FOR i = 0 TO STAR_N - 1
+            IF starOn(i) = 1 THEN
+                Draw3D.Sphere(sx#(i), sy#(i), sz#(i), 0.35, 255, 220, 60, 255)
+                Draw3D.SphereWires(sx#(i), sy#(i), sz#(i), 0.38, 10, 8, 255, 255, 200, 220)
+            ENDIF
+        NEXT
+    cam.End()
+
+    Draw.Text("WASD move   Mouse/Q-E orbit   SPACE jump   Collect 5 stars   ESC", 48, 10, 16, 255, 255, 255, 255)
+    Draw.Text("Stars: " + STR$(score) + " / " + STR$(STAR_N), 16, 34, 20, 255, 240, 120, 255)
+    Draw.Text(IIF$(ong?, "Ground", "Air"), 16, 58, 16, IIF(ong?, 100, 255), IIF(ong?, 255, 200), IIF(ong?, 140, 120), 255)
+    IF courseDone? THEN
+        Draw.Text("Course clear! You are a super star!", 200, 280, 28, 255, 255, 100, 255)
+    ENDIF
+    Render.Frame()
+WEND
+
+ERASE(plat)
+Camera.Free(cam)
+Window.Close()

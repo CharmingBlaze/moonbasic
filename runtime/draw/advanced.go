@@ -17,6 +17,7 @@ func registerAdvancedCmds(m *Module, r runtime.Registrar) {
 	r.Register("DRAW.ARC", "draw", runtime.AdaptLegacy(m.arc))
 	r.Register("DRAW.DOT", "draw", runtime.AdaptLegacy(m.dot))
 	r.Register("DRAW.PIXEL", "draw", runtime.AdaptLegacy(m.pixel))
+	r.Register("DRAW.PLOT", "draw", runtime.AdaptLegacy(m.pixel)) // Blitz-style name (same as PIXEL)
 	r.Register("DRAW.PIXELV", "draw", runtime.AdaptLegacy(m.pixelV))
 	r.Register("DRAW.SETPIXELCOLOR", "draw", runtime.AdaptLegacy(m.pixel)) // Alias
 	r.Register("DRAW.GRID2D", "draw", runtime.AdaptLegacy(m.grid2D))
@@ -82,7 +83,7 @@ func (m *Module) getPixelColor(args []value.Value) (value.Value, error) {
 
 func (m *Module) pixel(args []value.Value) (value.Value, error) {
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("DRAW.PIXEL expects 6 arguments (x, y, r,g,b,a)")
+		return value.Nil, fmt.Errorf("DRAW.PIXEL / DRAW.PLOT expects 6 arguments (x, y, r,g,b,a)")
 	}
 	x, ok1 := argInt(args[0])
 	y, ok2 := argInt(args[1])

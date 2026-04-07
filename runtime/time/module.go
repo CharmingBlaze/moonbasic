@@ -43,6 +43,22 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 		return value.FromInt(time.Since(m.start).Milliseconds()), nil
 	})
+
+	reg.Register("DELAY", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		if len(args) != 1 {
+			return value.Nil, errArgs(1, len(args))
+		}
+		ms, ok := args[0].ToInt()
+		if !ok {
+			return value.Nil, runtime.Errorf("DELAY: milliseconds must be an integer")
+		}
+		if ms > 0 {
+			time.Sleep(time.Duration(ms) * time.Millisecond)
+		}
+		return value.Nil, nil
+	})
+
 	registerWallClock(reg)
 	registerDeltaCapCommands(reg)
 	registerRaylibTiming(reg)

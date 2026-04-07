@@ -1,0 +1,157 @@
+name: Build and Test Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags (e.g., v0.1.0)
+    paths:
+      - 'jolt/**'
+      - 'scripts/**'
+      - '.github/workflows/build-binaries.yml'
+  pull_request:
+    paths:
+      - 'jolt/**'
+      - 'scripts/**'
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      jolt_version:
+        description: 'Jolt Physics version/commit to build (e.g., v5.4.0, latest, or commit hash)'
+        required: false
+        default: 'latest'
+
+jobs:
+  build-darwin-arm64:
+    runs-on: macos-14  # macOS ARM64 runner
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clone Jolt Physics
+        run: |
+          git clone https://github.com/jrouwe/JoltPhysics.git
+          cd JoltPhysics
+          if [ "${{ github.event.inputs.jolt_version }}" != "latest" ] && [ -n "${{ github.event.inputs.jolt_version }}" ]; then
+            git checkout ${{ github.event.inputs.jolt_version }}
+          fi
+          echo "Building Jolt Physics:"
+          git log -1 --oneline
+          JOLT_VERSION=$(git describe --tags --always || echo "unknown")
+          echo "JOLT_VERSION=$JOLT_VERSION" >> $GITHUB_ENV
+          echo "Jolt version: $JOLT_VERSION"
+
+      - name: Build darwin/arm64 binaries
+        run: |
+          export JOLT_SRC=$PWD/JoltPhysics
+          ./scripts/build-libs.sh darwin_arm64
+
+      - name: Upload darwin/arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-arm64-binaries
+          path: jolt/lib/darwin_arm64/
+          retention-days: 7
+
+  build-linux-amd64:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Clone Jolt Physics
+        run: |
+          git clone https://github.com/jrouwe/JoltPhysics.git
+          cd JoltPhysics
+          if [ "${{ github.event.inputs.jolt_version }}" != "latest" ] && [ -n "${{ github.event.inputs.jolt_version }}" ]; then
+            git checkout ${{ github.event.inputs.jolt_version }}
+          fi
+          echo "Building Jolt Physics:"
+          git log -1 --oneline
+          JOLT_VERSION=$(git describe --tags --always || echo "unknown")
+          echo "JOLT_VERSION=$JOLT_VERSION" >> $GITHUB_ENV
+          echo "Jolt version: $JOLT_VERSION"
+
+      - name: Build linux/amd64 binaries
+        run: |
+          export JOLT_SRC=$PWD/JoltPhysics
+          ./scripts/build-libs.sh linux_amd64
+
+      - name: Upload linux/amd64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-amd64-binaries
+          path: jolt/lib/linux_amd64/
+          retention-days: 7
+
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Clone Jolt Physics
+        run: |
+          git clone https://github.com/jrouwe/JoltPhysics.git
+          cd JoltPhysics
+          if [ "${{ github.event.inputs.jolt_version }}" != "latest" ] && [ -n "${{ github.event.inputs.jolt_version }}" ]; then
+            git checkout ${{ github.event.inputs.jolt_version }}
+          fi
+          echo "Building Jolt Physics:"
+          git log -1 --oneline
+          JOLT_VERSION=$(git describe --tags --always || echo "unknown")
+          echo "JOLT_VERSION=$JOLT_VERSION" >> $GITHUB_ENV
+          echo "Jolt version: $JOLT_VERSION"
+
+      - name: Build linux/arm64 binaries
+        run: |
+          export JOLT_SRC=$PWD/JoltPhysics
+          ./scripts/build-libs.sh linux_arm64
+
+      - name: Upload linux/arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-binaries
+          path: jolt/lib/linux_arm64/
+          retention-days: 7
+
+  test-binaries:
+    needs: [build-darwin-arm64, build-linux-amd64, build-linux-arm64]
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            arch: arm64
+            artifact: darwin-arm64-binaries
+            lib_path: darwin_arm64
+          - os: ubuntu-24.04
+            arch: amd64
+            artifact: linux-amd64-binaries
+            lib_path: linux_amd64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            artifact: linux-arm64-binaries
+            lib_path: linux_arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.3'
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: jolt/lib/${{ matrix.lib_path }}/
+
+      - name: Test example
+        run: go run example/main.go
+

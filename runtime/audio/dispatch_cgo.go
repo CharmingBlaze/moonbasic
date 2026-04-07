@@ -17,6 +17,10 @@ func (m *Module) registerPlayback(r runtime.Registrar) {
 	r.Register("AUDIO.STOP", "audio", runtime.AdaptLegacy(m.audioStop))
 	r.Register("AUDIO.PAUSE", "audio", runtime.AdaptLegacy(m.audioPause))
 	r.Register("AUDIO.RESUME", "audio", runtime.AdaptLegacy(m.audioResume))
+
+	// Global shorthands (Easy Mode)
+	r.Register("PLAYSOUND", "audio", runtime.AdaptLegacy(m.audioPlay))
+	r.Register("SOUNDVOLUME", "audio", runtime.AdaptLegacy(m.audioSetVolume))
 }
 
 func (m *Module) audioPlay(args []value.Value) (value.Value, error) {
@@ -92,4 +96,26 @@ func (m *Module) audioResume(args []value.Value) (value.Value, error) {
 		return value.Nil, nil
 	}
 	return value.Nil, fmt.Errorf("AUDIO.RESUME: handle must be music")
+}
+func (m *Module) audioSetVolume(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("SOUNDVOLUME expects (handle, volume#)")
+	}
+	hid := heap.Handle(args[0].IVal)
+	vol, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("SOUNDVOLUME: volume must be numeric")
+	}
+	if so, err := heap.Cast[*soundObj](m.h, hid); err == nil {
+		rl.SetSoundVolume(so.snd, float32(vol))
+		return value.Nil, nil
+	}
+	if mo, err := heap.Cast[*musicObj](m.h, hid); err == nil {
+		rl.SetMusicVolume(mo.m, float32(vol))
+		return value.Nil, nil
+	}
+	return value.Nil, fmt.Errorf("SOUNDVOLUME: handle must be sound or music")
 }

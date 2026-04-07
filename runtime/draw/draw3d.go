@@ -48,6 +48,9 @@ func registerDraw3DShortNames(m *Module, r runtime.Registrar) {
 	r.Register("FLAT", "draw", runtime.AdaptLegacy(m.drawPlane))
 	r.Register("CAP", "draw", runtime.AdaptLegacy(m.drawCapsule))
 	r.Register("CAPW", "draw", runtime.AdaptLegacy(m.drawCapsuleWires))
+
+	r.Register("LINE3D", "draw", runtime.AdaptLegacy(m.drawLine3D))
+	r.Register("POINT3D", "draw", runtime.AdaptLegacy(m.drawPoint3D))
 }
 
 func (m *Module) drawRay(args []value.Value) (value.Value, error) {
@@ -335,8 +338,16 @@ func (m *Module) drawCube(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("DRAW3D.CUBE: color components must be numeric")
 	}
 	col := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
-	rl.DrawCube(rl.Vector3{X: x, Y: y, Z: z}, w, h, d, col)
+	drawCubeRL(rl.Vector3{X: x, Y: y, Z: z}, w, h, d, col)
 	return value.Nil, nil
+}
+
+func drawCubeRL(pos rl.Vector3, w, h, d float32, col color.RGBA) {
+	rl.DrawCube(pos, w, h, d, col)
+}
+
+func drawCubeWiresRL(pos rl.Vector3, w, h, d float32, col color.RGBA) {
+	rl.DrawCubeWires(pos, w, h, d, col)
 }
 
 func (m *Module) drawCubeWires(args []value.Value) (value.Value, error) {
@@ -360,7 +371,7 @@ func (m *Module) drawCubeWires(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("DRAW3D.CUBEWIRES: color components must be numeric")
 	}
 	col := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
-	rl.DrawCubeWires(rl.Vector3{X: x, Y: y, Z: z}, w, h, d, col)
+	drawCubeWiresRL(rl.Vector3{X: x, Y: y, Z: z}, w, h, d, col)
 	return value.Nil, nil
 }
 

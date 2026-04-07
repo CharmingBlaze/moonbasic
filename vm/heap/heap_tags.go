@@ -90,4 +90,15 @@ const (
 	TagParticle2D
 	TagRenderTexture
 	TagEntityRef // Blitz-style entity id wrapper for handle.Method dot syntax
+	TagDrawPrim3D
+	TagDrawPrim2D
+	TagTextDraw
+	TagTextDrawEx
+	TagTextureDraw
+	TagImageFacade
+	TagInputFacade
+	TagMoverFacade
+	TagJoint2D
+	TagNetPacket
+	TagPlayer2D // 2D XZ mover with optional axis-aligned bounds (English-style helpers)
 )

@@ -17,6 +17,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerGesture(r)
 	m.registerInputAdvanced(r)
 	m.registerMouseExtra(r)
+	m.registerInputFacade(r)
 	registerAxis(r)
 	registerMovement2D(m, r)
 	r.Register("INPUT.KEYDOWN", "input", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {

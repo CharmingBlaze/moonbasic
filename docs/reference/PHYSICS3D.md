@@ -2,6 +2,8 @@
 
 Commands for creating and controlling a 3D physics simulation using Jolt Physics.
 
+**Availability:** **`PHYSICS3D.*`** / **`BODY3D.*`** require **Linux + CGO** with [jolt-go](https://github.com/bbitechnologies/jolt-go); other builds return a stub error. **Registry map:** [moonbasic-command-set/physics-3d.md](moonbasic-command-set/physics-3d.md). Many **`BODY3D`** dynamics builtins are currently **no-ops** in the vendored binding (forces, mass, friction).
+
 ## Core Workflow
 
 1.  **Initialize**: Start the physics world with `Physics3D.Start()`.

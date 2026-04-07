@@ -13,8 +13,10 @@ import (
 
 func registerTextureLoadCmds(m *Module, r runtime.Registrar) {
 	r.Register("TEXTURE.LOAD", "texture", m.texLoad)
+	r.Register("LOADTEXTURE", "texture", m.texLoad) // Blitz-style flat alias
 	r.Register("TEXTURE.FROMIMAGE", "texture", runtime.AdaptLegacy(m.texFromImage))
 	r.Register("TEXTURE.FREE", "texture", runtime.AdaptLegacy(m.texFree))
+	r.Register("FREETEXTURE", "texture", runtime.AdaptLegacy(m.texFree)) // Blitz-style flat alias
 }
 
 func (m *Module) texLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

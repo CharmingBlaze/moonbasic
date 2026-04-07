@@ -44,6 +44,24 @@ func (m *Module) Register(r runtime.Registrar) {
 	})
 	m.registerBlitzAliases(r)
 	m.registerActionMapping(r)
+	m.registerInputFacadeStub(r)
+}
+
+func (m *Module) registerInputFacadeStub(r runtime.Registrar) {
+	stub := func(name string) runtime.BuiltinFn {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			_ = rt
+			_ = args
+			return value.Nil, fmt.Errorf("%s requires CGO_ENABLED=1", name)
+		}
+	}
+	for _, name := range []string{
+		"MOUSE", "MOUSE.DX", "MOUSE.DY", "MOUSE.WHEEL", "MOUSE.DOWN", "MOUSE.PRESSED", "MOUSE.RELEASED",
+		"KEY", "KEY.DOWN", "KEY.HIT", "KEY.UP",
+		"GAMEPAD", "GAMEPAD.AXIS", "GAMEPAD.BUTTON",
+	} {
+		r.Register(name, "input", stub(name))
+	}
 }
 
 func (m *Module) Shutdown() {}

@@ -25,6 +25,10 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("RAND.NEXT", "rand", runtime.AdaptLegacy(m.randNext))
 	r.Register("RAND.NEXTF", "rand", runtime.AdaptLegacy(m.randNextF))
 	r.Register("RAND.FREE", "rand", runtime.AdaptLegacy(m.randFree))
+
+	// Global shorthands (Easy Mode)
+	r.Register("RND", "rand", runtime.AdaptLegacy(m.randRnd))
+	r.Register("RAND", "rand", runtime.AdaptLegacy(m.randRand))
 }
 
 // Shutdown implements runtime.Module.
@@ -120,4 +124,35 @@ func (m *Module) randFree(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) randRnd(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, runtime.Errorf("RND expects 2 arguments (min#, max#)")
+	}
+	min, ok1 := args[0].ToFloat()
+	max, ok2 := args[1].ToFloat()
+	if !ok1 || !ok2 {
+		return value.Nil, runtime.Errorf("RND: min and max must be numeric")
+	}
+	if max < min {
+		min, max = max, min
+	}
+	return value.FromFloat(min + rand.Float64()*(max-min)), nil
+}
+
+func (m *Module) randRand(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, runtime.Errorf("RAND expects 2 arguments (min, max)")
+	}
+	min, ok1 := args[0].ToInt()
+	max, ok2 := args[1].ToInt()
+	if !ok1 || !ok2 {
+		return value.Nil, runtime.Errorf("RAND: min and max must be integers")
+	}
+	if max < min {
+		min, max = max, min
+	}
+	span := uint64(max - min + 1)
+	return value.FromInt(int64(rand.Uint64N(span)) + min), nil
 }

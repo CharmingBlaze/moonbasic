@@ -1,0 +1,3 @@
+test:
+	docker build -t go-enet .
+	docker run --rm -e "GODEBUG=cgocheck=2" go-enet go test -v -test.timeout=30s -count=1 ./...

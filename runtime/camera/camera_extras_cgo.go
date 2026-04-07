@@ -14,6 +14,76 @@ import (
 	"moonbasic/vm/value"
 )
 
+// camTurnLeft returns radians to add to orbit yaw (negative amount).
+func (m *Module) camTurnLeft(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("CAMERA.TURNLEFT expects (cam, amount#)")
+	}
+	if args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA.TURNLEFT: first argument must be a camera handle")
+	}
+	if _, err := heap.Cast[*camObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+		return value.Nil, err
+	}
+	amt, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.TURNLEFT: amount must be numeric")
+	}
+	return value.FromFloat(-math.Abs(amt)), nil
+}
+
+// camTurnRight returns radians to add to orbit yaw (positive amount).
+func (m *Module) camTurnRight(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("CAMERA.TURNRIGHT expects (cam, amount#)")
+	}
+	if args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA.TURNRIGHT: first argument must be a camera handle")
+	}
+	if _, err := heap.Cast[*camObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+		return value.Nil, err
+	}
+	amt, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.TURNRIGHT: amount must be numeric")
+	}
+	return value.FromFloat(math.Abs(amt)), nil
+}
+
+// camOrbitCamera combines mouse X delta × sensitivity with Q/E yaw (degrees/sec), same as
+// FLOAT(Input.MouseDeltaX()) * sens + Input.Orbit(KEY_Q, KEY_E, keyDegPerSec#, dt#).
+// Validates the camera handle; returns radians to add to your camYaw# variable.
+func (m *Module) camOrbitCamera(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("CAMERA.ORBITCAMERA expects (cam, mouseSens#, keyDegPerSec#, dt#)")
+	}
+	if args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA.ORBITCAMERA: first argument must be a camera handle")
+	}
+	if _, err := heap.Cast[*camObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+		return value.Nil, err
+	}
+	mouseSens, ok1 := args[1].ToFloat()
+	keyDegPerSec, ok2 := args[2].ToFloat()
+	dt, ok3 := args[3].ToFloat()
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("CAMERA.ORBITCAMERA: mouseSens, keyDegPerSec, dt must be numeric")
+	}
+	d := rl.GetMouseDelta()
+	mousePart := float64(d.X) * mouseSens
+	var ax float64
+	if rl.IsKeyDown(rl.KeyQ) && !rl.IsKeyDown(rl.KeyE) {
+		ax = -1
+	} else if rl.IsKeyDown(rl.KeyE) && !rl.IsKeyDown(rl.KeyQ) {
+		ax = 1
+	}
+	keyPart := ax * (keyDegPerSec * math.Pi / 180.0) * dt
+	return value.FromFloat(mousePart + keyPart), nil
+}
+
 func (m *Module) registerCameraExtras(reg runtime.Registrar) {
 	reg.Register("CAMERA.GETPOS", "camera", runtime.AdaptLegacy(m.camGetPos))
 	reg.Register("CAMERA.GETTARGET", "camera", runtime.AdaptLegacy(m.camGetTarget))
@@ -21,6 +91,9 @@ func (m *Module) registerCameraExtras(reg runtime.Registrar) {
 	reg.Register("CAMERA.SETORBIT", "camera", runtime.AdaptLegacy(m.camSetOrbit))
 	reg.Register("CAMERA.ORBITAROUND", "camera", runtime.AdaptLegacy(m.camOrbitAround))
 	reg.Register("CAMERA.ORBITAROUNDEG", "camera", runtime.AdaptLegacy(m.camOrbitAroundDeg))
+	reg.Register("CAMERA.TURNLEFT", "camera", m.camTurnLeft)
+	reg.Register("CAMERA.TURNRIGHT", "camera", m.camTurnRight)
+	reg.Register("CAMERA.ORBITCAMERA", "camera", m.camOrbitCamera)
 	reg.Register("CAMERA.FREE", "camera", runtime.AdaptLegacy(m.camFree))
 }
 

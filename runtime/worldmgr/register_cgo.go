@@ -17,6 +17,33 @@ func registerWorld(m *Module, r runtime.Registrar) {
 	r.Register("WORLD.PRELOAD", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldPreload(m, rt, args...) })
 	r.Register("WORLD.STATUS", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldStatus(m, rt, args...) })
 	r.Register("WORLD.ISREADY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldIsReady(m, rt, args...) })
+
+	r.Register("FOGMODE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("FOGMODE expects mode%%")
+		}
+		mode, _ := rt.ArgInt(args, 0)
+		m.FogMode = int(mode)
+		return value.Nil, nil
+	})
+	r.Register("FOGCOLOR", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("FOGCOLOR expects (r, g, b)")
+		}
+		r, _ := rt.ArgInt(args, 0)
+		g, _ := rt.ArgInt(args, 1)
+		b, _ := rt.ArgInt(args, 2)
+		m.FogColor = [4]uint8{uint8(r), uint8(g), uint8(b), 255}
+		return value.Nil, nil
+	})
+	r.Register("FOGDENSITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("FOGDENSITY expects density#")
+		}
+		d, _ := rt.ArgFloat(args, 0)
+		m.FogDensity = float32(d)
+		return value.Nil, nil
+	})
 }
 
 func worldSetCenter(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"unsafe"
 
 	"github.com/bbitechnologies/jolt-go/jolt"
 
@@ -36,9 +37,46 @@ type collEvent struct {
 	cb     string
 }
 
+var (
+	joltBodyMu       sync.Mutex
+	joltBodyToHandle map[uintptr]heap.Handle // *BodyID pointer -> VM handle
+)
+
+func joltRegisterBody(id *jolt.BodyID, h heap.Handle) {
+	if id == nil {
+		return
+	}
+	joltBodyMu.Lock()
+	defer joltBodyMu.Unlock()
+	if joltBodyToHandle == nil {
+		joltBodyToHandle = make(map[uintptr]heap.Handle)
+	}
+	joltBodyToHandle[uintptr(unsafe.Pointer(id))] = h
+}
+
+func joltUnregisterBody(id *jolt.BodyID) {
+	if id == nil {
+		return
+	}
+	joltBodyMu.Lock()
+	defer joltBodyMu.Unlock()
+	delete(joltBodyToHandle, uintptr(unsafe.Pointer(id)))
+}
+
+func joltLookupHandle(id *jolt.BodyID) (heap.Handle, bool) {
+	if id == nil {
+		return 0, false
+	}
+	joltBodyMu.Lock()
+	defer joltBodyMu.Unlock()
+	h, ok := joltBodyToHandle[uintptr(unsafe.Pointer(id))]
+	return h, ok
+}
+
 type body3dObj struct {
-	id      *jolt.BodyID
-	release heap.ReleaseOnce
+	id         *jolt.BodyID
+	queryShape *jolt.Shape // duplicate shape for CollideShape queries (same geometry as body)
+	release    heap.ReleaseOnce
 }
 
 func (b *body3dObj) TypeName() string { return "Body3D" }
@@ -47,6 +85,11 @@ func (b *body3dObj) TypeTag() uint16 { return heap.TagPhysicsBody }
 
 func (b *body3dObj) Free() {
 	b.release.Do(func() {
+		if b.queryShape != nil {
+			b.queryShape.Destroy()
+			b.queryShape = nil
+		}
+		joltUnregisterBody(b.id)
 		if b.id != nil {
 			b.id.Destroy()
 			b.id = nil
@@ -59,6 +102,12 @@ type builderObj struct {
 	motion  jolt.MotionType
 	shape   *jolt.Shape
 	release heap.ReleaseOnce
+	// Query template (rebuild after COMMIT for overlap tests).
+	qKind   uint8 // 1 box, 2 sphere, 3 capsule
+	qBox    jolt.Vec3
+	qSphere float32
+	qCapH   float32
+	qCapR   float32
 }
 
 func (b *builderObj) TypeName() string { return "Body3DBuilder" }
@@ -175,6 +224,28 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PHYSICS.DISABLE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("PHYSICS.DISABLE: use BODY3D.DEACTIVATE on a physics body handle")
 	}))
+	reg.Register("PHYSICS3D.DEBUGDRAW", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("PHYSICS3D.DEBUGDRAW: not implemented for Jolt in this runtime")
+	}))
+	reg.Register("BODY3D.COLLIDED", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdCollided3D(m, a) }))
+	reg.Register("BODY3D.COLLISIONOTHER", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdCollisionOther3D(m, a) }))
+	reg.Register("BODY3D.COLLISIONPOINT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdCollisionPoint3D(m, a) }))
+	reg.Register("BODY3D.COLLISIONNORMAL", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdCollisionNormal3D(m, a) }))
+	reg.Register("JOINT3D.FIXED", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("JOINT3D.FIXED: Jolt constraints not exposed in jolt-go wrapper")
+	}))
+	reg.Register("JOINT3D.HINGE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("JOINT3D.HINGE: Jolt constraints not exposed in jolt-go wrapper")
+	}))
+	reg.Register("JOINT3D.SLIDER", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("JOINT3D.SLIDER: Jolt constraints not exposed in jolt-go wrapper")
+	}))
+	reg.Register("JOINT3D.CONE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("JOINT3D.CONE: Jolt constraints not exposed in jolt-go wrapper")
+	}))
+	reg.Register("JOINT3D.DELETE", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) {
+		return value.Nil, fmt.Errorf("JOINT3D.DELETE: no joint handles in this runtime")
+	}))
 }
 
 func shutdownPhysics3D(m *Module) {
@@ -200,6 +271,9 @@ func phStart(m *Module, args []value.Value) (value.Value, error) {
 	joltBi = joltSys.GetBodyInterface()
 	collRules = nil
 	collPending = nil
+	joltBodyMu.Lock()
+	joltBodyToHandle = make(map[uintptr]heap.Handle)
+	joltBodyMu.Unlock()
 	return value.Nil, nil
 }
 
@@ -220,6 +294,9 @@ func phStop(m *Module, args []value.Value) (value.Value, error) {
 	}
 	collRules = nil
 	collPending = nil
+	joltBodyMu.Lock()
+	joltBodyToHandle = nil
+	joltBodyMu.Unlock()
 	return value.Nil, nil
 }
 
@@ -360,6 +437,8 @@ func bdAddBox(m *Module, args []value.Value) (value.Value, error) {
 		bu.shape.Destroy()
 	}
 	bu.shape = jolt.CreateBox(jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)})
+	bu.qKind = 1
+	bu.qBox = jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)}
 	return value.Nil, nil
 }
 
@@ -376,6 +455,8 @@ func bdAddSphere(m *Module, args []value.Value) (value.Value, error) {
 		bu.shape.Destroy()
 	}
 	bu.shape = jolt.CreateSphere(float32(r))
+	bu.qKind = 2
+	bu.qSphere = float32(r)
 	return value.Nil, nil
 }
 
@@ -397,6 +478,9 @@ func bdAddCapsule(m *Module, args []value.Value) (value.Value, error) {
 		bu.shape.Destroy()
 	}
 	bu.shape = jolt.CreateCapsule(hh, float32(r))
+	bu.qKind = 3
+	bu.qCapH = hh
+	bu.qCapR = float32(r)
 	return value.Nil, nil
 }
 
@@ -431,15 +515,30 @@ func bdCommit(m *Module, args []value.Value) (value.Value, error) {
 	bu.shape = nil
 	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, bu.motion, false)
 	sh.Destroy()
+
+	var qshape *jolt.Shape
+	switch bu.qKind {
+	case 1:
+		qshape = jolt.CreateBox(bu.qBox)
+	case 2:
+		qshape = jolt.CreateSphere(bu.qSphere)
+	case 3:
+		qshape = jolt.CreateCapsule(bu.qCapH, bu.qCapR)
+	}
+
 	m.h.Free(heap.Handle(args[0].IVal))
-	body := &body3dObj{id: id}
+	body := &body3dObj{id: id, queryShape: qshape}
 	bh, err := m.h.Alloc(body)
 	if err != nil {
+		if qshape != nil {
+			qshape.Destroy()
+		}
 		if id != nil {
 			id.Destroy()
 		}
 		return value.Nil, err
 	}
+	joltRegisterBody(id, bh)
 	return value.FromHandle(bh), nil
 }
 
@@ -582,4 +681,136 @@ func bdFree(m *Module, args []value.Value) (value.Value, error) {
 	}
 	m.h.Free(heap.Handle(args[0].IVal))
 	return value.Nil, nil
+}
+
+func bdCollided3D(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.COLLIDED expects body handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if bo.queryShape == nil {
+		return value.FromInt(0), nil
+	}
+	joltMu.Lock()
+	ps := joltSys
+	bi := joltBi
+	joltMu.Unlock()
+	if ps == nil || bi == nil {
+		return value.Nil, runtime.Errorf("BODY3D.COLLIDED: physics not started")
+	}
+	pos := bi.GetPosition(bo.id)
+	hits := ps.CollideShapeGetHits(bo.queryShape, pos, 8, 1e-3)
+	self := uintptr(unsafe.Pointer(bo.id))
+	for _, hit := range hits {
+		if hit.BodyID == nil {
+			continue
+		}
+		if uintptr(unsafe.Pointer(hit.BodyID)) == self {
+			continue
+		}
+		return value.FromInt(1), nil
+	}
+	return value.FromInt(0), nil
+}
+
+func bdCollisionOther3D(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.COLLISIONOTHER expects body handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if bo.queryShape == nil {
+		return value.FromHandle(0), nil
+	}
+	joltMu.Lock()
+	ps := joltSys
+	bi := joltBi
+	joltMu.Unlock()
+	if ps == nil || bi == nil {
+		return value.Nil, runtime.Errorf("BODY3D.COLLISIONOTHER: physics not started")
+	}
+	pos := bi.GetPosition(bo.id)
+	hits := ps.CollideShapeGetHits(bo.queryShape, pos, 8, 1e-3)
+	self := uintptr(unsafe.Pointer(bo.id))
+	for _, hit := range hits {
+		if hit.BodyID == nil {
+			continue
+		}
+		if uintptr(unsafe.Pointer(hit.BodyID)) == self {
+			continue
+		}
+		if h, ok := joltLookupHandle(hit.BodyID); ok {
+			return value.FromHandle(h), nil
+		}
+	}
+	return value.FromHandle(0), nil
+}
+
+func bdCollisionPoint3D(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.COLLISIONPOINT expects body handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if bo.queryShape == nil {
+		return bdCollisionZeroArray3(m)
+	}
+	joltMu.Lock()
+	ps := joltSys
+	bi := joltBi
+	joltMu.Unlock()
+	if ps == nil || bi == nil {
+		return value.Nil, runtime.Errorf("BODY3D.COLLISIONPOINT: physics not started")
+	}
+	pos := bi.GetPosition(bo.id)
+	hits := ps.CollideShapeGetHits(bo.queryShape, pos, 1, 1e-3)
+	self := uintptr(unsafe.Pointer(bo.id))
+	for _, hit := range hits {
+		if hit.BodyID == nil || uintptr(unsafe.Pointer(hit.BodyID)) == self {
+			continue
+		}
+		arr, err := heap.NewArray([]int64{3})
+		if err != nil {
+			return value.Nil, err
+		}
+		_ = arr.Set([]int64{0}, float64(hit.ContactPoint.X))
+		_ = arr.Set([]int64{1}, float64(hit.ContactPoint.Y))
+		_ = arr.Set([]int64{2}, float64(hit.ContactPoint.Z))
+		id, err := m.h.Alloc(arr)
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromHandle(id), nil
+	}
+	return bdCollisionZeroArray3(m)
+}
+
+func bdCollisionNormal3D(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("BODY3D.COLLISIONNORMAL expects body handle")
+	}
+	// CollideShapeGetHits does not return contact normals; use PHYSICS3D.RAYCAST for surface normals.
+	return bdCollisionZeroArray3(m)
+}
+
+func bdCollisionZeroArray3(m *Module) (value.Value, error) {
+	arr, err := heap.NewArray([]int64{3})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, 0)
+	_ = arr.Set([]int64{1}, 0)
+	_ = arr.Set([]int64{2}, 1)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }

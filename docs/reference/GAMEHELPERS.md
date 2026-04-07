@@ -94,3 +94,42 @@ camDist# = camDist# + ORBITDISTDELTA(0.85)
 That example is structured for reading **top to bottom**: one **`CONST`** block (world bounds, orbit tuning, colours), parallel **`DIM`** rows for **`LANDBOXES`**, a single loop section for input → physics → **`Camera.SetOrbit`** → draw, then **`ERASE ALL`** (see [MEMORY.md](../MEMORY.md)).
 
 **Memory:** no allocations — see [MEMORY.md](../MEMORY.md) (game orbit helpers).
+
+---
+
+## Blitz-style English helpers (2D XZ mover + camera yaw)
+
+These read like classic Blitz commands: a **`PLAYER2D`** handle stores **X/Z** on the ground plane. **`MOVEENTITY2D`**, **`MOVEPLAYER`**, **`CLAMPENTITY2D`**, and **`KEEPPLAYERINBOUNDS`** are **aliases** of the same **`PLAYER2D.*`** implementations (pick whichever name reads best in your script).
+
+| Command | Role |
+|--------|------|
+| **`p = PLAYER2D.MAKE()`** | Create a mover; **`PLAYER2D.FREE p`** or scene **`ERASE ALL`** when done. |
+| **`PLAYER2D.SETPOS p, x#, z#`** | Set world X/Z (e.g. spawn). |
+| **`MOVEENTITY2D p, camYaw#, f#, s#, speed#, dt#`** | Camera-relative move on **XZ** (same math as **`MOVESTEPX`/`MOVESTEPZ`** applied in place). Aliases: **`PLAYER2D.MOVE`**, **`MOVEPLAYER`**. |
+| **`CLAMPENTITY2D p, minX#, maxX#, minZ#, maxZ#`** | Store bounds and clamp **current** position into the axis-aligned box. Alias: **`PLAYER2D.CLAMP`**. |
+| **`KEEPPLAYERINBOUNDS p`** | Clamp again using the **last** bounds from **`CLAMPENTITY2D`** (call after **`MOVEENTITY2D`** each frame). No-op if bounds were never set. Alias: **`PLAYER2D.KEEPINBOUNDS`**. |
+| **`PLAYER2D.GETX p`**, **`PLAYER2D.GETZ p`** | Read position for **`BOXTOPLAND`**, rendering, etc. |
+
+Camera **yaw** is still a script variable (e.g. **`camYaw#`**). The camera handle is only validated so you do not pass the wrong object:
+
+| Command | Returns | Role |
+|--------|---------|------|
+| **`CAMERA.TURNLEFT cam, amount#`** | **float** (radians) | **`-abs(amount)`** — add to **`camYaw#`** to turn left. |
+| **`CAMERA.TURNRIGHT cam, amount#`** | **float** (radians) | **`+abs(amount)`** — add to **`camYaw#`** to turn right. |
+| **`CAMERA.ORBITCAMERA cam, mouseSens#, keyDegPerSec#, dt#`** | **float** (radians) | Same as **`FLOAT(Input.MouseDeltaX()) * mouseSens + Input.Orbit(KEY_Q, KEY_E, keyDegPerSec#, dt#)`** — add the result to **`camYaw#`** each frame. |
+
+Example:
+
+```basic
+p = PLAYER2D.MAKE()
+PLAYER2D.SETPOS(p, 0.0, 0.0)
+CLAMPENTITY2D(p, -17.0, 17.0, -17.0, 22.0)
+
+camYaw# = camYaw# + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS#, 77.0, dt#)
+f# = Input.Axis(KEY_S, KEY_W)
+s# = Input.Axis(KEY_A, KEY_D)
+MOVEENTITY2D(p, camYaw#, f#, s#, MOVE_SPEED#, dt#)
+KEEPPLAYERINBOUNDS(p)
+px# = PLAYER2D.GETX(p)
+pz# = PLAYER2D.GETZ(p)
+```

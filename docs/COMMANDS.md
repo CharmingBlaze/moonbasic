@@ -12,6 +12,10 @@ This page is a **topic-oriented** index of moonBASIC built-ins (globals and `NAM
 | [API_CONSISTENCY.md](API_CONSISTENCY.md) | Human-readable list: **every** registered name with argument kinds, grouped by namespace. Regenerate: `go run ./tools/apidoc`. Optional per-row `description` in the manifest appears here when set. |
 | [COMMAND_AUDIT.md](COMMAND_AUDIT.md) | **Namespace → doc map:** overload counts per namespace, primary reference page, one-line blurb, and file-exists checks. Regenerate: `go run ./tools/cmdaudit`. |
 | [API_CONVENTIONS.md](reference/API_CONVENTIONS.md) | **Cross-type naming:** `LOAD` vs `MAKE`, `SETPOS`, scale/rotate patterns, and aliases. |
+| [reference/BLITZ_COMMAND_INDEX.md](reference/BLITZ_COMMAND_INDEX.md) | **Blitz3D / BlitzPlus → moonBASIC:** familiar names (`Plot`, `CreateCube`, `CameraZoom`, …) mapped to dotted APIs and notes on parity. |
+| [reference/dbpro/README.md](reference/dbpro/README.md) | **DarkBASIC Professional (DBPro) → moonBASIC:** modular section files (`01-objects-3d.md`, …) mapping DBPro commands to namespaces. |
+| [reference/moonbasic-command-set/README.md](reference/moonbasic-command-set/README.md) | **Designed MoonBASIC command set** (Blitz spirit / DBPro power / simple API): modular tables with **memory** column and real **`NAMESPACE.NAME`** mappings. |
+| [MEMORY.md](MEMORY.md) | **`FREE`** / **`ERASE`**, VM heap tags (including physics joints and network packets where applicable). |
 
 Use **API_CONSISTENCY.md** when you need to verify that a name exists or which arity the manifest allows. Use **COMMAND_AUDIT.md** for a high-level map of all dotted namespaces (`WINDOW`, `RENDER`, …) and where they are documented.
 
@@ -500,7 +504,7 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Physics 3D (Jolt) — [Reference](reference/PHYSICS3D.md)
+### Physics 3D (Jolt) — [Reference](reference/PHYSICS3D.md) · [Command set](reference/moonbasic-command-set/physics-3d.md)
 
 | Command | Description |
 |---|---|
@@ -523,7 +527,7 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Physics 2D (Box2D) — [Reference](reference/PHYSICS2D.md)
+### Physics 2D (Box2D) — [Reference](reference/PHYSICS2D.md) · [Command set](reference/moonbasic-command-set/physics-2d.md)
 
 | Command | Description |
 |---|---|
@@ -579,7 +583,7 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Network (ENet) — [Reference](reference/NETWORK.md)
+### Network (ENet) — [Reference](reference/NETWORK.md) · [Command set (host/events)](reference/moonbasic-command-set/network-enet.md) · [Helpers](reference/moonbasic-command-set/network-helpers.md)
 
 | Command | Description |
 |---|---|

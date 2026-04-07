@@ -16,13 +16,30 @@ type Module struct {
 
 	invokeMu sync.Mutex
 	invoke   func(string, []value.Value) (value.Value, error)
+
+	// NETREAD* cursor: last payload copied when EVENT.DATA runs on a RECEIVE event.
+	readMu    sync.Mutex
+	readBuf   []byte
+	readOff   int
+	channels  int // ENet channel count for the next NET.CREATESERVER / NET.CREATECLIENT (default 1).
 }
 
 // NewModule creates the net module.
-func NewModule() *Module { return &Module{} }
+func NewModule() *Module { return &Module{channels: 1} }
 
 // BindHeap implements runtime.HeapAware.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+// channelLimit returns ENet channel count for NewHost / Connect (clamped 1–32).
+func (m *Module) channelLimit() uint64 {
+	if m == nil || m.channels < 1 {
+		return 1
+	}
+	if m.channels > 32 {
+		return 32
+	}
+	return uint64(m.channels)
+}
 
 // SetUserInvoker wires VM.CallUserFunction for SERVER/CLIENT/RPC/LOBBY callbacks.
 func (m *Module) SetUserInvoker(fn func(string, []value.Value) (value.Value, error)) {

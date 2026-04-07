@@ -20,6 +20,8 @@ func registerShapeCmds(m *Module, r runtime.Registrar) {
 	r.Register("DRAW.CIRCLELINES", "draw", runtime.AdaptLegacy(m.circleLines))
 	r.Register("DRAW.ELLIPSE", "draw", runtime.AdaptLegacy(m.ellipse))
 	r.Register("DRAW.ELLIPSELINES", "draw", runtime.AdaptLegacy(m.ellipseLines))
+	r.Register("DRAW.OVAL", "draw", runtime.AdaptLegacy(m.ellipse))            // Blitz-style name
+	r.Register("DRAW.OVALLINES", "draw", runtime.AdaptLegacy(m.ellipseLines)) // Blitz-style outline
 	r.Register("DRAW.RING", "draw", runtime.AdaptLegacy(m.ring))
 	r.Register("DRAW.RINGLINES", "draw", runtime.AdaptLegacy(m.ringLines))
 	r.Register("DRAW.TRIANGLE", "draw", runtime.AdaptLegacy(m.triangle))
@@ -330,21 +332,21 @@ func (m *Module) ringLines(args []value.Value) (value.Value, error) {
 
 func (m *Module) ellipse(args []value.Value) (value.Value, error) {
 	if len(args) != 8 {
-		return value.Nil, fmt.Errorf("DRAW.ELLIPSE expects 8 arguments (cx, cy, rx, ry, r, g, b, a)")
+		return value.Nil, fmt.Errorf("DRAW.ELLIPSE / DRAW.OVAL expects 8 arguments (cx, cy, rx, ry, r, g, b, a)")
 	}
 	cx, ok1 := argInt(args[0])
 	cy, ok2 := argInt(args[1])
 	rx, ok3 := argFloat(args[2])
 	ry, ok4 := argFloat(args[3])
 	if !ok1 || !ok2 || !ok3 || !ok4 {
-		return value.Nil, fmt.Errorf("DRAW.ELLIPSE: cx, cy, rx, ry must be numeric")
+		return value.Nil, fmt.Errorf("DRAW.ELLIPSE / DRAW.OVAL: cx, cy, rx, ry must be numeric")
 	}
 	r, ok5 := argInt(args[4])
 	g, ok6 := argInt(args[5])
 	b, ok7 := argInt(args[6])
 	a, ok8 := argInt(args[7])
 	if !ok5 || !ok6 || !ok7 || !ok8 {
-		return value.Nil, fmt.Errorf("DRAW.ELLIPSE: color components must be numeric")
+		return value.Nil, fmt.Errorf("DRAW.ELLIPSE / DRAW.OVAL: color components must be numeric")
 	}
 	col := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
 	rl.DrawEllipse(cx, cy, rx, ry, col)
@@ -353,21 +355,21 @@ func (m *Module) ellipse(args []value.Value) (value.Value, error) {
 
 func (m *Module) ellipseLines(args []value.Value) (value.Value, error) {
 	if len(args) != 8 {
-		return value.Nil, fmt.Errorf("DRAW.ELLIPSELINES expects 8 arguments (cx, cy, rx, ry, r, g, b, a)")
+		return value.Nil, fmt.Errorf("DRAW.ELLIPSELINES / DRAW.OVALLINES expects 8 arguments (cx, cy, rx, ry, r, g, b, a)")
 	}
 	cx, ok1 := argInt(args[0])
 	cy, ok2 := argInt(args[1])
 	rx, ok3 := argFloat(args[2])
 	ry, ok4 := argFloat(args[3])
 	if !ok1 || !ok2 || !ok3 || !ok4 {
-		return value.Nil, fmt.Errorf("DRAW.ELLIPSELINES: cx, cy, rx, ry must be numeric")
+		return value.Nil, fmt.Errorf("DRAW.ELLIPSELINES / DRAW.OVALLINES: cx, cy, rx, ry must be numeric")
 	}
 	r, ok5 := argInt(args[4])
 	g, ok6 := argInt(args[5])
 	b, ok7 := argInt(args[6])
 	a, ok8 := argInt(args[7])
 	if !ok5 || !ok6 || !ok7 || !ok8 {
-		return value.Nil, fmt.Errorf("DRAW.ELLIPSELINES: color components must be numeric")
+		return value.Nil, fmt.Errorf("DRAW.ELLIPSELINES / DRAW.OVALLINES: color components must be numeric")
 	}
 	col := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
 	rl.DrawEllipseLines(cx, cy, rx, ry, col)

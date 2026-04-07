@@ -10,6 +10,7 @@ import (
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -39,6 +40,23 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.ENTITYYAW", "entity", runtime.AdaptLegacy(m.entEntityYaw))
 	r.Register("ENTITY.ENTITYROLL", "entity", runtime.AdaptLegacy(m.entEntityRoll))
 
+	// Global shorthands (Easy Mode)
+	r.Register("ENTITYX", "entity", runtime.AdaptLegacy(m.entEntityX))
+	r.Register("ENTITYY", "entity", runtime.AdaptLegacy(m.entEntityY))
+	r.Register("ENTITYZ", "entity", runtime.AdaptLegacy(m.entEntityZ))
+	r.Register("ENTITYPITCH", "entity", runtime.AdaptLegacy(m.entEntityPitch))
+	r.Register("ENTITYYAW", "entity", runtime.AdaptLegacy(m.entEntityYaw))
+	r.Register("ENTITYROLL", "entity", runtime.AdaptLegacy(m.entEntityRoll))
+
+	r.Register("HIDEENTITY", "entity", runtime.AdaptLegacy(m.entHide))
+	r.Register("SHOWENTITY", "entity", runtime.AdaptLegacy(m.entShow))
+	r.Register("FREEENTITY", "entity", runtime.AdaptLegacy(m.entFree))
+	r.Register("ENTITYTEXTURE", "entity", runtime.AdaptLegacy(m.entTexture))
+
+	r.Register("MOVEENTITY", "entity", runtime.AdaptLegacy(m.entMove))
+	r.Register("TURNENTITY", "entity", runtime.AdaptLegacy(m.entRotate))
+	r.Register("POINTENTITY", "entity", runtime.AdaptLegacy(m.entPointEntity))
+
 	r.Register("ENTITY.PARENT", "entity", runtime.AdaptLegacy(m.entParent))
 	r.Register("ENTITY.PARENTCLEAR", "entity", runtime.AdaptLegacy(m.entParentClear))
 
@@ -48,6 +66,10 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.FX", "entity", runtime.AdaptLegacy(m.entFX))
 	r.Register("ENTITY.BLEND", "entity", runtime.AdaptLegacy(m.entBlend))
 	r.Register("ENTITY.ORDER", "entity", runtime.AdaptLegacy(m.entOrder))
+
+	r.Register("ENTITYALPHA", "entity", runtime.AdaptLegacy(m.entAlpha))
+	r.Register("ENTITYSHININESS", "entity", runtime.AdaptLegacy(m.entShininess))
+	r.Register("ENTITYBLEND", "entity", runtime.AdaptLegacy(m.entBlend))
 
 	r.Register("ENTITY.TYPE", "entity", runtime.AdaptLegacy(m.entType))
 	r.Register("ENTITY.COLLIDE", "entity", runtime.AdaptLegacy(m.entCollide))
@@ -1119,3 +1141,70 @@ func (m *Module) camOrbitEntity(rt *runtime.Runtime, args ...value.Value) (value
 	}
 	return value.Nil, nil
 }
+func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("LOADSPRITE expects (path$)")
+	}
+	path, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	tex := rl.LoadTexture(path)
+	if tex.ID <= 0 {
+		return value.Nil, fmt.Errorf("LOADSPRITE: failed to load %q", path)
+	}
+	// Store texture in heap for management
+	th, _ := rt.Heap.Alloc(&textureObj{tex: tex})
+
+	st := m.store()
+	id := st.nextID
+	st.nextID++
+	e := newDefaultEnt(id)
+	e.kind = entKindMesh
+	e.isSprite = true
+	e.spriteMode = 1 // default Y-billboard
+	e.texHandle = th
+	e.scale = rl.Vector3{X: 1, Y: 1, Z: 1}
+	e.w = float32(tex.Width) / 100.0 // Reasonable default size
+	e.h = float32(tex.Height) / 100.0
+	st.ents[id] = e
+	return value.FromInt(id), nil
+}
+
+func (m *Module) entScaleSprite(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("SCALESPRITE expects (sprite, x#, y#)")
+	}
+	id, _ := args[0].ToInt()
+	e := m.store().ents[id]
+	if e == nil || !e.isSprite {
+		return value.Nil, fmt.Errorf("invalid sprite")
+	}
+	sx, _ := args[1].ToFloat()
+	sy, _ := args[2].ToFloat()
+	e.scale.X = float32(sx)
+	e.scale.Y = float32(sy)
+	return value.Nil, nil
+}
+
+func (m *Module) entSpriteMode(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("SPRITEMODE expects (sprite, mode)")
+	}
+	id, _ := args[0].ToInt()
+	e := m.store().ents[id]
+	if e == nil || !e.isSprite {
+		return value.Nil, fmt.Errorf("invalid sprite")
+	}
+	mode, _ := args[1].ToInt()
+	e.spriteMode = int32(mode)
+	return value.Nil, nil
+}
+
+type textureObj struct {
+	tex rl.Texture2D
+}
+
+func (o *textureObj) TypeName() string { return "Texture" }
+func (o *textureObj) TypeTag() uint16  { return heap.TagTexture }
+func (o *textureObj) Free()            { rl.UnloadTexture(o.tex) }

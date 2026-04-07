@@ -2,6 +2,8 @@
 
 Raylib-backed 2D drawing. Typical frame flow: `Render.Clear` → (optional) `Camera2D.Begin` / `Camera2D.End` → `Draw.*` → `Render.Frame`.
 
+**BlitzPlus-style names** (`Plot`, `Line`, `Rect`, …) map to these **`DRAW.*`** commands with different color/buffer rules — see [BLITZ_COMMAND_INDEX.md](BLITZ_COMMAND_INDEX.md). Aliases: **`DRAW.PLOT`** = **`DRAW.PIXEL`**; **`DRAW.OVAL`** / **`DRAW.OVALLINES`** = **`DRAW.ELLIPSE`** / **`DRAW.ELLIPSELINES`**.
+
 - **No 2D camera:** coordinates are screen pixels (top-left origin).
 - **With `Camera2D`:** world coordinates are transformed by offset, target, zoom, and rotation.
 

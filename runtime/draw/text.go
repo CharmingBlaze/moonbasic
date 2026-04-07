@@ -204,9 +204,9 @@ func (m *Module) text(rt *runtime.Runtime, args []value.Value) (value.Value, err
 		return value.Nil, fmt.Errorf("DRAW.TEXT expects 8 arguments (text$, x, y, size, r,g,b,a)")
 	}
 	text := stringFromRT(rt, args[0])
-	x, ok2 := argInt(args[1])
-	y, ok3 := argInt(args[2])
-	size, ok4 := argInt(args[3])
+	x, ok2 := argFloat(args[1])
+	y, ok3 := argFloat(args[2])
+	size, ok4 := argFloat(args[3])
 	if !ok2 || !ok3 || !ok4 {
 		return value.Nil, fmt.Errorf("DRAW.TEXT: text, x, y, and size must be correct types")
 	}
@@ -218,7 +218,8 @@ func (m *Module) text(rt *runtime.Runtime, args []value.Value) (value.Value, err
 		return value.Nil, fmt.Errorf("DRAW.TEXT: color components must be numeric")
 	}
 	col := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
-	rl.DrawText(text, x, y, size, col)
+	font := mbfont.DefaultFont(m.h)
+	rl.DrawTextEx(font, text, rl.Vector2{X: x, Y: y}, size, 1.0, col)
 	return value.Nil, nil
 }
 

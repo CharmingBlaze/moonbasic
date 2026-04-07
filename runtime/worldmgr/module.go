@@ -12,6 +12,10 @@ import (
 type Module struct {
 	h    *heap.Store
 	terr *terr.Module
+
+	FogMode    int
+	FogColor   [4]uint8
+	FogDensity float32
 }
 
 // NewModule requires the terrain module instance registered in the same registry.

@@ -19,6 +19,10 @@ func (m *Module) registerWindowMetricsCommands(reg runtime.Registrar) {
 	reg.Register("WINDOW.TOGGLEFULLSCREEN", "window", runtime.AdaptLegacy(m.wToggleFullscreen))
 	reg.Register("WINDOW.ISRESIZED", "window", runtime.AdaptLegacy(m.wIsResized))
 	reg.Register("WINDOW.SETTITLE", "window", m.wSetTitle)
+
+	// Global shorthands (Easy Mode)
+	reg.Register("SCREENWIDTH", "window", runtime.AdaptLegacy(m.wWidth))
+	reg.Register("SCREENHEIGHT", "window", runtime.AdaptLegacy(m.wHeight))
 }
 
 func (m *Module) wWidth(args []value.Value) (value.Value, error) {

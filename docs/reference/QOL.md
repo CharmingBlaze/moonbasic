@@ -1,5 +1,7 @@
 # Instant-game / QOL shortcuts (`runtime/mbgame`)
 
+**Curriculum / designed API surface:** [moonbasic-command-set/README.md](moonbasic-command-set/README.md) (memory-aware tables + QOL section).
+
 The **`mbgame`** module registers **DarkBASIC-style** short names and helpers: **`SCREENW`**, **`SCREENH`**, **`DT`**, **`MX`**, **`MY`**, **`ENDGAME`**, **`ELAPSED`**, **`FRAMECOUNT`**, collision and movement math, easing, noise, **`CONFIG.*`**, timers, **`GAME.*`** volume/screen flash, etc.
 
 - **Registry keys** are **one per uppercase name** — implementations live only in **`runtime/mbgame`** (do not re-register the same dotted key elsewhere).

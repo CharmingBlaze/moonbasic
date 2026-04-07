@@ -19,6 +19,18 @@ func (m *Module) registerBlitzAliases(r mbruntime.Registrar) {
 	r.Register("INPUT.JOYY", "input", mbruntime.AdaptLegacy(m.inJoyY))
 	r.Register("INPUT.JOYBUTTON", "input", mbruntime.AdaptLegacy(m.inJoyButton))
 	r.Register("INPUT.JOYDOWN", "input", mbruntime.AdaptLegacy(m.inJoyButton))
+
+	// Easy Mode Global Aliases
+	r.Register("MOUSEDX", "input", mbruntime.AdaptLegacy(m.inMouseXSpeed))
+	r.Register("MOUSEDY", "input", mbruntime.AdaptLegacy(m.inMouseYSpeed))
+	r.Register("MOUSEWHEEL", "input", mbruntime.AdaptLegacy(m.inMouseWheel))
+	r.Register("MOUSEX", "input", mbruntime.AdaptLegacy(m.inMouseX))
+	r.Register("MOUSEY", "input", mbruntime.AdaptLegacy(m.inMouseY))
+	r.Register("MOUSEZ", "input", mbruntime.AdaptLegacy(m.inMouseWheel))
+	r.Register("KEYHIT", "input", mbruntime.AdaptLegacy(m.inKeyHit))
+	r.Register("KEYDOWN", "input", mbruntime.AdaptLegacy(m.inKeyDown))
+	r.Register("KEYUP", "input", mbruntime.AdaptLegacy(m.inKeyUp))
+	r.Register("AXIS", "input", mbruntime.AdaptLegacy(m.inAxis))
 }
 
 func (m *Module) inKeyHit(args []value.Value) (value.Value, error) {
@@ -120,4 +132,48 @@ func (m *Module) inJoyButton(args []value.Value) (value.Value, error) {
 		return value.FromBool(false), nil
 	}
 	return value.FromBool(rl.IsGamepadButtonDown(gp, btn)), nil
+}
+func (m *Module) inMouseWheel(args []value.Value) (value.Value, error) {
+	return value.FromFloat(float64(rl.GetMouseWheelMove())), nil
+}
+
+func (m *Module) inKeyDown(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("KEYDOWN expects 1 argument (key)")
+	}
+	kc, err := KeyCodeFromValue(args[0])
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromBool(rl.IsKeyDown(kc)), nil
+}
+
+func (m *Module) inKeyUp(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("KEYUP expects 1 argument (key)")
+	}
+	kc, err := KeyCodeFromValue(args[0])
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromBool(rl.IsKeyUp(kc)), nil
+}
+
+func (m *Module) inAxis(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("AXIS expects 2 arguments (negKey, posKey)")
+	}
+	k1, err1 := KeyCodeFromValue(args[0])
+	k2, err2 := KeyCodeFromValue(args[1])
+	if err1 != nil || err2 != nil {
+		return value.Nil, fmt.Errorf("AXIS: invalid key codes")
+	}
+	v := 0.0
+	if rl.IsKeyDown(k1) {
+		v -= 1.0
+	}
+	if rl.IsKeyDown(k2) {
+		v += 1.0
+	}
+	return value.FromFloat(v), nil
 }

@@ -4144,6 +4144,13 @@
       ]
     },
     {
+      "key": "LOADTEXTURE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
       "key": "TEXTURE.FROMIMAGE",
       "args": [
         "handle"
@@ -4177,7 +4184,23 @@
       "phase": "rendering"
     },
     {
+      "key": "TEXTUREWIDTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
       "key": "TEXTURE.HEIGHT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTUREHEIGHT",
       "args": [
         "handle"
       ],
@@ -6075,6 +6098,12 @@
     },
     {
       "key": "TEXTURE.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "FREETEXTURE",
       "args": [
         "handle"
       ]
@@ -10970,6 +10999,95 @@
       "phase": "any"
     },
     {
+      "key": "PHYSICS3D.DEBUGDRAW",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "BODY3D.COLLIDED",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "BODY3D.COLLISIONOTHER",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BODY3D.COLLISIONPOINT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BODY3D.COLLISIONNORMAL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT3D.FIXED",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT3D.HINGE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT3D.SLIDER",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT3D.CONE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT3D.DELETE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
       "key": "PHYSICS.START",
       "args": []
     },
@@ -11232,6 +11350,15 @@
       "phase": "init"
     },
     {
+      "key": "PHYSICS2D.START",
+      "args": [
+        "float",
+        "float"
+      ],
+      "phase": "init",
+      "description": "Optional initial gravity (gx#, gy#); same effect as SETGRAVITY after start."
+    },
+    {
       "key": "PHYSICS2D.STOP",
       "args": []
     },
@@ -11391,6 +11518,107 @@
     },
     {
       "key": "BODY2D.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "BODY2D.ADDPOLYGON",
+      "args": [
+        "handle",
+        "handle"
+      ]
+    },
+    {
+      "key": "BODY2D.SETLINEARVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "BODY2D.SETANGULARVELOCITY",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "BODY2D.COLLIDED",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "BODY2D.COLLISIONOTHER",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BODY2D.COLLISIONNORMAL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BODY2D.COLLISIONPOINT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "PHYSICS2D.DEBUGDRAW",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "PHYSICS2D.GETDEBUGSEGMENTS",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT2D.DISTANCE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT2D.REVOLUTE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT2D.PRISMATIC",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "JOINT2D.FREE",
       "args": [
         "handle"
       ]
@@ -11599,6 +11827,89 @@
       "args": [
         "handle",
         "int",
+        "int"
+      ]
+    },
+    {
+      "key": "NET.SETCHANNELS",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "NET.SERVICE",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "NET.FLUSH",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NETSENDSTRING",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "NETSENDINT",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "NETSENDFLOAT",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "NETREADSTRING",
+      "args": [],
+      "returns": "string"
+    },
+    {
+      "key": "NETREADINT",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "NETREADFLOAT",
+      "args": [],
+      "returns": "float"
+    },
+    {
+      "key": "PACKET.CREATE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "PACKET.DATA",
+      "args": [
+        "handle"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "PACKET.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "PEER.SENDPACKET",
+      "args": [
+        "handle",
+        "handle",
         "int"
       ]
     },
@@ -13023,6 +13334,32 @@
       ]
     },
     {
+      "key": "DRAW.OVAL",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.OVALLINES",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
       "key": "DRAW.RING",
       "args": [
         "float",
@@ -13143,6 +13480,17 @@
     },
     {
       "key": "DRAW.PIXEL",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.PLOT",
       "args": [
         "int",
         "int",
@@ -15020,6 +15368,889 @@
       "returns": "int"
     },
     {
+      "key": "GRAPHICS",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Blitz-style: WINDOW.OPEN(w, h, 'moonBASIC')"
+    },
+    {
+      "key": "GRAPHICS",
+      "args": [
+        "int",
+        "int",
+        "string"
+      ],
+      "description": "Blitz-style: WINDOW.OPEN(w, h, title$)"
+    },
+    {
+      "key": "POSITIONENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Blitz-style: ENTITY.POSITIONENTITY(obj, x, y, z)"
+    },
+    {
+      "key": "ROTATEENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Blitz-style: ENTITY.ROTATEENTITY(obj, p, y, r)"
+    },
+    {
+      "key": "MOVEENTITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Blitz-style: ENTITY.MOVEENTITY(obj, x, y, z)"
+    },
+    {
+      "key": "ENTITYCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Blitz-style: ENTITY.COLOR(obj, r, g, b)"
+    },
+    {
+      "key": "ENTITYALPHA",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Blitz-style: ENTITY.ALPHA(obj, alpha)"
+    },
+    {
+      "key": "FREEENTITY",
+      "args": [
+        "int"
+      ],
+      "description": "Blitz-style: ENTITY.FREE(obj)"
+    },
+    {
+      "key": "CREATECAMERA",
+      "args": [],
+      "returns": "handle",
+      "description": "Blitz-style: CAMERA.CREATE3D()"
+    },
+    {
+      "key": "CREATELIGHT",
+      "args": [],
+      "returns": "handle",
+      "description": "Blitz-style: LIGHT.MAKE()"
+    },
+    {
+      "key": "MOUSEDX",
+      "args": [],
+      "returns": "float",
+      "description": "Easy Mode: MOUSE.DX(MOUSE())"
+    },
+    {
+      "key": "MOUSEDY",
+      "args": [],
+      "returns": "float",
+      "description": "Easy Mode: MOUSE.DY(MOUSE())"
+    },
+    {
+      "key": "MOUSEWHEEL",
+      "args": [],
+      "returns": "float",
+      "description": "Easy Mode: MOUSE.WHEEL(MOUSE())"
+    },
+    {
+      "key": "KEYDOWN",
+      "args": [
+        "any"
+      ],
+      "returns": "bool",
+      "description": "Easy Mode: KEY.DOWN(KEY(), code)"
+    },
+    {
+      "key": "KEYHIT",
+      "args": [
+        "any"
+      ],
+      "returns": "bool",
+      "description": "Easy Mode: KEY.HIT(KEY(), code)"
+    },
+    {
+      "key": "KEYUP",
+      "args": [
+        "any"
+      ],
+      "returns": "bool",
+      "description": "Easy Mode: KEY.UP(KEY(), code)"
+    },
+    {
+      "key": "AXIS",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: INPUT.AXIS(INPUT(), k1, k2)"
+    },
+    {
+      "key": "DIST3D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Distance between two points in 3D space"
+    },
+    {
+      "key": "ENTITYX",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get entity X position"
+    },
+    {
+      "key": "MOUSEX",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get absolute mouse X coordinate"
+    },
+    {
+      "key": "MOUSEY",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get absolute mouse Y coordinate"
+    },
+    {
+      "key": "MOUSEZ",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get mouse wheel movement"
+    },
+    {
+      "key": "LOADSOUND",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: Load a sound file"
+    },
+    {
+      "key": "PLAYSOUND",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Play a sound"
+    },
+    {
+      "key": "FREESOUND",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Free a sound asset"
+    },
+    {
+      "key": "SOUNDVOLUME",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set sound volume (0-1)"
+    },
+    {
+      "key": "MOVEENTITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Move entity relative to orientation"
+    },
+    {
+      "key": "TURNENTITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Incremental rotation"
+    },
+    {
+      "key": "POINTENTITY",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Point one entity at another"
+    },
+    {
+      "key": "RND",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Random float in range"
+    },
+    {
+      "key": "RAND",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: Random int in range"
+    },
+    {
+      "key": "DELAY",
+      "args": [
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Blocking wait (ms)"
+    },
+    {
+      "key": "CREATEEMITTER",
+      "args": [],
+      "returns": "handle",
+      "description": "Easy Mode: Create a 3D particle emitter"
+    },
+    {
+      "key": "EMITPARTICLE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Burst particles from an emitter"
+    },
+    {
+      "key": "PARTICLECOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set emitter start color"
+    },
+    {
+      "key": "PARTICLESPEED",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set emitter speed range"
+    },
+    {
+      "key": "PARTICLELIFE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set emitter lifetime range"
+    },
+    {
+      "key": "EMITTERPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Reposition an emitter"
+    },
+    {
+      "key": "UPDATEEMITTER",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Update emitter simulation"
+    },
+    {
+      "key": "DRAWEMITTER",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Render particles from an emitter"
+    },
+    {
+      "key": "EMITTERALIVE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: Check if emitter is playing or has active particles"
+    },
+    {
+      "key": "EMITTERCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: Get number of active particles in emitter"
+    },
+    {
+      "key": "FPS",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get current frames per second"
+    },
+    {
+      "key": "HIDEENTITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Hide an entity"
+    },
+    {
+      "key": "SHOWENTITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Show an entity"
+    },
+    {
+      "key": "FREEENTITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Destroy an entity and free memory"
+    },
+    {
+      "key": "ENTITYTEXTURE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Apply a texture handle to an entity"
+    },
+    {
+      "key": "ENTITYY",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get entity Y position"
+    },
+    {
+      "key": "ENTITYZ",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get entity Z position"
+    },
+    {
+      "key": "ENTITYPITCH",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get entity Pitch orientation"
+    },
+    {
+      "key": "ENTITYYAW",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get entity Yaw orientation"
+    },
+    {
+      "key": "ENTITYROLL",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get entity Roll orientation"
+    },
+    {
+      "key": "CURVE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Blitz-style smooth follower (value, target, divisor)"
+    },
+    {
+      "key": "WRAPANGLE",
+      "args": [
+        "float"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Wrap angle to 0..360 or -PI..PI range"
+    },
+    {
+      "key": "ENTITYTYPE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set collision group (1-32) for an entity"
+    },
+    {
+      "key": "COLLISIONS",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set global collision response rule (srcType, dstType, method, response)"
+    },
+    {
+      "key": "ENTITYRADIUS",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set sphere collision radius for an entity"
+    },
+    {
+      "key": "SPHERECOLLIDE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set entity to use sphere collision with given radius"
+    },
+    {
+      "key": "UPDATEWORLD",
+      "args": [
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Global simulation step (Physics, Particles, Collisions, Anims)"
+    },
+    {
+      "key": "RESETENTITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Reset entity velocity and collision state"
+    },
+    {
+      "key": "ENTITYCOLLIDED",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: Check if entity hit a specific type; returns handle of hit entity or 0"
+    },
+    {
+      "key": "COUNTCOLLISIONS",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: Get number of active collisions for entity"
+    },
+    {
+      "key": "GETCOLLISIONENTITY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: Get handle of Nth collision"
+    },
+    {
+      "key": "SKYCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Alias for Render.Clear(r, g, b)"
+    },
+    {
+      "key": "AMBIENTLIGHT",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set global ambient light (r, g, b, intensity)"
+    },
+    {
+      "key": "SCREENWIDTH",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get window width"
+    },
+    {
+      "key": "SCREENHEIGHT",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get window height"
+    },
+    {
+      "key": "MOUSEHIT",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: Returns 1 if mouse button was pressed this frame"
+    },
+    {
+      "key": "MOUSEX",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get current mouse X coordinate"
+    },
+    {
+      "key": "MOUSEY",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: Get current mouse Y coordinate"
+    },
+    {
+      "key": "MILLISECS",
+      "args": [],
+      "returns": "int",
+      "description": "Blitz-style: TIME.MILLIS()"
+    },
+    {
+      "key": "POSITIONCAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA.SETPOS(cam, x, y, z)"
+    },
+    {
+      "key": "ROTATECAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA.ROTATE(cam, p, y, r)"
+    },
+    {
+      "key": "TURNCAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA.TURN(cam, p, y, r)"
+    },
+    {
+      "key": "CAMERAZOOM",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA.ZOOM(cam, z)"
+    },
+    {
+      "key": "CAMERAFOLLOW",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA.FOLLOWENTITY(cam, ent, dist, height, smooth)"
+    },
+    {
+      "key": "SHAKECAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA.SHAKE(cam, intensity, duration)"
+    },
+    {
+      "key": "CAMERAPICK",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: CAMERA.PICK(cam, x, y)"
+    },
+    {
+      "key": "CREATECAMERA2D",
+      "args": [],
+      "returns": "handle",
+      "description": "Easy Mode: CAMERA2D.MAKE()"
+    },
+    {
+      "key": "CAMERA2DTARGET",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA2D.SETTARGET(cam, x, y)"
+    },
+    {
+      "key": "CAMERA2DOFFSET",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA2D.SETOFFSET(cam, x, y)"
+    },
+    {
+      "key": "CAMERA2DZOOM",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA2D.SETZOOM(cam, z)"
+    },
+    {
+      "key": "CAMERA2DROTATION",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Easy Mode: CAMERA2D.SETROTATION(cam, r)"
+    },
+    {
+      "key": "CREATEBODY",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: PHYSICS3D.CREATEBODY(type, shape)"
+    },
+    {
+      "key": "ADDFORCE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: Body.AddForce(x, y, z)"
+    },
+    {
+      "key": "ADDIMPULSE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: Body.AddImpulse(x, y, z)"
+    },
+    {
+      "key": "SETGRAVITY",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: PHYSICS3D.SETGRAVITY(x, y, z)"
+    },
+    {
+      "key": "CREATEBODY2D",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: PHYSICS2D.CREATEBODY(type, shape)"
+    },
+    {
+      "key": "LISTEN",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: NET.HOST(port)"
+    },
+    {
+      "key": "CONNECT",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: NET.CONNECT(host, port)"
+    },
+    {
+      "key": "SERVICENET",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "int",
+      "description": "Easy Mode: NET.SERVICE(host, timeout)"
+    },
+    {
+      "key": "NETMSG$",
+      "args": [],
+      "returns": "string",
+      "description": "Easy Mode: NET.GETEVENTPACKET$()"
+    },
+    {
+      "key": "LOADSOUND",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: AUDIO.LOADSOUND(path)"
+    },
+    {
+      "key": "LOADMUSIC",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: AUDIO.LOADMUSIC(path)"
+    },
+    {
+      "key": "PLAYSOUND",
+      "args": [
+        "handle"
+      ],
+      "description": "Easy Mode: AUDIO.PLAY(sound)"
+    },
+    {
+      "key": "PLAYMUSIC",
+      "args": [
+        "handle"
+      ],
+      "description": "Easy Mode: AUDIO.PLAY(music)"
+    },
+    {
+      "key": "STOPMUSIC",
+      "args": [
+        "handle"
+      ],
+      "description": "Easy Mode: AUDIO.STOP(music)"
+    },
+    {
+      "key": "MUSICVOLUME",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Easy Mode: AUDIO.SETMUSICVOLUME(music, vol)"
+    },
+    {
+      "key": "LOADTEXTURE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: TEXTURE.LOAD(path)"
+    },
+    {
+      "key": "LOADIMAGE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: IMAGE.LOAD(path)"
+    },
+    {
+      "key": "LOADFONT",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: FONT.LOAD(path, size)"
+    },
+    {
+      "key": "LOADMESH",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: MESH.LOAD(path)"
+    },
+    {
+      "key": "LOADSPRITE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Easy Mode: Load a 3D billboard sprite from file"
+    },
+    {
+      "key": "SCALESPRITE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set sprite X/Y scale"
+    },
+    {
+      "key": "SPRITEMODE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Easy Mode: Set sprite billboard/blend mode"
+    },
+    {
       "key": "CUBE",
       "args": [],
       "returns": "handle",
@@ -15585,6 +16816,479 @@
         "int"
       ],
       "returns": "bool"
+    },
+    {
+      "key": "DRAWCUBE",
+      "args": [],
+      "description": "Immediate-mode 3D box wrapper; use .Pos/.Size/.Color/.Draw (see DRAW_WRAPPERS.md)"
+    },
+    {
+      "key": "DRAWCUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DRAWCUBE(w,h,d) initial size"
+    },
+    {
+      "key": "DRAWSPHERE",
+      "args": [
+        "float"
+      ],
+      "description": "DRAWCUBE-style sphere; radius"
+    },
+    {
+      "key": "MOUSE",
+      "args": [],
+      "returns": "handle",
+      "description": "Singleton mouse input facade handle"
+    },
+    {
+      "key": "MOUSE.DX",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "KEY",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "KEY.DOWN",
+      "args": [
+        "handle",
+        "any"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "MOVER",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "MOVER.MOVEXZ",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MOVER.MOVESTEPX",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MOVER.MOVESTEPZ",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER2D.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "PLAYER2D.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "PLAYER2D.MOVE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "PLAYER2D.CLAMP",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "PLAYER2D.KEEPINBOUNDS",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "PLAYER2D.GETX",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER2D.GETZ",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER2D.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MOVEENTITY2D",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "CLAMPENTITY2D",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "MOVEPLAYER",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "KEEPPLAYERINBOUNDS",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "CAMERA.TURNLEFT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CAMERA.TURNRIGHT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CAMERA.ORBITCAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "TEXTOBJ",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TEXTDRAW.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "DRAWPRIM3D.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "DRAWPRIM2D.DRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "DRAWRING2",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "DRAWPOLY2",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "DRAWTEXREC",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "DRAWTEXPRO",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "POSENT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Shorthand: POSITIONENTITY(ent, x, y, z)"
+    },
+    {
+      "key": "ROTENT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Shorthand: ROTATEENTITY(ent, p, y, r)"
+    },
+    {
+      "key": "SCALENT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Shorthand: SCALEENTITY(ent, x, y, z)"
+    },
+    {
+      "key": "ENTHIT",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Shorthand: ENTITYCOLLIDED(ent, type)"
+    },
+    {
+      "key": "HITCOUNT",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Shorthand: COUNTCOLLISIONS(ent)"
+    },
+    {
+      "key": "HITENT",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Shorthand: GETCOLLISIONENTITY(ent, index)"
+    },
+    {
+      "key": "ENTRAD",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Shorthand: ENTITYRADIUS(ent, r)"
+    },
+    {
+      "key": "ENTTYPE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Shorthand: ENTITYTYPE(ent, type)"
+    },
+    {
+      "key": "UPDW",
+      "args": [
+        "float"
+      ],
+      "description": "Shorthand: UPDATEWORLD(dt)"
+    },
+    {
+      "key": "ENTX",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Shorthand: ENTITYX(ent)"
+    },
+    {
+      "key": "ENTY",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Shorthand: ENTITYY(ent)"
+    },
+    {
+      "key": "ENTZ",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Shorthand: ENTITYZ(ent)"
+    },
+    {
+      "key": "ENTPITCH",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Shorthand: ENTITYPITCH(ent)"
+    },
+    {
+      "key": "ENTYAW",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Shorthand: ENTITYYAW(ent)"
+    },
+    {
+      "key": "ENTROLL",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Shorthand: ENTITYROLL(ent)"
+    },
+    {
+      "key": "HELP",
+      "args": [
+        "string"
+      ],
+      "description": "Live Discovery: Show arguments and description for any command."
+    },
+    {
+      "key": "FOGMODE",
+      "args": [
+        "int"
+      ],
+      "description": "Environmental: Enable fog (0=Off, 1=Linear, 2=Exp, 3=Exp2)."
+    },
+    {
+      "key": "FOGCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Environmental: Set global atmospheric haze color."
+    },
+    {
+      "key": "FOGDENSITY",
+      "args": [
+        "float"
+      ],
+      "description": "Environmental: Set thickness for exponential fog modes."
+    },
+    {
+      "key": "ENTITYALPHA",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Professional: Set entity transparency (0.0=Invisible, 1.0=Solid)."
+    },
+    {
+      "key": "ENTITYSHININESS",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Professional: Set entity specular highlight intensity."
+    },
+    {
+      "key": "ENTITYBLEND",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Professional: Set entity blend mode (0=Alpha, 1=Additive, 2=Multiply)."
+    },
+    {
+      "key": "LINE3D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Shorthand: DRAW3D.LINE(x1, y1, z1, x2, y2, z2, r, g, b, a)"
+    },
+    {
+      "key": "POINT3D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Shorthand: DRAW3D.POINT(x, y, z, r, g, b, a)"
     }
   ]
 }

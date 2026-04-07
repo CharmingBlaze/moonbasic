@@ -32,16 +32,31 @@ func argHandle(v value.Value) (heap.Handle, bool) {
 	return heap.Handle(v.IVal), true
 }
 
+var activeDefaultFont heap.Handle
+
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("FONT.LOAD", "font", m.fontLoad)
 	r.Register("FONT.LOADBDF", "font", m.fontLoadBDF)
 	r.Register("FONT.FREE", "font", runtime.AdaptLegacy(m.fontFree))
 	r.Register("FONT.DRAWDEFAULT", "font", runtime.AdaptLegacy(m.fontDrawDefault))
+	r.Register("FONT.SETDEFAULT", "font", runtime.AdaptLegacy(m.fontSetDefault))
 }
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
+
+func (m *Module) fontSetDefault(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("FONT.SETDEFAULT expects 1 argument (handle)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("FONT.SETDEFAULT: invalid handle")
+	}
+	activeDefaultFont = h
+	return value.Nil, nil
+}
 
 func (m *Module) fontLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil {
@@ -115,6 +130,18 @@ func (m *Module) fontDrawDefault(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("FONT.DRAWDEFAULT expects 0 arguments")
 	}
 	return value.FromHandle(0), nil
+}
+
+// DefaultFont returns the font set via FONT.SETDEFAULT, or rl.GetFontDefault() if none.
+func DefaultFont(store *heap.Store) rl.Font {
+	if activeDefaultFont == 0 {
+		return rl.GetFontDefault()
+	}
+	f, err := FontForHandle(store, activeDefaultFont)
+	if err != nil {
+		return rl.GetFontDefault()
+	}
+	return f
 }
 
 // FontForHandle returns the raylib Font for a given heap handle.

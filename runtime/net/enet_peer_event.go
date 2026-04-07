@@ -161,6 +161,12 @@ func eventData(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 	if err != nil {
 		return value.Nil, err
 	}
+	if eo.typ == 3 {
+		m.readMu.Lock()
+		m.readBuf = append([]byte(nil), eo.data...)
+		m.readOff = 0
+		m.readMu.Unlock()
+	}
 	return rt.RetString(eo.data), nil
 }
 

@@ -132,7 +132,7 @@ func registerNetCommands(m *Module, reg runtime.Registrar) {
 		if err != nil {
 			return value.Nil, err
 		}
-		peer, err := ho.host.Connect(enet.NewAddress(hostName, uint16(pf)), 1, 0)
+		peer, err := ho.host.Connect(enet.NewAddress(hostName, uint16(pf)), int(m.channelLimit()), 0)
 		if err != nil {
 			return value.Nil, err
 		}
@@ -143,6 +143,7 @@ func registerNetCommands(m *Module, reg runtime.Registrar) {
 		_ = rt
 		return netUpdate(m, args)
 	})
+	registerHelperNet(m, reg)
 	reg.Register("NET.RECEIVE", "net", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		_ = rt
 		return netReceive(m, args)
@@ -314,7 +315,7 @@ func netCreateServer(m *Module, args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("NET.CREATESERVER: maxclients must be >= 1")
 	}
 	addr := enet.NewListenAddress(uint16(port))
-	h, err := enet.NewHost(addr, uint64(mc), 1, 0, 0)
+	h, err := enet.NewHost(addr, uint64(mc), m.channelLimit(), 0, 0)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -339,7 +340,7 @@ func netCreateClient(m *Module, args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("NET.CREATECLIENT expects 0 arguments")
 	}
-	h, err := enet.NewHost(nil, 32, 1, 0, 0)
+	h, err := enet.NewHost(nil, 32, m.channelLimit(), 0, 0)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -377,12 +378,18 @@ func lookupPeerID(ho *hostObj, p enet.Peer, m *Module) heap.Handle {
 	return registerPeer(m, ho, p)
 }
 
-func pumpHost(m *Module, ho *hostObj) {
+func pumpHost(m *Module, ho *hostObj, timeoutMs uint32) {
 	if ho.host == nil {
 		return
 	}
+	first := true
 	for {
-		ev := ho.host.Service(0)
+		t := uint32(0)
+		if first {
+			t = timeoutMs
+			first = false
+		}
+		ev := ho.host.Service(t)
 		switch ev.GetType() {
 		case enet.EventNone:
 			return
@@ -420,7 +427,7 @@ func netUpdate(m *Module, args []value.Value) (value.Value, error) {
 	if ho.host == nil {
 		return value.Nil, runtime.Errorf("NET.UPDATE: host closed")
 	}
-	pumpHost(m, ho)
+	pumpHost(m, ho, 0)
 	return value.Nil, nil
 }
 
@@ -438,7 +445,7 @@ func netTryPopEvent(m *Module, hid heap.Handle) (heap.Handle, error) {
 		return 0, runtime.Errorf("NET.RECEIVE: host closed")
 	}
 	if len(ho.q) == 0 {
-		pumpHost(m, ho)
+		pumpHost(m, ho, 0)
 	}
 	if len(ho.q) == 0 {
 		return 0, nil
