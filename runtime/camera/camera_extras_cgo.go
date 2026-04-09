@@ -94,6 +94,7 @@ func (m *Module) registerCameraExtras(reg runtime.Registrar) {
 	reg.Register("CAMERA.TURNLEFT", "camera", m.camTurnLeft)
 	reg.Register("CAMERA.TURNRIGHT", "camera", m.camTurnRight)
 	reg.Register("CAMERA.ORBITCAMERA", "camera", m.camOrbitCamera)
+	reg.Register("CAMERA.SMOOTHEXP", "camera", m.camSmoothExp)
 	reg.Register("CAMERA.FREE", "camera", runtime.AdaptLegacy(m.camFree))
 }
 

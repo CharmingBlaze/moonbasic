@@ -82,15 +82,19 @@ Create a file called `hello.mb`:
 PRINT("Hello, moonBASIC!")
 ```
 
-Run it:
+Run it (needs the **runtime** — `moonbasic` alone only compiles to `.mbc`):
+
 ```bash
-moonbasic hello.mb
+moonrun hello.mb
 ```
 
 Output:
+
 ```
 Hello, moonBASIC!
 ```
+
+From source without installing binaries: `go run -tags fullruntime ./cmd/moonrun hello.mb`. To only compile: `moonbasic hello.mb` → writes `hello.mbc`.
 
 ---
 
@@ -112,10 +116,13 @@ WEND
 Window.Close()
 ```
 
-Run it:
+Run it with the **game runtime** (plain `moonbasic` only compiles to `.mbc`):
+
 ```bash
-moonbasic window.mb
+moonrun window.mb
 ```
+
+If you build from source: `go build -tags fullruntime -o moonrun ./cmd/moonrun`, then `moonrun window.mb`. From the repo without installing binaries: `CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun window.mb`.
 
 You should see a dark blue window with white text. Press the window's close button to exit.
 

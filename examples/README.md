@@ -1,24 +1,43 @@
 # moonBASIC examples
 
-Runnable sample programs. Run them from the **repository root** so working-directory defaults (e.g. `rpg_save.json`) match the comments in each file.
+Runnable sample programs. Work from the **repository root** so working-directory defaults (e.g. `rpg_save.json`) match the comments in each file.
 
 ## Requirements
 
 - **CGO** enabled and a C toolchain (same as building Raylib).
-- Build or run the driver from this repo, for example:
+- See [docs/BUILDING.md](../docs/BUILDING.md) for toolchains.
+
+## Compile vs run (important)
+
+The **default** repo entrypoint (`go run .` without build tags) **only compiles** `.mb` → `.mbc` next to the source. It does **not** open a window.
+
+**Compile to bytecode** (writes `examples/spin_cube/main.mbc`):
 
 ```bash
-# Linux / macOS
 CGO_ENABLED=1 go run . examples/spin_cube/main.mb
 ```
 
 ```powershell
-# Windows (PowerShell)
 $env:CGO_ENABLED="1"
 go run . examples\spin_cube\main.mb
 ```
 
-If you use a compiled `moonbasic` binary, replace `go run .` with `moonbasic`.
+**Run the game** (opens a window) — use the full runtime:
+
+```bash
+CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
+```
+
+```powershell
+$env:CGO_ENABLED="1"
+go run -tags fullruntime ./cmd/moonrun examples\spin_cube\main.mb
+```
+
+Or build `moonrun` once (`go build -tags fullruntime -o moonrun ./cmd/moonrun`) and run `.\moonrun examples\spin_cube\main.mb`.
+
+If you use a **pre-built** `moonbasic` / `moonrun` from [Releases](https://github.com/CharmingBlaze/moonbasic/releases): `moonbasic` compiles to `.mbc`; **`moonrun`** runs `.mb` / `.mbc`.
+
+More commands: [docs/DEVELOPER.md](../docs/DEVELOPER.md), [Makefile](../Makefile), [scripts/dev.ps1](../scripts/dev.ps1).
 
 ## Index
 

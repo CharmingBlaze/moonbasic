@@ -36,6 +36,7 @@ func CameraXZStrafeBasis(store *heap.Store, ch heap.Handle) (fwd rl.Vector3, rig
 		return rl.Vector3{X: 0, Y: 0, Z: 1}, rl.Vector3{X: 1, Y: 0, Z: 0}, nil
 	}
 	fwd = rl.Vector3{X: float32(dx / h), Y: 0, Z: float32(dz / h)}
-	right = rl.Vector3{X: fwd.Z, Y: 0, Z: -fwd.X}
+	// Horizontal right = negated (Y × forward) so strafe matches SetOrbit yaw and main.mb-style WASD.
+	right = rl.Vector3{X: -fwd.Z, Y: 0, Z: fwd.X}
 	return fwd, right, nil
 }

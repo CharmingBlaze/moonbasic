@@ -9,11 +9,15 @@ Alternatives you can try in code:
 
 **`Window.Open`** returns **`TRUE`** when Raylib reports the window is ready (useful for headless or init failures). **`Window.Close`** releases the heap (Raylib mesh/material cleanup runs via **`Heap.FreeAll`**), so explicit **`Mesh.Free`** / **`Transform.Free`** are optional if you exit right after close.
 
-Run from the repo root with CGO enabled (same toolchain as `examples/fps`):
+Run from the repo root with **CGO** enabled (same toolchain as `examples/fps`).
+
+**Run the demo** (opens a window):
 
 ```bash
-go run . examples/spin_cube/main.mb
+CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
 ```
+
+**Compile only** (writes `main.mbc`, no window): `CGO_ENABLED=1 go run . examples/spin_cube/main.mb`
 
 Controls: **ESC** or close the window to exit.
 

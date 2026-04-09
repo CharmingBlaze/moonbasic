@@ -1,16 +1,18 @@
 # moonBASIC examples (guide)
 
-This page explains what each **repository demo** teaches and shows **short excerpts**. Full sources live under [`examples/`](../examples/README.md) — run them with `CGO_ENABLED=1` from the repo root.
+This page explains what each **repository demo** teaches and shows **short excerpts**. Full sources live under [`examples/`](../examples/README.md).
 
 ---
 
 ## How to run
 
+From the repo root, **open a window** with the full runtime (not plain `go run .`, which only compiles to `.mbc`):
+
 ```bash
-CGO_ENABLED=1 go run . examples/spin_cube/main.mb
+CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
 ```
 
-See [examples/README.md](../examples/README.md) for the full table and Windows notes.
+See [examples/README.md](../examples/README.md) for compile vs run, Windows PowerShell, and the full table.
 
 ---
 

@@ -382,7 +382,7 @@ func SetGlobalHeapGetter(fn func() *heap.Store) {
 func computeLightSpaceMatrix(cam rl.Camera3D) {
 	view := rl.MatrixLookAt(cam.Position, cam.Target, cam.Up)
 	proj := rl.MatrixOrtho(-18, 18, -18, 18, 0.5, 80)
-	lightSpaceVP = rl.MatrixMultiply(proj, view)
+	lightSpaceVP = rl.MatrixMultiply(view, proj)
 }
 
 func ensureShadowResources() {

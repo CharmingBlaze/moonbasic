@@ -1411,6 +1411,11 @@ func (m *Module) entMoveCameraRelative(args []value.Value) (value.Value, error) 
 	wp := m.worldPos(e)
 	nw := rl.Vector3Add(wp, rl.Vector3{X: dx, Y: 0, Z: dz})
 	m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
+	// This API is kinematic walk on XZ: clear horizontal velocity so COLLISIONS slide response and
+	// ENTITY.UPDATE (vel*dt) do not accumulate drift / ice-skating, and the entity cannot shoot out
+	// of view when combined with penetration resolution. Vertical velocity (gravity, jump) is kept.
+	e.vel.X = 0
+	e.vel.Z = 0
 	return value.Nil, nil
 }
 

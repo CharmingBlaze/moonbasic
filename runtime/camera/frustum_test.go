@@ -48,6 +48,25 @@ func TestProjectionMatrixUsesRLCullDistances(t *testing.T) {
 	}
 }
 
+func TestDebugNDCClipTarget(t *testing.T) {
+	cam := rl.Camera3D{
+		Position:   rl.Vector3{X: 0, Y: 3, Z: 10},
+		Target:     rl.Vector3{X: 0, Y: 1, Z: 0},
+		Up:         rl.Vector3{X: 0, Y: 1, Z: 0},
+		Fovy:       55,
+		Projection: rl.CameraPerspective,
+	}
+	view := rl.GetCameraMatrix(cam)
+	proj := projectionMatrixForFrustum(cam, float32(16.0/9.0))
+	// Raylib column-vector multiply: world→clip uses MatrixMultiply(view, proj), same as proj·V·p in math.
+	pv := rl.MatrixMultiply(view, proj)
+	x, y, z := cam.Target.X, cam.Target.Y, cam.Target.Z
+	cw := pv.M3*x + pv.M7*y + pv.M11*z + pv.M15
+	if cw <= 1e-4 || cw > 1e6 {
+		t.Fatalf("expected finite positive clip w for look-at target, got %v", cw)
+	}
+}
+
 // Regression: look-at target must lie inside the frustum (entity CPU culling uses this).
 func TestExtractFrustumLookAtTargetInside(t *testing.T) {
 	cam := rl.Camera3D{

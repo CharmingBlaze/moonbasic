@@ -5203,6 +5203,14 @@
       ]
     },
     {
+      "key": "INPUT.SETMOUSEPOS",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Warp OS cursor to client pixel (x,y); pair with CURSOR.DISABLE for game-style recenter"
+    },
+    {
       "key": "INPUT.GETMOUSEWORLDPOS",
       "args": [
         "handle",
@@ -13696,6 +13704,15 @@
       ]
     },
     {
+      "key": "DRAW3D.GRID",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "XZ grid with optional Y offset (avoids z-fight with floor at Y=0)"
+    },
+    {
       "key": "DRAW3D.LINE",
       "args": [
         "float",
@@ -13865,6 +13882,15 @@
         "float"
       ],
       "description": "alias of DRAW3D.GRID — XZ reference grid"
+    },
+    {
+      "key": "GRID3",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "alias of DRAW3D.GRID with Y offset"
     },
     {
       "key": "FLAT",
@@ -18202,6 +18228,18 @@
         "float"
       ],
       "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SMOOTHEXP",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "pure": true,
+      "description": "Exponential smoothing: current toward target using (1-exp(-smoothHz*dt)); for orbit angles"
     },
     {
       "key": "INPUT.KEYHIT",

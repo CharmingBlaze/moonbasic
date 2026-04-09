@@ -68,6 +68,22 @@ Third-person **spherical** orbit: places the eye on a shell around the target `(
 
 **Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw#` / `pitch#` / `dist#`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw#`**.
 
+### `Camera.SmoothExp(current#, target#, smoothHz#, dt#)` → **float**
+
+**Registry:** **`CAMERA.SMOOTHEXP`**. One step of **exponential smoothing** toward a target (same idea as critically damped lag on an angle or scalar):
+
+`result = current + (target - current) * (1 - exp(-smoothHz * dt))`
+
+- **`smoothHz`** — larger values follow the target faster (try **20–35** for third-person orbit yaw/pitch at 60 FPS).
+- **`dt`** — use **`Time.Delta()`** (clamped) so smoothing stays framerate-independent.
+
+Typical pattern: mouse and keys update **target** yaw/pitch (`camYawT`, `camPitchT`), clamp pitch, then:
+
+`camYaw = Camera.SmoothExp(camYaw, camYawT, 28.0, dt)`  
+`camPitch = Camera.SmoothExp(camPitch, camPitchT, 28.0, dt)`
+
+Pass **`camYaw` / `camPitch`** into **`Camera.OrbitEntity`** (and into movement that must match the camera). See **`examples/mario64/main_entities.mb`**.
+
 ### `Camera.OrbitAround(camera, tx#, ty#, tz#, yaw#, distance#, cameraY#)` / `Camera.OrbitAroundDeg(...)`
 
 Simpler **third-person** placement: camera stays at fixed world height **`cameraY#`**, orbiting the target on the **XZ** plane at **distance** from `(tx,tz)`, with horizontal angle **`yaw#`** in **radians** (`OrbitAround`) or **degrees** (`OrbitAroundDeg`). Sets both position and target (target is `(tx,ty,tz)`).

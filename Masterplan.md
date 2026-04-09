@@ -28,7 +28,7 @@ The goal for Phase B is to implement the actual implementation of engine command
 0.  **Raylib bootstrap (done — first slice)**:
     - [`runtime/window`](runtime/window): `WINDOW.OPEN` / `CLOSE` / `SHOULDCLOSE`, `RENDER.CLEAR` / `FRAME` with `//go:build cgo` vs stub when `CGO_ENABLED=0`.
     - Requires **CGO + C toolchain** for real graphics; see **`ARCHITECTURE.md` §9**.
-    - **Acceptance test** (window + input + render loop on the **current** IR, not engine v2): run [`testdata/pretty_window.mb`](testdata/pretty_window.mb) on **Windows x64** and **Linux x64** with `CGO_ENABLED=1` (`go run . testdata/pretty_window.mb`). The sample exits on **ESC** or **window close** (`Window.ShouldClose`). Operator **`NOT` vs `OR`** is specified in **`ARCHITECTURE.md` §7**; full checklist, FPS meaning, **`--info`**, and CI are under **`ARCHITECTURE.md` §9** (“Acceptance test”).
+    - **Acceptance test** (window + input + render loop on the **current** IR, not engine v2): run [`testdata/pretty_window.mb`](testdata/pretty_window.mb) on **Windows x64** and **Linux x64** with `CGO_ENABLED=1` using the **full runtime**, e.g. `go run -tags fullruntime ./cmd/moonrun testdata/pretty_window.mb` (plain `go run .` only compiles to `.mbc`). The sample exits on **ESC** or **window close** (`Window.ShouldClose`). Operator **`NOT` vs `OR`** is specified in **`ARCHITECTURE.md` §7**; full checklist, FPS meaning, **`--info`**, and CI are under **`ARCHITECTURE.md` §9** (“Acceptance test”).
     - Additional manual smoke: [`testdata/rayloop.mb`](testdata/rayloop.mb).
 
 1.  **Rendering Engine (Raylib-Go)**:
@@ -64,6 +64,6 @@ The goal for Phase B is to implement the actual implementation of engine command
 - `go test ./...`: Full test suite coverage.
 
 ### Manual Verification
-- `moonbasic --trace script.mbc`: Verify the Golden Trace is clean (depth=0 at halt).
-- `moonbasic --check source.mb`: Verify the manifest-driven semantic pass correctly catches typos.
-- **Raylib acceptance**: `CGO_ENABLED=1 go run . testdata/pretty_window.mb` on Windows and Linux (see **`ARCHITECTURE.md` §9**). Optional: `moonbasic --info testdata/pretty_window.mb` for runtime banner + bytecode listing; with CGO, throttled **GetFPS** lines on stderr during the loop. **`moonbasic --version`** prints version and the same runtime library line.
+- `moonrun --trace script.mbc`: Verify the Golden Trace is clean (depth=0 at halt) — requires a **fullruntime**-built `moonrun` (or `go run -tags fullruntime ./cmd/moonrun --trace …`).
+- `moonbasic --check source.mb`: Verify the manifest-driven semantic pass correctly catches typos (compiler-only binary).
+- **Raylib acceptance**: `CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun testdata/pretty_window.mb` on Windows and Linux (see **`ARCHITECTURE.md` §9**). Optional: fullruntime **`moonbasic --info`** on a script for runtime banner + bytecode listing before run. **`moonbasic --version`** prints compiler version (use **`moonrun --version`** for the game runtime line when using release binaries).

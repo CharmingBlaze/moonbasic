@@ -471,14 +471,26 @@ func (m *Module) drawPoint3D(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) drawGrid(args []value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("DRAW3D.GRID expects 2 arguments (slices, spacing)")
+	if len(args) != 2 && len(args) != 3 {
+		return value.Nil, fmt.Errorf("DRAW3D.GRID expects 2 arguments (slices, spacing) or 3 (slices, spacing, yOffset)")
 	}
 	slices, ok1 := argInt(args[0])
 	spacing, ok2 := argFloat(args[1])
 	if !ok1 || !ok2 {
-		return value.Nil, fmt.Errorf("GRID: arguments must be numeric")
+		return value.Nil, fmt.Errorf("GRID: slices/spacing must be numeric")
 	}
-	rl.DrawGrid(slices, spacing)
+	if len(args) == 3 {
+		yOff, ok3 := argFloat(args[2])
+		if !ok3 {
+			return value.Nil, fmt.Errorf("GRID: yOffset must be numeric")
+		}
+		// DrawGrid is fixed on Y=0; lift slightly above entity floors to avoid z-fighting / shimmer.
+		rl.PushMatrix()
+		rl.Translatef(0, float32(yOff), 0)
+		rl.DrawGrid(int32(slices), float32(spacing))
+		rl.PopMatrix()
+		return value.Nil, nil
+	}
+	rl.DrawGrid(int32(slices), float32(spacing))
 	return value.Nil, nil
 }

@@ -1,10 +1,28 @@
 ; Third-person hop: rule collisions, camera-relative walk (no forced player yaw), coyote jump, orbit camera.
 ; Run: go run -tags fullruntime . --run examples/mario64/main_entities.mb
+;
+; Orbit camera (pure math, no collision): yaw/pitch/distance → spherical offset from target; camera looks at target.
+; Mouse deltas: INPUT.MOUSEXSPEED / INPUT.MOUSEYSPEED (same frame as Render.Clear). Orbit only while orbit button held.
+; Wheel adjusts distance (clamped). CAMERA.ORBITENTITY applies yaw/pitch/distance + look-at.
 
 CONST TYPE_PLAYER = 1
 CONST TYPE_GROUND = 2
+; Which button must be held to orbit: 0 = left, 1 = right, 2 = middle (Raylib / INPUT.MOUSEDOWN).
+CONST ORBIT_MOUSE_BTN = 1
+; Radians per pixel (GetMouseDelta). Tune for feel.
+CONST ORBIT_YAW_SENS = 0.0032
+CONST ORBIT_PITCH_SENS = 0.0032
+; Pitch limits (radians). ~80° above horizon max; small floor so you cannot look under the floor.
+CONST PITCH_MIN = -0.12
+CONST PITCH_MAX = 1.396
+; Zoom: wheel scales distance; clamped.
+CONST DIST_MIN = 2.5
+CONST DIST_MAX = 24.0
+CONST ZOOM_WHEEL = 0.9
 
-Window.Open(960, 540, "moonBASIC — entity + collision hop")
+; MSAA before OPEN (see WINDOW.SETMSAA) — smoother grid/edges; less harsh aliasing at the horizon.
+SetMSAA(4)
+Window.Open(960, 540, "moonBASIC - entity hop (entities + collisions)")
 Window.SetFPS(60)
 
 cam = CreateCamera()
@@ -12,12 +30,13 @@ cam.SetFOV(55)
 
 COLLISIONS(TYPE_PLAYER, TYPE_GROUND, 2, 2)
 
-; Floor
+; Floor (top face slightly below Y=0 so Draw3D.Grid at Y=0 does not z-fight with this slab)
 floor = CreateCube()
 ScaleEntity(floor, 48.0, 0.5, 48.0)
-PositionEntity(floor, 0.0, -0.25, 0.0, TRUE)
+PositionEntity(floor, 0.0, -0.27, 0.0, TRUE)
 EntityType(floor, TYPE_GROUND)
-EntityColor(floor, 55, 78, 120, 255)
+; Floor: distinct from sky (72,92,140) so the slab reads as terrain, not empty blue.
+EntityColor(floor, 38, 48, 72, 255)
 
 ; Shared template for platforms (type + mesh); scale/color per instance
 platProto = CreateCube()
@@ -58,28 +77,38 @@ ScaleEntity(hat, 0.35, 0.35, 0.35)
 PositionEntity(hat, 0.0, 0.85, 0.0, FALSE)
 EntityColor(hat, 70, 255, 140, 255)
 
+; Spherical orbit state: yaw, pitch, distance — Camera.OrbitEntity + EntityMoveCameraRelative.
 camYaw = 0.0
 camPitch = 0.22
 cd = 7.5
 moveSpd = 11.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    ; RENDER.CLEAR starts the frame (BeginDrawing + input poll). Read mouse speed after this.
+    Render.Clear(72, 92, 140)
     dt = Time.Delta()
     IF dt <= 0.0 THEN dt = 0.0167
     IF dt > 0.05 THEN dt = 0.05
 
-    IF Input.MouseDown(1) THEN
-        camYaw = camYaw + FLOAT(INPUT.MOUSEDELTAX()) * 0.0055
-        camPitch = camPitch - FLOAT(INPUT.MOUSEDELTAY()) * 0.0055
+    dx = INPUT.MOUSEXSPEED()
+    dy = INPUT.MOUSEYSPEED()
+    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+        camYaw = camYaw + dx * ORBIT_YAW_SENS
+        camPitch = camPitch - dy * ORBIT_PITCH_SENS
     ENDIF
+    IF camPitch < PITCH_MIN THEN camPitch = PITCH_MIN
+    IF camPitch > PITCH_MAX THEN camPitch = PITCH_MAX
+
     mw = INPUT.MOUSEWHEELMOVE()
-    cd = cd - mw * 0.9
-    IF cd < 2.5 THEN cd = 2.5
-    IF cd > 24.0 THEN cd = 24.0
+    cd = cd - mw * ZOOM_WHEEL
+    IF cd < DIST_MIN THEN cd = DIST_MIN
+    IF cd > DIST_MAX THEN cd = DIST_MAX
+
     IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.35 * dt
     IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.35 * dt
-    IF camPitch > 1.4 THEN camPitch = 1.4
-    IF camPitch < -0.1 THEN camPitch = -0.1
+
+    ; Orbit with current yaw before movement so EntityMoveCameraRelative matches what you see (same frame).
+    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
 
     f = 0.0
     s = 0.0
@@ -95,14 +124,21 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         ApplyEntityImpulse(player, 0.0, 10.5, 0.0)
     ENDIF
 
+    ; Follow player after physics (position may have changed).
     Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
 
-    Render.Clear(72, 92, 140)
     RENDER.Begin3D(cam)
         DrawEntities()
+        ; Reference grid: wider spacing + fewer divisions reduces horizon moire; Y offset clears floor slab (top ~ -0.02).
+        Draw3D.Grid(14, 2.0, 0.04)
+        ; Wire boxes slightly above platform centers so outlines do not z-fight with solid cubes.
+        Draw3D.CubeWires(0.0, 1.53, 6.0, 4.05, 0.45, 4.05, 255, 255, 255, 200)
+        Draw3D.CubeWires(-3.5, 2.53, 10.0, 2.55, 0.4, 2.55, 255, 255, 255, 180)
+        Draw3D.CubeWires(4.0, 3.23, 14.0, 2.05, 0.35, 2.05, 255, 255, 255, 180)
+        Draw3D.CubeWires(0.0, 4.03, 18.0, 3.05, 0.4, 3.05, 255, 255, 255, 180)
     RENDER.END3D()
 
-    Draw.Text("ENTITY hop — EntityMoveCameraRelative + coyote EntityGrounded + Camera.OrbitEntity  |  RMB  wheel  Q/E  WASD  SPACE  ESC", 12, 10, 15, 245, 250, 255, 255)
+    Draw.Text("ENTITY hop - hold orbit btn (ORBIT_MOUSE_BTN)  wheel  Q/E  WASD  SPACE  ESC", 12, 10, 14, 245, 250, 255, 255)
     Render.Frame()
 WEND
 

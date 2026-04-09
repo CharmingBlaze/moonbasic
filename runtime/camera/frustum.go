@@ -19,9 +19,12 @@ func (p Plane) distanceToPoint(x, y, z float32) float32 {
 	return p.a*x + p.b*y + p.c*z + p.d
 }
 
-// Frustum holds six normalised planes: Left, Right, Bottom, Top, Near, Far.
+// Frustum holds the world→clip matrix (Raylib: MatrixMultiply(view, proj)) plus legacy plane forms.
+// Sphere/AABB visibility uses clip-space homogeneous tests against clipM so CPU culling matches
+// the GPU frustum (row-sum plane extraction can false-negative for moving cameras/objects).
 type Frustum struct {
 	planes [6]Plane
+	clipM  rl.Matrix
 }
 
 // projectionMatrixForFrustum matches rl.BeginMode3D + GetCameraProjectionMatrix math but uses
@@ -39,13 +42,17 @@ func projectionMatrixForFrustum(cam rl.Camera3D, aspectRatio float32) rl.Matrix 
 	return rl.MatrixPerspective(fovRad, aspectRatio, near, far)
 }
 
-// ExtractFrustum builds frustum planes from PV = projection * view (column vector: clip = PV * v).
-// Planes are extracted from the **rows** of PV (Gribb–Hartmann / clip-space convention), not from
-// columns — column-based c0..c3 produced inverted tests and culled entire scenes.
+// ExtractFrustum builds frustum planes from the world→clip matrix used with Raylib’s column-vector
+// multiply (cx = M0*x+M4*y+M8*z+M12, …). That matrix is MatrixMultiply(view, proj), which composes
+// as the same linear map as proj·view in standard math — not MatrixMultiply(proj, view).
+// Planes are extracted from the **rows** of that matrix (Gribb–Hartmann / clip-space convention).
+//
+// Use projectionMatrixForFrustum (RL cull near/far) — not rl.GetCameraProjectionMatrix, which is
+// hardcoded 0.01/1000 in raylib-go and does not match rlgl when clip planes differ.
 func ExtractFrustum(cam rl.Camera3D, aspectRatio float32) Frustum {
 	view := rl.GetCameraMatrix(cam)
 	proj := projectionMatrixForFrustum(cam, aspectRatio)
-	pv := rl.MatrixMultiply(proj, view)
+	pv := rl.MatrixMultiply(view, proj)
 
 	// Row i in column-major storage: (M[i], M[i+4], M[i+8], M[i+12])
 	r0 := [4]float32{pv.M0, pv.M4, pv.M8, pv.M12}
@@ -57,12 +64,39 @@ func ExtractFrustum(cam rl.Camera3D, aspectRatio float32) Frustum {
 	f.planes[0] = normalisePlane(planeAdd(r3, r0)) // left
 	f.planes[1] = normalisePlane(planeSub(r3, r0)) // right
 	f.planes[2] = normalisePlane(planeAdd(r3, r1)) // bottom
-	// Top and far half-spaces are inverted vs the usual row-sum recipe for rl.MatrixPerspective;
-	// without negation, center-of-frustum points fail PointVisible and entity culling drops all draws.
+	// Top and far half-spaces: negate vs raw r3-r1 / r3-r2 for rl.MatrixPerspective + row extraction; see tests.
 	f.planes[3] = normalisePlane(negatePlane(planeSub(r3, r1))) // top
 	f.planes[4] = normalisePlane(planeAdd(r3, r2))              // near
 	f.planes[5] = normalisePlane(negatePlane(planeSub(r3, r2))) // far
+	f.clipM = pv
 	return f
+}
+
+// clipPointInsideNDC returns true if (x,y,z,1) projects inside the default NDC cube [-1,1] on all
+// axes after perspective divide — matches OpenGL clip + perspective behavior used with rl.BeginMode3D.
+func clipPointInsideNDC(pv rl.Matrix, x, y, z float32) bool {
+	cx := pv.M0*x + pv.M4*y + pv.M8*z + pv.M12
+	cy := pv.M1*x + pv.M5*y + pv.M9*z + pv.M13
+	cz := pv.M2*x + pv.M6*y + pv.M10*z + pv.M14
+	cw := pv.M3*x + pv.M7*y + pv.M11*z + pv.M15
+	const eps = float32(8e-4)
+	aw := float32(math.Abs(float64(cw)))
+	if aw < 1e-6 {
+		return false
+	}
+	ndx := cx / cw
+	ndy := cy / cw
+	ndz := cz / cw
+	if ndx < -1-eps || ndx > 1+eps {
+		return false
+	}
+	if ndy < -1-eps || ndy > 1+eps {
+		return false
+	}
+	if ndz < -1-eps || ndz > 1+eps {
+		return false
+	}
+	return true
 }
 
 func planeAdd(a, b [4]float32) Plane {
@@ -87,52 +121,43 @@ func normalisePlane(p Plane) Plane {
 }
 
 // SphereVisible reports whether a sphere intersects the frustum (conservative).
+// Uses clip-space tests on the sphere's axis-aligned bounding box corners vs clipM.
 func (f Frustum) SphereVisible(cx, cy, cz, r float32) bool {
-	for i := 0; i < 6; i++ {
-		p := &f.planes[i]
-		if p.a*cx+p.b*cy+p.c*cz+p.d < -r {
-			return false
+	if r < 0 {
+		r = 0
+	}
+	x0, x1 := cx-r, cx+r
+	y0, y1 := cy-r, cy+r
+	z0, z1 := cz-r, cz+r
+	for _, x := range []float32{x0, x1} {
+		for _, y := range []float32{y0, y1} {
+			for _, z := range []float32{z0, z1} {
+				if clipPointInsideNDC(f.clipM, x, y, z) {
+					return true
+				}
+			}
 		}
 	}
-	return true
+	return false
 }
 
-// AABBVisible tests an axis-aligned box against the frustum (positive-vertex method).
+// AABBVisible tests an axis-aligned box against the frustum (8 clip-space corners).
 func (f Frustum) AABBVisible(minX, minY, minZ, maxX, maxY, maxZ float32) bool {
-	for i := 0; i < 6; i++ {
-		p := &f.planes[i]
-		var px, py, pz float32
-		if p.a >= 0 {
-			px = maxX
-		} else {
-			px = minX
-		}
-		if p.b >= 0 {
-			py = maxY
-		} else {
-			py = minY
-		}
-		if p.c >= 0 {
-			pz = maxZ
-		} else {
-			pz = minZ
-		}
-		if p.a*px+p.b*py+p.c*pz+p.d < 0 {
-			return false
+	for _, x := range []float32{minX, maxX} {
+		for _, y := range []float32{minY, maxY} {
+			for _, z := range []float32{minZ, maxZ} {
+				if clipPointInsideNDC(f.clipM, x, y, z) {
+					return true
+				}
+			}
 		}
 	}
-	return true
+	return false
 }
 
-// PointVisible returns true if the point is on the visible side of all planes.
+// PointVisible returns true if the world point projects inside the clip volume.
 func (f Frustum) PointVisible(x, y, z float32) bool {
-	for i := 0; i < 6; i++ {
-		p := &f.planes[i]
-		if p.a*x+p.b*y+p.c*z+p.d < 0 {
-			return false
-		}
-	}
-	return true
+	return clipPointInsideNDC(f.clipM, x, y, z)
 }
 
 // WithinDistance is true if (cx,cy,cz) is within maxDist of (camX,camY,camZ) — squared distance only.

@@ -157,17 +157,25 @@ Use this alongside the loop in **§3**:
 
 ## 11. Running repository demos
 
-From the **repository root** (so relative paths behave as documented):
+From the **repository root** (so relative paths behave as documented).
+
+**Compile only** (writes `main.mbc` next to the source — no window):
 
 ```bash
 CGO_ENABLED=1 go run . examples/spin_cube/main.mb
+```
+
+**Run the game** (opens a window — use `moonrun` or fullruntime):
+
+```bash
+CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
 ```
 
 On Windows (PowerShell):
 
 ```powershell
 $env:CGO_ENABLED="1"
-go run . examples\spin_cube\main.mb
+go run -tags fullruntime ./cmd/moonrun examples\spin_cube\main.mb
 ```
 
-See [examples/README.md](../examples/README.md) for the full list.
+See [examples/README.md](../examples/README.md) and [DEVELOPER.md](DEVELOPER.md) for the full list and build-tag details.

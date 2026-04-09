@@ -133,21 +133,23 @@ go build -o moonbasic.exe .
 CGO_ENABLED=1 go build -o moonbasic .
 ```
 
-#### 3. Run Your First Program
+#### 3. Run your first graphical program
 
-From the repo root (requires **CGO**):
+Plain `go run . file.mb` **only compiles** to `.mbc` (compiler-only build). To **open a window**, use the full runtime:
+
+```bash
+CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
+```
+
+Compile to bytecode only:
 
 ```bash
 CGO_ENABLED=1 go run . examples/spin_cube/main.mb
 ```
 
-Or use a built binary:
+Or use built binaries: **`moonbasic mygame.mb`** writes `mygame.mbc`; **`moonrun mygame.mb`** runs it (from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) or `go build -tags fullruntime ./cmd/moonrun`).
 
-```bash
-./moonbasic mygame.mb
-```
-
-More samples: [examples/README.md](examples/README.md).
+More samples and Windows notes: [examples/README.md](examples/README.md). Contributor commands: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/DEVELOPER.md](docs/DEVELOPER.md).
 
 ---
 
@@ -155,6 +157,8 @@ More samples: [examples/README.md](examples/README.md).
 
 | Document | What it covers |
 |---|---|
+| [Contributing](CONTRIBUTING.md) | PR workflow, compile vs run, changing builtins. |
+| [Developer guide](docs/DEVELOPER.md) | Repo layout, build tags, command cheat sheet. |
 | [Getting Started](docs/GETTING_STARTED.md) | Installation, first window, core ideas. |
 | [Programming Guide](docs/PROGRAMMING.md) | Game loop, command style, 2D/3D, CGO and platforms. |
 | [Language Reference](docs/LANGUAGE.md) | Variables, types, loops, functions. |
@@ -201,7 +205,7 @@ More samples: [examples/README.md](examples/README.md).
 
 ## Contributing
 
-Contributions are welcome. This project is under active development. Start with `COMMAND_AUDIT.txt` for command implementation status (`DONE`, `PARTIAL`, `MISSING`). Closing gaps there is a great first contribution.
+Contributions are welcome. Start with **[CONTRIBUTING.md](CONTRIBUTING.md)** and **[docs/DEVELOPER.md](docs/DEVELOPER.md)** for build modes, tests, and where code lives. For a deep dive into builtin coverage, see **`COMMAND_AUDIT.txt`** (`DONE`, `PARTIAL`, `MISSING`). AI/editor context: **[AGENTS.md](AGENTS.md)**.
 
 ---
 

@@ -3,6 +3,8 @@
 
 Window.Open(960, 540, "moonBASIC — simple 3D hop")
 Window.SetFPS(60)
+; Hide the OS cursor during play; restore before close. See docs/reference/INPUT.md (Cursor).
+CURSOR.HIDE()
 
 cam = Camera.Make()
 cam.SetFOV(55)
@@ -20,15 +22,30 @@ camYaw = 0.0
 camPitch = 0.22
 cd = 7.5
 moveSpd = 11.0
+orbitHavePrev = FALSE
+orbitPx = 0.0
+orbitPy = 0.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    ; Begin frame before sampling mouse — raylib polls input inside BeginDrawing (first RENDER.CLEAR).
+    Render.Clear(72, 92, 140)
     dt = Time.Delta()
     IF dt > 0.05 THEN dt = 0.05
 
-    ; Orbit: hold right mouse and drag (yaw/pitch). Scroll = zoom. Q/E = yaw only.
-    IF Input.MouseDown(1) THEN
-        camYaw = camYaw + FLOAT(INPUT.MOUSEDELTAX()) * 0.0055
-        camPitch = camPitch - FLOAT(INPUT.MOUSEDELTAY()) * 0.0055
+    ; Orbit: drag with RMB/LMB/MMB — screen position delta (MOUSEDELTA is often 0 on Windows with visible cursor).
+    orbitGrab = Input.MouseDown(0) OR Input.MouseDown(1) OR Input.MouseDown(2)
+    IF orbitGrab THEN
+        mx = FLOAT(INPUT.MOUSEX())
+        my = FLOAT(INPUT.MOUSEY())
+        IF orbitHavePrev THEN
+            camYaw = camYaw + (mx - orbitPx) * 0.006
+            camPitch = camPitch - (my - orbitPy) * 0.006
+        ENDIF
+        orbitPx = mx
+        orbitPy = my
+        orbitHavePrev = TRUE
+    ELSE
+        orbitHavePrev = FALSE
     ENDIF
     mw = INPUT.MOUSEWHEELMOVE()
     cd = cd - mw * 0.9
@@ -106,7 +123,6 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     Camera.SetOrbit(cam, px, py + 0.2, pz, camYaw, camPitch, cd)
 
-    Render.Clear(72, 92, 140)
     cam.Begin()
         Draw3D.Plane(0.0, 0.0, 0.0, 48.0, 48.0, 55, 78, 120, 255)
         Draw3D.Grid(24, 1.0)
@@ -136,5 +152,6 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     Render.Frame()
 WEND
 
+CURSOR.SHOW()
 Camera.Free(cam)
 Window.Close()

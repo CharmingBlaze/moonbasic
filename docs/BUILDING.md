@@ -100,3 +100,7 @@ go build -o moonbasic .
 ```
 
 After a successful build, you can run the interpreter directly or add it to your system's PATH to run it from any directory.
+
+---
+
+**See also:** [DEVELOPER.md](DEVELOPER.md) (command cheat sheet, compile vs run), [CONTRIBUTING.md](../CONTRIBUTING.md).

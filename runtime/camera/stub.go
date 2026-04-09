@@ -52,6 +52,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.TURNLEFT", "camera", stub("CAMERA.TURNLEFT"))
 	r.Register("CAMERA.TURNRIGHT", "camera", stub("CAMERA.TURNRIGHT"))
 	r.Register("CAMERA.ORBITCAMERA", "camera", stub("CAMERA.ORBITCAMERA"))
+	r.Register("CAMERA.SMOOTHEXP", "camera", m.camSmoothExp)
 	r.Register("CAMERA.TURN", "camera", stub("CAMERA.TURN"))
 	r.Register("CAMERA.ROTATE", "camera", stub("CAMERA.ROTATE"))
 	r.Register("CAMERA.ORBIT", "camera", stub("CAMERA.ORBIT"))

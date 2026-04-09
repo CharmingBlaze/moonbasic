@@ -98,6 +98,35 @@ Returns the current X or Y coordinate of the mouse cursor.
 
 ---
 
+## Cursor
+
+Registry names are prefixed with **`CURSOR.`** (e.g. **`CURSOR.HIDE()`**). Use these for games that should not show the system pointer over the window.
+
+### `CURSOR.HIDE()` / `CURSOR.SHOW()`
+
+- **`CURSOR.HIDE()`** — Hides the **OS mouse cursor** while it is over the window. **Mouse position still updates** (`INPUT.MOUSEX` / `INPUT.MOUSEY`); only the drawn pointer disappears.
+- **`CURSOR.SHOW()`** — Shows the cursor again.
+
+Call **`CURSOR.HIDE()`** after **`WINDOW.OPEN`** (or once the player is “in game”), and call **`CURSOR.SHOW()`** before **`WINDOW.CLOSE`** so the shell / desktop gets a visible cursor back after exit.
+
+**3D orbit / drag:** Hiding the cursor does **not** enable “FPS mode” or raw mouse deltas. For **game-style** play, use **`CURSOR.DISABLE()`** so the virtual cursor stays **centered** and **`INPUT.MOUSEDELTAX`** / **`INPUT.MOUSEDELTAY`** report movement (see **`examples/mario64/main_entities.mb`**). Optionally call **`INPUT.SETMOUSEPOS(cx, cy)`** once after **`WINDOW.OPEN`** (e.g. half of width/height) to park the hardware cursor before relative mode.
+
+### `INPUT.SETMOUSEPOS(x, y)`
+
+Warps the mouse to **client-area pixel** coordinates. Often used with **`CURSOR.DISABLE()`** to re-seat the cursor after **`WINDOW.OPEN`** or when regaining focus.
+
+### `CURSOR.DISABLE()` / `CURSOR.ENABLE()` (raw / relative mouse)
+
+- **`CURSOR.DISABLE()`** — Raylib **disables** the cursor and switches to **relative** mouse mode (movement reported as deltas; pointer behaves like a centered “virtual” game cursor). Pair with **`CURSOR.ENABLE()`** before showing the OS cursor again (e.g. before **`WINDOW.CLOSE`**).
+- Prefer **`CURSOR.HIDE()`** only if you need the pointer invisible but still want **absolute** **`INPUT.MOUSEX`** / **`INPUT.MOUSEY`** (no relative deltas).
+
+### Other
+
+- **`CURSOR.ISHIDDEN()`** — Whether the cursor is currently hidden.
+- **`CURSOR.SET(id)`** — Sets the system cursor shape (Raylib / platform cursor id).
+
+---
+
 ## Action Mapping
 
 The action mapping system is a powerful way to handle input. Instead of checking for specific keys, you define abstract "actions" and then check the state of those actions. This makes it easy to support multiple input devices and allow for user-configurable controls.
