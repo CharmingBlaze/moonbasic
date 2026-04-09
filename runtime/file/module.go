@@ -84,6 +84,8 @@ func (m *Module) Register(r runtime.Registrar) {
 		return m.Run(rt, "FILE.WRITELN", args...)
 	})
 	m.registerFileExtras(r)
+	m.registerFileBlitz(r)
+	m.registerBankTransfer(r)
 }
 
 // Shutdown implements runtime.Module.

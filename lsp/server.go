@@ -132,8 +132,10 @@ func (s *server) handleRequest(method string, params json.RawMessage) reqResult 
 				"completionProvider": map[string]any{
 					"triggerCharacters": []string{"."},
 				},
+				"documentSymbolProvider": true,
+				"definitionProvider":     true,
 			},
-			"serverInfo": map[string]string{"name": "moonbasic-lsp", "version": "0.1"},
+			"serverInfo": map[string]string{"name": "moonbasic-lsp", "version": "0.2"},
 		}}
 	case "shutdown":
 		return reqResult{result: nil}
@@ -141,9 +143,45 @@ func (s *server) handleRequest(method string, params json.RawMessage) reqResult 
 		return reqResult{result: s.hover(params)}
 	case "textDocument/completion":
 		return reqResult{result: s.completion(params)}
+	case "textDocument/documentSymbol":
+		return reqResult{result: s.documentSymbolRequest(params)}
+	case "textDocument/definition":
+		return reqResult{result: s.definitionRequest(params)}
 	default:
 		return reqResult{result: nil}
 	}
+}
+
+func (s *server) documentSymbolRequest(params json.RawMessage) any {
+	var p struct {
+		TextDocument struct {
+			URI string `json:"uri"`
+		} `json:"textDocument"`
+	}
+	_ = json.Unmarshal(params, &p)
+	text := s.docs[p.TextDocument.URI]
+	if text == "" {
+		return []any{}
+	}
+	return s.documentSymbols(p.TextDocument.URI, text)
+}
+
+func (s *server) definitionRequest(params json.RawMessage) any {
+	var p struct {
+		TextDocument struct {
+			URI string `json:"uri"`
+		} `json:"textDocument"`
+		Position struct {
+			Line      int `json:"line"`
+			Character int `json:"character"`
+		} `json:"position"`
+	}
+	_ = json.Unmarshal(params, &p)
+	text := s.docs[p.TextDocument.URI]
+	if text == "" {
+		return nil
+	}
+	return s.definitionLocation(p.TextDocument.URI, text, p.Position.Line, p.Position.Character)
 }
 
 func (s *server) publishDiagnostics(uri, text string) {

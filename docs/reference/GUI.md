@@ -15,7 +15,7 @@ Bindings follow [raylib-go raygui](https://github.com/gen2brain/raylib-go/tree/m
 ## Typical frame order
 
 1. `Render.Clear(...)` (and your scene)
-2. Optional: `Render.BeginMode2D()` / `Camera.Begin()` if you draw in screen or 2D space
+2. Optional: `Camera2D.Begin()` / `Camera.Begin()` if you draw in screen or 2D / 3D space
 3. `GUI.*` for this frame
 4. `Render.Frame()` / end camera
 

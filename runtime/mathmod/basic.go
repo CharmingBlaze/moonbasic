@@ -2,12 +2,14 @@ package mathmod
 
 import (
 	"math"
+	"time"
 
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+// Wall-clock ms since package init (avoids importing raylib for MILLISECS; stable across GOOS/ARCH).
+var millisecsEpoch = time.Now()
 
 func (m *Module) registerBasic(r runtime.Registrar) {
 	regFlat := func(short, long string, fn runtime.BuiltinFn) {
@@ -143,6 +145,8 @@ func (m *Module) registerBasic(r runtime.Registrar) {
 		if len(args) != 0 {
 			return value.Nil, errNArgs(0, len(args))
 		}
-		return value.FromInt(int64(rl.GetTime() * 1000.0)), nil
+		// Float64 ms (sub-millisecond precision; matches MoonBasic 3D spec).
+		ms := float64(time.Since(millisecsEpoch).Nanoseconds()) / 1e6
+		return value.FromFloat(ms), nil
 	})
 }

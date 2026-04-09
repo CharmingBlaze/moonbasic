@@ -11,23 +11,47 @@ import (
 // It saves and restores the operand stack and call stack depth so it can be used from
 // native code while the VM is executing (e.g. physics collision processing).
 // The function name is matched case-insensitively against Program.Functions keys.
-func (v *VM) CallUserFunction(name string, args []value.Value) (value.Value, error) {
+func (v *VM) CallUserFunction(name string, args []value.Value) (ret value.Value, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = v.runtimeError(fmt.Sprintf("VM Panic Recovery: %v", r))
+			if v.Registry != nil && err != nil {
+				v.Registry.SetLastScriptError(err)
+			}
+		}
+	}()
+
 	if v.Program == nil {
 		return value.Nil, fmt.Errorf("no program loaded")
 	}
 	key := strings.ToUpper(strings.TrimSpace(name))
 	chunk, ok := v.Program.Functions[key]
 	if !ok {
-		return value.Nil, fmt.Errorf("undefined function: %s", key)
+		err = fmt.Errorf("undefined function: %s", key)
+		if v.Registry != nil {
+			v.Registry.SetLastScriptError(err)
+		}
+		return value.Nil, err
 	}
 
 	baseDepth := v.CallStack.Depth()
-	baseLen := len(v.Stack)
-
-	for _, a := range args {
-		v.push(a)
+	
+	// We'll use register 255 of the CURRENT top frame to receive the return value.
+	// If there are no frames, we have a problem. 
+	// Usually CallUserFunction is called during execution or we can push a dummy frame.
+	var retReg uint8 = 255
+	
+	// Push the new frame
+	v.CallStack.Push(chunk, 0, retReg)
+	newFrame := v.CallStack.Top()
+	
+	// Pass arguments in R0, R1...
+	for idx, a := range args {
+		if idx < 256 {
+			newFrame.Registers[idx] = a
+		}
 	}
-	v.CallStack.Push(chunk, 0, len(v.Stack)-len(args))
+
 	targetDepth := baseDepth + 1
 
 	for v.CallStack.Depth() >= targetDepth {
@@ -41,22 +65,27 @@ func (v *VM) CallUserFunction(name string, args []value.Value) (value.Value, err
 		}
 		instr := frame.Chunk.Instructions[frame.IP]
 		frame.IP++
-		if err := v.step(instr); err != nil {
-			v.Stack = v.Stack[:baseLen]
+		if stepErr := v.step(instr); stepErr != nil {
 			for v.CallStack.Depth() > baseDepth {
 				v.CallStack.Pop()
 			}
-			return value.Nil, err
+			err = stepErr
+			if v.Registry != nil {
+				v.Registry.SetLastScriptError(stepErr)
+			}
+			return value.Nil, stepErr
 		}
 	}
 
-	var ret value.Value
-	if len(v.Stack) > baseLen {
-		ret = v.Stack[len(v.Stack)-1]
-		v.Stack = v.Stack[:baseLen]
-	} else {
-		ret = value.Nil
+	// After the function returns, the result should be in the parent's retReg.
+	ret = value.Nil
+	parent := v.CallStack.Top()
+	if parent != nil {
+		ret = parent.Registers[retReg]
+		// Clear it just in case
+		parent.Registers[retReg] = value.Nil
 	}
+
 	for v.CallStack.Depth() > baseDepth {
 		v.CallStack.Pop()
 	}

@@ -220,6 +220,21 @@ func (s *Store) Count() int {
 	return n
 }
 
+// RangeObjects iterates over all live objects in the heap and calls fn.
+// If fn returns false, iteration stops.
+func (s *Store) RangeObjects(fn func(Handle, HeapObject) bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for i := range s.entries {
+		e := &s.entries[i]
+		if e.Obj != nil {
+			if !fn(encodeHandle(uint16(i), e.Gen), e.Obj) {
+				return
+			}
+		}
+	}
+}
+
 // FilterByType returns handles for all active objects of a specific type.
 func (s *Store) FilterByType(tag uint16) []Handle {
 	s.mu.RLock()

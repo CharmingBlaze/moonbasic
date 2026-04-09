@@ -17,6 +17,7 @@ func stub(name string) runtime.BuiltinFn {
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("TEXTURE.LOAD", "texture", stub("TEXTURE.LOAD"))
 	r.Register("LOADTEXTURE", "texture", stub("LOADTEXTURE"))
+	r.Register("LoadTexture", "texture", stub("LoadTexture"))
 	r.Register("TEXTURE.FREE", "texture", stub("TEXTURE.FREE"))
 	r.Register("FREETEXTURE", "texture", stub("FREETEXTURE"))
 	r.Register("TEXTURE.FROMIMAGE", "texture", stub("TEXTURE.FROMIMAGE"))
@@ -24,6 +25,8 @@ func (m *Module) Register(r runtime.Registrar) {
 		"TEXTURE.WIDTH", "TEXTURE.HEIGHT", "TEXTUREWIDTH", "TEXTUREHEIGHT", "TEXTURE.SETFILTER", "TEXTURE.SETWRAP", "TEXTURE.UPDATE",
 		"TEXTURE.GENWHITENOISE", "TEXTURE.GENCHECKED", "TEXTURE.GENGRADIENTV", "TEXTURE.GENGRADIENTH", "TEXTURE.GENCOLOR",
 		"RENDERTARGET.MAKE", "RENDERTARGET.FREE", "RENDERTARGET.BEGIN", "RENDERTARGET.END", "RENDERTARGET.TEXTURE",
+		"CreateTexture", "LoadAnimTexture", "TextureWidth", "TextureHeight", "TextureName$",
+		"SetCubeFace", "SetCubeMode", "TextureCoords", "ScaleTexture", "RotateTexture", "PositionTexture",
 	} {
 		r.Register(k, "texture", stub(k))
 	}

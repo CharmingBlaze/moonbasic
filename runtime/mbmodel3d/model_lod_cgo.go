@@ -42,6 +42,7 @@ func registerModelLOD(m *Module, reg runtime.Registrar) {
 			}
 			lo.models[i] = mod
 		}
+		lo.setFinalizer()
 		id, err := m.h.Alloc(lo)
 		if err != nil {
 			lo.Free()

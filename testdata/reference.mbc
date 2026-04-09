@@ -42,6 +42,7 @@ player.SetMass(80)
 Physics3D.OnCollision(player, ground, "OnLand")
 
 mus = Audio.LoadMusic("assets/theme.ogg")
+landSnd = Audio.LoadSound("assets/land.wav")
 mus.Play()
 
 WHILE NOT Input.KeyDown(KEY_ESCAPE)

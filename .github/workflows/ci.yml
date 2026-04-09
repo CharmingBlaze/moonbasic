@@ -155,6 +155,21 @@ jobs:
         env:
           CGO_ENABLED: '0'
 
+  # DB.* via modernc.org/sqlite (no mattn CGO); complements stub-only default stubs.
+  linux_cgo_zero_modernc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.3'
+
+      - name: Test with CGO disabled and modernc SQLite tag
+        run: go test -tags modernc_sqlite ./...
+        env:
+          CGO_ENABLED: '0'
+
   stub-only:
     runs-on: ubuntu-latest
     steps:

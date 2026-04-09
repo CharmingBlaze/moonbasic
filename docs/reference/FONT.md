@@ -30,7 +30,7 @@ Unloads a font from memory. This is important to prevent memory leaks.
 
 ### `Draw.TextFont(fontHandle, text$, x, y, size, spacing, r, g, b, a)`
 
-Draws text using a loaded font. This must be called within a `Render.BeginMode2D()` / `Render.EndMode2D()` block.
+Draws text using a loaded font. This must be called within a **`Camera2D.Begin()`** / **`Camera2D.End()`** block (or between **`Camera2D.Begin(cam)`** / **`Camera2D.End()`** when using a 2D camera handle).
 
 - `fontHandle`: The handle of the font to use.
 - `text$`: The string to draw.
@@ -61,13 +61,13 @@ ENDIF
 WHILE NOT Window.ShouldClose()
     Render.Clear(50, 60, 70)
 
-    Render.BeginMode2D()
+    Camera2D.Begin()
         ; 2. Draw text using the loaded font
         Draw.TextFont(my_font, "Hello, moonBASIC!", 100, 200, 48, 2, 255, 200, 100, 255)
 
         ; You can still use the default font for other text
         Draw.Text("This is the default system font.", 100, 300, 20, 200, 200, 200, 255)
-    Render.EndMode2D()
+    Camera2D.End()
 
     Render.Frame()
 WEND

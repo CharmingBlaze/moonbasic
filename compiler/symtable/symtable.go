@@ -1,10 +1,26 @@
-// Package symtable tracks symbols for parsing and code generation.
-// Names are stored as lexed (uppercased); suffixes # $ ? are part of the string, so
-// X and X# are distinct symbols (Blitz-style).
+// Package symtable tracks variables, types, and functions for parsing and code generation.
+//
+// The Symbol Table is a crucial component of the compiler pipeline. It operates by
+// maintaining a stack of scopes (global, function, block) and maps identifiers to
+// their symbol metadata (Kind, Type, storage slot).
+//
+// It serves two main purposes:
+//  1. Parsing Context: Allows the parser to distinguish between a function call
+//     and an array access `VAR(1)` by querying if `VAR` is a known function or array.
+//  2. Semantic & Gen Context: Allows the semantic analyzer to verify missing variables,
+//     and allows the code generator to map locals or parameters to bytecode registry slots.
+//
+// Identifiers are stored exactly as lexed (typically uppercased). Suffixes like
+// `#`, `$`, `?` are preserved as part of the identifier string, meaning that in
+// moonBASIC, `HEALTH` and `HEALTH#` are two distinct symbols (consistent with Blitz).
 package symtable
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
+
+	"moonbasic/compiler/types"
 )
 
 // Kind classifies a symbol.
@@ -21,12 +37,37 @@ const (
 	Static // function-local static; storage key in Symbol.StaticKey
 )
 
+var kindNames = [...]string{
+	None:    "none",
+	Var:     "var",
+	Local:   "local",
+	Param:   "param",
+	Func:    "func",
+	TypeSym: "type",
+	Const:   "const",
+	Static:  "static",
+}
+
+func (k Kind) String() string {
+	if k < 0 || int(k) >= len(kindNames) {
+		return fmt.Sprintf("Kind(%d)", k)
+	}
+	return kindNames[k]
+}
+
+func (k Kind) MarshalJSON() ([]byte, error) {
+	return json.Marshal(k.String())
+}
+
 // Symbol is one entry in a scope.
 type Symbol struct {
 	Name      string
 	Kind      Kind
-	Slot      int    // local/param slot index when applicable
-	StaticKey string // globals key for KindStatic (FUNCNAME`VARNAME)
+	Type      types.Tag // inferred or declared type
+	Slot      int       // local/param slot index when applicable
+	StaticKey string    // globals key for KindStatic (FUNCNAME`VARNAME)
+	// Persistent is true for implicit global declarations (no VAR): lifetime is script-wide, not per statement.
+	Persistent bool
 }
 
 // Table is a stack of scopes plus global declarations.
@@ -210,3 +251,61 @@ func (t *Table) Funcs() map[string]bool { return t.funcs }
 
 // Types returns a read-only view of the declared type names.
 func (t *Table) Types() map[string]bool { return t.types }
+
+// NextLocal returns the total number of local slots (locals + params) defined so far.
+func (t *Table) NextLocal() int {
+	return t.nextLocal
+}
+
+// ForEachGlobal invokes fn for every entry in the global map (variables, consts, funcs, types).
+// Used by LSP and tooling; do not mutate symbols from fn.
+func (t *Table) ForEachGlobal(fn func(name string, sym *Symbol)) {
+	for n, s := range t.globals {
+		fn(n, s)
+	}
+}
+
+// ExportJSON returns a JSON representation of the global symbol table.
+// Useful for LSP integration and compiler diagnostics.
+func (t *Table) ExportJSON() ([]byte, error) {
+	type export struct {
+		Globals map[string]*Symbol `json:"globals"`
+		Funcs   []string           `json:"funcs"`
+		Types   []string           `json:"types"`
+	}
+	e := export{
+		Globals: t.globals,
+		Funcs:   make([]string, 0, len(t.funcs)),
+		Types:   make([]string, 0, len(t.types)),
+	}
+	for f := range t.funcs {
+		e.Funcs = append(e.Funcs, f)
+	}
+	for ty := range t.types {
+		e.Types = append(e.Types, ty)
+	}
+	return json.MarshalIndent(e, "", "  ")
+}
+
+// ExportJSONWithPath is like [Table.ExportJSON] but includes the source file path for LSP / symbols.json consumers.
+func (t *Table) ExportJSONWithPath(sourcePath string) ([]byte, error) {
+	type export struct {
+		Path    string             `json:"path"`
+		Globals map[string]*Symbol `json:"globals"`
+		Funcs   []string           `json:"funcs"`
+		Types   []string           `json:"types"`
+	}
+	e := export{
+		Path:    sourcePath,
+		Globals: t.globals,
+		Funcs:   make([]string, 0, len(t.funcs)),
+		Types:   make([]string, 0, len(t.types)),
+	}
+	for f := range t.funcs {
+		e.Funcs = append(e.Funcs, f)
+	}
+	for ty := range t.types {
+		e.Types = append(e.Types, ty)
+	}
+	return json.MarshalIndent(e, "", "  ")
+}

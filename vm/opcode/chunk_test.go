@@ -11,7 +11,7 @@ func TestChunkEmit(t *testing.T) {
 	if c.IntConsts[0] != 42 {
 		t.Fatalf("expected 42, got %d", c.IntConsts[0])
 	}
-	c.Emit(OpPushInt, idx, 0, 100)
+	c.Emit(OpPushInt, 0, 0, 0, idx, 100)
 	if len(c.Instructions) != 1 {
 		t.Fatal("expected 1 instr")
 	}

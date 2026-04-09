@@ -8,6 +8,14 @@ import (
 	"moonbasic/vm/value"
 )
 
+// blitzRuneStart converts a 1-based Blitz/MoonBasic string index to a 0-based rune offset.
+func blitzRuneStart(pos int64) int {
+	if pos < 1 {
+		return 0
+	}
+	return int(pos - 1)
+}
+
 func registerStringsSlice(r runtime.Registrar) {
 	r.Register("LEFT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
@@ -59,25 +67,26 @@ func registerStringsSlice(r runtime.Registrar) {
 		if err != nil {
 			return value.Value{}, err
 		}
-		pos, err := rt.ArgInt(args, 1) // 0-based rune index
+		// start is 1-based character index (UTF-8 runes); floats coerce via ArgInt (truncates toward zero).
+		startBlitz, err := rt.ArgInt(args, 1)
 		if err != nil {
 			return value.Value{}, err
 		}
 		runes := []rune(s)
-		ln := int64(len(runes))
+		i := int64(blitzRuneStart(startBlitz))
+		ln := int64(len(runes)) - i
 		if len(args) == 3 {
 			ln, err = rt.ArgInt(args, 2)
 			if err != nil {
 				return value.Value{}, err
 			}
 		}
-		if pos < 0 {
-			pos = 0
+		if i < 0 {
+			i = 0
 		}
-		if pos >= int64(len(runes)) {
+		if i >= int64(len(runes)) {
 			return rt.RetString(""), nil
 		}
-		i := pos
 		end := i + ln
 		if end > int64(len(runes)) {
 			end = int64(len(runes))
@@ -105,11 +114,30 @@ func registerStringsSlice(r runtime.Registrar) {
 	})
 	r.Register("STRING$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("STRING$ expects 2 arguments (n, c$)")
+			return value.Value{}, runtime.Errorf("STRING$ expects 2 arguments (n, c$) or (char$, n)")
 		}
-		n, err := rt.ArgInt(args, 0)
-		if err != nil {
-			return value.Value{}, err
+		// MoonBasic / Blitz order: (char$, n). Legacy: (n, char$) when first arg is numeric.
+		var n int64
+		var chStr string
+		var err error
+		if args[0].Kind == value.KindString {
+			chStr, err = rt.ArgString(args, 0)
+			if err != nil {
+				return value.Value{}, err
+			}
+			n, err = rt.ArgInt(args, 1)
+			if err != nil {
+				return value.Value{}, err
+			}
+		} else {
+			n, err = rt.ArgInt(args, 0)
+			if err != nil {
+				return value.Value{}, err
+			}
+			chStr, err = rt.ArgString(args, 1)
+			if err != nil {
+				return value.Value{}, err
+			}
 		}
 		if n < 0 {
 			n = 0
@@ -118,16 +146,10 @@ func registerStringsSlice(r runtime.Registrar) {
 			return value.Value{}, runtime.Errorf("STRING$: n too large")
 		}
 		ch := " "
-		if args[1].Kind == value.KindString {
-			s, err := rt.ArgString(args, 1)
-			if err != nil {
-				return value.Value{}, err
-			}
-			if s != "" {
-				r0, _ := utf8.DecodeRuneInString(s)
-				if r0 != utf8.RuneError {
-					ch = string(r0)
-				}
+		if chStr != "" {
+			r0, _ := utf8.DecodeRuneInString(chStr)
+			if r0 != utf8.RuneError {
+				ch = string(r0)
 			}
 		}
 		return rt.RetString(strings.Repeat(ch, int(n))), nil

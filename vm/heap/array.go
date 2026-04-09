@@ -13,7 +13,8 @@ const (
 	ArrayKindFloat ArrayKind = iota
 	ArrayKindString
 	ArrayKindBool
-	ArrayKindHandle // elements are heap handles (e.g. TYPE instances)
+	ArrayKindHandle  // elements are heap handles (e.g. TYPE instances)
+	ArrayKindFloat32 // shared float32 buffer (e.g. physics matrices)
 )
 
 // Array is a dense 0-based array stored on the heap as a handle.
@@ -22,11 +23,12 @@ const (
 // Handle elements use Handles (raw heap IDs; 0 = null).
 type Array struct {
 	Dims    []int64
-	Floats  []float64
-	Strings []int32
-	Handles []int32
-	Kind    ArrayKind
-	empty   bool
+	Floats   []float64
+	Floats32 []float32
+	Strings  []int32
+	Handles  []int32
+	Kind     ArrayKind
+	empty    bool
 }
 
 func productDims(dims []int64) (int64, error) {
@@ -68,8 +70,23 @@ func NewArrayOfKind(dims []int64, kind ArrayKind, emptyStrIdx int32) (*Array, er
 		}
 	case ArrayKindHandle:
 		a.Handles = make([]int32, n)
+	case ArrayKindFloat32:
+		a.Floats32 = make([]float32, n)
 	default:
 		return nil, fmt.Errorf("array: unknown kind")
+	}
+	return a, nil
+}
+
+// NewSharedArrayF32 creates an array that wraps an existing float32 slice.
+func NewSharedArrayF32(buf []float32) (*Array, error) {
+	if buf == nil {
+		return nil, fmt.Errorf("array: nil shared buffer")
+	}
+	a := &Array{
+		Dims:     []int64{int64(len(buf))},
+		Floats32: buf,
+		Kind:     ArrayKindFloat32,
 	}
 	return a, nil
 }
@@ -84,6 +101,7 @@ func (a *Array) TypeTag() uint16 { return TagArray }
 func (a *Array) Free() {
 	a.empty = true
 	a.Floats = nil
+	a.Floats32 = nil
 	a.Strings = nil
 	a.Handles = nil
 }

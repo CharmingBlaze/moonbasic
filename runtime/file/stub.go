@@ -40,6 +40,8 @@ var stubNames = []string{
 	"FILEPOS",
 	"SEEKFILE",
 	"FILESIZE",
+	"WriteFile", "ReadFile", "CloseFile", "WriteLine", "ReadLine$",
+	"WriteInt", "ReadInt", "WriteFloat", "ReadFloat",
 }
 
 // Register implements runtime.Module.
@@ -52,6 +54,7 @@ func (m *Module) Register(r runtime.Registrar) {
 			return value.Nil, runtime.Errorf("%s requires a CGO-enabled build (file I/O)", name)
 		})
 	}
+	m.registerFileBlitz(r)
 }
 
 // Shutdown implements runtime.Module.

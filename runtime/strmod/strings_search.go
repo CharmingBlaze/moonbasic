@@ -81,7 +81,7 @@ func registerStringsSearch(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.ReplaceAll(s, from, to)), nil
 	})
-	r.Register("INSTR", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	instrImpl := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) < 2 || len(args) > 3 {
 			return value.Value{}, runtime.Errorf("INSTR expects 2 or 3 arguments")
 		}
@@ -109,7 +109,9 @@ func registerStringsSearch(r runtime.Registrar) {
 			return value.FromInt(0), nil
 		}
 		return value.FromInt(int64(res + 1)), nil
-	})
+	}
+	r.Register("INSTR", "core", instrImpl)
+	r.Register("Instr", "core", instrImpl)
 	r.Register("COUNT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
 			return value.Value{}, runtime.Errorf("COUNT$ expects 2 arguments (src$, find$)")

@@ -101,6 +101,22 @@ func (t *Table) Keys() []string {
 	return keys
 }
 
+// HasArityExact reports whether any overload of a global (non-dotted) command name has exactly
+// argc parameters. Name is normalized the same way as manifest keys (see NormalizeCommand).
+func (t *Table) HasArityExact(globalName string, argc int) bool {
+	if t == nil || t.Commands == nil {
+		return false
+	}
+	k := NormalizeCommand(globalName)
+	ovs := t.Commands[k]
+	for _, c := range ovs {
+		if len(c.Args) == argc {
+			return true
+		}
+	}
+	return false
+}
+
 // FirstOverload returns the first manifest entry for key (for docs/LSP when arity is unknown).
 func (t *Table) FirstOverload(key string) (Command, bool) {
 	if t == nil || t.Commands == nil {

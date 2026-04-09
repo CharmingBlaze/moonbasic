@@ -232,6 +232,15 @@ func registerNetCommands(m *Module, reg runtime.Registrar) {
 		_ = rt
 		return eventChannel(m, args)
 	})
+
+	// Constants
+	reg.Register("NET_RELIABLE", "net", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromInt(1), nil
+	})
+	reg.Register("NET_UNRELIABLE", "net", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromInt(0), nil
+	})
+
 	registerHighLevelNet(m, reg)
 }
 

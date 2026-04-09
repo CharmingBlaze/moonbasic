@@ -5,11 +5,33 @@
 WINDOW.OPEN(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
 WINDOW.SETFPS(60)
 
+; 0. Professional Lead Engineer Diagnostics
+DEBUG.SHOWFPSGRAPH(TRUE)
+PHYSICS3D.SETTIMESTEP(90.0) ; High-fidelity decoupled physics
+
 ; 1. Batch 6: Environmental Atmosphere
 COLORPRINT(0, 180, 255, "System: Initializing Batch 6 Atmosphere (Fog & Materials)...")
 WORLD.FOGMODE(1)        ; Linear Fog
 WORLD.FOGCOLOR(0, 0, 20) ; Match the dark night sky
 WORLD.FOGDENSITY(0.05)   ; Atmospheric thickness
+
+; 1b. Navigation System Initialization
+nav = NAV.MAKE()
+NAV.SETGRID(nav, 60, 60, 0.5, -15, -15) ; 30x30 area
+NAV.BUILD(nav)                          ; Auto-scan static world
+
+; Create Guardian Agent
+guardianEnt = CreateCube()
+SCALENT(guardianEnt, 0.6, 1.2, 0.6)
+ENTITYCOLOR(guardianEnt, 255, 100, 100, 255)
+POSENT(guardianEnt, 8, 3, 8) ; Place on Step 1
+
+agent = NAVAGENT.MAKE(nav)
+NAVAGENT.SETPOS(agent, 8, 3, 8)
+NAVAGENT.SETSPEED(agent, 3.0)
+
+patrolDir = 1
+navDebug = 0
 
 ; Configuration
 CONST MOVE_SPEED# = 12.0
@@ -23,6 +45,7 @@ cam.fov(60)
 
 ; Initialize Player
 player = CreateSphere()
+PRINT("MB_PLAYER_VAL:", player)
 ENTRAD(player, 0.5)
 ENTTYPE(player, 1)
 POSENT(player, 0, 1.5, 0)
@@ -80,6 +103,7 @@ NEXT
 score = 0
 camYaw# = 0.0
 camPitch# = 0.3
+cinematicMode = 0
 
 COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 
@@ -100,6 +124,36 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     vx# = MOVESTEPX(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
     vz# = MOVESTEPZ(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
     MOVEENTITY(player, vx#, 0, vz#)
+
+    ; 2b. Debug Inspector Hooks
+    IF INPUT.KEYHIT(KEY_F1) THEN DEBUG.DUMPHEAP()
+    IF INPUT.KEYHIT(KEY_F2) THEN DEBUG.LISTCOMMANDS()
+    IF INPUT.KEYHIT(KEY_F3) THEN
+        cinematicMode = 1 - cinematicMode
+        IF cinematicMode = 1 THEN
+            POST.ADD("bloom")
+            POST.ADD("sharpen")
+            POST.SETTONEMAP(3) ; ACES Cinematic Curve
+        ELSE
+            POST.REMOVE("all")
+        ENDIF
+    ENDIF
+    IF INPUT.KEYHIT(KEY_F4) THEN navDebug = 1 - navDebug
+
+    ; 2c. AI Navigation Update
+    IF cinematicMode = 1 THEN
+        IF NAVAGENT.ISATDESTINATION(agent) THEN
+            IF patrolDir = 1 THEN
+                NAVAGENT.MOVETO(agent, 8, 3, 8)
+                patrolDir = 0
+            ELSE
+                NAVAGENT.MOVETO(agent, 9.5, 3, 9.5)
+                patrolDir = 1
+            ENDIF
+        ENDIF
+        NAVAGENT.UPDATE(agent, dt#)
+        POSENT(guardianEnt, NAVAGENT.X(agent), NAVAGENT.Y(agent), NAVAGENT.Z(agent))
+    ENDIF
 
     ; 3. Automatic World Simulation
     WORLD.UPDATE(dt#)
@@ -138,6 +192,8 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         
         ; Batch 6: Professional debug primitives
         DRAW.LINE3D(px#, py#, pz#, px#, py# + 2.0, pz#, 0, 255, 0, 255) ; Green Up-Vector
+        
+        IF navDebug = 1 THEN NAV.DEBUGDRAW(nav)
     CAMERA.END(cam)
 
     ; 8. HUD & UI Overlay
@@ -148,6 +204,11 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     DRAW.TEXT("FPS: " + STR$(FPS()), rh, 20, 20, 0, 255, 0, 255)
     DRAW.TEXT("TIME: " + STR$(MILLISECS()), rh, 45, 20, 200, 200, 255, 255)
     DRAW.TEXT("MIST ACTIVE: YES", rh, 70, 20, 150, 150, 255, 255)
+    IF cinematicMode = 1 THEN
+        DRAW.TEXT("CINEMATIC: ON (ACES)", rh, 95, 20, 255, 100, 100, 255)
+    ELSE
+        DRAW.TEXT("CINEMATIC: OFF", rh, 95, 20, 150, 150, 150, 255)
+    ENDIF
 
     RENDER.FRAME()
 WEND

@@ -12,15 +12,19 @@ import (
 
 const maxMemBlock = 256 << 20 // 256 MiB cap per block
 
-type memObj struct {
+// MemObj is a heap-backed raw byte buffer (banks / MEM.*).
+type MemObj struct {
 	b []byte
 }
 
-func (o *memObj) TypeName() string { return "Mem" }
+// Bytes returns the live backing slice (invalid after MEM.FREE or resize).
+func (o *MemObj) Bytes() []byte { return o.b }
 
-func (o *memObj) TypeTag() uint16 { return heap.TagMem }
+func (o *MemObj) TypeName() string { return "Mem" }
 
-func (o *memObj) Free() { o.b = nil }
+func (o *MemObj) TypeTag() uint16 { return heap.TagMem }
+
+func (o *MemObj) Free() { o.b = nil }
 
 func (m *Module) requireHeap() error {
 	if m.h == nil {
@@ -29,14 +33,14 @@ func (m *Module) requireHeap() error {
 	return nil
 }
 
-func (m *Module) getMem(args []value.Value, ix int, op string) (*memObj, error) {
+func (m *Module) getMem(args []value.Value, ix int, op string) (*MemObj, error) {
 	if err := m.requireHeap(); err != nil {
 		return nil, err
 	}
 	if ix >= len(args) || args[ix].Kind != value.KindHandle {
 		return nil, fmt.Errorf("%s: argument %d must be mem handle", op, ix+1)
 	}
-	return heap.Cast[*memObj](m.h, heap.Handle(args[ix].IVal))
+	return heap.Cast[*MemObj](m.h, heap.Handle(args[ix].IVal))
 }
 
 func argInt64(v value.Value) (int64, bool) {
@@ -94,6 +98,10 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("MEM.SETDWORD", "mem", runtime.AdaptLegacy(m.memSetDword))
 	r.Register("MEM.SETFLOAT", "mem", runtime.AdaptLegacy(m.memSetFloat))
 	r.Register("MEM.SETSTRING", "mem", m.memSetString)
+	r.Register("MEM.RESIZE", "mem", runtime.AdaptLegacy(m.memResize))
+	r.Register("MEM.GETDOUBLE", "mem", runtime.AdaptLegacy(m.memGetDouble))
+	r.Register("MEM.SETDOUBLE", "mem", runtime.AdaptLegacy(m.memSetDouble))
+	registerBankBlitzAliases(m, r)
 }
 
 // Shutdown implements runtime.Module.
@@ -111,7 +119,7 @@ func (m *Module) memMake(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	buf := make([]byte, n)
-	id, err := m.h.Alloc(&memObj{b: buf})
+	id, err := m.h.Alloc(&MemObj{b: buf})
 	if err != nil {
 		return value.Nil, err
 	}

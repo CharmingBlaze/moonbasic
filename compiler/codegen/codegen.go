@@ -29,15 +29,26 @@ type CodeGen struct {
 	fnDepth     int    // >0 when emitting a FUNCTION body
 	funcName    string // uppercase function name when fnDepth > 0
 	loopStack   []loopFrame
+	nextReg     uint8 // next available temporary register
+	baseReg     uint8 // start of temporary registers for the current statement
 }
 
 // New creates a code generator.
 func New(file string, lines []string) *CodeGen {
+	return NewWithSymbols(file, lines, nil)
+}
+
+// NewWithSymbols creates a code generator with a pre-built symbol table.
+// Used for implicit declaration mode where symbols are collected in a first pass.
+func NewWithSymbols(file string, lines []string, symbols *symtable.Table) *CodeGen {
+	if symbols == nil {
+		symbols = symtable.New()
+	}
 	return &CodeGen{
 		File:    file,
 		Lines:   lines,
 		Prog:    opcode.NewProgram(),
-		Symbols: symtable.New(),
+		Symbols: symbols,
 	}
 }
 
@@ -110,13 +121,15 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 
 	// 2. Main program
 	g.loopStack = nil
+	g.baseReg = uint8(g.Symbols.NextLocal())
+	g.nextReg = g.baseReg
 	for _, st := range tree.Stmts {
 		g.emitStmt(g.Prog.Main, st)
 		if g.err != nil {
 			return nil, g.err
 		}
 	}
-	g.Prog.Main.Emit(opcode.OpHalt, 0, 0, 0)
+	g.Prog.Main.Emit(opcode.OpHalt, 0, 0, 0, 0, 0)
 
 	// 3. Function bodies
 	for _, fn := range tree.Functions {
@@ -143,7 +156,7 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 		g.Symbols.PopScope()
 		g.fnDepth = 0
 		g.funcName = ""
-		ch.Emit(opcode.OpReturnVoid, 0, 0, fn.Line)
+		ch.Emit(opcode.OpReturnVoid, 0, 0, 0, 0, fn.Line)
 	}
 
 	opt.OptimizeProgram(g.Prog)
@@ -210,4 +223,14 @@ func (g *CodeGen) predeclareStmt(s ast.Stmt) {
 			g.predeclareStmt(st)
 		}
 	}
+}
+func (g *CodeGen) allocReg() uint8 {
+	r := g.nextReg
+	g.nextReg++
+	// TODO: check for overflow > 255
+	return r
+}
+
+func (g *CodeGen) freeRegs(count int) {
+	g.nextReg -= uint8(count)
 }

@@ -1272,6 +1272,59 @@
       ]
     },
     {
+      "key": "AppTitle",
+      "args": [
+        "string"
+      ],
+      "description": "Alias of WINDOW.SETTITLE"
+    },
+    {
+      "key": "Graphics3D",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Resize window (w,h); depth reserved; mode bit0 = high-DPI flag"
+    },
+    {
+      "key": "Graphics3D",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Resize window (w,h) with defaults: reserved depth and high-DPI mode"
+    },
+    {
+      "key": "SetMSAA",
+      "args": [
+        "int"
+      ],
+      "description": "Pre-window-open MSAA sample hint (alias of WINDOW.SETMSAA); 2+ enables GPU MSAA hint"
+    },
+    {
+      "key": "SetSSAO",
+      "args": [
+        "bool"
+      ],
+      "description": "Screen-space ambient occlusion (alias of EFFECT.SSAO enable)"
+    },
+    {
+      "key": "SetPostProcess",
+      "args": [
+        "handle"
+      ],
+      "description": "Full-screen post shader (alias of POST.ADDSHADER)"
+    },
+    {
+      "key": "ActiveShader",
+      "args": [
+        "handle"
+      ],
+      "description": "Alias of POST.ADDSHADER — full-screen post shader for the render pipeline"
+    },
+    {
       "key": "WINDOW.WIDTH",
       "args": [],
       "returns": "int",
@@ -1807,6 +1860,20 @@
     {
       "key": "RENDER.FRAME",
       "args": []
+    },
+    {
+      "key": "RENDER.BEGIN3D",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering",
+      "description": "Alias for CAMERA.BEGIN: 3D camera handle (heap) from CAMERA.MAKE / CreateCamera"
+    },
+    {
+      "key": "RENDER.END3D",
+      "args": [],
+      "phase": "rendering",
+      "description": "Alias for CAMERA.END (no arguments)"
     },
     {
       "key": "RENDER.SETFPS",
@@ -2696,6 +2763,33 @@
       "key": "LIGHT.MAKE",
       "args": [],
       "returns": "handle"
+    },
+    {
+      "key": "CreateLight",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "handle",
+      "description": "Blitz-style: type 1=directional, 2=point, 3=spot; optional parent entity# stored for future attachment"
+    },
+    {
+      "key": "LightRange",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Alias of LIGHT.SETRANGE"
+    },
+    {
+      "key": "LightColor",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of LIGHT.SETCOLOR (RGB)"
     },
     {
       "key": "LIGHT.SETDIR",
@@ -5045,11 +5139,49 @@
       "phase": "any"
     },
     {
+      "key": "INPUT.MOUSEDX",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias of INPUT.MOUSEDELTAX"
+    },
+    {
       "key": "INPUT.MOUSEDELTAY",
       "args": [],
       "returns": "float",
       "phase": "any"
     },
+    {
+      "key": "INPUT.MOUSEDY",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias of INPUT.MOUSEDELTAY"
+    },
+    {
+      "key": "INPUT.MOUSEWHEEL",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias of INPUT.MOUSEWHEELMOVE"
+    },
+    {
+      "key": "INPUT.KEYDOWN",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any"
+    },
+    {
+      "key": "INPUT.KEYUP",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any"
+    },
+
     {
       "key": "INPUT.MOUSEWHEELMOVE",
       "args": [],
@@ -5847,6 +5979,17 @@
       "key": "DEBUG.GCSTATS",
       "args": []
     },
+    {
+      "key": "DEBUG.DUMPHEAP",
+      "args": [],
+      "description": "Professional: Scan all active handles and print to diagnostics."
+    },
+    {
+      "key": "DEBUG.LISTCOMMANDS",
+      "args": [],
+      "description": "Professional: List all registered built-in commands."
+    },
+
     {
       "key": "FILE.OPEN",
       "args": [
@@ -13948,6 +14091,43 @@
       "returns": "handle"
     },
     {
+      "key": "AUDIO.LISTENERCAMERA",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "Listener",
+      "args": [
+        "handle"
+      ],
+      "description": "Sets spatial audio listener from CAMERA.MAKE handle (call each frame before EmitSound)"
+    },
+    {
+      "key": "Load3DSound",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Loads WAV/OGG like AUDIO.LOADSOUND; use with Listener + EmitSound for 3D pan/attenuation"
+    },
+    {
+      "key": "SoundVolume",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Alias of AUDIO.SETSOUNDVOLUME"
+    },
+    {
+      "key": "SoundPitch",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Alias of AUDIO.SETSOUNDPITCH"
+    },
+    {
       "key": "AUDIO.LOADMUSIC",
       "args": [
         "string"
@@ -14254,6 +14434,12 @@
       "key": "TICKCOUNT",
       "args": [],
       "returns": "int"
+    },
+    {
+      "key": "MilliSecs",
+      "args": [],
+      "returns": "float",
+      "description": "Milliseconds since Raylib init (CGO); monotonic wall ms on stub builds"
     },
     {
       "key": "YEAR",
@@ -15302,6 +15488,16 @@
       ]
     },
     {
+      "key": "ENTITY.COLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
       "key": "ENTITY.RADIUS",
       "args": [
         "int",
@@ -15361,6 +15557,335 @@
     {
       "key": "ENTITY.DRAWALL",
       "args": []
+    },
+    {
+      "key": "DrawEntities",
+      "args": [],
+      "phase": "rendering",
+      "description": "Alias for ENTITY.DRAWALL: draw all entities in the scene graph (no arguments)"
+    },
+    {
+      "key": "MoveEntity",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Args: (entity#, forward#, right#, up#). Move along entity local axes from pitch/yaw (same as MOVEENTITY / ENTITY.MOVE). For world-space offset use TranslateEntity(entity#, dx#, dy#, dz#)."
+    },
+    {
+      "key": "TranslateEntity",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Args: (entity#, dx#, dy#, dz#). World-space position delta; same as ENTITY.TRANSLATE / ENTITY.TRANSLATEENTITY."
+    },
+    {
+      "key": "CreatePivot",
+      "args": [],
+      "returns": "int",
+      "phase": "any",
+      "description": "Create empty transform node (entity#) for parenting; invisible, no mesh"
+    },
+    {
+      "key": "ENTITY.LINKPHYSBUFFER",
+      "args": [
+        "int",
+        "int"
+      ],
+      "phase": "any",
+      "description": "Bind entity# to Jolt shared matrix slot index (use BODY3D.BUFFERINDEX on the body)"
+    },
+    {
+      "key": "ENTITY.CLEARPHYSBUFFER",
+      "args": [
+        "int"
+      ],
+      "phase": "any",
+      "description": "Remove physics matrix buffer binding from entity#"
+    },
+    {
+      "key": "ENTITY.COLLISIONLAYER",
+      "args": [
+        "int",
+        "int"
+      ],
+      "phase": "any",
+      "description": "Reserved 0..31 layer id for future Jolt bitmask filtering (stored on entity)"
+    },
+    {
+      "key": "EntityCollisionLayer",
+      "args": [
+        "int",
+        "int"
+      ],
+      "phase": "any",
+      "description": "Alias for ENTITY.COLLISIONLAYER"
+    },
+    {
+      "key": "EntityCollided",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "True if two entities had a Jolt contact since last PHYSICS3D.STEP (Linux+CGO; link via ENTITY.LINKPHYSBUFFER)"
+    },
+    {
+      "key": "ENTITYPHYSICSTOUCH",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Alias for EntityCollided"
+    },
+    {
+      "key": "CollisionNX",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "World normal X from last successful EntityCollided query this frame"
+    },
+    {
+      "key": "CollisionNY",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "World normal Y from last successful EntityCollided query"
+    },
+    {
+      "key": "CollisionNZ",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "World normal Z from last successful EntityCollided query"
+    },
+    {
+      "key": "CollisionPX",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Contact point X (shape query) after last EntityCollided"
+    },
+    {
+      "key": "CollisionPY",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Contact point Y after last EntityCollided"
+    },
+    {
+      "key": "CollisionPZ",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Contact point Z after last EntityCollided"
+    },
+    {
+      "key": "CollisionY",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias for CollisionPY (contact Y)"
+    },
+    {
+      "key": "CollisionForce",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Penetration-depth proxy for impact strength (not true Jolt impulse on this path)"
+    },
+    {
+      "key": "CountCollisions",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Count Jolt contact pairs involving entity# this frame (distinct from COUNTCOLLISIONS legacy hits)"
+    },
+    {
+      "key": "PICK.ORIGIN",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Stage ray origin for PICK.CAST (Linux+CGO Jolt)"
+    },
+    {
+      "key": "PICK.DIRECTION",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Stage ray direction; length is max travel unless PICK.MAXDIST set"
+    },
+    {
+      "key": "PICK.MAXDIST",
+      "args": [
+        "float"
+      ],
+      "phase": "any",
+      "description": "Optional max ray length (normalize direction then scale)"
+    },
+    {
+      "key": "PICK.LAYERMASK",
+      "args": [
+        "int"
+      ],
+      "phase": "any",
+      "description": "Bit i accepts ENTITY.COLLISIONLAYER i; 0 accepts all"
+    },
+    {
+      "key": "PICK.RADIUS",
+      "args": [
+        "float"
+      ],
+      "phase": "any",
+      "description": "Reserved; non-zero returns error until sphere pick exists"
+    },
+    {
+      "key": "PICK.CAST",
+      "args": [],
+      "returns": "int",
+      "phase": "any",
+      "description": "Run Jolt raycast from staged params; returns entity# or 0"
+    },
+    {
+      "key": "PICK.FROMCAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Stage ray from camera handle and screen pixels (sets default MAXDIST if unset)"
+    },
+    {
+      "key": "PICK.SCREENCAST",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "FROMCAMERA then CAST; returns entity# or 0"
+    },
+    {
+      "key": "PICK.X",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Last pick hit world X"
+    },
+    {
+      "key": "PICK.Y",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Last pick hit world Y"
+    },
+    {
+      "key": "PICK.Z",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Last pick hit world Z"
+    },
+    {
+      "key": "PICK.NX",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Last pick surface normal X"
+    },
+    {
+      "key": "PICK.NY",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Last pick surface normal Y"
+    },
+    {
+      "key": "PICK.NZ",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Last pick surface normal Z"
+    },
+    {
+      "key": "PICK.ENTITY",
+      "args": [],
+      "returns": "int",
+      "phase": "any",
+      "description": "Entity# from last pick (linked BODY3D only)"
+    },
+    {
+      "key": "PICK.DIST",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Distance along ray to last hit"
+    },
+    {
+      "key": "PICK.HIT",
+      "args": [],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Whether last PICK.CAST / SCREENCAST hit"
+    },
+    {
+      "key": "CreateCube",
+      "args": [],
+      "returns": "int",
+      "phase": "any",
+      "description": "Default 1x1x1 axis-aligned box; returns entity#"
+    },
+    {
+      "key": "CreateCube",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "1x1x1 box parented to entity# (parent entity id)"
+    },
+    {
+      "key": "CreateCube",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Box with width, height, depth (no parent)"
+    },
+    {
+      "key": "CreateCube",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Box (w,h,d) parented to entity#"
     },
     {
       "key": "ENTITY.CREATEENTITY",
@@ -15476,6 +16001,14 @@
       ],
       "returns": "bool",
       "description": "Easy Mode: KEY.DOWN(KEY(), code)"
+    },
+    {
+      "key": "KeyDown",
+      "args": [
+        "any"
+      ],
+      "returns": "bool",
+      "description": "Alias for KEYDOWN / INPUT.KEYDOWN"
     },
     {
       "key": "KEYHIT",
@@ -15866,6 +16399,12 @@
       "description": "Easy Mode: Global simulation step (Physics, Particles, Collisions, Anims)"
     },
     {
+      "key": "UPDATEPHYSICS",
+      "args": [],
+      "returns": "void",
+      "description": "Easy Mode: ENTITY.UPDATE(Time.Delta); best-effort WORLD.UPDATE, PHYSICS2D.STEP, PHYSICS3D.STEP"
+    },
+    {
       "key": "RESETENTITY",
       "args": [
         "handle"
@@ -15881,6 +16420,15 @@
       ],
       "returns": "int",
       "description": "Easy Mode: Check if entity hit a specific type; returns handle of hit entity or 0"
+    },
+    {
+      "key": "EntityHitsType",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Args: (entity#, type#). True after ENTITY.UPDATE if entity# has a rule-based hit against another body whose EntityType equals type# (requires COLLISIONS + EntityType). For other entity id use ENTITYCOLLIDED; for Jolt pair test use EntityCollided(a#, b#)."
     },
     {
       "key": "COUNTCOLLISIONS",
@@ -16228,8 +16776,17 @@
       "args": [
         "string"
       ],
-      "returns": "handle",
-      "description": "Easy Mode: Load a 3D billboard sprite from file"
+      "returns": "int",
+      "description": "Easy Mode: Load a 3D billboard sprite (entity#); optional parent entity#"
+    },
+    {
+      "key": "LOADSPRITE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "int",
+      "description": "Load billboard sprite as child of parent entity#"
     },
     {
       "key": "SCALESPRITE",
@@ -16249,6 +16806,15 @@
       ],
       "returns": "void",
       "description": "Easy Mode: Set sprite billboard/blend mode"
+    },
+    {
+      "key": "SPRITEVIEWMODE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "void",
+      "description": "Alias of SPRITEMODE: 1=Y billboard, 2=full billboard, 3=static quad"
     },
     {
       "key": "CUBE",
@@ -16274,6 +16840,390 @@
         "float"
       ],
       "returns": "int"
+    },
+    {
+      "key": "CREATECUBE",
+      "args": [],
+      "returns": "int",
+      "description": "Easy Mode: ENTITY.CREATECUBE(1, 1, 1)"
+    },
+    {
+      "key": "POSENT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: ENTITY.POSITIONENTITY(ent, x, y, z)"
+    },
+    {
+      "key": "SCALENT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode: ENTITY.SCALEENTITY(ent, x, y, z)"
+    },
+    {
+      "key": "ENTITYCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Easy Mode: ENTITY.COLOR(ent, r, g, b, a)"
+    },
+    {
+      "key": "ENTRAD",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Set entity collision radius"
+    },
+    {
+      "key": "ENTTYPE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Easy Mode: Set entity collision type"
+    },
+    {
+      "key": "ENTITYFLOOR",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Easy Mode: Check if entity is on the floor"
+    },
+    {
+      "key": "ENTITYJUMP",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Apply jump force to entity"
+    },
+    {
+      "key": "ENTX",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "COLORPRINT",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "string"
+      ],
+      "description": "Print colored text to console"
+    },
+    {
+      "key": "COLLISIONS",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Easy Mode: Define collision rules between types"
+    },
+    {
+      "key": "MOVESTEPX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MOVESTEPZ",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "DIST3D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "WORLD.UPDATE",
+      "args": [
+        "float"
+      ],
+      "description": "Update physics and world state"
+    },
+    {
+      "key": "WORLD.FOGMODE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "WORLD.FOGCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "WORLD.FOGDENSITY",
+      "args": [
+        "float"
+      ]
+    },
+    {
+      "key": "NAV.MAKE",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "NAV.SETGRID",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAV.BUILD",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "NAVAGENT.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "NAVAGENT.SETPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.SETSPEED",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.MOVETO",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "NAVAGENT.X",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "NAVAGENT.Y",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "NAVAGENT.Z",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "NAVAGENT.ISATDESTINATION",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "NAV.DEBUGDRAW",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "POST.ADD",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "POST.SETTONEMAP",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "POST.REMOVE",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "CAMERA.BEGIN",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "CAMERA.END",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "ENTITY.DRAWALL",
+      "args": []
+    },
+    {
+      "key": "PARTICLES.DRAWEMITTER",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "CREATEEMITTER",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "PARTICLECOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "PARTICLESPEED",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "PARTICLELIFE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EMITTERPOS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EMITPARTICLE",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "SKYCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "DRAW.LINE3D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "AXIS",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float"
     },
     {
       "key": "SPHERE",
@@ -16318,8 +17268,11 @@
     },
     {
       "key": "ENTITY.CREATEMESH",
-      "args": [],
-      "returns": "int"
+      "args": [
+        "any"
+      ],
+      "returns": "int",
+      "description": "Procedural mesh: optional parentEntity#; use AddVertex/UpdateMesh"
     },
     {
       "key": "ENTITY.LOADMESH",
@@ -16334,6 +17287,113 @@
         "any"
       ],
       "returns": "int"
+    },
+    {
+      "key": "EntityPBR",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "EntityNormalMap",
+      "args": [
+        "int",
+        "handle"
+      ]
+    },
+    {
+      "key": "EntityEmission",
+      "args": [
+        "int",
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "EntityMass",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "EntityFriction",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "EntityRestitution",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ApplyEntityImpulse",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "CameraSmoothFollow",
+      "args": [
+        "handle",
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "CreatePointLight",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "CreateVehicle",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "AddWheel",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "CameraFOV",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "CameraShake",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "CameraLookAt",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ]
     },
     {
       "key": "ENTITY.POSITIONENTITY",
@@ -16454,6 +17514,94 @@
       ]
     },
     {
+      "key": "ENTITY.COUNTCHILDREN",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.FINDCHILD",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.GETCHILD",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.INVIEW",
+      "args": [
+        "int",
+        "handle"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.MATRIXELEMENT",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.SPRITEVIEWMODE",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.TFORMPOINT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.TFORMVECTOR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "TFormVector",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Args: (x#, y#, z#, srcEntity#, dstEntity#). Blitz alias of ENTITY.TFORMVECTOR: direction in src local space as linear transform into dst local space; returns heap handle to 3 float components (no world-entity shortcut)."
+    },
+    {
+      "key": "ENTITY.VISIBLE",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
       "key": "ENTITY.ALPHA",
       "args": [
         "int",
@@ -16552,12 +17700,66 @@
       "returns": "float"
     },
     {
+      "key": "ENTITY.CREATESPRITE",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATESPRITE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.DELTAX",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.DELTAY",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.DELTAZ",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "ENTITY.DISTANCE",
       "args": [
         "int",
         "int"
       ],
       "returns": "float"
+    },
+    {
+      "key": "ENTITY.LOADSPRITE",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.LOADSPRITE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "int"
     },
     {
       "key": "ENTITY.VELOCITY",
@@ -16646,6 +17848,238 @@
       "returns": "float"
     },
     {
+      "key": "ENTITY.EXTRACTANIMSEQ",
+      "args": [
+        "int",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.SETANIMINDEX",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.FINDBONE",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "LoadAnimMesh",
+      "args": [
+        "any"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "Animate",
+      "args": [
+        "int",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "SetAnimTime",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "EntityAnimTime",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "FindBone",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ExtractAnimSeq",
+      "args": [
+        "int",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "CreateBrush",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "BrushTexture",
+      "args": [
+        "handle",
+        "handle",
+        "any"
+      ]
+    },
+    {
+      "key": "BrushFX",
+      "args": [
+        "handle",
+        "any"
+      ]
+    },
+    {
+      "key": "BrushShininess",
+      "args": [
+        "handle",
+        "float"
+      ]
+    },
+    {
+      "key": "PaintEntity",
+      "args": [
+        "int",
+        "handle"
+      ]
+    },
+    {
+      "key": "EntityShadow",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "EmitSound",
+      "args": [
+        "handle",
+        "int"
+      ]
+    },
+    {
+      "key": "CreateSurface",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "AddVertex",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "AddTriangle",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "UpdateMesh",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "VertexX",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "VertexY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "VertexZ",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.CREATESURFACE",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.ADDVERTEX",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.ADDTRIANGLE",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.UPDATEMESH",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.VERTEXX",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.VERTEXY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.VERTEXZ",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "ENTITY.HIDE",
       "args": [
         "int"
@@ -16708,6 +18142,34 @@
         "int"
       ],
       "returns": "bool"
+    },
+    {
+      "key": "EntityGrounded",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True when the entity has floor support or is within coyote frames after leaving the ground (same as ENTITY.GROUNDED)."
+    },
+    {
+      "key": "ENTITY.MOVECAMERARELATIVE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "handle"
+      ],
+      "description": "World XZ step from camera yaw: forward#/strafe# are deltas (typically speed*dt*input); camera is a Camera3D handle."
+    },
+    {
+      "key": "EntityMoveCameraRelative",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "handle"
+      ],
+      "description": "Same as ENTITY.MOVECAMERARELATIVE."
     },
     {
       "key": "ENTITY.SETMASS",
@@ -17289,6 +18751,165 @@
         "int"
       ],
       "description": "Shorthand: DRAW3D.POINT(x, y, z, r, g, b, a)"
+    },
+    {
+      "key": "DEBUG.SHOWFPSGRAPH",
+      "args": [
+        "bool"
+      ],
+      "description": "Show or hide the real-time FPS graph overlay."
+    },
+    {
+      "key": "NAV.MAKE",
+      "args": [],
+      "returns": "int",
+      "description": "Create a new navigation grid handle."
+    },
+    {
+      "key": "NAV.SETGRID",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Initialize navigation grid dimensions: (handle, width, height, cellSize#, offsetX#, offsetY#)"
+    },
+    {
+      "key": "NAV.BUILD",
+      "args": [
+        "int"
+      ],
+      "description": "Automatically scan the world for static geometry and bake the navigation grid."
+    },
+    {
+      "key": "NAV.DEBUGDRAW",
+      "args": [
+        "int"
+      ],
+      "description": "Render a debug overlay of the navigation grid (Green=Walkable, Red=Blocked)."
+    },
+    {
+      "key": "NAVAGENT.MAKE",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "Create a navigation agent for the specified grid handle."
+    },
+    {
+      "key": "NAVAGENT.SETPOS",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Set the agent's world-space position: (handle, x#, y#, z#)"
+    },
+    {
+      "key": "NAVAGENT.MOVETO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Set the agent's target destination: (handle, x#, y#, z#)"
+    },
+    {
+      "key": "NAVAGENT.UPDATE",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Update the agent's movement: (handle, dt#)"
+    },
+    {
+      "key": "NAVAGENT.SETSPEED",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Set the agent's movement speed: (handle, speed#)"
+    },
+    {
+      "key": "NAVAGENT.X",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Get the agent's current X position."
+    },
+    {
+      "key": "NAVAGENT.Y",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Get the agent's current Y position."
+    },
+    {
+      "key": "NAVAGENT.Z",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Get the agent's current Z position."
+    },
+    {
+      "key": "NAVAGENT.ISATDESTINATION",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Check if the agent has reached its destination."
+    },
+    {
+      "key": "POST.REMOVE",
+      "args": [
+        "string"
+      ],
+      "description": "Remove a post-processing effect by name (e.g. 'bloom', 'sharpen', or 'all')."
+    },
+    {
+      "key": "POST.SETTONEMAP",
+      "args": [
+        "int"
+      ],
+      "description": "Set the tonemapping mode: 0=None, 1=Linear, 2=Reinhard, 3=Filmic, 4=Uncharted2."
+    },
+    {
+      "key": "PHYSICS3D.SETTIMESTEP",
+      "args": [
+        "float"
+      ],
+      "description": "Set the fixed physics simulation timestep (e.g. 60.0, 90.0)."
+    },
+    {
+      "key": "WORLD.FOGMODE",
+      "args": [
+        "int"
+      ],
+      "description": "Set the fog mode: 0=None, 1=Linear, 2=Exponential."
+    },
+    {
+      "key": "WORLD.FOGCOLOR",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Set the fog color: (r, g, b)."
+    },
+    {
+      "key": "WORLD.FOGDENSITY",
+      "args": [
+        "float"
+      ],
+      "description": "Set the fog density (0.0 to 1.0)."
     }
   ]
 }

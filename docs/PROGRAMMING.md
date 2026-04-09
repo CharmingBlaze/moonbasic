@@ -54,10 +54,9 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     ; --- draw ---
     Render.Clear(r, g, b)
-    ; optional: Render.BeginMode2D() for screen-space 2D
-    ; optional: cam.Begin() for 3D
+    ; optional: Camera2D.Begin() / Camera2D.End() for screen-space 2D
+    ; optional: Camera.Begin(cam) / Camera.End() or RENDER.Begin3D(cam) / RENDER.End3D() for 3D
     Draw.Rectangle(...)
-    ; optional: cam.End() / Render.EndMode2D()
     Render.Frame()
 WEND
 
@@ -67,20 +66,20 @@ Window.Close()
 
 Rules of thumb:
 
-- **`Render.Clear`** — first drawing call each frame (or after `BeginMode2D` / camera, depending on your pipeline).
+- **`Render.Clear`** — first drawing call each frame (or after `Camera2D.Begin` / `Camera.Begin`, depending on your pipeline).
 - **`Render.Frame`** — last call each frame; swaps / presents the buffer.
 - **`Time.Delta()`** — seconds since last frame; multiply speeds by `dt#` for **frame-rate-independent** motion.
 - **`Window.ShouldClose()`** — true when the user closes the window.
 - **`Input.KeyDown(KEY_ESCAPE)`** — common explicit quit.
 
-moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt#`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell.
+moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt#`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell. For Blitz-style entity graphs, **`UpdatePhysics()`** (alias **`UPDATEPHYSICS`**) bundles **`ENTITY.UPDATE(Time.Delta)`** with optional world / physics steps — see [GETTING_STARTED](GETTING_STARTED.md) (**Modern Blitz-style 3D**).
 
 ---
 
 ## 4. 2D vs 3D drawing
 
-- **Screen-space 2D** (pixels): wrap drawing in `Render.BeginMode2D()` … `Render.EndMode2D()` when you want coordinates in window pixels (see [RENDER](reference/RENDER.md)).
-- **3D**: create `cam = Camera.Make()`, configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc. (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
+- **Screen-space 2D** (pixels): **`Camera2D.Begin()`** … **`Camera2D.End()`** (identity camera) or pass a handle from **`Camera2D.Make()`** (see [RENDER](reference/RENDER.md), [CAMERA](reference/CAMERA.md)). There is no `Render.BeginMode2D` builtin.
+- **3D**: create `cam = Camera.Make()`, configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc., or use **`RENDER.Begin3D(cam)`** / **`RENDER.End3D()`** (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
 
 Some 3D helpers are also registered under `DRAW.*` (e.g. `Draw.Grid` inside a camera block).
 

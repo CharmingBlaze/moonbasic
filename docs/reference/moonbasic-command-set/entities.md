@@ -16,15 +16,25 @@
 
 ## Transform
 
-| Designed | Implementation |
-|----------|----------------|
-| **PositionEntity** | **`ENTITY.POSITIONENTITY`**, **`SETPOSITION`** |
-| **RotateEntity** | **`ENTITY.ROTATEENTITY`** |
-| **ScaleEntity** | **`ENTITY.SCALE`** |
-| **MoveEntity** | **`ENTITY.MOVE`**, **`MOVEENTITY`** |
-| **TurnEntity** | **`ENTITY.TURNENTITY`** |
-| **PointEntity** | **`ENTITY.POINTENTITY`** |
-| **AlignToVector** | **`ENTITY.ALIGNTOVECTOR`** |
+| Designed | Implementation | Arguments (typical) |
+|----------|----------------|---------------------|
+| **PositionEntity** | **`ENTITY.POSITIONENTITY`**, **`SETPOSITION`** | **`(entity#, x, y, z [, global])`** |
+| **RotateEntity** | **`ENTITY.ROTATEENTITY`** | **`(entity#, pitch, yaw, roll)`** |
+| **ScaleEntity** | **`ENTITY.SCALE`** | **`(entity#, sx, sy, sz)`** |
+| **MoveEntity** | **`ENTITY.MOVE`**, **`MOVEENTITY`** | **`(entity#, forward, right, up)`** — **local** move along facing |
+| **TranslateEntity** | **`ENTITY.TRANSLATE`**, **`ENTITY.TRANSLATEENTITY`** | **`(entity#, dx, dy, dz)`** — **world** delta |
+| **TFormVector** | **`ENTITY.TFORMVECTOR`** | **`(x, y, z, srcEntity#, dstEntity#)`** → **3-float array handle** |
+| **TurnEntity** | **`ENTITY.TURNENTITY`** | Delta angles |
+| **PointEntity** | **`ENTITY.POINTENTITY`** | |
+| **AlignToVector** | **`ENTITY.ALIGNTOVECTOR`** | |
+
+## Rule-based collision types (with `ENTITY.UPDATE`)
+
+| Designed | Implementation | Arguments / returns |
+|----------|------------------|---------------------|
+| **EntityType** | **`ENTITY.TYPE`** | **`(entity#, typeId#)`** — used as **`src`/`dst`** in **`COLLISIONS`** |
+| **EntityHitsType** | (bool wrapper) | **`(entity#, type#)`** → **`TRUE`/`FALSE`** if any hit matches **`type#`** |
+| **ENTITYCOLLIDED** | **`ENTITYCOLLIDED`** | **`(entity#, type#)`** → **other entity id** or **0** |
 
 ## Getters
 

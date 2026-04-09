@@ -41,25 +41,8 @@ func argBoolLight(v value.Value) (bool, bool) {
 	return false, false
 }
 
-func (m *Module) lightMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if m.h == nil {
-		return value.Nil, runtime.Errorf("LIGHT.MAKE: heap not bound")
-	}
-	kind := "directional"
-	if len(args) > 1 {
-		return value.Nil, fmt.Errorf("LIGHT.MAKE expects 0 arguments (default directional, white, intensity 1) or 1 kind string")
-	}
-	if len(args) == 1 {
-		if args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("LIGHT.MAKE: optional argument must be a string kind (e.g. \"directional\")")
-		}
-		s, err := rt.ArgString(args, 0)
-		if err != nil {
-			return value.Nil, err
-		}
-		kind = strings.ToLower(strings.TrimSpace(s))
-	}
-	o := &lightObj{
+func newLightWithKind(kind string) *lightObj {
+	return &lightObj{
 		kind:         kind,
 		r:            1,
 		g:            1,
@@ -78,6 +61,27 @@ func (m *Module) lightMake(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		rangeDist:    10,
 		enabled:      true,
 	}
+}
+
+func (m *Module) lightMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.MAKE: heap not bound")
+	}
+	kind := "directional"
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("LIGHT.MAKE expects 0 arguments (default directional, white, intensity 1) or 1 kind string")
+	}
+	if len(args) == 1 {
+		if args[0].Kind != value.KindString {
+			return value.Nil, fmt.Errorf("LIGHT.MAKE: optional argument must be a string kind (e.g. \"directional\")")
+		}
+		s, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+		kind = strings.ToLower(strings.TrimSpace(s))
+	}
+	o := newLightWithKind(kind)
 	id, err := m.h.Alloc(o)
 	if err != nil {
 		return value.Nil, err

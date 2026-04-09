@@ -361,7 +361,7 @@ func (m *Module) soundFromWave(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	snd := rl.LoadSoundFromWave(o.w)
-	id, err := m.h.Alloc(&soundObj{snd: snd})
+	id, err := m.h.Alloc(&soundObj{snd: snd, gain: 1, pan: 0})
 	if err != nil {
 		rl.UnloadSound(snd)
 		return value.Nil, err

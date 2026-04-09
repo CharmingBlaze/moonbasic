@@ -5,17 +5,26 @@ Small **third-person** demo in a **Blitz3D-style** spirit: walk on a plane, jump
 | File | What to notice |
 |------|----------------|
 | **`main_orbit_simple.mb`** | **Easiest read:** commented “map” at the top, **`CONST`** palette + world bounds, one floor + one box — **`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`**, **`MOVESTEPX`/`Z`**, **`LANDBOXES`**, **`Camera.SetOrbit`**, **`ERASE ALL`**. |
-| **`main.mb`** | Longer “first draft”: manual **sin/cos** basis vectors, manual WASD, manual landing **Y** after `BOXTOPLAND`, `IF`/`ELSE` HUD. |
+| **`main.mb`** | **Default pick:** same hop as before, **implicit types** (no `#` / `$` / `?` suffixes), **Draw3D** + **Camera** only — no skybox or entity graph. |
+| **`main_entities.mb`** | **Engine-style:** **CreateCube** / **CreateSphere**, **COLLISIONS**, **EntityGrounded** (coyote), **EntityMoveCameraRelative**, **Camera.OrbitEntity**, **CopyEntity** platforms, **ENTITY.UPDATE**, **DrawEntities**, child **hat** on **player**. |
 | **`main_v2.mb`** | **Recommended teaching path:** parallel arrays for platforms, but **`Input.Axis`**, **`MOVEX`/`MOVEZ`**, **`BOXTOPLAND`** float return, **`IIF$`**, and **one line** for orbit yaw (`Input.Axis(KEY_Q, KEY_E) * DEGPERSEC(...)`). Heavily commented. |
 | **`main_v3.mb`** | Same logic with **`TYPE` / `DIM AS`** — one `Platform` array instead of nine arrays. Uses **`Input.Orbit`** and **`MOVESTEPX`/`MOVESTEPZ`**. Landing still uses **`BOXTOPLAND`** in a loop ( **`LANDBOXES`** needs parallel **`DIM`** arrays). |
 
 ## Run
 
+**`main.mb`** (Draw3D path, full runtime + Raylib):
+
 ```bash
-CGO_ENABLED=1 go run . examples/mario64/main_orbit_simple.mb
+go run -tags fullruntime . --run examples/mario64/main.mb
 ```
 
-**Controls (`main_orbit_simple.mb`):** **Q/E** yaw, **right-drag** yaw/pitch, **wheel** zoom, **WASD** move, **Space** jump, **Esc** quit.
+**Blitz-style variants** (often need **CGO** and the same **fullruntime** build if you use **`--run`** from the repo root):
+
+```bash
+go run -tags fullruntime . --run examples/mario64/main_orbit_simple.mb
+```
+
+**Controls (`main.mb` / orbit samples):** **Q/E** yaw, **right-drag** yaw/pitch, **wheel** zoom, **WASD** move, **Space** jump, **Esc** quit.
 
 ## Docs to read
 

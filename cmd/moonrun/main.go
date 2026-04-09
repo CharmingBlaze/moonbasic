@@ -1,3 +1,5 @@
+//go:build fullruntime
+
 // moonBASIC Engine (CLI)
 package main
 
@@ -9,6 +11,7 @@ import (
 	"strings"
 
 	"moonbasic/compiler/pipeline"
+	"moonbasic/internal/driver"
 )
 
 const version = "1.2.1"
@@ -47,6 +50,11 @@ func main() {
 		Debug: *debug,
 		Trace: *trace,
 		Out:   os.Stderr,
+	}
+
+	if *debug {
+		sel := driver.GetDefaultDriver()
+		fmt.Fprintf(os.Stderr, "driver: %s\n", sel.String())
 	}
 
 	if strings.EqualFold(filepath.Ext(path), ".mbc") {

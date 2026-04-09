@@ -41,7 +41,7 @@ func (m *Module) soundLoad(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	}
 	initAudioOnce()
 	snd := rl.LoadSound(path)
-	id, err := m.h.Alloc(&soundObj{snd: snd})
+	id, err := m.h.Alloc(&soundObj{snd: snd, gain: 1, pan: 0})
 	if err != nil {
 		rl.UnloadSound(snd)
 		return value.Nil, err

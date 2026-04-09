@@ -34,7 +34,11 @@ func TestEraseAllHandlesFreesAndClearsSlots(t *testing.T) {
 		t.Fatal(err)
 	}
 	v.Globals["CAM"] = value.FromHandle(h1)
-	v.Stack = append(v.Stack, value.FromHandle(h1))
+	
+	// Create a dummy frame and put the handle in a register
+	v.CallStack.Push(nil, 0, 0)
+	frame := v.CallStack.Top()
+	frame.Registers[0] = value.FromHandle(h1)
 
 	if err := v.EraseAllHandles(); err != nil {
 		t.Fatal(err)
@@ -48,8 +52,8 @@ func TestEraseAllHandlesFreesAndClearsSlots(t *testing.T) {
 	if v.Globals["CAM"].Kind != value.KindNil {
 		t.Fatalf("expected global nulled, got kind %v", v.Globals["CAM"].Kind)
 	}
-	if len(v.Stack) != 1 || v.Stack[0].Kind != value.KindNil {
-		t.Fatalf("expected stack slot nulled, got %v", v.Stack)
+	if v.CallStack.Top().Registers[0].Kind != value.KindNil {
+		t.Fatalf("expected register nulled, got kind %v", v.CallStack.Top().Registers[0].Kind)
 	}
 	reg.Shutdown()
 }

@@ -1,0 +1,38 @@
+; Procedural mesh + spatial audio (CGO Raylib).
+; Call Listener(cam) each frame so EmitSound uses pan/distance vs the camera.
+; ENTITY.CREATEMESH is a blank builder until UpdateMesh uploads GPU geometry.
+
+Window.Open(960, 540, "Procedural mesh")
+Window.SetFPS(60)
+
+cam = CreateCamera()
+
+pyramid = CreateMesh()
+surf = CreateSurface(pyramid)
+
+v1 = AddVertex(surf, 0, 1, 0)
+v2 = AddVertex(surf, -1, -1, -1)
+v3 = AddVertex(surf, 1, -1, -1)
+v4 = AddVertex(surf, 0, -1, 1)
+
+AddTriangle(surf, v1, v2, v3)
+AddTriangle(surf, v1, v3, v4)
+AddTriangle(surf, v1, v4, v2)
+
+UpdateMesh(pyramid)
+
+; engineSound = Load3DSound("hum.ogg")
+; EmitSound(engineSound, pyramid)
+
+WHILE NOT (KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    TurnEntity(pyramid, 0, 1, 0)
+    Listener(cam)
+    UpdatePhysics()
+    Render.Clear(20, 24, 32)
+    RENDER.Begin3D(cam)
+    DrawEntities()
+    RENDER.End3D()
+    Render.Frame()
+WEND
+
+Window.Close()

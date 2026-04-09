@@ -17,6 +17,9 @@ import (
 	"io"
 	"sync"
 
+	"moonbasic/internal/driver"
+	"moonbasic/internal/raylibpurego"
+
 	"moonbasic/vm/heap"
 )
 
@@ -29,6 +32,7 @@ type Module struct {
 	diagOut io.Writer
 	logFPS  bool
 	fpsTick int // incremented each RENDER.FRAME when logFPS
+	msaaSamples int32
 
 	onAudioOpen  func()
 	onAudioClose func()
@@ -47,6 +51,17 @@ type Module struct {
 	autoMu           sync.Mutex
 	automationRec    bool
 	activeAutoHandle heap.Handle // heap handle of list passed to EVENT.SETACTIVELIST; 0 = none
+
+	cleanupMu    sync.Mutex
+	cleanupQueue []func()
+
+	// Driver selection from [driver.GetDefaultDriver]; set via [Module.BindDriverSelection] before Register.
+	driverSel driver.Selection
+
+	sidecarOnce   sync.Once
+	sidecarLib    *raylibpurego.LoadResult
+	sidecarGame   *raylibpurego.Game
+	sidecarLoadErr error
 }
 
 // NewModule allocates state for the window/render builtins.
@@ -97,4 +112,11 @@ func (m *Module) AppendFrameDrawHook(h func()) {
 // BindHeap implements runtime.HeapAware (automation event lists use handles).
 func (m *Module) BindHeap(h *heap.Store) {
 	m.h = h
+}
+
+// BindDriverSelection records [driver.GetDefaultDriver] output for WINDOW/RENDER dispatch (CGO vs sidecar purego).
+func (m *Module) BindDriverSelection(sel driver.Selection) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.driverSel = sel
 }

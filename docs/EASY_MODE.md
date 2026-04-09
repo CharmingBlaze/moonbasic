@@ -10,9 +10,12 @@ These commands are available globally and act as shortcuts to the standard MoonB
 |-----------|----------------------|-------------|
 | `Graphics(w, h)` | `WINDOW.OPEN(w, h, "moonBASIC")` | Opens a game window. |
 | `Graphics(w, h, title$)` | `WINDOW.OPEN(w, h, title$)` | Opens a game window with a title. |
-| `PositionEntity(cam, x, y, z)` | `ENTITY.POSITIONENTITY(cam, x, y, z)` | Set an entity's absolute position. |
-| `RotateEntity(cam, p, y, r)` | `ENTITY.ROTATEENTITY(cam, p, y, r)` | Set an entity's absolute rotation. |
-| `MoveEntity(cam, x, y, z)` | `ENTITY.MOVEENTITY(cam, x, y, z)` | Move an entity relative to its local orientation. |
+| `PositionEntity(ent, x, y, z)` | `ENTITY.POSITIONENTITY(ent, x, y, z)` | Set an entity's absolute position (optional global flag on canonical API). |
+| `RotateEntity(ent, p, y, r)` | `ENTITY.ROTATEENTITY(ent, p, y, r)` | Set an entity's absolute rotation (pitch, yaw, roll). |
+| `MoveEntity(ent, f, r, u)` | `ENTITY.MOVE(ent, f, r, u)`, `MOVEENTITY` | Move along **local** forward, right, and up by **`f`**, **`r`**, **`u`** (from entity yaw/pitch). |
+| `TranslateEntity(ent, dx, dy, dz)` | `ENTITY.TRANSLATE`, `ENTITY.TRANSLATEENTITY` | **World-space** delta **`(dx, dy, dz)`**; use for offsets that ignore entity facing. |
+| `TFormVector(x, y, z, srcEnt, dstEnt)` | `ENTITY.TFORMVECTOR` | Transform direction **`(x,y,z)`** from **`srcEnt`** local space to **`dstEnt`** local space; returns **3-float array handle**. |
+| `EntityHitsType(ent, type)` | (wrapper over `ENTITYCOLLIDED`) | **`TRUE`** if **`ent`** hit any other entity whose **`EntityType`** is **`type`** this frame (after **`ENTITY.UPDATE`** / **`UPDATEPHYSICS`**). |
 | `EntityColor(obj, r, g, b)` | `ENTITY.COLOR(obj, r, g, b)` | Set an entity's color. |
 | `EntityAlpha(obj, a#)` | `ENTITY.ALPHA(obj, a#)` | Set an entity's alpha transparency (0-1). |
 | `FreeEntity(obj)` | `ENTITY.FREE(obj)` | Free an entity's memory. |
@@ -27,6 +30,7 @@ These commands are available globally and act as shortcuts to the standard MoonB
 | `MouseY()` | `INPUT.MOUSEY()` | Get mouse Y position. |
 | `MouseHit(b)` | `INPUT.MOUSEPRESSED(b)` | Check if a mouse button was clicked. |
 | `Millisecs()` | `TIME.MILLIS()` | Get milliseconds since the engine started. |
+| `UpdatePhysics()` | `UPDATEPHYSICS` | One frame tick: `ENTITY.UPDATE(Time.Delta)` + best-effort world / 2D / 3D physics steps. |
 
 ## 2. Property-Style Handle Methods
 

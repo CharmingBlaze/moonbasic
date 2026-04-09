@@ -1,4 +1,4 @@
-//go:build compiler_only || nophysics
+//go:build fullruntime && nophysics
 
 package pipeline
 

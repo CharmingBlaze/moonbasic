@@ -1,4 +1,4 @@
-//go:build !compiler_only
+//go:build fullruntime
 
 package pipeline
 
@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"moonbasic/compiler/builtinmanifest"
+	"moonbasic/internal/driver"
 	"moonbasic/runtime"
 	mbaudio "moonbasic/runtime/audio"
 	mbiome "moonbasic/runtime/biome"
@@ -86,6 +87,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 
 	// Native WINDOW / minimal RENDER (Raylib when CGO enabled; stubs otherwise)
 	winMod := window.NewModule()
+	winMod.BindDriverSelection(driver.GetDefaultDriver())
 	mblight2d.RegisterFrameHook(winMod)
 	mbtransition.RegisterFrameHook(winMod)
 	winMod.SetFrameEndHook(debugMod.DrawFrameOverlay)

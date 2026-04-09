@@ -1,4 +1,5 @@
-// moonBASIC Compiler (CLI)
+//go:build !fullruntime
+
 package main
 
 import (
@@ -16,10 +17,11 @@ const version = "1.2.1"
 
 func main() {
 	var (
-		checkOnly   = flag.Bool("check", false, "parse and type-check only")
-		showVer     = flag.Bool("version", false, "print version and exit")
-		lspMode     = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
-		disasm      = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
+		checkOnly = flag.Bool("check", false, "parse and type-check only")
+		showVer   = flag.Bool("version", false, "print version and exit")
+		lspMode   = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
+		disasm    = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
+		runMode   = flag.Bool("run", false, "compile and run (requires building with -tags fullruntime)")
 	)
 
 	flag.Usage = func() {
@@ -78,35 +80,13 @@ func main() {
 		return
 	}
 
-	// Default: Compile to MBC
+	if *runMode {
+		fmt.Fprintln(os.Stderr, "moonbasic: --run requires the full runtime; rebuild with: go build -tags fullruntime .")
+		os.Exit(2)
+	}
+
 	if err := compileToMBC(path); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(2)
 	}
-}
-
-func compileToMBC(path string) error {
-	if strings.EqualFold(filepath.Ext(path), ".mbc") {
-		return fmt.Errorf("error: compiler expects a source file (.mb), not a .mbc file")
-	}
-	prog, err := pipeline.CompileFile(path)
-	if err != nil {
-		return err
-	}
-	out := mbcOutPath(path)
-	data, err := pipeline.EncodeMOON(prog)
-	if err != nil {
-		return fmt.Errorf("encode: %v", err)
-	}
-	if err := os.WriteFile(out, data, 0644); err != nil {
-		return fmt.Errorf("write %s: %v", out, err)
-	}
-	fmt.Fprintf(os.Stderr, "wrote %s\n", out)
-	return nil
-}
-
-func mbcOutPath(src string) string {
-	ext := filepath.Ext(src)
-	base := strings.TrimSuffix(src, ext)
-	return base + ".mbc"
 }

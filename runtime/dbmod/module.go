@@ -1,4 +1,5 @@
-// Package mbdb implements DB.* SQLite handles (CGO) or stubs (!cgo).
+// Package mbdb implements DB.* SQLite handles: mattn driver when CGO is on,
+// modernc.org/sqlite when built with -tags modernc_sqlite, or stubs otherwise.
 package mbdb
 
 import (

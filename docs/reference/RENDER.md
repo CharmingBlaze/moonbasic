@@ -1,13 +1,13 @@
 # Render Commands
 
-Frame lifecycle and render-state helpers. Drawing itself uses **`Draw.*`**, **`Draw3D.*`**, **`Camera.Begin` / `Camera.End`**, and **`Camera2D.Begin` / `Camera2D.End`** — there are **no** `Render.BeginMode2D` / `Render.BeginMode3D` APIs.
+Frame lifecycle and render-state helpers. Drawing itself uses **`Draw.*`**, **`Draw3D.*`**, **`Camera.Begin` / `Camera.End`**, and **`Camera2D.Begin` / `Camera2D.End`**. There are **no** `Render.BeginMode2D` APIs; for 3D mode, **`Render.Begin3D`** / **`Render.End3D`** are thin aliases for **`Camera.Begin`** / **`Camera.End`** (same camera handle and depth state).
 
 ## Frame loop
 
 Each frame:
 
 1. **`Render.Clear(...)`** — clear color / depth as configured.
-2. **Optional modes:** `Camera2D.Begin` / `End` for transformed 2D; `Camera.Begin` / `Camera.End` for 3D.
+2. **Optional modes:** `Camera2D.Begin` / `End` for transformed 2D; `Camera.Begin` / `Camera.End` for 3D (or **`Render.Begin3D(cam)`** / **`Render.End3D()`** — equivalent).
 3. **Draw** — `Draw.*`, `Draw3D.*`, models, etc.
 4. **`Render.Frame()`** — present (swap buffers).
 
@@ -41,6 +41,10 @@ Requires an open window (`Window.Open`).
 ### `Render.Frame()`
 
 Presents the frame. Must follow a `Render.Clear` for that frame (runtime enforces an active frame).
+
+### `Render.Begin3D(cameraHandle)` / `Render.End3D()`
+
+Aliases for **`Camera.Begin(cameraHandle)`** and **`Camera.End()`**. Use one camera handle from **`Camera.Make`** / **`CreateCamera`**; nesting rules match the camera module.
 
 ---
 

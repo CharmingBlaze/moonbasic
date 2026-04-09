@@ -92,12 +92,16 @@ func readChunk(r io.Reader) (*opcode.Chunk, error) {
 		if err != nil {
 			return nil, err
 		}
-		flags, err := binaryReadU8(r)
+		dst, err := binaryReadU8(r)
 		if err != nil {
 			return nil, err
 		}
-		var pad [2]byte
-		if _, err := io.ReadFull(r, pad[:]); err != nil {
+		srcA, err := binaryReadU8(r)
+		if err != nil {
+			return nil, err
+		}
+		srcB, err := binaryReadU8(r)
+		if err != nil {
 			return nil, err
 		}
 		op1, err := binaryReadI32(r)
@@ -110,7 +114,9 @@ func readChunk(r io.Reader) (*opcode.Chunk, error) {
 		}
 		c.Instructions = append(c.Instructions, opcode.Instruction{
 			Op:      opcode.OpCode(opB),
-			Flags:   flags,
+			Dst:     dst,
+			SrcA:    srcA,
+			SrcB:    srcB,
 			Operand: op1,
 		})
 		c.SourceLines = append(c.SourceLines, line)

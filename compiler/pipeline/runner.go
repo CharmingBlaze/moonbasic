@@ -1,4 +1,4 @@
-//go:build !compiler_only
+//go:build fullruntime
 
 package pipeline
 
@@ -37,7 +37,6 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 
 	machine.Trace = opts.Trace
 	machine.TraceOut = opts.Out
-	machine.StackHygieneDebug = opts.Debug
 	machine.Profiler = opts.ProfileRecorder
 
 	defer reg.Shutdown() // Raylib + heap cleanup on success or VM error

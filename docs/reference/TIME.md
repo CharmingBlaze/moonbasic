@@ -86,10 +86,10 @@ WHILE NOT Window.ShouldClose()
     ENDIF
 
     Render.Clear(0,0,0)
-    Render.BeginMode2D()
+    Camera2D.Begin()
         Draw.Text("Press SPACE to start/stop", 210, 150, 20, 150, 150, 150, 255)
         Draw.Text(FORMAT$(elapsed_time#, "%.2f"), 300, 250, 60, 100, 200, 255, 255)
-    Render.EndMode2D()
+    Camera2D.End()
     Render.Frame()
 WEND
 

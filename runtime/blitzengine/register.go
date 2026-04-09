@@ -111,6 +111,23 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 	reg.Register("UPDATEWORLD", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return call(rt,"ENTITY.UPDATE", args...)
 	})
+	// UpdatePhysics — one call per frame: ENTITY.UPDATE(dt), optional WORLD/2D/3D physics (errors ignored if inactive).
+	reg.Register("UPDATEPHYSICS", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 0 {
+			return value.Nil, fmt.Errorf("UPDATEPHYSICS expects 0 arguments")
+		}
+		dt, err := call(rt, "TIME.DELTA")
+		if err != nil {
+			return value.Nil, err
+		}
+		if _, err := call(rt, "ENTITY.UPDATE", dt); err != nil {
+			return value.Nil, err
+		}
+		_, _ = call(rt, "WORLD.UPDATE", dt)
+		_, _ = call(rt, "PHYSICS2D.STEP")
+		_, _ = call(rt, "PHYSICS3D.STEP", dt)
+		return value.Nil, nil
+	})
 	reg.Register("RENDERWORLD", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("RENDERWORLD expects 0 arguments")
@@ -141,6 +158,15 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		}
 		return call(rt,"CAMERA.MAKE")
 	})
+
+	reg.Register("MOVESTEPX", "blitzengine", runtime.AdaptLegacy(m.entMoveStepX))
+	reg.Register("MOVESTEPZ", "blitzengine", runtime.AdaptLegacy(m.entMoveStepZ))
+	reg.Register("DIST3D", "blitzengine", runtime.AdaptLegacy(m.dist3D))
+	reg.Register("COLORPRINT", "blitzengine", m.colorPrint)
+	reg.Register("FPS", "blitzengine", m.fps)
+	reg.Register("MILLISECS", "blitzengine", m.milliSecs)
+	reg.Register("SCREENWIDTH", "blitzengine", m.screenWidth)
+	reg.Register("SCREENHEIGHT", "blitzengine", m.screenHeight)
 	reg.Register("POSITIONCAMERA", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return call(rt,"CAMERA.SETPOS", args...)
 	})

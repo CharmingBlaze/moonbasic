@@ -1,3 +1,5 @@
+//go:build fullruntime
+
 package main
 
 import (

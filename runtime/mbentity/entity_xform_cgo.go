@@ -22,6 +22,11 @@ func (m *Module) worldRotQuat(e *ent) rl.Quaternion {
 }
 
 func (m *Module) worldPos(e *ent) rl.Vector3 {
+	// When any ancestor is a bone socket, TRS must match worldMatrix (matrix path).
+	if m.entityUsesBoneMatrixChain(e) {
+		wmat := m.worldMatrix(e)
+		return rl.Vector3{X: wmat.M12, Y: wmat.M13, Z: wmat.M14}
+	}
 	if e.parentID == 0 {
 		return e.pos
 	}
@@ -33,6 +38,19 @@ func (m *Module) worldPos(e *ent) rl.Vector3 {
 	pq := m.worldRotQuat(p)
 	off := rl.Vector3RotateByQuaternion(e.pos, pq)
 	return rl.Vector3Add(pw, off)
+}
+
+func (m *Module) entityUsesBoneMatrixChain(e *ent) bool {
+	for e != nil {
+		if e.boneWorldValid {
+			return true
+		}
+		if e.parentID == 0 {
+			break
+		}
+		e = m.store().ents[e.parentID]
+	}
+	return false
 }
 
 func (m *Module) worldEuler(e *ent) (pitch, yaw, roll float32) {

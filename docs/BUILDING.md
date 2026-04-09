@@ -24,7 +24,7 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 **Raylib 5.5 pairing:** Upstream tags **`raylib/v0.55.x`** are the **Go bindings** aimed at **Raylib C 5.5**. Your **`raylib.dll`** should be a **5.5** build from the same family so symbols match. This repository currently pins a **newer** `raylib-go` revision; for a strict **5.5** stack you would use **`v0.55.x`** bindings **and** a **5.5** DLL once the code is ported (see above).
 
-**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** (SQLite), **ENet**, etc. also need **CGO** if you use those features.
+**What is not “Go only” here:** Upstream **`raygui-go`** is **CGO + C**. On **Windows** with **`CGO_ENABLED=0`**, moonbasic still provides a **minimal** `GUI.*` layer drawn with Raylib (not full raygui). Advanced widgets (text entry, list views, `.rgs` themes, etc.) still need **CGO**. **`DB.*`** defaults to **`mattn/go-sqlite3`** (CGO); for **pure Go** SQLite with **`CGO_ENABLED=0`**, build with **`-tags modernc_sqlite`** ([`modernc.org/sqlite`](https://pkg.go.dev/modernc.org/sqlite)). **ENet** still needs **CGO** for the linked **libenet** path.
 
 **Linux / macOS:** **gen2brain/raylib-go** does **not** ship a non-CGO desktop Raylib for non-Windows; you link Raylib with **CGO** there.
 
@@ -37,8 +37,8 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
      pacman -S mingw-w64-x86_64-gcc
      ```
 - **Pure Go on Windows (no CGO)**  
-  You can build with **`CGO_ENABLED=0`** so **core Raylib** comes from **raylib-go’s purego** path (loads **`raylib.dll`** at runtime). **`GUI.*`** uses a **built-in minimal** widget set (see [GUI.md](reference/GUI.md)); full **raygui** still needs **CGO**. Other C-backed features (e.g. **`DB.*`** / SQLite, ENet networking) also require **CGO**.  
-  Place **`raylib.dll`** (matching your Raylib 5.x ABI) next to the executable or on **`PATH`**. **`go test ./...`** with **`CGO_ENABLED=0`** on Windows will initialize Raylib in packages that import it; without the DLL, those tests can panic at startup—use **`go build`** as a compile check, or set **`CGO_ENABLED=1`** for full tests.
+  You can build with **`CGO_ENABLED=0`** so **core Raylib** comes from **raylib-go’s purego** path (loads **`raylib.dll`** at runtime). **`GUI.*`** uses a **built-in minimal** widget set (see [GUI.md](reference/GUI.md)); full **raygui** still needs **CGO**. **`DB.*`** can use **`-tags modernc_sqlite`** (no CGO); **ENet** still requires **CGO**.  
+  Place **`raylib.dll`** (matching your Raylib 5.x ABI) next to the executable or on **`PATH`**. Package **`moonbasic/runtime`** no longer imports **`raylib-go`** for blend globals (numeric constants only), so **`go test ./vm/...`** and other tests that only need the registry/VM can run without **`raylib.dll`**. By default, **`go build .`** at the repo root and **`go build ./cmd/moonbasic`** produce a **compiler-only** binary (no game runtime, no Raylib link): **`--check`**, compile to **`.mbc`**, **`--lsp`**, and **`--disasm`** work without **`raylib.dll`**. To link the full runtime (**`moonbasic --run`**, **`moonrun`**, tests that execute scripts with **`pipeline.RunProgram`**), build with **`-tags fullruntime`** (for example **`go build -tags fullruntime .`** or **`go build -tags fullruntime ./cmd/moonrun`**). Full **`go test ./...`** may still link **`raylib-go`** in subpackages such as **`runtime/window`** or **`runtime/draw`**; without the DLL, those packages can still panic at **`init()`** on Windows—scope tests or provide the DLL / use **`CGO_ENABLED=1`** with a linked Raylib for a full matrix.
 
 ### Linux (Debian / Ubuntu)
 - **A C Compiler and Libraries**: You'll need `gcc` and the development headers for the libraries `raylib` depends on.
@@ -84,6 +84,8 @@ go build -o moonbasic.exe .
 ```
 
 Ensure **`raylib.dll`** is available at runtime. For **full raygui** (`GUI.*`), **`DB.*`**, or ENet, use **`CGO_ENABLED=1`** and a C toolchain as above.
+
+**Smoke test (purego only):** [`cmd/puregohello/`](../cmd/puregohello/) loads Raylib via [`internal/raylibpurego`](../internal/raylibpurego/) and moves a textured quad with the keyboard. Build with **`CGO_ENABLED=0`** and run with the same sidecar Raylib shared library as the main binary.
 
 ### 3. Build on Linux
 

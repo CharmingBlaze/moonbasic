@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"moonbasic/internal/driver"
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
@@ -14,37 +15,19 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func argInt(v value.Value) (int64, bool) {
-	if i, ok := v.ToInt(); ok {
-		return i, true
-	}
-	if f, ok := v.ToFloat(); ok {
-		return int64(f), true
-	}
-	return 0, false
-}
-
-func clampU8(v int64) uint8 {
-	switch {
-	case v < 0:
-		return 0
-	case v > 255:
-		return 255
-	default:
-		return uint8(v)
-	}
-}
-
 // Register wires Raylib-backed WINDOW.* and minimal RENDER.* handlers.
 
 func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("WINDOW.OPEN", "window", m.wOpen)
 	reg.Register("WINDOW.CANOPEN", "window", m.wCanOpen)
 	reg.Register("WINDOW.SETFPS", "window", m.wSetFPS)
+	reg.Register("WINDOW.SETMSAA", "window", m.wSetMSAA)
 	reg.Register("WINDOW.CLOSE", "window", m.wClose)
 	reg.Register("WINDOW.SHOULDCLOSE", "window", m.wShouldClose)
 	reg.Register("RENDER.CLEAR", "render", m.rClear)
 	reg.Register("RENDER.FRAME", "render", m.rFrame)
+	reg.Register("RENDER.BEGIN3D", "render", m.rBegin3D)
+	reg.Register("RENDER.END3D", "render", m.rEnd3D)
 	m.registerRenderAdvanced(reg)
 	m.registerPostCommands(reg)
 	m.registerEffectCommands(reg)
@@ -54,6 +37,8 @@ func (m *Module) Register(reg runtime.Registrar) {
 	m.registerWindowMetricsCommands(reg)
 	m.registerWindowPlacementCommands(reg)
 	m.registerAutomationCommands(reg)
+	m.registerBlitzSysCommands(reg)
+	m.registerBlitzDisplayQueries(reg)
 
 	// Global shorthands (Easy Mode)
 	reg.Register("SKYCOLOR", "draw", m.rClear)
@@ -80,6 +65,13 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, err
 	}
 
+	if m.usePuregoDLL() {
+		return m.puregoWOpen(rt, args...)
+	}
+	if err := driver.CheckWindow(m.driverSel); err != nil {
+		return value.Nil, err
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -87,6 +79,12 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		m.closeWindowLocked()
 	}
 
+	flags := uint32(rl.FlagWindowHighdpi)
+	// Raylib exposes a single MSAA hint bit; treat 2/4/8 sample requests as enabling it.
+	if m.msaaSamples >= 2 {
+		flags |= uint32(rl.FlagMsaa4xHint)
+	}
+	rl.SetConfigFlags(flags)
 	rl.InitWindow(int32(w), int32(h), title)
 	rl.SetTargetFPS(60)
 	if !rl.IsWindowReady() {
@@ -135,6 +133,9 @@ func (m *Module) wSetFPS(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	if !ok {
 		return value.Nil, fmt.Errorf("WINDOW.SETFPS: fps must be numeric")
 	}
+	if m.usePuregoDLL() {
+		return m.puregoWSetFPS(rt, args...)
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if !m.opened {
@@ -144,9 +145,27 @@ func (m *Module) wSetFPS(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	return value.Nil, nil
 }
 
+func (m *Module) wSetMSAA(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("WINDOW.SETMSAA expects 1 argument (samples)")
+	}
+	s, ok := argInt(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("WINDOW.SETMSAA: samples must be numeric")
+	}
+	m.mu.Lock()
+	m.msaaSamples = int32(s)
+	m.mu.Unlock()
+	return value.Nil, nil
+}
+
 func (m *Module) wClose(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("WINDOW.CLOSE expects 0 arguments")
+	}
+	if m.usePuregoDLL() {
+		return m.puregoWClose(rt, args...)
 	}
 	m.mu.Lock()
 	m.closeWindowLocked()
@@ -159,6 +178,16 @@ func (m *Module) wClose(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 func (m *Module) closeWindowLocked() {
 	if !m.opened {
+		return
+	}
+	if m.usePuregoDLL() {
+		g, err := m.ensureSidecar()
+		if err != nil {
+			m.opened = false
+			m.inFrame = false
+			return
+		}
+		m.closeWindowLockedPurego(g)
 		return
 	}
 	m.shutdownAutomation()
@@ -178,6 +207,9 @@ func (m *Module) wShouldClose(rt *runtime.Runtime, args ...value.Value) (value.V
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("WINDOW.SHOULDCLOSE expects 0 arguments")
 	}
+	if m.usePuregoDLL() {
+		return m.puregoWShouldClose(rt, args...)
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if !m.opened {
@@ -188,6 +220,9 @@ func (m *Module) wShouldClose(rt *runtime.Runtime, args ...value.Value) (value.V
 }
 
 func (m *Module) rClear(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.usePuregoDLL() {
+		return m.puregoRClear(rt, args...)
+	}
 	var c rl.Color
 	switch len(args) {
 	case 0:
@@ -241,11 +276,39 @@ func (m *Module) rClear(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.Nil, nil
 }
 
+// EnqueueCleanup adds a function to be run on the main thread at the start of the next frame.
+// Safe to call from any goroutine (e.g. Go finalizers).
+func (m *Module) EnqueueCleanup(fn func()) {
+	m.cleanupMu.Lock()
+	m.cleanupQueue = append(m.cleanupQueue, fn)
+	m.cleanupMu.Unlock()
+}
+
+func (m *Module) drainCleanupQueue() {
+	m.cleanupMu.Lock()
+	if len(m.cleanupQueue) == 0 {
+		m.cleanupMu.Unlock()
+		return
+	}
+	q := m.cleanupQueue
+	m.cleanupQueue = nil
+	m.cleanupMu.Unlock()
+	for _, fn := range q {
+		if fn != nil {
+			fn()
+		}
+	}
+}
+
 func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("RENDER.FRAME expects 0 arguments")
 	}
+	if m.usePuregoDLL() {
+		return m.puregoRFrame(rt, args...)
+	}
+	m.drainCleanupQueue()
 	m.mu.Lock()
 	if !m.opened {
 		m.mu.Unlock()
@@ -288,6 +351,19 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	defer m.mu.Unlock()
 	if !m.opened || !m.inFrame {
 		return value.Nil, nil
+	}
+	if rt != nil {
+		if msg := rt.LastScriptErrorMessage(); msg != "" {
+			const maxDraw = 220
+			s := "Script error: " + msg
+			if len(s) > maxDraw {
+				s = s[:maxDraw] + "…"
+			}
+			rl.DrawText(s, 8, 8, 18, rl.Red)
+			if ln := rt.LastScriptErrorLine(); ln > 0 {
+				rl.DrawText(fmt.Sprintf("line %d", ln), 8, 30, 16, rl.Maroon)
+			}
+		}
 	}
 	rl.EndDrawing()
 	m.inFrame = false

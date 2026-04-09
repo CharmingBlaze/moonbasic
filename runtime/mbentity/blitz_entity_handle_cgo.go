@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"moonbasic/runtime"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -125,8 +126,24 @@ func (m *Module) purgeEntityByID(id int64) {
 		}
 		rl.UnloadModel(e.rlModel)
 	}
+	if e.procMeshH != 0 && m.h != nil {
+		_ = m.h.Free(e.procMeshH)
+		e.procMeshH = 0
+	}
 	if e.name != "" {
 		delete(st.byName, strings.ToUpper(e.name))
 	}
+	if e.parentID >= 1 {
+		childLinkRemove(st, e.parentID, id)
+	}
+	for _, oe := range st.ents {
+		if oe != nil && oe.boneHostID == id {
+			oe.boneWorldValid = false
+			oe.boneHostID = 0
+			oe.boneIndex = -1
+		}
+	}
+	delete(st.children, id)
+	mbphysics3d.UnregisterEntityCollision(id)
 	delete(st.ents, id)
 }

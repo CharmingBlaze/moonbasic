@@ -158,8 +158,20 @@ func netSendStringHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (v
 	if m.h == nil {
 		return value.Nil, runtime.Errorf("NETSENDSTRING: heap not bound")
 	}
-	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("NETSENDSTRING expects (peer, text$)")
+	if len(args) < 2 || len(args) > 4 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("NETSENDSTRING expects (peer, text$, [channel], [reliable])")
+	}
+	ch := uint8(0)
+	if len(args) >= 3 {
+		if cv, ok := args[2].ToFloat(); ok {
+			ch = uint8(cv)
+		}
+	}
+	flags := enet.PacketFlagReliable // Default to reliable for simple helpers
+	if len(args) >= 4 {
+		if !truthy(args[3]) {
+			flags = 0
+		}
 	}
 	s, err := rt.ArgString(args, 1)
 	if err != nil {
@@ -176,11 +188,11 @@ func netSendStringHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (v
 	if po.peer == nil {
 		return value.Nil, runtime.Errorf("NETSENDSTRING: peer closed")
 	}
-	pkt, err := enet.NewPacket(buf, enet.PacketFlagReliable)
+	pkt, err := enet.NewPacket(buf, flags)
 	if err != nil {
 		return value.Nil, err
 	}
-	err = po.peer.SendPacket(pkt, 0)
+	err = po.peer.SendPacket(pkt, ch)
 	pkt.Destroy()
 	if err != nil {
 		return value.Nil, err
@@ -189,8 +201,20 @@ func netSendStringHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (v
 }
 
 func netSendIntHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("NETSENDINT expects (peer, value)")
+	if len(args) < 2 || len(args) > 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("NETSENDINT expects (peer, value, [channel], [reliable])")
+	}
+	ch := uint8(0)
+	if len(args) >= 3 {
+		if cv, ok := args[2].ToFloat(); ok {
+			ch = uint8(cv)
+		}
+	}
+	flags := enet.PacketFlagReliable
+	if len(args) >= 4 {
+		if !truthy(args[3]) {
+			flags = 0
+		}
 	}
 	v, ok := args[1].ToFloat()
 	if !ok {
@@ -198,7 +222,7 @@ func netSendIntHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 	}
 	b := make([]byte, 4)
 	binary.LittleEndian.PutUint32(b, uint32(int32(v)))
-	pkt, err := enet.NewPacket(b, enet.PacketFlagReliable)
+	pkt, err := enet.NewPacket(b, flags)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -211,7 +235,7 @@ func netSendIntHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 		pkt.Destroy()
 		return value.Nil, runtime.Errorf("NETSENDINT: peer closed")
 	}
-	err = po.peer.SendPacket(pkt, 0)
+	err = po.peer.SendPacket(pkt, ch)
 	pkt.Destroy()
 	if err != nil {
 		return value.Nil, err
@@ -220,8 +244,20 @@ func netSendIntHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 }
 
 func netSendFloatHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("NETSENDFLOAT expects (peer, value#)")
+	if len(args) < 2 || len(args) > 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("NETSENDFLOAT expects (peer, value#, [channel], [reliable])")
+	}
+	ch := uint8(0)
+	if len(args) >= 3 {
+		if cv, ok := args[2].ToFloat(); ok {
+			ch = uint8(cv)
+		}
+	}
+	flags := enet.PacketFlagReliable
+	if len(args) >= 4 {
+		if !truthy(args[3]) {
+			flags = 0
+		}
 	}
 	f, ok := args[1].ToFloat()
 	if !ok {
@@ -229,7 +265,7 @@ func netSendFloatHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (va
 	}
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, math.Float64bits(f))
-	pkt, err := enet.NewPacket(b, enet.PacketFlagReliable)
+	pkt, err := enet.NewPacket(b, flags)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -242,7 +278,7 @@ func netSendFloatHelper(m *Module, rt *runtime.Runtime, args ...value.Value) (va
 		pkt.Destroy()
 		return value.Nil, runtime.Errorf("NETSENDFLOAT: peer closed")
 	}
-	err = po.peer.SendPacket(pkt, 0)
+	err = po.peer.SendPacket(pkt, ch)
 	pkt.Destroy()
 	if err != nil {
 		return value.Nil, err

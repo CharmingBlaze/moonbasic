@@ -1,0 +1,37 @@
+; Jolt bouncing ball — requires Linux + CGO + Jolt (PHYSICS3D/BODY3D are stubs on Windows).
+; Collision queries (EntityCollided, CollisionPY, …) use post-step shape overlap after ENTITY.LINKPHYSBUFFER.
+;
+; Build/run on Linux: build with tags that enable mbphysics3d Jolt sources (jolt_*_linux.go), then run this script.
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -9.81, 0)
+
+defG = BODY3D.MAKE()
+BODY3D.ADDBOX(defG, 40, 2, 40)
+groundBody = BODY3D.COMMIT(defG, 0, -2, 0)
+
+defB = BODY3D.MAKE()
+BODY3D.ADDSPHERE(defB, 0.5)
+ballBody = BODY3D.COMMIT(defB, 0, 4, 0)
+BODY3D.ACTIVATE(ballBody)
+
+gBuf = BODY3D.BUFFERINDEX(groundBody)
+bBuf = BODY3D.BUFFERINDEX(ballBody)
+
+groundEnt = CreateCube()
+ballEnt = CreateSphere()
+ENTITY.LINKPHYSBUFFER(groundEnt, gBuf)
+ENTITY.LINKPHYSBUFFER(ballEnt, bBuf)
+
+hitPrev = 0
+FOR i = 1 TO 360
+    PHYSICS3D.STEP(1.0 / 60.0)
+    IF EntityCollided(ballEnt, groundEnt) THEN
+        IF hitPrev = 0 THEN PRINT "Contact"
+        hitPrev = 1
+    ELSE
+        hitPrev = 0
+    ENDIF
+NEXT i
+
+PHYSICS3D.STOP()

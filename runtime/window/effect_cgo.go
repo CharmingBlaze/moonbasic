@@ -21,6 +21,7 @@ func (m *Module) registerEffectCommands(r runtime.Registrar) {
 	r.Register("EFFECT.GRAIN", "post", m.effectGrain)
 	r.Register("EFFECT.VIGNETTE", "post", m.effectVignette)
 	r.Register("EFFECT.CHROMATICABERRATION", "post", m.effectChromatic)
+	r.Register("EFFECT.FXAA", "post", m.effectFXAA)
 }
 
 func effectGuard() error {
@@ -301,6 +302,21 @@ func (m *Module) effectChromatic(rt *runtime.Runtime, args ...value.Value) (valu
 			postKV["chromatic.offset"] = f
 		}
 	}
+	postMu.Unlock()
+	return value.Nil, nil
+}
+func (m *Module) effectFXAA(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if err := effectGuard(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("EFFECT.FXAA expects (enable)")
+	}
+	on := argBool01(args[0])
+	effectEnableBasics()
+	postMu.Lock()
+	postFXAA = on
 	postMu.Unlock()
 	return value.Nil, nil
 }

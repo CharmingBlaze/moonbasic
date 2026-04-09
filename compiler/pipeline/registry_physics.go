@@ -1,4 +1,4 @@
-//go:build !compiler_only && !nophysics
+//go:build fullruntime && !nophysics
 
 package pipeline
 
@@ -28,5 +28,6 @@ func wirePhysicsCallbacks(reg *runtime.Registry, machine *vm.VM) {
 	}
 	if p3 != nil {
 		p3.SetUserInvoker(machine.CallUserFunction)
+		p3.SetVM(machine)
 	}
 }

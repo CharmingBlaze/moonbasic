@@ -67,7 +67,8 @@ func (m *Module) shaderSetFloat(rt *runtime.Runtime, args ...value.Value) (value
 	if !ok {
 		return value.Nil, fmt.Errorf("SHADER.SETFLOAT: value must be numeric")
 	}
-	rl.SetShaderValue(sh.sh, loc, []float32{v}, rl.ShaderUniformFloat)
+	m.u1[0] = v
+	rl.SetShaderValue(sh.sh, loc, m.u1, rl.ShaderUniformFloat)
 	return value.Nil, nil
 }
 
@@ -81,7 +82,9 @@ func (m *Module) shaderSetVec2(rt *runtime.Runtime, args ...value.Value) (value.
 	if !ok1 || !ok2 {
 		return value.Nil, fmt.Errorf("SHADER.SETVEC2: x,y must be numeric")
 	}
-	rl.SetShaderValue(sh.sh, loc, []float32{x, y}, rl.ShaderUniformVec2)
+	m.u2[0] = x
+	m.u2[1] = y
+	rl.SetShaderValue(sh.sh, loc, m.u2, rl.ShaderUniformVec2)
 	return value.Nil, nil
 }
 
@@ -96,7 +99,10 @@ func (m *Module) shaderSetVec3(rt *runtime.Runtime, args ...value.Value) (value.
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("SHADER.SETVEC3: x,y,z must be numeric")
 	}
-	rl.SetShaderValue(sh.sh, loc, []float32{x, y, z}, rl.ShaderUniformVec3)
+	m.u3[0] = x
+	m.u3[1] = y
+	m.u3[2] = z
+	rl.SetShaderValue(sh.sh, loc, m.u3, rl.ShaderUniformVec3)
 	return value.Nil, nil
 }
 
@@ -112,7 +118,11 @@ func (m *Module) shaderSetVec4(rt *runtime.Runtime, args ...value.Value) (value.
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return value.Nil, fmt.Errorf("SHADER.SETVEC4: components must be numeric")
 	}
-	rl.SetShaderValue(sh.sh, loc, []float32{x, y, z, w}, rl.ShaderUniformVec4)
+	m.u4[0] = x
+	m.u4[1] = y
+	m.u4[2] = z
+	m.u4[3] = w
+	rl.SetShaderValue(sh.sh, loc, m.u4, rl.ShaderUniformVec4)
 	return value.Nil, nil
 }
 
@@ -129,7 +139,8 @@ func (m *Module) shaderSetInt(rt *runtime.Runtime, args ...value.Value) (value.V
 	} else {
 		return value.Nil, fmt.Errorf("SHADER.SETINT: value must be numeric")
 	}
-	rl.SetShaderValue(sh.sh, loc, []float32{float32(iv)}, rl.ShaderUniformInt)
+	m.u1[0] = float32(iv)
+	rl.SetShaderValue(sh.sh, loc, m.u1, rl.ShaderUniformInt)
 	return value.Nil, nil
 }
 

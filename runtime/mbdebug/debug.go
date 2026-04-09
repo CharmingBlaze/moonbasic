@@ -10,8 +10,19 @@ import (
 	"time"
 
 	"moonbasic/runtime"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
+
+func truthy(v value.Value) bool {
+	pool := strPool()
+	reg := runtime.ActiveRegistry()
+	var h *heap.Store
+	if reg != nil {
+		h = reg.Heap
+	}
+	return value.Truthy(v, pool, h)
+}
 
 func strPool() []string {
 	if r := runtime.ActiveRegistry(); r != nil && r.Prog != nil {
@@ -49,6 +60,9 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("DEBUG.STACKTRACE", "debug", runtime.AdaptLegacy(m.debugStackTrace))
 	r.Register("DEBUG.HEAPSTATS", "debug", runtime.AdaptLegacy(m.debugHeapStats))
 	r.Register("DEBUG.GCSTATS", "debug", runtime.AdaptLegacy(m.debugGCStats))
+	r.Register("DEBUG.DUMPHEAP", "debug", runtime.AdaptLegacy(m.debugDumpHeap))
+	r.Register("DEBUG.LISTCOMMANDS", "debug", runtime.AdaptLegacy(m.debugListCommands))
+	r.Register("DEBUG.SHOWFPSGRAPH", "debug", m.debugShowFPSGraph)
 	m.registerDebugDraw3D(r)
 }
 
@@ -335,4 +349,54 @@ func lastPause(s *debug.GCStats) time.Duration {
 		return 0
 	}
 	return s.Pause[len(s.Pause)-1]
+}
+
+func (m *Module) debugDumpHeap(args []value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("DEBUG.DUMPHEAP expects 0 arguments")
+	}
+	reg := runtime.ActiveRegistry()
+	if reg == nil || reg.Heap == nil {
+		return value.Nil, nil
+	}
+	w := runtime.DiagWriter()
+	fmt.Fprintln(w, "[DEBUG.DUMPHEAP] Scanning active handles...")
+	count := 0
+	reg.Heap.RangeObjects(func(h heap.Handle, obj heap.HeapObject) bool {
+		fmt.Fprintf(w, "  [%d] %s\n", h, obj.TypeName())
+		count++
+		return true
+	})
+	fmt.Fprintf(w, "Total: %d objects\n", count)
+	return value.Nil, nil
+}
+
+func (m *Module) debugListCommands(args []value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("DEBUG.LISTCOMMANDS expects 0 arguments")
+	}
+	reg := runtime.ActiveRegistry()
+	if reg == nil {
+		return value.Nil, nil
+	}
+	keys := reg.CommandKeys()
+	sort.Strings(keys)
+	w := runtime.DiagWriter()
+	fmt.Fprintln(w, "[DEBUG.LISTCOMMANDS] Registered Built-ins:")
+	for _, k := range keys {
+		fmt.Fprintf(w, "  %s\n", k)
+	}
+	fmt.Fprintf(w, "Total: %d commands\n", len(keys))
+	return value.Nil, nil
+}
+
+func (m *Module) debugShowFPSGraph(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, runtime.Errorf("DEBUG.SHOWFPSGRAPH expects 1 boolean argument")
+	}
+	on := truthy(args[0])
+	m.mu.Lock()
+	m.showFPSGraph = on
+	m.mu.Unlock()
+	return value.Nil, nil
 }

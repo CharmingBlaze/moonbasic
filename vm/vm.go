@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	"moonbasic/lineprof"
 	"moonbasic/runtime"
 	"moonbasic/vm/callstack"
 	"moonbasic/vm/heap"
@@ -15,7 +16,6 @@ import (
 
 // VM is the moonBASIC virtual machine instance.
 type VM struct {
-	Stack     []value.Value
 	CallStack *callstack.Stack
 	Registry  *runtime.Registry
 	Globals   map[string]value.Value
@@ -28,18 +28,16 @@ type VM struct {
 	Trace    bool      // If true, dump machine state after each instruction
 	TraceOut io.Writer // Destination for trace output (default os.Stderr)
 
-	// StackHygieneDebug when true (pipeline Options.Debug / CLI --info): if execution
-	// finishes with values left on the operand stack, return an error (ARCHITECTURE §6).
-	StackHygieneDebug bool
-
 	// Profiler when non-nil receives one tick per instruction executed (by source line).
-	Profiler *ProfileRecorder
+	Profiler lineprof.LineProfiler
+
+	// PhysicsScratch holds the last Jolt/WASM SoA float payload (host-filled before [OpSyncPhysics]).
+	PhysicsScratch []float64
 }
 
 // New creates a new VM instance with a linked registry and heap.
 func New(reg *runtime.Registry, h *heap.Store) *VM {
 	return &VM{
-		Stack:     make([]value.Value, 0, 1024),
 		CallStack: callstack.New(),
 		Registry:  reg,
 		Globals:   make(map[string]value.Value),
@@ -67,31 +65,53 @@ func (v *VM) runtimeError(msg string) error {
 	return fmt.Errorf("[moonBASIC] Error in %s:\n  %s", where, msg)
 }
 
-// Push a value onto the operand stack.
-func (v *VM) push(val value.Value) {
-	v.Stack = append(v.Stack, val)
-}
-
-// Pop a value from the operand stack.
-func (v *VM) pop() value.Value {
-	if len(v.Stack) == 0 {
+// reg returns a register from the current frame.
+func (v *VM) reg(idx uint8) value.Value {
+	frame := v.CallStack.Top()
+	if frame == nil {
 		return value.Nil
 	}
-	val := v.Stack[len(v.Stack)-1]
-	v.Stack = v.Stack[:len(v.Stack)-1]
-	return val
+	return frame.Registers[idx]
 }
 
-// Peek at the stack top.
-func (v *VM) peek() value.Value {
-	if len(v.Stack) == 0 {
-		return value.Nil
+// setReg sets a register in the current frame.
+func (v *VM) setReg(idx uint8, val value.Value) {
+	frame := v.CallStack.Top()
+	if frame != nil {
+		frame.Registers[idx] = val
 	}
-	return v.Stack[len(v.Stack)-1]
+}
+
+// SyncPhysicsFromFloat32View resizes [PhysicsScratch] and copies guest floats for use by [opcode.OpSyncPhysics].
+func (v *VM) SyncPhysicsFromFloat32View(src []float32) {
+	if len(src) == 0 {
+		v.PhysicsScratch = v.PhysicsScratch[:0]
+		return
+	}
+	if cap(v.PhysicsScratch) < len(src) {
+		v.PhysicsScratch = make([]float64, len(src))
+	} else {
+		v.PhysicsScratch = v.PhysicsScratch[:len(src)]
+	}
+	for i := range src {
+		v.PhysicsScratch[i] = float64(src[i])
+	}
 }
 
 // Execute runs the given program from its main entry point.
-func (v *VM) Execute(prog *opcode.Program) error {
+func (v *VM) Execute(prog *opcode.Program) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = v.runtimeError(fmt.Sprintf("VM Panic Recovery: %v", r))
+		}
+		if v.Registry != nil {
+			if err != nil {
+				v.Registry.SetLastScriptError(err)
+			} else {
+				v.Registry.ClearLastScriptError()
+			}
+		}
+	}()
 	v.Program = prog
 	v.Halted = false
 	v.Registry.Prog = prog
@@ -107,7 +127,7 @@ func (v *VM) Execute(prog *opcode.Program) error {
 	v.Registry.EraseAllHandlesFn = v.EraseAllHandles
 	defer func() { v.Registry.EraseAllHandlesFn = nil }()
 
-	// Push the <MAIN> chunk as our first call frame.
+	// Push the <MAIN> chunk as our first call frame (R0 as return reg, irrelevant for MAIN).
 	v.CallStack.Push(prog.Main, 0, 0)
 
 	for !v.Halted && v.CallStack.Depth() > 0 {
@@ -140,10 +160,6 @@ func (v *VM) Execute(prog *opcode.Program) error {
 		}
 	}
 
-	if v.StackHygieneDebug && len(v.Stack) != 0 && !v.Halted {
-		return fmt.Errorf("[moonBASIC] stack hygiene: program finished with %d value(s) on operand stack (expected 0 after statements; see ARCHITECTURE §6)", len(v.Stack))
-	}
-
 	return nil
 }
 
@@ -160,11 +176,14 @@ func (v *VM) EraseAllHandles() error {
 			v.Globals[name] = value.Nil
 		}
 	}
-	for i := range v.Stack {
-		if v.Stack[i].Kind == value.KindHandle {
-			v.Stack[i] = value.Nil
+	// Iterate through all active call frames and clear their registers
+	v.CallStack.Range(func(f *callstack.Frame) {
+		for i := range f.Registers {
+			if f.Registers[i].Kind == value.KindHandle {
+				f.Registers[i] = value.Nil
+			}
 		}
-	}
+	})
 	return nil
 }
 
@@ -175,70 +194,59 @@ func (v *VM) step(i opcode.Instruction) error {
 	case opcode.OpPushInt:
 		frame := v.CallStack.Top()
 		val := frame.Chunk.IntConsts[i.Operand]
-		v.push(value.FromInt(val))
+		v.setReg(i.Dst, value.FromInt(val))
 
 	case opcode.OpPushFloat:
 		frame := v.CallStack.Top()
 		val := frame.Chunk.FloatConsts[i.Operand]
-		v.push(value.FromFloat(val))
+		v.setReg(i.Dst, value.FromFloat(val))
 
 	case opcode.OpPushString:
 		idx := int(i.Operand)
 		if idx < 0 || idx >= len(v.Program.StringTable) {
 			return v.runtimeError("PUSH_STRING: string pool index out of range")
 		}
-		v.push(value.FromStringIndex(int32(idx)))
+		v.setReg(i.Dst, value.FromStringIndex(int32(idx)))
 
 	case opcode.OpPushBool:
-		v.push(value.FromBool(i.Operand != 0))
+		v.setReg(i.Dst, value.FromBool(i.Operand != 0))
 
 	case opcode.OpPushNull:
-		v.push(value.Nil)
+		v.setReg(i.Dst, value.Nil)
 
 	case opcode.OpPop:
-		v.pop()
+		// No-op in register VM.
 
 	case opcode.OpLoadGlobal:
 		frame := v.CallStack.Top()
 		name := frame.Chunk.Names[i.Operand]
 		if val, ok := v.Globals[name]; ok {
-			v.push(val)
+			v.setReg(i.Dst, val)
 		} else {
-			v.push(value.Nil)
+			v.setReg(i.Dst, value.Nil)
 		}
 
 	case opcode.OpStoreGlobal:
 		frame := v.CallStack.Top()
 		name := frame.Chunk.Names[i.Operand]
-		v.Globals[name] = v.peek()
+		v.Globals[name] = v.reg(i.SrcA)
+
+	case opcode.OpMove:
+		v.setReg(i.Dst, v.reg(i.SrcA))
 
 	case opcode.OpLoadLocal:
-		frame := v.CallStack.Top()
-		slot := int(i.Operand)
-		idx := frame.StackBase + slot
-		if idx >= 0 && idx < len(v.Stack) {
-			v.push(v.Stack[idx])
-		} else {
-			v.push(value.Nil)
-		}
+		return v.runtimeError("OpLoadLocal: use register moves instead")
 
 	case opcode.OpStoreLocal:
-		frame := v.CallStack.Top()
-		slot := int(i.Operand)
-		idx := frame.StackBase + slot
-		if idx >= 0 && idx < len(v.Stack) {
-			v.Stack[idx] = v.peek()
-		}
+		return v.runtimeError("OpStoreLocal: use register moves instead")
 
 	case opcode.OpHalt:
 		v.Halted = true
 
 	case opcode.OpSwap:
-		if len(v.Stack) < 2 {
-			return v.runtimeError("SWAP: stack underflow")
-		}
-		n := len(v.Stack)
-		v.Stack[n-1], v.Stack[n-2] = v.Stack[n-2], v.Stack[n-1]
+		a, b := v.reg(i.SrcA), v.reg(i.SrcB)
+		v.setReg(i.SrcA, b)
+		v.setReg(i.SrcB, a)
 
 	default:
 		// Delegate to specialized handlers for complex logic
@@ -248,7 +256,7 @@ func (v *VM) step(i opcode.Instruction) error {
 	return nil
 }
 
-// trace dumps IP, opcode, stack depth, and stack contents after each step.
+// trace dumps IP, opcode, and register state after each step.
 func (v *VM) trace(instr opcode.Instruction) {
 	out := v.TraceOut
 	if out == nil {
@@ -268,6 +276,11 @@ func (v *VM) trace(instr opcode.Instruction) {
 			line = int(frame.Chunk.SourceLines[ip])
 		}
 	}
-	fmt.Fprintf(out, "[trace] %s L%d IP=%d %s | depth=%d stack=%v\n",
-		chunk, line, ip, instr.String(), len(v.Stack), v.Stack)
+	// Trace now dumps the first few registers of the current frame
+	regs := "[]"
+	if frame != nil {
+		regs = fmt.Sprintf("%v", frame.Registers[:8]) // dump R0-R7
+	}
+	fmt.Fprintf(out, "[trace] %s L%d IP=%d %s | depth=%d regs=%v\n",
+		chunk, line, ip, instr.String(), v.CallStack.Depth(), regs)
 }

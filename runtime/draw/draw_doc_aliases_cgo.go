@@ -2,7 +2,10 @@
 
 package mbdraw
 
-import "moonbasic/runtime"
+import (
+	"moonbasic/runtime"
+	"moonbasic/vm/value"
+)
 
 // registerDrawNamespaceAliases registers DRAW.* names documented alongside DRAW3D.*
 // (examples use Draw.Grid inside Camera.Begin; that compiles to DRAW.GRID).
@@ -23,4 +26,7 @@ func registerDrawNamespaceAliases(m *Module, r runtime.Registrar) {
 	r.Register("DRAW.RAY", "draw", runtime.AdaptLegacy(m.drawRay))
 	r.Register("DRAW.BILLBOARD", "draw", runtime.AdaptLegacy(m.drawBillboard))
 	r.Register("DRAW.BILLBOARDREC", "draw", runtime.AdaptLegacy(m.drawBillboardRec))
+	r.Register("DRAW.TEXT", "draw", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return m.text(rt, args)
+	})
 }

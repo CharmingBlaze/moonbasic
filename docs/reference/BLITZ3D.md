@@ -151,10 +151,16 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 
 | Command | Purpose |
 |--------|---------|
+| **`Collisions` / `COLLISIONS(srcType, dstType, method, response)`** | Register **rule-based** pairs (e.g. sphere–box **`method`** **2**); resolved inside **`ENTITY.UPDATE`**. |
+| **`EntityType` / `ENTITY.TYPE`** | Integer **collision type** id for **`COLLISIONS`** **`src`/`dst`** matching. |
+| **`EntityHitsType(entity#, type#)`** → **bool** | **`TRUE`** if **`entity#`** hit any other entity with **`EntityType == type#`** after the last **`ENTITY.UPDATE`**. |
+| **`ENTITYCOLLIDED(entity#, type#)`** → **int** | Same hit test; returns **other entity id** or **0**. |
+| **`EntityCollided(a#, b#)`** → **bool** | **Jolt** pairwise contact (Linux + physics buffer link); **not** the same as **`EntityHitsType`**. |
 | **`Entity.Radius`**, **`Box`**, **`Type`**, **`Collide`** | Blitz-style **type** masks and **`Collide`**: which other types this entity hits. |
 | **`Entity.Collided`**, **`CollisionOther`** | Pairwise **dynamic**–**dynamic** overlap from last **`Update`**. |
 | **`Entity.CollisionX/Y/Z`**, **`CollisionNX/Y/Z`** | Last resolved **contact** point and **normal** (static resolution, sphere/box). |
 | **`Entity.Distance(a, b)`** | Distance between **world** positions. |
+| **`Entity.TFormVector` / `TFormVector(x,y,z, src, dst)`** | Direction in **`src`** local space → **3-float array handle** in **`dst`** local space (see [ENTITY.md](ENTITY.md)). |
 
 ### Physics helpers
 

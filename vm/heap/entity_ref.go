@@ -11,6 +11,7 @@ type EntityRef struct {
 var EntityFreeHook func(id int64)
 
 func (e *EntityRef) TypeName() string { return "ENTITYREF" }
+func (e *EntityRef) GetID() int64    { return e.ID }
 
 func (e *EntityRef) TypeTag() uint16 { return TagEntityRef }
 

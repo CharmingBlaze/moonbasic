@@ -7,9 +7,10 @@ import (
 	"math"
 	"sort"
 
-	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime"
+	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime/mbgame"
+	"moonbasic/runtime/mblight"
 	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/mbmodel3d"
 	mbtime "moonbasic/runtime/time"
@@ -19,7 +20,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var entityStores = make(map[*Module]*entityStore)
+var entityStores = make(map[*heap.Store]*entityStore)
 
 type collRule struct {
 	src, dst int32
@@ -28,22 +29,30 @@ type collRule struct {
 }
 
 type entityStore struct {
-	ents    map[int64]*ent
-	nextID  int64
-	byName  map[string]int64
-	groups  map[string]map[int64]struct{}
-	rules   []collRule
+	ents   map[int64]*ent
+	nextID int64
+	byName map[string]int64
+	// children maps parent entity id -> ordered list of direct child ids (insertion order).
+	children map[int64][]int64
+	groups   map[string]map[int64]struct{}
+	rules    []collRule
 }
 
 func (m *Module) store() *entityStore {
-	s := entityStores[m]
+	if m.h == nil {
+		// Fallback for registration-time if heap not yet bound
+		// (though Registry.RegisterModule binds it first).
+		panic("mbentity: store requested before heap bound")
+	}
+	s := entityStores[m.h]
 	if s == nil {
 		s = &entityStore{
-			ents:   make(map[int64]*ent),
-			nextID: 1,
-			byName: make(map[string]int64),
+			ents:     make(map[int64]*ent),
+			nextID:   1,
+			byName:   make(map[string]int64),
+			children: make(map[int64][]int64),
 		}
-		entityStores[m] = s
+		entityStores[m.h] = s
 	}
 	return s
 }
@@ -54,6 +63,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("ENTITY.CREATEBOX", "entity", runtime.AdaptLegacy(m.entCreateBox))
 	r.Register("ENTITY.CREATECUBE", "entity", runtime.AdaptLegacy(m.entCreateBox))
 	registerEntityBlitzAPI(m, r)
+	registerBrushBlitzAPI(m, r)
 	registerEntitySceneGroupAPI(m, r)
 	r.Register("ENTITY.SETPOSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.GETPOSITION", "entity", runtime.AdaptLegacy(m.entGetPosition))
@@ -74,18 +84,46 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("UPDATEWORLD", "entity", runtime.AdaptLegacy(m.entUpdate))
 	r.Register("RESETENTITY", "entity", runtime.AdaptLegacy(m.entReset))
 	r.Register("ENTITYCOLLIDED", "entity", runtime.AdaptLegacy(m.entCollidedType))
+	r.Register("EntityHitsType", "entity", runtime.AdaptLegacy(m.entEntityHitsType))
 	r.Register("COUNTCOLLISIONS", "entity", runtime.AdaptLegacy(m.entCountCollisions))
 	r.Register("GETCOLLISIONENTITY", "entity", runtime.AdaptLegacy(m.entGetCollisionEntity))
 
 	r.Register("ENTITY.DRAWALL", "entity", runtime.AdaptLegacy(m.entDrawAll))
+	r.Register("ENTITY.SETCULLMODE", "entity", runtime.AdaptLegacy(m.entSetCullMode))
 	r.Register("CAMERA.FOLLOWENTITY", "entity", m.camFollowEntity)
+	registerPhysicsEntitySync(m, r)
+	registerJoltEntityCollisionAPI(m, r)
 	registerBlitzEntityHandles(m, r)
+
+	mblight.SetLightFollowWorldPosGetter(func(id int64) (float32, float32, float32, bool) {
+		e := m.store().ents[id]
+		if e == nil {
+			return 0, 0, 0, false
+		}
+		wp := m.worldPos(e)
+		return wp.X, wp.Y, wp.Z, true
+	})
 }
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {
 	clearEntityRefFreeHookIfOwner(m)
-	delete(entityStores, m)
+	if m.h != nil {
+		delete(entityStores, m.h)
+	}
+}
+
+// ForEachStatic iterates over all entities marked as 'static' and calls the provided function
+// with their world-space Axis-Aligned Bounding Box.
+func (m *Module) ForEachStatic(fn func(id int64, worldAABB rl.BoundingBox)) {
+	st := m.store()
+	for id, e := range st.ents {
+		if !e.static || e.hidden {
+			continue
+		}
+		mn, mx := m.aabbWorldMinMax(e)
+		fn(id, rl.NewBoundingBox(mn, mx))
+	}
 }
 
 func (m *Module) camFollowEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -137,6 +175,7 @@ func (m *Module) entCreate(args []value.Value) (value.Value, error) {
 	e.static = false
 	e.gravity = -28
 	st.ents[id] = e
+	fmt.Println("MB_DEBUG: CREATESPHERE ID =", id)
 	return value.FromInt(id), nil
 }
 
@@ -161,6 +200,7 @@ func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
 	e.useSphere = false
 	e.gravity = 0
 	st.ents[id] = e
+	fmt.Println("MB_DEBUG: CREATEBOX ID =", id)
 	return value.FromInt(id), nil
 }
 
@@ -168,7 +208,7 @@ func (m *Module) entSetPosition(args []value.Value) (value.Value, error) {
 	if len(args) != 4 && len(args) != 5 {
 		return value.Nil, fmt.Errorf("ENTITY.SETPOSITION expects 4–5 arguments (entity#, x#, y#, z# [, global])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.SETPOSITION: invalid entity")
 	}
@@ -208,7 +248,7 @@ func (m *Module) entGetPosition(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.GETPOSITION expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.GETPOSITION: invalid entity")
 	}
@@ -242,7 +282,7 @@ func (m *Module) entMove(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.MOVE expects 4 arguments (entity#, forward#, right#, up#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.MOVE: invalid entity")
 	}
@@ -268,7 +308,7 @@ func (m *Module) entTranslate(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.TRANSLATE expects 4 arguments (entity#, dx#, dy#, dz#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.TRANSLATE: invalid entity")
 	}
@@ -292,7 +332,7 @@ func (m *Module) entRotate(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.ROTATE expects 4 arguments (entity#, dpitch#, dyaw#, droll#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.ROTATE: invalid entity")
 	}
@@ -316,11 +356,12 @@ func (m *Module) entScale(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.SCALE expects 4 arguments (entity#, sx#, sy#, sz#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.SCALE: invalid entity")
 	}
-	e := m.store().ents[id]
+	st := m.store()
+	e := st.ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("ENTITY.SCALE: unknown entity %d", id)
 	}
@@ -335,10 +376,10 @@ func (m *Module) entScale(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entColor(args []value.Value) (value.Value, error) {
-	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("ENTITY.COLOR expects 4 arguments (entity#, r, g, b)")
+	if len(args) != 4 && len(args) != 5 {
+		return value.Nil, fmt.Errorf("ENTITY.COLOR expects 4–5 arguments (entity#, r, g, b [, a])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.COLOR: invalid entity")
 	}
@@ -355,6 +396,14 @@ func (m *Module) entColor(args []value.Value) (value.Value, error) {
 	e.r = uint8(ri)
 	e.g = uint8(gi)
 	e.b = uint8(bi)
+	if len(args) == 5 {
+		ai, ok4 := args[4].ToInt()
+		if ok4 {
+			e.alpha = float32(ai) / 255.0
+		} else if af, ok5 := args[4].ToFloat(); ok5 {
+			e.alpha = float32(af) / 255.0
+		}
+	}
 	return value.Nil, nil
 }
 
@@ -362,7 +411,7 @@ func (m *Module) entRadius(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.RADIUS expects 2 arguments (entity#, radius#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.RADIUS: invalid entity")
 	}
@@ -387,7 +436,7 @@ func (m *Module) entBox(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.BOX expects 4 arguments (entity#, w#, h#, d#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.BOX: invalid entity")
 	}
@@ -410,7 +459,7 @@ func (m *Module) entCollided(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.COLLIDED expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.COLLIDED: invalid entity")
 	}
@@ -425,7 +474,7 @@ func (m *Module) entCollisionOther(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.COLLISIONOTHER expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.COLLISIONOTHER: invalid entity")
 	}
@@ -440,7 +489,7 @@ func (m *Module) entFloor(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.FLOOR expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.FLOOR: invalid entity")
 	}
@@ -493,7 +542,7 @@ func (m *Module) entSetGravity(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SETGRAVITY expects 2 arguments (entity#, gravity#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.SETGRAVITY: invalid entity")
 	}
@@ -514,7 +563,7 @@ func (m *Module) entJump(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.JUMP expects 2 arguments (entity#, force#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.JUMP: invalid entity")
 	}
@@ -526,9 +575,10 @@ func (m *Module) entJump(args []value.Value) (value.Value, error) {
 	if !ok1 {
 		return value.Nil, fmt.Errorf("ENTITY.JUMP: force must be numeric")
 	}
-	if e.onGround {
+	if e.jumpGrounded {
 		e.vel.Y += f
 		e.onGround = false
+		e.groundCoyoteLeft = 0
 	}
 	return value.Nil, nil
 }
@@ -538,8 +588,12 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("UPDATEWORLD expects (dt#)")
 	}
 	dt, ok := argF32(args[0])
-	if !ok || dt <= 0 {
-		return value.Nil, fmt.Errorf("UPDATEWORLD: dt must be positive")
+	if !ok {
+		return value.Nil, fmt.Errorf("UPDATEWORLD: dt must be numeric")
+	}
+	if dt <= 0 {
+		// First frame / vsync edge / closing window can yield 0 delta; skip tick instead of erroring out.
+		return value.Nil, nil
 	}
 
 	st := m.store()
@@ -548,6 +602,8 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	for _, e := range st.ents {
 		e.collided = false
 		e.hits = e.hits[:0]
+		e.hitPos = e.hitPos[:0]
+		e.hitN = e.hitN[:0]
 		e.hasHit = false
 	}
 
@@ -611,7 +667,15 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	// 4. Resolve Global Collision Rules
 	m.resolveRules()
 
-	// 5. Update Animations
+	// 4b. Floor contact from rule hits (supports platforms when snap pass missed).
+	for _, e := range st.ents {
+		if e == nil {
+			continue
+		}
+		m.refreshGroundFromRules(e)
+	}
+
+	// 5. Update Animations (skeletal clips + GPU bone matrices for sockets)
 	for _, e := range st.ents {
 		if len(e.modelAnims) == 0 {
 			continue
@@ -627,21 +691,52 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		if e.animSpeed != 0 {
 			e.animTime += dt * e.animSpeed * 30
 		}
-		var frame int32
-		if e.animMode == 0 {
-			frame = int32(e.animTime) % anim.FrameCount
-			if frame < 0 {
-				frame += anim.FrameCount
-			}
-		} else {
-			frame = int32(e.animTime)
-			if frame >= anim.FrameCount {
-				frame = anim.FrameCount - 1
-			}
-		}
+		frame := pickAnimFrame(e, anim)
 		rl.UpdateModelAnimation(e.rlModel, anim, frame)
+		rl.UpdateModelAnimationBones(e.rlModel, anim, frame)
+	}
+	m.syncBoneSockets()
+	if m.h != nil {
+		mblight.SyncPointFollowLights(m.h)
+	}
+
+	// 6. Jump coyote: brief grace after leaving a ledge (ENTITY.GROUNDED / EntityGrounded / ENTITY.JUMP).
+	for _, e := range st.ents {
+		if e == nil || e.static {
+			continue
+		}
+		finalizeJumpGrounded(e, e.onGround)
 	}
 	return value.Nil, nil
+}
+
+const groundCoyoteMax = 2
+
+func finalizeJumpGrounded(e *ent, touching bool) {
+	c := e.groundCoyoteLeft
+	e.jumpGrounded = touching || c > 0
+	if touching {
+		e.groundCoyoteLeft = groundCoyoteMax
+	} else if c > 0 {
+		e.groundCoyoteLeft = c - 1
+	}
+}
+
+func (m *Module) refreshGroundFromRules(e *ent) {
+	if e.static || !e.useSphere || e.onGround {
+		return
+	}
+	for i := range e.hits {
+		if i >= len(e.hitN) {
+			break
+		}
+		n := e.hitN[i]
+		if n.Y < 0.45 {
+			continue
+		}
+		e.onGround = true
+		return
+	}
 }
 
 func (m *Module) aabbWorldMinMax(e *ent) (mn, mx rl.Vector3) {
@@ -794,17 +889,6 @@ func (m *Module) pairwiseDynamic() {
 	}
 }
 
-func entTint(e *ent) rl.Color {
-	a := e.alpha
-	if a < 0 {
-		a = 0
-	}
-	if a > 1 {
-		a = 1
-	}
-	return rl.Color{R: e.r, G: e.g, B: e.b, A: uint8(a * 255)}
-}
-
 func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("ENTITY.DRAWALL expects 0 arguments")
@@ -820,7 +904,7 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 			continue
 		}
 		switch e.kind {
-		case entKindBox, entKindSphere, entKindCylinder, entKindPlane, entKindMesh, entKindModel:
+		case entKindBox, entKindSphere, entKindCylinder, entKindCone, entKindPlane, entKindMesh, entKindModel:
 			drawList = append(drawList, e)
 		}
 	}
@@ -828,8 +912,15 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 		return drawList[i].drawOrder < drawList[j].drawOrder
 	})
 	for _, e := range drawList {
+		if !m.isVisible(e) {
+			continue
+		}
+		useBlend, blendM := m.entDrawBlendMode(e)
+		if useBlend {
+			rl.BeginBlendMode(blendM)
+		}
 		wp := m.worldPos(e)
-		col := entTint(e)
+		col := m.entTintResolved(e)
 		if e.isSprite && e.texHandle != 0 {
 			if obj, ok := m.h.Get(e.texHandle); ok {
 				if to, ok := obj.(*textureObj); ok {
@@ -840,6 +931,9 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 						rl.DrawBillboardRec(cam, to.tex, src, wp, size, col)
 					}
 				}
+			}
+			if useBlend {
+				rl.EndBlendMode()
 			}
 			continue
 		}
@@ -880,6 +974,18 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 				slices = 16
 			}
 			rl.DrawCylinder(wp, rt, rt, h, slices, col)
+		case entKindCone:
+			h := e.cylH * e.scale.Y
+			rs := e.scale.X
+			if e.scale.Z > rs {
+				rs = e.scale.Z
+			}
+			rt := e.radius * rs
+			slices := e.segV
+			if slices < 3 {
+				slices = 16
+			}
+			rl.DrawCylinder(wp, 0, rt, h, slices, col)
 		case entKindPlane:
 			sx := e.w * e.scale.X
 			sz := e.d * e.scale.Z
@@ -892,17 +998,91 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 			rl.DrawPlane(wp, rl.Vector2{X: sx, Y: sz}, col)
 		case entKindMesh, entKindModel:
 			if !e.hasRLModel {
+				if useBlend {
+					rl.EndBlendMode()
+				}
 				continue
 			}
-			q := m.worldRotQuat(e)
-			var axis rl.Vector3
-			var ang float32
-			rl.QuaternionToAxisAngle(q, &axis, &ang)
-			sc := rl.Vector3{X: e.scale.X, Y: e.scale.Y, Z: e.scale.Z}
-			rl.DrawModelEx(e.rlModel, wp, axis, ang, sc, col)
+			wm := m.worldMatrix(e)
+			saved := e.rlModel.Transform
+			e.rlModel.Transform = wm
+			mbmodel3d.DrawEntityModel(e.rlModel, col)
+			e.rlModel.Transform = saved
+		}
+		if useBlend {
+			rl.EndBlendMode()
 		}
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) isVisible(e *ent) bool {
+	if e.cullMode == 1 { // Force Visible
+		return true
+	}
+	if e.cullMode == 2 { // Force Hidden
+		return false
+	}
+	// cullMode == 0 (Auto): draw and let the GPU clip. CPU frustum tests (PV plane extraction)
+	// must match rl.BeginMode3D's projection * view exactly; small mismatches (aspect, matrix
+	// layout, clip planes) have culled entire scenes while rl.DrawCube still would render.
+	return true
+}
+
+func (m *Module) entSetCullMode(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENTITY.SETCULLMODE expects (entity#, mode): 0=Auto, 1=Force Visible, 2=Force Hidden")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.SETCULLMODE: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.SETCULLMODE: unknown entity %d", id)
+	}
+	mode, ok := args[1].ToInt()
+	if !ok {
+		return value.Nil, fmt.Errorf("ENTITY.SETCULLMODE: mode must be numeric")
+	}
+	e.cullMode = int32(mode)
+	return value.Nil, nil
+}
+
+func (m *Module) entID(v value.Value) (int64, bool) {
+	if v.Kind == value.KindHandle {
+		h := heap.Handle(v.IVal)
+		reg := runtime.ActiveRegistry()
+		if reg == nil || reg.Heap == nil {
+			fmt.Printf("[CRITICAL] entID: no active registry/heap for handle %d\n", h)
+			return 0, false
+		}
+		obj, ok := reg.Heap.Get(h)
+		if !ok {
+			fmt.Printf("[DEBUG] entID: handle %d NOT found in heap (count=%d)\n", h, reg.Heap.Count())
+			return 0, false
+		}
+		if obj.TypeTag() == heap.TagEntityRef {
+			if ref, ok := obj.(interface{ GetID() int64 }); ok {
+				return ref.GetID(), true
+			}
+			if er, ok := obj.(*heap.EntityRef); ok {
+				return er.ID, true
+			}
+		}
+		fmt.Printf("[DEBUG] entID: handle %d is NOT an EntityRef (tag=%d name=%s)\n", h, obj.TypeTag(), obj.TypeName())
+		return 0, false
+	}
+
+	id, ok := v.ToInt()
+	if !ok || id < 1 {
+		return 0, false
+	}
+	st := m.store()
+	if _, exists := st.ents[id]; exists {
+		return id, true
+	}
+	return 0, false
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {
@@ -941,7 +1121,7 @@ func (m *Module) entReset(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("RESETENTITY expects entity#")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -956,7 +1136,7 @@ func (m *Module) entCollidedType(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITYCOLLIDED expects (entity#, targetType)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -971,11 +1151,20 @@ func (m *Module) entCollidedType(args []value.Value) (value.Value, error) {
 	return value.FromInt(0), nil
 }
 
+func (m *Module) entEntityHitsType(args []value.Value) (value.Value, error) {
+	v, err := m.entCollidedType(args)
+	if err != nil {
+		return value.Nil, err
+	}
+	id, _ := v.ToInt()
+	return value.FromBool(id != 0), nil
+}
+
 func (m *Module) entCountCollisions(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("COUNTCOLLISIONS expects entity#")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -987,7 +1176,7 @@ func (m *Module) entGetCollisionEntity(args []value.Value) (value.Value, error) 
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("GETCOLLISIONENTITY expects (entity#, index)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -1042,7 +1231,8 @@ func (m *Module) checkAndResolve(s, d *ent, rule collRule) {
 		if dist < sum && dist > 1e-6 {
 			n := rl.Vector3Normalize(rl.Vector3Subtract(ps, pd))
 			pen := sum - dist
-			m.resolveResponse(s, d, n, pen, rule.response)
+			contact := rl.Vector3Subtract(ps, rl.Vector3Scale(n, s.radius))
+			m.resolveResponse(s, d, n, pen, rule.response, contact)
 		}
 	} else if rule.method == 2 { // Sph-Box
 		mn, mx := m.aabbWorldMinMax(d)
@@ -1055,17 +1245,22 @@ func (m *Module) checkAndResolve(s, d *ent, rule collRule) {
 		if dist < s.radius && dist > 1e-6 {
 			n := rl.Vector3Normalize(rl.Vector3Subtract(ps, closest))
 			pen := s.radius - dist
-			m.resolveResponse(s, d, n, pen, rule.response)
+			m.resolveResponse(s, d, n, pen, rule.response, closest)
 		}
 	}
 }
 
-func (m *Module) resolveResponse(s, d *ent, n rl.Vector3, pen float32, resp int32) {
+func (m *Module) resolveResponse(s, d *ent, n rl.Vector3, pen float32, resp int32, contact rl.Vector3) {
 	ps := m.worldPos(s)
 	ps = rl.Vector3Add(ps, rl.Vector3Scale(n, pen))
 	m.setLocalFromWorld(s, ps.X, ps.Y, ps.Z)
 	s.collided = true
 	s.hits = append(s.hits, d.id)
+	s.hitPos = append(s.hitPos, contact)
+	s.hitN = append(s.hitN, n)
+	s.hasHit = true
+	s.hitX, s.hitY, s.hitZ = contact.X, contact.Y, contact.Z
+	s.hitNX, s.hitNY, s.hitNZ = n.X, n.Y, n.Z
 	if resp >= 2 { // Slide
 		vn := rl.Vector3Scale(n, rl.Vector3DotProduct(s.vel, n))
 		s.vel = rl.Vector3Subtract(s.vel, vn)

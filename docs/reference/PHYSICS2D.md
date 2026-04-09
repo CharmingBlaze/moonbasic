@@ -114,7 +114,7 @@ WHILE NOT Window.ShouldClose()
     Physics2D.Step()
 
     Render.Clear(10, 20, 30)
-    Render.BeginMode2D()
+    Camera2D.Begin()
         ; 5. Synchronize visuals
         box_x = Body2D.X(box_body)
         box_y = Body2D.Y(box_body)
@@ -125,7 +125,7 @@ WHILE NOT Window.ShouldClose()
         ; Draw box (rotation not visually applied without a sprite, but position is correct)
         Draw.Rectangle(INT(box_x) - 20, INT(box_y) - 20, 40, 40, 200, 50, 50, 255)
 
-    Render.EndMode2D()
+    Camera2D.End()
     Render.Frame()
 WEND
 

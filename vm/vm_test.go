@@ -20,10 +20,11 @@ func TestTraceOpcodeSequence(t *testing.T) {
 	v.TraceOut = &buf
 
 	p := opcode.NewProgram()
-	p.Main.Emit(opcode.OpPushInt, p.Main.AddInt(2), 0, 1)
-	p.Main.Emit(opcode.OpPushInt, p.Main.AddInt(3), 0, 1)
-	p.Main.Emit(opcode.OpAdd, 0, 0, 1)
-	p.Main.Emit(opcode.OpHalt, 0, 0, 1)
+	// Emit(op, dst, srcA, srcB, operand, line)
+	p.Main.Emit(opcode.OpPushInt, 0, 0, 0, p.Main.AddInt(2), 1)
+	p.Main.Emit(opcode.OpPushInt, 1, 0, 0, p.Main.AddInt(3), 1)
+	p.Main.Emit(opcode.OpAdd, 2, 0, 1, 0, 1) // R2 = R0 + R1
+	p.Main.Emit(opcode.OpHalt, 0, 0, 0, 0, 1)
 
 	if err := v.Execute(p); err != nil {
 		t.Fatal(err)

@@ -26,9 +26,15 @@ var (
 	lightSpaceVP   rl.Matrix
 
 	deferredMeshes  []deferredMeshRec
-	deferredModels  []heap.Handle
+	deferredModels  []deferredModelRec
 	pendingInstDraw []instancedDrawRec
 )
+
+type deferredModelRec struct {
+	modelH heap.Handle
+	useExt bool
+	extMtx rl.Matrix
+}
 
 type deferredMeshRec struct {
 	meshH, matH heap.Handle
@@ -121,8 +127,8 @@ func FlushDeferred3D(h *heap.Store) {
 		}
 	}
 
-	for _, mh := range models {
-		drawDeferredModelColorByHandle(h, mh, shadowOn)
+	for _, rec := range models {
+		drawDeferredModelColorByRec(h, rec, shadowOn)
 	}
 
 	for _, id := range inst {
@@ -138,13 +144,27 @@ func FlushDeferred3D(h *heap.Store) {
 	}
 }
 
-func drawDeferredModelColorByHandle(h *heap.Store, mh heap.Handle, shadowOn bool) {
-	if mo, err := heap.Cast[*modelObj](h, mh); err == nil {
-		drawDeferredModelsColor(mo, shadowOn)
+func drawDeferredModelColorByRec(h *heap.Store, rec deferredModelRec, shadowOn bool) {
+	if mo, err := heap.Cast[*modelObj](h, rec.modelH); err == nil {
+		if rec.useExt {
+			saved := mo.model.Transform
+			mo.model.Transform = rec.extMtx
+			drawDeferredModelsColor(mo, shadowOn)
+			mo.model.Transform = saved
+		} else {
+			drawDeferredModelsColor(mo, shadowOn)
+		}
 		return
 	}
-	if lo, err := heap.Cast[*lodModelObj](h, mh); err == nil {
-		drawLODModelColor(lo, shadowOn)
+	if lo, err := heap.Cast[*lodModelObj](h, rec.modelH); err == nil {
+		if rec.useExt {
+			saved := lo.transform
+			lo.transform = rec.extMtx
+			drawLODModelColor(lo, shadowOn)
+			lo.transform = saved
+		} else {
+			drawLODModelColor(lo, shadowOn)
+		}
 	}
 }
 
@@ -195,23 +215,31 @@ func drawLODModelColor(lo *lodModelObj, shadowOn bool) {
 	}
 }
 
-func drawDeferredModelShadowDepth(h *heap.Store, mh heap.Handle) {
-	if mo, err := heap.Cast[*modelObj](h, mh); err == nil {
+func drawDeferredModelShadowDepth(h *heap.Store, rec deferredModelRec) {
+	if mo, err := heap.Cast[*modelObj](h, rec.modelH); err == nil {
+		mtx := mo.model.Transform
+		if rec.useExt {
+			mtx = rec.extMtx
+		}
 		meshes := mo.model.GetMeshes()
 		for mi := int32(0); mi < mo.model.MeshCount; mi++ {
-			rl.DrawMesh(meshes[mi], depthDrawMat, mo.model.Transform)
+			rl.DrawMesh(meshes[mi], depthDrawMat, mtx)
 		}
 		return
 	}
-	if lo, err := heap.Cast[*lodModelObj](h, mh); err == nil {
+	if lo, err := heap.Cast[*lodModelObj](h, rec.modelH); err == nil {
 		li := lo.pickLOD(activeCamPos)
 		if li < 0 {
 			return
 		}
+		mtx := lo.transform
+		if rec.useExt {
+			mtx = rec.extMtx
+		}
 		mod := &lo.models[li]
 		meshes := mod.GetMeshes()
 		for mi := int32(0); mi < mod.MeshCount; mi++ {
-			rl.DrawMesh(meshes[mi], depthDrawMat, lo.transform)
+			rl.DrawMesh(meshes[mi], depthDrawMat, mtx)
 		}
 	}
 }
@@ -276,7 +304,7 @@ func drawInstancedRaster(io *instancedModelObj, lodMesh *meshObj, lodDist float3
 	}
 }
 
-func renderShadowPassDepth(h *heap.Store, meshes []deferredMeshRec, models []heap.Handle, inst []instancedDrawRec) {
+func renderShadowPassDepth(h *heap.Store, meshes []deferredMeshRec, models []deferredModelRec, inst []instancedDrawRec) {
 	rl.BeginTextureMode(shadowRT)
 	rl.ClearBackground(rl.White)
 	lc := lightCamera()
@@ -289,8 +317,8 @@ func renderShadowPassDepth(h *heap.Store, meshes []deferredMeshRec, models []hea
 		}
 		rl.DrawMesh(mo.m, depthDrawMat, rec.mtx)
 	}
-	for _, mh := range models {
-		drawDeferredModelShadowDepth(h, mh)
+	for _, rec := range models {
+		drawDeferredModelShadowDepth(h, rec)
 	}
 	for _, id := range inst {
 		io, err := heap.Cast[*instancedModelObj](h, id.instH)
@@ -459,6 +487,13 @@ func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool) {
 
 	setFloat("roughnessValue", rough)
 	setFloat("metalnessValue", metal)
+	emPow := mat.GetMap(rl.MapEmission).Value
+	if emPow < 0 {
+		emPow = 0
+	}
+	if rl.GetShaderLocation(sh, "emissionPower") >= 0 {
+		setFloat("emissionPower", emPow)
+	}
 	setVec3("camPos", activeCamPos.X, activeCamPos.Y, activeCamPos.Z)
 	setVec3("lightDir", lx, ly, lz)
 	setVec3("lightColor", lr, lg, lb)

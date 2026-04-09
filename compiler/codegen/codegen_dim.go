@@ -4,14 +4,15 @@ import (
 	"strings"
 
 	"moonbasic/compiler/ast"
-	"moonbasic/compiler/symtable"
 	"moonbasic/vm/opcode"
 )
 
 func (g *CodeGen) emitDim(ch *opcode.Chunk, n *ast.DimNode) {
+	g.nextReg = g.baseReg
 	flags := arrayKindFlags(n.Name)
 	if n.IsRedim {
-		g.emitExpr(ch, &ast.IdentNode{Name: n.Name, Line: n.Line, Col: n.Col})
+		hReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Name, Line: n.Line, Col: n.Col})
+		argStart := g.nextReg
 		for _, d := range n.Dims {
 			g.emitExpr(ch, d)
 		}
@@ -19,42 +20,37 @@ func (g *CodeGen) emitDim(ch *opcode.Chunk, n *ast.DimNode) {
 		if n.Preserve {
 			preserve = 1
 		}
-		ch.Emit(opcode.OpArrayRedim, int32(len(n.Dims)), preserve, n.Line)
+		// OpArrayRedim: Dst=PreserveFlag, SrcA=HandleReg, SrcB=ArgStart, Operand=DimCount
+		ch.Emit(opcode.OpArrayRedim, preserve, hReg, argStart, int32(len(n.Dims)), n.Line)
+		g.nextReg = g.baseReg
 		return
 	}
+	
 	if n.ElemType != "" {
+		argStart := g.nextReg
 		for _, d := range n.Dims {
 			g.emitExpr(ch, d)
 		}
 		tn := strings.ToUpper(n.ElemType)
 		tidx := ch.AddName(tn)
-		ch.Emit(opcode.OpArrayMakeTyped, tidx, uint8(len(n.Dims)), n.Line)
-		sym := g.resolveOrDefineAssignTarget(n.Name)
-		if sym != nil && (sym.Kind == symtable.Local || sym.Kind == symtable.Param) {
-			ch.Emit(opcode.OpStoreLocal, int32(sym.Slot), 0, n.Line)
-		} else if sym != nil && sym.Kind == symtable.Static {
-			k := ch.AddName(sym.StaticKey)
-			ch.Emit(opcode.OpStoreGlobal, k, 0, n.Line)
-		} else {
-			idx := ch.AddName(n.Name)
-			ch.Emit(opcode.OpStoreGlobal, idx, 0, n.Line)
-		}
-		ch.Emit(opcode.OpPop, 0, 0, n.Line)
+		
+		dst := g.allocReg()
+		// OpArrayMakeTyped: Dst=handle, SrcA=ArgStart, SrcB=DimCount, Operand=TypeIdx
+		ch.Emit(opcode.OpArrayMakeTyped, dst, argStart, uint8(len(n.Dims)), tidx, n.Line)
+		
+		g.emitStoreNamed(ch, n.Name, n.Line, dst)
+		g.nextReg = g.baseReg
 		return
 	}
+	
+	argStart := g.nextReg
 	for _, d := range n.Dims {
 		g.emitExpr(ch, d)
 	}
-	ch.Emit(opcode.OpArrayMake, int32(len(n.Dims)), flags, n.Line)
-	sym := g.resolveOrDefineAssignTarget(n.Name)
-	if sym != nil && (sym.Kind == symtable.Local || sym.Kind == symtable.Param) {
-		ch.Emit(opcode.OpStoreLocal, int32(sym.Slot), 0, n.Line)
-	} else if sym != nil && sym.Kind == symtable.Static {
-		k := ch.AddName(sym.StaticKey)
-		ch.Emit(opcode.OpStoreGlobal, k, 0, n.Line)
-	} else {
-		idx := ch.AddName(n.Name)
-		ch.Emit(opcode.OpStoreGlobal, idx, 0, n.Line)
-	}
-	ch.Emit(opcode.OpPop, 0, 0, n.Line)
+	dst := g.allocReg()
+	// OpArrayMake: Dst=handle, SrcA=Kind, SrcB=ArgStart, Operand=DimCount
+	ch.Emit(opcode.OpArrayMake, dst, flags, argStart, int32(len(n.Dims)), n.Line)
+	
+	g.emitStoreNamed(ch, n.Name, n.Line, dst)
+	g.nextReg = g.baseReg
 }

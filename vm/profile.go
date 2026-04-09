@@ -1,6 +1,12 @@
 package vm
 
-import "sort"
+import (
+	"sort"
+
+	"moonbasic/lineprof"
+)
+
+var _ lineprof.LineProfiler = (*ProfileRecorder)(nil)
 
 // ProfileRecorder counts VM instructions executed per 1-based source line.
 type ProfileRecorder struct {

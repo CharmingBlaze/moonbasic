@@ -58,6 +58,24 @@ Sends a message to a specific peer.
 
 ---
 
+## Recommended dual-channel pattern (ENet)
+
+To avoid **head-of-line blocking** when mixing **critical state** with **high-frequency transforms**, configure **at least two channels** on the host (see **`NET.SETCHANNELS`** / module channel count) and use a consistent convention:
+
+| Channel index | Typical use | Packet style |
+|---------------|-------------|--------------|
+| **0** | Scores, health, RPCs, chat, match events | **`reliable? = TRUE`** (ordered delivery) |
+| **1** | Position / rotation snapshots, frequent state | **`reliable? = FALSE`** (unreliable; may drop or reorder) |
+
+**Rules of thumb:**
+
+- Never send large per-frame blobs on **channel 0** if **channel 1** is backed up — use **1** for fire-and-forget replication.
+- **`PEER.SENDPACKET`** / **`PACKET.*`** APIs expose **explicit channel indices**; keep your game’s mapping documented in one place (constants at the top of your `.mb` file).
+
+Threading: **`Net.Update`** / **`Net.Receive`** should run on the **same thread** as the rest of the game loop (typically the **main** thread with Raylib). A dedicated network goroutine is possible only if all Raylib and VM access stay on the main thread and communication uses **bounded channels**; the default engine layout is **single-threaded poll** per frame.
+
+---
+
 ## Event Handling
 
 When `Net.Receive()` returns a valid event handle, you must inspect it and then free it.

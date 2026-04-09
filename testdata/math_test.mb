@@ -1,4 +1,7 @@
+; SIN/COS/TAN take degrees (Float64). One degree:
 x = SIN(1.0)
-PRINT(INT(x * 100 + 0.5) / 100.0)
+PRINT(INT(x * 1000 + 0.5) / 1000.0)
 y = MATH.SIN(1.0)
-PRINT(INT(y * 100 + 0.5) / 100.0)
+PRINT(INT(y * 1000 + 0.5) / 1000.0)
+; Radians (legacy / physics):
+PRINT(INT(MATH.SINRAD(1.0) * 100 + 0.5) / 100.0)

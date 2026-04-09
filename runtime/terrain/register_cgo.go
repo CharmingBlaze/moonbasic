@@ -27,6 +27,7 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("CHUNK.COUNT", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkCount(m, rt, args...) })
 	r.Register("CHUNK.SETRANGE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkSetRange(m, rt, args...) })
 	r.Register("CHUNK.ISLOADED", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkIsLoaded(m, rt, args...) })
+	registerTerrainBlitzAliases(m, r)
 }
 
 func castTerrain(m *Module, h heap.Handle) (*TerrainObject, error) {

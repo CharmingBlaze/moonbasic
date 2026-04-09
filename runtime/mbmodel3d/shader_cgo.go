@@ -28,7 +28,9 @@ func registerShaderCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		sh := rl.LoadShader(vsPath, fsPath)
-		id, err := m.h.Alloc(&shaderObj{sh: sh})
+		obj := &shaderObj{sh: sh}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			return value.Nil, err
 		}

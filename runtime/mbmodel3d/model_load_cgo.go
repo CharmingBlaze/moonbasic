@@ -4,10 +4,12 @@ package mbmodel3d
 
 import (
 	"fmt"
+	"os"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbjobs"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -25,10 +27,57 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		mod := rl.LoadModel(path)
-		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: path, animSpeed: 1})
+		obj := &modelObj{model: mod, loadedPath: path, animSpeed: 1}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			return value.Nil, err
 		}
+		obj.loaded = true // Synchronous load is ready immediately
+		return value.FromHandle(id), nil
+	})
+
+	reg.Register("MODEL.LOADASYNC", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 || args[0].Kind != value.KindString {
+			return value.Nil, fmt.Errorf("MODEL.LOADASYNC expects 1 string path")
+		}
+		path, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+
+		obj := &modelObj{loadedPath: path, animSpeed: 1, isLoading: true}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
+		if err != nil {
+			return value.Nil, err
+		}
+
+		// Background Task: File Check & Hand-off to Main Thread
+		mbjobs.EnqueueJob(func() {
+			// Simulate disk activity or check for file existence
+			if _, err := os.Stat(path); err != nil {
+				obj.mu.Lock()
+				obj.loadError = err.Error()
+				obj.isLoading = false
+				obj.mu.Unlock()
+				return
+			}
+
+			// Hand off to Main Thread for OpenGL calls
+			enqueueOnMainThread(func() {
+				mod := rl.LoadModel(path)
+				obj.mu.Lock()
+				obj.model = mod
+				obj.loaded = true
+				obj.isLoading = false
+				obj.mu.Unlock()
+			})
+		})
+
 		return value.FromHandle(id), nil
 	})
 
@@ -47,7 +96,9 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		}
 		mod := rl.LoadModelFromMesh(o.m)
 		o.consumedByModel = true
-		id, err := m.h.Alloc(&modelObj{model: mod, loadedPath: "", animSpeed: 1})
+		obj := &modelObj{model: mod, loadedPath: "", animSpeed: 1}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			o.consumedByModel = false
 			rl.UnloadModel(mod)
@@ -83,5 +134,21 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		return value.FromInt(int64(o.model.MaterialCount)), nil
+	}))
+
+	reg.Register("MODEL.ISLOADED", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("MODEL.ISLOADED expects model handle")
+		}
+		o, err := m.getModel(args, 0, "MODEL.ISLOADED")
+		if err != nil {
+			return value.Nil, err
+		}
+		o.mu.RLock()
+		defer o.mu.RUnlock()
+		return value.FromBool(o.loaded), nil
 	}))
 }

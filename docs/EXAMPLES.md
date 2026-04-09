@@ -31,6 +31,38 @@ For **all commands by namespace**, naming conventions, and `SetPos` / `SetPositi
 
 ---
 
+## Modern Blitz-style 3D loop (aliases, CGO)
+
+Full narrative: [GETTING_STARTED.md](GETTING_STARTED.md) (**Modern Blitz-style 3D**). Runnable template: [`examples/high_fidelity/modern_template.mb`](../examples/high_fidelity/modern_template.mb) (any resolution — 1080p shown). **`UpdatePhysics`** = one-call frame tick (`ENTITY.UPDATE` + optional world / 2D / 3D steps). Command map: [MODERN_BLITZ_COMMANDS.md](reference/MODERN_BLITZ_COMMANDS.md).
+
+```basic
+; Initialize world
+Window.Open(1920, 1080, "Project: High Fidelity")
+Window.SetFPS(60)
+AppTitle("Project: High Fidelity")
+Graphics3D(1920, 1080)
+SetMSAA(4)
+
+cam = CreateCamera()
+SetSSAO(TRUE)
+car = LoadMesh("supercar.gltf")
+EntityPBR(car, 0.9, 0.1)
+
+WHILE NOT (KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    CameraSmoothFollow(cam, car, 0.1)
+    IF KeyDown(KEY_W) THEN ApplyEntityImpulse(car, 0, 0, 500)
+    UpdatePhysics()
+    Render.Clear(10, 12, 18)
+    RENDER.Begin3D(cam)
+        DrawEntities()
+    RENDER.End3D()
+    Render.Frame()
+WEND
+Window.Close()
+```
+
+---
+
 ## 3D spinning cube — `examples/spin_cube/main.mb`
 
 Camera, mesh, material tint, transform matrix rotation, optional **ground grid**, and **cleanup** (`Mesh.Free`, `Material.Free`, `Transform.Free`, `Camera.Free`).
@@ -67,13 +99,13 @@ Window.Close()
 
 ## 3D hop (orbit camera + platforms) — `examples/mario64/`
 
-Third-person hop on a plane and boxes. **`examples/mario64/README.md`** compares three sources: verbose **`main.mb`**, commented **`main_v2.mb`** (parallel arrays + helpers), compact **`main_v3.mb`** (**`TYPE`**). Uses **`Camera.OrbitAround`**, **`Input.Axis`** / **`Input.AxisDeg`**, **`MOVESTEPX`/`MOVESTEPZ`** (or **`MOVEX`/`MOVEZ`**), **`BOXTOPLAND`**, **`IIF$`**. See [CAMERA.md](reference/CAMERA.md), [INPUT.md](reference/INPUT.md), [GAMEHELPERS.md](reference/GAMEHELPERS.md), [MATH.md](reference/MATH.md), [LANGUAGE.md](LANGUAGE.md).
+Third-person hop on a plane and boxes. **`examples/mario64/README.md`** compares sources: **`main.mb`** (implicit typing + **`Draw3D`** only, no entity graph), **`main_entities.mb`** (**`CreateCube`/`CreateSphere`**, **`COLLISIONS`**, **`EntityGrounded`** (coyote), **`EntityMoveCameraRelative`**, **`Camera.OrbitEntity`**, **`CopyEntity`** platform template, **`ENTITY.UPDATE`**, **`DrawEntities`**, child hat), plus Blitz-teaching variants **`main_orbit_simple.mb`**, **`main_v2.mb`**, **`main_v3.mb`**. Older variants use **`Camera.SetOrbit`**, **`Input.Axis`**, **`MOVESTEPX`/`MOVESTEPZ`**, **`BOXTOPLAND`**, **`IIF$`**. See [ENTITY.md](reference/ENTITY.md) (**`MoveEntity`** vs **`TranslateEntity`**, **`EntityHitsType`**), [CAMERA.md](reference/CAMERA.md), [INPUT.md](reference/INPUT.md), [GAMEHELPERS.md](reference/GAMEHELPERS.md), [MATH.md](reference/MATH.md), [LANGUAGE.md](LANGUAGE.md).
 
 ---
 
 ## 2D + mouse — `docs` snippet (not a separate file)
 
-Use `Render.BeginMode2D()` when you want pixel coordinates for UI-style 2D (see [RENDER](reference/RENDER.md)).
+Use **`Camera2D.Begin()`** / **`Camera2D.End()`** for screen-space 2D (Raylib `BeginMode2D` / `EndMode2D`). There is no `Render.BeginMode2D` in the runtime; see [RENDER](reference/RENDER.md) and [CAMERA](reference/CAMERA.md).
 
 ```basic
 Window.Open(800, 600, "2D")
@@ -82,7 +114,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     mx = Input.MouseX()
     my = Input.MouseY()
     Render.Clear(20, 20, 30)
-    Render.BeginMode2D()
+    Camera2D.Begin()
         IF Input.MouseDown(MOUSE_LEFT_BUTTON) THEN
             Draw.Circle(100, 100, 50, 255, 100, 100, 255)
         ELSE
@@ -90,7 +122,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         ENDIF
         Draw.Rectangle(mx - 25, my - 25, 50, 50, 255, 255, 255, 255)
         Draw.Text("Hello, 2D", 200, 200, 20, 255, 255, 255, 255)
-    Render.EndMode2D()
+    Camera2D.End()
     Render.Frame()
 WEND
 Window.Close()
@@ -149,7 +181,7 @@ For cross-platform physics, start from [Physics 2D](reference/PHYSICS2D.md) inst
 | Arena | `examples/fps/main.mb` | WASD + oscillating targets + `TIME.GET` |
 | Racing | `examples/racing/main.mb` | Steer / accelerate + lap line |
 | Mini RPG | `examples/rpg/main.mb` | Move in a room, gold counter, `JSON` + `FILE` save on exit |
-| 3D hop | `examples/mario64/README.md` | **`README`** compares **`main.mb`** / **`main_v2.mb`** / **`main_v3.mb`** — orbit **`Camera.OrbitAround`**, **`Input.Axis`**, **`MOVEX`/`MOVEZ`**, **`BOXTOPLAND`**, **`IIF$`** |
+| 3D hop | `examples/mario64/README.md` | **`main.mb`** / **`main_entities.mb`** + teaching variants; entity sample uses **`EntityGrounded`**, **`EntityMoveCameraRelative`**, **`Camera.OrbitEntity`**, **`CopyEntity`** — see [ENTITY.md](reference/ENTITY.md) |
 
 ---
 

@@ -1,6 +1,7 @@
 package semantic
 
 import (
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -9,6 +10,48 @@ import (
 	"moonbasic/compiler/ast"
 	"moonbasic/compiler/parser"
 )
+
+func TestFoldTurnEntityGroupedThirdArg(t *testing.T) {
+	src := "TURNENTITY(pivot, 0, (1.0 + 0.5), 0)\n"
+	prog, err := parser.ParseSource("t.mbc", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	FoldConstants(prog)
+	cs := prog.Stmts[0].(*ast.CallStmtNode)
+	if cs.Name != "TURNENTITY" {
+		t.Fatalf("command name: got %q", cs.Name)
+	}
+	if len(cs.Args) != 4 {
+		t.Fatalf("args: got %d", len(cs.Args))
+	}
+	fl, ok := cs.Args[2].(*ast.FloatLitNode)
+	if !ok {
+		t.Fatalf("third arg after fold: want *FloatLitNode, got %T %#v", cs.Args[2], cs.Args[2])
+	}
+	if math.Abs(fl.Value-1.5) > 1e-12 {
+		t.Fatalf("third arg value: want 1.5, got %v", fl.Value)
+	}
+}
+
+func TestParseBareDrawEntitiesEqualsDrawEntitiesParens(t *testing.T) {
+	src := "DrawEntities\nDrawEntities()\n"
+	prog, err := parser.ParseSource("t.mbc", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prog.Stmts) != 2 {
+		t.Fatalf("stmts: %d", len(prog.Stmts))
+	}
+	a, ok := prog.Stmts[0].(*ast.CallStmtNode)
+	if !ok || a.Name != "DRAWENTITIES" || len(a.Args) != 0 {
+		t.Fatalf("stmt0: %#v", prog.Stmts[0])
+	}
+	b, ok := prog.Stmts[1].(*ast.CallStmtNode)
+	if !ok || b.Name != "DRAWENTITIES" || len(b.Args) != 0 {
+		t.Fatalf("stmt1: %#v", prog.Stmts[1])
+	}
+}
 
 func TestFoldAssignInt(t *testing.T) {
 	prog, err := parser.ParseSource("t.mbc", "x = 5 + 10\n")

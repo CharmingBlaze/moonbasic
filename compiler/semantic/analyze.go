@@ -2,6 +2,7 @@ package semantic
 
 import (
 	"fmt"
+	"strings"
 
 	"moonbasic/compiler/ast"
 	"moonbasic/compiler/builtinmanifest"
@@ -23,6 +24,10 @@ type Analyzer struct {
 	Types map[string]*ast.TypeDef
 
 	funcNames map[string]bool // user FUNCTION names (uppercase)
+
+	// Scopes for tracking assigned variables (Implicit Declaration/First-Assignment)
+	// scopes[0] is always global.
+	scopes []map[string]bool
 }
 
 // DefaultAnalyzer uses the built-in command manifest and enables folding.
@@ -44,7 +49,28 @@ func (a *Analyzer) Run(prog *ast.Program) error {
 	if a.Fold {
 		FoldConstants(prog)
 	}
+	a.scopes = []map[string]bool{make(map[string]bool)} // Global scope
+	a.seedBuiltinConstants()
 	return a.checkProgram(prog)
+}
+
+func (a *Analyzer) seedBuiltinConstants() {
+	// Subset of key constants from runtime/keyglobals.go
+	keys := []string{
+		"KEY_ESCAPE", "KEY_SPACE", "KEY_W", "KEY_A", "KEY_S", "KEY_D",
+		"KEY_Q", "KEY_E", "KEY_I", "KEY_K", "KEY_LEFT", "KEY_RIGHT", "KEY_UP", "KEY_DOWN",
+		"KEY_1", "KEY_2", "KEY_3", "KEY_4", "KEY_5", "KEY_6",
+		"KEY_F1", "KEY_F2", "KEY_F3", "KEY_F4", "KEY_F5", "KEY_F6", "KEY_F7", "KEY_F8", "KEY_F9", "KEY_F10", "KEY_F11", "KEY_F12",
+		"GAMEPAD_AXIS_LEFT_X", "GAMEPAD_AXIS_LEFT_Y",
+		"GAMEPAD_AXIS_RIGHT_X", "GAMEPAD_AXIS_RIGHT_Y",
+
+		"GAMEPAD_BUTTON_RIGHT_FACE_DOWN", "GAMEPAD_BUTTON_RIGHT_FACE_RIGHT",
+		"GAMEPAD_BUTTON_RIGHT_FACE_LEFT", "GAMEPAD_BUTTON_RIGHT_FACE_UP",
+		"GAMEPAD_BUTTON_LEFT_FACE_UP", "GAMEPAD_BUTTON_LEFT_FACE_DOWN", "GAMEPAD_BUTTON_LEFT_FACE_LEFT", "GAMEPAD_BUTTON_LEFT_FACE_RIGHT",
+	}
+	for _, k := range keys {
+		a.scopes[0][k] = true
+	}
 }
 
 func (a *Analyzer) lineText(line int) string {
@@ -80,7 +106,6 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 		}
 	}
 
-	// 1. Main
 	a.currentFunc = "<MAIN>"
 	for _, s := range prog.Stmts {
 		if err := a.checkStmt(s); err != nil {
@@ -91,15 +116,46 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 	// Functions
 	for _, f := range prog.Functions {
 		a.currentFunc = f.Name
+		a.pushScope()
+		// Parameters are implicitly assigned
+		for _, p := range f.Params {
+			a.assign(p.Name)
+		}
 		for _, s := range f.Body {
 			if err := a.checkStmt(s); err != nil {
 				return err
 			}
 		}
+		a.popScope()
 	}
 
 	a.currentFunc = "<MAIN>"
 	return nil
+}
+
+func (a *Analyzer) pushScope() {
+	a.scopes = append(a.scopes, make(map[string]bool))
+}
+
+func (a *Analyzer) popScope() {
+	if len(a.scopes) > 1 {
+		a.scopes = a.scopes[:len(a.scopes)-1]
+	}
+}
+
+func (a *Analyzer) assign(name string) {
+	name = strings.ToUpper(name)
+	a.scopes[len(a.scopes)-1][name] = true
+}
+
+func (a *Analyzer) isAssigned(name string) bool {
+	name = strings.ToUpper(name)
+	for i := len(a.scopes) - 1; i >= 0; i-- {
+		if a.scopes[i][name] {
+			return true
+		}
+	}
+	return false
 }
 
 func (a *Analyzer) checkStmt(s ast.Stmt) error {
@@ -112,8 +168,15 @@ func (a *Analyzer) checkStmt(s ast.Stmt) error {
 func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 	switch n := s.(type) {
 	case *ast.AssignNode:
-		return a.checkExprCalls(n.Expr)
+		if err := a.checkExprCalls(n.Expr); err != nil {
+			return err
+		}
+		a.assign(n.Name)
+		return nil
 	case *ast.IndexAssignNode:
+		if !a.isAssigned(n.Array) {
+			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Array), "Assign an array to the variable before subscripting.")
+		}
 		for _, e := range n.Index {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
@@ -121,6 +184,9 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		}
 		return a.checkExprCalls(n.Expr)
 	case *ast.IndexFieldAssignNode:
+		if !a.isAssigned(n.Array) {
+			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Array), "Assign an array to the variable before subscripting.")
+		}
 		for _, e := range n.Index {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
@@ -128,6 +194,10 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		}
 		return a.checkExprCalls(n.Expr)
 	case *ast.FieldAssignNode:
+		// Object.Field = expr
+		if !a.isAssigned(n.Object) {
+			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Object), "Assign a value to the variable before accessing its fields.")
+		}
 		return a.checkExprCalls(n.Expr)
 	case *ast.CallStmtNode:
 		for _, e := range n.Args {
@@ -136,6 +206,9 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.HandleCallStmt:
+		if !a.isAssigned(n.Receiver) {
+			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Receiver), "Assign a value to the variable before calling methods on it.")
+		}
 		for _, e := range n.Args {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
@@ -175,6 +248,7 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.ForNode:
+		a.assign(n.Var) // Iterator is assigned
 		for _, e := range []ast.Expr{n.From, n.To} {
 			if err := a.checkExprCalls(e); err != nil {
 				return err
@@ -239,21 +313,35 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 				return err
 			}
 		}
+		a.assign(n.Name)
+		return nil
 	case *ast.ConstDeclNode:
 		if a.currentFunc != "<MAIN>" {
 			return a.typeError(n.Line, n.Col, "CONST is only allowed at module scope", "Move CONST to the top-level program, outside any FUNCTION.")
 		}
-		return a.checkExprCalls(n.Expr)
+		if err := a.checkExprCalls(n.Expr); err != nil {
+			return err
+		}
+		a.assign(n.Name)
+		return nil
 	case *ast.StaticDeclNode:
 		if n.Init != nil {
-			return a.checkExprCalls(n.Init)
+			if err := a.checkExprCalls(n.Init); err != nil {
+				return err
+			}
 		}
+		a.assign(n.Name)
+		return nil
 	case *ast.SwapStmt, *ast.EraseStmt:
 		return nil
 	case *ast.LocalDeclNode:
 		if n.Init != nil {
-			return a.checkExprCalls(n.Init)
+			if err := a.checkExprCalls(n.Init); err != nil {
+				return err
+			}
 		}
+		a.assign(n.Name)
+		return nil
 	case *ast.DeleteStmt:
 		return a.checkExprCalls(n.Expr)
 	case *ast.EachStmt:
@@ -309,6 +397,9 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 			}
 		}
 	case *ast.HandleCallExpr:
+		if !a.isAssigned(n.Receiver) {
+			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Receiver), "Assign a value to the variable before calling methods on it.")
+		}
 		for _, arg := range n.Args {
 			if err := a.checkExprCalls(arg); err != nil {
 				return err
@@ -322,6 +413,10 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 			if err := a.checkExprCalls(x); err != nil {
 				return err
 			}
+		}
+	case *ast.IdentNode:
+		if !a.isAssigned(n.Name) {
+			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Name), "Assign a value to the variable before using it in an expression.")
 		}
 	case *ast.NewNode:
 		if _, exists := a.Types[n.TypeName]; !exists {

@@ -78,6 +78,19 @@ func registerWallClock(reg runtime.Registrar) {
 		}
 		return rt.RetString(time.Now().Format("15:04:05")), nil
 	})
+	// Blitz-style names (same wall clock as TIME$ / DATE$).
+	reg.Register("CurrentTime$", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 0 {
+			return value.Nil, errArgs(0, len(args))
+		}
+		return rt.RetString(time.Now().Format("15:04:05")), nil
+	})
+	reg.Register("CurrentDate$", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 0 {
+			return value.Nil, errArgs(0, len(args))
+		}
+		return rt.RetString(time.Now().Format("02 Jan 2006")), nil
+	})
 	reg.Register("DATETIME$", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, errArgs(0, len(args))

@@ -123,3 +123,15 @@ Optional regression artifacts (see **`ARCHITECTURE.md`** for optional Valgrind/g
 ### Hot-path allocations
 
 The VM execute loop and per-frame draw paths should avoid unnecessary allocations. Profile with **`go test -bench`**, **`runtime/pprof`**, or **`GODEBUG=gctrace=1`**; there is no moonBASIC **`DEBUG.FRAMEALLOC`** builtin yet — use Go tooling for engine-side regression.
+
+### Lifecycle policy: explicit `Free()` vs `runtime.SetFinalizer`
+
+The engine’s **supported** model for C/C++ resources (Raylib, Jolt, Box2D, ENet) is:
+
+1. **VM heap handles** — every native-backed object implements **`HeapObject.Free()`** idempotently (**`ReleaseOnce`** or equivalent).
+2. **Deterministic teardown** — scripts or **`Store.FreeAll`** on shutdown must release C memory; the Go GC **does not** see C heap usage.
+3. **`runtime.SetFinalizer`** is **not** used as the primary release path: finalizers run **nondeterministically**, may run **late** or **never** under memory pressure, and are **easy to misuse** with finalizer cycles.
+
+**Optional future addition:** a **debug-only** or **`moonbasic_leakcheck`** build tag that attaches a **finalizer sentinel** logging “handle GC’d without Free” — useful for finding leaks in CI, **without** replacing explicit **`FREE`** / **`ERASE`** in shipped games.
+
+This policy matches the contract in **[vm/heap/heap.go](../vm/heap/heap.go)** and supersedes any directive that suggests GC-driven **`Unload`** as the default.

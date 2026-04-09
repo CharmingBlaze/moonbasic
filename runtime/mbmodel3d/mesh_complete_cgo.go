@@ -38,7 +38,9 @@ func registerMeshComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MESH.LOAD: no meshes in %q", path)
 		}
 		mesh := meshes[0]
-		id, err := m.h.Alloc(&meshObj{m: mesh, backingModel: mod})
+		obj := &meshObj{m: mesh, backingModel: mod}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			rl.UnloadModel(mod)
 			return value.Nil, err
@@ -340,9 +342,11 @@ func registerMeshComplete(m *Module, reg runtime.Registrar) {
 		rm.Normals = unsafe.SliceData(norms)
 		rm.Texcoords = unsafe.SliceData(uvs)
 		rm.Indices = unsafe.SliceData(idx)
-		id, err := m.h.Alloc(&meshObj{
+		obj := &meshObj{
 			m: rm, pinVerts: verts, pinNorms: norms, pinUVs: uvs, pinIdx: idx,
-		})
+		}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			return value.Nil, err
 		}

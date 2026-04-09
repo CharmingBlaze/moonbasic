@@ -394,10 +394,43 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("MODEL.DRAW expects model or instanced model handle")
+	if len(args) < 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("MODEL.DRAW expects model handle (optionally: array, index)")
 	}
 	h := heap.Handle(args[0].IVal)
+
+	var useExt bool
+	var extMtx rl.Matrix
+
+	if len(args) == 3 {
+		// MODEL.DRAW(model, arrayHandle, index)
+		if args[1].Kind != value.KindHandle {
+			return value.Nil, fmt.Errorf("MODEL.DRAW: second argument must be shared array handle")
+		}
+		arr, err := heap.Cast[*heap.Array](m.h, heap.Handle(args[1].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		if arr.Kind != heap.ArrayKindFloat32 {
+			return value.Nil, fmt.Errorf("MODEL.DRAW: array must be shared Float32 physics buffer")
+		}
+		idx, ok := args[2].ToInt()
+		if !ok {
+			return value.Nil, fmt.Errorf("MODEL.DRAW: index must be numeric")
+		}
+		if int(idx) < 0 || (int(idx)+1)*16 > len(arr.Floats32) {
+			return value.Nil, fmt.Errorf("MODEL.DRAW: buffer index out of bounds")
+		}
+		// Convert 16 floats to matrix
+		src := arr.Floats32[int(idx)*16 : (int(idx)+1)*16]
+		extMtx = rl.Matrix{
+			M0: src[0], M4: src[4], M8: src[8], M12: src[12],
+			M1: src[1], M5: src[5], M9: src[9], M13: src[13],
+			M2: src[2], M6: src[6], M10: src[10], M14: src[14],
+			M3: src[3], M7: src[7], M11: src[11], M15: src[15],
+		}
+		useExt = true
+	}
 
 	if o, err := heap.Cast[*modelObj](m.h, h); err == nil {
 		if o.hidden {
@@ -405,11 +438,18 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 		}
 		if shadowDeferActive() && InCamera3D() {
 			draw3dMu.Lock()
-			deferredModels = append(deferredModels, h)
+			deferredModels = append(deferredModels, deferredModelRec{modelH: h, useExt: useExt, extMtx: extMtx})
 			draw3dMu.Unlock()
 			return value.Nil, nil
 		}
-		rl.DrawModel(o.model, rl.Vector3{}, 1, rl.White)
+		if useExt {
+			saved := o.model.Transform
+			o.model.Transform = extMtx
+			rl.DrawModel(o.model, rl.Vector3{}, 1, rl.White)
+			o.model.Transform = saved
+		} else {
+			rl.DrawModel(o.model, rl.Vector3{}, 1, rl.White)
+		}
 		return value.Nil, nil
 	}
 
@@ -424,13 +464,17 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 		}
 		if shadowDeferActive() && InCamera3D() {
 			draw3dMu.Lock()
-			deferredModels = append(deferredModels, h)
+			deferredModels = append(deferredModels, deferredModelRec{modelH: h, useExt: useExt, extMtx: extMtx})
 			draw3dMu.Unlock()
 			return value.Nil, nil
 		}
 		mod := &lo.models[li]
 		saved := mod.Transform
-		mod.Transform = lo.transform
+		if useExt {
+			mod.Transform = extMtx
+		} else {
+			mod.Transform = lo.transform
+		}
 		rl.DrawModel(*mod, rl.Vector3{}, 1, rl.White)
 		mod.Transform = saved
 		return value.Nil, nil

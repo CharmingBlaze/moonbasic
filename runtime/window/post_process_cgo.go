@@ -56,6 +56,11 @@ uniform int useSharpen;
 uniform float sharpenAmount;
 uniform int useGrain;
 uniform float grainAmount;
+uniform int useFXAA;
+
+float luminance(vec3 c) {
+    return dot(c, vec3(0.299, 0.587, 0.114));
+}
 
 float sampleDepth(vec2 uv) {
     return texture(depthTexture, uv).r;
@@ -109,10 +114,12 @@ void main() {
 
     if (useSSAO != 0 && d < 0.999) {
         float ao = 0.0;
-        const int SPI = 10;
+        const int SPI = 12;
+        float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
         for (int i = 0; i < SPI; i++) {
-            float ang = 6.2831853 * float(i) / float(SPI);
-            vec2 off = vec2(cos(ang), sin(ang)) * (ssaoRadius * px.x);
+            float ang = 6.2831853 * (float(i) + noise) / float(SPI);
+            float dist = fract(noise * float(i + 1)) * ssaoRadius;
+            vec2 off = vec2(cos(ang), sin(ang)) * (dist * px.x);
             float nd = sampleDepth(uv + off);
             float delta = nd - d;
             ao += smoothstep(0.0, 0.02, delta) * ssaoIntensity;
@@ -142,9 +149,34 @@ void main() {
     }
 
     if (useBloom != 0) {
-        float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+        float lum = luminance(col);
         float bright = max(lum - bloomThreshold, 0.0);
         col += col * bright * bloomIntensity;
+    }
+
+    if (useFXAA != 0) {
+        float lumaM = luminance(col);
+        float lumaNW = luminance(fetchScene(uv + vec2(-px.x, -px.y)));
+        float lumaNE = luminance(fetchScene(uv + vec2(px.x, -px.y)));
+        float lumaSW = luminance(fetchScene(uv + vec2(-px.x, px.y)));
+        float lumaSE = luminance(fetchScene(uv + vec2(px.x, px.y)));
+        
+        float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
+        float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
+        
+        vec2 dir;
+        dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
+        dir.y =  ((lumaNW + lumaSW) - (lumaNE + lumaSE));
+        
+        float dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * 0.125), 0.00001);
+        float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
+        dir = min(vec2(8.0, 8.0), max(vec2(-8.0, -8.0), dir * rcpDirMin)) * px;
+        
+        vec3 rgbA = 0.5 * (fetchScene(uv + dir * (1.0/3.0 - 0.5)) + fetchScene(uv + dir * (2.0/3.0 - 0.5)));
+        vec3 rgbB = rgbA * 0.5 + 0.25 * (fetchScene(uv + dir * -0.5) + fetchScene(uv + dir * 0.5));
+        float lumaB = luminance(rgbB);
+        if ((lumaB < lumaMin) || (lumaB > lumaMax)) col = rgbA;
+        else col = rgbB;
     }
 
     if (tonemapMode == 1) {
@@ -194,6 +226,7 @@ var (
 	postDOF            bool
 	postSharpen        bool
 	postGrain          bool
+	postFXAA           bool
 	postCustom         rl.Shader
 	postCustomOn       bool
 	postSceneRT        rl.RenderTexture2D
@@ -217,6 +250,8 @@ var (
 		"grain.amount":         0.04,
 	}
 	postCapturing bool
+	uFloat1       = make([]float32, 1)
+	uFloat2       = make([]float32, 2)
 )
 
 func setRenderPipelineMode(mode string) {
@@ -231,13 +266,68 @@ func setRenderPipelineMode(mode string) {
 }
 
 func postCaptureEnabled() bool {
-	return postActive || deferredPipeline
+    return postActive || deferredPipeline
 }
 
 func (m *Module) registerPostCommands(r runtime.Registrar) {
 	r.Register("POST.ADD", "post", m.postAdd)
+	r.Register("POST.REMOVE", "post", m.postRemove)
 	r.Register("POST.SETPARAM", "post", m.postSetParam)
+	r.Register("POST.SETTONEMAP", "post", m.postSetTonemap)
 	r.Register("POST.ADDSHADER", "post", m.postAddShader)
+
+	r.Register("POST.BLOOM", "post", m.postBloomShorthand)
+	r.Register("POST.VIGNETTE", "post", m.postVignetteShorthand)
+	r.Register("POST.CHROMATIC", "post", m.postChromaticShorthand)
+}
+
+func (m *Module) postBloomShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("POST.BLOOM expects (enable, threshold#, intensity#)")
+	}
+	on := valueTruthy(args[0])
+	postMu.Lock()
+	postBloom = on
+	if on {
+		postActive = true
+		if f, ok := args[1].ToFloat(); ok { postKV["bloom.threshold"] = float32(f) }
+		if f, ok := args[2].ToFloat(); ok { postKV["bloom.intensity"] = float32(f) }
+		ensureBuiltInPostShader()
+	}
+	postMu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) postVignetteShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("POST.VIGNETTE expects (enable, strength#)")
+	}
+	on := valueTruthy(args[0])
+	postMu.Lock()
+	postVignette = on
+	if on {
+		postActive = true
+		if f, ok := args[1].ToFloat(); ok { postKV["vignette.strength"] = float32(f) }
+		ensureBuiltInPostShader()
+	}
+	postMu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) postChromaticShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("POST.CHROMATIC expects (enable, offset#, [unused])")
+	}
+	on := valueTruthy(args[0])
+	postMu.Lock()
+	postChromatic = on
+	if on {
+		postActive = true
+		if f, ok := args[1].ToFloat(); ok { postKV["chromatic.offset"] = float32(f) * 1000.0 } // scale back because inner shader uses 0.001
+		ensureBuiltInPostShader()
+	}
+	postMu.Unlock()
+	return value.Nil, nil
 }
 
 func (m *Module) postAdd(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -259,9 +349,80 @@ func (m *Module) postAdd(rt *runtime.Runtime, args ...value.Value) (value.Value,
 		postVignette = true
 	case "chromatic":
 		postChromatic = true
+	case "ssao":
+		postSSAO = true
+	case "ssr":
+		postSSR = true
+	case "motionblur":
+		postMotionBlur = true
+	case "dof":
+		postDOF = true
+	case "sharpen":
+		postSharpen = true
+	case "grain":
+		postGrain = true
+	case "fxaa":
+		postFXAA = true
 	default:
 		return value.Nil, fmt.Errorf("POST.ADD: unknown effect %q", name)
 	}
+	ensureBuiltInPostShader()
+	return value.Nil, nil
+}
+
+func (m *Module) postRemove(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("POST.REMOVE expects 1 string (bloom, vignette, etc)")
+	}
+	name, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	postMu.Lock()
+	defer postMu.Unlock()
+	switch name {
+	case "bloom":
+		postBloom = false
+	case "vignette":
+		postVignette = false
+	case "chromatic":
+		postChromatic = false
+	case "ssao":
+		postSSAO = false
+	case "ssr":
+		postSSR = false
+	case "motionblur":
+		postMotionBlur = false
+	case "dof":
+		postDOF = false
+	case "sharpen":
+		postSharpen = false
+	case "grain":
+		postGrain = false
+	case "fxaa":
+		postFXAA = false
+	case "all":
+		postBloom, postVignette, postChromatic, postSSAO, postSSR = false, false, false, false, false
+		postMotionBlur, postDOF, postSharpen, postGrain, postFXAA = false, false, false, false, false
+		postActive = false
+	default:
+		return value.Nil, fmt.Errorf("POST.REMOVE: unknown effect %q", name)
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) postSetTonemap(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("POST.SETTONEMAP expects (mode): 0=None, 1=Reinhard, 2=Filmic, 3=ACES")
+	}
+	mode, ok := args[0].ToInt()
+	if !ok {
+		return value.Nil, fmt.Errorf("POST.SETTONEMAP: mode must be numeric")
+	}
+	postMu.Lock()
+	postTonemapMode = int32(mode)
+	postActive = true
+	postMu.Unlock()
 	ensureBuiltInPostShader()
 	return value.Nil, nil
 }
@@ -414,19 +575,23 @@ func postRenderTargetPresent() {
 	setPI := func(n string, v int32) {
 		l := rl.GetShaderLocation(sh, n)
 		if l >= 0 {
-			rl.SetShaderValue(sh, l, []float32{float32(v)}, rl.ShaderUniformInt)
+			uFloat1[0] = float32(v)
+			rl.SetShaderValue(sh, l, uFloat1, rl.ShaderUniformInt)
 		}
 	}
 	setPF := func(n string, v float32) {
 		l := rl.GetShaderLocation(sh, n)
 		if l >= 0 {
-			rl.SetShaderValue(sh, l, []float32{v}, rl.ShaderUniformFloat)
+			uFloat1[0] = v
+			rl.SetShaderValue(sh, l, uFloat1, rl.ShaderUniformFloat)
 		}
 	}
 	setPV2 := func(n string, vx, vy float32) {
 		l := rl.GetShaderLocation(sh, n)
 		if l >= 0 {
-			rl.SetShaderValue(sh, l, []float32{vx, vy}, rl.ShaderUniformVec2)
+			uFloat2[0] = vx
+			uFloat2[1] = vy
+			rl.SetShaderValue(sh, l, uFloat2, rl.ShaderUniformVec2)
 		}
 	}
 
@@ -455,6 +620,7 @@ func postRenderTargetPresent() {
 	setPF("sharpenAmount", shAmt)
 	setPI("useGrain", boolAsInt(grain))
 	setPF("grainAmount", gAmt)
+	setPI("useFXAA", boolAsInt(postFXAA))
 
 	rl.DrawTexturePro(tex, rl.NewRectangle(0, 0, float32(tex.Width), -float32(tex.Height)), rl.NewRectangle(0, 0, w, h), rl.Vector2Zero(), 0, rl.White)
 	rl.EndShaderMode()
@@ -465,4 +631,17 @@ func boolAsInt(b bool) int32 {
 		return 1
 	}
 	return 0
+}
+
+func valueTruthy(v value.Value) bool {
+	switch v.Kind {
+	case value.KindBool:
+		return v.IVal != 0
+	case value.KindInt:
+		return v.IVal != 0
+	case value.KindFloat:
+		return v.FVal != 0
+	default:
+		return false
+	}
 }

@@ -20,16 +20,22 @@ func (m *Module) registerBlitzAliases(r mbruntime.Registrar) {
 	r.Register("INPUT.JOYBUTTON", "input", mbruntime.AdaptLegacy(m.inJoyButton))
 	r.Register("INPUT.JOYDOWN", "input", mbruntime.AdaptLegacy(m.inJoyButton))
 
-	// Easy Mode Global Aliases
+	// Easy Mode Global Aliases (and namespaces)
 	r.Register("MOUSEDX", "input", mbruntime.AdaptLegacy(m.inMouseXSpeed))
+	r.Register("INPUT.MOUSEDX", "input", mbruntime.AdaptLegacy(m.inMouseXSpeed))
 	r.Register("MOUSEDY", "input", mbruntime.AdaptLegacy(m.inMouseYSpeed))
+	r.Register("INPUT.MOUSEDY", "input", mbruntime.AdaptLegacy(m.inMouseYSpeed))
 	r.Register("MOUSEWHEEL", "input", mbruntime.AdaptLegacy(m.inMouseWheel))
+	r.Register("INPUT.MOUSEWHEEL", "input", mbruntime.AdaptLegacy(m.inMouseWheel))
 	r.Register("MOUSEX", "input", mbruntime.AdaptLegacy(m.inMouseX))
 	r.Register("MOUSEY", "input", mbruntime.AdaptLegacy(m.inMouseY))
 	r.Register("MOUSEZ", "input", mbruntime.AdaptLegacy(m.inMouseWheel))
 	r.Register("KEYHIT", "input", mbruntime.AdaptLegacy(m.inKeyHit))
 	r.Register("KEYDOWN", "input", mbruntime.AdaptLegacy(m.inKeyDown))
+	r.Register("INPUT.KEYDOWN", "input", mbruntime.AdaptLegacy(m.inKeyDown))
+	r.Register("KeyDown", "input", mbruntime.AdaptLegacy(m.inKeyDown))
 	r.Register("KEYUP", "input", mbruntime.AdaptLegacy(m.inKeyUp))
+	r.Register("INPUT.KEYUP", "input", mbruntime.AdaptLegacy(m.inKeyUp))
 	r.Register("AXIS", "input", mbruntime.AdaptLegacy(m.inAxis))
 }
 

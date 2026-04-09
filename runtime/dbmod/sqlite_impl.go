@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || modernc_sqlite
 
 package mbdb
 
@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	_ "github.com/mattn/go-sqlite3"
 
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
@@ -73,7 +71,7 @@ func dbOpen(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, err
 	}
 	path = strings.TrimSpace(path)
-	d, err := sql.Open("sqlite3", path)
+	d, err := sql.Open(sqliteDriverName, path)
 	if err != nil {
 		return value.Nil, err
 	}

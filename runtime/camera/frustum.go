@@ -24,10 +24,25 @@ type Frustum struct {
 	planes [6]Plane
 }
 
+// projectionMatrixForFrustum matches rl.BeginMode3D + GetCameraProjectionMatrix math but uses
+// rlGetCullDistanceNear/Far (see RL_CULL_DISTANCE_*) — not the hardcoded 0.01/1000 in
+// GetCameraProjectionMatrix. Mismatched near/far made CPU culling reject geometry the GPU still drew.
+func projectionMatrixForFrustum(cam rl.Camera3D, aspectRatio float32) rl.Matrix {
+	near := float32(rl.GetCullDistanceNear())
+	far := float32(rl.GetCullDistanceFar())
+	if cam.Projection == rl.CameraOrthographic {
+		top := cam.Fovy / 2.0
+		right := top * aspectRatio
+		return rl.MatrixOrtho(-right, right, -top, top, near, far)
+	}
+	fovRad := cam.Fovy * float32(math.Pi) / 180.0
+	return rl.MatrixPerspective(fovRad, aspectRatio, near, far)
+}
+
 // ExtractFrustum builds frustum planes from PV = projection * view (same order as rendering).
 func ExtractFrustum(cam rl.Camera3D, aspectRatio float32) Frustum {
 	view := rl.GetCameraMatrix(cam)
-	proj := rl.GetCameraProjectionMatrix(&cam, aspectRatio)
+	proj := projectionMatrixForFrustum(cam, aspectRatio)
 	pv := rl.MatrixMultiply(proj, view)
 
 	// Raylib Matrix rows are (m0,m4,m8,m12), (m1,m5,m9,m13), … — columns are (M0,M1,M2,M3), (M4,M5,M6,M7), …

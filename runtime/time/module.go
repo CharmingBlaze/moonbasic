@@ -44,24 +44,31 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.FromInt(time.Since(m.start).Milliseconds()), nil
 	})
 
-	reg.Register("DELAY", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	delayFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		_ = rt
 		if len(args) != 1 {
 			return value.Nil, errArgs(1, len(args))
 		}
-		ms, ok := args[0].ToInt()
-		if !ok {
-			return value.Nil, runtime.Errorf("DELAY: milliseconds must be an integer")
+		var ms float64
+		if i, ok := args[0].ToInt(); ok {
+			ms = float64(i)
+		} else if f, ok := args[0].ToFloat(); ok {
+			ms = f
+		} else {
+			return value.Nil, runtime.Errorf("DELAY: milliseconds must be numeric")
 		}
 		if ms > 0 {
-			time.Sleep(time.Duration(ms) * time.Millisecond)
+			time.Sleep(time.Duration(ms * float64(time.Millisecond)))
 		}
 		return value.Nil, nil
-	})
+	}
+	reg.Register("DELAY", "time", delayFn)
+	reg.Register("Delay", "time", delayFn)
 
 	registerWallClock(reg)
 	registerDeltaCapCommands(reg)
 	registerRaylibTiming(reg)
+	registerMilliSecs(m, reg)
 }
 
 // Shutdown implements runtime.Module.

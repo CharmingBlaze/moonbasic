@@ -60,11 +60,11 @@ enemy_sprite = Atlas.GetSprite(my_atlas, "enemy.png")
 
 WHILE NOT Window.ShouldClose()
     Render.Clear(20, 20, 20)
-    Render.BeginMode2D()
+    Camera2D.Begin()
         ; 3. Use the sprite handles to draw
         Sprite.Draw(player_sprite, 100, 250)
         Sprite.Draw(enemy_sprite, 400, 250)
-    Render.EndMode2D()
+    Camera2D.End()
     Render.Frame()
 WEND
 

@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"moonbasic/runtime"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
@@ -208,85 +209,124 @@ func (m *Module) createLight(rt *runtime.Runtime, args ...value.Value) (value.Va
 }
 
 func (m *Module) createCube(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("CREATECUBE expects 1 argument (parent entity id)")
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("CREATECUBE expects 0–1 argument (parent entity id)")
 	}
-	v, err := call(rt,"ENTITY.CREATECUBE", value.FromFloat(1), value.FromFloat(1), value.FromFloat(1))
+	v, err := call(rt, "ENTITY.CREATECUBE", value.FromFloat(1), value.FromFloat(1), value.FromFloat(1))
 	if err != nil {
 		return value.Nil, err
 	}
-	pid, _ := args[0].ToInt()
-	if pid != 0 {
-		return call(rt,"ENTITY.PARENT", v, args[0])
+	if len(args) == 1 {
+		pid, _ := args[0].ToInt()
+		if pid != 0 {
+			if _, err := call(rt, "ENTITY.PARENT", v, args[0]); err != nil {
+				return value.Nil, err
+			}
+		}
 	}
-	return v, nil
+	//ENTITY.CREATECUBE already returns a handle if configured so, but wait...
+	//Actually, to be safe, I'll check if it's already a handle.
+	if v.Kind == value.KindHandle {
+		return v, nil
+	}
+
+	id, _ := v.ToInt()
+	h, err := rt.Heap.Alloc(&heap.EntityRef{ID: id})
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) createSphereBlitz(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("CREATESPHERE expects 2 arguments (segments, parent)")
+	if len(args) > 2 {
+		return value.Nil, fmt.Errorf("CREATESPHERE expects 0–2 arguments (segments, parent)")
 	}
-	seg, _ := args[0].ToInt()
-	if seg < 3 {
-		seg = 12
+	seg := int64(12)
+	if len(args) >= 1 {
+		seg, _ = args[0].ToInt()
+		if seg < 3 {
+			seg = 12
+		}
 	}
-	v, err := call(rt,"ENTITY.CREATESPHERE", value.FromFloat(1), value.FromInt(seg))
+	v, err := call(rt, "ENTITY.CREATESPHERE", value.FromFloat(1), value.FromInt(seg))
 	if err != nil {
 		return value.Nil, err
 	}
-	pid, _ := args[1].ToInt()
-	if pid != 0 {
-		return call(rt,"ENTITY.PARENT", v, args[1])
+	if len(args) == 2 {
+		pid, _ := args[1].ToInt()
+		if pid != 0 {
+			if _, err := call(rt, "ENTITY.PARENT", v, args[1]); err != nil {
+				return value.Nil, err
+			}
+		}
 	}
-	return v, nil
+	if v.Kind == value.KindHandle {
+		return v, nil
+	}
+	id, _ := v.ToInt()
+	h, err := rt.Heap.Alloc(&heap.EntityRef{ID: id})
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) createPlaneBlitz(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("CREATEPLANE expects 2 arguments (divisions, parent)")
+	if len(args) > 2 {
+		return value.Nil, fmt.Errorf("CREATEPLANE expects 0–2 arguments (divisions, parent)")
 	}
-	div, _ := args[0].ToInt()
-	sz := float64(div)
-	if sz <= 0 {
-		sz = 10
+	sz := 10.0
+	if len(args) >= 1 {
+		div, _ := args[0].ToInt()
+		sz = float64(div)
+		if sz <= 0 {
+			sz = 10
+		}
 	}
 	v, err := call(rt,"ENTITY.CREATEPLANE", value.FromFloat(sz))
 	if err != nil {
 		return value.Nil, err
 	}
-	pid, _ := args[1].ToInt()
-	if pid != 0 {
-		return call(rt,"ENTITY.PARENT", v, args[1])
+	if len(args) == 2 {
+		pid, _ := args[1].ToInt()
+		if pid != 0 {
+			return call(rt,"ENTITY.PARENT", v, args[1])
+		}
 	}
 	return v, nil
 }
 
 func (m *Module) createMeshBlitz(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("CREATEMESH expects 1 argument (parent)")
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("CREATEMESH expects 0–1 argument (parent)")
 	}
 	v, err := call(rt,"ENTITY.CREATEMESH")
 	if err != nil {
 		return value.Nil, err
 	}
-	pid, _ := args[0].ToInt()
-	if pid != 0 {
-		return call(rt,"ENTITY.PARENT", v, args[0])
+	if len(args) == 1 {
+		pid, _ := args[0].ToInt()
+		if pid != 0 {
+			return call(rt,"ENTITY.PARENT", v, args[0])
+		}
 	}
 	return v, nil
 }
 
 func (m *Module) loadMeshParent(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("LOADMESH expects 2 arguments (file$, parent)")
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("LOADMESH expects 1–2 arguments (file$, [parent])")
 	}
 	v, err := call(rt,"ENTITY.LOADMESH", args[0])
 	if err != nil {
 		return value.Nil, err
 	}
-	pid, _ := args[1].ToInt()
-	if pid != 0 {
-		return call(rt,"ENTITY.PARENT", v, args[1])
+	if len(args) == 2 {
+		pid, _ := args[1].ToInt()
+		if pid != 0 {
+			return call(rt,"ENTITY.PARENT", v, args[1])
+		}
 	}
 	return v, nil
 }
@@ -400,4 +440,82 @@ func (m *Module) entityScaleZ(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("ENTITYSCALEZ expects 1 argument (entity)")
 	}
 	return value.FromFloat(1), nil
+}
+func (m *Module) entMoveStepX(args []value.Value) (value.Value, error) {
+	if len(args) != 5 {
+		return value.Nil, fmt.Errorf("MOVESTEPX expects (yaw#, fwd#, right#, speed#, dt#)")
+	}
+	yaw, _ := args[0].ToFloat()
+	fwd, _ := args[1].ToFloat()
+	right, _ := args[2].ToFloat()
+	speed, _ := args[3].ToFloat()
+	dt, _ := args[4].ToFloat()
+
+	rad := yaw * (math.Pi / 180.0)
+	dx := (math.Sin(rad)*fwd + math.Cos(rad)*right) * speed * dt
+	return value.FromFloat(dx), nil
+}
+
+func (m *Module) entMoveStepZ(args []value.Value) (value.Value, error) {
+	if len(args) != 5 {
+		return value.Nil, fmt.Errorf("MOVESTEPZ expects (yaw#, fwd#, right#, speed#, dt#)")
+	}
+	yaw, _ := args[0].ToFloat()
+	fwd, _ := args[1].ToFloat()
+	right, _ := args[2].ToFloat()
+	speed, _ := args[3].ToFloat()
+	dt, _ := args[4].ToFloat()
+
+	rad := yaw * (math.Pi / 180.0)
+	dz := (math.Cos(rad)*fwd - math.Sin(rad)*right) * speed * dt
+	return value.FromFloat(dz), nil
+}
+
+func (m *Module) dist3D(args []value.Value) (value.Value, error) {
+	if len(args) != 6 {
+		return value.Nil, fmt.Errorf("DIST3D expects (x1#, y1#, z1#, x2#, y2#, z2#)")
+	}
+	x1, _ := args[0].ToFloat()
+	y1, _ := args[1].ToFloat()
+	z1, _ := args[2].ToFloat()
+	x2, _ := args[3].ToFloat()
+	y2, _ := args[4].ToFloat()
+	z2, _ := args[5].ToFloat()
+	dx := x1 - x2
+	dy := y1 - y2
+	dz := z1 - z2
+	return value.FromFloat(math.Sqrt(dx*dx + dy*dy + dz*dz)), nil
+}
+
+func (m *Module) colorPrint(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) < 4 {
+		return value.Nil, fmt.Errorf("COLORPRINT expects (r, g, b, text$ [, ...])")
+	}
+	r, _ := args[0].ToInt()
+	g, _ := args[1].ToInt()
+	b, _ := args[2].ToInt()
+	s, err := rt.ArgString(args, 3)
+	if err != nil {
+		return value.Nil, err
+	}
+
+	// ANSI color codes
+	fmt.Fprintf(rt.DiagOut, "\x1b[38;2;%d;%d;%dm%s\x1b[0m\n", uint8(r), uint8(g), uint8(b), s)
+	return value.Nil, nil
+}
+
+func (m *Module) fps(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return call(rt, "WINDOW.GETFPS")
+}
+
+func (m *Module) milliSecs(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return call(rt, "TIME.MILLIS")
+}
+
+func (m *Module) screenWidth(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return call(rt, "WINDOW.WIDTH")
+}
+
+func (m *Module) screenHeight(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return call(rt, "WINDOW.HEIGHT")
 }

@@ -1,4 +1,4 @@
-//go:build cgo
+//go:build cgo || modernc_sqlite
 
 package mbdb
 

@@ -30,6 +30,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("AUDIO.PAUSE", "audio", stub("AUDIO.PAUSE"))
 	r.Register("AUDIO.RESUME", "audio", stub("AUDIO.RESUME"))
 	names := []string{
+		"AUDIO.LISTENERCAMERA", "Listener", "Load3DSound", "SoundVolume", "SoundPitch",
 		"AUDIO.PLAYVARYSOUND", "AUDIO.PLAYRNDSOUND",
 		"AUDIO.UPDATEMUSIC", "MUSIC.FREE",
 		"AUDIO.SETSOUNDVOLUME", "AUDIO.SETSOUNDPITCH", "AUDIO.SETSOUNDPAN",

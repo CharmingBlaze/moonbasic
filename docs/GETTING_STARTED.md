@@ -189,6 +189,61 @@ Window.Close()
 
 ---
 
+## Modern Blitz-style 3D (CGO)
+
+This pattern uses **global aliases** (`Graphics3D`, `CreateCamera`, `LoadMesh`, `RENDER.Begin3D`, `UpdatePhysics`, …) on top of the same engine as `Window.*` / `ENTITY.*`.
+
+- **Resolution is your choice** — `Window.Open(w, h, …)` accepts any reasonable size (720p, 1080p, 1440p, 4K, …). You must **`Window.Open`** before **`Graphics3D`**: the latter **only resizes** the client area (omit **`Graphics3D`** if the open size is already what you want).
+- **`SetMSAA`**: best-effort; for some drivers MSAA is fixed at **`Window.Open`** — see [WINDOW](reference/WINDOW.md) / [BUILDING](BUILDING.md).
+- **`SetSSAO` / PBR / lights**: need **CGO Raylib**; stubs return errors on non-graphical builds.
+- **`UpdatePhysics`** (same as **`UPDATEPHYSICS`**) runs **`ENTITY.UPDATE(Time.Delta)`** and best-effort **`WORLD.UPDATE`**, **`PHYSICS2D.STEP`**, **`PHYSICS3D.STEP`** (inactive worlds no-op or ignored).
+- **Frame contract**: **`UpdatePhysics`** → **`Render.Clear`** → 3D pass → **`Render.Frame`**.
+
+```basic
+; Initialize world
+Window.Open(1920, 1080, "Project: High Fidelity")
+Window.SetFPS(60)
+AppTitle("Project: High Fidelity")
+Graphics3D(1920, 1080)   ; optional resize (omit if Open already matched size)
+SetMSAA(4)               ; Clean edges
+
+; Setup Scene
+cam = CreateCamera()
+SetSSAO(TRUE)            ; Modern shadows
+
+; Load a high-poly PBR model (paths relative to working directory)
+car = LoadMesh("supercar.gltf")
+EntityPBR(car, 0.9, 0.1)                    ; Shiny Chrome look
+EntityNormalMap(car, LoadTexture("car_normals.png"))
+
+; Attach dynamic headlights
+L_Light = CreatePointLight(car, 255, 255, 200)
+TranslateEntity(L_Light, -1, 0, 2)
+
+WHILE NOT (KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    ; Modern Camera Follow logic
+    CameraSmoothFollow(cam, car, 0.1)
+
+    ; Physics Impulse based on modern input
+    IF KeyDown(KEY_W) THEN ApplyEntityImpulse(car, 0, 0, 500)
+
+    UpdatePhysics()
+
+    ; The Render Pass
+    Render.Clear(12, 14, 22)
+    RENDER.Begin3D(cam)
+        DrawEntities()   ; PBR, SSAO, dynamic lights (when CGO + assets load)
+    RENDER.End3D()
+    Render.Frame()
+WEND
+
+Window.Close()
+```
+
+Place **`assets/`** paths next to your `.mb` or use paths relative to the process working directory. For manual **`PHYSICS3D.START`** + **`BODY3D`**, you can still call **`PHYSICS3D.STEP`** explicitly; **`UpdatePhysics`** already invokes it with **`Time.Delta`** when the world is active. See [PHYSICS3D](reference/PHYSICS3D.md) and [EXAMPLES](EXAMPLES.md).
+
+---
+
 ## Variable Types
 
 Variables are typed by their **name suffix**:

@@ -119,6 +119,14 @@ func (p *Parser) advance() {
 	}
 }
 
+func (p *Parser) save() int {
+	return p.i
+}
+
+func (p *Parser) restore(i int) {
+	p.i = i
+}
+
 func (p *Parser) skipNewlines() {
 	for p.cur().Type == token.NEWLINE {
 		p.advance()

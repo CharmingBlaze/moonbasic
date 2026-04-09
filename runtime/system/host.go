@@ -18,8 +18,10 @@ import (
 )
 
 func (m *Module) registerHost(reg runtime.Registrar) {
+	reg.Register("SystemProperty$", "system", m.sysSystemProperty)
 	reg.Register("SYSTEM.CPUNAME", "system", m.sysCpuName)
 	reg.Register("SYSTEM.GPUNAME", "system", m.sysGpuName)
+	reg.Register("GpuName$", "system", m.sysGpuName)
 	reg.Register("SYSTEM.TOTALMEMORY", "system", m.sysTotalMemory)
 	reg.Register("SYSTEM.FREEMEMORY", "system", m.sysFreeMemory)
 	reg.Register("SYSTEM.GETENV", "system", m.sysGetenv)
@@ -31,6 +33,32 @@ func (m *Module) registerHost(reg runtime.Registrar) {
 	reg.Register("SYSTEM.USERNAME", "system", m.sysUsername)
 	reg.Register("SYSTEM.ISDEBUGBUILD", "system", m.sysIsDebugBuild)
 	m.registerClipboard(reg)
+}
+
+// sysSystemProperty returns a small set of OS/runtime facts keyed by name (MoonBasic 3D parity).
+func (m *Module) sysSystemProperty(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = m
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("SystemProperty$ expects (key$)")
+	}
+	key, err := rt2.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	switch strings.ToLower(strings.TrimSpace(key)) {
+	case "os", "os_name":
+		return rt2.RetString(rt.GOOS), nil
+	case "arch":
+		return rt2.RetString(rt.GOARCH), nil
+	case "os_version":
+		return rt2.RetString(rt.GOOS + " " + rt.GOARCH), nil
+	case "cpu_cores":
+		return value.FromInt(int64(rt.NumCPU())), nil
+	case "compiler":
+		return rt2.RetString(rt.Version()), nil
+	default:
+		return rt2.RetString(""), nil
+	}
 }
 
 func (m *Module) sysCpuName(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {

@@ -11,11 +11,11 @@ import (
 
 func TestEncodeDecodeRoundTrip(t *testing.T) {
 	p := opcode.NewProgram()
-	p.Main.Emit(opcode.OpPushInt, p.Main.AddInt(7), 0, 1)
-	p.Main.Emit(opcode.OpHalt, 0, 0, 2)
+	p.Main.Emit(opcode.OpPushInt, 0, 0, 0, p.Main.AddInt(7), 1)
+	p.Main.Emit(opcode.OpHalt, 0, 0, 0, 0, 2)
 
 	fn := opcode.NewChunk("FOO")
-	fn.Emit(opcode.OpReturnVoid, 0, 0, 10)
+	fn.Emit(opcode.OpReturnVoid, 0, 0, 0, 0, 10)
 	p.Functions["FOO"] = fn
 
 	p.Types["T"] = &opcode.TypeDef{Name: "T", Fields: []string{"X", "Y"}}

@@ -7,8 +7,8 @@ import (
 	"math"
 	"strings"
 
-	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime"
+	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -17,12 +17,16 @@ import (
 )
 
 func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
+	registerModernEntityFX(m, r)
+	registerPickBlitz(m, r)
+	registerBlitzFacadeCommands(m, r)
 	// Creation
 	r.Register("ENTITY.CREATESPHERE", "entity", runtime.AdaptLegacy(m.entCreateSphere))
 	r.Register("ENTITY.CREATECYLINDER", "entity", runtime.AdaptLegacy(m.entCreateCylinder))
 	r.Register("ENTITY.CREATEPLANE", "entity", runtime.AdaptLegacy(m.entCreatePlane))
 	r.Register("ENTITY.CREATEMESH", "entity", runtime.AdaptLegacy(m.entCreateMesh))
 	r.Register("ENTITY.LOADMESH", "entity", m.entLoadMesh)
+	r.Register("LoadMesh", "entity", m.entLoadMesh)
 	r.Register("ENTITY.LOADANIMATEDMESH", "entity", m.entLoadAnimatedMesh)
 
 	// Blitz names (aliases)
@@ -60,6 +64,29 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.PARENT", "entity", runtime.AdaptLegacy(m.entParent))
 	r.Register("ENTITY.PARENTCLEAR", "entity", runtime.AdaptLegacy(m.entParentClear))
 
+	r.Register("ENTITY.VISIBLE", "entity", runtime.AdaptLegacy(m.entVisible))
+	r.Register("EntityVisible", "entity", runtime.AdaptLegacy(m.entVisible))
+	r.Register("ENTITY.COUNTCHILDREN", "entity", runtime.AdaptLegacy(m.entCountChildren))
+	r.Register("ENTITY.GETCHILD", "entity", runtime.AdaptLegacy(m.entGetChild))
+	r.Register("ENTITY.FINDCHILD", "entity", m.entFindChild)
+
+	r.Register("ENTITY.TFORMPOINT", "entity", runtime.AdaptLegacy(m.entTFormPoint))
+	r.Register("ENTITY.TFORMVECTOR", "entity", runtime.AdaptLegacy(m.entTFormVector))
+	r.Register("TFormVector", "entity", runtime.AdaptLegacy(m.entTFormVector))
+	r.Register("ENTITY.DELTAX", "entity", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.entDeltaAxis(a, 0) }))
+	r.Register("ENTITY.DELTAY", "entity", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.entDeltaAxis(a, 1) }))
+	r.Register("ENTITY.DELTAZ", "entity", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.entDeltaAxis(a, 2) }))
+	r.Register("ENTITY.MATRIXELEMENT", "entity", runtime.AdaptLegacy(m.entMatrixElement))
+	r.Register("ENTITY.INVIEW", "entity", runtime.AdaptLegacy(m.entInView))
+
+	r.Register("LOADSPRITE", "entity", m.entLoadSprite)
+	r.Register("ENTITY.LOADSPRITE", "entity", m.entLoadSprite)
+	r.Register("ENTITY.CREATESPRITE", "entity", m.entCreateSpriteEntity)
+	r.Register("SCALESPRITE", "entity", runtime.AdaptLegacy(m.entScaleSprite))
+	r.Register("SPRITEMODE", "entity", runtime.AdaptLegacy(m.entSpriteMode))
+	r.Register("ENTITY.SPRITEVIEWMODE", "entity", runtime.AdaptLegacy(m.entSpriteMode))
+	r.Register("SPRITEVIEWMODE", "entity", runtime.AdaptLegacy(m.entSpriteMode))
+
 	r.Register("ENTITY.ALPHA", "entity", runtime.AdaptLegacy(m.entAlpha))
 	r.Register("ENTITY.SHININESS", "entity", runtime.AdaptLegacy(m.entShininess))
 	r.Register("ENTITY.TEXTURE", "entity", runtime.AdaptLegacy(m.entTexture))
@@ -94,6 +121,39 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.SETANIMTIME", "entity", runtime.AdaptLegacy(m.entSetAnimTime))
 	r.Register("ENTITY.ANIMTIME", "entity", runtime.AdaptLegacy(m.entAnimTime))
 	r.Register("ENTITY.ANIMLENGTH", "entity", runtime.AdaptLegacy(m.entAnimLength))
+	r.Register("ENTITY.EXTRACTANIMSEQ", "entity", runtime.AdaptLegacy(m.entExtractAnimSeq))
+	r.Register("ENTITY.SETANIMINDEX", "entity", runtime.AdaptLegacy(m.entSetAnimIndex))
+	r.Register("ENTITY.FINDBONE", "entity", m.entFindBone)
+
+	r.Register("LoadAnimMesh", "entity", m.entLoadAnimatedMesh)
+	r.Register("Animate", "entity", runtime.AdaptLegacy(m.entAnimate))
+	r.Register("SetAnimTime", "entity", runtime.AdaptLegacy(m.entSetAnimTime))
+	r.Register("EntityAnimTime", "entity", runtime.AdaptLegacy(m.entAnimTime))
+	r.Register("FindBone", "entity", m.entFindBone)
+	r.Register("ExtractAnimSeq", "entity", runtime.AdaptLegacy(m.entExtractAnimSeq))
+
+	r.Register("CreateBrush", "entity", runtime.AdaptLegacy(m.entCreateBrush))
+	r.Register("BrushTexture", "entity", runtime.AdaptLegacy(m.entBrushTexture))
+	r.Register("BrushFX", "entity", runtime.AdaptLegacy(m.entBrushFX))
+	r.Register("BrushShininess", "entity", runtime.AdaptLegacy(m.entBrushShininess))
+	r.Register("PaintEntity", "entity", runtime.AdaptLegacy(m.entPaintEntity))
+	r.Register("EntityShadow", "entity", runtime.AdaptLegacy(m.entEntityShadow))
+
+	r.Register("EmitSound", "entity", runtime.AdaptLegacy(m.entEmitSound))
+	r.Register("CreateSurface", "entity", runtime.AdaptLegacy(m.entCreateSurface))
+	r.Register("AddVertex", "entity", runtime.AdaptLegacy(m.entAddVertex))
+	r.Register("AddTriangle", "entity", runtime.AdaptLegacy(m.entAddTriangle))
+	r.Register("UpdateMesh", "entity", runtime.AdaptLegacy(m.entUpdateMesh))
+	r.Register("VertexX", "entity", runtime.AdaptLegacy(m.entVertexX))
+	r.Register("VertexY", "entity", runtime.AdaptLegacy(m.entVertexY))
+	r.Register("VertexZ", "entity", runtime.AdaptLegacy(m.entVertexZ))
+	r.Register("ENTITY.CREATESURFACE", "entity", runtime.AdaptLegacy(m.entCreateSurface))
+	r.Register("ENTITY.ADDVERTEX", "entity", runtime.AdaptLegacy(m.entAddVertex))
+	r.Register("ENTITY.ADDTRIANGLE", "entity", runtime.AdaptLegacy(m.entAddTriangle))
+	r.Register("ENTITY.UPDATEMESH", "entity", runtime.AdaptLegacy(m.entUpdateMesh))
+	r.Register("ENTITY.VERTEXX", "entity", runtime.AdaptLegacy(m.entVertexX))
+	r.Register("ENTITY.VERTEXY", "entity", runtime.AdaptLegacy(m.entVertexY))
+	r.Register("ENTITY.VERTEXZ", "entity", runtime.AdaptLegacy(m.entVertexZ))
 
 	r.Register("ENTITY.HIDE", "entity", runtime.AdaptLegacy(m.entHide))
 	r.Register("ENTITY.SHOW", "entity", runtime.AdaptLegacy(m.entShow))
@@ -105,11 +165,131 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.MOVERELATIVE", "entity", runtime.AdaptLegacy(m.entMoveRelative))
 	r.Register("ENTITY.APPLYGRAVITY", "entity", runtime.AdaptLegacy(m.entApplyGravity))
 	r.Register("ENTITY.GROUNDED", "entity", runtime.AdaptLegacy(m.entGrounded))
+	r.Register("EntityGrounded", "entity", runtime.AdaptLegacy(m.entGrounded))
+	r.Register("ENTITY.MOVECAMERARELATIVE", "entity", runtime.AdaptLegacy(m.entMoveCameraRelative))
+	r.Register("EntityMoveCameraRelative", "entity", runtime.AdaptLegacy(m.entMoveCameraRelative))
 	r.Register("ENTITY.SETMASS", "entity", runtime.AdaptLegacy(m.entSetMass))
 	r.Register("ENTITY.SETFRICTION", "entity", runtime.AdaptLegacy(m.entSetFriction))
 	r.Register("ENTITY.SETBOUNCE", "entity", runtime.AdaptLegacy(m.entSetBounce))
 
 	r.Register("CAMERA.ORBITENTITY", "entity", m.camOrbitEntity)
+
+	// Modern Blitz-style scene graph API (aliases)
+	r.Register("DrawEntities", "entity", runtime.AdaptLegacy(m.entDrawAll))
+	// MoveEntity: Blitz local-axis nudge (forward, right, up) — same as MOVEENTITY / ENTITY.MOVEENTITY.
+	// Use ENTITY.TRANSLATEENTITY / TranslateEntity for world-space (dx, dy, dz).
+	r.Register("MoveEntity", "entity", runtime.AdaptLegacy(m.entMove))
+	r.Register("TranslateEntity", "entity", runtime.AdaptLegacy(m.entTranslate))
+	r.Register("CreatePivot", "entity", runtime.AdaptLegacy(m.entCreatePivot))
+
+	// Global Easy Mode Shorthands
+	r.Register("CreateCube", "entity", runtime.AdaptLegacy(m.entCreateCubeEasy))
+	r.Register("CreateSphere", "entity", runtime.AdaptLegacy(m.entCreateSphereEasy))
+	r.Register("CreateCylinder", "entity", runtime.AdaptLegacy(m.entCreateCylinderEasy))
+	r.Register("CreateCamera", "entity", runtime.AdaptLegacy(m.entCreateCameraEasy))
+	r.Register("SCALENT", "entity", runtime.AdaptLegacy(m.entScaleEntity))
+	r.Register("POSENT", "entity", runtime.AdaptLegacy(m.entSetPosition))
+	r.Register("ENTITYCOLOR", "entity", runtime.AdaptLegacy(m.entColor))
+	r.Register("ENTRAD", "entity", runtime.AdaptLegacy(m.entRadius))
+	r.Register("ENTTYPE", "entity", runtime.AdaptLegacy(m.entType))
+	r.Register("SetGravity", "entity", runtime.AdaptLegacy(m.entSetGravity))
+	r.Register("ENTITYFLOOR", "entity", runtime.AdaptLegacy(m.entGrounded))
+	r.Register("ENTITYJUMP", "entity", runtime.AdaptLegacy(m.entJump))
+}
+
+func (m *Module) entCreateCubeEasy(args []value.Value) (value.Value, error) {
+	// CreateCube() → 1×1×1; CreateCube(parent#) → 1×1×1 child of parent;
+	// CreateCube(w,h,d); CreateCube(parent#, w, h, d)
+	switch len(args) {
+	case 0:
+		return m.entCreateBox([]value.Value{value.FromFloat(1), value.FromFloat(1), value.FromFloat(1)})
+	case 1:
+		pid, ok := m.entID(args[0])
+		if !ok || pid < 1 {
+			return value.Nil, fmt.Errorf("CreateCube(parent): parent must be entity#")
+		}
+		if m.store().ents[pid] == nil {
+			return value.Nil, fmt.Errorf("CreateCube: unknown parent entity %d", pid)
+		}
+		v, err := m.entCreateBox([]value.Value{value.FromFloat(1), value.FromFloat(1), value.FromFloat(1)})
+		if err != nil {
+			return v, err
+		}
+		cid, _ := v.ToInt()
+		_, err = m.entParent([]value.Value{value.FromInt(cid), value.FromInt(pid)})
+		return v, err
+	case 3:
+		return m.entCreateBox(args)
+	case 4:
+		pid, ok := m.entID(args[0])
+		if !ok || pid < 1 {
+			return value.Nil, fmt.Errorf("CreateCube(parent,w,h,d): parent must be entity#")
+		}
+		if m.store().ents[pid] == nil {
+			return value.Nil, fmt.Errorf("CreateCube: unknown parent entity %d", pid)
+		}
+		v, err := m.entCreateBox([]value.Value{args[1], args[2], args[3]})
+		if err != nil {
+			return v, err
+		}
+		cid, _ := v.ToInt()
+		_, err = m.entParent([]value.Value{value.FromInt(cid), value.FromInt(pid)})
+		return v, err
+	default:
+		return value.Nil, fmt.Errorf("CreateCube expects 0, 1 (parent#), 3 (w,h,d), or 4 (parent#,w,h,d) arguments")
+	}
+}
+
+func (m *Module) entCreateSphereEasy(args []value.Value) (value.Value, error) {
+	switch len(args) {
+	case 0:
+		return m.entCreateSphere([]value.Value{value.FromFloat(0.5), value.FromInt(16)})
+	case 1:
+		pid, ok := m.entID(args[0])
+		if !ok || pid < 1 || m.store().ents[pid] == nil {
+			return value.Nil, fmt.Errorf("CreateSphere: invalid parent")
+		}
+		v, err := m.entCreateSphere([]value.Value{value.FromFloat(0.5), value.FromInt(16)})
+		if err != nil {
+			return v, err
+		}
+		cid, _ := v.ToInt()
+		_, err = m.entParent([]value.Value{value.FromInt(cid), value.FromInt(pid)})
+		return v, err
+	case 2:
+		return m.entCreateSphere(args)
+	case 3:
+		pid, ok := m.entID(args[0])
+		if !ok || pid < 1 || m.store().ents[pid] == nil {
+			return value.Nil, fmt.Errorf("CreateSphere: invalid parent")
+		}
+		v, err := m.entCreateSphere([]value.Value{args[1], args[2]})
+		if err != nil {
+			return v, err
+		}
+		cid, _ := v.ToInt()
+		_, err = m.entParent([]value.Value{value.FromInt(cid), value.FromInt(pid)})
+		return v, err
+	default:
+		return value.Nil, fmt.Errorf("CreateSphere expects 0, 1 (parent#), 2 (radius#, seg#), or 3 (parent#, radius#, seg#)")
+	}
+}
+
+func (m *Module) entCreateCameraEasy(args []value.Value) (value.Value, error) {
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("CreateCamera expects 0 or 1 (reserved parent#) arguments")
+	}
+	reg := runtime.ActiveRegistry()
+	if reg == nil {
+		return value.Nil, fmt.Errorf("registry not active")
+	}
+	// Parent is accepted for API parity with Blitz; cameras are heap objects and are not parented to entities yet.
+	_ = args
+	return reg.Call("CAMERA.MAKE", nil)
+}
+
+func (m *Module) entScaleEntity(args []value.Value) (value.Value, error) {
+	return m.entScale(args)
 }
 
 func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
@@ -132,6 +312,27 @@ func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
 	e.w, e.h, e.d = rad*2, rad*2, rad*2
 	st.ents[id] = e
 	return value.FromInt(id), nil
+}
+
+func (m *Module) entCreateCylinderEasy(args []value.Value) (value.Value, error) {
+	switch len(args) {
+	case 3:
+		return m.entCreateCylinder(args)
+	case 4:
+		pid, ok := m.entID(args[0])
+		if !ok || pid < 1 || m.store().ents[pid] == nil {
+			return value.Nil, fmt.Errorf("CreateCylinder: invalid parent")
+		}
+		v, err := m.entCreateCylinder([]value.Value{args[1], args[2], args[3]})
+		if err != nil {
+			return v, err
+		}
+		cid, _ := v.ToInt()
+		_, err = m.entParent([]value.Value{value.FromInt(cid), value.FromInt(pid)})
+		return v, err
+	default:
+		return value.Nil, fmt.Errorf("CreateCylinder expects 3 (radius#, height#, segments#) or 4 (parent#, radius#, height#, segments#)")
+	}
 }
 
 func (m *Module) entCreateCylinder(args []value.Value) (value.Value, error) {
@@ -178,31 +379,44 @@ func (m *Module) entCreatePlane(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entCreateMesh(args []value.Value) (value.Value, error) {
-	if len(args) != 0 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATEMESH expects 0 arguments")
+	if len(args) != 0 && len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.CREATEMESH expects 0 arguments or 1 (parentEntity#)")
 	}
-	mesh := rl.GenMeshCube(1, 1, 1)
-	mod := rl.LoadModelFromMesh(mesh)
-	rl.UnloadMesh(&mesh)
-	if mod.MeshCount <= 0 {
-		rl.UnloadModel(mod)
-		return value.Nil, fmt.Errorf("ENTITY.CREATEMESH: mesh upload failed")
+	b := &meshBuilderObj{}
+	bid, err := m.h.Alloc(b)
+	if err != nil {
+		return value.Nil, err
 	}
 	st := m.store()
 	id := st.nextID
 	st.nextID++
 	e := newDefaultEnt(id)
 	e.kind = entKindMesh
-	e.rlModel = mod
-	e.hasRLModel = true
+	e.hasRLModel = false
+	e.hidden = true
 	e.static = true
+	e.procMeshH = bid
 	st.ents[id] = e
-	return value.FromInt(id), nil
+	v := value.FromInt(id)
+	if len(args) == 1 {
+		pid, okp := m.entID(args[0])
+		if !okp || pid < 1 {
+			return value.Nil, fmt.Errorf("ENTITY.CREATEMESH: invalid parent entity")
+		}
+		if st.ents[pid] == nil {
+			return value.Nil, fmt.Errorf("ENTITY.CREATEMESH: unknown parent %d", pid)
+		}
+		_, err := m.entParent([]value.Value{v, value.FromInt(pid)})
+		if err != nil {
+			return value.Nil, err
+		}
+	}
+	return v, nil
 }
 
 func (m *Module) entLoadMesh(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.LOADMESH expects 1 argument (path$)")
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENTITY.LOADMESH expects 1 argument (path$) or 2 (path$, parentEntity#)")
 	}
 	if args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("ENTITY.LOADMESH: path must be string")
@@ -226,7 +440,21 @@ func (m *Module) entLoadMesh(rt *runtime.Runtime, args ...value.Value) (value.Va
 	e.loadPath = path
 	e.static = true
 	st.ents[id] = e
-	return value.FromInt(id), nil
+	v := value.FromInt(id)
+	if len(args) == 2 {
+		pid, okp := m.entID(args[1])
+		if !okp || pid < 1 {
+			return value.Nil, fmt.Errorf("ENTITY.LOADMESH: invalid parent entity")
+		}
+		if st.ents[pid] == nil {
+			return value.Nil, fmt.Errorf("ENTITY.LOADMESH: unknown parent %d", pid)
+		}
+		_, err := m.entParent([]value.Value{v, value.FromInt(pid)})
+		if err != nil {
+			return value.Nil, err
+		}
+	}
+	return v, nil
 }
 
 func (m *Module) entLoadAnimatedMesh(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -247,6 +475,7 @@ func (m *Module) entLoadAnimatedMesh(rt *runtime.Runtime, args ...value.Value) (
 		e.modelAnims = anims
 		e.animLen = float32(anims[0].FrameCount)
 		rl.UpdateModelAnimation(e.rlModel, anims[0], 0)
+		rl.UpdateModelAnimationBones(e.rlModel, anims[0], 0)
 	}
 	return v, nil
 }
@@ -255,7 +484,7 @@ func (m *Module) entRotateEntityAbs(args []value.Value) (value.Value, error) {
 	if len(args) != 4 && len(args) != 5 {
 		return value.Nil, fmt.Errorf("ENTITY.ROTATEENTITY expects 4–5 arguments (entity#, pitch#, yaw#, roll# [, global])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("ENTITY.ROTATEENTITY: invalid entity")
 	}
@@ -306,7 +535,7 @@ func (m *Module) getCoord(args []value.Value, world, local func(*ent) float32) (
 	if len(args) < 1 || len(args) > 2 {
 		return value.Nil, fmt.Errorf("expected 1–2 arguments (entity# [, global])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -335,13 +564,14 @@ func (m *Module) entParent(args []value.Value) (value.Value, error) {
 	if len(args) != 2 && len(args) != 3 {
 		return value.Nil, fmt.Errorf("ENTITY.PARENT expects 2–3 arguments (entity#, parentEntity# [, global])")
 	}
-	cid, ok := args[0].ToInt()
-	pid, ok2 := args[1].ToInt()
+	cid, ok := m.entID(args[0])
+	pid, ok2 := m.entID(args[1])
 	if !ok || !ok2 || cid < 1 || pid < 1 {
 		return value.Nil, fmt.Errorf("invalid entity ids")
 	}
-	child := m.store().ents[cid]
-	parent := m.store().ents[pid]
+	st := m.store()
+	child := st.ents[cid]
+	parent := st.ents[pid]
 	if child == nil || parent == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
@@ -357,6 +587,13 @@ func (m *Module) entParent(args []value.Value) (value.Value, error) {
 			return value.Nil, fmt.Errorf("global must be bool or 0/1")
 		}
 	}
+	oldPID := child.parentID
+	if oldPID == pid {
+		return value.Nil, nil
+	}
+	if oldPID >= 1 {
+		childLinkRemove(st, oldPID, cid)
+	}
 	if global {
 		wp := m.worldPos(child)
 		child.parentID = pid
@@ -364,6 +601,7 @@ func (m *Module) entParent(args []value.Value) (value.Value, error) {
 	} else {
 		child.parentID = pid
 	}
+	childLinkAdd(st, pid, cid)
 	return value.Nil, nil
 }
 
@@ -371,13 +609,17 @@ func (m *Module) entParentClear(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.PARENTCLEAR expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
-	e := m.store().ents[id]
+	st := m.store()
+	e := st.ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	if e.parentID >= 1 {
+		childLinkRemove(st, e.parentID, id)
 	}
 	wp := m.worldPos(e)
 	e.parentID = 0
@@ -389,7 +631,7 @@ func (m *Module) entAlpha(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.ALPHA expects (entity#, alpha#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -415,7 +657,7 @@ func (m *Module) entShininess(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SHININESS expects (entity#, amount#)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -429,7 +671,7 @@ func (m *Module) entTexture(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.TEXTURE expects (entity#, textureHandle)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -446,7 +688,7 @@ func (m *Module) entFX(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.FX expects (entity#, flags)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -460,7 +702,7 @@ func (m *Module) entBlend(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.BLEND expects (entity#, mode)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -474,7 +716,7 @@ func (m *Module) entOrder(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.ORDER expects (entity#, order)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -488,7 +730,7 @@ func (m *Module) entType(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.TYPE expects (entity#, typeID)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -502,8 +744,8 @@ func (m *Module) entCollide(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.COLLIDE expects (entity#, otherTypeID)")
 	}
-	id, ok := args[0].ToInt()
-	tid, ok2 := args[1].ToInt()
+	id, ok := m.entID(args[0])
+	tid, ok2 := m.entID(args[1])
 	if !ok || !ok2 || id < 1 {
 		return value.Nil, fmt.Errorf("invalid arguments")
 	}
@@ -530,24 +772,72 @@ func (m *Module) entCollide(args []value.Value) (value.Value, error) {
 	return value.FromInt(0), nil
 }
 
-func (m *Module) entCollisionX(args []value.Value) (value.Value, error) { return m.hitComp(args, func(e *ent) float64 { return float64(e.hitX) }) }
-func (m *Module) entCollisionY(args []value.Value) (value.Value, error) { return m.hitComp(args, func(e *ent) float64 { return float64(e.hitY) }) }
-func (m *Module) entCollisionZ(args []value.Value) (value.Value, error) { return m.hitComp(args, func(e *ent) float64 { return float64(e.hitZ) }) }
+func (m *Module) entCollisionX(args []value.Value) (value.Value, error) {
+	return m.hitComp(args,
+		func(e *ent) float64 { return float64(e.hitX) },
+		func(e *ent, i int) float64 {
+			if i < 0 || i >= len(e.hitPos) {
+				return 0
+			}
+			return float64(e.hitPos[i].X)
+		})
+}
+func (m *Module) entCollisionY(args []value.Value) (value.Value, error) {
+	return m.hitComp(args,
+		func(e *ent) float64 { return float64(e.hitY) },
+		func(e *ent, i int) float64 {
+			if i < 0 || i >= len(e.hitPos) {
+				return 0
+			}
+			return float64(e.hitPos[i].Y)
+		})
+}
+func (m *Module) entCollisionZ(args []value.Value) (value.Value, error) {
+	return m.hitComp(args,
+		func(e *ent) float64 { return float64(e.hitZ) },
+		func(e *ent, i int) float64 {
+			if i < 0 || i >= len(e.hitPos) {
+				return 0
+			}
+			return float64(e.hitPos[i].Z)
+		})
+}
 func (m *Module) entCollisionNX(args []value.Value) (value.Value, error) {
-	return m.hitComp(args, func(e *ent) float64 { return float64(e.hitNX) })
+	return m.hitComp(args,
+		func(e *ent) float64 { return float64(e.hitNX) },
+		func(e *ent, i int) float64 {
+			if i < 0 || i >= len(e.hitN) {
+				return 0
+			}
+			return float64(e.hitN[i].X)
+		})
 }
 func (m *Module) entCollisionNY(args []value.Value) (value.Value, error) {
-	return m.hitComp(args, func(e *ent) float64 { return float64(e.hitNY) })
+	return m.hitComp(args,
+		func(e *ent) float64 { return float64(e.hitNY) },
+		func(e *ent, i int) float64 {
+			if i < 0 || i >= len(e.hitN) {
+				return 0
+			}
+			return float64(e.hitN[i].Y)
+		})
 }
 func (m *Module) entCollisionNZ(args []value.Value) (value.Value, error) {
-	return m.hitComp(args, func(e *ent) float64 { return float64(e.hitNZ) })
+	return m.hitComp(args,
+		func(e *ent) float64 { return float64(e.hitNZ) },
+		func(e *ent, i int) float64 {
+			if i < 0 || i >= len(e.hitN) {
+				return 0
+			}
+			return float64(e.hitN[i].Z)
+		})
 }
 
-func (m *Module) hitComp(args []value.Value, f func(*ent) float64) (value.Value, error) {
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("expects entity#")
+func (m *Module) hitComp(args []value.Value, last func(*ent) float64, atIndex func(*ent, int) float64) (value.Value, error) {
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("expects entity# [, index]")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -555,18 +845,25 @@ func (m *Module) hitComp(args []value.Value, f func(*ent) float64) (value.Value,
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
+	if len(args) == 2 {
+		idx, ok := args[1].ToInt()
+		if !ok || idx < 0 {
+			return value.Nil, fmt.Errorf("index must be non-negative int")
+		}
+		return value.FromFloat(atIndex(e, int(idx))), nil
+	}
 	if !e.hasHit {
 		return value.FromFloat(0), nil
 	}
-	return value.FromFloat(f(e)), nil
+	return value.FromFloat(last(e)), nil
 }
 
 func (m *Module) entDistance(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.DISTANCE expects (entityA#, entityB#)")
 	}
-	ia, ok1 := args[0].ToInt()
-	ib, ok2 := args[1].ToInt()
+	ia, ok1 := m.entID(args[0])
+	ib, ok2 := m.entID(args[1])
 	if !ok1 || !ok2 {
 		return value.Nil, fmt.Errorf("invalid ids")
 	}
@@ -583,7 +880,7 @@ func (m *Module) entVelocity(args []value.Value) (value.Value, error) {
 	if len(args) != 1 && len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.VELOCITY: (entity#) get or (entity#, vx, vy, vz) set")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -612,7 +909,7 @@ func (m *Module) entAddForce(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("ENTITY.ADDFORCE expects (entity#, fx#, fy#, fz#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -634,6 +931,9 @@ func (m *Module) entAddForce(args []value.Value) (value.Value, error) {
 	e.vel.Y += fy * invM
 	e.vel.Z += fz * invM
 	e.static = false
+	if fy > 0.5 {
+		e.groundCoyoteLeft = 0
+	}
 	return value.Nil, nil
 }
 
@@ -641,7 +941,7 @@ func (m *Module) entSetSlide(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SLIDE expects (entity#, enable)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -660,7 +960,7 @@ func (m *Module) entPick(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.PICK expects (entity#, range#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	rng, ok2 := argF32(args[1])
 	if !ok || !ok2 || id < 1 {
 		return value.Nil, fmt.Errorf("invalid arguments")
@@ -741,7 +1041,7 @@ func (m *Module) entPickMode(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.PICKMODE expects (entity#, mode)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -758,8 +1058,8 @@ func (m *Module) entPointEntity(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.POINTENTITY expects (entity#, targetEntity#)")
 	}
-	id, ok := args[0].ToInt()
-	tid, ok2 := args[1].ToInt()
+	id, ok := m.entID(args[0])
+	tid, ok2 := m.entID(args[1])
 	if !ok || !ok2 {
 		return value.Nil, fmt.Errorf("invalid entity ids")
 	}
@@ -784,7 +1084,7 @@ func (m *Module) entAlignToVector(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
 		return value.Nil, fmt.Errorf("ENTITY.ALIGNTOVECTOR expects (entity#, vx#, vy#, vz#, axis)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -816,10 +1116,11 @@ func (m *Module) entAlignToVector(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entAnimate(args []value.Value) (value.Value, error) {
+	// Mode: 0–1 = loop, 2 = ping-pong, 3+ = clamp at clip end. Dual-pose cross-fade is not implemented yet (Raylib single-clip pose).
 	if len(args) < 1 || len(args) > 3 {
 		return value.Nil, fmt.Errorf("ENTITY.ANIMATE expects (entity# [, mode, speed#])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -842,7 +1143,7 @@ func (m *Module) entSetAnimTime(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SETANIMTIME expects (entity#, time#)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -856,7 +1157,7 @@ func (m *Module) entAnimTime(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.ANIMTIME expects entity#")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -868,7 +1169,7 @@ func (m *Module) entAnimLength(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.ANIMLENGTH expects entity#")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -887,7 +1188,7 @@ func (m *Module) entHide(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.HIDE expects entity#")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -900,7 +1201,7 @@ func (m *Module) entShow(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.SHOW expects entity#")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -913,7 +1214,7 @@ func (m *Module) entFree(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.FREE expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -929,7 +1230,7 @@ func (m *Module) entCopy(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.COPY expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -941,6 +1242,13 @@ func (m *Module) entCopy(args []value.Value) (value.Value, error) {
 	cp.id = 0
 	cp.parentID = 0
 	cp.name = ""
+	cp.boneHostID = 0
+	cp.boneIndex = -1
+	cp.boneWorldValid = false
+	cp.brushH = 0
+	if src.procMeshH != 0 {
+		return value.Nil, fmt.Errorf("ENTITY.COPY: procedural mesh entities cannot be copied yet")
+	}
 	if cp.hasRLModel {
 		if cp.loadPath == "" {
 			return value.Nil, fmt.Errorf("ENTITY.COPY: model without load path (e.g. CREATEMESH) cannot be duplicated yet")
@@ -968,7 +1276,7 @@ func (m *Module) entSetName(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SETNAME expects (entity#, name$)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -1013,7 +1321,7 @@ func (m *Module) entMoveRelative(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
 		return value.Nil, fmt.Errorf("ENTITY.MOVERELATIVE expects (entity#, forward#, right#, speed#, dt#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -1040,7 +1348,7 @@ func (m *Module) entApplyGravity(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("ENTITY.APPLYGRAVITY expects (entity#, gravity#, dt#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	g, ok1 := argF32(args[1])
 	dt, ok2 := argF32(args[2])
 	if !ok || !ok1 || !ok2 || id < 1 {
@@ -1059,7 +1367,7 @@ func (m *Module) entGrounded(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("ENTITY.GROUNDED expects entity#")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -1067,14 +1375,50 @@ func (m *Module) entGrounded(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	return value.FromBool(e.onGround), nil
+	return value.FromBool(e.jumpGrounded), nil
+}
+
+func (m *Module) entMoveCameraRelative(args []value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("EntityMoveCameraRelative expects (entity#, forward#, strafe#, camera)")
+	}
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("EntityMoveCameraRelative: heap not bound")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	f, ok1 := argF32(args[1])
+	s, ok2 := argF32(args[2])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("forward/strafe must be numeric")
+	}
+	if args[3].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("camera handle required")
+	}
+	ch := heap.Handle(args[3].IVal)
+	fwd, right, err := mbcamera.CameraXZStrafeBasis(m.h, ch)
+	if err != nil {
+		return value.Nil, err
+	}
+	dx := fwd.X*f + right.X*s
+	dz := fwd.Z*f + right.Z*s
+	wp := m.worldPos(e)
+	nw := rl.Vector3Add(wp, rl.Vector3{X: dx, Y: 0, Z: dz})
+	m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
+	return value.Nil, nil
 }
 
 func (m *Module) entSetMass(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SETMASS expects (entity#, mass#)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -1088,7 +1432,7 @@ func (m *Module) entSetFriction(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SETFRICTION expects (entity#, amount#)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -1102,7 +1446,7 @@ func (m *Module) entSetBounce(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("ENTITY.SETBOUNCE expects (entity#, amount#)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
@@ -1121,7 +1465,7 @@ func (m *Module) camOrbitEntity(rt *runtime.Runtime, args ...value.Value) (value
 	if !ok {
 		return value.Nil, fmt.Errorf("invalid camera")
 	}
-	eid, ok2 := args[1].ToInt()
+	eid, ok2 := m.entID(args[1])
 	if !ok2 || eid < 1 {
 		return value.Nil, fmt.Errorf("invalid entity")
 	}
@@ -1141,9 +1485,16 @@ func (m *Module) camOrbitEntity(rt *runtime.Runtime, args ...value.Value) (value
 	}
 	return value.Nil, nil
 }
+func (m *Module) entCreateSpriteEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE expects (path$) or (path$, parentEntity#)")
+	}
+	return m.entLoadSprite(rt, args...)
+}
+
 func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LOADSPRITE expects (path$)")
+	if (len(args) != 1 && len(args) != 2) || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("LOADSPRITE expects (path$) or (path$, parentEntity#)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -1168,6 +1519,14 @@ func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.
 	e.w = float32(tex.Width) / 100.0 // Reasonable default size
 	e.h = float32(tex.Height) / 100.0
 	st.ents[id] = e
+	if len(args) == 2 {
+		pid, ok := m.entID(args[1])
+		if !ok || pid < 1 || st.ents[pid] == nil {
+			return value.Nil, fmt.Errorf("LOADSPRITE: invalid parent entity")
+		}
+		e.parentID = pid
+		childLinkAdd(st, pid, id)
+	}
 	return value.FromInt(id), nil
 }
 
@@ -1175,7 +1534,7 @@ func (m *Module) entScaleSprite(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("SCALESPRITE expects (sprite, x#, y#)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil || !e.isSprite {
 		return value.Nil, fmt.Errorf("invalid sprite")
@@ -1191,7 +1550,7 @@ func (m *Module) entSpriteMode(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("SPRITEMODE expects (sprite, mode)")
 	}
-	id, _ := args[0].ToInt()
+	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
 	if e == nil || !e.isSprite {
 		return value.Nil, fmt.Errorf("invalid sprite")

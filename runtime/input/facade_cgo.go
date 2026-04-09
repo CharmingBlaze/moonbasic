@@ -252,14 +252,14 @@ func (m *Module) mouseXGlobal(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("MOUSEX expects 0 arguments")
 	}
-	return value.FromInt(int64(rl.GetMouseX())), nil
+	return value.FromFloat(float64(rl.GetMousePosition().X)), nil
 }
 
 func (m *Module) mouseYGlobal(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("MOUSEY expects 0 arguments")
 	}
-	return value.FromInt(int64(rl.GetMouseY())), nil
+	return value.FromFloat(float64(rl.GetMousePosition().Y)), nil
 }
 
 func boolToInt(b bool) int64 {

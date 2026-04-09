@@ -1,4 +1,4 @@
-//go:build !cgo
+//go:build !cgo && !modernc_sqlite
 
 package mbdb
 
@@ -9,7 +9,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-const stubHint = "DB.* SQLite natives require CGO: set CGO_ENABLED=1, install gcc/MinGW and SQLite dev headers if needed, then rebuild"
+const stubHint = "DB.* needs a SQLite driver: use CGO_ENABLED=1 with mattn/go-sqlite3, or build with -tags modernc_sqlite for pure Go sqlite (CGO_ENABLED=0); see docs/BUILDING.md"
 
 func registerDBCommands(m *Module, reg runtime.Registrar) {
 	_ = m

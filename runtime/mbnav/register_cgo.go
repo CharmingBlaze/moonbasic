@@ -11,6 +11,8 @@ import (
 	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 func (m *Module) Register(reg runtime.Registrar) {
@@ -20,6 +22,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("NAV.ADDTERRAIN", "nav", m.navAddTerrain)
 	reg.Register("NAV.ADDOBSTACLE", "nav", m.navAddObstacle)
 	reg.Register("NAV.BUILD", "nav", m.navBuild)
+	reg.Register("NAV.DEBUGDRAW", "nav", m.navDebugDraw)
 	reg.Register("NAV.FINDPATH", "nav", m.navFindPath)
 
 	reg.Register("PATH.ISVALID", "path", m.pathIsValid)
@@ -232,7 +235,81 @@ func (m *Module) navBuild(rt *runtime.Runtime, args ...value.Value) (value.Value
 	if err != nil {
 		return value.Nil, err
 	}
+
+	m.mu.Lock()
+	entMod := m.ent
+	m.mu.Unlock()
+
+	if entMod == nil {
+		return value.Nil, fmt.Errorf("NAV.BUILD: entity module not bound")
+	}
+
+	// Reset grid before bake
+	for i := range n.blocked {
+		n.blocked[i] = false
+		n.groundY[i] = -1000 // Reset to deep floor
+	}
+
+	entMod.ForEachStatic(func(id int64, bb rl.BoundingBox) {
+		ix0 := int(math.Floor((float64(bb.Min.X) - n.ox) / n.cell))
+		iz0 := int(math.Floor((float64(bb.Min.Z) - n.oz) / n.cell))
+		ix1 := int(math.Floor((float64(bb.Max.X) - n.ox) / n.cell))
+		iz1 := int(math.Floor((float64(bb.Max.Z) - n.oz) / n.cell))
+
+		for iz := iz0; iz <= iz1; iz++ {
+			for ix := ix0; ix <= ix1; ix++ {
+				if n.containsCell(ix, iz) {
+					idx := n.idx(ix, iz)
+					// Simple logic: if it's static and has an AABB, it's an obstacle.
+					// We'll treat the TOP of the AABB as the ground level for that cell.
+					n.blocked[idx] = true
+					if bb.Max.Y > n.groundY[idx] {
+						n.groundY[idx] = bb.Max.Y
+					}
+				}
+			}
+		}
+	})
+
 	n.built = true
+	return value.Nil, nil
+}
+
+func (m *Module) navDebugDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	h, err := m.requireHeap(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("NAV.DEBUGDRAW expects nav handle")
+	}
+	n, err := heap.Cast[*navObj](h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+
+	for iz := 0; iz < n.gh; iz++ {
+		for ix := 0; ix < n.gw; ix++ {
+			idx := n.idx(ix, iz)
+			cx, cz := n.cellCenter(ix, iz)
+			y := float32(n.groundY[idx])
+			if y < -999 {
+				y = 0
+			}
+
+			color := rl.Green
+			if n.blocked[idx] {
+				color = rl.Red
+			}
+			color.A = 120
+
+			pos := rl.Vector3{X: float32(cx), Y: y, Z: float32(cz)}
+			size := rl.Vector3{X: float32(n.cell) * 0.9, Y: 0.1, Z: float32(n.cell) * 0.9}
+			rl.DrawCubeV(pos, size, color)
+			rl.DrawCubeWiresV(pos, size, rl.ColorAlpha(color, 1.0))
+		}
+	}
+
 	return value.Nil, nil
 }
 

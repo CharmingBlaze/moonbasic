@@ -1,3 +1,5 @@
+//go:build !fullruntime
+
 // moonBASIC Compiler (CLI)
 package main
 
@@ -20,6 +22,7 @@ func main() {
 		showVer     = flag.Bool("version", false, "print version and exit")
 		lspMode     = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
 		disasm      = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
+		symbolsOut  = flag.String("symbols-out", "", "also write symbol table JSON (path, globals with Persistent, funcs, types) to this file when compiling")
 	)
 
 	flag.Usage = func() {
@@ -80,19 +83,34 @@ func main() {
 	}
 
 	// Default: Compile to MBC
-	if err := compileToMBC(path); err != nil {
+	if err := compileToMBC(path, *symbolsOut); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(2)
 	}
 }
 
-func compileToMBC(path string) error {
+func compileToMBC(path, symbolsPath string) error {
 	if strings.EqualFold(filepath.Ext(path), ".mbc") {
 		return fmt.Errorf("error: compiler expects a source file (.mb), not a .mbc file")
 	}
-	prog, err := pipeline.CompileFile(path)
+	srcBytes, err := os.ReadFile(path)
 	if err != nil {
 		return err
+	}
+	src := string(srcBytes)
+	prog, err := pipeline.CompileSource(path, src)
+	if err != nil {
+		return err
+	}
+	if symbolsPath != "" {
+		raw, err := pipeline.ExportSymbolTableJSON(path, src)
+		if err != nil {
+			return fmt.Errorf("symbols: %w", err)
+		}
+		if err := os.WriteFile(symbolsPath, raw, 0644); err != nil {
+			return fmt.Errorf("write symbols: %w", err)
+		}
+		fmt.Fprintf(os.Stderr, "wrote %s\n", symbolsPath)
 	}
 	out := mbcOutPath(path)
 	data, err := pipeline.EncodeMOON(prog)

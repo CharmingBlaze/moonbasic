@@ -1,4 +1,4 @@
-//go:build compiler_only || nonet
+//go:build fullruntime && nonet
 
 package pipeline
 

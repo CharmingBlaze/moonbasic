@@ -29,7 +29,17 @@ type Module struct {
 	profStack []profileFrame
 	profSum   map[string]time.Duration
 	profN     map[string]int64
+
+	// FPS Graph
+	fpsHistory    []float32
+	fpsIdx        int
+	showFPSGraph  bool
+	lastFrameTime time.Time
 }
 
 // NewModule creates the debug module.
-func NewModule() *Module { return &Module{} }
+func NewModule() *Module {
+	return &Module{
+		fpsHistory: make([]float32, 120),
+	}
+}

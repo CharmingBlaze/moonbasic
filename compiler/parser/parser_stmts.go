@@ -3,6 +3,7 @@ package parser
 import (
 	"moonbasic/compiler/arena"
 	"moonbasic/compiler/ast"
+	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/compiler/token"
 )
 
@@ -90,6 +91,11 @@ func (p *Parser) parseStmt() (ast.Stmt, error) {
 }
 
 func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, error) {
+	// Before skipNewlines: bare `DrawEntities` / `DrawEntities()`-style newline must not be eaten,
+	// or the newline would be consumed and a following `DrawEntities()` would merge incorrectly.
+	if p.isBareZeroArgBuiltinTerminator() && builtinmanifest.Default().HasArityExact(name, 0) {
+		return arena.Make(p.ar, ast.CallStmtNode{Name: name, Args: nil, Line: line, Col: col}), nil
+	}
 	p.skipNewlines()
 	if p.cur().Type == token.DOT {
 		p.advance()
@@ -120,86 +126,54 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 		}
 	}
 	if p.cur().Type == token.LPAREN {
-		if p.sym.IsVar(name) && !p.sym.IsFunction(name) {
-			args, err := p.parseArgList()
-			if err != nil {
-				return nil, err
-			}
-			p.skipNewlines()
-			switch p.cur().Type {
-			case token.DOT:
-				p.advance()
-				field, errDot := p.expectIdent()
-				if errDot != nil {
-					return nil, errDot
-				}
-				p.skipNewlines()
-				switch p.cur().Type {
-				case token.EQ:
-					p.advance()
-					rhs, err2 := p.parseExpr()
-					if err2 != nil {
-						return nil, err2
-					}
-					return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: rhs, Line: line, Col: col}), nil
-				case token.PLUSEQ, token.MINUSEQ, token.STAREQ, token.SLASHEQ:
-					op := p.cur().Type
-					p.advance()
-					rhs, err2 := p.parseExpr()
-					if err2 != nil {
-						return nil, err2
-					}
-					var binOp string
-					switch op {
-					case token.PLUSEQ:
-						binOp = "+"
-					case token.MINUSEQ:
-						binOp = "-"
-					case token.STAREQ:
-						binOp = "*"
-					case token.SLASHEQ:
-						binOp = "/"
-					}
-					load := arena.Make(p.ar, ast.IndexFieldExpr{Array: name, Index: args, Field: field, Line: line, Col: col})
-					bin := arena.Make(p.ar, ast.BinopNode{Op: binOp, Left: load, Right: rhs, Line: line, Col: col})
-					return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: bin, Line: line, Col: col}), nil
-				default:
-					return nil, p.failf("expected '=' or compound assign after %s(...).%s", name, field)
-				}
-			case token.EQ:
+		// Parenthesized: could be Array Index Assignment or Function Call
+		saved := p.save()
+		args, err := p.parseArgList()
+		if err != nil {
+			return nil, err
+		}
+		p.skipNewlines()
+		if p.cur().Type == token.EQ || p.cur().Type == token.PLUSEQ || p.cur().Type == token.MINUSEQ || p.cur().Type == token.STAREQ || p.cur().Type == token.SLASHEQ {
+			// It is an assignment to an array or object method result (if we allowed that, but we don't yet).
+			// We treat it as an IndexAssignNode and let the Analyzer flag if 'name' isn't an array.
+			p.defineAssignedName(name) // Mark as assigned for the parser's symtable if we want scalar-style implicit
+
+			// Actually, for arrays, we should NOT define it here yet because arrays ALWAYS need DIM.
+			// But to parse it correctly:
+			if p.cur().Type == token.EQ {
 				p.advance()
 				rhs, err2 := p.parseExpr()
 				if err2 != nil {
 					return nil, err2
 				}
 				return arena.Make(p.ar, ast.IndexAssignNode{Array: name, Index: args, Expr: rhs, Line: line, Col: col}), nil
-			case token.PLUSEQ, token.MINUSEQ, token.STAREQ, token.SLASHEQ:
-				op := p.cur().Type
-				p.advance()
-				rhs, err2 := p.parseExpr()
-				if err2 != nil {
-					return nil, err2
-				}
-				var binOp string
-				switch op {
-				case token.PLUSEQ:
-					binOp = "+"
-				case token.MINUSEQ:
-					binOp = "-"
-				case token.STAREQ:
-					binOp = "*"
-				case token.SLASHEQ:
-					binOp = "/"
-				}
-				idn := arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col})
-				load := arena.Make(p.ar, ast.IndexExpr{Base: idn, Index: args, Line: line, Col: col})
-				bin := arena.Make(p.ar, ast.BinopNode{Op: binOp, Left: load, Right: rhs, Line: line, Col: col})
-				return arena.Make(p.ar, ast.IndexAssignNode{Array: name, Index: args, Expr: bin, Line: line, Col: col}), nil
-			default:
-				return nil, p.failf("expected '=' or compound assign after subscript")
 			}
+			// Handle compound op...
+			op := p.cur().Type
+			p.advance()
+			rhs, err2 := p.parseExpr()
+			if err2 != nil {
+				return nil, err2
+			}
+			var binOp string
+			switch op {
+			case token.PLUSEQ:
+				binOp = "+"
+			case token.MINUSEQ:
+				binOp = "-"
+			case token.STAREQ:
+				binOp = "*"
+			case token.SLASHEQ:
+				binOp = "/"
+			}
+			load := arena.Make(p.ar, ast.IndexExpr{Base: arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col}), Index: args, Line: line, Col: col})
+			bin := arena.Make(p.ar, ast.BinopNode{Op: binOp, Left: load, Right: rhs, Line: line, Col: col})
+			return arena.Make(p.ar, ast.IndexAssignNode{Array: name, Index: args, Expr: bin, Line: line, Col: col}), nil
 		}
-		args, err := p.parseArgList()
+
+		// Not an assignment, backtrack and parse as function call
+		p.restore(saved)
+		args, err = p.parseArgList()
 		if err != nil {
 			return nil, err
 		}
@@ -238,6 +212,20 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 		return arena.Make(p.ar, ast.AssignNode{Name: name, Expr: bin, Line: line, Col: col}), nil
 	}
 	return nil, p.failf("expected '=', compound assign, '.' or '(' after %s", name)
+}
+
+// isBareZeroArgBuiltinTerminator is true when the next token cannot continue an assignment/call
+// and may end a bare statement (newline, colon, EOF, or block delimiter).
+func (p *Parser) isBareZeroArgBuiltinTerminator() bool {
+	switch p.cur().Type {
+	case token.NEWLINE, token.COLON, token.EOF,
+		token.WEND, token.ENDWHILE, token.NEXT, token.UNTIL, token.LOOP,
+		token.ENDIF, token.ELSE, token.ELSEIF, token.END,
+		token.CASE, token.DEFAULT, token.ENDSELECT:
+		return true
+	default:
+		return false
+	}
 }
 
 func (p *Parser) parseIf() (ast.Stmt, error) {

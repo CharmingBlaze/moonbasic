@@ -78,11 +78,13 @@ func writeChunk(w io.Writer, c *opcode.Chunk) error {
 		if err := binaryWriteU8(w, byte(in.Op)); err != nil {
 			return err
 		}
-		if err := binaryWriteU8(w, in.Flags); err != nil {
+		if err := binaryWriteU8(w, in.Dst); err != nil {
 			return err
 		}
-		var pad [2]byte
-		if _, err := w.Write(pad[:]); err != nil {
+		if err := binaryWriteU8(w, in.SrcA); err != nil {
+			return err
+		}
+		if err := binaryWriteU8(w, in.SrcB); err != nil {
 			return err
 		}
 		if err := binaryWriteI32(w, in.Operand); err != nil {

@@ -11,7 +11,7 @@ import (
 
 func init() {
 	if unsafe.Sizeof(Instruction{}) != 8 {
-		panic("opcode: Instruction must be exactly 8 bytes (IR v2)")
+		panic("opcode: Instruction must be exactly 8 bytes (IR v3)")
 	}
 }
 
@@ -27,6 +27,10 @@ const (
 	OpPushBool                 // Operand: 0 = false, 1 = true
 	OpPushNull                 // No operands
 	OpPop                      // Pop top of stack
+
+	// Register operations
+	OpMove
+	OpPhi
 
 	// Variable access (globals use name table, locals use frame slots)
 	OpLoadGlobal  // Operand: index into Chunk.Names (interned uppercase string)
@@ -92,26 +96,33 @@ const (
 	OpArrayMakeTyped // Operand: type name index in Chunk.Names; Flags: dimension count; stack: dim sizes (same as ARRAY_MAKE)
 	OpNewFilled      // Operand: type name index; Flags: argument count; stack: field values in declaration order
 	OpEraseAll       // ERASE ALL — frees entire heap, nulls handle values in globals and operand stack
+
+	// Host physics: WASM/Jolt SoA floats are copied into [VM.PhysicsScratch] by the engine (see joltwasm.UpdateVMPhysics).
+	// Operand: number of floats to copy; Dst: first destination register (fills R[Dst..Dst+count-1]).
+	OpSyncPhysics
 )
 
-// Instruction is a fixed-width VM decoded unit (8 bytes, IR v2).
-// Flags holds the argument count for OpCallBuiltin, OpCallUser, OpCallHandle; else 0.
+// Instruction is a fixed-width VM decoded unit (8 bytes, IR v3).
+// Layout: Op (8), Dst (8), SrcA (8), SrcB (8), Operand (32).
 type Instruction struct {
 	Op      OpCode
-	Flags   uint8
-	_       [2]byte // padding
-	Operand int32
+	Dst     uint8  // Target register
+	SrcA    uint8  // First source register
+	SrcB    uint8  // Second source register or ArgStart
+	Operand int32  // Immediate, constant index, or jump offset
 }
 
 // String returns a disassembly-style representation of an instruction.
 func (i Instruction) String() string {
-	return fmt.Sprintf("%-16s %8d %8d", i.Op.String(), i.Operand, int32(i.Flags))
+	return fmt.Sprintf("%-16s R%03d R%03d R%03d %10d", 
+		i.Op.String(), i.Dst, i.SrcA, i.SrcB, i.Operand)
 }
 
 // OpCode.String provides human-readable opcode names.
 func (op OpCode) String() string {
 	names := [...]string{
 		"PUSH_INT", "PUSH_FLOAT", "PUSH_STRING", "PUSH_BOOL", "PUSH_NULL", "POP",
+		"MOVE", "PHI",
 		"LOAD_GLOBAL", "STORE_GLOBAL", "LOAD_LOCAL", "STORE_LOCAL",
 		"ADD", "SUB", "MUL", "DIV", "MOD", "POW", "NEG",
 		"EQ", "NEQ", "LT", "GT", "LTE", "GTE",
@@ -121,6 +132,7 @@ func (op OpCode) String() string {
 		"ARRAY_MAKE", "ARRAY_GET", "ARRAY_SET",
 		"NEW", "DELETE", "FIELD_GET", "FIELD_SET", "HALT",
 		"SWAP", "ARRAY_REDIM", "ARRAY_MAKE_TYPED", "NEW_FILLED", "ERASE_ALL",
+		"SYNC_PHYSICS",
 	}
 	if int(op) < 0 || int(op) >= len(names) {
 		return fmt.Sprintf("OP_%d", int(op))
@@ -173,9 +185,15 @@ func (c *Chunk) AddName(name string) int32 {
 }
 
 // Emit appends an instruction and its source line, returning the absolute instruction index.
-// flags is the arg count for call opcodes; use 0 otherwise.
-func (c *Chunk) Emit(op OpCode, operand int32, flags uint8, line int) int {
-	c.Instructions = append(c.Instructions, Instruction{Op: op, Flags: flags, Operand: operand})
+// dst, srcA, srcB are register indices (0–255).
+func (c *Chunk) Emit(op OpCode, dst, srcA, srcB uint8, operand int32, line int) int {
+	c.Instructions = append(c.Instructions, Instruction{
+		Op:      op,
+		Dst:     dst,
+		SrcA:    srcA,
+		SrcB:    srcB,
+		Operand: operand,
+	})
 	c.SourceLines = append(c.SourceLines, int32(line))
 	return len(c.Instructions) - 1
 }

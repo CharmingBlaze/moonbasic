@@ -1,4 +1,4 @@
-// Package opt applies bytecode-level optimisation passes to compiled chunks (IR v2).
+// Package opt applies bytecode-level optimisation passes to compiled chunks (IR v3).
 package opt
 
 import (
@@ -22,41 +22,12 @@ func OptimizeProgram(p *opcode.Program) {
 }
 
 // OptimizeChunk applies peephole cleanup and jump threading for direct JUMP chains.
-// (Full unreachable-block DCE would require jump target relabeling; not done here.)
 func OptimizeChunk(ch *opcode.Chunk) {
 	if ch == nil || len(ch.Instructions) == 0 {
 		return
 	}
-	peephole(ch)
+	// TODO: implement register-based peephole (e.g. redundant MOVE removal)
 	threadJumps(ch)
-}
-
-func peephole(ch *opcode.Chunk) {
-	ins := ch.Instructions
-	lines := ch.SourceLines
-	outI := make([]opcode.Instruction, 0, len(ins))
-	outL := make([]int32, 0, len(lines))
-	for i := 0; i < len(ins); i++ {
-		if i+1 < len(ins) {
-			a, b := ins[i], ins[i+1]
-			// PUSH immediately POP
-			switch a.Op {
-			case opcode.OpPushInt, opcode.OpPushFloat, opcode.OpPushString, opcode.OpPushBool, opcode.OpPushNull:
-				if b.Op == opcode.OpPop {
-					i++
-					continue
-				}
-			}
-		}
-		outI = append(outI, ins[i])
-		if i < len(lines) {
-			outL = append(outL, lines[i])
-		} else {
-			outL = append(outL, 0)
-		}
-	}
-	ch.Instructions = outI
-	ch.SourceLines = outL
 }
 
 func threadJumps(ch *opcode.Chunk) {

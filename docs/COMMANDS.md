@@ -328,6 +328,7 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 | `Window.Close()` | Closes the window and exits. |
 | `Window.ShouldClose()` | Returns `TRUE` when the user requests close (use in main loop). |
 | `Window.SetFPS(fps)` | Sets the target frame rate. |
+| `Window.SetMSAA(samples)` | Sets hardware Multi-Sample Anti-Aliasing (0, 4, 8). Pre-hint; use before `OPEN`. |
 | `Window.SetTitle(title$)` | Updates the window title at runtime. |
 | `Window.SetPosition(x, y)` | Moves the window on screen. |
 | `Window.SetSize(w, h)` | Resizes the window. |
@@ -345,6 +346,7 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 | `Window.GetPositionY()` | Returns the window's Y position on screen. |
 | `Window.GetScaleDPIX()` | Returns the DPI X scale factor. |
 | `Window.GetScaleDPIY()` | Returns the DPI Y scale factor. |
+| `Window.DPISCALE()` | Returns the global DPI scale factor (float64). |
 | `Window.SetFlag(flag)` | Sets a window state flag (e.g., `FLAG_RESIZABLE`). |
 | `Window.ClearFlag(flag)` | Clears a window state flag. |
 | `Window.CheckFlag(flag)` | Returns `TRUE` if the window flag is set. |
@@ -359,6 +361,8 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 | `Render.Frame()` | Presents the rendered frame. Call at the end of each frame. |
 | `Render.DrawFPS(x, y)` | Draws the current FPS on screen. |
 | `Render.Screenshot(path$)` | Saves a screenshot to a PNG file. |
+| `Render.Width()` | Returns physical framebuffer width (**float64**). |
+| `Render.Height()` | Returns physical framebuffer height (**float64**). |
 | `Render.SetBlend(mode)` / `Render.SetBlendMode(mode)` | Sets the Raylib blend mode (e.g. `BLEND_ALPHA`). |
 | `Render.SetDepthWrite(on)` / `Render.SetDepthTest(on)` | Depth mask / depth test toggles. |
 | `Render.SetScissor(x, y, w, h)` / `Render.ClearScissor()` | Scissor rectangle. |
@@ -473,7 +477,7 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 | `Sprite.PlayAnim(handle, name$)` | Starts strip playback; `name$` is currently unused. |
 | `Sprite.UpdateAnim(handle, dt#)` | Advance strip frames (use **`Time.Delta()`**). No-op if using **`Anim.Update`** FSM. |
 | `Sprite.SetPos` / `Sprite.SetPosition` | Float draw offset; used by **`Sprite.Draw`** and **`Sprite.Hit`**. |
-| `Sprite.Draw(handle, x, y)` | Current frame + offset (use inside **`Render.BeginMode2D`** as needed). |
+| `Sprite.Draw(handle, x, y)` | Current frame + offset (use inside **`Camera2D.Begin`** / **`Camera2D.End`** when you need 2D camera space). |
 | `Sprite.Hit(a, b)` | Axis-aligned overlap using positions + frame sizes. |
 | `Atlas.Load` / `GetSprite` / `Free` | See [ATLAS.md](reference/ATLAS.md). |
 | `Anim.Define` / `AddTransition` / `Update` / `SetParam` | Optional state machine; see [SPRITE.md](reference/SPRITE.md). |
@@ -619,6 +623,8 @@ Keyboard, mouse, gamepad, and **action mapping**. Short names such as **`KEYDOWN
 | Command | Description |
 |---|---|
 | `Input.KeyDown` / `KEYDOWN` | True while a key is held. |
+| `Input.MouseX()` / `MOUSEX()` | Current mouse X position (**float64**). |
+| `Input.MouseY()` / `MOUSEY()` | Current mouse Y position (**float64**). |
 | `Input.KeyPressed` / `KEYPRESSED` | True only on the first frame a key is pressed. |
 | `Input.Axis(negKey, posKey)` | Float in `{-1, 0, 1}` from two keys — ideal with **`MOVEX` / `MOVEZ`** or **`MOVESTEPX` / `MOVESTEPZ`**. |
 | `Input.AxisDeg(negKey, posKey, degPerSec#, dt#)` | **`Input.Axis` × `DEGPERSEC`** — radians to add this frame (e.g. camera yaw). |

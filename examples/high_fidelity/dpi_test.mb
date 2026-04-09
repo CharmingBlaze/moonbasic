@@ -1,0 +1,24 @@
+WINDOW.OPEN(800, 600, "High-DPI Verification")
+
+PRINT("Window width:   " + WINDOW.WIDTH())
+PRINT("Window height:  " + WINDOW.HEIGHT())
+PRINT("Scaled DPI X:   " + WINDOW.GETSCALEDPIX())
+PRINT("Scaled DPI Y:   " + WINDOW.GETSCALEDPIY())
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+	RENDER.CLEAR(30, 30, 50)
+    
+    mx# = MOUSEX()
+    my# = MOUSEY()
+    
+    ; Draw a small crosshair at mouse pos
+    ; (Note: Draw.Line etc might still expect ints if they have not been updated,
+    ; but the coordinates we pass will be floats.)
+    
+    PRINTAT(10, 10, "Mouse X#: " + mx#)
+    PRINTAT(10, 30, "Mouse Y#: " + my#)
+    
+	RENDER.FRAME()
+WEND
+
+WINDOW.CLOSE()

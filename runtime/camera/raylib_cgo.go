@@ -67,11 +67,15 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.GETRAY", "camera", runtime.AdaptLegacy(m.camGetRay))
 	r.Register("CAMERA.PICK", "camera", runtime.AdaptLegacy(m.camGetRay))
 	r.Register("CAMERA.SHAKE", "camera", runtime.AdaptLegacy(m.camShake))
+	r.Register("CameraFOV", "camera", runtime.AdaptLegacy(m.camSetFov))
+	r.Register("CameraShake", "camera", runtime.AdaptLegacy(m.camShake))
+	r.Register("CameraLookAt", "camera", runtime.AdaptLegacy(m.camSetTarget))
 	r.Register("CAMERA.GETVIEWRAY", "camera", runtime.AdaptLegacy(m.camGetViewRay))
 	r.Register("CAMERA.GETMATRIX", "camera", runtime.AdaptLegacy(m.camGetMatrix))
 	r.Register("MATRIX.FREE", "camera", runtime.AdaptLegacy(m.matrixFree))
 	m.registerCameraExtras(r)
 	m.registerBlitzCamera(r)
+	registerBlitzCameraExtras(m, r)
 	m.registerScreenHelpers(r)
 	m.registerCamera2D(r)
 	m.registerCull(r)
@@ -197,6 +201,15 @@ func (m *Module) camSetFov(args []value.Value) (value.Value, error) {
 	}
 	o.cam.Fovy = fov
 	return value.Nil, nil
+}
+
+// CameraWorldPosition returns the world-space position of a CAMERA.MAKE handle (for ENTITY follow helpers).
+func CameraWorldPosition(h *heap.Store, camH heap.Handle) (rl.Vector3, bool) {
+	o, err := heap.Cast[*camObj](h, camH)
+	if err != nil {
+		return rl.Vector3{}, false
+	}
+	return o.cam.Position, true
 }
 
 func (m *Module) camShake(args []value.Value) (value.Value, error) {

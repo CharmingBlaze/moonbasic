@@ -22,7 +22,9 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MATERIAL.MAKEDEFAULT expects no arguments")
 		}
 		mat := rl.LoadMaterialDefault()
-		id, err := m.h.Alloc(&materialObj{mat: mat})
+		obj := &materialObj{mat: mat}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			return value.Nil, err
 		}
@@ -39,7 +41,9 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MATERIAL.MAKEPBR expects no arguments")
 		}
 		mat := makePBRMaterial()
-		id, err := m.h.Alloc(&materialObj{mat: mat, pbr: true})
+		obj := &materialObj{mat: mat, pbr: true}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
 		if err != nil {
 			return value.Nil, err
 		}

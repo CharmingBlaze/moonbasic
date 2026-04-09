@@ -15,21 +15,21 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 	switch i.Op {
 	// Binary Operations
 	case opcode.OpAdd, opcode.OpSub, opcode.OpMul, opcode.OpDiv, opcode.OpMod, opcode.OpPow:
-		return v.doArithmetic(i.Op)
+		return v.doArithmetic(i)
 	case opcode.OpNeg:
-		return v.doNegation()
+		return v.doNegation(i)
 
 	// Comparisons
 	case opcode.OpEq, opcode.OpNeq, opcode.OpLt, opcode.OpGt, opcode.OpLte, opcode.OpGte:
-		return v.doComparison(i.Op)
+		return v.doComparison(i)
 
 	// Logical Operations
 	case opcode.OpAnd, opcode.OpOr, opcode.OpNot, opcode.OpXor:
-		return v.doLogic(i.Op)
+		return v.doLogic(i)
 
 	// String Concat
 	case opcode.OpConcat:
-		return v.doConcat()
+		return v.doConcat(i)
 
 	// Control Flow (Jumps)
 	case opcode.OpJump, opcode.OpJumpIfFalse, opcode.OpJumpIfTrue:
@@ -53,13 +53,18 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 	case opcode.OpCallHandle:
 		return v.doCallHandle(i)
 	case opcode.OpDelete:
-		h := v.pop()
+		h := v.reg(i.SrcA)
 		if h.Kind == value.KindHandle {
 			_ = v.Heap.Free(heap.Handle(h.IVal))
 		}
 
 	case opcode.OpEraseAll:
 		return v.EraseAllHandles()
+
+	case opcode.OpSyncPhysics:
+		if err := v.RunSyncPhysicsOpcode(i); err != nil {
+			return v.runtimeError(err.Error())
+		}
 
 	case opcode.OpArrayMake:
 		return v.doArrayMake(i)
@@ -80,23 +85,23 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 	return nil
 }
 
-func (v *VM) doArithmetic(op opcode.OpCode) error {
-	right := v.pop()
-	left := v.pop()
+func (v *VM) doArithmetic(i opcode.Instruction) error {
+	right := v.reg(i.SrcB)
+	left := v.reg(i.SrcA)
 	pool := v.Program.StringTable
 	h := v.Heap
 	if left.Kind == value.KindString || right.Kind == value.KindString {
-		if op != opcode.OpAdd {
+		if i.Op != opcode.OpAdd {
 			return v.runtimeError("only addition is defined for strings")
 		}
 		s := value.StringAt(left, pool, h) + value.StringAt(right, pool, h)
-		v.push(value.FromStringIndex(v.Heap.Intern(s)))
+		v.setReg(i.Dst, value.FromStringIndex(v.Heap.Intern(s)))
 		return nil
 	}
 	var res value.Value
 	var err error
 
-	switch op {
+	switch i.Op {
 	case opcode.OpAdd:
 		res, err = value.Add(left, right)
 	case opcode.OpSub:
@@ -114,27 +119,27 @@ func (v *VM) doArithmetic(op opcode.OpCode) error {
 	if err != nil {
 		return v.runtimeError(err.Error())
 	}
-	v.push(res)
+	v.setReg(i.Dst, res)
 	return nil
 }
 
-func (v *VM) doNegation() error {
-	val := v.pop()
+func (v *VM) doNegation(i opcode.Instruction) error {
+	val := v.reg(i.SrcA)
 	res, err := value.Neg(val)
 	if err != nil {
 		return v.runtimeError(err.Error())
 	}
-	v.push(res)
+	v.setReg(i.Dst, res)
 	return nil
 }
 
-func (v *VM) doComparison(op opcode.OpCode) error {
-	right := v.pop()
-	left := v.pop()
+func (v *VM) doComparison(i opcode.Instruction) error {
+	right := v.reg(i.SrcB)
+	left := v.reg(i.SrcA)
 	pool := v.Program.StringTable
 	h := v.Heap
 
-	switch op {
+	switch i.Op {
 	case opcode.OpEq:
 		var eq bool
 		if left.Kind == value.KindString && right.Kind == value.KindString {
@@ -142,7 +147,7 @@ func (v *VM) doComparison(op opcode.OpCode) error {
 		} else {
 			eq = value.Equal(left, right)
 		}
-		v.push(value.FromBool(eq))
+		v.setReg(i.Dst, value.FromBool(eq))
 	case opcode.OpNeq:
 		var eq bool
 		if left.Kind == value.KindString && right.Kind == value.KindString {
@@ -150,60 +155,60 @@ func (v *VM) doComparison(op opcode.OpCode) error {
 		} else {
 			eq = value.Equal(left, right)
 		}
-		v.push(value.FromBool(!eq))
+		v.setReg(i.Dst, value.FromBool(!eq))
 	case opcode.OpLt:
 		res, err := value.Less(left, right, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
-		v.push(value.FromBool(res))
+		v.setReg(i.Dst, value.FromBool(res))
 	case opcode.OpGt:
 		res, err := value.Less(right, left, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
-		v.push(value.FromBool(res))
+		v.setReg(i.Dst, value.FromBool(res))
 	case opcode.OpLte:
 		res, err := value.Less(right, left, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
-		v.push(value.FromBool(!res))
+		v.setReg(i.Dst, value.FromBool(!res))
 	case opcode.OpGte:
 		res, err := value.Less(left, right, pool, h)
 		if err != nil {
 			return v.runtimeError(err.Error())
 		}
-		v.push(value.FromBool(!res))
+		v.setReg(i.Dst, value.FromBool(!res))
 	}
 	return nil
 }
 
-func (v *VM) doLogic(op opcode.OpCode) error {
+func (v *VM) doLogic(i opcode.Instruction) error {
 	pool := v.Program.StringTable
 	h := v.Heap
-	switch op {
+	switch i.Op {
 	case opcode.OpNot:
-		v.push(value.FromBool(!value.Truthy(v.pop(), pool, h)))
+		v.setReg(i.Dst, value.FromBool(!value.Truthy(v.reg(i.SrcA), pool, h)))
 	case opcode.OpAnd:
-		r, l := v.pop(), v.pop()
-		v.push(value.FromBool(value.Truthy(l, pool, h) && value.Truthy(r, pool, h)))
+		l, r := v.reg(i.SrcA), v.reg(i.SrcB)
+		v.setReg(i.Dst, value.FromBool(value.Truthy(l, pool, h) && value.Truthy(r, pool, h)))
 	case opcode.OpOr:
-		r, l := v.pop(), v.pop()
-		v.push(value.FromBool(value.Truthy(l, pool, h) || value.Truthy(r, pool, h)))
+		l, r := v.reg(i.SrcA), v.reg(i.SrcB)
+		v.setReg(i.Dst, value.FromBool(value.Truthy(l, pool, h) || value.Truthy(r, pool, h)))
 	case opcode.OpXor:
-		r, l := v.pop(), v.pop()
-		v.push(value.FromBool(value.Truthy(l, pool, h) != value.Truthy(r, pool, h)))
+		l, r := v.reg(i.SrcA), v.reg(i.SrcB)
+		v.setReg(i.Dst, value.FromBool(value.Truthy(l, pool, h) != value.Truthy(r, pool, h)))
 	}
 	return nil
 }
 
-func (v *VM) doConcat() error {
-	r, l := v.pop(), v.pop()
+func (v *VM) doConcat(i opcode.Instruction) error {
+	l, r := v.reg(i.SrcA), v.reg(i.SrcB)
 	pool := v.Program.StringTable
 	h := v.Heap
 	s := value.StringAt(l, pool, h) + value.StringAt(r, pool, h)
-	v.push(value.FromStringIndex(v.Heap.Intern(s)))
+	v.setReg(i.Dst, value.FromStringIndex(v.Heap.Intern(s)))
 	return nil
 }
 
@@ -224,7 +229,7 @@ func (v *VM) doNew(i opcode.Instruction) error {
 	if err != nil {
 		return v.runtimeError(err.Error())
 	}
-	v.push(value.FromHandle(h))
+	v.setReg(i.Dst, value.FromHandle(h))
 	return nil
 }
 
@@ -232,7 +237,7 @@ func (v *VM) doFieldGet(i opcode.Instruction) error {
 	frame := v.CallStack.Top()
 	fieldName := frame.Chunk.Names[i.Operand]
 
-	hVal := v.pop()
+	hVal := v.reg(i.SrcA)
 	if hVal.Kind != value.KindHandle {
 		return v.runtimeError(fmt.Sprintf("attempted to access field %s on %s (not a handle)", fieldName, hVal.TypeName()))
 	}
@@ -247,7 +252,7 @@ func (v *VM) doFieldGet(i opcode.Instruction) error {
 		return v.runtimeError(fmt.Sprintf("field %s exists only on user types, got %s", fieldName, obj.TypeName()))
 	}
 
-	v.push(inst.GetField(fieldName))
+	v.setReg(i.Dst, inst.GetField(fieldName))
 	return nil
 }
 
@@ -255,8 +260,8 @@ func (v *VM) doFieldSet(i opcode.Instruction) error {
 	frame := v.CallStack.Top()
 	fieldName := frame.Chunk.Names[i.Operand]
 
-	val := v.pop()
-	hVal := v.pop()
+	val := v.reg(i.SrcB)
+	hVal := v.reg(i.SrcA)
 
 	if hVal.Kind != value.KindHandle {
 		return v.runtimeError(fmt.Sprintf("attempted to set field %s on %s (not a handle)", fieldName, hVal.TypeName()))
@@ -275,33 +280,29 @@ func (v *VM) doFieldSet(i opcode.Instruction) error {
 	inst.SetField(fieldName, val)
 
 	// Return the value (assignments as expressions return the value)
-	v.push(val)
+	v.setReg(i.Dst, val)
 	return nil
 }
 
 func (v *VM) doCallHandle(i opcode.Instruction) error {
 	frame := v.CallStack.Top()
-	methodName := frame.Chunk.Names[i.Operand]
-	argCount := int(i.Flags)
+	// Operand encodes (ArgCount << 24 | NameIdx)
+	argCount := int(uint32(i.Operand) >> 24)
+	nameIdx := int32(i.Operand & 0x00FFFFFF)
+	methodName := frame.Chunk.Names[nameIdx]
 
-	// [handle] [arg1] [arg2] ... [argN]
-	idx := len(v.Stack) - argCount - 1
-	if idx < 0 {
-		return v.runtimeError(fmt.Sprintf("stack underflow during handle call %s", methodName))
-	}
-	hVal := v.Stack[idx]
+	hVal := v.reg(i.SrcA)
+	argStart := i.SrcB
 
 	if hVal.Kind != value.KindHandle {
 		return v.runtimeError(fmt.Sprintf("cannot call method %s on %s (not a handle)", methodName, hVal.TypeName()))
 	}
 
-	// Extract args
+	// Extract args from registers starting at ArgStart
 	args := make([]value.Value, argCount)
-	copy(args, v.Stack[len(v.Stack)-argCount:])
-	v.Stack = v.Stack[:len(v.Stack)-argCount]
-
-	// Pop the handle itself
-	v.Stack = v.Stack[:len(v.Stack)-1]
+	for idx := 0; idx < argCount; idx++ {
+		args[idx] = v.reg(argStart + uint8(idx))
+	}
 
 	hid := heap.Handle(hVal.IVal)
 	obj, ok := v.Heap.Get(hid)
@@ -345,6 +346,6 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 		return v.runtimeError(v.formatHandleCallError(tag, typeName, methodName, callKey, mapped, err))
 	}
 
-	v.push(res)
+	v.setReg(i.Dst, res)
 	return nil
 }

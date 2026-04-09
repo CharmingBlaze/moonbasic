@@ -41,6 +41,7 @@ func (m *Module) setSoundVolume(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("AUDIO.SETSOUNDVOLUME: volume must be numeric")
 	}
+	so.gain = v
 	rl.SetSoundVolume(so.snd, v)
 	return value.Nil, nil
 }
@@ -79,6 +80,7 @@ func (m *Module) setSoundPan(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("AUDIO.SETSOUNDPAN: pan must be numeric")
 	}
+	so.pan = v
 	rl.SetSoundPan(so.snd, v)
 	return value.Nil, nil
 }

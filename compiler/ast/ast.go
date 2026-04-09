@@ -10,13 +10,23 @@ import (
 type Stmt interface {
 	stmt()
 	String() string
+	Accept(v Visitor)
 }
 
 // Expr is an expression node.
 type Expr interface {
 	expr()
 	String() string
+	Accept(v Visitor)
 }
+
+// Visitor allows walking the AST without massive type switches.
+// If VisitStmt or VisitExpr returns a non-nil Visitor, children are visited with it.
+type Visitor interface {
+	VisitStmt(Stmt) Visitor
+	VisitExpr(Expr) Visitor
+}
+
 
 // Program is the root: ordered top-level statements plus type and function definitions.
 type Program struct {
@@ -59,6 +69,7 @@ type AssignNode struct {
 }
 
 func (n *AssignNode) stmt() {}
+func (n *AssignNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *AssignNode) String() string {
 	return fmt.Sprintf("Assign(%s, %s)", n.Name, n.Expr.String())
 }
@@ -73,6 +84,7 @@ type IndexAssignNode struct {
 }
 
 func (n *IndexAssignNode) stmt() {}
+func (n *IndexAssignNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *IndexAssignNode) String() string {
 	return fmt.Sprintf("IndexAssign(%s[...], %s)", n.Array, n.Expr.String())
 }
@@ -87,6 +99,7 @@ type FieldAssignNode struct {
 }
 
 func (n *FieldAssignNode) stmt() {}
+func (n *FieldAssignNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *FieldAssignNode) String() string {
 	return fmt.Sprintf("FieldAssign(%s.%s, %s)", n.Object, n.Field, n.Expr.String())
 }
@@ -100,6 +113,7 @@ type FieldAccessNode struct {
 }
 
 func (n *FieldAccessNode) expr() {}
+func (n *FieldAccessNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *FieldAccessNode) String() string {
 	return fmt.Sprintf("FieldAccess(%s.%s)", n.Object, n.Field)
 }
@@ -113,6 +127,7 @@ type CallStmtNode struct {
 }
 
 func (n *CallStmtNode) stmt() {}
+func (n *CallStmtNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *CallStmtNode) String() string {
 	return fmt.Sprintf("CallStmt(%s(...))", n.Name)
 }
@@ -127,6 +142,7 @@ type NamespaceCallStmt struct {
 }
 
 func (n *NamespaceCallStmt) stmt() {}
+func (n *NamespaceCallStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *NamespaceCallStmt) String() string {
 	return fmt.Sprintf("NsCall(%s.%s)", n.NS, n.Method)
 }
@@ -141,6 +157,7 @@ type HandleCallStmt struct {
 }
 
 func (n *HandleCallStmt) stmt() {}
+func (n *HandleCallStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *HandleCallStmt) String() string {
 	return fmt.Sprintf("HandleCall(%s.%s)", n.Receiver, n.Method)
 }
@@ -162,6 +179,7 @@ type ElseIfClause struct {
 }
 
 func (n *IfNode) stmt()          {}
+func (n *IfNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *IfNode) String() string { return "If(...)" }
 
 // WhileNode is WHILE ... WEND.
@@ -173,6 +191,7 @@ type WhileNode struct {
 }
 
 func (n *WhileNode) stmt()          {}
+func (n *WhileNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *WhileNode) String() string { return "While(...)" }
 
 // ForNode is FOR var = from TO to [STEP step] ... NEXT.
@@ -187,6 +206,7 @@ type ForNode struct {
 }
 
 func (n *ForNode) stmt()          {}
+func (n *ForNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ForNode) String() string { return "For(...)" }
 
 // RepeatNode is REPEAT ... UNTIL.
@@ -198,6 +218,7 @@ type RepeatNode struct {
 }
 
 func (n *RepeatNode) stmt()          {}
+func (n *RepeatNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *RepeatNode) String() string { return "Repeat(...)" }
 
 // DoLoopKind selects DO/LOOP variant (Raylib-style BASIC).
@@ -222,6 +243,7 @@ type DoLoopNode struct {
 }
 
 func (n *DoLoopNode) stmt()          {}
+func (n *DoLoopNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *DoLoopNode) String() string { return "DoLoop(...)" }
 
 // ExitStmt is EXIT FOR | EXIT WHILE | EXIT REPEAT | EXIT DO | EXIT FUNCTION.
@@ -232,6 +254,7 @@ type ExitStmt struct {
 }
 
 func (n *ExitStmt) stmt()          {}
+func (n *ExitStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ExitStmt) String() string { return "Exit(" + n.Target + ")" }
 
 // ContinueStmt is CONTINUE FOR | WHILE | REPEAT | DO.
@@ -242,6 +265,7 @@ type ContinueStmt struct {
 }
 
 func (n *ContinueStmt) stmt()          {}
+func (n *ContinueStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ContinueStmt) String() string { return "Continue(" + n.Target + ")" }
 
 // SelectNode is SELECT expr ... CASE ... DEFAULT ... ENDSELECT.
@@ -260,6 +284,7 @@ type CaseClause struct {
 }
 
 func (n *SelectNode) stmt()          {}
+func (n *SelectNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *SelectNode) String() string { return "Select(...)" }
 
 // ReturnNode is RETURN [expr].
@@ -270,6 +295,7 @@ type ReturnNode struct {
 }
 
 func (n *ReturnNode) stmt()          {}
+func (n *ReturnNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ReturnNode) String() string { return "Return(...)" }
 
 // GotoNode is GOTO label.
@@ -280,6 +306,7 @@ type GotoNode struct {
 }
 
 func (n *GotoNode) stmt()          {}
+func (n *GotoNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *GotoNode) String() string { return fmt.Sprintf("Goto(%s)", n.Label) }
 
 // GosubNode is GOSUB label.
@@ -290,6 +317,7 @@ type GosubNode struct {
 }
 
 func (n *GosubNode) stmt()          {}
+func (n *GosubNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *GosubNode) String() string { return fmt.Sprintf("Gosub(%s)", n.Label) }
 
 // LabelNode is .label.
@@ -300,6 +328,7 @@ type LabelNode struct {
 }
 
 func (n *LabelNode) stmt()          {}
+func (n *LabelNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *LabelNode) String() string { return fmt.Sprintf("Label(.%s)", n.Name) }
 
 // DimNode is DIM name(dim...) or REDIM [PRESERVE] name(dim...), or DIM name AS Type(dim...) for typed handle arrays.
@@ -314,6 +343,7 @@ type DimNode struct {
 }
 
 func (n *DimNode) stmt()          {}
+func (n *DimNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *DimNode) String() string { return fmt.Sprintf("Dim(%s)", n.Name) }
 
 // IncludeNode is INCLUDE "path".
@@ -324,6 +354,7 @@ type IncludeNode struct {
 }
 
 func (n *IncludeNode) stmt()          {}
+func (n *IncludeNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *IncludeNode) String() string { return fmt.Sprintf("Include(%q)", n.Path) }
 
 // LocalDeclNode is LOCAL name [= expr] or list — simplified as single name per line.
@@ -335,6 +366,7 @@ type LocalDeclNode struct {
 }
 
 func (n *LocalDeclNode) stmt()          {}
+func (n *LocalDeclNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *LocalDeclNode) String() string { return fmt.Sprintf("Local(%s)", n.Name) }
 
 // ConstDeclNode is CONST name = expr.
@@ -346,6 +378,7 @@ type ConstDeclNode struct {
 }
 
 func (n *ConstDeclNode) stmt()          {}
+func (n *ConstDeclNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ConstDeclNode) String() string { return fmt.Sprintf("Const(%s)", n.Name) }
 
 // StaticDeclNode is STATIC name [= expr] inside a FUNCTION.
@@ -357,6 +390,7 @@ type StaticDeclNode struct {
 }
 
 func (n *StaticDeclNode) stmt()          {}
+func (n *StaticDeclNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *StaticDeclNode) String() string { return fmt.Sprintf("Static(%s)", n.Name) }
 
 // SwapStmt is SWAP a, b.
@@ -367,6 +401,7 @@ type SwapStmt struct {
 }
 
 func (n *SwapStmt) stmt()          {}
+func (n *SwapStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *SwapStmt) String() string { return fmt.Sprintf("Swap(%s,%s)", n.A, n.B) }
 
 // EraseStmt is ERASE name — frees heap array and sets variable to NULL, or ERASE ALL (see codegen).
@@ -377,6 +412,7 @@ type EraseStmt struct {
 }
 
 func (n *EraseStmt) stmt()          {}
+func (n *EraseStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *EraseStmt) String() string { return fmt.Sprintf("Erase(%s)", n.Name) }
 
 // NewNode is NEW(TypeName).
@@ -387,6 +423,7 @@ type NewNode struct {
 }
 
 func (n *NewNode) expr()          {}
+func (n *NewNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *NewNode) String() string { return fmt.Sprintf("New(%s)", n.TypeName) }
 
 // DeleteStmt is DELETE expr.
@@ -397,6 +434,7 @@ type DeleteStmt struct {
 }
 
 func (n *DeleteStmt) stmt()          {}
+func (n *DeleteStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *DeleteStmt) String() string { return "Delete(...)" }
 
 // EachNode is FOR var = EACH(Type) ... NEXT (represented as ForEachStmt).
@@ -409,6 +447,7 @@ type EachStmt struct {
 }
 
 func (n *EachStmt) stmt()          {}
+func (n *EachStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *EachStmt) String() string { return fmt.Sprintf("Each(%s in %s)", n.Var, n.TypeName) }
 
 // ExprStatement wraps an expression used as a statement (rare).
@@ -417,6 +456,7 @@ type ExprStmt struct {
 }
 
 func (n *ExprStmt) stmt()          {}
+func (n *ExprStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *ExprStmt) String() string { return n.Expr.String() }
 
 // EndProgramStmt is bare END (terminate program).
@@ -426,6 +466,7 @@ type EndProgramStmt struct {
 }
 
 func (n *EndProgramStmt) stmt()          {}
+func (n *EndProgramStmt) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *EndProgramStmt) String() string { return "END" }
 
 // BinopNode is left op right.
@@ -438,6 +479,7 @@ type BinopNode struct {
 }
 
 func (n *BinopNode) expr() {}
+func (n *BinopNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *BinopNode) String() string {
 	return fmt.Sprintf("(%s %s %s)", n.Left.String(), n.Op, n.Right.String())
 }
@@ -451,6 +493,7 @@ type UnaryNode struct {
 }
 
 func (n *UnaryNode) expr()          {}
+func (n *UnaryNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *UnaryNode) String() string { return fmt.Sprintf("(%s %s)", n.Op, n.Expr.String()) }
 
 // IdentNode is a variable reference (name includes suffix).
@@ -461,6 +504,7 @@ type IdentNode struct {
 }
 
 func (n *IdentNode) expr()          {}
+func (n *IdentNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *IdentNode) String() string { return n.Name }
 
 // IntLitNode is an integer literal.
@@ -471,6 +515,7 @@ type IntLitNode struct {
 }
 
 func (n *IntLitNode) expr()          {}
+func (n *IntLitNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *IntLitNode) String() string { return fmt.Sprintf("%d", n.Value) }
 
 // FloatLitNode is a float literal.
@@ -482,6 +527,7 @@ type FloatLitNode struct {
 }
 
 func (n *FloatLitNode) expr()          {}
+func (n *FloatLitNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *FloatLitNode) String() string { return n.Lit }
 
 // StringLitNode is a string literal.
@@ -492,6 +538,7 @@ type StringLitNode struct {
 }
 
 func (n *StringLitNode) expr()          {}
+func (n *StringLitNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *StringLitNode) String() string { return fmt.Sprintf("%q", n.Value) }
 
 // BoolLitNode is TRUE or FALSE.
@@ -502,6 +549,7 @@ type BoolLitNode struct {
 }
 
 func (n *BoolLitNode) expr()          {}
+func (n *BoolLitNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *BoolLitNode) String() string { return fmt.Sprintf("%v", n.Value) }
 
 // NullLitNode is NULL.
@@ -511,6 +559,7 @@ type NullLitNode struct {
 }
 
 func (n *NullLitNode) expr()          {}
+func (n *NullLitNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *NullLitNode) String() string { return "NULL" }
 
 // CallExprNode is user function call in expression context.
@@ -522,6 +571,7 @@ type CallExprNode struct {
 }
 
 func (n *CallExprNode) expr()          {}
+func (n *CallExprNode) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *CallExprNode) String() string { return fmt.Sprintf("%s(...)", n.Name) }
 
 // NamespaceCallExpr is NS.METHOD(args) in expression context.
@@ -534,6 +584,7 @@ type NamespaceCallExpr struct {
 }
 
 func (n *NamespaceCallExpr) expr() {}
+func (n *NamespaceCallExpr) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *NamespaceCallExpr) String() string {
 	return fmt.Sprintf("%s.%s(...)", n.NS, n.Method)
 }
@@ -548,6 +599,7 @@ type HandleCallExpr struct {
 }
 
 func (n *HandleCallExpr) expr() {}
+func (n *HandleCallExpr) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *HandleCallExpr) String() string {
 	return fmt.Sprintf("%s.%s(...)", n.Receiver, n.Method)
 }
@@ -561,6 +613,7 @@ type IndexExpr struct {
 }
 
 func (n *IndexExpr) expr()          {}
+func (n *IndexExpr) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *IndexExpr) String() string { return fmt.Sprintf("%s[...]", n.Base.String()) }
 
 // IndexFieldExpr is arr(idx...).field — read a field on an array element (handle).
@@ -573,6 +626,7 @@ type IndexFieldExpr struct {
 }
 
 func (n *IndexFieldExpr) expr()          {}
+func (n *IndexFieldExpr) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *IndexFieldExpr) String() string { return fmt.Sprintf("%s(...).%s", n.Array, n.Field) }
 
 // IndexFieldAssignNode is arr(idx...).field = expr.
@@ -586,6 +640,7 @@ type IndexFieldAssignNode struct {
 }
 
 func (n *IndexFieldAssignNode) stmt()          {}
+func (n *IndexFieldAssignNode) Accept(v Visitor) { v.VisitStmt(n) }
 func (n *IndexFieldAssignNode) String() string { return fmt.Sprintf("IndexFieldAssign(%s.%s)", n.Array, n.Field) }
 
 // GroupedExpr is ( expr ).
@@ -594,6 +649,7 @@ type GroupedExpr struct {
 }
 
 func (n *GroupedExpr) expr()          {}
+func (n *GroupedExpr) Accept(v Visitor) { v.VisitExpr(n) }
 func (n *GroupedExpr) String() string { return fmt.Sprintf("(%s)", n.Inner.String()) }
 
 // PrettyPrint writes an indented tree for debugging.

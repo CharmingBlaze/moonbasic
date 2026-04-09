@@ -26,6 +26,7 @@ func NewModule() *Module {
 func (m *Module) Register(r runtime.Registrar) {
 	m.registerBasic(r)
 	m.registerTrig(r)
+	m.registerBlitzSurface(r)
 	m.registerVector(r)
 	m.registerAngleInterp(r)
 	m.registerRandom(r)

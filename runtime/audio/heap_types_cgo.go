@@ -35,8 +35,11 @@ func (o *waveObj) Free() {
 }
 
 type soundObj struct {
-	snd     rl.Sound
-	release heap.ReleaseOnce
+	snd       rl.Sound
+	gain      float32 // last AUDIO.SETSOUNDVOLUME (default 1)
+	pan       float32 // last AUDIO.SETSOUNDPAN (default 0)
+	spatial3D bool    // Load3DSound marks true (same buffer; spatial mix in EmitSound)
+	release   heap.ReleaseOnce
 }
 
 func (o *soundObj) TypeName() string { return "Sound" }

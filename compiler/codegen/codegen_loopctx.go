@@ -62,13 +62,14 @@ func (g *CodeGen) emitExitStmt(ch *opcode.Chunk, n *ast.ExitStmt) {
 			g.codegenError(n.Line, n.Col, "EXIT FUNCTION only allowed inside a FUNCTION", "")
 			return
 		}
-		ch.Emit(opcode.OpReturnVoid, 0, 0, n.Line)
+		ch.Emit(opcode.OpReturnVoid, 0, 0, 0, 0, n.Line)
 		return
 	}
 	k := loopKindFromAST(n.Target)
 	for i := len(g.loopStack) - 1; i >= 0; i-- {
 		if g.loopStack[i].kind == k {
-			j := ch.Emit(opcode.OpJump, 0, 0, n.Line)
+			// OpJump: dst=0, srcA=0, srcB=0, operand=target
+			j := ch.Emit(opcode.OpJump, 0, 0, 0, 0, n.Line)
 			g.loopStack[i].breakPatches = append(g.loopStack[i].breakPatches, j)
 			return
 		}
@@ -80,7 +81,7 @@ func (g *CodeGen) emitContinueStmt(ch *opcode.Chunk, n *ast.ContinueStmt) {
 	k := loopKindFromAST(n.Target)
 	for i := len(g.loopStack) - 1; i >= 0; i-- {
 		if g.loopStack[i].kind == k {
-			j := ch.Emit(opcode.OpJump, 0, 0, n.Line)
+			j := ch.Emit(opcode.OpJump, 0, 0, 0, 0, n.Line)
 			g.loopStack[i].continuePatches = append(g.loopStack[i].continuePatches, j)
 			return
 		}

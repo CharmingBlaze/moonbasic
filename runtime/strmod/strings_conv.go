@@ -68,6 +68,26 @@ func registerStringsConv(r runtime.Registrar) {
 		}
 		return value.FromFloat(f), nil
 	})
+	r.Register("UPPER$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Value{}, runtime.Errorf("UPPER$ expects 1 argument")
+		}
+		s, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Value{}, err
+		}
+		return rt.RetString(strings.ToUpper(s)), nil
+	})
+	r.Register("LOWER$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Value{}, runtime.Errorf("LOWER$ expects 1 argument")
+		}
+		s, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Value{}, err
+		}
+		return rt.RetString(strings.ToLower(s)), nil
+	})
 	r.Register("LEN", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("LEN expects 1 argument")

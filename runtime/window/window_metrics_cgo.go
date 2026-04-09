@@ -14,11 +14,14 @@ import (
 func (m *Module) registerWindowMetricsCommands(reg runtime.Registrar) {
 	reg.Register("WINDOW.WIDTH", "window", runtime.AdaptLegacy(m.wWidth))
 	reg.Register("WINDOW.HEIGHT", "window", runtime.AdaptLegacy(m.wHeight))
+	reg.Register("WINDOW.DPISCALE", "window", runtime.AdaptLegacy(m.wDPIScale))
 	reg.Register("WINDOW.GETFPS", "window", runtime.AdaptLegacy(m.wGetFPS))
 	reg.Register("WINDOW.ISFULLSCREEN", "window", runtime.AdaptLegacy(m.wIsFullscreen))
 	reg.Register("WINDOW.TOGGLEFULLSCREEN", "window", runtime.AdaptLegacy(m.wToggleFullscreen))
 	reg.Register("WINDOW.ISRESIZED", "window", runtime.AdaptLegacy(m.wIsResized))
 	reg.Register("WINDOW.SETTITLE", "window", m.wSetTitle)
+	reg.Register("RENDER.WIDTH", "render", runtime.AdaptLegacy(m.rRenderWidth))
+	reg.Register("RENDER.HEIGHT", "render", runtime.AdaptLegacy(m.rRenderHeight))
 
 	// Global shorthands (Easy Mode)
 	reg.Register("SCREENWIDTH", "window", runtime.AdaptLegacy(m.wWidth))
@@ -32,7 +35,18 @@ func (m *Module) wWidth(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("WINDOW.WIDTH expects 0 arguments")
 	}
-	return value.FromInt(int64(rl.GetScreenWidth())), nil
+	return value.FromFloat(float64(rl.GetScreenWidth())), nil
+}
+
+func (m *Module) wDPIScale(args []value.Value) (value.Value, error) {
+	if err := m.requireOpen("WINDOW.DPISCALE"); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("WINDOW.DPISCALE expects 0 arguments")
+	}
+	v := rl.GetWindowScaleDPI()
+	return value.FromFloat(float64(v.X)), nil
 }
 
 func (m *Module) wHeight(args []value.Value) (value.Value, error) {
@@ -42,7 +56,21 @@ func (m *Module) wHeight(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("WINDOW.HEIGHT expects 0 arguments")
 	}
-	return value.FromInt(int64(rl.GetScreenHeight())), nil
+	return value.FromFloat(float64(rl.GetScreenHeight())), nil
+}
+
+func (m *Module) rRenderWidth(args []value.Value) (value.Value, error) {
+	if err := m.requireOpen("RENDER.WIDTH"); err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(rl.GetRenderWidth())), nil
+}
+
+func (m *Module) rRenderHeight(args []value.Value) (value.Value, error) {
+	if err := m.requireOpen("RENDER.HEIGHT"); err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(rl.GetRenderHeight())), nil
 }
 
 func (m *Module) wGetFPS(args []value.Value) (value.Value, error) {

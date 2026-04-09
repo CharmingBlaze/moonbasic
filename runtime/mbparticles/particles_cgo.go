@@ -858,6 +858,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 
 	regDual(reg, "PARTICLE.DRAW", drawFn)
 	reg.Register("DRAWEMITTER", "particle", drawFn)
+	reg.Register("PARTICLES.DRAWEMITTER", "particle", drawFn)
 
 	regDual(reg, "PARTICLE.ISALIVE", isAliveFn)
 	reg.Register("EMITTERALIVE", "particle", isAliveFn)

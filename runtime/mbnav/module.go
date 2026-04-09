@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync"
 
+	"moonbasic/runtime"
+	"moonbasic/runtime/mbentity"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -14,6 +16,7 @@ import (
 type Module struct {
 	mu     sync.Mutex
 	h      *heap.Store
+	ent    *mbentity.Module
 	invoke func(string, []value.Value) (value.Value, error)
 }
 
@@ -22,6 +25,15 @@ func NewModule() *Module { return &Module{} }
 
 // BindHeap implements runtime.HeapAware.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+// BindEntity binds the entity module for world scanning.
+func (m *Module) BindEntity(mod runtime.Module) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if e, ok := mod.(*mbentity.Module); ok {
+		m.ent = e
+	}
+}
 
 // SetUserInvoker wires VM.CallUserFunction for BTREE.Run condition/action callbacks.
 func (m *Module) SetUserInvoker(fn func(string, []value.Value) (value.Value, error)) {

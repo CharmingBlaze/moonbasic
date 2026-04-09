@@ -1,4 +1,4 @@
-# moonBASIC Architecture (v1.2.1)
+# moonBASIC Architecture (v1.3.0)
 ## Mandatory Document for AI Assistants
 
 This document defines the **Ground Truth** for the moonBASIC compiler and runtime. Any changes must adhere to the modular structure and stable APIs defined here. **DO NOT REVERT TO OLD MONOLITHIC VERSIONS.**
@@ -49,8 +49,8 @@ The orchestration logic must live in `compiler/pipeline/pipeline.go`. The CLI dr
 ### 3. MOON bytecode (`.mbc`)
 
 - **Package**: `vm/moon` — binary schema (not `encoding/gob` for shipping).
-- **Header** (16 bytes): magic `MOON`, big-endian version (**`0x00020000`** for IR v2; MOON `0x00010000` is rejected), reserved flags, entry offset.
-- **IR v2 payload**: program-level string table, then chunks; 8-byte instructions; see **`ENGINE_IR_V2.md`**.
+- **Header** (16 bytes): magic `MOON`, big-endian version (**`0x00030000`** for IR v3; IR v2 supported until v1.4), reserved flags, entry offset.
+- **IR v3 payload**: program-level string table, then chunks; 8-byte register-based instructions; see **`ENGINE_IR_V3.md`**.
 - **Loader** validates header before building VM state so launchers can reject wrong engines quickly.
 
 ---
@@ -67,18 +67,31 @@ The orchestration logic must live in `compiler/pipeline/pipeline.go`. The CLI dr
 
 ---
 
-### 5. Modular Code Generation
-Codegen is split into specialized sub-handlers to maintain the ~400 line limit:
-- `codegen.go`: Structural base and orchestration.
-- `codegen_expr.go`: Handles literal and expression emission, including binary **`AND` / `OR` / `XOR`** on **`ast.BinopNode`** → **`OpAnd` / `OpOr` / `OpXor`** (see §7.1).
-- `codegen_stmts.go`: Handles statements, control flow (`IF`, `WHILE`, `FOR`, `REPEAT`), and `OpPop` stack hygiene.
-- `codegen_calls.go`: Handles built-in and user-function call resolution.
+### 4.1 The Easy Mode Layer
+MoonBASIC provides a high-level "Easy Mode" API alongside the namespaced engine core.
+- **Rule**: Every namespaced command (e.g. `ENTITY.CREATECUBE`) should have a flat, Blitz3D-style global alias (e.g. `CreateCube`) if it is commonly used in game loops.
+- **Implementation**:
+    - Aliases are registered in the same runtime modules as the core commands.
+    - Global aliases DO NOT have a namespace prefix in `commands.json`.
+    - Shorthands (like `ENTX`, `ENTY`) are used to simplify access to handle-based fields.
+- **Dual-Layer Registration**: When registering a module, provide both the namespaced (canonical) key and the flat (Easy Mode) key to the `Registrar`.
 
 ---
 
-### 6. Stack Hygiene
-- **Rule**: moonBASIC statements **MUST NOT** leave values on the operand stack.
-- **Implementation**: `AssignNode` and `CallStmtNode` (Expression statements) must emit an `OpPop` after the store/call.
+### 5. Modular Code Generation
+Codegen is split into specialized sub-handlers. It uses a **Register-Based** model (IR v3):
+- `codegen.go`: Structural base, orchestration, and register management (`baseReg`, `nextReg`, `allocReg`).
+- `codegen_expr.go`: Translates expressions into register-based IR. Every `emitExpr` call returns a register index.
+- `codegen_stmts.go`: Handles statements. Resets `nextReg = baseReg` at statement boundaries to minimize register pressure.
+- `codegen_calls.go`: Handles built-in and user-function call resolution using contiguous register blocks for arguments.
+
+---
+
+### 6. Register Allocation
+- **Strategy**: Static-Base, Dynamic-Temp. 
+- **Locals**: Local variables and parameters are assigned fixed registers at the start of the frame (R0, R1, ...).
+- **Temporaries**: The compiler maintains a pool of temporary registers starting after the local slots.
+- **Reset-on-Statement**: To prevent register exhaustion, the compiler resets the temporary register counter (`nextReg = baseReg`) at the start of most statement nodes.
 
 ---
 
@@ -106,19 +119,19 @@ This order is implemented by **`compiler/parser/parser_expr.go`** (`parseExpr` �
 - To exit a loop when the key is down **or** the OS requests close, write **`WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())`** — parentheses are **required**. Without them, **`WHILE NOT Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose()`** keeps the loop true after a window close (broken).
 
 #### 7.1 Logical operators in bytecode
-The parser builds **`OR` / `XOR` / `AND`** as **`ast.BinopNode`** (**`compiler/parser/parser_expr.go`**). **`codegen_expr.go`** must emit **`OpOr` / `OpXor` / `OpAnd`** (not only comparisons and arithmetic). The VM implements them in **`doLogic`** (**`vm/vm_dispatch.go`**) using **`value.Truthy`** on both operands. **`NOT`** remains **`OpNot`**. Regression: **`compiler/codegen`** tests should assert **`OR` / `AND` / `XOR`** appear in disassembly for minimal programs.
+The parser builds **`OR` / `XOR` / `AND`** as **`ast.BinopNode`**. codegen emits **`OpOr` / `OpXor` / `OpAnd`** as three-register instructions: `Op Dst, SrcA, SrcB`. The VM implements them in the main dispatch loop using `value.Truthy` checks.
 
 ---
 
 ### 8. VM tracing, `OpCallHandle`, and handle method dispatch
 
 #### 8.1 Golden trace
-The virtual machine implements a deterministic state dumper triggered by the **`--trace`** flag.
-- Output format: `[trace] <chunk> L<line> IP=<ip> <opcode> | depth=N stack=...` (see **`vm/vm.go`**)
-- Use for compiler/VM regression tests where a fixed trace is required.
+The virtual machine implements a deterministic state dumper.
+- Output format: `[trace] <chunk> L<line> IP=<ip> <opcode> R<dst> R<srcA> R<srcB> | regs=...`
+- It provides a snapshot of the register file after each instruction.
 
 #### 8.2 `OpCallHandle` (heap `recv.METHOD(args)`)
-Statements and expressions may use **handle calls**: load a handle (**`cam`**, **`mesh`**, matrix handle), then call a method (**`cam.Begin()`**, **`mesh.Draw(mat, rot)`**). The parser produces **`HandleCallStmt` / `HandleCallExpr`** (**`compiler/parser`**); codegen emits **`OpLoadLocal` / `OpLoadGlobal`**, pushes args, then **`OpCallHandle`** with the method name in **`Chunk.Names`** (**`compiler/codegen`**).
+Statements and expressions may use **handle calls**: load a handle then call a method. Codegen emits an `OpCallHandle` instruction: `OpCallHandle Dst, RecvReg, ArgStartReg, (ArgCount << 24 | MethodIdx)`. 
 
 **Dispatch rule** (**`vm/handlecall.go`** + **`vm/vm_dispatch.go` `doCallHandle`**): The registry keys for natives are **`CAMERA.BEGIN`**, **`MESH.DRAW`**, etc. Heap objects report a **`TypeName()`** (e.g. **`Camera3D`**, **`Mesh`**, **`Matrix4`**). The VM **does not** call **`Registry.Call("Camera3D.Begin", …)`** — that key is not registered. Instead **`handleCallBuiltin(typeName, method)`** maps to a **registered** key and whether to **prepend the receiver handle** as the first argument:
 
@@ -146,6 +159,7 @@ Unmapped **`TypeName.METHOD`** combinations should fail at runtime with an unkno
 - **`WINDOW.OPEN`**: Manifest has **no return type** (void). After **`InitWindow`**, the native checks **`rl.IsWindowReady()`**; on failure it prints a one-line message to **stderr** and **`os.Exit(1)`**. On success it returns **`value.Nil`**. Scripts that must **probe** without terminating use **`WINDOW.CANOPEN(w,h,title$)`** → **`bool`** before calling **`WINDOW.OPEN`**. Use bare **`END`** (**`EndProgramStmt` → `OpHalt`**) to stop cleanly when **`QUIT`** is unavailable.
 - **`WINDOW.CLOSE`**: Ends any active frame (**`EndDrawing`**), runs audio close hook, **`CloseWindow`**, then **`rt.Heap.FreeAll()`** so GPU-backed heap objects (meshes, materials, matrices, etc.) are released without requiring explicit **`*.FREE`** in short examples. **`Registry.Shutdown()`** still calls **`Heap.FreeAll()`** at process teardown — **double `FreeAll` is safe** on an already-cleared store.
 - **`RENDER.CLEAR` overloads** (single native, arity dispatch; manifest lists multiple rows — **§4**): **`()`** → clear **black** `(0,0,0,255)`; **`(r,g,b)`** → opaque RGB; **`(r,g,b,a)`** → RGBA; **`(colorHandle)`** → resolve via **`mbmatrix.HeapColorRGBA`** (**`runtime/mbmatrix/color_heap.go`**) for heap **`Color`** objects. **`RENDER.CLEAR`** begins a frame (**`BeginDrawing`**) on first use after **`OPEN`** or **`FRAME`**, same as before.
+- **High-DPI Support**: **`WINDOW.OPEN`** unconditionally sets **`rl.FlagWindowHighdpi`**. Metrics like **`WINDOW.WIDTH`** / **`HEIGHT`** and **`MOUSEX`** / **`Y`** return **logical** coordinates as **`float64`**. **`RENDER.WIDTH`** / **`HEIGHT`** return the physical **framebuffer** dimensions, and **`WINDOW.DPISCALE`** returns the pixel density ratio.
 
 #### Acceptance test (behavioral “Phase A” on current IR)
 
@@ -187,7 +201,14 @@ Phase D extends the runtime with models, lighting, environment (skybox / IBL / f
 - **Authority**: Same rules as §4 and §10 — add each new command to **`compiler/builtinmanifest/commands.json`** first (reuse **`"key"`**; add **overload rows** when the same dotted name needs multiple arities — **§4**). Then implement natives in **`runtime/{name}`** packages with thin **`module.go`**, **`raylib_cgo.go` / `stub.go`** where CGO is required, and **one file per concern** (soft limit ~400 lines, split before ~500).
 - **Registration**: New modules are **`RegisterModule`**’d in **`compiler/pipeline/pipeline.go`** in dependency order, all **before** **`RegisterFromManifest`**.
 - **Acceptance**: When Phase D is complete, the canonical behavioral reference shall be a **`testdata/`** program (replace the placeholder [`testdata/phase_d_acceptance.mb`](testdata/phase_d_acceptance.mb)) that exercises a 3D scene: loaded or procedural model, terrain interaction, lighting, skybox or gradient, shadow mapping, and a camera that follows terrain height — analogous in role to §9’s **`testdata/pretty_window.mb`** for the window stack. Until then, **`phase_d_acceptance.mb`** remains a minimal **`--check`**-only stub; CI may run **`go run . --check testdata/phase_d_acceptance.mb`** alongside **`pretty_window.mb`**.
-- **Suggested milestone order**: (1) model load/draw and primitives — **partially met** (mesh draw + procedural mesh + **`MODEL.LOAD`** surface exists; keep hardening), (2) immediate **`Draw3D.*`** (or equivalent) for debugging, (3) lighting + shadow maps, (4) sky / environment / fog, (5) shader + render-target pipeline and post, (6) terrain, (7) skeletal animation and bones.
+- **Suggested milestone order**: (1) model load/draw and primitives — **partially met** (mesh draw + procedural mesh + **`MODEL.LOAD`** surface exists; keep hardening), (2) immediate **`Draw3D.*`** (or equivalent) for debugging, (3) lighting + shadow maps, (4) sky / environment / fog, (5) shader + render-target pipeline and post — **partially met** (**Modern Post-Processing Architecture**), (6) terrain, (7) skeletal animation and bones.
+
+- **Physical Precision**: The post-pipeline operates at the physical resolution returned by **`RENDER.WIDTH/HEIGHT`**, ensuring effects scale correctly on High-DPI displays.
+
+#### Zero-Allocation Render Contract
+- **No Per-Frame Allocations**: Native handlers called in the main loop (e.g., `RENDER.FRAME`, `Draw.*`, `SHADER.SET*`) **MUST NOT** allocate on the Go heap.
+- **Scratch Buffers**: All CGO calls taking slices (like `SetShaderValue`) must use pre-allocated scratch buffers stored in the module state or global variables.
+- **Hook Optimization**: The window module uses `frameHookScratch` to avoid slice allocation when iterating over frame draw hooks.
 
 #### Open-world runtime (Phase D extension — shipped incrementally)
 
@@ -207,7 +228,7 @@ Phase D extends the runtime with models, lighting, environment (skybox / IBL / f
 
 - **Authority**: Same as §4 / §10 — commands are defined in **`compiler/builtinmanifest/commands.json`**; implementations live under **`runtime/physics3d`**, **`runtime/physics2d`**, and **`runtime/charcontroller`** with thin **`module.go`** and a **CGO / stub** split.
 - **Dependency**: **[`github.com/bbitechnologies/jolt-go`](https://github.com/bbitechnologies/jolt-go)** (pinned in **`go.mod`**). The binding currently ships CGO for **Linux** (**amd64**, **arm64**) and **Darwin arm64** only. **Windows** builds use **stubs** for **`PHYSICS3D.*`**, **`BODY3D.*`**, and **`CHARCONTROLLER.*`** until a Windows-capable binding exists. **`PHYSICS2D.*` / `BODY2D.*`** are **Box2D stubs** everywhere (clear runtime error).
-- **Build tags**: **`runtime/physics3d/jolt_linux.go`** and **`runtime/charcontroller/jolt_linux.go`** use **`//go:build linux && cgo`**; companion **`stub.go`** files use **`//go:build !linux || !cgo`**. Requires **Go 1.25.3+** (jolt-go requirement).
+- **Build tags**: **`runtime/physics3d/jolt_*_linux.go`** (split modules) and **`runtime/charcontroller/jolt_linux.go`** use **`//go:build linux && cgo`**; companion **`stub.go`** files use **`//go:build !linux || !cgo`**. Requires **Go 1.25.3+** (jolt-go requirement).
 - **Registration**: In **`compiler/pipeline/pipeline.go`**, **`RegisterModule`** for **`charcontroller`**, **`physics2d`**, then **`physics3d`** (all **before** **`RegisterFromManifest`**) so natives override manifest stubs. **`charcontroller`** is registered **before** **`physics3d`** so **`Registry.Shutdown`** tears down **Jolt `CharacterVirtual`** instances **before** the physics world is destroyed. **`physics3d.NewModule().SetUserInvoker(vm.CallUserFunction)`** wires **`PHYSICS3D.PROCESSCOLLISIONS`** to user **`FUNCTION`** callbacks (queued events only; Jolt contact → queue is not fully wired yet).
 - **Purity**: **`PHYSICS3D.STEP`**, **`PHYSICS2D.STEP`**, **`BODY3D.*`** mutators, and **`CHARCONTROLLER.MOVE`** are **not** pure; treat them like §9’s render phase for ordering vs **`RENDER.FRAME`**.
 - **Heap**: **`BODY3D`** bodies and **`CHARCONTROLLER`** instances are **`HeapObject`** handles; **`BODY3D.FREE`** / **`CHARCONTROLLER.FREE`** (or **`Heap.FreeAll`** on shutdown) release native resources. **`PHYSICS3D.RAYCAST`** returns a **heap numeric array** handle (length 6: hit, normal xyz, fraction, body handle placeholder **0**).
@@ -228,7 +249,7 @@ Phase D extends the runtime with models, lighting, environment (skybox / IBL / f
 - **Diagnostics**: Unknown **`NS.METHOD`** engine commands use **`compiler/builtinmanifest`** helpers for **did-you-mean** (edit distance) and **Available:** listings for the namespace (see **`compiler/semantic/cmdhint.go`**).
 - **CLI** (**`main.go`**): **`--disasm <file.mbc>`** — human-readable bytecode via **`compiler/pipeline.PrintProgramDisassembly`** (optional same-stem **`.mb`** for source-line annotations). **`--profile <source.mb>`** — per–source-line instruction counts via **`vm.ProfileRecorder`**; prints top 10 after run. **`--watch <source.mb>`** — **`fsnotify`** debounced recompile + **`RunProgram`**. **`--lsp`** — stdio LSP in **`lsp/`** (hover for **`NS.METHOD`** using **`builtinmanifest.FirstOverload`** when arity is not parsed from the line — **§4**; completion after **`.`**, diagnostics from **`pipeline.CheckSource`** with **overload-aware arity** checking).
 - **VS Code / Cursor**: Extension under **`editors/vscode-moonbasic`** — TextMate grammar for **`.mb`** and **`.mbc`**, snippets (**WHILE/WEND**, **FOR/NEXT**, **FUNCTION/ENDFUNCTION**, **SELECT/CASE**), Language Client spawning **`moonbasic --lsp`** (override with **`moonbasic.languageServerPath`**). Run **`npm install`** and **`npm run compile`** in that folder before **F5** / packaging (**`vscode-languageclient`** lives in **`node_modules`**; **`out/extension.js`** is emitted by **`tsc`**).
-- **gopls / build tags**: The repo includes **`.vscode/settings.json`** setting **`CGO_ENABLED=1`** for **`go`** / **`gopls`** so Raylib and ENet **`*_cgo.go`** files are part of the language-server build (the default gopls env often had **`CGO_ENABLED=0`**, which excluded them and triggered **“no packages found”**). CGO-backed files use **`cgo && !gopls_stub`**; stubs use **`!cgo || gopls_stub`** (Jolt: **`linux && cgo && !gopls_stub`** vs **`!linux || !cgo || gopls_stub`**). Normal **`go build`** is unchanged. **`jolt_linux.go`** still matches only **`GOOS=linux`**; on Windows/macOS, gopls may keep showing that hint for those files—use WSL/Linux, or ignore. If gopls shows **“no packages found”** for a **`stub.go`** while **`CGO_ENABLED=1`**, set **`"gopls": { "build.buildFlags": ["-tags=gopls_stub"] }`** so stubs join the analysis build (CGO sources drop out until you remove the flag).
+- **gopls / build tags**: The repo includes **`.vscode/settings.json`** setting **`CGO_ENABLED=1`** for **`go`** / **`gopls`** so Raylib and ENet **`*_cgo.go`** files are part of the language-server build (the default gopls env often had **`CGO_ENABLED=0`**, which excluded them and triggered **“no packages found”**). CGO-backed files use **`cgo && !gopls_stub`**; stubs use **`!cgo || gopls_stub`** (Jolt: **`linux && cgo && !gopls_stub`** vs **`!linux || !cgo || gopls_stub`**). Normal **`go build`** is unchanged. **Jolt Linux sources** (**`physics3d/jolt_*_linux.go`**, **`charcontroller/jolt_linux.go`**) still match only **`GOOS=linux`**; on Windows/macOS, gopls may keep showing that hint for those files—use WSL/Linux, or ignore. If gopls shows **“no packages found”** for a **`stub.go`** while **`CGO_ENABLED=1`**, set **`"gopls": { "build.buildFlags": ["-tags=gopls_stub"] }`** so stubs join the analysis build (CGO sources drop out until you remove the flag).
 
 ### 15. Procedural noise (`NOISE.*`, `runtime/procnoise`, `runtime/noisemod`)
 

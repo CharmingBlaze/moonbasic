@@ -1,0 +1,36 @@
+; Target practice (Linux + CGO + Jolt): screen-center pick hits registered entities.
+; PICK.LAYERMASK selects ENTITY.COLLISIONLAYER bits (here: layer 1 = moving cube only).
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -9.81, 0)
+
+cam = CreateCamera()
+
+fd = BODY3D.MAKE("static")
+BODY3D.ADDBOX(fd, 30, 1, 30)
+floorB = BODY3D.COMMIT(fd, 0, -0.5, 0)
+floorE = CreateCube()
+ENTITY.LINKPHYSBUFFER(floorE, BODY3D.BUFFERINDEX(floorB))
+ENTITY.COLLISIONLAYER(floorE, 0)
+
+bd = BODY3D.MAKE("dynamic")
+BODY3D.ADDBOX(bd, 1, 1, 1)
+boxB = BODY3D.COMMIT(bd, 0, 2, -6)
+BODY3D.ACTIVATE(boxB)
+boxE = CreateCube()
+ENTITY.LINKPHYSBUFFER(boxE, BODY3D.BUFFERINDEX(boxB))
+ENTITY.COLLISIONLAYER(boxE, 1)
+
+PICK.LAYERMASK(2)
+
+FOR frame = 1 TO 600
+    PHYSICS3D.STEP(1.0 / 60.0)
+    ENTITY.ROTATE(boxE, 0, 0.02, 0)
+    t = PICK.SCREENCAST(cam, 400, 300)
+    IF t > 0 THEN
+        PRINT "hit "; t
+        ENTITY.FREE(t)
+    ENDIF
+NEXT frame
+
+PHYSICS3D.STOP()

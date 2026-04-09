@@ -35,6 +35,9 @@ type lightObj struct {
 	rangeDist    float32
 
 	enabled bool
+
+	// Optional scene-graph parent (entity#); not yet applied by the light system — reserved for follow / attachment.
+	parentEntID int64
 }
 
 func (o *lightObj) TypeName() string { return "Light" }
@@ -42,6 +45,7 @@ func (o *lightObj) TypeName() string { return "Light" }
 func (o *lightObj) TypeTag() uint16 { return heap.TagLight }
 
 func (o *lightObj) Free() {
+	unregisterPointFollow(o.self)
 	o.release.Do(func() {
 		shadowMu.Lock()
 		if shadowCasterHandle == o.self {

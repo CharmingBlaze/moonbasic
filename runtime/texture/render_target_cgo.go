@@ -34,6 +34,7 @@ func (m *Module) rtMake(args []value.Value) (value.Value, error) {
 	}
 	rt := rl.LoadRenderTexture(w, h)
 	o := &RenderTargetObject{RT: rt}
+	o.setFinalizer()
 	id, err := m.h.Alloc(o)
 	if err != nil {
 		rl.UnloadRenderTexture(rt)
@@ -89,7 +90,9 @@ func (m *Module) rtTexture(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("RENDERTARGET.TEXTURE: %w", err)
 	}
 	tex := o.RT.Texture
-	id, err := m.h.Alloc(&TextureObject{Tex: tex, Borrowed: true})
+	obj := &TextureObject{Tex: tex, Borrowed: true}
+	obj.setFinalizer()
+	id, err := m.h.Alloc(obj)
 	if err != nil {
 		return value.Nil, err
 	}

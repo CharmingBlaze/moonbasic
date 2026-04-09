@@ -11,7 +11,7 @@ func TestPushPop(t *testing.T) {
 	s.Push(chunk, 42, 10)
 	
 	f := s.Top()
-	if f == nil || f.IP != 42 || f.StackBase != 10 {
+	if f == nil || f.IP != 42 || f.ReturnReg != 10 {
 		t.Fatal(f)
 	}
 	

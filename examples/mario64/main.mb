@@ -1,121 +1,116 @@
-; 3D hop — camera-relative move, jump, neon blocks (not affiliated with any trademark).
-; Run: CGO_ENABLED=1 go run . examples/mario64/main.mb
+; Simple third-person hop: ground, floating blocks, orbit camera (no skybox, no entity graph).
+; Run (full runtime): go run -tags fullruntime . --run examples/mario64/main.mb
 
-Window.Open(960, 540, "moonBASIC 3D Hop")
+Window.Open(960, 540, "moonBASIC — simple 3D hop")
 Window.SetFPS(60)
 
 cam = Camera.Make()
 cam.SetFOV(55)
 
-; Player: sphere center (px,py,pz), radius pr#
-px# = 0.0
-py# = 0.45
-pz# = 0.0
-pvx# = 0.0
-pvz# = 0.0
-pvy# = 0.0
-pr# = 0.45
-ong? = FALSE
-camYaw# = 0.0
-camPitch# = 0.22
-cd# = 7.5
-moveSpd# = 11.0
+; Player: capsule/sphere center (px, py, pz), radius pr
+px = 0.0
+py = 0.45
+pz = 0.0
+pvx = 0.0
+pvz = 0.0
+pvy = 0.0
+pr = 0.45
+ong = FALSE
+camYaw = 0.0
+camPitch = 0.22
+cd = 7.5
+moveSpd = 11.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
-    IF dt# > 0.05 THEN dt# = 0.05
+    dt = Time.Delta()
+    IF dt > 0.05 THEN dt = 0.05
 
     ; Orbit: hold right mouse and drag (yaw/pitch). Scroll = zoom. Q/E = yaw only.
     IF Input.MouseDown(1) THEN
-        camYaw# = camYaw# + FLOAT(INPUT.MOUSEDELTAX()) * 0.0055
-        camPitch# = camPitch# - FLOAT(INPUT.MOUSEDELTAY()) * 0.0055
+        camYaw = camYaw + FLOAT(INPUT.MOUSEDELTAX()) * 0.0055
+        camPitch = camPitch - FLOAT(INPUT.MOUSEDELTAY()) * 0.0055
     ENDIF
-    mw# = INPUT.MOUSEWHEELMOVE()
-    cd# = cd# - mw# * 0.9
-    IF cd# < 2.5 THEN cd# = 2.5
-    IF cd# > 24.0 THEN cd# = 24.0
-    IF Input.KeyDown(KEY_Q) THEN camYaw# = camYaw# - 1.35 * dt#
-    IF Input.KeyDown(KEY_E) THEN camYaw# = camYaw# + 1.35 * dt#
+    mw = INPUT.MOUSEWHEELMOVE()
+    cd = cd - mw * 0.9
+    IF cd < 2.5 THEN cd = 2.5
+    IF cd > 24.0 THEN cd = 24.0
+    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.35 * dt
+    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.35 * dt
 
-    fwdX# = 0.0 - MATH.SIN(camYaw#)
-    fwdZ# = 0.0 - MATH.COS(camYaw#)
-    rigX# = MATH.COS(camYaw#)
-    rigZ# = 0.0 - MATH.SIN(camYaw#)
+    fwdX = 0.0 - MATH.SIN(camYaw)
+    fwdZ = 0.0 - MATH.COS(camYaw)
+    rigX = MATH.COS(camYaw)
+    rigZ = 0.0 - MATH.SIN(camYaw)
 
-    f# = 0.0
-    s# = 0.0
-    IF Input.KeyDown(KEY_W) THEN f# = f# + 1.0
-    IF Input.KeyDown(KEY_S) THEN f# = f# - 1.0
-    IF Input.KeyDown(KEY_A) THEN s# = s# - 1.0
-    IF Input.KeyDown(KEY_D) THEN s# = s# + 1.0
+    f = 0.0
+    s = 0.0
+    IF Input.KeyDown(KEY_W) THEN f = f + 1.0
+    IF Input.KeyDown(KEY_S) THEN f = f - 1.0
+    IF Input.KeyDown(KEY_A) THEN s = s - 1.0
+    IF Input.KeyDown(KEY_D) THEN s = s + 1.0
 
-    px# = px# + (fwdX# * f# + rigX# * s#) * moveSpd# * dt#
-    pz# = pz# + (fwdZ# * f# + rigZ# * s#) * moveSpd# * dt#
+    px = px + (fwdX * f + rigX * s) * moveSpd * dt
+    pz = pz + (fwdZ * f + rigZ * s) * moveSpd * dt
 
-    IF px# < -17.0 THEN px# = -17.0
-    IF px# > 17.0 THEN px# = 17.0
-    IF pz# < -17.0 THEN pz# = -17.0
-    IF pz# > 22.0 THEN pz# = 22.0
+    IF px < -17.0 THEN px = -17.0
+    IF px > 17.0 THEN px = 17.0
+    IF pz < -17.0 THEN pz = -17.0
+    IF pz > 22.0 THEN pz = 22.0
 
-    IF ong? AND Input.KeyDown(KEY_SPACE) THEN pvy# = 10.5
-    pvy# = pvy# - 26.0 * dt#
-    py# = py# + pvy# * dt#
+    IF ong AND Input.KeyDown(KEY_SPACE) THEN pvy = 10.5
+    pvy = pvy - 26.0 * dt
+    py = py + pvy * dt
 
-    feet# = py# - pr#
-    ong? = FALSE
+    feet = py - pr
+    ong = FALSE
 
-    ; Floating platforms (cube center, size) — landing on top surface only
-    ; 0, 1.5, 6  4 x 0.4 x 4
-    top# = 1.7
-    IF MATH.ABS(px# - 0.0) < 2.05 + pr# AND MATH.ABS(pz# - 6.0) < 2.05 + pr# THEN
-        IF pvy# <= 0.0 AND feet# <= top# + 0.12 AND feet# >= top# - 0.55 THEN
-            py# = top# + pr#
-            pvy# = 0.0
-            ong? = TRUE
+    ; Floating platforms — landing on top surface only
+    top = 1.7
+    IF MATH.ABS(px - 0.0) < 2.05 + pr AND MATH.ABS(pz - 6.0) < 2.05 + pr THEN
+        IF pvy <= 0.0 AND feet <= top + 0.12 AND feet >= top - 0.55 THEN
+            py = top + pr
+            pvy = 0.0
+            ong = TRUE
         ENDIF
     ENDIF
-    ; -3.5, 2.5, 10  2.5 x 0.35 x 2.5
-    top# = 2.675
-    IF MATH.ABS(px# - (-3.5)) < 1.35 + pr# AND MATH.ABS(pz# - 10.0) < 1.35 + pr# THEN
-        IF pvy# <= 0.0 AND feet# <= top# + 0.12 AND feet# >= top# - 0.55 THEN
-            py# = top# + pr#
-            pvy# = 0.0
-            ong? = TRUE
+    top = 2.675
+    IF MATH.ABS(px - (-3.5)) < 1.35 + pr AND MATH.ABS(pz - 10.0) < 1.35 + pr THEN
+        IF pvy <= 0.0 AND feet <= top + 0.12 AND feet >= top - 0.55 THEN
+            py = top + pr
+            pvy = 0.0
+            ong = TRUE
         ENDIF
     ENDIF
-    ; 4, 3.2, 14  2 x 0.3 x 2
-    top# = 3.35
-    IF MATH.ABS(px# - 4.0) < 1.05 + pr# AND MATH.ABS(pz# - 14.0) < 1.05 + pr# THEN
-        IF pvy# <= 0.0 AND feet# <= top# + 0.12 AND feet# >= top# - 0.55 THEN
-            py# = top# + pr#
-            pvy# = 0.0
-            ong? = TRUE
+    top = 3.35
+    IF MATH.ABS(px - 4.0) < 1.05 + pr AND MATH.ABS(pz - 14.0) < 1.05 + pr THEN
+        IF pvy <= 0.0 AND feet <= top + 0.12 AND feet >= top - 0.55 THEN
+            py = top + pr
+            pvy = 0.0
+            ong = TRUE
         ENDIF
     ENDIF
-    ; 0, 4.0, 18  3 x 0.35 x 3
-    top# = 4.175
-    IF MATH.ABS(px# - 0.0) < 1.55 + pr# AND MATH.ABS(pz# - 18.0) < 1.55 + pr# THEN
-        IF pvy# <= 0.0 AND feet# <= top# + 0.12 AND feet# >= top# - 0.55 THEN
-            py# = top# + pr#
-            pvy# = 0.0
-            ong? = TRUE
+    top = 4.175
+    IF MATH.ABS(px - 0.0) < 1.55 + pr AND MATH.ABS(pz - 18.0) < 1.55 + pr THEN
+        IF pvy <= 0.0 AND feet <= top + 0.12 AND feet >= top - 0.55 THEN
+            py = top + pr
+            pvy = 0.0
+            ong = TRUE
         ENDIF
     ENDIF
 
-    IF NOT ong? AND feet# <= 0.02 AND pvy# <= 0.0 THEN
-        py# = pr#
-        pvy# = 0.0
-        ong? = TRUE
+    IF NOT ong AND feet <= 0.02 AND pvy <= 0.0 THEN
+        py = pr
+        pvy = 0.0
+        ong = TRUE
     ENDIF
 
-    Camera.SetOrbit(cam, px#, py# + 0.2, pz#, camYaw#, camPitch#, cd#)
+    Camera.SetOrbit(cam, px, py + 0.2, pz, camYaw, camPitch, cd)
 
     Render.Clear(72, 92, 140)
     cam.Begin()
         Draw3D.Plane(0.0, 0.0, 0.0, 48.0, 48.0, 55, 78, 120, 255)
         Draw3D.Grid(24, 1.0)
 
-        ; Neon blocks (different palette than classic red/blue plumber)
         Draw3D.Cube(0.0, 1.5, 6.0, 4.0, 0.4, 4.0, 255, 60, 200, 255)
         Draw3D.CubeWires(0.0, 1.5, 6.0, 4.05, 0.45, 4.05, 255, 255, 255, 200)
 
@@ -128,13 +123,12 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         Draw3D.Cube(0.0, 4.0, 18.0, 3.0, 0.35, 3.0, 255, 210, 60, 255)
         Draw3D.CubeWires(0.0, 4.0, 18.0, 3.05, 0.4, 3.05, 90, 70, 20, 200)
 
-        ; Character: capsule body + sphere "cap"
-        Draw3D.Capsule(px#, py# - 0.42, pz#, px#, py# + 0.48, pz#, 0.38, 10, 12, 255, 95, 255, 255)
-        Draw3D.Sphere(px#, py# + 0.72, pz#, 0.24, 70, 255, 140, 255)
+        Draw3D.Capsule(px, py - 0.42, pz, px, py + 0.48, pz, 0.38, 10, 12, 255, 95, 255, 255)
+        Draw3D.Sphere(px, py + 0.72, pz, 0.24, 70, 255, 140, 255)
     cam.End()
 
     Draw.Text("WASD move   R-drag orbit   wheel zoom   Q/E yaw   SPACE jump   ESC", 60, 12, 17, 245, 250, 255, 255)
-    IF ong? THEN
+    IF ong THEN
         Draw.Text("On ground", 16, 36, 16, 160, 255, 190, 255)
     ELSE
         Draw.Text("Air", 16, 36, 16, 255, 220, 130, 255)

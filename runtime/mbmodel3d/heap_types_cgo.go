@@ -3,6 +3,9 @@
 package mbmodel3d
 
 import (
+	"runtime"
+	"sync"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/vm/heap"
@@ -23,6 +26,12 @@ type meshObj struct {
 	pinUVs          []float32
 	pinIdx          []uint16
 	release         heap.ReleaseOnce
+}
+
+func (o *meshObj) setFinalizer() {
+	runtime.SetFinalizer(o, func(m *meshObj) {
+		enqueueOnMainThread(func() { m.Free() })
+	})
 }
 
 func (o *meshObj) TypeName() string { return "Mesh" }
@@ -62,6 +71,12 @@ func (o *materialObj) Free() {
 	o.release.Do(func() { rl.UnloadMaterial(o.mat) })
 }
 
+func (o *materialObj) setFinalizer() {
+	runtime.SetFinalizer(o, func(m *materialObj) {
+		enqueueOnMainThread(func() { m.Free() })
+	})
+}
+
 // modelObj owns a loaded Raylib model (meshes/materials); unload model before freeing borrowed material handles.
 type modelObj struct {
 	model      rl.Model
@@ -89,6 +104,12 @@ type modelObj struct {
 	animLoop    bool
 	animSpeed   float32 // 1 = default
 
+	// Asynchronous state
+	mu        sync.RWMutex
+	isLoading bool
+	loaded    bool
+	loadError string
+
 	release heap.ReleaseOnce
 }
 
@@ -103,6 +124,12 @@ func (o *modelObj) Free() {
 			o.anims = nil
 		}
 		rl.UnloadModel(o.model)
+	})
+}
+
+func (o *modelObj) setFinalizer() {
+	runtime.SetFinalizer(o, func(m *modelObj) {
+		enqueueOnMainThread(func() { m.Free() })
 	})
 }
 
@@ -130,6 +157,12 @@ func (o *instancedModelObj) TypeTag() uint16 { return heap.TagInstancedModel }
 
 func (o *instancedModelObj) Free() {
 	o.release.Do(func() { rl.UnloadModel(o.model) })
+}
+
+func (o *instancedModelObj) setFinalizer() {
+	runtime.SetFinalizer(o, func(m *instancedModelObj) {
+		enqueueOnMainThread(func() { m.Free() })
+	})
 }
 
 func (o *instancedModelObj) anchorPos() rl.Vector3 {
@@ -194,6 +227,12 @@ func (o *lodModelObj) Free() {
 	})
 }
 
+func (o *lodModelObj) setFinalizer() {
+	runtime.SetFinalizer(o, func(m *lodModelObj) {
+		enqueueOnMainThread(func() { m.Free() })
+	})
+}
+
 func (o *lodModelObj) worldPos() rl.Vector3 {
 	return rl.Vector3{X: o.transform.M12, Y: o.transform.M13, Z: o.transform.M14}
 }
@@ -239,4 +278,10 @@ func (o *shaderObj) TypeTag() uint16 { return heap.TagShader }
 
 func (o *shaderObj) Free() {
 	o.release.Do(func() { rl.UnloadShader(o.sh) })
+}
+
+func (o *shaderObj) setFinalizer() {
+	runtime.SetFinalizer(o, func(m *shaderObj) {
+		enqueueOnMainThread(func() { m.Free() })
+	})
 }

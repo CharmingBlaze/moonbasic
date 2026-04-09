@@ -4,6 +4,8 @@ Commands for creating and controlling a 3D physics simulation using Jolt Physics
 
 **Availability:** **`PHYSICS3D.*`** / **`BODY3D.*`** require **Linux + CGO** with [jolt-go](https://github.com/bbitechnologies/jolt-go); other builds return a stub error. **Registry map:** [moonbasic-command-set/physics-3d.md](moonbasic-command-set/physics-3d.md). Many **`BODY3D`** dynamics builtins are currently **no-ops** in the vendored binding (forces, mass, friction).
 
+**Terrain / heightfields:** the vendored binding exposes **box / sphere / capsule / convex hull / mesh** shapes only. A **Jolt `HeightFieldShape`** for [`TERRAIN.*`](TERRAIN.md) heightmaps is not wired yet; align physics with generated meshes or separate bodies when needed.
+
 ## Core Workflow
 
 1.  **Initialize**: Start the physics world with `Physics3D.Start()`.
@@ -127,6 +129,54 @@ Returns a **new 1D float array handle** with 6 elements:
 | `5` | Reserved (`0`); a future version may supply a body id |
 
 Free the array when finished if your program retains handles.
+
+---
+
+## `PICK.*` — world picking (Linux + CGO + Jolt)
+
+Short **dot-notation** commands (no long argument lists). Stage a ray, then **`PICK.CAST`**, then read **`PICK.X`** … **`PICK.ENTITY`**.
+
+| Command | Role |
+|--------|------|
+| **`PICK.ORIGIN(x#, y#, z#)`** | Ray start |
+| **`PICK.DIRECTION(dx#, dy#, dz#)`** | Ray direction; **vector length** is used as max travel unless **`PICK.MAXDIST`** is set |
+| **`PICK.MAXDIST(d#)`** | If set, **normalize** direction and scale to this length |
+| **`PICK.LAYERMASK(m#)`** | Bit `i` = accept hits on **`ENTITY.COLLISIONLAYER`** `i`; **`0`** = accept all |
+| **`PICK.RADIUS(r#)`** | Reserved; non-zero is rejected until sphere pick exists |
+| **`PICK.CAST()`** | Closest Jolt hit → fills registry; **returns entity#** or `0` (entity must be linked via **`LINKPHYSBUFFER`**) |
+| **`PICK.FROMCAMERA(cam, sx#, sy#)`** | Builds ray from Raylib screen position; sets default **`MAXDIST`** if unset |
+| **`PICK.SCREENCAST(cam, sx#, sy#)`** | **`FROMCAMERA`** + **`CAST`** (returns entity#) |
+| **`PICK.X` … `PICK.Z`** | Last hit world position |
+| **`PICK.NX` … `PICK.NZ`** | Last hit surface normal |
+| **`PICK.ENTITY`** | Last hit entity# |
+| **`PICK.DIST`** | Distance along ray |
+| **`PICK.HIT`** | Whether the last cast hit |
+
+Register **`ENTITY.COLLISIONLAYER`** for **`PICK.LAYERMASK`** filtering (lookup wired from the entity module).
+
+---
+
+## Entity ↔ Jolt collision bridge (Linux + CGO)
+
+After you **commit** rigid bodies with `BODY3D.COMMIT`, each body gets a shared **matrix buffer index** (`BODY3D.BUFFERINDEX(body)`). Link entities to those slots with **`ENTITY.LINKPHYSBUFFER(entity#, bufferIndex)`**. That call also registers the pair for **frame collision queries** (implemented with post-step Jolt shape overlap, not a C++ contact listener—see note below).
+
+Run **`PHYSICS3D.STEP`** each frame, then:
+
+| Command | Meaning |
+|--------|---------|
+| **`EntityCollided(a, b)`** | `True` if bodies for `a` and `b` overlapped this step (both must be linked). |
+| **`CollisionNX` / `NY` / `NZ`** | Approximate world normal from last successful **`EntityCollided`** (center-to-center). |
+| **`CollisionPX` / `PY` / `PZ`** | Contact point from the shape query; **`CollisionY`** aliases **`CollisionPY`**. |
+| **`CollisionForce`** | Uses penetration depth as a cheap impact proxy (not a true post-solve impulse). |
+| **`CountCollisions(e)`** | Number of distinct overlapping **other** entities for `e` this frame (separate from legacy **`COUNTCOLLISIONS`**). |
+
+**Ordering:** Collision events are collected **at the end of** `PHYSICS3D.STEP` (after matrix sync). Call **`EntityCollided`** in your game loop **after** stepping physics.
+
+**Ghost entities:** **`ENTITY.FREE`** / **`ENTITY.CLEARPHYSBUFFER`** unregister the bridge so freed ids are not reported.
+
+**`ENTITY.COLLISIONLAYER(e, layer)`** stores `0..31` for **`PICK.LAYERMASK`** filtering (see **`PICK.*`** above). The Jolt simulation still uses the vendored two-layer broadphase until `third_party` is extended.
+
+**Note:** The repository’s `third_party/jolt-go` C++ layer is not modified here; the bridge uses **`CollideShapeGetHits`** overlap data so it stays buildable without rebuilding static Jolt libs.
 
 ---
 

@@ -34,7 +34,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     dt# = Time.Delta()
 
-    World.SetCenter(128 + SIN(Time.Get()) * 30, 128 + COS(Time.Get()) * 30)
+    World.SetCenter(128 + SINRAD(Time.Get()) * 30, 128 + COSRAD(Time.Get()) * 30)
 
     World.Update(dt#)
 

@@ -1,0 +1,21 @@
+; First playable: full frame loop with implicit globals and DRAW.RECTANGLE.
+; Requires raylib (sidecar DLL with CGO_ENABLED=0 on Windows, or CGO build).
+;
+; World-to-screen bridge:
+; - ExecSyncPhysics fills VM.PhysicsScratch / registers after PHYSICS3D.STEP when WASM is bound.
+; - Scripts read floats with PHYSICS3D.GETSCRATCHFLOAT(index) into variables, then pass to DRAW.*.
+; This sample uses simulated gravity so it runs without Jolt/WASM.
+
+WINDOW.OPEN(800, 600, "moonBASIC first playable")
+rectX# = 400
+rectY# = 50
+velY# = 0
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(20, 24, 35)
+    velY# = velY# + 0.25
+    rectY# = rectY# + velY#
+    IF rectY# > 520 THEN rectY# = 520: velY# = velY# * -0.55
+    DRAW.RECTANGLE(rectX# - 40, rectY#, 80, 40, 0, 200, 255, 255)
+    RENDER.FRAME()
+WEND
+WINDOW.CLOSE()

@@ -4,6 +4,7 @@ package mbmodel3d
 
 import (
 	"fmt"
+	"sync"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -54,6 +55,7 @@ uniform sampler2D texture0;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform sampler2D texture3;
+uniform sampler2D texture5;
 uniform sampler2D texture11;
 
 uniform float roughnessValue;
@@ -66,6 +68,7 @@ uniform mat4 lightVP;
 uniform int shadowEnabled;
 uniform vec3 ambientColor;
 uniform float shadowBiasK;
+uniform float emissionPower;
 
 float shadowFactor(vec3 N, vec3 L) {
     if (shadowEnabled == 0) return 1.0;
@@ -120,23 +123,44 @@ void main() {
     vec3 radiance = lightColor * NdotL * sh;
     vec3 Lo = (kD * albedo / 3.14159265 + spec) * radiance;
     vec3 ambient = albedo * ambientColor;
-    vec3 color = ambient + Lo;
+    vec3 emitTerm = vec3(0.0);
+    if (emissionPower > 0.001) {
+        emitTerm = texture(texture5, fragUV).rgb * emissionPower;
+    }
+    vec3 color = ambient + Lo + emitTerm;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
     finalColor = vec4(color, colDiffuse.a * fragCol.a);
 }
 `
 
+var (
+	pbrShaderOnce   sync.Once
+	pbrSharedShaderRL rl.Shader
+)
+
+// Shared PBR shader instance (one GPU program for all MATERIAL.MAKEPBR / entity PBR paths).
+func pbrSharedShader() rl.Shader {
+	pbrShaderOnce.Do(func() {
+		sh := rl.LoadShaderFromMemory(pbrVertexShader, pbrFragmentShader)
+		if rl.IsShaderValid(sh) {
+			patchStandardMapTextureLocs(&sh)
+			pbrSharedShaderRL = sh
+		}
+	})
+	return pbrSharedShaderRL
+}
+
 func makePBRMaterial() rl.Material {
 	mat := rl.LoadMaterialDefault()
-	sh := rl.LoadShaderFromMemory(pbrVertexShader, pbrFragmentShader)
+	sh := pbrSharedShader()
 	if !rl.IsShaderValid(sh) {
 		return mat
 	}
 	mat.Shader = sh
-	patchStandardMapTextureLocs(&mat.Shader)
 	mat.GetMap(rl.MapRoughness).Value = 1
 	mat.GetMap(rl.MapMetalness).Value = 1
+	mat.GetMap(rl.MapEmission).Value = 0
 	return mat
 }
 

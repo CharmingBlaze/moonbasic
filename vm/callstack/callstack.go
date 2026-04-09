@@ -3,13 +3,15 @@ package callstack
 
 import (
 	"moonbasic/vm/opcode"
+	"moonbasic/vm/value"
 )
 
 // Frame is one activation record on the call stack.
 type Frame struct {
 	Chunk     *opcode.Chunk // The code segment being executed
 	IP        int           // Instruction pointer
-	StackBase int           // Value stack offset where this frame's locals start
+	Registers [256]value.Value // Register file (R0-R255)
+	ReturnReg uint8         // Target register in the CALLER frame to receive results
 }
 
 // Stack is the caller's execution environment.
@@ -25,15 +27,15 @@ func New() *Stack {
 }
 
 // Push adds a new frame to the call stack.
-func (s *Stack) Push(c *opcode.Chunk, ip, base int) {
+func (s *Stack) Push(c *opcode.Chunk, ip int, retReg uint8) {
 	s.Frames = append(s.Frames, Frame{
 		Chunk:     c,
 		IP:        ip,
-		StackBase: base,
+		ReturnReg: retReg,
 	})
 }
 
-// Pop removes the innermost frame.
+// Pop removes the top frame from the call stack.
 func (s *Stack) Pop() Frame {
 	if len(s.Frames) == 0 {
 		return Frame{}
@@ -41,6 +43,13 @@ func (s *Stack) Pop() Frame {
 	f := s.Frames[len(s.Frames)-1]
 	s.Frames = s.Frames[:len(s.Frames)-1]
 	return f
+}
+
+// Range iterates over all frames in the stack, starting from the oldest.
+func (s *Stack) Range(fn func(*Frame)) {
+	for i := range s.Frames {
+		fn(&s.Frames[i])
+	}
 }
 
 // Top returns the current execution frame.
