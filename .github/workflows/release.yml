@@ -1,3 +1,7 @@
+# Build and publish archives when a version tag is pushed (e.g. v1.2.1).
+# Artifacts: moonbasic-<tag>-linux-amd64.tar.gz, moonbasic-<tag>-windows-amd64.zip
+# Each contains: moonbasic (compiler/LSP), moonrun (full runtime engine).
+
 name: Release
 
 on:
@@ -5,39 +9,61 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
-  package:
+  linux-amd64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25.3'
-      - name: Install Linux deps
+
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc libenet-dev libgl1-mesa-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev libwayland-dev libxkbcommon-dev
-      - name: Build moonbasic
-        run: go build -o moonbasic .
+          sudo apt-get install -y \
+            gcc \
+            libenet-dev \
+            libgl1-mesa-dev \
+            libxi-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libwayland-dev \
+            libxkbcommon-dev
+
+      - name: Build moonbasic + moonrun
         env:
           CGO_ENABLED: '1'
-      - name: Docs site
-        run: go run ./cmd/moondoc -out site-out
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        run: |
+          set -e
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w" -o dist/moonbasic .
+          go build -trimpath -ldflags="-s -w" -tags fullruntime -o dist/moonrun ./cmd/moonrun
+
+      - name: Package (tar.gz)
+        run: |
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
+            -C dist moonbasic moonrun
+
+      - uses: actions/upload-artifact@v4
         with:
           name: moonbasic-linux-amd64
-          path: |
-            moonbasic
-            site-out/
+          path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
 
-  windows-zip:
+  windows-amd64:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25.3'
+
       - uses: msys2/setup-msys2@v2
         id: msys2
         with:
@@ -46,14 +72,51 @@ jobs:
           install: >-
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-raylib
-      - name: Build
-        run: go build -o moonbasic.exe .
+
+      - name: Build moonbasic + moonrun
+        shell: bash
         env:
           CGO_ENABLED: '1'
-          CC: ${{ steps.msys2.outputs.msys2-location }}\mingw64\bin\gcc.exe
+          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
           CGO_LDFLAGS: '-lraylib -lgdi32 -lwinmm -lws2_32'
-      - name: Upload
-        uses: actions/upload-artifact@v4
+        run: |
+          set -e
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w" -o dist/moonbasic.exe .
+          go build -trimpath -ldflags="-s -w" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
+
+      - name: Package (zip)
+        shell: pwsh
+        run: |
+          $name = "moonbasic-${{ github.ref_name }}-windows-amd64.zip"
+          Compress-Archive -Path dist/moonbasic.exe, dist/moonrun.exe -DestinationPath $name -Force
+
+      - uses: actions/upload-artifact@v4
         with:
           name: moonbasic-windows-amd64
-          path: moonbasic.exe
+          path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
+
+  github-release:
+    needs: [linux-amd64, windows-amd64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: moonbasic-*
+          merge-multiple: true
+
+      - name: Collect archives for upload
+        run: |
+          mkdir -p upload
+          find release-assets -type f \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp -v {} upload/ \;
+          ls -la upload/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: upload/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
