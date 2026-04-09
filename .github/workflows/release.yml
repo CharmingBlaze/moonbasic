@@ -44,11 +44,12 @@ jobs:
           mkdir -p dist
           go build -trimpath -ldflags="-s -w" -o dist/moonbasic .
           go build -trimpath -ldflags="-s -w" -tags fullruntime -o dist/moonrun ./cmd/moonrun
+          cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
       - name: Package (tar.gz)
         run: |
           tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
-            -C dist moonbasic moonrun
+            -C dist moonbasic moonrun README-RELEASE.txt
 
       - uses: actions/upload-artifact@v4
         with:
@@ -84,12 +85,13 @@ jobs:
           mkdir -p dist
           go build -trimpath -ldflags="-s -w" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="-s -w" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
+          cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
       - name: Package (zip)
         shell: pwsh
         run: |
           $name = "moonbasic-${{ github.ref_name }}-windows-amd64.zip"
-          Compress-Archive -Path dist/moonbasic.exe, dist/moonrun.exe -DestinationPath $name -Force
+          Compress-Archive -Path dist/* -DestinationPath $name -Force
 
       - uses: actions/upload-artifact@v4
         with:
@@ -118,5 +120,14 @@ jobs:
         with:
           files: upload/*
           generate_release_notes: true
+          body: |
+            **Quick install:** Download the `.zip` (**Windows**) or `.tar.gz` (**Linux x64**), extract anywhere, and open **README-RELEASE.txt** inside the folder.
+
+            | File | Contents |
+            |------|----------|
+            | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, compile to `.mbc`, `--lsp`) |
+            | `moonrun` / `moonrun.exe` | Full runtime — run `.mb` / `.mbc` games |
+
+            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [Build from source](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/BUILDING.md)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

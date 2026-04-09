@@ -94,14 +94,31 @@ You get BASIC-level simplicity at the keyboard and a structured pipeline under t
 
 ## Getting Started
 
-### 1. Install Dependencies
+### Download pre-built binaries (easiest)
+
+Official **Windows x64** and **Linux x64** builds are published on **[Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**.
+
+| You want | Download this asset | After extracting |
+|----------|---------------------|------------------|
+| Windows | `moonbasic-v*-windows-amd64.zip` | `moonbasic.exe`, `moonrun.exe`, plus **README-RELEASE.txt** |
+| Linux | `moonbasic-v*-linux-amd64.tar.gz` | `moonbasic`, `moonrun`, plus **README-RELEASE.txt** |
+
+1. Download and extract the archive to any folder.  
+2. Read **README-RELEASE.txt** in that folder (paths, `chmod` on Linux, first commands).  
+3. Run `moonbasic --version` or `moonrun` on a sample under [`examples/`](examples/) (clone the repo or copy a single `.mb` file next to the binaries).
+
+No Go toolchain required for this path.
+
+### Build from source
+
+#### 1. Install Dependencies
 
 - **Go 1.25+** (see `go.mod`)
 - **A C compiler**: MinGW-w64 on Windows, or GCC on Linux.
 
 See [Building from Source](docs/BUILDING.md) for detailed setup.
 
-### 2. Build moonBASIC
+#### 2. Build moonBASIC
 
 ```bash
 git clone https://github.com/CharmingBlaze/moonbasic
@@ -116,7 +133,7 @@ go build -o moonbasic.exe .
 CGO_ENABLED=1 go build -o moonbasic .
 ```
 
-### 3. Run Your First Program
+#### 3. Run Your First Program
 
 From the repo root (requires **CGO**):
 
