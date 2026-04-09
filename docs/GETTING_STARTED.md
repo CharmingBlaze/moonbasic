@@ -3,6 +3,25 @@
 ## What you need
 
 - Windows x64 or Linux x64
+- **Either** a pre-built binary from [GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) **or** Go + a C toolchain to build from source (below).
+
+---
+
+## Install (pre-built binaries)
+
+Download the latest **`moonbasic-v*-windows-amd64.zip`** (Windows) or **`moonbasic-v*-linux-amd64.tar.gz`** (Linux) from **[Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. Extract anywhere; each archive includes **`README-RELEASE.txt`** with paths, `chmod` on Linux, and example commands.
+
+| In the archive | Purpose |
+|----------------|---------|
+| `moonbasic` / `moonbasic.exe` | Compiler: `.mb` → `.mbc`, `--check`, `--lsp` |
+| `moonrun` / `moonrun.exe` | Full game runtime (run `.mb` / `.mbc`) |
+
+No Go installation required for this path.
+
+---
+
+## What you need (build from source)
+
 - Go **1.25.3** or later (see `go.mod` in the repo) — https://go.dev/dl/
 - A C compiler:
   - Windows: MinGW-w64 — https://www.mingw-w64.org/
@@ -10,7 +29,7 @@
 
 ---
 
-## Install
+## Install (build from source)
 
 ### Windows
 

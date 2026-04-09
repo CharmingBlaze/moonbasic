@@ -1023,10 +1023,24 @@ func (m *Module) isVisible(e *ent) bool {
 	if e.cullMode == 2 { // Force Hidden
 		return false
 	}
-	// cullMode == 0 (Auto): draw and let the GPU clip. CPU frustum tests (PV plane extraction)
-	// must match rl.BeginMode3D's projection * view exactly; small mismatches (aspect, matrix
-	// layout, clip planes) have culled entire scenes while rl.DrawCube still would render.
-	return true
+	// cullMode == 0 (Auto): CPU frustum vs active CAMERA.BEGIN (see mbcamera.ExtractFrustum).
+	switch e.kind {
+	case entKindSphere:
+		wp := m.worldPos(e)
+		ms := e.scale.X
+		if e.scale.Y > ms {
+			ms = e.scale.Y
+		}
+		if e.scale.Z > ms {
+			ms = e.scale.Z
+		}
+		return mbcamera.SphereVisibleActive(wp.X, wp.Y, wp.Z, e.radius*ms)
+	case entKindBox, entKindCone, entKindMesh, entKindModel:
+		mn, mx := m.aabbWorldMinMax(e)
+		return mbcamera.AABBVisibleActive(mn.X, mn.Y, mn.Z, mx.X, mx.Y, mx.Z)
+	default:
+		return true
+	}
 }
 
 func (m *Module) entSetCullMode(args []value.Value) (value.Value, error) {

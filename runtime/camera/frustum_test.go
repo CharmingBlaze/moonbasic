@@ -47,3 +47,19 @@ func TestProjectionMatrixUsesRLCullDistances(t *testing.T) {
 		t.Fatal("projection matrix depth coupling looks degenerate")
 	}
 }
+
+// Regression: look-at target must lie inside the frustum (entity CPU culling uses this).
+func TestExtractFrustumLookAtTargetInside(t *testing.T) {
+	cam := rl.Camera3D{
+		Position:   rl.Vector3{X: 0, Y: 3, Z: 10},
+		Target:     rl.Vector3{X: 0, Y: 1, Z: 0},
+		Up:         rl.Vector3{X: 0, Y: 1, Z: 0},
+		Fovy:       55,
+		Projection: rl.CameraPerspective,
+	}
+	f := ExtractFrustum(cam, 16.0/9.0)
+	tx, ty, tz := cam.Target.X, cam.Target.Y, cam.Target.Z
+	if !f.PointVisible(tx, ty, tz) {
+		t.Fatalf("look-at target (%g,%g,%g) should be inside frustum", tx, ty, tz)
+	}
+}

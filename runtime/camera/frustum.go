@@ -39,26 +39,42 @@ func projectionMatrixForFrustum(cam rl.Camera3D, aspectRatio float32) rl.Matrix 
 	return rl.MatrixPerspective(fovRad, aspectRatio, near, far)
 }
 
-// ExtractFrustum builds frustum planes from PV = projection * view (same order as rendering).
+// ExtractFrustum builds frustum planes from PV = projection * view (column vector: clip = PV * v).
+// Planes are extracted from the **rows** of PV (Gribb–Hartmann / clip-space convention), not from
+// columns — column-based c0..c3 produced inverted tests and culled entire scenes.
 func ExtractFrustum(cam rl.Camera3D, aspectRatio float32) Frustum {
 	view := rl.GetCameraMatrix(cam)
 	proj := projectionMatrixForFrustum(cam, aspectRatio)
 	pv := rl.MatrixMultiply(proj, view)
 
-	// Raylib Matrix rows are (m0,m4,m8,m12), (m1,m5,m9,m13), … — columns are (M0,M1,M2,M3), (M4,M5,M6,M7), …
-	c0 := [4]float32{pv.M0, pv.M1, pv.M2, pv.M3}
-	c1 := [4]float32{pv.M4, pv.M5, pv.M6, pv.M7}
-	c2 := [4]float32{pv.M8, pv.M9, pv.M10, pv.M11}
-	c3 := [4]float32{pv.M12, pv.M13, pv.M14, pv.M15}
+	// Row i in column-major storage: (M[i], M[i+4], M[i+8], M[i+12])
+	r0 := [4]float32{pv.M0, pv.M4, pv.M8, pv.M12}
+	r1 := [4]float32{pv.M1, pv.M5, pv.M9, pv.M13}
+	r2 := [4]float32{pv.M2, pv.M6, pv.M10, pv.M14}
+	r3 := [4]float32{pv.M3, pv.M7, pv.M11, pv.M15}
 
 	var f Frustum
-	f.planes[0] = normalisePlane(Plane{c3[0] + c0[0], c3[1] + c0[1], c3[2] + c0[2], c3[3] + c0[3]})
-	f.planes[1] = normalisePlane(Plane{c3[0] - c0[0], c3[1] - c0[1], c3[2] - c0[2], c3[3] - c0[3]})
-	f.planes[2] = normalisePlane(Plane{c3[0] + c1[0], c3[1] + c1[1], c3[2] + c1[2], c3[3] + c1[3]})
-	f.planes[3] = normalisePlane(Plane{c3[0] - c1[0], c3[1] - c1[1], c3[2] - c1[2], c3[3] - c1[3]})
-	f.planes[4] = normalisePlane(Plane{c3[0] + c2[0], c3[1] + c2[1], c3[2] + c2[2], c3[3] + c2[3]})
-	f.planes[5] = normalisePlane(Plane{c3[0] - c2[0], c3[1] - c2[1], c3[2] - c2[2], c3[3] - c2[3]})
+	f.planes[0] = normalisePlane(planeAdd(r3, r0)) // left
+	f.planes[1] = normalisePlane(planeSub(r3, r0)) // right
+	f.planes[2] = normalisePlane(planeAdd(r3, r1)) // bottom
+	// Top and far half-spaces are inverted vs the usual row-sum recipe for rl.MatrixPerspective;
+	// without negation, center-of-frustum points fail PointVisible and entity culling drops all draws.
+	f.planes[3] = normalisePlane(negatePlane(planeSub(r3, r1))) // top
+	f.planes[4] = normalisePlane(planeAdd(r3, r2))              // near
+	f.planes[5] = normalisePlane(negatePlane(planeSub(r3, r2))) // far
 	return f
+}
+
+func planeAdd(a, b [4]float32) Plane {
+	return Plane{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]}
+}
+
+func planeSub(a, b [4]float32) Plane {
+	return Plane{a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]}
+}
+
+func negatePlane(p Plane) Plane {
+	return Plane{-p.a, -p.b, -p.c, -p.d}
 }
 
 func normalisePlane(p Plane) Plane {
