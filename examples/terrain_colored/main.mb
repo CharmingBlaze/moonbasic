@@ -1,0 +1,179 @@
+; Third-person orbit + WASD + chasing enemies on a colored ground plane.
+; Uses FLAT/GRID3 (immediate-mode) instead of TERRAIN.* — heightfield mesh build can hang the window on some GPUs.
+; Run: go run -tags fullruntime . --run examples/terrain_colored/main.mb
+
+CONST WORLD_HALF = 40.0
+CONST ORBIT_MOUSE_BTN = 1
+; Screen-position delta while dragging (same idea as mario64 — MOUSEDELTA can feel wrong on Windows).
+CONST ORBIT_DRAG_SENS = 0.0055
+CONST PITCH_MIN = -0.1
+CONST PITCH_MAX = 1.32
+CONST DIST_MIN = 4.0
+CONST DIST_MAX = 26.0
+CONST ZOOM_WHEEL = 0.85
+CONST MOVE_SPD = 22.0
+CONST CHASE_SPD = 2.8
+CONST N_ENEMY = 3
+CONST PLAYER_R = 0.55
+CONST ENEMY_R = 0.5
+; Slight lift so mesh/grid on Y=0 does not z-fight the sphere bottom.
+CONST PLAYER_Y = 0.58
+CONST ENEMY_Y = 0.53
+CONST SPHERE_SEG = 20
+CONST PUSH_SEP = 1.15
+CONST SPAWN_RAD = 12.0
+CONST TWO_PI = 6.28318530718
+CONST GRID_SLICES = 32
+CONST GRID_STEP = 1.25
+; Sky + ground (warmer, less “plastic” than flat navy + neon green)
+CONST SKY_R = 48
+CONST SKY_G = 82
+CONST SKY_B = 128
+CONST FLOOR_R = 58
+CONST FLOOR_G = 124
+CONST FLOOR_B = 82
+
+SetMSAA(0)
+Window.Open(1280, 720, "moonBASIC - colored terrain")
+Window.SetFPS(60)
+
+cam = CreateCamera()
+cam.SetFOV(56)
+
+player = CreateSphere(PLAYER_R, SPHERE_SEG)
+EntityColor(player, 70, 210, 255, 255)
+PositionEntity(player, 0.0, PLAYER_Y, 0.0, TRUE)
+
+enemy AS HANDLE(N_ENEMY)
+FOR i = 1 TO N_ENEMY
+    enemy(i) = CreateSphere(ENEMY_R, SPHERE_SEG)
+    ec = COLOR.HSV(i, N_ENEMY)
+    EntityColor(enemy(i), ec)
+    COLOR.FREE(ec)
+    ang = FLOAT(i - 1) * TWO_PI / FLOAT(N_ENEMY)
+    ex = MATH.COS(ang) * SPAWN_RAD
+    ez = MATH.SIN(ang) * SPAWN_RAD
+    PositionEntity(enemy(i), ex, ENEMY_Y, ez, TRUE)
+NEXT i
+
+camYaw = 0.0
+camPitch = 0.26
+cd = 10.0
+orbitHavePrev = FALSE
+orbitPx = 0.0
+orbitPy = 0.0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(SKY_R, SKY_G, SKY_B)
+    dt = Time.Delta(0.0167, 0.05)
+
+    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+        mx = FLOAT(INPUT.MOUSEX())
+        my = FLOAT(INPUT.MOUSEY())
+        IF orbitHavePrev THEN
+            camYaw = camYaw + (mx - orbitPx) * ORBIT_DRAG_SENS
+            camPitch = camPitch - (my - orbitPy) * ORBIT_DRAG_SENS
+        ENDIF
+        orbitPx = mx
+        orbitPy = my
+        orbitHavePrev = TRUE
+    ELSE
+        orbitHavePrev = FALSE
+    ENDIF
+    camPitch = CLAMP(camPitch, PITCH_MIN, PITCH_MAX)
+    mw = INPUT.MOUSEWHEELMOVE()
+    cd = cd - mw * ZOOM_WHEEL
+    cd = CLAMP(cd, DIST_MIN, DIST_MAX)
+    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.15 * dt
+    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.15 * dt
+
+    fwd = 0.0
+    side = 0.0
+    IF Input.KeyDown(KEY_W) THEN fwd = fwd + 1.0
+    IF Input.KeyDown(KEY_S) THEN fwd = fwd - 1.0
+    IF Input.KeyDown(KEY_D) THEN side = side + 1.0
+    IF Input.KeyDown(KEY_A) THEN side = side - 1.0
+    IF fwd <> 0.0 OR side <> 0.0 THEN
+        mag = MATH.SQRT(fwd * fwd + side * side)
+        fwd = fwd / mag
+        side = side / mag
+        ; Match Camera.OrbitEntity / mario64: “into the screen” is -sin(yaw), -cos(yaw) on XZ.
+        fwdX = 0.0 - MATH.SIN(camYaw)
+        fwdZ = 0.0 - MATH.COS(camYaw)
+        rigX = MATH.COS(camYaw)
+        rigZ = 0.0 - MATH.SIN(camYaw)
+        spd = MOVE_SPD * dt
+        stepX = (fwdX * fwd + rigX * side) * spd
+        stepZ = (fwdZ * fwd + rigZ * side) * spd
+        px = Entity.X(player)
+        py = Entity.Y(player)
+        pz = Entity.Z(player)
+        Entity.SetPosition(player, px + stepX, py, pz + stepZ, TRUE)
+    ENDIF
+
+    px = Entity.X(player)
+    py = Entity.Y(player)
+    pz = Entity.Z(player)
+    px = CLAMP(px, -WORLD_HALF + 4.0, WORLD_HALF - 4.0)
+    pz = CLAMP(pz, -WORLD_HALF + 4.0, WORLD_HALF - 4.0)
+    Entity.SetPosition(player, px, PLAYER_Y, pz, TRUE)
+
+    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+
+    FOR i = 1 TO N_ENEMY
+        ex = Entity.X(enemy(i))
+        ez = Entity.Z(enemy(i))
+        px = Entity.X(player)
+        pz = Entity.Z(player)
+        ddx = px - ex
+        ddz = pz - ez
+        dist = MATH.SQRT(ddx * ddx + ddz * ddz)
+        md = CHASE_SPD * dt
+        IF dist <= md OR dist <= 0.0001 THEN
+            ex = px
+            ez = pz
+        ELSE
+            stepT = md / dist
+            ex = ex + ddx * stepT
+            ez = ez + ddz * stepT
+        ENDIF
+        ex = CLAMP(ex, -WORLD_HALF + 2.0, WORLD_HALF - 2.0)
+        ez = CLAMP(ez, -WORLD_HALF + 2.0, WORLD_HALF - 2.0)
+        Entity.SetPosition(enemy(i), ex, ENEMY_Y, ez, TRUE)
+
+        ddx = px - ex
+        ddz = pz - ez
+        dist = MATH.SQRT(ddx * ddx + ddz * ddz)
+        IF dist < PUSH_SEP AND dist > 0.001 THEN
+            push = (PUSH_SEP - dist) * 0.5
+            nx = ddx / dist
+            nz = ddz / dist
+            px = px + nx * push
+            pz = pz + nz * push
+            ex = ex - nx * push * 0.35
+            ez = ez - nz * push * 0.35
+            Entity.SetPosition(player, px, PLAYER_Y, pz, TRUE)
+            Entity.SetPosition(enemy(i), ex, ENEMY_Y, ez, TRUE)
+        ENDIF
+    NEXT i
+    RENDER.Begin3D(cam)
+        FLAT(0.0, 0.0, 0.0, WORLD_HALF * 2.0, WORLD_HALF * 2.0, FLOOR_R, FLOOR_G, FLOOR_B, 255)
+        GRID3(GRID_SLICES, GRID_STEP)
+        ; Landmarks — still no heightfield mesh (Iris-safe)
+        BOX(-18.0, 0.75, -14.0, 1.1, 0.75, 1.1, 210, 120, 90, 255)
+        WIRECUBE(-18.0, 0.75, -14.0, 1.18, 0.83, 1.18, 255, 240, 220, 160)
+        BOX(16.0, 1.0, 10.0, 1.4, 1.0, 1.4, 90, 140, 220, 255)
+        WIRECUBE(16.0, 1.0, 10.0, 1.48, 1.08, 1.48, 220, 235, 255, 140)
+        BOX(0.0, 0.55, 22.0, 2.2, 0.55, 1.0, 160, 100, 200, 255)
+        DrawEntities()
+    RENDER.END3D()
+
+    Draw.Text("Orbit: RMB drag · wheel zoom · Q/E yaw · WASD move · ESC", 12, 10, 16, 248, 250, 255, 255)
+    Draw.Text("FLAT ground + props (no TERRAIN heightfield — Iris-safe)", 12, 32, 14, 200, 210, 230, 255)
+    Render.Frame()
+WEND
+
+FREEENTITIES(enemy)
+FreeEntity(player)
+Camera.Free(cam)
+Window.Close()

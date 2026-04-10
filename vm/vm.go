@@ -171,6 +171,9 @@ func (v *VM) EraseAllHandles() error {
 		return fmt.Errorf("EraseAllHandles: heap not bound")
 	}
 	v.Heap.FreeAll()
+	if v.Registry != nil {
+		v.Registry.ResetModules()
+	}
 	for name, val := range v.Globals {
 		if val.Kind == value.KindHandle {
 			v.Globals[name] = value.Nil

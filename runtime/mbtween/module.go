@@ -29,3 +29,7 @@ func (m *Module) SetUserInvoker(fn func(string, []value.Value) (value.Value, err
 func (m *Module) SetGlobalAccessor(get func(string) (value.Value, bool), set func(string, value.Value)) {
 	m.getG, m.setG = get, set
 }
+
+func (m *Module) Reset() {}
+
+

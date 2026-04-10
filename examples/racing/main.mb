@@ -4,31 +4,31 @@
 WINDOW.OPEN(960, 540, "moonBASIC Racing")
 WINDOW.SETFPS(60)
 
-cx# = 480
-cy# = 400
-ang# = 0
-vspd# = 0
+cx = 480
+cy = 400
+ang = 0
+vspd = 0
 lap = 0
 checkpoint = 0
 
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
-    IF INPUT.KEYDOWN(KEY_A) THEN ang# = ang# - 2.4 * dt#
-    IF INPUT.KEYDOWN(KEY_D) THEN ang# = ang# + 2.4 * dt#
-    IF INPUT.KEYDOWN(KEY_W) THEN vspd# = MATH.MIN(420, vspd# + 380 * dt#)
-    IF INPUT.KEYDOWN(KEY_S) THEN vspd# = MATH.MAX(0, vspd# - 520 * dt#)
-    vspd# = vspd# * 0.985
+    dt = TIME.DELTA()
+    IF INPUT.KEYDOWN(KEY_A) THEN ang = ang - 2.4 * dt
+    IF INPUT.KEYDOWN(KEY_D) THEN ang = ang + 2.4 * dt
+    IF INPUT.KEYDOWN(KEY_W) THEN vspd = MATH.MIN(420, vspd + 380 * dt)
+    IF INPUT.KEYDOWN(KEY_S) THEN vspd = MATH.MAX(0, vspd - 520 * dt)
+    vspd = vspd * 0.985
 
-    cx# = cx# + MATH.COS(ang#) * vspd# * dt#
-    cy# = cy# + MATH.SIN(ang#) * vspd# * dt#
+    cx = cx + MATH.COS(ang) * vspd * dt
+    cy = cy + MATH.SIN(ang) * vspd * dt
 
-    IF cx# < 60 THEN cx# = 60
-    IF cx# > 900 THEN cx# = 900
-    IF cy# < 60 THEN cy# = 60
-    IF cy# > 480 THEN cy# = 480
+    IF cx < 60 THEN cx = 60
+    IF cx > 900 THEN cx = 900
+    IF cy < 60 THEN cy = 60
+    IF cy > 480 THEN cy = 480
 
-    IF cx# > 700 AND cy# < 120 THEN checkpoint = 1
-    IF checkpoint = 1 AND cx# < 200 AND cy# > 350 THEN
+    IF cx > 700 AND cy < 120 THEN checkpoint = 1
+    IF checkpoint = 1 AND cx < 200 AND cy > 350 THEN
         lap = lap + 1
         checkpoint = 0
     ENDIF
@@ -39,10 +39,10 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     DRAW.RECTANGLE(700, 60, 40, 40, 200, 200, 80, 255)
     DRAW.RECTANGLE(120, 360, 40, 40, 80, 200, 200, 255)
 
-    ca# = MATH.COS(ang#) * 22
-    sa# = MATH.SIN(ang#) * 22
-    DRAW.RECTANGLE(INT(cx# + ca#) - 10, INT(cy# + sa#) - 6, 20, 12, 255, 80, 80, 255)
-    DRAW.RECTANGLE(INT(cx# - ca#) - 10, INT(cy# - sa#) - 6, 20, 12, 200, 200, 220, 255)
+    ca = MATH.COS(ang) * 22
+    sa = MATH.SIN(ang) * 22
+    DRAW.RECTANGLE(INT(cx + ca) - 10, INT(cy + sa) - 6, 20, 12, 255, 80, 80, 255)
+    DRAW.RECTANGLE(INT(cx - ca) - 10, INT(cy - sa) - 6, 20, 12, 200, 200, 220, 255)
 
     DRAW.TEXT("Lap " + STR$(lap) + "   checkpoint=" + STR$(checkpoint), 16, 12, 20, 230, 230, 240, 255)
     DRAW.TEXT("A/D steer   W gas   S brake   ESC quit", 260, 510, 18, 190, 190, 200, 255)

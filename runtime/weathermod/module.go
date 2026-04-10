@@ -27,3 +27,6 @@ func NewModule() *Module {
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 func (m *Module) Register(r runtime.Registrar) { registerWeather(m, r) }
 func (m *Module) Shutdown() {}
+
+func (m *Module) Reset() {}
+

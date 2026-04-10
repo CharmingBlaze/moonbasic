@@ -11,9 +11,9 @@ Registry keys use **dots and uppercase** (e.g. `MESH.MAKECUBE`).
 ### Mesh.MakeCube / procedural generators
 
 ```basic
-m = MESH.MAKECUBE(width#, height#, length#)
-m = MESH.MAKESPHERE(radius#, rings, slices)
-m = MESH.MAKEPLANE(width#, length#, resX, resZ)
+m = MESH.MAKECUBE(width, height, length)
+m = MESH.MAKESPHERE(radius, rings, slices)
+m = MESH.MAKEPLANE(width, length, resX, resZ)
 ; … see table below
 ```
 
@@ -21,7 +21,7 @@ m = MESH.MAKEPLANE(width#, length#, resX, resZ)
 
 **Returns** — mesh handle.
 
-**Notes** — After **`Window.Open`**, call **`MESH.UPLOAD(m, dynamic?)`** before **`MESH.DRAW`** (Raylib uploads VBOs). **`dynamic?`** is **`TRUE`** if you will **`MESH.UPDATEVERTEX`** every frame.
+**Notes** — After **`Window.Open`**, call **`MESH.UPLOAD(m, dynamic)`** before **`MESH.DRAW`** (Raylib uploads VBOs). **`dynamic`** is **`TRUE`** if you will **`MESH.UPDATEVERTEX`** every frame.
 
 | Command | Arguments |
 |---|---|
@@ -52,10 +52,10 @@ m = MESH.MAKEPLANE(width#, length#, resX, resZ)
 ### Mesh.Upload
 
 ```basic
-MESH.UPLOAD(m, dynamic?)
+MESH.UPLOAD(m, dynamic)
 ```
 
-Uploads mesh data to the GPU (`UploadMesh`). **`dynamic?`** must be **boolean** — use **`TRUE`** for meshes you update per frame with **`MESH.UPDATEVERTEX`**.
+Uploads mesh data to the GPU (`UploadMesh`). **`dynamic`** must be **boolean** — use **`TRUE`** for meshes you update per frame with **`MESH.UPDATEVERTEX`**.
 
 > **Common mistake:** Passing **`0`/`1`** instead of **`FALSE`/`TRUE`** — the semantic checker expects a **bool** for the second argument.
 
@@ -76,7 +76,7 @@ MESH.DRAW(m, material, matrix)
 ### Mesh.DrawRotated
 
 ```basic
-MESH.DRAWROTATED(m, material, rx#, ry#, rz#)
+MESH.DRAWROTATED(m, material, rx, ry, rz)
 ```
 
 Builds **`MatrixRotateXYZ(Vector3{rx, ry, rz})`** — angles are **radians** (not degrees). **No** separate axis-angle overload in this binding.
@@ -86,7 +86,7 @@ Builds **`MatrixRotateXYZ(Vector3{rx, ry, rz})`** — angles are **radians** (no
 ### Mesh.UpdateVertex
 
 ```basic
-MESH.UPDATEVERTEX(m, idx, x#, y#, z#, nx#, ny#, nz#, u#, v#)
+MESH.UPDATEVERTEX(m, idx, x, y, z, nx, ny, nz, u, v)
 ```
 
 Writes one vertex’s **position**, **normal**, and **UV**. Requires **`MESH.UPLOAD(m, TRUE)`** for dynamic meshes; after edits, Raylib buffer updates run when **`VaoID != 0`**.

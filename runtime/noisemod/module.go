@@ -22,3 +22,6 @@ func (m *Module) Register(r runtime.Registrar) { registerNoise(m, r) }
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
+
+func (m *Module) Reset() {}
+

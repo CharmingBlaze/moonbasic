@@ -15,7 +15,7 @@ Registry keys use **dots and uppercase** (e.g. `SPRITE.LOAD`). This document use
 ### Sprite.Load
 
 ```basic
-spr = SPRITE.LOAD(path$)
+spr = SPRITE.LOAD(path)
 ```
 
 Loads an image file from disk (**PNG**, **JPG**, etc.). Returns a **sprite handle** covering the full texture as a single frame until you **`SPRITE.DEFANIM`** or use an **atlas** sub-rectangle.
@@ -76,8 +76,8 @@ Draws the **current frame** at **integer** screen **`(x, y)`**, plus **`SPRITE.S
 ### Sprite.SetPos / Sprite.SetPosition
 
 ```basic
-SPRITE.SETPOS(spr, x#, y#)
-SPRITE.SETPOSITION(spr, x#, y#)
+SPRITE.SETPOS(spr, x, y)
+SPRITE.SETPOSITION(spr, x, y)
 ```
 
 **Alias pair.** Adds a **float** offset applied on top of **`SPRITE.DRAW`** / group draw positions. Used for smooth movement and hit tests.
@@ -87,9 +87,9 @@ SPRITE.SETPOSITION(spr, x#, y#)
 ### Sprite.DefAnim / Sprite.PlayAnim / Sprite.UpdateAnim
 
 ```basic
-SPRITE.DEFANIM(spr, frameCount$)
-SPRITE.PLAYANIM(spr, name$)
-SPRITE.UPDATEANIM(spr, dt#)
+SPRITE.DEFANIM(spr, frameCount)
+SPRITE.PLAYANIM(spr, name)
+SPRITE.UPDATEANIM(spr, dt)
 ```
 
 **Strip mode:** **`frameCount`** is a **decimal string** (e.g. `"4"`) = equal-width frames in **one row** inside the texture. Frame width = region width ÷ frame count.
@@ -107,7 +107,7 @@ SPRITE.UPDATEANIM(spr, dt#)
 ```basic
 hit = SPRITE.HIT(a, b)
 hit = SPRITECOLLIDE(a, b)
-hit = SPRITE.POINTHIT(spr, x#, y#)
+hit = SPRITE.POINTHIT(spr, x, y)
 ```
 
 **`SPRITE.HIT`** / **`SPRITECOLLIDE`** — axis-aligned box overlap using **`SETPOS`** and current frame size.
@@ -167,7 +167,7 @@ Records **multiple** **`(sprite, x, y)`** draws; **`SPRITEBATCH.DRAW`** executes
 Anchored placement using **fractions of screen size** (e.g. **`0.5, 0.5`** = center).
 
 ```basic
-ui = SPRITEUI.MAKE(spr, anchorX#, anchorY#)
+ui = SPRITEUI.MAKE(spr, anchorX, anchorY)
 SPRITEUI.DRAW(ui, SCREENW(), SCREENH())
 SPRITEUI.FREE(ui)
 ```
@@ -219,11 +219,11 @@ hero = SPRITE.LOAD("sheet.png")
 SPRITE.DEFANIM(hero, "4")
 SPRITE.PLAYANIM(hero, "walk")
 
-x# = 300
-y# = 250
+x = 300
+y = 250
 
 WHILE NOT Window.ShouldClose()
-    SPRITE.SETPOS(hero, x#, y#)
+    SPRITE.SETPOS(hero, x, y)
     SPRITE.UPDATEANIM(hero, TIME.DELTA())
 
     Render.Clear(30, 40, 50)

@@ -73,39 +73,39 @@ Detailed normals along an arbitrary ray: **`PHYSICS3D.RAYCAST`** (returns a smal
 
 These globals mirror Blitz-style names; canonical forms are **`ENTITY.*`** / **`MOVEENTITY`** where noted.
 
-### `ENTITY.GETPOS(entity#)` → **handle**
+### `ENTITY.GETPOS(entity)` → **handle**
 
 - **Arguments:** `entity` (int entity id).
 - **Returns:** a 3-float tuple-like array handle `[x, y, z]` for destructuring.
 - **Use case:** convenient one-call position reads in game loops.
 
 ```basic
-px#, py#, pz# = Entity.GetPos(player)
+px, py, pz = Entity.GetPos(player)
 ```
 
 `ENTITY.GETPOSITION(entity)` remains available and returns a vec3 handle for the handle-based vector API.
 
-### `MoveEntity(entity#, forward#, right#, up#)`
+### `MoveEntity(entity, forward, right, up)`
 
 - **Arguments:** **`entity`** — entity id; **`forward`**, **`right`**, **`up`** — distances to move along that entity’s **local** axes (from its **pitch** and **yaw**; roll is not used for the basis).
 - **Behavior:** Same as **`MOVEENTITY`** and **`ENTITY.MOVE`**. The engine builds a forward vector from yaw/pitch, derives right from the world up cross forward, then up from right cross forward, and adds **`forward·fwd + right·right + up·up`** to the entity’s **world** position (parent-aware).
 - **Use for:** Walking relative to facing (e.g. set **`RotateEntity(player, 0, camYaw, 0)`** then **`MoveEntity(player, speed*dt, 0, 0)`** for forward).
 - **Not for:** A fixed world offset — use **`TranslateEntity`** instead.
 
-### `TranslateEntity(entity#, dx#, dy#, dz#)`
+### `TranslateEntity(entity, dx, dy, dz)`
 
 - **Arguments:** **`entity`**; **`dx`**, **`dy`**, **`dz`** — delta in **world** space (applied to world position, then converted back to local if parented).
 - **Behavior:** Same as **`ENTITY.TRANSLATE`** / **`ENTITY.TRANSLATEENTITY`**.
 - **Use for:** Nudging lights, props, or anything that should move **`(1,0,0)`** in world axes regardless of rotation.
 
-### `EntityHitsType(entity#, type#)` → **bool**
+### `EntityHitsType(entity, type)` → **bool**
 
 - **Arguments:** **`entity`** — mover/query entity; **`type`** — integer **collision type** previously set with **`EntityType`** / **`ENTITY.TYPE`** on **other** entities (e.g. ground = **`2`**).
 - **Returns:** **`TRUE`** if, **after the last `ENTITY.UPDATE(dt)`** (or **`UPDATEPHYSICS`**), **`entity`** has a rule-based hit whose other body’s **`EntityType`** equals **`type`**. Otherwise **`FALSE`**.
 - **Relation to `ENTITYCOLLIDED`:** Same test as **`ENTITYCOLLIDED(entity, type) <> 0`**; **`ENTITYCOLLIDED`** returns the **other entity’s id** or **`0`** if you need the handle.
 - **Prerequisites:** Register pairs with **`COLLISIONS(srcType, dstType, method, response)`** (e.g. sphere-vs-box **`method`** **`2`**) and run **`ENTITY.UPDATE`** each frame. **Not** the same as **`EntityCollided(a, b)`**, which is the **two-entity Jolt** contact query (Linux + linked buffers).
 
-### `TFormVector(x#, y#, z#, srcEntity#, dstEntity#)` → **handle**
+### `TFormVector(x, y, z, srcEntity, dstEntity)` → **handle**
 
 - **Arguments:** Direction or vector components **`x`**, **`y`**, **`z`** in **`srcEntity`**’s **local** space; **`srcEntity`** and **`dstEntity`** are entity ids.
 - **Returns:** **Heap handle** to a **3-element float array** (same convention as **`ENTITY.GETPOSITION`**): read components via array access or helpers your script style supports.

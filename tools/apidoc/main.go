@@ -55,11 +55,12 @@ func main() {
 	var b strings.Builder
 	b.WriteString("# moonBASIC API consistency\n\n")
 	b.WriteString("This document is generated from `compiler/builtinmanifest/commands.json`.\n\n")
+	b.WriteString("**Contributor contract:** Treat this file as the authoritative checklist of **registered overloads** (name, arity, and manifest metadata). New builtins belong in **`compiler/builtinmanifest/commands.json`**; refresh this doc after manifest edits so tooling, reviews, and external contributors stay aligned.\n\n")
 	b.WriteString("Refresh: `go run ./tools/apidoc` (from the repository root).\n\n")
 	b.WriteString("## Related documentation\n\n")
 	b.WriteString("- **[ERROR_MESSAGES.md](../ERROR_MESSAGES.md)** — compile-time vs runtime errors, did-you-mean, heap handle hints.\n")
 	b.WriteString("- **[ROADMAP.md](../ROADMAP.md)** — phased engineering plan (polish → rendering → 2D → systems → …).\n")
-	b.WriteString("- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace → reference map and overload counts (`go run ./tools/cmdaudit`).\n")
+	b.WriteString("- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace → primary `docs/reference/*.md` file; run **`go run ./tools/cmdaudit`** to verify every manifest namespace maps to an existing reference page (exit code **2** if a namespace is unmapped or a referenced file is missing).\n")
 	b.WriteString("- **[reference/API_CONVENTIONS.md](../reference/API_CONVENTIONS.md)** — consistent verbs (`LOAD`, `SETPOS`, `SETSCALE`, …) across object types.\n\n")
 	b.WriteString("## Naming conventions\n\n")
 	b.WriteString("- **Registry / source form**: `NS.ACTION` in uppercase with a dot (e.g. `CAMERA.SETPOS`).\n")

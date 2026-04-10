@@ -10,7 +10,7 @@ GUI.THEMEAPPLY("DARK")
 GUI.SETTEXTSIZE(14)
 GUI.SETTEXTSPACING(1)
 
-theme$ = "dark (raygui)"
+theme = "dark (raygui)"
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.CLEAR(20, 22, 28)
 
@@ -21,30 +21,30 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     GUI.LABEL(56, 72, 680, 22, "1-3 DARK/LIGHT/DEFAULT   4-6 CYBER/CANDY/TERMINAL (official raygui pack)")
     IF INPUT.KEYPRESSED(KEY_1) THEN
         GUI.THEMEAPPLY("DARK")
-        theme$ = "dark (raygui)"
+        theme = "dark (raygui)"
     ENDIF
     IF INPUT.KEYPRESSED(KEY_2) THEN
         GUI.THEMEAPPLY("LIGHT")
-        theme$ = "light (builtin)"
+        theme = "light (builtin)"
     ENDIF
     IF INPUT.KEYPRESSED(KEY_3) THEN
         GUI.THEMEAPPLY("DEFAULT")
-        theme$ = "default (raylib)"
+        theme = "default (raylib)"
     ENDIF
     IF INPUT.KEYPRESSED(KEY_4) THEN
         GUI.THEMEAPPLY("CYBER")
-        theme$ = "cyber"
+        theme = "cyber"
     ENDIF
     IF INPUT.KEYPRESSED(KEY_5) THEN
         GUI.THEMEAPPLY("CANDY")
-        theme$ = "candy"
+        theme = "candy"
     ENDIF
     IF INPUT.KEYPRESSED(KEY_6) THEN
         GUI.THEMEAPPLY("TERMINAL")
-        theme$ = "terminal"
+        theme = "terminal"
     ENDIF
 
-    GUI.LABEL(56, 104, 680, 22, "Current: " + theme$ + "  text size=" + STR$(GUI.GETTEXTSIZE()))
+    GUI.LABEL(56, 104, 680, 22, "Current: " + theme + "  text size=" + STR$(GUI.GETTEXTSIZE()))
 
     IF GUI.BUTTON(56, 140, 200, 32, "Sample button") THEN
         ; no-op

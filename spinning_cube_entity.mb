@@ -1,0 +1,35 @@
+; Spinning Cube Demo (Entity System)
+WINDOW.OPEN(1280, 720, "MoonBASIC - Spinning Cube Entity")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.MAKE()
+CAMERA.SETPOS(cam, 0, 3, 10)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+; Create a cube using the entity system
+cube = ENTITY.CREATECUBE(2, 2, 2)
+ENTITY.COLOR(cube, 255, 100, 0)
+
+PRINT "Starting main loop..."
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt# = TIME.DELTA()
+    
+    ; Rotate the cube
+    ENTITY.ROTATE(cube, 1.0 * dt#, 1.5 * dt#, 0.5 * dt#)
+    
+    RENDER.CLEAR(30, 30, 40)
+    
+    CAMERA.BEGIN(cam)
+        ENTITY.DRAWALL()
+        DRAW.GRID(20, 1.0)
+    CAMERA.END(cam)
+    
+    DRAW.TEXT("Spinning Cube (Entity System)", 20, 20, 20, 255, 255, 255, 255)
+    DRAW.TEXT("Press ESC to quit", 20, 50, 16, 200, 200, 200, 255)
+    
+    RENDER.FRAME()
+WEND
+
+PRINT "Exiting..."
+WINDOW.CLOSE()

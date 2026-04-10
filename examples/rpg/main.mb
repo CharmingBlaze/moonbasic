@@ -5,15 +5,15 @@
 WINDOW.OPEN(800, 600, "moonBASIC Mini RPG")
 WINDOW.SETFPS(60)
 
-save$ = "rpg_save.json"
+save = "rpg_save.json"
 px = 5
 py = 5
 gold = 0
-wasInZone? = FALSE
+wasInZone = FALSE
 
-IF FILE.EXISTS(save$) THEN
-    raw$ = FILE.READALLTEXT(save$)
-    jd = JSON.PARSESTRING(raw$)
+IF FILE.EXISTS(save) THEN
+    raw = FILE.READALLTEXT(save)
+    jd = JSON.PARSESTRING(raw)
     px = JSON.GETINT(jd, "px")
     py = JSON.GETINT(jd, "py")
     gold = JSON.GETINT(jd, "gold")
@@ -21,8 +21,8 @@ IF FILE.EXISTS(save$) THEN
 ENDIF
 
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
-    spd = INT(120 * dt#)
+    dt = TIME.DELTA()
+    spd = INT(120 * dt)
     IF spd < 1 THEN spd = 1
     IF INPUT.KEYDOWN(KEY_W) THEN py = py - spd
     IF INPUT.KEYDOWN(KEY_S) THEN py = py + spd
@@ -34,9 +34,9 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     IF px > 760 THEN px = 760
     IF py > 560 THEN py = 560
 
-    inZone? = px > 300 AND px < 500 AND py > 200 AND py < 360
-    IF inZone? AND NOT wasInZone? THEN gold = gold + 1
-    wasInZone? = inZone?
+    inZone = px > 300 AND px < 500 AND py > 200 AND py < 360
+    IF inZone AND NOT wasInZone THEN gold = gold + 1
+    wasInZone = inZone
 
     RENDER.CLEAR(25, 30, 45)
     DRAW.RECTANGLE(300, 200, 200, 160, 80, 120, 60, 255)
@@ -50,11 +50,11 @@ jl = JSON.MAKE()
 JSON.SETINT(jl, "px", px)
 JSON.SETINT(jl, "py", py)
 JSON.SETINT(jl, "gold", gold)
-out$ = JSON.TOSTRING(jl)
+out = JSON.TOSTRING(jl)
 JSON.FREE(jl)
 
-fh = FILE.OPEN(save$, "w")
-FILE.WRITE(fh, out$)
+fh = FILE.OPEN(save, "w")
+FILE.WRITE(fh, out)
 FILE.CLOSE(fh)
 
 WINDOW.CLOSE()

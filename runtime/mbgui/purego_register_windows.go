@@ -15,6 +15,3 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerPuregoTooltipDraw(m, reg)
 	registerPuregoUnimplemented(reg)
 }
-
-// Shutdown implements runtime.Module.
-func (m *Module) Shutdown() {}

@@ -1,0 +1,142 @@
+; Stress test: WINDOW.SETLOADINGMODE + TERRAIN.SETMESHBUILDBUDGET + optional async prep.
+; Shows DRAW.TEXT while terrain chunks build; flips off loading mode when WORLD.ISREADY.
+; LOD0: FLAT/GRID3 ground until the heightfield is ready so the scene is never "empty" underfoot.
+; Run from repo root:
+;   CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/terrain_stress/main.mb
+
+CONST TW = 384
+CONST TCX = 192.0
+CONST TCZ = 192.0
+CONST PRELOAD_RADIUS = 5
+CONST ORBIT_MOUSE_BTN = 1
+CONST ORBIT_YAW_SENS = 0.003
+CONST ORBIT_PITCH_SENS = 0.003
+CONST PITCH_MIN = -0.1
+CONST PITCH_MAX = 1.28
+CONST DIST_MIN = 5.0
+CONST DIST_MAX = 32.0
+CONST ZOOM_WHEEL = 0.85
+CONST MOVE_SPD = 16.0
+CONST PLAYER_R = 0.6
+CONST FLAT_R = 52
+CONST FLAT_G = 118
+CONST FLAT_B = 78
+CONST GRID_SLICES = 40
+CONST GRID_STEP = 2.0
+
+SetMSAA(0)
+Window.Open(1280, 720, "moonBASIC - terrain stress (loading mode)")
+WINDOW.SETLOADINGMODE(TRUE)
+Window.SetFPS(60)
+
+terrain = Terrain.Make(TW, TW)
+Terrain.FillPerlin(terrain, 0.03, 52.0)
+Terrain.SetMeshBuildBudget(terrain, 2)
+Terrain.SetAsyncMeshBuild(terrain, TRUE)
+Chunk.SetRange(terrain, 160.0, 280.0)
+World.SetCenter(TCX, TCZ)
+World.StreamEnable(TRUE)
+World.Preload(terrain, PRELOAD_RADIUS)
+
+cam = CreateCamera()
+cam.SetFOV(56)
+
+player = CreateSphere()
+ScaleEntity(player, PLAYER_R, PLAYER_R, PLAYER_R)
+EntityColor(player, 90, 220, 255, 255)
+PositionEntity(player, TCX, PLAYER_R + 0.5, TCZ, TRUE)
+
+camYaw = 0.0
+camPitch = 0.26
+cd = 14.0
+ready = 0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(32, 44, 62)
+    dt = Time.Delta(0.0167, 0.05)
+
+    dx = INPUT.MOUSEDELTAX()
+    dy = INPUT.MOUSEDELTAY()
+    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+        camYaw = camYaw + dx * ORBIT_YAW_SENS
+        camPitch = camPitch - dy * ORBIT_PITCH_SENS
+    ENDIF
+    camPitch = CLAMP(camPitch, PITCH_MIN, PITCH_MAX)
+    mw = MouseWheel()
+    cd = cd - mw * ZOOM_WHEEL
+    cd = CLAMP(cd, DIST_MIN, DIST_MAX)
+    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.1 * dt
+    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.1 * dt
+
+    fwd = 0.0
+    side = 0.0
+    IF Input.KeyDown(KEY_W) THEN fwd = fwd + 1.0
+    IF Input.KeyDown(KEY_S) THEN fwd = fwd - 1.0
+    IF Input.KeyDown(KEY_D) THEN side = side + 1.0
+    IF Input.KeyDown(KEY_A) THEN side = side - 1.0
+    IF fwd <> 0.0 OR side <> 0.0 THEN
+        mag = MATH.SQRT(fwd * fwd + side * side)
+        fwd = fwd / mag
+        side = side / mag
+        sy = MATH.SIN(camYaw)
+        cy = MATH.COS(camYaw)
+        spd = MOVE_SPD * dt
+        stepX = (sy * fwd + cy * side) * spd
+        stepZ = (cy * fwd - sy * side) * spd
+        px = Entity.X(player)
+        py = Entity.Y(player)
+        pz = Entity.Z(player)
+        Entity.SetPosition(player, px + stepX, py, pz + stepZ, TRUE)
+    ENDIF
+
+    px = Entity.X(player)
+    pz = Entity.Z(player)
+    px = CLAMP(px, 4.0, FLOAT(TW) - 4.0)
+    pz = CLAMP(pz, 4.0, FLOAT(TW) - 4.0)
+    Entity.SetPosition(player, px, Entity.Y(player), pz, TRUE)
+
+    World.SetCenter(px, pz)
+    World.Update(dt)
+
+    IF ready = 0 THEN
+        IF WORLD.ISREADY(terrain) THEN
+            WINDOW.SETLOADINGMODE(FALSE)
+            ready = 1
+        ENDIF
+    ENDIF
+
+    IF ready <> 0 THEN
+        Terrain.SnapY(terrain, player, PLAYER_R)
+    ELSE
+        py = PLAYER_R + 0.5
+        Entity.SetPosition(player, Entity.X(player), py, Entity.Z(player), TRUE)
+    ENDIF
+
+    ENTITY.UPDATE(dt)
+
+    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+
+    RENDER.Begin3D(cam)
+        IF ready = 0 THEN
+            FLAT(0.0, 0.0, 0.0, FLOAT(TW), FLOAT(TW), FLAT_R, FLAT_G, FLAT_B, 255)
+            GRID3(GRID_SLICES, GRID_STEP)
+        ELSE
+            Terrain.Draw(terrain)
+        ENDIF
+        DrawEntities()
+    RENDER.END3D()
+
+    IF ready = 0 THEN
+        Draw.Text("Loading terrain chunks... (budget=2/frame, async prep on)", 16, 16, 18, 255, 255, 255, 255)
+        Draw.Text("WORLD.ISREADY = false  |  move WASD  orbit RMB  ESC", 16, 42, 14, 200, 220, 255, 255)
+    ELSE
+        Draw.Text("Terrain stress - loading mode OFF  |  WASD  RMB orbit  wheel  ESC", 12, 10, 16, 230, 245, 255, 255)
+    ENDIF
+    DEBUG.PRINT("Chunks {0}  ready {1}", Chunk.Count(terrain), ready)
+    Render.Frame()
+WEND
+
+FreeEntity(player)
+Terrain.Free(terrain)
+Camera.Free(cam)
+Window.Close()

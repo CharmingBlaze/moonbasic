@@ -14,6 +14,7 @@ import (
 
 func registerEntityQoLAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.MOVETOWARD", "entity", runtime.AdaptLegacy(m.entMoveToward))
+	r.Register("ENTITY.WITHINRADIUS", "entity", runtime.AdaptLegacy(m.entWithinRadius))
 	r.Register("ENTITY.LOOKAT", "entity", runtime.AdaptLegacy(m.entLookAt))
 	r.Register("ENTITY.TURNTOWARD", "entity", runtime.AdaptLegacy(m.entTurnToward))
 	r.Register("ENTITY.DISTANCETO", "entity", runtime.AdaptLegacy(m.entDistanceTo))
@@ -24,8 +25,40 @@ func registerEntityQoLAPI(m *Module, r runtime.Registrar) {
 }
 
 func (m *Module) entMoveToward(args []value.Value) (value.Value, error) {
+	if len(args) == 3 {
+		id, ok := m.entID(args[0])
+		if !ok || id < 1 {
+			return value.Nil, fmt.Errorf("invalid entity handle")
+		}
+		tid, ok2 := m.entID(args[1])
+		if !ok2 || tid < 1 {
+			return value.Nil, fmt.Errorf("ENTITY.MOVETOWARD: invalid target entity")
+		}
+		speed, _ := args[2].ToFloat()
+		e := m.store().ents[id]
+		tgt := m.store().ents[tid]
+		if e == nil || tgt == nil {
+			return value.Nil, fmt.Errorf("ENTITY.MOVETOWARD: unknown entity")
+		}
+		wp := m.worldPos(e)
+		tw := m.worldPos(tgt)
+		target := rl.Vector3{X: tw.X, Y: wp.Y, Z: tw.Z}
+		dist := rl.Vector3Distance(wp, target)
+		if dist > 0.01 {
+			nw := rl.Vector3{
+				X: wp.X + (target.X-wp.X)/dist*float32(speed),
+				Y: wp.Y,
+				Z: wp.Z + (target.Z-wp.Z)/dist*float32(speed),
+			}
+			if dist <= float32(speed) {
+				nw = target
+			}
+			m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
+		}
+		return value.Nil, nil
+	}
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("ENTITY.MOVETOWARD expects (entity, targetX, targetZ, speed)")
+		return value.Nil, fmt.Errorf("ENTITY.MOVETOWARD expects (entity, targetX, targetZ, speed) or (entity, targetEntity, speed)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
@@ -50,6 +83,35 @@ func (m *Module) entMoveToward(args []value.Value) (value.Value, error) {
 	}
 
 	return value.Nil, nil
+}
+
+func (m *Module) entWithinRadius(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("ENTITY.WITHINRADIUS expects (entityA, entityB, maxDistance)")
+	}
+	id1, ok1 := m.entID(args[0])
+	id2, ok2 := m.entID(args[1])
+	if !ok1 || !ok2 || id1 < 1 || id2 < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.WITHINRADIUS: invalid entity handle")
+	}
+	st := m.store()
+	e1 := st.ents[id1]
+	e2 := st.ents[id2]
+	if e1 == nil || e2 == nil {
+		return value.FromBool(false), nil
+	}
+	rad, _ := args[2].ToFloat()
+	if rad < 0 {
+		return value.FromBool(false), nil
+	}
+	p1 := m.worldPos(e1)
+	p2 := m.worldPos(e2)
+	dx := p2.X - p1.X
+	dy := p2.Y - p1.Y
+	dz := p2.Z - p1.Z
+	d2 := dx*dx + dy*dy + dz*dz
+	r := float32(rad)
+	return value.FromBool(d2 <= r*r), nil
 }
 
 func (m *Module) entLookAt(args []value.Value) (value.Value, error) {

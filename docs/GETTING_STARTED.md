@@ -139,22 +139,22 @@ moonBASIC games follow a simple pattern:
 Window.Open(800, 600, "My Game")
 Window.SetFPS(60)
 
-player_x# = 400
-player_y# = 300
+player_x = 400
+player_y = 300
 
 ; 2. Loop — runs every frame until the window is closed
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()         ; seconds since last frame
+    dt = Time.Delta()         ; seconds since last frame
 
     ; Update
-    IF Input.KeyDown(KEY_RIGHT) THEN player_x# = player_x# + 200 * dt#
-    IF Input.KeyDown(KEY_LEFT)  THEN player_x# = player_x# - 200 * dt#
-    IF Input.KeyDown(KEY_DOWN)  THEN player_y# = player_y# + 200 * dt#
-    IF Input.KeyDown(KEY_UP)    THEN player_y# = player_y# - 200 * dt#
+    IF Input.KeyDown(KEY_RIGHT) THEN player_x = player_x + 200 * dt
+    IF Input.KeyDown(KEY_LEFT)  THEN player_x = player_x - 200 * dt
+    IF Input.KeyDown(KEY_DOWN)  THEN player_y = player_y + 200 * dt
+    IF Input.KeyDown(KEY_UP)    THEN player_y = player_y - 200 * dt
 
     ; Draw
     Render.Clear(20, 30, 40)
-    Draw.Rectangle(INT(player_x#) - 16, INT(player_y#) - 16, 32, 32, 100, 200, 255, 255)
+    Draw.Rectangle(INT(player_x) - 16, INT(player_y) - 16, 32, 32, 100, 200, 255, 255)
     Render.Frame()
 WEND
 
@@ -192,11 +192,11 @@ cam.SetFOV(45)
 cube = Mesh.MakeCube(2, 2, 2)
 mat  = Material.MakeDefault()
 xform = Transform.Identity()
-angle# = 0.0
+angle = 0.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    angle# = angle# + 1.5 * Time.Delta()
-    Transform.SetRotation(xform, angle#, angle# * 0.7, 0)
+    angle = angle + 1.5 * Time.Delta()
+    Transform.SetRotation(xform, angle, angle * 0.7, 0)
 
     Render.Clear(12, 14, 22)
     cam.Begin()
@@ -272,16 +272,17 @@ Place **`assets/`** paths next to your `.mb` or use paths relative to the proces
 
 ## Variable Types
 
-Variables are typed by their **name suffix**:
+Variables types are determined implicitly by the value assigned on first use.
 
-| Suffix | Type | Example |
-|---|---|---|
-| `$` | String | `name = "Player"` |
-| `#` | Float | `speed = 5.5` |
-| `?` | Boolean | `alive? = TRUE` |
-| (none) | Integer | `score = 100` |
+| Type | Example |
+|---|---|
+| String | `name = "Player"` |
+| Float | `speed = 5.5` |
+| Boolean | `alive = TRUE` |
+| Integer | `score = 100` |
 
 There is no separate declaration step — variables are created on first assignment.
+The language is dynamically typed (implicit `Any`).
 
 ---
 

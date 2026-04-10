@@ -19,3 +19,7 @@ func NewModule() *Module {
 
 // BindHeap implements runtime.HeapAware (INPUT.GETMOUSEWORLDPOS allocates numeric arrays).
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+func (m *Module) Reset() {}
+
+

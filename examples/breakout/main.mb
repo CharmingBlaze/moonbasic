@@ -11,72 +11,72 @@ FOR r = 0 TO 4
     NEXT c
 NEXT r
 
-px# = 430
-py# = 500
-bx# = 480
-by# = 450
-bvx# = 260
-bvy# = -280
-alive? = FALSE
+px = 430
+py = 500
+bx = 480
+by = 450
+bvx = 260
+bvy = -280
+alive = FALSE
 score = 0
 broken = 0
 
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
-    mx# = FLOAT(INPUT.MOUSEX())
-    px# = mx# - 50
-    IF px# < 20 THEN px# = 20
-    IF px# > 860 THEN px# = 860
-    IF INPUT.KEYDOWN(KEY_A) THEN px# = px# - 400 * dt#
-    IF INPUT.KEYDOWN(KEY_D) THEN px# = px# + 400 * dt#
+    dt = TIME.DELTA()
+    mx = FLOAT(INPUT.MOUSEX())
+    px = mx - 50
+    IF px < 20 THEN px = 20
+    IF px > 860 THEN px = 860
+    IF INPUT.KEYDOWN(KEY_A) THEN px = px - 400 * dt
+    IF INPUT.KEYDOWN(KEY_D) THEN px = px + 400 * dt
 
     ; Waiting on paddle — stick ball and launch with SPACE (KeyDown is reliable here)
-    IF NOT alive? AND broken < 40 THEN
-        bx# = px# + 50
-        by# = py# - 12
+    IF NOT alive AND broken < 40 THEN
+        bx = px + 50
+        by = py - 12
         IF INPUT.KEYDOWN(KEY_SPACE) THEN
-            alive? = TRUE
-            bvx# = 260
-            bvy# = -280
+            alive = TRUE
+            bvx = 260
+            bvy = -280
         ENDIF
     ENDIF
 
     ; Integrate ball only while in play and not cleared
-    IF alive? AND broken < 40 THEN
-        bx# = bx# + bvx# * dt#
-        by# = by# + bvy# * dt#
+    IF alive AND broken < 40 THEN
+        bx = bx + bvx * dt
+        by = by + bvy * dt
     ENDIF
 
-    IF alive? AND broken < 40 THEN
-        IF by# < 18 THEN bvy# = 0 - bvy#
-        IF by# > 520 THEN
-            alive? = FALSE
+    IF alive AND broken < 40 THEN
+        IF by < 18 THEN bvy = 0 - bvy
+        IF by > 520 THEN
+            alive = FALSE
         ENDIF
-        IF bx# < 14 OR bx# > 946 THEN bvx# = 0 - bvx#
+        IF bx < 14 OR bx > 946 THEN bvx = 0 - bvx
     ENDIF
 
-    IF alive? AND broken < 40 THEN
-        IF by# > py# - 20 AND by# < py# + 8 AND bx# > px# AND bx# < px# + 100 THEN
-            bvy# = 0 - ABS(bvy#) - 40
-            hit# = (bx# - (px# + 50)) / 50
-            bvx# = bvx# + hit# * 120
-            by# = py# - 14
+    IF alive AND broken < 40 THEN
+        IF by > py - 20 AND by < py + 8 AND bx > px AND bx < px + 100 THEN
+            bvy = 0 - ABS(bvy) - 40
+            hit = (bx - (px + 50)) / 50
+            bvx = bvx + hit * 120
+            by = py - 14
         ENDIF
     ENDIF
 
-    IF alive? AND broken < 40 THEN
-        hit = 0
+    IF alive AND broken < 40 THEN
+        hit_block = 0
         FOR r = 0 TO 4
             FOR c = 0 TO 7
-                IF hit = 0 AND br(c, r) = 1 THEN
+                IF hit_block = 0 AND br(c, r) = 1 THEN
                     rx = 40 + c * 108
                     ry = 50 + r * 34
-                    IF bx# > rx AND bx# < rx + 100 AND by# > ry AND by# < ry + 28 THEN
+                    IF bx > rx AND bx < rx + 100 AND by > ry AND by < ry + 28 THEN
                         br(c, r) = 0
                         score = score + 10
-                        bvy# = 0 - bvy#
+                        bvy = 0 - bvy
                         broken = broken + 1
-                        hit = 1
+                        hit_block = 1
                     ENDIF
                 ENDIF
             NEXT c
@@ -98,12 +98,12 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         NEXT c
     NEXT r
 
-    DRAW.RECTANGLE(INT(px#), INT(py#), 100, 14, 240, 248, 255, 255)
-    DRAW.RECTANGLE(INT(bx#) - 6, INT(by#) - 6, 12, 12, 255, 255, 60, 255)
+    DRAW.RECTANGLE(INT(px), INT(py), 100, 14, 240, 248, 255, 255)
+    DRAW.RECTANGLE(INT(bx) - 6, INT(by) - 6, 12, 12, 255, 255, 60, 255)
 
     DRAW.TEXT("Score " + STR$(score), 24, 12, 22, 255, 255, 255, 255)
     DRAW.TEXT("Mouse or A/D   SPACE serve / relaunch   ESC quit", 160, 510, 18, 230, 235, 245, 255)
-    IF NOT alive? AND broken < 40 THEN
+    IF NOT alive AND broken < 40 THEN
         DRAW.TEXT("Press SPACE to serve", 340, 280, 24, 255, 245, 90, 255)
     ENDIF
     IF broken >= 40 THEN

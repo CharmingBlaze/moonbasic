@@ -89,3 +89,6 @@ func (m *Module) Register(reg runtime.Registrar) {
 func (m *Module) Shutdown() {
 	shutdownPhysics3D(m)
 }
+
+func (m *Module) Reset() {}
+

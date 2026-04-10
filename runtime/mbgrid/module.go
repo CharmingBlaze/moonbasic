@@ -50,3 +50,10 @@ func argF64(v value.Value) (float64, bool) {
 	}
 	return 0, false
 }
+
+// Shutdown implements runtime.Module.
+func (m *Module) Shutdown() {}
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {}
+

@@ -1,4 +1,4 @@
-//go:build cgo || (windows && !cgo)
+//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
 
 package terrain
 
@@ -24,12 +24,18 @@ func (t *TerrainObject) TickStreaming() {
 	if t.freed || !t.StreamEnabled {
 		return
 	}
+	t.drainMeshBuildJobs()
+
 	if t.LoadDist <= 0 {
 		t.LoadDist = 400
 	}
 	if t.UnloadDist <= 0 {
 		t.UnloadDist = 600
 	}
+	
+	budget := t.MeshBuildBudgetPerTick
+	count := 0
+	
 	for cz := 0; cz < t.ChunkH; cz++ {
 		for cx := 0; cx < t.ChunkW; cx++ {
 			idx := idx2(t, cx, cz)
@@ -37,7 +43,15 @@ func (t *TerrainObject) TickStreaming() {
 			d := chunkDistanceMeters(t, cx, cz)
 			if d <= float64(t.LoadDist) {
 				if !ch.Loaded || ch.Dirty {
-					t.rebuildChunkMesh(cx, cz)
+					if budget > 0 && count >= budget {
+						continue
+					}
+					if t.MeshBuildAsync {
+						t.enqueueAsyncChunkMeshBuild(cx, cz)
+					} else {
+						t.rebuildChunkMesh(cx, cz)
+					}
+					count++
 				}
 			} else if d >= float64(t.UnloadDist) && ch.Loaded {
 				rl.UnloadMaterial(ch.Mat)

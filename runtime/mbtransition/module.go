@@ -1,48 +1,48 @@
-// Package mbtransition implements TRANSITION.* screen fades/wipes (CGO), drawn after the main scene.
 package mbtransition
 
 import (
 	"image/color"
 	"sync"
+
+	"moonbasic/vm/heap"
 )
 
-// Module registers TRANSITION.* builtins.
-type Module struct{}
+type Module struct {
+	h *heap.Store
+}
 
-// NewModule creates the module.
 func NewModule() *Module { return &Module{} }
 
-// BindHeap is a no-op (transitions are global state).
-func (m *Module) BindHeap(interface{}) {}
+func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 
-const (
-	trIdle = iota
-	trFadeOut
-	trFadeIn
-	trWipe
-)
-
-var (
-	trMu     sync.Mutex
-	trMode   int
-	trElapsed, trDuration float32
-	trColor  = color.RGBA{0, 0, 0, 255}
-	trWipeDir string
-	trDone   = true
-)
-
-func transitionResetIdle() {
+func (m *Module) Reset() {
+	trMu.Lock()
 	trMode = trIdle
 	trElapsed = 0
 	trDone = true
+	trMu.Unlock()
 }
 
-func clamp01(x float32) float32 {
-	if x < 0 {
-		return 0
-	}
-	if x > 1 {
-		return 1
-	}
-	return x
+// Global transition state (shared with CGO hooks)
+var (
+	trMu       sync.Mutex
+	trMode     int
+	trElapsed  float32
+	trDuration float32
+	trDone     bool = true
+	trColor    color.RGBA = color.RGBA{0, 0, 0, 255}
+	trWipeDir  string
+)
+
+const (
+	trIdle    = 0
+	trFadeOut = 1
+	trFadeIn  = 2
+	trWipe    = 3
+)
+
+func clamp01(v float32) float32 {
+	if v < 0 { return 0 }
+	if v > 1 { return 1 }
+	return v
 }

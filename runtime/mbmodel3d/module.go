@@ -50,3 +50,6 @@ func enqueueOnMainThread(fn func()) {
 		// Silently drop or log? Drop for safety in a finalizer context.
 	}
 }
+
+func (m *Module) Reset() {}
+

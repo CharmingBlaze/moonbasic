@@ -6,9 +6,9 @@ import "sync"
 
 var (
 	sceneAmbientMu            sync.Mutex
-	sceneAmbientR             float32 = 0.06
-	sceneAmbientG             float32 = 0.06
-	sceneAmbientB             float32 = 0.06
+	sceneAmbientR             float32 = 0.12
+	sceneAmbientG             float32 = 0.12
+	sceneAmbientB             float32 = 0.12
 	sceneAmbientScale         float32 = 1.0 // multiplies RGB (fourth component of RENDER.SETAMBIENT)
 )
 

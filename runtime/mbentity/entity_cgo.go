@@ -59,6 +59,18 @@ type entityStore struct {
 
 	// DOD / SoA Spatial Buffers
 	spatial runtime.SpatialBuffer
+
+	// Optimization cache: entities filtered by type
+	dynamicEnts []*ent
+	staticEnts  []*ent
+
+	// Shared primitive meshes (unit size)
+	unitCube   rl.Mesh
+	unitSphere rl.Mesh
+	unitCyl    rl.Mesh
+	unitCone   rl.Mesh
+	unitPlane  rl.Mesh
+	unitMat    rl.Material
 }
 
 type levelColliderRec struct {
@@ -88,6 +100,14 @@ func (m *Module) store() *entityStore {
 		s.spatial.P = make([]float32, initialCap)
 		s.spatial.W = make([]float32, initialCap)
 		s.spatial.R = make([]float32, initialCap)
+
+		// Initialize shared primitives
+		s.unitCube = rl.GenMeshCube(1, 1, 1)
+		s.unitSphere = rl.GenMeshSphere(1, 16, 16)
+		s.unitCyl = rl.GenMeshCylinder(1, 1, 16)
+		s.unitCone = rl.GenMeshCone(1, 1, 16)
+		s.unitPlane = rl.GenMeshPlane(1, 1, 1, 1)
+		s.unitMat = rl.LoadMaterialDefault()
 		
 		entityStores[m.h] = s
 	}
@@ -266,8 +286,30 @@ func (m *Module) Register(r runtime.Registrar) {
 func (m *Module) Shutdown() {
 	clearEntityRefFreeHookIfOwner(m)
 	if m.h != nil {
+		s := entityStores[m.h]
+		if s != nil {
+			rl.UnloadMesh(&s.unitCube)
+			rl.UnloadMesh(&s.unitSphere)
+			rl.UnloadMesh(&s.unitCyl)
+			rl.UnloadMesh(&s.unitCone)
+			rl.UnloadMesh(&s.unitPlane)
+			rl.UnloadMaterial(s.unitMat)
+		}
 		delete(entityStores, m.h)
 		delete(ModulesByStore, m.h)
+	}
+}
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {
+	st := m.store()
+	st.ents = make(map[int64]*ent)
+	st.dynamicEnts = nil
+	st.staticEnts = nil
+	st.children = make(map[int64][]int64)
+	st.nextID = 1
+	if st.byName != nil {
+		st.byName = make(map[string]int64)
 	}
 }
 
@@ -335,6 +377,7 @@ func (m *Module) entCreate(args []value.Value) (value.Value, error) {
 	e.static = false
 	e.gravity = -28
 	st.ents[id] = e
+	st.dynamicEnts = append(st.dynamicEnts, e)
 	fmt.Println("MB_DEBUG: CREATESPHERE ID =", id)
 	return value.FromInt(id), nil
 }
@@ -367,6 +410,7 @@ func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
 	e.useSphere = false
 	e.gravity = 0
 	st.ents[id] = e
+	st.staticEnts = append(st.staticEnts, e)
 	fmt.Println("MB_DEBUG: CREATEBOX ID =", id)
 	return value.FromInt(id), nil
 }
@@ -982,10 +1026,33 @@ func (m *Module) refreshGroundFromRules(e *ent) {
 }
 
 func (m *Module) aabbWorldMinMax(e *ent) (mn, mx rl.Vector3) {
-	c := m.worldPos(e)
-	hx, hy, hz := e.w*e.scale.X*0.5, e.h*e.scale.Y*0.5, e.d*e.scale.Z*0.5
-	mn = rl.Vector3{X: c.X - hx, Y: c.Y - hy, Z: c.Z - hz}
-	mx = rl.Vector3{X: c.X + hx, Y: c.Y + hy, Z: c.Z + hz}
+	wm := m.worldMatrix(e)
+	hx, hy, hz := e.w*0.5, e.h*0.5, e.d*0.5
+	if e.kind == entKindSphere {
+		hx, hy, hz = e.radius, e.radius, e.radius
+	} else if e.kind == entKindCylinder || e.kind == entKindCone {
+		hx, hy, hz = e.radius, e.cylH*0.5, e.radius
+	}
+
+	corners := [8]rl.Vector3{
+		{X: -hx, Y: -hy, Z: -hz}, {X: hx, Y: -hy, Z: -hz},
+		{X: -hx, Y: hy, Z: -hz}, {X: hx, Y: hy, Z: -hz},
+		{X: -hx, Y: -hy, Z: hz}, {X: hx, Y: -hy, Z: hz},
+		{X: -hx, Y: hy, Z: hz}, {X: hx, Y: hy, Z: hz},
+	}
+
+	mn = rl.Vector3{X: 1e30, Y: 1e30, Z: 1e30}
+	mx = rl.Vector3{X: -1e30, Y: -1e30, Z: -1e30}
+
+	for i := 0; i < 8; i++ {
+		p := rl.Vector3Transform(corners[i], wm)
+		if p.X < mn.X { mn.X = p.X }
+		if p.Y < mn.Y { mn.Y = p.Y }
+		if p.Z < mn.Z { mn.Z = p.Z }
+		if p.X > mx.X { mx.X = p.X }
+		if p.Y > mx.Y { mx.Y = p.Y }
+		if p.Z > mx.Z { mx.Z = p.Z }
+	}
 	return mn, mx
 }
 
@@ -995,8 +1062,8 @@ func (m *Module) resolveSphereVsStatics(e *ent) {
 		return
 	}
 	wp := m.worldPos(e)
-	for _, s := range m.store().ents {
-		if !s.static {
+	for _, s := range m.store().staticEnts {
+		if s.hidden {
 			continue
 		}
 		smn, smx := m.aabbWorldMinMax(s)
@@ -1097,17 +1164,12 @@ func minFloat32(a, b float32) float32 {
 }
 
 func (m *Module) pairwiseDynamic() {
-	ids := make([]int64, 0, len(m.store().ents))
-	for id := range m.store().ents {
-		ids = append(ids, id)
-	}
-	for i := 0; i < len(ids); i++ {
-		for j := i + 1; j < len(ids); j++ {
-			a := m.store().ents[ids[i]]
-			b := m.store().ents[ids[j]]
-			if a.static || b.static {
-				continue
-			}
+	st := m.store()
+	dyn := st.dynamicEnts
+	for i := 0; i < len(dyn); i++ {
+		for j := i + 1; j < len(dyn); j++ {
+			a := dyn[i]
+			b := dyn[j]
 			if !a.useSphere || !b.useSphere {
 				continue
 			}
@@ -1160,75 +1222,27 @@ func (m *Module) drawOneEntity(e *ent) {
 	if useBlend {
 		rl.BeginBlendMode(blendM)
 	}
-	wp := m.worldPos(e)
+	st := m.store()
+	wm := m.worldMatrix(e)
 	col := m.entTintResolved(e)
-	ext := e.getExt()
-	if ext.isSprite && e.texHandle != 0 {
-		m.drawSpriteBillboard(e)
-		if useBlend {
-			rl.EndBlendMode()
-		}
-		return
-	}
+	st.unitMat.GetMap(int32(rl.MapAlbedo)).Color = col
+
 	switch e.kind {
 	case entKindBox:
-		rl.DrawCube(wp, e.w*e.scale.X, e.h*e.scale.Y, e.d*e.scale.Z, col)
+		mProp := rl.MatrixScale(e.w, e.h, e.d)
+		rl.DrawMesh(st.unitCube, st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindSphere:
-		sx, sy, sz := e.scale.X, e.scale.Y, e.scale.Z
-		ms := sx
-		if sy > ms {
-			ms = sy
-		}
-		if sz > ms {
-			ms = sz
-		}
-		rad := e.radius * ms
-		if rad <= 1e-6 {
-			rad = 0.01
-		}
-		rings := e.segH
-		slices := e.segV
-		if rings < 8 {
-			rings = 16
-		}
-		if slices < 8 {
-			slices = 16
-		}
-		rl.DrawSphereEx(wp, rad, rings, slices, col)
+		mProp := rl.MatrixScale(e.radius*2, e.radius*2, e.radius*2)
+		rl.DrawMesh(st.unitSphere, st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindCylinder:
-		h := e.cylH * e.scale.Y
-		rs := e.scale.X
-		if e.scale.Z > rs {
-			rs = e.scale.Z
-		}
-		rt := e.radius * rs
-		slices := e.segV
-		if slices < 3 {
-			slices = 16
-		}
-		rl.DrawCylinder(wp, rt, rt, h, slices, col)
+		mProp := rl.MatrixScale(e.radius*2, e.cylH, e.radius*2)
+		rl.DrawMesh(st.unitCyl, st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindCone:
-		h := e.cylH * e.scale.Y
-		rs := e.scale.X
-		if e.scale.Z > rs {
-			rs = e.scale.Z
-		}
-		rt := e.radius * rs
-		slices := e.segV
-		if slices < 3 {
-			slices = 16
-		}
-		rl.DrawCylinder(wp, 0, rt, h, slices, col)
+		mProp := rl.MatrixScale(e.radius*2, e.cylH, e.radius*2)
+		rl.DrawMesh(st.unitCone, st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindPlane:
-		sx := e.w * e.scale.X
-		sz := e.d * e.scale.Z
-		if sx <= 1e-6 {
-			sx = 1
-		}
-		if sz <= 1e-6 {
-			sz = 1
-		}
-		rl.DrawPlane(wp, rl.Vector2{X: sx, Y: sz}, col)
+		mProp := rl.MatrixScale(e.w, 1.0, e.d)
+		rl.DrawMesh(st.unitPlane, st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindMesh, entKindModel:
 		if !e.hasRLModel {
 			if useBlend {
@@ -1518,9 +1532,8 @@ func (m *Module) applyRule(rule collRule) {
 
 func (m *Module) checkAndResolve(s, d *ent, rule collRule) {
 	ps := m.worldPos(s)
-	// Sph-Sph
-	if rule.method == 1 {
-		ps := m.worldPos(s)
+	switch rule.method {
+	case 1: // Sph-Sph
 		pd := m.worldPos(d)
 		dist := rl.Vector3Distance(ps, pd)
 		sum := s.radius + d.radius
@@ -1530,7 +1543,7 @@ func (m *Module) checkAndResolve(s, d *ent, rule collRule) {
 			contact := rl.Vector3Subtract(ps, rl.Vector3Scale(n, s.radius))
 			m.resolveResponse(s, d, n, pen, rule.response, contact)
 		}
-	} else if rule.method == 2 { // Sph-Box
+	case 2: // Sph-Box
 		mn, mx := m.aabbWorldMinMax(d)
 		closest := rl.Vector3{
 			X: float32(math.Max(float64(mn.X), math.Min(float64(ps.X), float64(mx.X)))),

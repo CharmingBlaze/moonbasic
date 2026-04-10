@@ -5,6 +5,7 @@ package window
 import (
 	"fmt"
 	"os"
+	goruntime "runtime"
 
 	"moonbasic/internal/driver"
 	"moonbasic/runtime"
@@ -36,6 +37,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	m.registerWindowStateCommands(reg)
 	m.registerWindowMetricsCommands(reg)
 	m.registerWindowPlacementCommands(reg)
+	m.registerLoadingModeCommands(reg)
 	m.registerAutomationCommands(reg)
 	m.registerBlitzSysCommands(reg)
 	m.registerBlitzDisplayQueries(reg)
@@ -43,9 +45,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	// Global shorthands (Easy Mode)
 	reg.Register("SKYCOLOR", "draw", m.rClear)
 	reg.Register("FPS", "window", runtime.AdaptLegacy(m.wGetFPS))
-	reg.Register("AMBIENTLIGHT", "draw", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		return value.Nil, nil
-	})
+	reg.Register("AMBIENTLIGHT", "draw", runtime.AdaptLegacy(m.rSetAmbient))
 }
 
 func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -79,7 +79,12 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		m.closeWindowLocked()
 	}
 
-	flags := uint32(rl.FlagWindowHighdpi)
+	var flags uint32
+	// High-DPI is opt-in (MOONBASIC_ENABLE_HIGHDPI=1). Always forcing FLAG_WINDOW_HIGHDPI breaks many
+	// Windows + Intel setups (white window, wrong render buffer vs client size).
+	if windowOpenWantHighDPI() {
+		flags |= uint32(rl.FlagWindowHighdpi)
+	}
 	// Raylib exposes a single MSAA hint bit; treat 2/4/8 sample requests as enabling it.
 	if m.msaaSamples >= 2 {
 		flags |= uint32(rl.FlagMsaa4xHint)
@@ -94,13 +99,61 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		fmt.Fprintf(os.Stderr, "moonBASIC: could not open window %dx%d %q\n", w, h, title)
 		os.Exit(1)
 	}
+	// Nudge framebuffer to match requested client pixels (fixes 1280x720 window vs scaled render size on some drivers).
+	rl.SetWindowSize(int(w), int(h))
+
 	m.opened = true
 	m.inFrame = false
 	m.fpsTick = 0
+	if minimalOpenHandshake() {
+		rl.PollInputEvents()
+	} else {
+		presentWindowOpenIrisGuard()
+		portabilityDrainAfterOpen()
+		openWarmupBlankFrames(openWarmupBlankFrameCount())
+	}
 	if m.onAudioOpen != nil {
 		m.onAudioOpen()
 	}
 	return value.Nil, nil
+}
+
+// presentWindowOpenIrisGuard primes presentation on strict GL drivers (e.g. Intel Iris on Windows).
+// Does not set m.inFrame. MOONBASIC_SKIP_OPEN_PRESENT_KICK=1 skips (poll only).
+// MOONBASIC_SKIP_WINDOW_FOCUS=1 skips SetWindowFocused if focus causes issues.
+func presentWindowOpenIrisGuard() {
+	if envTruthy("MOONBASIC_SKIP_OPEN_PRESENT_KICK") {
+		rl.PollInputEvents()
+		return
+	}
+	rl.BeginDrawing()
+	rl.ClearBackground(rl.Black)
+	rl.EndDrawing()
+	rl.SetWindowState(rl.FlagWindowResizable)
+	rl.ClearWindowState(rl.FlagWindowResizable)
+	if !envTruthy("MOONBASIC_SKIP_WINDOW_FOCUS") {
+		rl.SetWindowFocused()
+	}
+	rl.PollInputEvents()
+}
+
+func portabilityDrainAfterOpen() {
+	n := 32
+	if envTruthy("MOONBASIC_SAFE_WINDOW") {
+		n = 128
+	}
+	for i := 0; i < n; i++ {
+		rl.PollInputEvents()
+	}
+}
+
+func openWarmupBlankFrames(n int) {
+	for i := 0; i < n; i++ {
+		rl.BeginDrawing()
+		rl.ClearBackground(rl.Black)
+		rl.EndDrawing()
+		rl.PollInputEvents()
+	}
 }
 
 func (m *Module) wCanOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -276,30 +329,6 @@ func (m *Module) rClear(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.Nil, nil
 }
 
-// EnqueueCleanup adds a function to be run on the main thread at the start of the next frame.
-// Safe to call from any goroutine (e.g. Go finalizers).
-func (m *Module) EnqueueCleanup(fn func()) {
-	m.cleanupMu.Lock()
-	m.cleanupQueue = append(m.cleanupQueue, fn)
-	m.cleanupMu.Unlock()
-}
-
-func (m *Module) drainCleanupQueue() {
-	m.cleanupMu.Lock()
-	if len(m.cleanupQueue) == 0 {
-		m.cleanupMu.Unlock()
-		return
-	}
-	q := m.cleanupQueue
-	m.cleanupQueue = nil
-	m.cleanupMu.Unlock()
-	for _, fn := range q {
-		if fn != nil {
-			fn()
-		}
-	}
-}
-
 func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 0 {
@@ -371,7 +400,6 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	}
 
 	// Visual Polish: World Flash
-	m.mu.Lock()
 	if m.flashDur > 0 && m.flashElapsed < m.flashDur {
 		dt := rl.GetFrameTime()
 		m.flashElapsed += dt
@@ -384,10 +412,10 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 			rl.DrawRectangle(0, 0, sw, sh, fCol)
 		}
 	}
-	m.mu.Unlock()
 
 	rl.EndDrawing()
 	m.inFrame = false
+	goruntime.Gosched()
 
 	if m.logFPS && m.diagOut != nil {
 		m.fpsTick++
@@ -403,4 +431,12 @@ func (m *Module) Shutdown() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.closeWindowLocked()
+}
+
+// Reset clears per-frame state.
+func (m *Module) Reset() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.inFrame = false
+	m.flashDur = 0
 }

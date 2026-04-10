@@ -69,8 +69,6 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("BTREE.RUN", "btree", m.btRun)
 }
 
-func (m *Module) Shutdown() {}
-
 func (m *Module) requireHeap(rt *runtime.Runtime) (*heap.Store, error) {
 	if rt != nil && rt.Heap != nil {
 		return rt.Heap, nil

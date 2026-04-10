@@ -32,21 +32,21 @@ Returns a **discrete axis** in **`{-1.0, 0.0, 1.0}`** from two key codes. Use fo
 - **`0.0`** — both held, or neither held.
 
 ```basic
-f# = Input.Axis(KEY_S, KEY_W)   ; forward: W positive, S negative (if your camera treats +f as forward, swap keys)
-s# = Input.Axis(KEY_A, KEY_D)   ; strafe: D positive, A negative
+f = Input.Axis(KEY_S, KEY_W)   ; forward: W positive, S negative (if your camera treats +f as forward, swap keys)
+s = Input.Axis(KEY_A, KEY_D)   ; strafe: D positive, A negative
 ```
 
 The registry name is **`INPUT.AXIS`** (see [API_CONSISTENCY.md](../API_CONSISTENCY.md)).
 
-### `Input.AxisDeg(negKey, posKey, degreesPerSec#, dt#)` → **float**
+### `Input.AxisDeg(negKey, posKey, degreesPerSec, dt)` → **float**
 
 Bundled **rotation delta** for this frame: **same result** as **`Input.Axis(negKey, posKey) * DEGPERSEC(degreesPerSec, dt)`** — radians to add to a yaw (e.g. **`camYaw`**). Registry: **`INPUT.AXISDEG`**.
 
 ```basic
-camYaw# = camYaw# + Input.AxisDeg(KEY_Q, KEY_E, 77.0, dt#)
+camYaw = camYaw + Input.AxisDeg(KEY_Q, KEY_E, 77.0, dt)
 ```
 
-### `Input.Orbit(negKey, posKey, degreesPerSec#, dt#)` → **float**
+### `Input.Orbit(negKey, posKey, degreesPerSec, dt)` → **float**
 
 **Alias** of **`Input.AxisDeg`** (registry **`INPUT.ORBIT`**) — same arguments and result; use whichever reads clearer for camera orbit.
 
@@ -57,8 +57,8 @@ camYaw# = camYaw# + Input.AxisDeg(KEY_Q, KEY_E, 77.0, dt#)
 Returns a **2-float array** **`[forwardAxis, strafeAxis]`** using two **`Input.Axis`** pairs — same as:
 
 ```basic
-f# = Input.Axis(KEY_S, KEY_W)
-s# = Input.Axis(KEY_A, KEY_D)
+f = Input.Axis(KEY_S, KEY_W)
+s = Input.Axis(KEY_A, KEY_D)
 ```
 
 Registry: **`INPUT.MOVEMENT2D`**. **ERASE** the handle when you no longer need it (each frame if you allocate every frame). For zero extra allocations, call **`Input.Axis`** twice instead.
@@ -80,8 +80,8 @@ Typical use: **Q/E orbit** with **`Camera.OrbitAround`** — see **`examples/mar
 Example: move with **`KEYDOWN`**, jump with **`KEYPRESSED`** so holding space does not retrigger mid-air.
 
 ```basic
-IF KEYDOWN(KEY_W) THEN player_z# = player_z# - speed# * DT()
-IF on_ground? AND KEYPRESSED(KEY_SPACE) THEN vel_y# = jump_strength#
+IF KEYDOWN(KEY_W) THEN player_z = player_z - speed * DT()
+IF on_ground AND KEYPRESSED(KEY_SPACE) THEN vel_y = jump_strength
 ```
 
 ---
@@ -161,11 +161,11 @@ In your main loop, check the state of the action by its name, not the key.
 ```basic
 ; In the main loop, check the abstract action
 IF Input.ActionDown("move_right") THEN
-    player_x# = player_x# + speed# * Time.Delta()
+    player_x = player_x + speed * Time.Delta()
 ENDIF
 ```
 
-### `Input.ActionAxis(action$)`
+### `Input.ActionAxis(action)`
 
 For analog controls like a joystick, this returns the axis value from -1.0 to 1.0.
 
@@ -174,6 +174,6 @@ For analog controls like a joystick, this returns the axis value from -1.0 to 1.
 Input.MapGamepadAxis("move_horizontal", 0, GAMEPAD_AXIS_LEFT_X)
 
 ; Get the analog value
-move_x# = Input.ActionAxis("move_horizontal")
-player_x# = player_x# + move_x# * speed# * Time.Delta()
+move_x = Input.ActionAxis("move_horizontal")
+player_x = player_x + move_x * speed * Time.Delta()
 ```

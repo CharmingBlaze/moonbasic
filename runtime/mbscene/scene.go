@@ -66,6 +66,15 @@ func (m *Module) Shutdown() {
 	m.trPhase = 0
 }
 
+// Reset implements runtime.Module.
+func (m *Module) Reset() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.currentID, m.updateFn, m.drawFn = "", "", ""
+	m.asyncLoad, m.trPending = "", ""
+	m.trPhase = 0
+}
+
 func up(s string) string { return strings.ToUpper(strings.TrimSpace(s)) }
 
 func truthy(reg *runtime.Runtime, v value.Value) bool {

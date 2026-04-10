@@ -22,3 +22,7 @@ func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 func (m *Module) SetUserInvoker(fn func(string, []value.Value) (value.Value, error)) {
 	m.invoke = fn
 }
+
+func (m *Module) Reset() {}
+
+

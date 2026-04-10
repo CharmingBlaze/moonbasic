@@ -24,8 +24,8 @@ convert.
 
 ```basic
 ; Circular motion example
-x# = COS(angle#) * radius#
-y# = SIN(angle#) * radius#
+x = COS(angle) * radius
+y = SIN(angle) * radius
 ```
 
 ---
@@ -81,12 +81,12 @@ Helpers for **third-person** or **orbit-camera** movement on the **XZ plane**. P
 | `MOVESTEPZ(yaw, forward, strafe, speed, dt)` | Same as **`MOVEZ(...)*speed*dt`** — world **Z** delta for one frame. |
 
 ```basic
-px# = px# + MOVEX(camYaw#, f#, s#) * speed# * dt#
-pz# = pz# + MOVEZ(camYaw#, f#, s#) * speed# * dt#
+px = px + MOVEX(camYaw, f, s) * speed * dt
+pz = pz + MOVEZ(camYaw, f, s) * speed * dt
 
 ; or one call per axis (bundles × speed × dt):
-px# = px# + MOVESTEPX(camYaw#, f#, s#, speed#, dt#)
-pz# = pz# + MOVESTEPZ(camYaw#, f#, s#, speed#, dt#)
+px = px + MOVESTEPX(camYaw, f, s, speed, dt)
+pz = pz + MOVESTEPZ(camYaw, f, s, speed, dt)
 ```
 
 Together they match **forward = −Z** and **right = +X** when **`yaw = 0`**. See [INPUT.md](INPUT.md) and [CAMERA.md](CAMERA.md).
@@ -97,8 +97,8 @@ Together they match **forward = −Z** and **right = +X** when **`yaw = 0`**. Se
 
 | Command | Returns |
 |---|---|
-| `IIF(condition?, trueVal, falseVal)` | `trueVal` if `condition` is true, else `falseVal`. **Both branches are evaluated** (not short-circuit). |
-| `IIF(condition?, true, false)` | Same for strings. |
+| `IIF(condition, trueVal, falseVal)` | `trueVal` if `condition` is true, else `falseVal`. **Both branches are evaluated** (not short-circuit). |
+| `IIF(condition, true, false)` | Same for strings. |
 
 Use for compact HUD colours or labels; for side effects, prefer **`IF` / `ENDIF`**.
 
@@ -118,12 +118,12 @@ Use for compact HUD colours or labels; for side effects, prefer **`IF` / `ENDIF`
 
 ```basic
 ; Smooth follow camera
-cam_x# = LERP(cam_x#, target_x#, 5.0 * Time.Delta())
+cam_x = LERP(cam_x, target_x, 5.0 * Time.Delta())
 
 ; UI slider 0..800 -> -1..1
-t# = INVERSE_LERP(0.0, 800.0, mouseX#)
-t# = SATURATE(t#)
-pan# = REMAP(t#, 0.0, 1.0, -1.0, 1.0)
+t = INVERSE_LERP(0.0, 800.0, mouseX)
+t = SATURATE(t)
+pan = REMAP(t, 0.0, 1.0, -1.0, 1.0)
 ```
 
 More gameplay-oriented shortcuts (`MATH.CIRCLEPOINT`, `MATH.APPROACH`, `MATH.LERPANGLE`, …) are listed in [LESS_MATH.md](LESS_MATH.md).
@@ -155,8 +155,8 @@ More gameplay-oriented shortcuts (`MATH.CIRCLEPOINT`, `MATH.APPROACH`, `MATH.LER
 
 ```basic
 ; Rotate toward a target, never overshooting
-diff# = ANGLEDIFF(facing#, desired#)
-facing# = facing# + CLAMP(diff#, -5, 5)
+diff = ANGLEDIFF(facing, desired)
+facing = facing + CLAMP(diff, -5, 5)
 ```
 
 ---
@@ -185,7 +185,7 @@ die = RND(6) + 1
 n = RAND(10, 20)
 
 ; Random float speed
-speed# = RNDF(80.0, 160.0)
+speed = RNDF(80.0, 160.0)
 
 ; Reproducible map generation
 RNDSEED(12345)
@@ -209,16 +209,16 @@ RNDSEED(12345)
 Window.Open(800, 600, "Math Example: Circular Motion")
 Window.SetFPS(60)
 
-angle# = 0.0
-radius# = 150.0
+angle = 0.0
+radius = 150.0
 center_x = 400
 center_y = 300
 
 WHILE NOT Window.ShouldClose()
-    angle# = angle# + 2.0 * Time.Delta()
+    angle = angle + 2.0 * Time.Delta()
 
-    x = center_x + INT(COS(angle#) * radius#)
-    y = center_y + INT(SIN(angle#) * radius#)
+    x = center_x + INT(COS(angle) * radius)
+    y = center_y + INT(SIN(angle) * radius)
 
     Render.Clear(20, 20, 20)
     Draw.Rectangle(x - 15, y - 15, 30, 30, 200, 50, 150, 255)

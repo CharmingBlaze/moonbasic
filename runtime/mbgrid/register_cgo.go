@@ -18,5 +18,3 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("GRID.RAYCAST", "grid", m.gridRaycast)
 	reg.Register("GRID.GETNEIGHBORS", "grid", m.gridGetNeighbors)
 }
-
-func (m *Module) Shutdown() {}

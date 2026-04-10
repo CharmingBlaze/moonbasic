@@ -8,106 +8,106 @@
 Window.Open(960, 540, "moonBASIC 3D Hop v2")
 Window.SetFPS(60)
 
-CONST MOVE_SPEED# = 11.0
-CONST PLAYER_R# = 0.45
-CONST GRAVITY# = -26.0
-CONST JUMP# = 10.5
-CONST CAM_DIST# = 7.5
-CONST CAM_HEIGHT# = 3.8
+CONST MOVE_SPEED = 11.0
+CONST PLAYER_R = 0.45
+CONST GRAVITY = -26.0
+CONST JUMP = 10.5
+CONST CAM_DIST = 7.5
+CONST CAM_HEIGHT = 3.8
 CONST PLAT_N = 4
-CONST MOUSE_ORBIT_SENS# = 0.0055
-CONST ORBIT_DEG_PER_SEC# = 77.0
+CONST MOUSE_ORBIT_SENS = 0.0055
+CONST ORBIT_DEG_PER_SEC = 77.0
 
 cam = Camera.Make()
 cam.SetFOV(55)
 
 ; Player (sphere centre)
-px# = 0.0
-py# = PLAYER_R#
-pz# = 0.0
-pvy# = 0.0
-ong? = FALSE
+px = 0.0
+py = PLAYER_R
+pz = 0.0
+pvy = 0.0
+ong = FALSE
 
 ; Horizontal camera orbit angle (radians). Mouse X + Q/E change yaw; Camera.OrbitAround uses it.
-camYaw# = 0.0
+camYaw = 0.0
 
 ; Platforms: nine parallel arrays (same info as TYPE Platform in main_v3.mb)
-DIM plx#(PLAT_N)
-DIM ply#(PLAT_N)
-DIM plz#(PLAT_N)
-DIM plw#(PLAT_N)
-DIM plh#(PLAT_N)
-DIM pld#(PLAT_N)
+DIM plx(PLAT_N)
+DIM ply(PLAT_N)
+DIM plz(PLAT_N)
+DIM plw(PLAT_N)
+DIM plh(PLAT_N)
+DIM pld(PLAT_N)
 DIM pr(PLAT_N)
 DIM pg(PLAT_N)
 DIM pb(PLAT_N)
 
-plx#(0) = 0.0 : ply#(0) = 1.5 : plz#(0) = 6.0
-plw#(0) = 4.0 : plh#(0) = 0.4 : pld#(0) = 4.0
+plx(0) = 0.0 : ply(0) = 1.5 : plz(0) = 6.0
+plw(0) = 4.0 : plh(0) = 0.4 : pld(0) = 4.0
 pr(0) = 255 : pg(0) = 60 : pb(0) = 200
 
-plx#(1) = -3.5 : ply#(1) = 2.5 : plz#(1) = 10.0
-plw#(1) = 2.5 : plh#(1) = 0.35 : pld#(1) = 2.5
+plx(1) = -3.5 : ply(1) = 2.5 : plz(1) = 10.0
+plw(1) = 2.5 : plh(1) = 0.35 : pld(1) = 2.5
 pr(1) = 40 : pg(1) = 255 : pb(1) = 230
 
-plx#(2) = 4.0 : ply#(2) = 3.2 : plz#(2) = 14.0
-plw#(2) = 2.0 : plh#(2) = 0.3 : pld#(2) = 2.0
+plx(2) = 4.0 : ply(2) = 3.2 : plz(2) = 14.0
+plw(2) = 2.0 : plh(2) = 0.3 : pld(2) = 2.0
 pr(2) = 120 : pg(2) = 255 : pb(2) = 80
 
-plx#(3) = 0.0 : ply#(3) = 4.0 : plz#(3) = 18.0
-plw#(3) = 3.0 : plh#(3) = 0.35 : pld#(3) = 3.0
+plx(3) = 0.0 : ply(3) = 4.0 : plz(3) = 18.0
+plw(3) = 3.0 : plh(3) = 0.35 : pld(3) = 3.0
 pr(3) = 255 : pg(3) = 210 : pb(3) = 60
 
 WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = DT()
+    dt = DT()
 
     ; Orbit: mouse X delta, then optional Q/E
-    camYaw# = camYaw# + FLOAT(Input.MouseDeltaX()) * MOUSE_ORBIT_SENS#
-    camYaw# = camYaw# + Input.Orbit(KEY_Q, KEY_E, ORBIT_DEG_PER_SEC#, dt#)
+    camYaw = camYaw + FLOAT(Input.MouseDeltaX()) * MOUSE_ORBIT_SENS
+    camYaw = camYaw + Input.Orbit(KEY_Q, KEY_E, ORBIT_DEG_PER_SEC, dt)
 
     ; Walk relative to camera yaw (bundles MOVEX/MOVEZ × speed × dt)
-    f# = Input.Axis(KEY_S, KEY_W)
-    s# = Input.Axis(KEY_A, KEY_D)
-    px# = CLAMP(px# + MOVESTEPX(camYaw#, f#, s#, MOVE_SPEED#, dt#), -17.0, 17.0)
-    pz# = CLAMP(pz# + MOVESTEPZ(camYaw#, f#, s#, MOVE_SPEED#, dt#), -17.0, 22.0)
+    f = Input.Axis(KEY_S, KEY_W)
+    s = Input.Axis(KEY_A, KEY_D)
+    px = CLAMP(px + MOVESTEPX(camYaw, f, s, MOVE_SPEED, dt), -17.0, 17.0)
+    pz = CLAMP(pz + MOVESTEPZ(camYaw, f, s, MOVE_SPEED, dt), -17.0, 22.0)
 
-    IF ong? AND KEYPRESSED(KEY_SPACE) THEN pvy# = JUMP#
-    pvy# = pvy# + GRAVITY# * dt#
-    py# = py# + pvy# * dt#
+    IF ong AND KEYPRESSED(KEY_SPACE) THEN pvy = JUMP
+    pvy = pvy + GRAVITY * dt
+    py = py + pvy * dt
 
     ; Land on platform tops — LANDBOXES = best snap Y over parallel box arrays (same math as BOXTOPLAND)
-    ong? = FALSE
-    landY# = LANDBOXES(px#, py#, pz#, pvy#, PLAYER_R#, plx#, ply#, plz#, plw#, plh#, pld#, PLAT_N)
-    IF landY# > 0.0 THEN
-        py# = landY#
-        pvy# = 0.0
-        ong? = TRUE
+    ong = FALSE
+    landY = LANDBOXES(px, py, pz, pvy, PLAYER_R, plx, ply, plz, plw, plh, pld, PLAT_N)
+    IF landY > 0.0 THEN
+        py = landY
+        pvy = 0.0
+        ong = TRUE
     ENDIF
 
     ; Infinite floor at y = 0
-    IF NOT ong? AND py# - PLAYER_R# <= 0.02 AND pvy# <= 0.0 THEN
-        py# = PLAYER_R#
-        pvy# = 0.0
-        ong? = TRUE
+    IF NOT ong AND py - PLAYER_R <= 0.02 AND pvy <= 0.0 THEN
+        py = PLAYER_R
+        pvy = 0.0
+        ong = TRUE
     ENDIF
 
     ; Third-person camera: stays CAM_DIST away on XZ, eye height CAM_HEIGHT
-    Camera.OrbitAround(cam, px#, py# + 0.2, pz#, camYaw#, CAM_DIST#, CAM_HEIGHT#)
+    Camera.OrbitAround(cam, px, py + 0.2, pz, camYaw, CAM_DIST, CAM_HEIGHT)
 
     Render.Clear(72, 92, 140)
     cam.Begin()
         Draw3D.Plane(0.0, 0.0, 0.0, 48.0, 48.0, 55, 78, 120, 255)
         Draw3D.Grid(24, 1.0)
         FOR i = 0 TO PLAT_N - 1
-            Draw3D.Cube(plx#(i), ply#(i), plz#(i), plw#(i), plh#(i), pld#(i), pr(i), pg(i), pb(i), 255)
-            Draw3D.CubeWires(plx#(i), ply#(i), plz#(i), plw#(i) + 0.05, plh#(i) + 0.05, pld#(i) + 0.05, 255, 255, 255, 180)
+            Draw3D.Cube(plx(i), ply(i), plz(i), plw(i), plh(i), pld(i), pr(i), pg(i), pb(i), 255)
+            Draw3D.CubeWires(plx(i), ply(i), plz(i), plw(i) + 0.05, plh(i) + 0.05, pld(i) + 0.05, 255, 255, 255, 180)
         NEXT
-        Draw3D.Capsule(px#, py# - 0.42, pz#, px#, py# + 0.48, pz#, 0.38, 10, 12, 255, 95, 255, 255)
-        Draw3D.Sphere(px#, py# + 0.72, pz#, 0.24, 70, 255, 140, 255)
+        Draw3D.Capsule(px, py - 0.42, pz, px, py + 0.48, pz, 0.38, 10, 12, 255, 95, 255, 255)
+        Draw3D.Sphere(px, py + 0.72, pz, 0.24, 70, 255, 140, 255)
     cam.End()
 
     Draw.Text("Mouse orbit   WASD move   Q/E orbit   SPACE jump   ESC", 60, 12, 17, 245, 250, 255, 255)
-    Draw.Text(IIF$(ong?, "On ground", "Air"), 16, 36, 16, IIF(ong?, 160, 255), IIF(ong?, 255, 220), IIF(ong?, 190, 130), 255)
+    Draw.Text(IIF(ong, "On ground", "Air"), 16, 36, 16, IIF(ong, 160, 255), IIF(ong, 255, 220), IIF(ong, 190, 130), 255)
     Render.Frame()
 WEND
 

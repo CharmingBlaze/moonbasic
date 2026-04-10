@@ -28,7 +28,3 @@ func (m *Module) Register(reg runtime.Registrar) {
 		reg.Register(n, "grid", stub(n))
 	}
 }
-
-func (m *Module) BindHeap(h *heap.Store) {}
-func (m *Module) BindEntity(mod runtime.Module) {}
-func (m *Module) Shutdown() {}

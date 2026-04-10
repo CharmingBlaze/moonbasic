@@ -49,5 +49,3 @@ func (m *Module) Register(reg runtime.Registrar) {
 		reg.Register(n, "btree", stub(n))
 	}
 }
-
-func (m *Module) Shutdown() {}

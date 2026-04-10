@@ -24,7 +24,7 @@ These commands support both classic heap-handle vector math and scalar convenien
 ```basic
 v = Vec3.Make(0, 1, 0)
 u = Vec3.Make(1, 0, 0)
-PRINT "angle rad=" + STR$(Vec3.Angle(v, u))
+PRINT "angle rad=" + STR(Vec3.Angle(v, u))
 Vec3.Free(v)
 Vec3.Free(u)
 ```
@@ -38,9 +38,9 @@ Scalar convenience overloads (no vec3 handle required):
 
 ```basic
 dx, dy, dz = VEC3.NORMALIZE(dx, dy, dz)
-dist# = VEC3.LENGTH(dx, dy, dz)
-d# = VEC3.DIST(px#, py#, pz#, ex#, ey#, ez#)
-IF VEC3.DISTSQ(px#, py#, pz#, ex#, ey#, ez#) < 4.0 THEN
+dist = VEC3.LENGTH(dx, dy, dz)
+d = VEC3.DIST(px, py, pz, ex, ey, ez)
+IF VEC3.DISTSQ(px, py, pz, ex, ey, ez) < 4.0 THEN
     ; within 2 units
 ENDIF
 ```
@@ -62,9 +62,9 @@ Scalar convenience overloads:
 - `VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist) -> handle`
 
 ```basic
-f#, s# = VEC2.NORMALIZE(f#, s#)
-ex#, ez# = VEC2.MOVE_TOWARD(ex#, ez#, px#, pz#, chaseSpeed# * dt#)
-dist# = VEC2.LENGTH(ex# - px#, ez# - pz#)
+f, s = VEC2.NORMALIZE(f, s)
+ex, ez = VEC2.MOVE_TOWARD(ex, ez, px, pz, chaseSpeed * dt)
+dist = VEC2.LENGTH(ex - px, ez - pz)
 ```
 
 ---
@@ -89,7 +89,7 @@ dist# = VEC2.LENGTH(ex# - px#, ez# - pz#)
 ```basic
 q = Quat.FromEuler(0, PI() / 4, 0)
 e = Quat.ToEuler(q)
-PRINT "roll=" + STR$(Vec3.X(e))
+PRINT "roll=" + STR(Vec3.X(e))
 Vec3.Free(e)
 m = Quat.ToMat4(q)
 Mesh.Draw(cube, mat, m)

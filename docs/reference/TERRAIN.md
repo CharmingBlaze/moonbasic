@@ -1,5 +1,7 @@
 # Terrain and chunks (`TERRAIN.*`, `CHUNK.*`)
 
+**Performance, loading mode, and chunk-size guidance:** [docs/TERRAIN.md](../TERRAIN.md).
+
 ## How this subsystem fits the open-world stack
 
 This module holds the **2D height grid** and builds **one mesh per loaded chunk** so the whole world is not a single giant draw. **[`WORLD.*`](WORLD.md)** moves the **stream center** (usually camera/player XZ) and calls into terrain so chunks **inside** the load radius get meshes and chunks **outside** the unload radius can be released. **`CHUNK.*`** adjusts streaming distances and answers questions like how many chunks are loaded.
@@ -117,6 +119,20 @@ Brush edit: raise or lower height within **`radius`** by **`delta`** per call (u
 ## `Terrain.Draw(terrain)`
 
 Draws all **loaded** chunk meshes for the current streaming state. Rebuilds meshes on the **main thread** when chunks load or heights change.
+
+When **`WINDOW.SETLOADINGMODE(true)`** is active, **`Terrain.Draw`** does nothing (frame loop still runs so the window stays responsive). Use **`Terrain.SetMeshBuildBudget(terrain, n)`** to cap how many chunk meshes rebuild per **`World.Update`** tick (see [docs/TERRAIN.md](../TERRAIN.md)).
+
+---
+
+## `Terrain.SetMeshBuildBudget(terrain, budget)`
+
+**`budget`:** max chunk mesh **GPU rebuilds** per **`World.Update`** tick. **`0`** = unlimited (default). Use **1–4** to spread heavy rebuilds across frames and reduce UI stalls.
+
+---
+
+## `Terrain.SetAsyncMeshBuild(terrain, enabled)`
+
+When **`enabled`** is **true**, chunk **CPU** heightmap preparation runs off the main goroutine; **`GenMeshHeightmap`** still runs on the main thread when each job is applied (see [docs/TERRAIN.md](../TERRAIN.md)). Default is **false** (fully synchronous rebuilds).
 
 ---
 

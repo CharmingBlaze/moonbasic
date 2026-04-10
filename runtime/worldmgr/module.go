@@ -40,4 +40,14 @@ func (m *Module) Register(r runtime.Registrar) {
 }
 
 // Shutdown implements runtime.Module.
-func (m *Module) Shutdown() {}
+func (m *Module) Shutdown() {
+	m.vegScatter = 0
+}
+
+// Reset clears per-session world state.
+func (m *Module) Reset() {
+	m.vegScatter = 0
+	m.FogMode = 0
+	m.FogColor = [4]uint8{0, 0, 0, 0}
+	m.FogDensity = 0
+}

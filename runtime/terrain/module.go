@@ -33,3 +33,6 @@ func (m *Module) Shutdown() {}
 
 // ActiveHandle returns the most recently created terrain handle (for world streaming).
 func (m *Module) ActiveHandle() heap.Handle { return m.active }
+
+func (m *Module) Reset() {}
+

@@ -4,34 +4,34 @@
 WINDOW.OPEN(960, 540, "moonBASIC Platformer")
 WINDOW.SETFPS(60)
 
-px# = 120
-py# = 360
-pvx# = 0
-pvy# = 0
+px = 120
+py = 360
+pvx = 0
+pvy = 0
 ong = 0
 
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
-    IF INPUT.KEYDOWN(KEY_A) THEN pvx# = pvx# - 520 * dt#
-    IF INPUT.KEYDOWN(KEY_D) THEN pvx# = pvx# + 520 * dt#
-    pvx# = pvx# * 0.88
-    IF ong = 1 AND INPUT.KEYDOWN(KEY_SPACE) THEN pvy# = -420
+    dt = TIME.DELTA()
+    IF INPUT.KEYDOWN(KEY_A) THEN pvx = pvx - 520 * dt
+    IF INPUT.KEYDOWN(KEY_D) THEN pvx = pvx + 520 * dt
+    pvx = pvx * 0.88
+    IF ong = 1 AND INPUT.KEYDOWN(KEY_SPACE) THEN pvy = -420
 
-    px# = px# + pvx# * dt#
-    py# = py# + pvy# * dt#
-    pvy# = pvy# + 980 * dt#
+    px = px + pvx * dt
+    py = py + pvy * dt
+    pvy = pvy + 980 * dt
 
     ong = 0
-    IF py# > 400 THEN py# = 400
-    IF py# >= 398 THEN pvy# = 0
-    IF py# >= 398 THEN ong = 1
+    IF py > 400 THEN py = 400
+    IF py >= 398 THEN pvy = 0
+    IF py >= 398 THEN ong = 1
 
-    IF px# < 40 THEN px# = 40
-    IF px# > 860 THEN px# = 860
+    IF px < 40 THEN px = 40
+    IF px > 860 THEN px = 860
 
-    IF px# > 200 AND px# < 520 AND py# > 300 THEN
-        py# = 300
-        pvy# = 0
+    IF px > 200 AND px < 520 AND py > 300 THEN
+        py = 300
+        pvy = 0
         ong = 1
     ENDIF
 
@@ -39,7 +39,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     DRAW.RECTANGLE(0, 440, 960, 100, 50, 120, 70, 255)
     DRAW.RECTANGLE(200, 320, 320, 24, 90, 70, 40, 255)
     DRAW.RECTANGLE(580, 260, 200, 20, 90, 70, 40, 255)
-    DRAW.RECTANGLE(INT(px#) - 14, INT(py#) - 28, 28, 28, 255, 200, 80, 255)
+    DRAW.RECTANGLE(INT(px) - 14, INT(py) - 28, 28, 28, 255, 200, 80, 255)
 
     DRAW.TEXT("A/D move   SPACE jump   ESC quit", 280, 12, 20, 240, 240, 250, 255)
     RENDER.FRAME()

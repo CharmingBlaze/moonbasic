@@ -35,13 +35,7 @@ The repo uses **mutually exclusive** `//go:build` lines at the roots of the main
 
 ### Default IDE setup (fullruntime)
 
-For day-to-day work on **physics, rendering, VM + runtime modules, and `cmd/moonrun`**, the workspace [`.vscode/settings.json`](../.vscode/settings.json) sets:
-
-```json
-"gopls": { "buildFlags": ["-tags=fullruntime"], ... }
-```
-
-That enables analysis for [`main_fullruntime.go`](../main_fullruntime.go), [`cmd/moonrun/`](../cmd/moonrun/), and the full CGO / Jolt / Raylib graph.
+For day-to-day work on **physics, rendering, VM + runtime modules, and `cmd/moonrun`**, the workspace [`.vscode/settings.json`](../.vscode/settings.json) sets **`go.buildTags`** / **`gopls.buildFlags`** to **`fullruntime,gopls_stub`**, plus **`CGO_ENABLED=1`** (**`gopls.build.env`** + **`go.toolsEnvVars`**). The **`gopls_stub`** tag is **for gopls only** on **Windows**: it includes **`runtime/terrain/*_stub.go`** (e.g. **`heap_objects_stub.go`**) in the analysis build so you do not get **“No packages found”** when opening them. **`go build -tags fullruntime`** (no **`gopls_stub`**) is unchanged and still uses the real CGO terrain sources.
 
 ### Switching to “compiler CLI” mode
 
@@ -106,6 +100,12 @@ Linux CI runs `go test ./...` and a set of `go run . --check …` commands on re
 ## Editing the command manifest
 
 [`compiler/builtinmanifest/commands.json`](../compiler/builtinmanifest/commands.json) is the source of truth for **names, arity, and types** exposed to MoonBASIC. After edits, validate with `--check` on real scripts and refresh [API_CONSISTENCY.md](API_CONSISTENCY.md) via `go run ./tools/apidoc` when user-visible API changes.
+
+## Rendering stability and defaults
+
+Stability is a priority. To prevent viewport masking (e.g. the "Black Screen" issue), global draw hooks and default lighting states must adhere to the stability guidelines.
+
+Details: [RENDERING_STABILITY_AND_DEFAULTS.md](architecture/RENDERING_STABILITY_AND_DEFAULTS.md).
 
 ## Contributing
 

@@ -2,13 +2,15 @@
 
 This document is generated from `compiler/builtinmanifest/commands.json`.
 
+**Contributor contract:** Treat this file as the authoritative checklist of **registered overloads** (name, arity, and manifest metadata). New builtins belong in **`compiler/builtinmanifest/commands.json`**; refresh this doc after manifest edits so tooling, reviews, and external contributors stay aligned.
+
 Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ## Related documentation
 
 - **[ERROR_MESSAGES.md](../ERROR_MESSAGES.md)** — compile-time vs runtime errors, did-you-mean, heap handle hints.
 - **[ROADMAP.md](../ROADMAP.md)** — phased engineering plan (polish → rendering → 2D → systems → …).
-- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace → reference map and overload counts (`go run ./tools/cmdaudit`).
+- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace → primary `docs/reference/*.md` file; run **`go run ./tools/cmdaudit`** to verify every manifest namespace maps to an existing reference page (exit code **2** if a namespace is unmapped or a referenced file is missing).
 - **[reference/API_CONVENTIONS.md](../reference/API_CONVENTIONS.md)** — consistent verbs (`LOAD`, `SETPOS`, `SETSCALE`, …) across object types.
 
 ## Naming conventions
@@ -1315,6 +1317,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.MOVECAMERARELATIVE`** - args: int, float, float, handle — World XZ step from camera yaw: forward#/strafe# are deltas (typically speed*dt*input); camera is a Camera3D handle.
 - **`ENTITY.MOVEENTITY`** - args: int, float, float, float
 - **`ENTITY.MOVERELATIVE`** - args: int, float, float, float, float
+- **`ENTITY.MOVETOWARD`** - args: handle, handle, float — Moves an entity toward another entity at constant speed (XZ toward target, Y preserved).
 - **`ENTITY.MOVETOWARD`** - args: handle, float, float, float — Moves an entity toward a coordinate.
 - **`ENTITY.ONHIT`** - args: handle, string — Fires MB callback on collision.
 - **`ENTITY.ORDER`** - args: int, int
@@ -1372,8 +1375,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SETNAME`** - args: int, any
 - **`ENTITY.SETPOSITION`** - args: int, float, float, float, any
 - **`ENTITY.SETROTATION`** - args: int, float, float, float, any — Absolute pitch/yaw/roll degrees â€” alias of ENTITY.ROTATEENTITY
-- **`ENTITY.SETSHADER`** - args: int, handle
 - **`ENTITY.SETSHADER`** - args: handle, int — Binds an active Shader Library component to the entity.
+- **`ENTITY.SETSHADER`** - args: int, handle
 - **`ENTITY.SETSPRITEFRAME`** - args: int, int — Set atlas frame on billboard bound to a TEXTURE object
 - **`ENTITY.SETSTATIC`** - args: int
 - **`ENTITY.SETTEXTUREFLIP`** - args: handle, float, float — Modifies UV scaling for horizontal/vertical mirroring.
@@ -1411,6 +1414,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.W`** - args: int -> returns float — Easy Mode: Get Yaw (W) of entity
 - **`ENTITY.W`** - args: int, float — Easy Mode: Set Yaw (W) of entity
 - **`ENTITY.WANDER`** - args: handle, float, float, float, float — Moves an NPC randomly within a zone.
+- **`ENTITY.WITHINRADIUS`** - args: handle, handle, float -> returns bool — True if 3D distance between entities is <= maxDistance (simple sphere check; not Jolt physics).
 - **`ENTITY.X`** - args: int -> returns float — Easy Mode: Get X position of entity
 - **`ENTITY.X`** - args: int, float — Easy Mode: Set X position of entity
 - **`ENTITY.Y`** - args: int -> returns float
@@ -4109,6 +4113,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SYSTEM.SETENV`** - args: string, string
 - **`SYSTEM.TOTALMEMORY`** - args: (none) -> returns int
 - **`SYSTEM.USERNAME`** - args: (none) -> returns string
+- **`SYSTEM.VERSION`** - args: (none) -> returns string — MoonBasic release string (e.g. 1.0.0-GOLD); informational only.
 
 ### SetAnimTime
 
@@ -4184,8 +4189,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`TERRAIN.PLACE`** - args: handle, int, float, float, float
 - **`TERRAIN.RAISE`** - args: handle, float, float, float, float
 - **`TERRAIN.RAYCAST`** - args: handle, float, float, float, float, float, float -> returns handle — Ray vs terrain only; float array [hit, x, y, z]; max ray length is large by default
+- **`TERRAIN.SETASYNCMESHBUILD`** - args: handle, bool — When true, CPU heightmap prep runs on a background goroutine; GenMeshHeightmap still runs on the main thread when jobs drain (use with WINDOW.SETLOADINGMODE / mesh budget).
 - **`TERRAIN.SETCHUNKSIZE`** - args: handle, int
 - **`TERRAIN.SETDETAIL`** - args: handle, float — LOD factor in (0,1]: lower = coarser chunk meshes
+- **`TERRAIN.SETMESHBUILDBUDGET`** - args: handle, int — Max chunk mesh GPU rebuilds per WORLD.UPDATE tick; 0 = unlimited (default). Use 1–4 to avoid UI thread stalls.
 - **`TERRAIN.SETPOS`** - args: handle, float, float, float
 - **`TERRAIN.SETSCALE`** - args: handle, float, float, float — Non-uniform scale: XZ stretch per cell, Y height multiplier (marks chunks dirty)
 - **`TERRAIN.SNAPY`** - args: handle, int, float
@@ -4574,6 +4581,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WINDOW.HEIGHT`** - args: (none) -> returns int
 - **`WINDOW.ISFULLSCREEN`** - args: (none) -> returns bool
 - **`WINDOW.ISRESIZED`** - args: (none) -> returns bool
+- **`WINDOW.LOADINGMODE`** - args: (none) -> returns bool — Current loading-mode flag from WINDOW.SETLOADINGMODE
 - **`WINDOW.MAXIMIZE`** - args: (none)
 - **`WINDOW.MINIMIZE`** - args: (none)
 - **`WINDOW.OPEN`** - args: int, int, string
@@ -4581,6 +4589,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WINDOW.SETFLAG`** - args: int
 - **`WINDOW.SETFPS`** - args: int
 - **`WINDOW.SETICON`** - args: string
+- **`WINDOW.SETLOADINGMODE`** - args: bool — When true, TERRAIN.DRAW skips drawing so RENDER.FRAME still polls OS events during mesh builds
 - **`WINDOW.SETMAXSIZE`** - args: int, int
 - **`WINDOW.SETMINSIZE`** - args: int, int
 - **`WINDOW.SETMONITOR`** - args: int

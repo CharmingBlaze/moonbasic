@@ -17,9 +17,9 @@ Returns **`0.0`** when there is **no** top landing this frame. Otherwise returns
 Typical use:
 
 ```basic
-landY# = BOXTOPLAND(px#, py#, pz#, pvy#, pr#, bx#, by#, bz#, bw#, bh#, bd#)
-IF landY# > 0.0 THEN
-    py# = landY# : pvy# = 0.0 : on_ground? = TRUE
+landY = BOXTOPLAND(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
+IF landY > 0.0 THEN
+    py = landY : pvy = 0.0 : on_ground = TRUE
 ENDIF
 ```
 
@@ -50,17 +50,17 @@ Same math as **`MOVESTEPX`** and **`MOVESTEPZ`** combined. **Free** the returned
 Gravity and integration are only a few lines. Keep **`dt`** from **`Time.Delta()`** or **`DT()`** (both are **clamped** by default so tab-switch spikes do not explode simulation).
 
 ```basic
-CONST GRAVITY# = -26.0
+CONST GRAVITY = -26.0
 
 ; Each frame:
-vel_y# = vel_y# + GRAVITY# * dt#
-pos_y# = pos_y# + vel_y# * dt#
+vel_y = vel_y + GRAVITY * dt
+pos_y = pos_y + vel_y * dt
 
 ; Ground check (flat floor at y = radius):
-IF pos_y# < radius# THEN
-    pos_y# = radius#
-    vel_y# = 0.0
-    on_ground? = TRUE
+IF pos_y < radius THEN
+    pos_y = radius
+    vel_y = 0.0
+    on_ground = TRUE
 ENDIF
 ```
 
@@ -85,10 +85,10 @@ Clamp **`pitch`** and **`dist`** in your script after adding deltas (the helpers
 Typical frame (see **`examples/mario64/main_orbit_simple.mb`**):
 
 ```basic
-camYaw# = camYaw# + ORBITYAWDELTA(dt#, 0.0048, KEY_Q, KEY_E, 72.0)
-camPitch# = camPitch# + ORBITPITCHDELTA(0.0048)
-camDist# = camDist# + ORBITDISTDELTA(0.85)
-; … clamp pitch & dist, then Camera.SetOrbit(cam, tx, ty, tz, camYaw#, camPitch#, camDist#)
+camYaw = camYaw + ORBITYAWDELTA(dt, 0.0048, KEY_Q, KEY_E, 72.0)
+camPitch = camPitch + ORBITPITCHDELTA(0.0048)
+camDist = camDist + ORBITDISTDELTA(0.85)
+; … clamp pitch & dist, then Camera.SetOrbit(cam, tx, ty, tz, camYaw, camPitch, camDist)
 ```
 
 That example is structured for reading **top to bottom**: one **`CONST`** block (world bounds, orbit tuning, colours), parallel **`DIM`** rows for **`LANDBOXES`**, a single loop section for input → physics → **`Camera.SetOrbit`** → draw, then **`ERASE ALL`** (see [MEMORY.md](../MEMORY.md)).
@@ -125,11 +125,11 @@ p = PLAYER2D.MAKE()
 PLAYER2D.SETPOS(p, 0.0, 0.0)
 CLAMPENTITY2D(p, -17.0, 17.0, -17.0, 22.0)
 
-camYaw# = camYaw# + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS#, 77.0, dt#)
-f# = Input.Axis(KEY_S, KEY_W)
-s# = Input.Axis(KEY_A, KEY_D)
-MOVEENTITY2D(p, camYaw#, f#, s#, MOVE_SPEED#, dt#)
+camYaw = camYaw + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS, 77.0, dt)
+f = Input.Axis(KEY_S, KEY_W)
+s = Input.Axis(KEY_A, KEY_D)
+MOVEENTITY2D(p, camYaw, f, s, MOVE_SPEED, dt)
 KEEPPLAYERINBOUNDS(p)
-px# = PLAYER2D.GETX(p)
-pz# = PLAYER2D.GETZ(p)
+px = PLAYER2D.GETX(p)
+pz = PLAYER2D.GETZ(p)
 ```

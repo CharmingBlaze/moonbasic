@@ -16,23 +16,23 @@ Blitz3D-style **`Camera.Turn`**, **`Rotate`**, **`Orbit`**, **`Zoom`**, **`Follo
 
 Creates a default perspective camera. Returns a **handle** (`Camera3D`). **`Cam`** and **`CAM`** are aliases of **`Camera.Make`** (short Blitz-style names). Dot-syntax on the handle uses normal call syntax, for example **`cam.Pos(x,y,z)`**, **`cam.FOV(55)`**, **`cam.Orbit(tx,ty,tz,yaw,pitch,dist)`**, **`cam.LookAt(x,y,z)`**, **`cam.Zoom(amount)`** — see [BLITZ3D.md](BLITZ3D.md).
 
-### `Camera.SetPos(camera, x#, y#, z#)` / `Camera.SetPosition(...)`
+### `Camera.SetPos(camera, x, y, z)` / `Camera.SetPosition(...)`
 
 Alias pair; sets the camera **eye** position in world space.
 
-### `Camera.SetTarget(camera, x#, y#, z#)`
+### `Camera.SetTarget(camera, x, y, z)`
 
 Sets the **look-at** point in world space.
 
-### `Camera.LookAt(camera, x#, y#, z#)`
+### `Camera.LookAt(camera, x, y, z)`
 
 Alias of **`Camera.SetTarget`** (same arguments and behaviour).
 
-### `Camera.SetProjection(camera, mode#)`
+### `Camera.SetProjection(camera, mode)`
 
 Sets the Raylib projection mode: **`0`** = perspective (**`CameraPerspective`**), **`1`** = orthographic (**`CameraOrthographic`**). In orthographic mode, **`fovy`** is interpreted as the **near-plane height** in world units (Raylib convention).
 
-### `Camera.SetRange(camera, near#, far#)`
+### `Camera.SetRange(camera, near, far)`
 
 Calls **`rl.SetClipPlanes`** before **`Camera.Begin`** for that camera (when **near** &lt; **far** and both positive). This is separate from software **`Cull.*`** distance tests.
 
@@ -40,15 +40,15 @@ Calls **`rl.SetClipPlanes`** before **`Camera.Begin`** for that camera (when **n
 
 **`SetActive`** records the handle for tooling; **`GetActive`** returns the last handle passed to **`Camera.Begin`** (or **`SetActive`**), or **0** if none.
 
-### `Camera.WorldToScreen2D(camera, wx#, wy#, wz#)`
+### `Camera.WorldToScreen2D(camera, wx, wy, wz)`
 
 Alias of **`Camera.WorldToScreen`** — returns a **2-element** float array **\[sx, sy\]**.
 
-### `Camera.SetFPSMode(camera, sensitivity#)` / `Camera.ClearFPSMode(camera)` / `Camera.UpdateFPS(camera)`
+### `Camera.SetFPSMode(camera, sensitivity)` / `Camera.ClearFPSMode(camera)` / `Camera.UpdateFPS(camera)`
 
 **`SetFPSMode`** disables the OS cursor; each frame call **`Camera.UpdateFPS`** to run Raylib **`UpdateCamera`** in **first-person** mode. **`ClearFPSMode`** shows the cursor again.
 
-### `Camera.SetFOV(camera, fovy#)`
+### `Camera.SetFOV(camera, fovy)`
 
 Vertical field of view in **degrees**.
 
@@ -60,17 +60,17 @@ Starts 3D mode with this camera (sets projection, depth buffer usage, and the ac
 
 Ends 3D mode (flushes deferred 3D work, then `EndMode3D`).
 
-### `Camera.Move(camera, dx#, dy#, dz#)`
+### `Camera.Move(camera, dx, dy, dz)`
 
 Translates **both** position and target by the delta (pan/strafe/fly without changing orientation).
 
-### `Camera.SetOrbit(camera, tx#, ty#, tz#, yaw#, pitch#, distance#)`
+### `Camera.SetOrbit(camera, tx, ty, tz, yaw, pitch, distance)`
 
 Third-person **spherical** orbit: places the eye on a shell around the target `(tx,ty,tz)` using **yaw** and **pitch** (radians) and **distance** (world units). Yaw follows the usual XZ orbit (sine on X, cosine on Z); pitch raises/lowers the camera.
 
 **Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw` / `pitch` / `dist`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw`**.
 
-### `Camera.SmoothExp(current#, target#, smoothHz#, dt#)` → **float**
+### `Camera.SmoothExp(current, target, smoothHz, dt)` → **float**
 
 **Registry:** **`CAMERA.SMOOTHEXP`**. One step of **exponential smoothing** toward a target (same idea as critically damped lag on an angle or scalar):
 
@@ -86,17 +86,17 @@ Typical pattern: mouse and keys update **target** yaw/pitch (`camYawT`, `camPitc
 
 Pass **`camYaw` / `camPitch`** into **`Camera.OrbitEntity`** (and into movement that must match the camera). See **`examples/mario64/main_entities.mb`**.
 
-### `Camera.OrbitAround(camera, tx#, ty#, tz#, yaw#, distance#, cameraY#)` / `Camera.OrbitAroundDeg(...)`
+### `Camera.OrbitAround(camera, tx, ty, tz, yaw, distance, cameraY)` / `Camera.OrbitAroundDeg(...)`
 
 Simpler **third-person** placement: camera stays at fixed world height **`cameraY`**, orbiting the target on the **XZ** plane at **distance** from `(tx,tz)`, with horizontal angle **`yaw`** in **radians** (`OrbitAround`) or **degrees** (`OrbitAroundDeg`). Sets both position and target (target is `(tx,ty,tz)`).
 
 **Keyboard orbit:** store **`yaw`** in radians, then each frame add **`Input.AxisDeg(negKey, posKey, degreesPerSec, dt)`** (same as **`Input.Axis` × `DEGPERSEC`**). Move the player with **`MOVESTEPX`/`MOVESTEPZ`** or **`MOVEX`/`MOVEZ`** × speed × **`dt`** using the same **`yaw`** so walking matches the camera. See **`examples/mario64/main_v2.mb`** and [INPUT.md](INPUT.md).
 
-### `Camera.GetRay(camera, screenX#, screenY#)`
+### `Camera.GetRay(camera, screenX, screenY)`
 
 Screen-space to world **ray** for the **current render size**. Returns a **handle** to a **6-float array**: origin `(x,y,z)` then direction `(dx,dy,dz)`. Use with `Draw3D.Ray`, **`RAY.MAKE`** with the same six components, or **`RAY.HITSPHERE_*`** / other **`RAY.HIT*_*`** queries — see **[RAYCAST.md](RAYCAST.md)**.
 
-### `Camera.GetViewRay(screenX#, screenY#, camera, width, height)`
+### `Camera.GetViewRay(screenX, screenY, camera, width, height)`
 
 Like `GetRay`, but uses explicit `width` / `height` (positive integers) for the projection instead of `GetRenderWidth` / `GetRenderHeight`.
 
@@ -108,7 +108,7 @@ Returns a **matrix handle** for the camera (view × projection as provided by Ra
 
 Return **Vec3 handles** for the camera position and target (heap objects; use matrix/vector helpers to read components).
 
-### `Camera.SetUp(camera, ux#, uy#, uz#)`
+### `Camera.SetUp(camera, ux, uy, uz)`
 
 Sets the camera **up** vector (world space).
 
@@ -116,7 +116,7 @@ Sets the camera **up** vector (world space).
 
 Frees the camera heap object.
 
-### `Camera.WorldToScreen(camera, wx#, wy#, wz#)`
+### `Camera.WorldToScreen(camera, wx, wy, wz)`
 
 Projects a **world-space** point through the camera to **screen** coordinates (Raylib **`GetWorldToScreen`**). Returns a **handle** to a **2-float array**: `(screenX, screenY)`. Best used while the same camera is active for rendering (inside your 3D pass).
 
@@ -124,7 +124,7 @@ Projects a **world-space** point through the camera to **screen** coordinates (R
 
 **Alias** of **`Camera.WorldToScreen`** — same arguments and return value. Use for HUD anchors (health bars above entities).
 
-### `Camera.LookAtEntity(camera, entity#)` / `Camera.PointAtEntity(...)`
+### `Camera.LookAtEntity(camera, entity)` / `Camera.PointAtEntity(...)`
 
 **Aliases** — sets the camera **target** to the **world position** of **`entity`** (via **`ENTITY.ENTITYX/Y/Z`** + **`SETTARGET`**). For “look at a point” without an entity, use **`Camera.LookAt(x,y,z)`** / **`SetTarget`**.
 
@@ -132,7 +132,7 @@ Projects a **world-space** point through the camera to **screen** coordinates (R
 
 **`CAMERA.PICK`** is an alias of **`CAMERA.GETRAY`**: it returns a **screen-space ray** (origin + direction), **not** an entity id. To pick objects, use **`RAY.HIT*_*`** or **`ENTITY.PICK`** / collision queries — see [RAYCAST.md](RAYCAST.md), [ENTITY.md](ENTITY.md).
 
-### `Camera.IsOnScreen(camera, wx#, wy#, wz#)` / `Camera.IsOnScreen(camera, wx#, wy#, wz#, margin#)`
+### `Camera.IsOnScreen(camera, wx, wy, wz)` / `Camera.IsOnScreen(camera, wx, wy, wz, margin)`
 
 Returns **`TRUE`** if the projected point lies inside the current render rectangle, optionally expanded by **`margin`** pixels on each side.
 
@@ -186,11 +186,11 @@ Between **`Camera.Begin`** and **`Camera.End`**, frustum tests use the **current
 | **`Cull.DistanceSq`** | `cx, cy, cz` | `float` | Squared distance; no `sqrt`. |
 | **`Cull.BehindHorizon`** | `camera, maxY, cx, cz` | `bool` | **`TRUE`** if terrain/feature top at `maxY` over `(cx,cz)` is fully below the camera’s bottom-of-view angle (uses camera pitch + FOV). Does **not** require Begin/End. |
 | **`Cull.BatchSphere`** | `positions, radii, results` | — | **`positions`**: 1D float array `[x0,y0,z0,x1,y1,z1,…]`. **`radii`**: one float per sphere. **`results`**: bool array (same length as radii). Writes **`TRUE`/`FALSE`** per index. Uses default max distance + frustum when Begin is active. |
-| **`Cull.OcclusionEnable`** | `enable?` | `bool` | Phase A: stores flag; returns **`TRUE`**. Phase B: depth pyramid. |
+| **`Cull.OcclusionEnable`** | `enable` | `bool` | Phase A: stores flag; returns **`TRUE`**. Phase B: depth pyramid. |
 | **`Cull.OccluderAdd`** | `model` | — | Phase A: records handle for future use. |
 | **`Cull.OccluderClear`** | — | — | Clears occluder list. |
 | **`Cull.IsOccluded`** | `cx, cy, cz, r` | `bool` | Phase A: always **`FALSE`**. |
-| **`Cull.SetBackfaceCulling`** | `enable?` | — | Maps to Raylib **`EnableBackfaceCulling`** / **`DisableBackfaceCulling`**. |
+| **`Cull.SetBackfaceCulling`** | `enable` | — | Maps to Raylib **`EnableBackfaceCulling`** / **`DisableBackfaceCulling`**. |
 | **`Cull.SetMaxDistance`** | `maxdist` | — | Default world radius for distance culling. |
 | **`Cull.GetMaxDistance`** | — | `float` | Current default. |
 | **`Cull.StatsReset`** | — | — | Zeros all counters — call **once per frame** before your cull tests if you want clean numbers. |
@@ -236,7 +236,7 @@ Creates a `Camera2D` with offset initialized to **half the current screen size**
 
 Ends 2D camera mode (`EndMode2D`).
 
-### `Camera2D.SetTarget(camera, x#, y#)` / `Camera2D.SetOffset(camera, x#, y#)` / `Camera2D.SetZoom(camera, zoom#)` / `Camera2D.SetRotation(camera, angle#)`
+### `Camera2D.SetTarget(camera, x, y)` / `Camera2D.SetOffset(camera, x, y)` / `Camera2D.SetZoom(camera, zoom)` / `Camera2D.SetRotation(camera, angle)`
 
 Update fields on the stored `Camera2D`. **Rotation follows Raylib:** value is in **degrees**. Zoom must be positive (values `<= 0` are clamped to `0.01`).
 
@@ -244,7 +244,7 @@ Update fields on the stored `Camera2D`. **Rotation follows Raylib:** value is in
 
 Returns a **matrix handle** for `GetCameraMatrix2D` applied to that camera.
 
-### `Camera2D.WorldToScreen(camera, worldX#, worldY#)` / `Camera2D.ScreenToWorld(camera, screenX#, screenY#)`
+### `Camera2D.WorldToScreen(camera, worldX, worldY)` / `Camera2D.ScreenToWorld(camera, screenX, screenY)`
 
 Each returns a **handle** to a **2-float array** `[x, y]` for the converted point.
 
@@ -252,7 +252,7 @@ Each returns a **handle** to a **2-float array** `[x, y]` for the converted poin
 
 Frees the **`Camera2D`** heap object (symmetric with **`Camera.Free`** for 3D cameras).
 
-### `Camera2D.Follow(camera, sprite, speed#, dt#)`
+### `Camera2D.Follow(camera, sprite, speed, dt)`
 
 Smoothly moves the camera **target** toward the sprite’s world position (requires **`SPRITE.*`**).
 

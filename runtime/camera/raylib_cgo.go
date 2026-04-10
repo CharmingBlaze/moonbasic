@@ -94,6 +94,11 @@ func (m *Module) Register(r runtime.Registrar) {
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
 
+// Reset implements runtime.Module.
+func (m *Module) Reset() {
+	m.lastActive3D = 0
+}
+
 // ActiveCameraHandle returns the handle of the most recently used 3D camera.
 func (m *Module) ActiveCameraHandle() heap.Handle {
 	return m.lastActive3D

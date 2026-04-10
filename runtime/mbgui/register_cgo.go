@@ -16,6 +16,3 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerTooltipIconsDraw(m, reg)
 	registerGuiQoLAPI(m, reg)
 }
-
-// Shutdown implements runtime.Module.
-func (m *Module) Shutdown() {}

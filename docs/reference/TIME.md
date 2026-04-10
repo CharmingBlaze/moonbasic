@@ -20,18 +20,18 @@ By default the value is **clamped** to at most **0.05** seconds (so a hitch long
 
 - **`Time.SetMaxDelta(seconds)`** — set a different cap; use **`<= 0`** to **disable** clamping if you manage timing yourself.
 
-### `Time.Delta(min#, max#)` → **float**
+### `Time.Delta(min, max)` → **float**
 
 Optional **per-call** clamp: same underlying frame delta as **`Time.Delta()`**, but forced into **`[min, max]`** (in seconds). Typical use: **`Time.Delta(0.0167, 0.05)`** — never below one frame at 60 Hz, never above ~20 FPS worth — without three lines of **`IF`**/clamp in every loop.
 
 ```basic
-dt# = Time.Delta(0.0167, 0.05)
+dt = Time.Delta(0.0167, 0.05)
 ```
 
 ```basic
 ; Move the player at 200 pixels per second, regardless of FPS
-speed# = 200.0
-player_x# = player_x# + speed# * Time.Delta()
+speed = 200.0
+player_x = player_x + speed * Time.Delta()
 ```
 
 ### `Time.Get()` / `TIMER()`
@@ -46,7 +46,7 @@ Returns the number of milliseconds since the program started.
 
 ## System Time
 
-### `DATE$()` / `TIME$()`
+### `DATE()` / `TIME()`
 
 Returns the current system date or time as a formatted string.
 
@@ -66,37 +66,37 @@ Returns the individual components of the current time.
 Window.Open(800, 600, "Stopwatch Example")
 Window.SetFPS(60)
 
-start_time# = 0.0
-stop_time# = 0.0
-running? = FALSE
+start_time = 0.0
+stop_time = 0.0
+running = FALSE
 
 WHILE NOT Window.ShouldClose()
     ; --- LOGIC ---
     IF Input.KeyPressed(KEY_SPACE) THEN
-        IF running? THEN
+        IF running THEN
             ; Stop the timer
-            stop_time# = Time.Get()
-            running? = FALSE
+            stop_time = Time.Get()
+            running = FALSE
         ELSE
             ; Start or reset the timer
-            start_time# = Time.Get()
-            stop_time# = 0.0
-            running? = TRUE
+            start_time = Time.Get()
+            stop_time = 0.0
+            running = TRUE
         ENDIF
     ENDIF
 
     ; --- DRAWING ---
-    elapsed_time# = 0.0
-    IF running? THEN
-        elapsed_time# = Time.Get() - start_time#
+    elapsed_time = 0.0
+    IF running THEN
+        elapsed_time = Time.Get() - start_time
     ELSE
-        elapsed_time# = stop_time# - start_time#
+        elapsed_time = stop_time - start_time
     ENDIF
 
     Render.Clear(0,0,0)
     Camera2D.Begin()
         Draw.Text("Press SPACE to start/stop", 210, 150, 20, 150, 150, 150, 255)
-        Draw.Text(FORMAT$(elapsed_time#, "%.2f"), 300, 250, 60, 100, 200, 255, 255)
+        Draw.Text(FORMAT$(elapsed_time, "%.2f"), 300, 250, 60, 100, 200, 255, 255)
     Camera2D.End()
     Render.Frame()
 WEND

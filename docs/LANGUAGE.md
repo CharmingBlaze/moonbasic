@@ -8,16 +8,18 @@ For **built-in APIs** (window, draw, time, files, …), how to structure a game 
 
 ## Variables and Types
 
-Variables are created when you first assign a value to them. Their type is determined by a suffix character at the end of the variable name.
+## Variables and Types
 
-| Suffix | Type      | Example                  |
-|--------|-----------|--------------------------|
-| `$`    | String    | `name$ = "Player 1"`     |
-| `#`    | Float     | `speed# = 150.5`         |
-| `?`    | Boolean   | `alive? = TRUE`          |
-| (none) | Integer   | `score = 1000`           |
+Variables are created when you first assign a value to them. Their type is determined implicitly by the value assigned.
 
-If no suffix is provided, the variable is an integer by default.
+| Type      | Example                  |
+|-----------|--------------------------|
+| String    | `name = "Player 1"`      |
+| Float     | `speed = 150.5`          |
+| Boolean   | `alive = TRUE`           |
+| Integer   | `score = 1000`           |
+
+The language is dynamically typed; a variable can hold any value (implicit `Any` type).
 
 ### Scope
 
@@ -25,8 +27,8 @@ Variables are global by default. You can declare variables with local scope insi
 
 ```basic
 FUNCTION MyFunc()
-    LOCAL message$ = "This is a local string"
-    PRINT message$
+    LOCAL message = "This is a local string"
+    PRINT message
 ENDFUNCTION
 ```
 
@@ -36,12 +38,12 @@ ENDFUNCTION
 
 ### Record types (`TYPE` … `ENDTYPE`)
 
-You can define **named record types** at global scope (before use). Fields use the same **suffix rules** as variables (`#` float, `$` string, `?` boolean, plain name = integer). Types are **value data only** (no methods).
+You can define **named record types** at global scope (before use). Types are **value data only** (no methods).
 
 ```basic
 TYPE Platform
-    x#, y#, z#
-    w#, h#, d#
+    x, y, z
+    w, h, d
     r, g, b
 ENDTYPE
 ```
@@ -52,11 +54,11 @@ Allocate a **typed array** with **`DIM name AS TypeName(count)`**. Indices run f
 CONST N = 4
 DIM plat AS Platform(N)
 plat(0) = Platform(0.0, 1.5, 6.0, 4.0, 0.4, 4.0, 255, 60, 200)
-PRINT plat(0).x#
+PRINT plat(0).x
 plat(0).r = 200
 ```
 
-Read and write fields with **dot notation** on an indexed element: `arr(i).field` or `arr(i).field# = expr`.
+Read and write fields with **dot notation** on an indexed element: `arr(i).field = expr`.
 
 **`ERASE(name)`** frees a typed array the same way as other `DIM` arrays when you are done with it. See [Array commands](reference/ARRAY.md) for `DIM`, lengths, and heap behaviour.
 
@@ -87,7 +89,7 @@ ENDIF
 For choosing between multiple conditions. `DEFAULT` is optional.
 
 ```basic
-SELECT fruit$
+SELECT fruit
     CASE "apple"
         PRINT "An apple a day..."
     CASE "banana"
@@ -193,26 +195,26 @@ Use the `RETURN` keyword to send a value back from a function. The type of the r
 
 ### Multiple results with a float array
 
-There is no multi-value `RETURN` tuple yet. For landing on a box top from a sphere, **`BOXTOPLAND`** returns a **single float** (landing centre Y or `0.0`) — see [GAMEHELPERS.md](reference/GAMEHELPERS.md). For other cases where you need two or more numbers, pack them into a **small float array** and return that handle. The caller reads `result#(0)`, `result#(1)`, then **`ERASE(result#)`** when done.
+There is no multi-value `RETURN` tuple yet. For landing on a box top from a sphere, **`BOXTOPLAND`** returns a **single float** (landing centre Y or `0.0`) — see [GAMEHELPERS.md](reference/GAMEHELPERS.md). For other cases where you need two or more numbers, pack them into a **small array** and return that handle. The caller reads `result(0)`, `result(1)`, then **`ERASE(result)`** when done.
 
 ```basic
-FUNCTION PlatformSnap(px#, py#, pz#, pvy#, pr#, bx#, by#, bz#, bw#, bh#, bd#)
-    DIM r#(2)
-    r#(0) = 0.0
-    r#(1) = py#
-    landY# = BOXTOPLAND(px#, py#, pz#, pvy#, pr#, bx#, by#, bz#, bw#, bh#, bd#)
-    IF landY# > 0.0 THEN
-        r#(0) = 1.0
-        r#(1) = landY#
+FUNCTION PlatformSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
+    DIM r(2)
+    r(0) = 0.0
+    r(1) = py
+    landY = BOXTOPLAND(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
+    IF landY > 0.0 THEN
+        r(0) = 1.0
+        r(1) = landY
     ENDIF
-    RETURN r#
+    RETURN r
 ENDFUNCTION
 
-h# = PlatformSnap(px#, py#, pz#, pvy#, pr#, 0.0, 1.5, 6.0, 4.0, 0.4, 4.0)
-IF h#(0) THEN
-    py# = h#(1)
+h = PlatformSnap(px, py, pz, pvy, pr, 0.0, 1.5, 6.0, 4.0, 0.4, 4.0)
+IF h(0) THEN
+    py = h(1)
 ENDIF
-ERASE h#
+ERASE h
 ```
 
 Use **`LOCAL`** inside `FUNCTION` for temporaries so names do not collide with globals.

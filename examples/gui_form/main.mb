@@ -5,10 +5,10 @@ WINDOW.OPEN(880, 520, "GUI form demo")
 WINDOW.SETFPS(60)
 GUI.ENABLE()
 
-name$ = "player"
-volume# = 65.0
-muted? = FALSE
-editName? = TRUE
+name = "player"
+volume = 65.0
+muted = FALSE
+editName = TRUE
 
 DIM tabs(1)
 tabs(0) = 0
@@ -19,20 +19,20 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 
     GUI.LABEL(20, 16, 800, 22, "GUI.TEXTBOX / SLIDER / CHECKBOX / TABBAR")
 
-    name$ = GUI.TEXTBOX(20, 48, 320, 28, name$, 64, editName?)
+    name = GUI.TEXTBOX(20, 48, 320, 28, name, 64, editName)
     GUI.LABEL(360, 52, 400, 22, "Name (max 64 chars)")
 
-    IF muted? THEN
-        volume# = 0.0
+    IF muted THEN
+        volume = 0.0
     ELSE
-        volume# = GUI.SLIDER(20, 92, 360, 24, "Volume", "", volume#, 0.0, 100.0)
+        volume = GUI.SLIDER(20, 92, 360, 24, "Volume", "", volume, 0.0, 100.0)
     ENDIF
-    muted? = GUI.CHECKBOX(400, 92, 120, 24, "Mute", muted?)
+    muted = GUI.CHECKBOX(400, 92, 120, 24, "Mute", muted)
 
     GUI.LABEL(20, 132, 520, 20, "Tabs: active index in DIM array (see GUI.md for list strings)")
     tabClose = GUI.TABBAR(20, 152, 420, 28, "Stats;Audio;Debug", tabs)
 
-    GUI.LABEL(20, 200, 620, 22, "Active tab index = " + STR$(INT(tabs(0))) + "   volume = " + STR$(INT(volume#)) + "   tabClose code = " + STR$(tabClose))
+    GUI.LABEL(20, 200, 620, 22, "Active tab index = " + STR$(INT(tabs(0))) + "   volume = " + STR$(INT(volume)) + "   tabClose code = " + STR$(tabClose))
 
     DRAW.TEXT("ESC quit", 16, 500, 16, 160, 160, 170, 255)
     RENDER.FRAME()

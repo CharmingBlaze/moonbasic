@@ -5,19 +5,19 @@ WINDOW.OPEN(800, 600, "GUI basics")
 WINDOW.SETFPS(60)
 GUI.ENABLE()
 
-status$ = "Press OK or close the panel title bar"
+status = "Press OK or close the panel title bar"
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.CLEAR(28, 28, 36)
 
     IF GUI.WINDOWBOX(40, 40, 520, 320, "GUI.WINDOWBOX") THEN
-        status$ = "Close control clicked"
+        status = "Close control clicked"
     ENDIF
 
     GUI.LABEL(56, 72, 460, 22, "GUI.LABEL - immediate-mode raygui")
     IF GUI.BUTTON(56, 100, 120, 28, "OK") THEN
-        status$ = "OK pressed"
+        status = "OK pressed"
     ENDIF
-    GUI.LABEL(56, 140, 460, 22, status$)
+    GUI.LABEL(56, 140, 460, 22, status)
 
     DRAW.TEXT("ESC to quit (outside raygui)", 16, 580, 16, 180, 180, 190, 255)
     RENDER.FRAME()

@@ -26,3 +26,10 @@ func (m *Module) BindCamera(c runtime.Module) {
 		m.cam = cam
 	}
 }
+
+// Shutdown implements runtime.Module.
+func (m *Module) Shutdown() {}
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {}
+

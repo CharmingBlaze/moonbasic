@@ -263,10 +263,20 @@ func setRenderPipelineMode(mode string) {
 	case "forward":
 		deferredPipeline = false
 	}
+	postRebuildActiveLocked()
 }
 
 func postCaptureEnabled() bool {
-    return postActive || deferredPipeline
+	return postActive || deferredPipeline
+}
+
+// postRebuildActiveLocked sets postActive from flags. "Tonemap mode 0" alone must not force the
+// offscreen post pass — that path (RT + fullscreen shader) has caused black frames on some Intel
+// drivers when no actual effect is enabled. Hold postMu.
+func postRebuildActiveLocked() {
+	postActive = deferredPipeline || postCustomOn || postBloom || postVignette || postChromatic ||
+		postSSAO || postSSR || postMotionBlur || postDOF || postSharpen || postGrain || postFXAA ||
+		postTonemapMode != 0
 }
 
 func (m *Module) registerPostCommands(r runtime.Registrar) {
@@ -305,9 +315,15 @@ func (m *Module) postBloomShorthand(rt *runtime.Runtime, args ...value.Value) (v
 	postMu.Lock()
 	postBloom = on
 	if on {
-		postActive = true
-		if f, ok := args[1].ToFloat(); ok { postKV["bloom.threshold"] = float32(f) }
-		if f, ok := args[2].ToFloat(); ok { postKV["bloom.intensity"] = float32(f) }
+		if f, ok := args[1].ToFloat(); ok {
+			postKV["bloom.threshold"] = float32(f)
+		}
+		if f, ok := args[2].ToFloat(); ok {
+			postKV["bloom.intensity"] = float32(f)
+		}
+	}
+	postRebuildActiveLocked()
+	if postActive {
 		ensureBuiltInPostShader()
 	}
 	postMu.Unlock()
@@ -322,8 +338,12 @@ func (m *Module) postVignetteShorthand(rt *runtime.Runtime, args ...value.Value)
 	postMu.Lock()
 	postVignette = on
 	if on {
-		postActive = true
-		if f, ok := args[1].ToFloat(); ok { postKV["vignette.strength"] = float32(f) }
+		if f, ok := args[1].ToFloat(); ok {
+			postKV["vignette.strength"] = float32(f)
+		}
+	}
+	postRebuildActiveLocked()
+	if postActive {
 		ensureBuiltInPostShader()
 	}
 	postMu.Unlock()
@@ -338,8 +358,12 @@ func (m *Module) postChromaticShorthand(rt *runtime.Runtime, args ...value.Value
 	postMu.Lock()
 	postChromatic = on
 	if on {
-		postActive = true
-		if f, ok := args[1].ToFloat(); ok { postKV["chromatic.offset"] = float32(f) * 1000.0 } // scale back because inner shader uses 0.001
+		if f, ok := args[1].ToFloat(); ok {
+			postKV["chromatic.offset"] = float32(f) * 1000.0 // scale back because inner shader uses 0.001
+		}
+	}
+	postRebuildActiveLocked()
+	if postActive {
 		ensureBuiltInPostShader()
 	}
 	postMu.Unlock()
@@ -356,7 +380,6 @@ func (m *Module) postAdd(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	}
 	postMu.Lock()
 	defer postMu.Unlock()
-	postActive = true
 	postCustomOn = false
 	switch name {
 	case "bloom":
@@ -382,7 +405,10 @@ func (m *Module) postAdd(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	default:
 		return value.Nil, fmt.Errorf("POST.ADD: unknown effect %q", name)
 	}
-	ensureBuiltInPostShader()
+	postRebuildActiveLocked()
+	if postActive {
+		ensureBuiltInPostShader()
+	}
 	return value.Nil, nil
 }
 
@@ -420,10 +446,11 @@ func (m *Module) postRemove(rt *runtime.Runtime, args ...value.Value) (value.Val
 	case "all":
 		postBloom, postVignette, postChromatic, postSSAO, postSSR = false, false, false, false, false
 		postMotionBlur, postDOF, postSharpen, postGrain, postFXAA = false, false, false, false, false
-		postActive = false
+		postTonemapMode = 0
 	default:
 		return value.Nil, fmt.Errorf("POST.REMOVE: unknown effect %q", name)
 	}
+	postRebuildActiveLocked()
 	return value.Nil, nil
 }
 
@@ -437,9 +464,11 @@ func (m *Module) postSetTonemap(rt *runtime.Runtime, args ...value.Value) (value
 	}
 	postMu.Lock()
 	postTonemapMode = int32(mode)
-	postActive = true
+	postRebuildActiveLocked()
+	if postActive {
+		ensureBuiltInPostShader()
+	}
 	postMu.Unlock()
-	ensureBuiltInPostShader()
 	return value.Nil, nil
 }
 

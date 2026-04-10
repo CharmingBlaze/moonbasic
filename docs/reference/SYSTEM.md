@@ -14,6 +14,10 @@ Terminates the program immediately. This is a hard exit; `Window.Close()` is pre
 
 ## Host Environment
 
+### `System.Version()` → string$
+
+Returns the MoonBasic **release label** for display and logging (for example **`1.0.0-GOLD`**). This is a fixed product string from the runtime, not a semver probe of the host binary.
+
 ### `System.GetEnv(varName$)`
 
 Gets the value of an environment variable.

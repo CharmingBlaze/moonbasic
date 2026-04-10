@@ -32,6 +32,7 @@ func (m *Module) registerHost(reg runtime.Registrar) {
 	reg.Register("SYSTEM.LOCALE", "system", m.sysLocale)
 	reg.Register("SYSTEM.USERNAME", "system", m.sysUsername)
 	reg.Register("SYSTEM.ISDEBUGBUILD", "system", m.sysIsDebugBuild)
+	reg.Register("SYSTEM.VERSION", "system", m.sysVersion)
 	m.registerClipboard(reg)
 }
 
@@ -59,6 +60,14 @@ func (m *Module) sysSystemProperty(rt2 *runtime.Runtime, args ...value.Value) (v
 	default:
 		return rt2.RetString(""), nil
 	}
+}
+
+func (m *Module) sysVersion(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = m
+	if len(args) != 0 {
+		return value.Nil, runtime.Errorf("SYSTEM.VERSION expects 0 arguments")
+	}
+	return rt2.RetString("1.0.0-GOLD"), nil
 }
 
 func (m *Module) sysCpuName(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {

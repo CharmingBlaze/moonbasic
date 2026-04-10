@@ -83,7 +83,7 @@ For **equal-sized frames** laid out in a regular **columns × rows** grid on one
 | **`TEXTURE.SETGRID`** | `(texture, columns, rows)` — frame layout |
 | **`TEXTURE.SETFRAME`** | `(texture, frameIndex)` — pick a cell (0-based) |
 | **`TEXTURE.LOADANIM`** | `(path, columns, rows)` — load + set grid in one step |
-| **`TEXTURE.PLAY`** | `(texture, fps, loop?)` — auto-advance frames |
+| **`TEXTURE.PLAY`** | `(texture, fps, loop)` — auto-advance frames |
 | **`TEXTURE.STOPANIM`** | Stop auto-advance |
 | **`TEXTURE.TICKALL`** | Call **once per frame** (optional `dt`) so **`TEXTURE.PLAY`** advances |
 | **`TEXTURE.SETUVSCROLL`** | `(texture, speedU, speedV)` — scroll source rect (for “infinite” flow) |

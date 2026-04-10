@@ -77,6 +77,7 @@ func (m *Module) blitzCube(args []value.Value) (value.Value, error) {
 	e.useSphere = false
 	e.gravity = 0
 	st.ents[id] = e
+	st.staticEnts = append(st.staticEnts, e)
 	return m.wrapEntityRef(id)
 }
 
@@ -154,12 +155,25 @@ func (m *Module) purgeEntityByID(id int64) {
 	}
 	delete(st.children, id)
 	mbphysics3d.UnregisterEntityCollision(id)
+	st.dynamicEnts = removeFromSlice(st.dynamicEnts, id)
+	st.staticEnts = removeFromSlice(st.staticEnts, id)
 	if st.entMeta != nil {
 		delete(st.entMeta, id)
 	}
 	if st.msgQueues != nil {
 		delete(st.msgQueues, id)
 	}
+	st.dynamicEnts = removeFromSlice(st.dynamicEnts, id)
+	st.staticEnts = removeFromSlice(st.staticEnts, id)
 	delete(st.ents, id)
+}
+
+func removeFromSlice(slice []*ent, id int64) []*ent {
+	for i, e := range slice {
+		if e.id == id {
+			return append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return slice
 }
 

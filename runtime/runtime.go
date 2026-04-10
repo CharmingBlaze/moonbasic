@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/vm/heap"
@@ -46,6 +47,7 @@ type Registrar interface {
 type Module interface {
 	Register(r Registrar)
 	Shutdown()
+	Reset()
 }
 
 // HeapAware modules receive the VM heap before Register (e.g. FILE.* allocates handles).
@@ -101,6 +103,9 @@ type Registry struct {
 	// DebugMode mirrors pipeline Options.Debug (--info): DEBUG.* draw helpers no-op when false.
 	DebugMode bool
 
+	// loadingMode skips heavy terrain draws (WINDOW.SETLOADINGMODE) so the frame loop can keep polling OS events during mesh builds.
+	loadingMode atomic.Bool
+
 	// ResolveEntityWorldPos is set by mbentity; used by mbdebug and mbcamera.
 	ResolveEntityWorldPos func(entID int64) (rl.Vector3, bool)
 
@@ -121,6 +126,23 @@ type Registry struct {
 	lastScriptMsg  string
 	lastScriptLine int
 	lastScriptFull string
+}
+
+// SetLoadingMode marks the game as in a loading state: TERRAIN.DRAW becomes a no-op so scripts can
+// keep calling RENDER.CLEAR / RENDER.FRAME (Raylib polls events) without drawing heavy terrain while meshes build incrementally.
+func (r *Registry) SetLoadingMode(v bool) {
+	if r == nil {
+		return
+	}
+	r.loadingMode.Store(v)
+}
+
+// LoadingMode reports whether WINDOW.SETLOADINGMODE enabled loading UI (terrain draw skipped).
+func (r *Registry) LoadingMode() bool {
+	if r == nil {
+		return false
+	}
+	return r.loadingMode.Load()
 }
 
 // NewRegistry initializes the runtime environment.
@@ -208,6 +230,13 @@ func (r *Registry) Shutdown() {
 		m.Shutdown()
 	}
 	r.Heap.FreeAll()
+}
+
+// ResetModules clears internal module state (called by ERASE ALL / FREE.ALL).
+func (r *Registry) ResetModules() {
+	for _, m := range r.Modules {
+		m.Reset()
+	}
 }
 
 // RegisterModule adds a module to the registry and performs its registration.

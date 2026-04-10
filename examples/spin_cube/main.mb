@@ -1,37 +1,42 @@
-; 3D demo: camera, rotating cube, ground grid, heap cleanup
-; Run from repo root: CGO_ENABLED=1 go run . examples/spin_cube/main.mb
+; Minimal 3D: one entity cube spinning on Y (plus tilt). Orbit camera fixed on the origin.
+; No terrain, no post stack, no LIGHT2D — good GPU sanity check.
+; Run: go run -tags fullruntime . --run examples/spin_cube/main.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC - spin cube")
-WINDOW.SETFPS(60)
+SetMSAA(0)
+Window.Open(800, 600, "moonBASIC — spinning cube")
+Window.SetFPS(60)
 
-cam = CAMERA.MAKE()
-CAMERA.SETPOSITION(cam, 0, 2, 8)
-CAMERA.SETTARGET(cam, 0, 0, 0)
-CAMERA.SETFOV(cam, 45)
+cam = Camera.Make()
+cam.SetFOV(55)
 
-cubeMesh = MESH.MAKECUBE(2, 2, 2)
-cubeMat = MATERIAL.MAKEDEFAULT()
-MATERIAL.SETCOLOR(cubeMat, 0, 130, 200, 255, 255)
+cube = CreateCube()
+ScaleEntity(cube, 1.4, 1.4, 1.4)
+PositionEntity(cube, 0.0, 1.0, 0.0, TRUE)
+EntityColor(cube, 255, 150, 70, 255)
 
-cubeXform = TRANSFORM.IDENTITY()
-angle# = 0
+camYaw = 0.55
+camPitch = 0.32
+cdist = 6.5
+ang = 0.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
-    angle# = angle# + 1.1 * dt#
-    TRANSFORM.SETROTATION(cubeXform, angle#, angle# * 0.65, angle# * 0.35)
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(38, 42, 58)
+    dt = Time.Delta(0.0167, 0.05)
+    ang = ang + dt * 0.4
+    ; Absolute euler radians: pitch, yaw, roll — spin mainly around Y
+    RotateEntity(cube, ang * 0.35, ang, ang * 0.2)
 
-    RENDER.CLEAR(12, 14, 22)
-    CAMERA.BEGIN(cam)
-        MESH.DRAW(cubeMesh, cubeMat, cubeXform)
-        DRAW.GRID(10, 1.0)
-    CAMERA.END(cam)
-    DRAW.TEXT("ESC to quit", 16, 16, 18, 220, 220, 230, 255)
-    RENDER.FRAME()
+    Camera.SetOrbit(cam, 0.0, 1.0, 0.0, camYaw, camPitch, cdist)
+
+    cam.Begin()
+        Draw3D.Grid(14, 1.0)
+        DrawEntities()
+    cam.End()
+
+    Draw.Text("Spinning cube   ESC quit", 12, 10, 18, 235, 240, 255, 255)
+    Render.Frame()
 WEND
 
-MESH.FREE(cubeMesh)
-MATERIAL.FREE(cubeMat)
-TRANSFORM.FREE(cubeXform)
-CAMERA.FREE(cam)
-WINDOW.CLOSE()
+FreeEntity(cube)
+Camera.Free(cam)
+Window.Close()

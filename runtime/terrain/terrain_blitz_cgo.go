@@ -1,4 +1,4 @@
-//go:build cgo || (windows && !cgo)
+//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
 
 package terrain
 

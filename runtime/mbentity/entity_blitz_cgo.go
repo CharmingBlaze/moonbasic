@@ -323,6 +323,7 @@ func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
 	e.kind = entKindSphere
 	e.radius = rad
 	e.segH, e.segV = int32(seg), int32(seg)
+	e.useSphere = true
 	e.static = true
 	e.w, e.h, e.d = rad*2, rad*2, rad*2
 	st.ents[id] = e

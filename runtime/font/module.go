@@ -14,3 +14,6 @@ func NewModule() *Module { return &Module{} }
 
 // BindHeap implements runtime.HeapAware.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+func (m *Module) Reset() {}
+

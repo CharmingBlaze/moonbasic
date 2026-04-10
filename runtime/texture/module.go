@@ -27,3 +27,6 @@ func (m *Module) BindCleanup(enqueuer func(func())) {
 func NewModule() *Module { return &Module{} }
 
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+func (m *Module) Reset() {}
+

@@ -66,3 +66,10 @@ func (m *Module) callUser(name string, args []value.Value) (value.Value, error) 
 	}
 	return fn(name, args)
 }
+
+// Shutdown implements runtime.Module.
+func (m *Module) Shutdown() {}
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {}
+

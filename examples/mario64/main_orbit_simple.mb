@@ -45,26 +45,27 @@ Window.Open(960, 540, "Blitz-style orbit hop")
 Window.SetFPS(60)
 
 ; --- physics & world ---------------------------------------------------------
-CONST MOVE_SPEED# = 10.0
-CONST PLAYER_R# = 0.45
-CONST GRAVITY# = -24.0
-CONST JUMP# = 9.5
-CONST GROUND_SNAP_EPS# = 0.02
-CONST WORLD_X0# = -14.0
-CONST WORLD_X1# = 14.0
-CONST WORLD_Z0# = -14.0
-CONST WORLD_Z1# = 18.0
+; --- physics & world ---------------------------------------------------------
+CONST MOVE_SPEED = 10.0
+CONST PLAYER_R = 0.45
+CONST GRAVITY = -24.0
+CONST JUMP = 9.5
+CONST GROUND_SNAP_EPS = 0.02
+CONST WORLD_X0 = -14.0
+CONST WORLD_X1 = 14.0
+CONST WORLD_Z0 = -14.0
+CONST WORLD_Z1 = 18.0
 
 ; --- orbit input (GAME helpers — radians / units; no ERASE) ------------------
-CONST MOUSE_SENS# = 0.0048
-CONST ORBIT_DEG_S# = 72.0
-CONST WHEEL_ZOOM# = 0.85
-CONST PITCH_MIN# = 0.12
-CONST PITCH_MAX# = 1.38
-CONST DIST_MIN# = 3.0
-CONST DIST_MAX# = 22.0
+CONST MOUSE_SENS = 0.0048
+CONST ORBIT_DEG_S = 72.0
+CONST WHEEL_ZOOM = 0.85
+CONST PITCH_MIN = 0.12
+CONST PITCH_MAX = 1.38
+CONST DIST_MIN = 3.0
+CONST DIST_MAX = 22.0
 ; Look-at point slightly above capsule centre so the camera feels over the shoulder
-CONST CAM_TARGET_YOFF# = 0.15
+CONST CAM_TARGET_YOFF = 0.15
 
 ; --- one platform (parallel DIM rows for LANDBOXES) --------------------------
 CONST PLAT_N = 1
@@ -78,96 +79,96 @@ CONST C_BODY_R = 40 : CONST C_BODY_G = 95 : CONST C_BODY_B = 200
 CONST C_HEAD_R = 255 : CONST C_HEAD_G = 210 : CONST C_HEAD_B = 120
 
 ; --- scene scale (visual) ----------------------------------------------------
-CONST FLOOR_HALF# = 20.0
+CONST FLOOR_HALF = 20.0
 CONST GRID_SLICES = 24
-CONST GRID_STEP# = 1.0
-CONST BOX_WIRE_INSET# = 0.05
-CONST CAM_FOV# = 55.0
+CONST GRID_STEP = 1.0
+CONST BOX_WIRE_INSET = 0.05
+CONST CAM_FOV = 55.0
 ; Player proxy (capsule + sphere) — sizes only affect drawing
-CONST P_CAP_BOT# = 0.42
-CONST P_CAP_TOP# = 0.48
-CONST P_CAP_RAD# = 0.38
-CONST P_HEAD_RAD# = 0.24
-CONST P_HEAD_YOFF# = 0.72
+CONST P_CAP_BOT = 0.42
+CONST P_CAP_TOP = 0.48
+CONST P_CAP_RAD = 0.38
+CONST P_HEAD_RAD = 0.24
+CONST P_HEAD_YOFF = 0.72
 
 cam = Camera.Make()
-cam.SetFOV(CAM_FOV#)
+cam.SetFOV(CAM_FOV)
 
-px# = 0.0
-py# = PLAYER_R#
-pz# = 0.0
-pvy# = 0.0
-ong? = FALSE
-camYaw# = 0.0
-camPitch# = 0.22
-camDist# = 8.0
+px = 0.0
+py = PLAYER_R
+pz = 0.0
+pvy = 0.0
+ong = FALSE
+camYaw = 0.0
+camPitch = 0.22
+camDist = 8.0
 
-DIM plx#(PLAT_N)
-DIM ply#(PLAT_N)
-DIM plz#(PLAT_N)
-DIM plw#(PLAT_N)
-DIM plh#(PLAT_N)
-DIM pld#(PLAT_N)
+DIM plx(PLAT_N)
+DIM ply(PLAT_N)
+DIM plz(PLAT_N)
+DIM plw(PLAT_N)
+DIM plh(PLAT_N)
+DIM pld(PLAT_N)
 DIM pr(PLAT_N)
 DIM pg(PLAT_N)
 DIM pb(PLAT_N)
 ; Platform 0 — centre (x,y,z), half-sizes (w,h,d), RGB
-plx#(0) = 0.0 : ply#(0) = 1.2 : plz#(0) = 5.0
-plw#(0) = 3.0 : plh#(0) = 0.35 : pld#(0) = 3.0
+plx(0) = 0.0 : ply(0) = 1.2 : plz(0) = 5.0
+plw(0) = 3.0 : plh(0) = 0.35 : pld(0) = 3.0
 pr(0) = C_BOX_R : pg(0) = C_BOX_G : pb(0) = C_BOX_B
 
 WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = DT()
+    dt = DT()
 
     ; ----- orbit (GAME.* deltas are floats — no ERASE) ------------------------
-    camYaw# = camYaw# + ORBITYAWDELTA(dt#, MOUSE_SENS#, KEY_Q, KEY_E, ORBIT_DEG_S#)
-    camPitch# = camPitch# + ORBITPITCHDELTA(MOUSE_SENS#)
-    camDist# = camDist# + ORBITDISTDELTA(WHEEL_ZOOM#)
-    camPitch# = CLAMP(camPitch#, PITCH_MIN#, PITCH_MAX#)
-    camDist# = CLAMP(camDist#, DIST_MIN#, DIST_MAX#)
+    camYaw = camYaw + ORBITYAWDELTA(dt, MOUSE_SENS, KEY_Q, KEY_E, ORBIT_DEG_S)
+    camPitch = camPitch + ORBITPITCHDELTA(MOUSE_SENS)
+    camDist = camDist + ORBITDISTDELTA(WHEEL_ZOOM)
+    camPitch = CLAMP(camPitch, PITCH_MIN, PITCH_MAX)
+    camDist = CLAMP(camDist, DIST_MIN, DIST_MAX)
 
-    ; ----- walk — MOVESTEP* uses the same camYaw# as Camera.SetOrbit below -----
-    fwd# = Input.Axis(KEY_S, KEY_W)
-    side# = Input.Axis(KEY_A, KEY_D)
-    px# = CLAMP(px# + MOVESTEPX(camYaw#, fwd#, side#, MOVE_SPEED#, dt#), WORLD_X0#, WORLD_X1#)
-    pz# = CLAMP(pz# + MOVESTEPZ(camYaw#, fwd#, side#, MOVE_SPEED#, dt#), WORLD_Z0#, WORLD_Z1#)
+    ; ----- walk — MOVESTEP* uses the same camYaw as Camera.SetOrbit below -----
+    fwd = Input.Axis(KEY_S, KEY_W)
+    side = Input.Axis(KEY_A, KEY_D)
+    px = CLAMP(px + MOVESTEPX(camYaw, fwd, side, MOVE_SPEED, dt), WORLD_X0, WORLD_X1)
+    pz = CLAMP(pz + MOVESTEPZ(camYaw, fwd, side, MOVE_SPEED, dt), WORLD_Z0, WORLD_Z1)
 
     ; ----- jump, gravity, then land (box tops first, then y=0 floor) ----------
-    IF ong? AND KEYHIT(KEY_SPACE) THEN pvy# = JUMP#
-    pvy# = pvy# + GRAVITY# * dt#
-    py# = py# + pvy# * dt#
+    IF ong AND KEYHIT(KEY_SPACE) THEN pvy = JUMP
+    pvy = pvy + GRAVITY * dt
+    py = py + pvy * dt
 
-    ong? = FALSE
-    landY# = LANDBOXES(px#, py#, pz#, pvy#, PLAYER_R#, plx#, ply#, plz#, plw#, plh#, pld#, PLAT_N)
-    IF landY# > 0.0 THEN
-        py# = landY#
-        pvy# = 0.0
-        ong? = TRUE
+    ong = FALSE
+    landY = LANDBOXES(px, py, pz, pvy, PLAYER_R, plx, ply, plz, plw, plh, pld, PLAT_N)
+    IF landY > 0.0 THEN
+        py = landY
+        pvy = 0.0
+        ong = TRUE
     ENDIF
-    IF NOT ong? AND py# - PLAYER_R# <= GROUND_SNAP_EPS# AND pvy# <= 0.0 THEN
-        py# = PLAYER_R#
-        pvy# = 0.0
-        ong? = TRUE
+    IF NOT ong AND py - PLAYER_R <= GROUND_SNAP_EPS AND pvy <= 0.0 THEN
+        py = PLAYER_R
+        pvy = 0.0
+        ong = TRUE
     ENDIF
 
-    Camera.SetOrbit(cam, px#, py# + CAM_TARGET_YOFF#, pz#, camYaw#, camPitch#, camDist#)
+    Camera.SetOrbit(cam, px, py + CAM_TARGET_YOFF, pz, camYaw, camPitch, camDist)
 
     ; ----- draw (Clear = background; Begin/End = 3D) --------------------------
     Render.Clear(C_SKY_R, C_SKY_G, C_SKY_B)
     cam.Begin()
         ; --- world (Blitz-style short names — see DRAW3D.md / BLITZ3D.md) ---
-        FLAT(0.0, 0.0, 0.0, FLOOR_HALF# * 2.0, FLOOR_HALF# * 2.0, C_GRASS_R, C_GRASS_G, C_GRASS_B, 255)
-        GRID3(GRID_SLICES, GRID_STEP#)
-        BOX(plx#(0), ply#(0), plz#(0), plw#(0), plh#(0), pld#(0), pr(0), pg(0), pb(0), 255)
-        WIRECUBE(plx#(0), ply#(0), plz#(0), plw#(0) + BOX_WIRE_INSET#, plh#(0) + BOX_WIRE_INSET#, pld#(0) + BOX_WIRE_INSET#, C_WIRE_R, C_WIRE_G, C_WIRE_B, 210)
-        ; --- player proxy (not physics — PLAYER_R# is the real collider) -------
-        CAP(px#, py# - P_CAP_BOT#, pz#, px#, py# + P_CAP_TOP#, pz#, P_CAP_RAD#, 10, 12, C_BODY_R, C_BODY_G, C_BODY_B, 255)
-        BALL(px#, py# + P_HEAD_YOFF#, pz#, P_HEAD_RAD#, C_HEAD_R, C_HEAD_G, C_HEAD_B, 255)
+        FLAT(0.0, 0.0, 0.0, FLOOR_HALF * 2.0, FLOOR_HALF * 2.0, C_GRASS_R, C_GRASS_G, C_GRASS_B, 255)
+        GRID3(GRID_SLICES, GRID_STEP)
+        BOX(plx(0), ply(0), plz(0), plw(0), plh(0), pld(0), pr(0), pg(0), pb(0), 255)
+        WIRECUBE(plx(0), ply(0), plz(0), plw(0) + BOX_WIRE_INSET, plh(0) + BOX_WIRE_INSET, pld(0) + BOX_WIRE_INSET, C_WIRE_R, C_WIRE_G, C_WIRE_B, 210)
+        ; --- player proxy (not physics — PLAYER_R is the real collider) -------
+        CAP(px, py - P_CAP_BOT, pz, px, py + P_CAP_TOP, pz, P_CAP_RAD, 10, 12, C_BODY_R, C_BODY_G, C_BODY_B, 255)
+        BALL(px, py + P_HEAD_YOFF, pz, P_HEAD_RAD, C_HEAD_R, C_HEAD_G, C_HEAD_B, 255)
     cam.End()
 
     Draw.Text("Blitz-style orbit hop", 36, 12, 18, 250, 252, 255, 255)
     Draw.Text("Q/E · R-drag · wheel · WASD · Space · Esc", 36, 36, 14, 200, 215, 235, 255)
-    Draw.Text(IIF$(ong?, "Ground", "Air"), 36, 58, 15, IIF(ong?, 140, 255), IIF(ong?, 255, 200), IIF(ong?, 190, 140), 255)
+    Draw.Text(IIF(ong, "Ground", "Air"), 36, 58, 15, IIF(ong, 140, 255), IIF(ong, 255, 200), IIF(ong, 190, 140), 255)
     Render.Frame()
 WEND
 

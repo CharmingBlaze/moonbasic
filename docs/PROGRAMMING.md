@@ -28,12 +28,12 @@ Commands are **type-checked** against the manifest (`compiler/builtinmanifest/co
 | Integer | `score`, literal `10` | `ARRAYLEN(arr)` |
 | Float | `x`, `1.5` | `MATH.SIN(angle)` |
 | String | `msg`, `"hi"` | `FILE.OPEN(path, "r")` |
-| Boolean | `ok?`, `TRUE` / `FALSE` | `Input.KeyDown(KEY_SPACE)` |
+| Boolean | `ok`, `TRUE` / `FALSE` | `Input.KeyDown(KEY_SPACE)` |
 | Handle | value from `Load`, `Make`, etc. | `Mesh.Draw(mesh, mat, transform)` |
 
 Numeric **widening** is allowed where the manifest marks alternatives (many APIs accept int or float for coordinates).
 
-Variable types follow **suffix rules** (`$` string, `#` float, `?` bool, none = int) — see [LANGUAGE.md](LANGUAGE.md).
+Variable types are determined implicitly by assignment (e.g. `speed = 5.5` makes it a float). Suffixes (`$` string, `#` float, `?` bool) are supported for legacy code but are no longer recommended for modern style — see [LANGUAGE.md](LANGUAGE.md).
 
 ---
 
@@ -48,7 +48,7 @@ Window.SetFPS(60)
 ; setup handles, load assets, set variables
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
     ; --- update (physics, input, AI) ---
 

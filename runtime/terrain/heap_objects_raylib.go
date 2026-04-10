@@ -1,9 +1,10 @@
-//go:build cgo || (windows && !cgo)
+﻿//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
 
 package terrain
 
 import (
 	"math"
+	"sync/atomic"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
@@ -42,6 +43,13 @@ type TerrainObject struct {
 
 	MaxHeight float32
 
+	// Async chunk mesh build (mesh_jobs.go): goroutine posts chunkMeshJob; main thread drains meshJobs.
+	meshJobs       chan chunkMeshJob
+	meshJobsInflight atomic.Int32
+	// MeshBuildBudgetPerTick limits rebuilds per WORLD.UPDATE tick (0 = unlimited).
+	MeshBuildBudgetPerTick int
+	MeshBuildAsync         bool
+
 	freed bool
 }
 
@@ -56,6 +64,8 @@ type chunkSlot struct {
 	// MinH/MaxH are heightfield samples (before TerrainObject.PY); set in rebuildChunkMesh.
 	MinH, MaxH float32
 	BoundsValid bool
+	// PendingAsync: CPU heightmap prep in flight; main thread must drain before rebuilding.
+	PendingAsync bool
 }
 
 func (t *TerrainObject) TypeName() string { return "Terrain" }
@@ -66,6 +76,8 @@ func (t *TerrainObject) Free() {
 	if t.freed {
 		return
 	}
+	t.freed = true
+	t.shutdownMeshJobQueue()
 	for i := range t.Chunks {
 		ch := &t.Chunks[i]
 		if ch.Loaded {
@@ -84,7 +96,6 @@ func (t *TerrainObject) Free() {
 	}
 	t.Chunks = nil
 	t.Heights = nil
-	t.freed = true
 }
 
 func max32Terrain(a, b float32) float32 {

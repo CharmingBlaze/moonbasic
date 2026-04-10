@@ -14,3 +14,7 @@ func NewModule() *Module { return &Module{} }
 func (m *Module) SetUserInvoker(fn func(string, []value.Value) (value.Value, error)) {
 	m.invoke = fn
 }
+
+func (m *Module) Reset() {}
+
+

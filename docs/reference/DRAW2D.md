@@ -101,7 +101,7 @@ All texture commands take a **texture handle** from `Texture.Load` / `Texture.Fr
 | `MeasureTextEx` | `font, text, size, spacing` → `[w, h]` array |
 | `GetTextCodepointCount` | `text` → integer |
 
-### `DEBUG.PRINT(template$, v0 [, v1 …])`
+### `DEBUG.PRINT(template, v0 [, v1 …])`
 
 Quick **debug HUD** lines: **`template`** uses placeholders **`{0}`** … **`{9}`**, filled from the following values. Draws with the default font at a fixed top-left column, **stacking downward** each frame; the vertical cursor **resets** when the render **frame** advances (same timing as **`RENDER.FRAME`** / runtime frame counter). For positioned or styled HUD text, use **`Draw.Text`** instead.
 
@@ -134,17 +134,17 @@ Quick **debug HUD** lines: **`template`** uses placeholders **`{0}`** … **`{9}
 Window.Open(800, 600, "2D Drawing")
 Window.SetFPS(60)
 tex = Texture.Load("player.png")
-player_x# = 375
-player_y# = 275
+player_x = 375
+player_y = 275
 
 WHILE NOT Window.ShouldClose()
-    dt# = Time.Delta()
-    IF Input.KeyDown(KEY_RIGHT) THEN player_x# = player_x# + 200 * dt#
-    IF Input.KeyDown(KEY_LEFT) THEN player_x# = player_x# - 200 * dt#
+    dt = Time.Delta()
+    IF Input.KeyDown(KEY_RIGHT) THEN player_x = player_x + 200 * dt
+    IF Input.KeyDown(KEY_LEFT) THEN player_x = player_x - 200 * dt
 
     Render.Clear(14, 22, 33)
     Draw.Rectangle(0, 500, 800, 100, 40, 50, 60, 255)
-    Draw.Texture(tex, INT(player_x#), INT(player_y#), 255, 255, 255, 255)
+    Draw.Texture(tex, INT(player_x), INT(player_y), 255, 255, 255, 255)
     Draw.Rectangle(10, 10, 200, 20, 200, 0, 0, 255)
     Draw.Text("HEALTH", 15, 12, 16, 255, 255, 255, 255)
     Render.Frame()

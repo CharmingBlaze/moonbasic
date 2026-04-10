@@ -1,4 +1,4 @@
-//go:build cgo || (windows && !cgo)
+//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
 
 package terrain
 
@@ -27,6 +27,8 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("CHUNK.COUNT", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkCount(m, rt, args...) })
 	r.Register("CHUNK.SETRANGE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkSetRange(m, rt, args...) })
 	r.Register("CHUNK.ISLOADED", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkIsLoaded(m, rt, args...) })
+	r.Register("TERRAIN.SETMESHBUILDBUDGET", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetMeshBudget(m, rt, args...) })
+	r.Register("TERRAIN.SETASYNCMESHBUILD", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetAsync(m, rt, args...) })
 	registerTerrainExtended(m, r)
 	registerTerrainBlitzAliases(m, r)
 	registerTerrainApply(m, r)
@@ -644,4 +646,44 @@ func (m *Module) IsReadyTerrain(h heap.Handle) bool {
 		}
 	}
 	return true
+}
+
+func terrainSetMeshBudget(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("TERRAIN.SETMESHBUILDBUDGET expects terrain, budget")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	b, err := rt.ArgInt(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj.MeshBuildBudgetPerTick = int(b)
+	return value.Nil, nil
+}
+
+func terrainSetAsync(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("TERRAIN.SETASYNCMESHBUILD expects terrain, enabled?")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	b, err := rt.ArgBool(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj.MeshBuildAsync = b
+	return value.Nil, nil
 }

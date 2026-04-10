@@ -67,3 +67,6 @@ func (m *Module) Register(reg mbruntime.Registrar) {
 func (m *Module) Shutdown() {
 	shutdownNet(m)
 }
+
+func (m *Module) Reset() {}
+

@@ -34,10 +34,10 @@ patrolDir = 1
 navDebug = 0
 
 ; Configuration
-CONST MOVE_SPEED# = 12.0
-CONST JUMP_FORCE# = 9.0
-CONST CAM_DIST# = 9.5
-CONST MOUSE_SENSITIVITY# = 0.005
+CONST MOVE_SPEED = 12.0
+CONST JUMP_FORCE = 9.0
+CONST CAM_DIST = 9.5
+CONST MOUSE_SENSITIVITY = 0.005
 
 ; Initialize Camera
 cam = CreateCamera()
@@ -101,29 +101,29 @@ FOR i = 0 TO 4
 NEXT
 
 score = 0
-camYaw# = 0.0
-camPitch# = 0.3
+camYaw = 0.0
+camPitch = 0.3
 cinematicMode = 0
 
 COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 
 ; Main Game Loop
 WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
+    dt = TIME.DELTA()
 
     ; 1. Input: Camera Orbiting
-    camYaw# = camYaw# + INPUT.MOUSEDX() * MOUSE_SENSITIVITY#
-    camPitch# = camPitch# - INPUT.MOUSEDY() * MOUSE_SENSITIVITY#
-    IF camPitch# > 1.4 THEN camPitch# = 1.4
-    IF camPitch# < -0.1 THEN camPitch# = -0.1
+    camYaw = camYaw + INPUT.MOUSEDX() * MOUSE_SENSITIVITY
+    camPitch = camPitch - INPUT.MOUSEDY() * MOUSE_SENSITIVITY
+    IF camPitch > 1.4 THEN camPitch = 1.4
+    IF camPitch < -0.1 THEN camPitch = -0.1
     
     ; 2. Input: Player Movement
-    moveF# = AXIS(KEY_S, KEY_W)
-    moveS# = AXIS(KEY_A, KEY_D)
+    moveF = AXIS(KEY_S, KEY_W)
+    moveS = AXIS(KEY_A, KEY_D)
     
-    vx# = MOVESTEPX(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
-    vz# = MOVESTEPZ(camYaw#, moveF#, moveS#, MOVE_SPEED#, dt#)
-    MOVEENTITY(player, vx#, 0, vz#)
+    vx = MOVESTEPX(camYaw, moveF, moveS, MOVE_SPEED, dt)
+    vz = MOVESTEPZ(camYaw, moveF, moveS, MOVE_SPEED, dt)
+    MOVEENTITY(player, vx, 0, vz)
 
     ; 2b. Debug Inspector Hooks
     IF INPUT.KEYHIT(KEY_F1) THEN DEBUG.DUMPHEAP()
@@ -151,25 +151,25 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
                 patrolDir = 1
             ENDIF
         ENDIF
-        NAVAGENT.UPDATE(agent, dt#)
+        NAVAGENT.UPDATE(agent, dt)
         POSENT(guardianEnt, NAVAGENT.X(agent), NAVAGENT.Y(agent), NAVAGENT.Z(agent))
     ENDIF
 
     ; 3. Automatic World Simulation
-    WORLD.UPDATE(dt#)
+    WORLD.UPDATE(dt)
 
     ; 4. Jumping
-    IF ENTITYFLOOR(player) AND INPUT.KEYHIT(KEY_SPACE) THEN ENTITYJUMP(player, JUMP_FORCE#)
+    IF ENTITYFLOOR(player) AND INPUT.KEYHIT(KEY_SPACE) THEN ENTITYJUMP(player, JUMP_FORCE)
 
     ; 5. Collectible Check
-    px# = ENTX(player)
-    py# = ENTY(player)
-    pz# = ENTZ(player)
+    px = ENTX(player)
+    py = ENTY(player)
+    pz = ENTZ(player)
     
     FOR i = 0 TO 4
         IF starActive(i) = 1 THEN
-            dist# = DIST3D(px#, py#, pz#, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
-            IF dist# < 1.1 THEN
+            dist = DIST3D(px, py, pz, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
+            IF dist < 1.1 THEN
                 starActive(i) = 0
                 score = score + 1
                 HideEntity(starEnts(i))
@@ -179,7 +179,7 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         ENDIF
     NEXT
 
-    cam.orbit(px#, py# + 0.5, pz#, camYaw#, camPitch#, CAM_DIST#)
+    cam.orbit(px, py + 0.5, pz, camYaw, camPitch, CAM_DIST)
 
     ; 7. Rendering
     SKYCOLOR(0, 0, 15) ; Deep night sky
@@ -191,7 +191,7 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         PARTICLES.DRAWEMITTER(starEmit)
         
         ; Batch 6: Professional debug primitives
-        DRAW.LINE3D(px#, py#, pz#, px#, py# + 2.0, pz#, 0, 255, 0, 255) ; Green Up-Vector
+        DRAW.LINE3D(px, py, pz, px, py + 2.0, pz, 0, 255, 0, 255) ; Green Up-Vector
         
         IF navDebug = 1 THEN NAV.DEBUGDRAW(nav)
     CAMERA.END(cam)

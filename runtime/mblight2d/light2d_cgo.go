@@ -251,16 +251,21 @@ func drawLightOverlay() {
 	ls := append([]*light2dObj(nil), lights...)
 	lightMu.Unlock()
 
-	avg := (int(ar) + int(ag) + int(ab)) / 3
-	if avg < 255 {
-		overlayA := uint8(255 - avg)
-		if overlayA > 0 {
-			rl.DrawRectangle(0, 0, int32(w), int32(h), color.RGBA{R: 0, G: 0, B: 0, A: overlayA})
-		}
-	}
-
+	// Darkness overlay + additive lights are a pair: without any LIGHT2D.* lights, do not dim the
+	// framebuffer — otherwise a low SET2DAMBIENT (or legacy default) paints opaque black over every
+	// program (3D included). See BUG_COLOUR_DIAGNOSIS.txt.
 	if len(ls) == 0 {
 		return
+	}
+
+	avg := (int(ar) + int(ag) + int(ab)) / 3
+	if avg < 255 {
+		diff := 255 - avg
+		if diff < 1 {
+			return
+		}
+		overlayA := uint8(diff)
+		rl.DrawRectangle(0, 0, int32(w), int32(h), color.RGBA{R: 0, G: 0, B: 0, A: overlayA})
 	}
 	rl.SetBlendMode(rl.BlendAdditive)
 	for _, l := range ls {

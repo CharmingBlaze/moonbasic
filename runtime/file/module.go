@@ -287,3 +287,6 @@ func (m *Module) fileSize(args ...value.Value) (value.Value, error) {
 	}
 	return value.FromInt(fi.Size()), nil
 }
+
+func (m *Module) Reset() {}
+

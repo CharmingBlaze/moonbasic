@@ -16,6 +16,8 @@ Before you can build, you need the following software installed on your system.
 
 In **[gen2brain/raylib-go](https://github.com/gen2brain/raylib-go)**, Git tags such as **`raylib/v0.55.0`** / **`v0.55.1`** correspond to bindings for **Raylib C 5.5**. This repository does **not** pin those tags today: it uses a **newer** `raylib` + `raygui` module version (**`v0.56.0-dev`**-style pseudo-version) because **`GUI.*`** and other code target the **current raygui** Go API (`ControlID`, `PropertyID`, `SetAlpha`, color helpers, etc.). Downgrading only the module to **`v0.55.x`** without a large port breaks the build.
 
+**OpenGL profile (Windows CGO):** Unless you pass alternate **`raylib-go` build tags** (e.g. **`opengl43`** on the **`raylib`** module), the upstream **`cgo_windows*.go`** files default to **`-DGRAPHICS_API_OPENGL_33`**. moonBASIC does **not** enable **`opengl43`** by default, so linked Raylib is aimed at **OpenGL 3.3**, which matches most integrated GPUs from the last decade.
+
 For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a **C Raylib** build whose **ABI matches** the **raylib-go** revision you compile against (check upstream release notes for that commit). If you specifically need **Raylib C 5.5** artifacts, pair them with **`raylib-go` `v0.55.x`** only after adapting `runtime/mbgui` and any other API-drift call sites.
 
 ### Raylib 5.5 and “Go only” (no CGO / no C compiler)

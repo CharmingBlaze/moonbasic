@@ -13,3 +13,5 @@ func NewModule() *Module { return &Module{} }
 
 // BindHeap binds the VM heap before Register.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+func (m *Module) Reset() {}

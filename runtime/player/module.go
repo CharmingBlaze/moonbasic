@@ -75,3 +75,6 @@ func (m *Module) Register(reg runtime.Registrar) {
 func (m *Module) Shutdown() {
 	mbentity.SetCharacterGroundNormalResolver(nil)
 }
+
+func (m *Module) Reset() {}
+

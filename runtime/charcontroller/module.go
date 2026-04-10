@@ -26,3 +26,6 @@ func (m *Module) Register(reg runtime.Registrar) {
 func (m *Module) Shutdown() {
 	shutdownCharController(m)
 }
+
+func (m *Module) Reset() {}
+

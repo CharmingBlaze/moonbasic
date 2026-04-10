@@ -1,0 +1,147 @@
+; Async terrain LOD swap: FLAT green floor + spinner until WORLD.ISREADY, then heightmap.
+; Readiness is WORLD.ISREADY(terrain) — there is no TERRAIN.ISREADY; world streaming owns the check.
+; Run: CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/terrain_async/main.mb
+
+CONST TW = 320
+CONST TCX = 160.0
+CONST TCZ = 160.0
+CONST PRELOAD_R = 4
+CONST ORBIT_MOUSE_BTN = 1
+CONST ORBIT_YAW_SENS = 0.003
+CONST ORBIT_PITCH_SENS = 0.003
+CONST PITCH_MIN = -0.1
+CONST PITCH_MAX = 1.28
+CONST DIST_MIN = 5.0
+CONST DIST_MAX = 30.0
+CONST ZOOM_WHEEL = 0.85
+CONST MOVE_SPD = 14.0
+CONST PLAYER_R = 0.55
+CONST FLOOR_R = 42
+CONST FLOOR_G = 120
+CONST FLOOR_B = 68
+CONST GRID_SLICES = 36
+CONST GRID_STEP = 2.2
+
+SetMSAA(0)
+Window.Open(1280, 720, "moonBASIC - async terrain (LOD swap)")
+WINDOW.SETLOADINGMODE(TRUE)
+Window.SetFPS(60)
+
+terrain = Terrain.Make(TW, TW)
+Terrain.FillPerlin(terrain, 0.032, 50.0)
+Terrain.SetMeshBuildBudget(terrain, 2)
+Terrain.SetAsyncMeshBuild(terrain, TRUE)
+Chunk.SetRange(terrain, 140.0, 240.0)
+World.SetCenter(TCX, TCZ)
+World.StreamEnable(TRUE)
+World.Preload(terrain, PRELOAD_R)
+
+cam = CreateCamera()
+cam.SetFOV(56)
+
+player = CreateSphere()
+ScaleEntity(player, PLAYER_R, PLAYER_R, PLAYER_R)
+EntityColor(player, 80, 210, 255, 255)
+PositionEntity(player, TCX, PLAYER_R + 0.45, TCZ, TRUE)
+
+camYaw = 0.0
+camPitch = 0.26
+cd = 12.0
+ready = 0
+spinTick = 0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(40, 58, 82)
+    dt = Time.Delta(0.0167, 0.05)
+
+    dx = INPUT.MOUSEDELTAX()
+    dy = INPUT.MOUSEDELTAY()
+    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+        camYaw = camYaw + dx * ORBIT_YAW_SENS
+        camPitch = camPitch - dy * ORBIT_PITCH_SENS
+    ENDIF
+    camPitch = CLAMP(camPitch, PITCH_MIN, PITCH_MAX)
+    mw = MouseWheel()
+    cd = cd - mw * ZOOM_WHEEL
+    cd = CLAMP(cd, DIST_MIN, DIST_MAX)
+    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.05 * dt
+    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.05 * dt
+
+    fwd = 0.0
+    side = 0.0
+    IF Input.KeyDown(KEY_W) THEN fwd = fwd + 1.0
+    IF Input.KeyDown(KEY_S) THEN fwd = fwd - 1.0
+    IF Input.KeyDown(KEY_D) THEN side = side + 1.0
+    IF Input.KeyDown(KEY_A) THEN side = side - 1.0
+    IF fwd <> 0.0 OR side <> 0.0 THEN
+        mag = MATH.SQRT(fwd * fwd + side * side)
+        fwd = fwd / mag
+        side = side / mag
+        sy = MATH.SIN(camYaw)
+        cy = MATH.COS(camYaw)
+        spd = MOVE_SPD * dt
+        stepX = (sy * fwd + cy * side) * spd
+        stepZ = (cy * fwd - sy * side) * spd
+        px = Entity.X(player)
+        py = Entity.Y(player)
+        pz = Entity.Z(player)
+        Entity.SetPosition(player, px + stepX, py, pz + stepZ, TRUE)
+    ENDIF
+
+    px = Entity.X(player)
+    pz = Entity.Z(player)
+    px = CLAMP(px, 3.0, FLOAT(TW) - 3.0)
+    pz = CLAMP(pz, 3.0, FLOAT(TW) - 3.0)
+    Entity.SetPosition(player, px, Entity.Y(player), pz, TRUE)
+
+    World.SetCenter(px, pz)
+    World.Update(dt)
+
+    IF ready = 0 THEN
+        IF WORLD.ISREADY(terrain) THEN
+            WINDOW.SETLOADINGMODE(FALSE)
+            ready = 1
+        ENDIF
+    ENDIF
+
+    IF ready <> 0 THEN
+        Terrain.SnapY(terrain, player, PLAYER_R)
+    ELSE
+        py = PLAYER_R + 0.45
+        Entity.SetPosition(player, Entity.X(player), py, Entity.Z(player), TRUE)
+    ENDIF
+
+    ENTITY.UPDATE(dt)
+    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+
+    RENDER.Begin3D(cam)
+        IF ready = 0 THEN
+            FLAT(0.0, 0.0, 0.0, FLOAT(TW), FLOAT(TW), FLOOR_R, FLOOR_G, FLOOR_B, 255)
+            GRID3(GRID_SLICES, GRID_STEP)
+        ELSE
+            Terrain.Draw(terrain)
+        ENDIF
+        DrawEntities()
+    RENDER.END3D()
+
+    IF ready = 0 THEN
+        sp = "|"
+        IF spinTick = 1 THEN sp = "/"
+        IF spinTick = 2 THEN sp = "-"
+        IF spinTick = 3 THEN sp = "."
+        Draw.Text("Loading terrain " + sp, 24, 24, 22, 255, 255, 255, 255)
+        spinTick = spinTick + 1
+        IF spinTick >= 4 THEN spinTick = 0
+        Draw.Text("WORLD.ISREADY = false   (async prep + budget 2/frame)", 24, 54, 15, 210, 225, 245, 255)
+        Draw.Text("WASD move   RMB orbit   wheel zoom   ESC", 24, 76, 14, 180, 200, 230, 255)
+    ELSE
+        Draw.Text("Heightfield ready — FLAT swapped for TERRAIN.DRAW", 16, 14, 17, 230, 250, 255, 255)
+        Draw.Text("WASD   RMB orbit   ESC", 16, 38, 14, 200, 220, 245, 255)
+    ENDIF
+    Render.Frame()
+WEND
+
+FreeEntity(player)
+Terrain.Free(terrain)
+Camera.Free(cam)
+Window.Close()

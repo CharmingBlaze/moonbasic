@@ -2035,6 +2035,19 @@
       ]
     },
     {
+      "key": "WINDOW.SETLOADINGMODE",
+      "args": [
+        "bool"
+      ],
+      "description": "When true, TERRAIN.DRAW skips drawing so RENDER.FRAME still polls OS events during mesh builds"
+    },
+    {
+      "key": "WINDOW.LOADINGMODE",
+      "args": [],
+      "returns": "bool",
+      "description": "Current loading-mode flag from WINDOW.SETLOADINGMODE"
+    },
+    {
       "key": "WINDOW.CLOSE",
       "args": []
     },
@@ -7104,6 +7117,12 @@
       "key": "SYSTEM.ISDEBUGBUILD",
       "args": [],
       "returns": "bool"
+    },
+    {
+      "key": "SYSTEM.VERSION",
+      "args": [],
+      "returns": "string",
+      "description": "MoonBasic release string (e.g. 1.0.0-GOLD); informational only."
     },
     {
       "key": "DEBUG.PRINT",
@@ -17293,6 +17312,22 @@
       "description": "LOD factor in (0,1]: lower = coarser chunk meshes"
     },
     {
+      "key": "TERRAIN.SETMESHBUILDBUDGET",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Max chunk mesh GPU rebuilds per WORLD.UPDATE tick; 0 = unlimited (default). Use 1–4 to avoid UI thread stalls."
+    },
+    {
+      "key": "TERRAIN.SETASYNCMESHBUILD",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "description": "When true, CPU heightmap prep runs on a background goroutine; GenMeshHeightmap still runs on the main thread when jobs drain (use with WINDOW.SETLOADINGMODE / mesh budget)."
+    },
+    {
       "key": "TERRAIN.APPLYMAP",
       "args": [
         "handle",
@@ -22362,6 +22397,25 @@
         "float"
       ],
       "description": "Moves an entity toward a coordinate."
+    },
+    {
+      "key": "ENTITY.MOVETOWARD",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ],
+      "description": "Moves an entity toward another entity at constant speed (XZ toward target, Y preserved)."
+    },
+    {
+      "key": "ENTITY.WITHINRADIUS",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ],
+      "returns": "bool",
+      "description": "True if 3D distance between entities is <= maxDistance (simple sphere check; not Jolt physics)."
     },
     {
       "key": "ENTITY.LOOKAT",

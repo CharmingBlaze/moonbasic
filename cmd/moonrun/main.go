@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"moonbasic/compiler/pipeline"
@@ -15,6 +16,14 @@ import (
 )
 
 const version = "1.2.5"
+
+func init() {
+	// Pin the main goroutine before any work. OpenGL/GLFW contexts (Raylib) must stay on the OS
+	// thread that created them; integrated GPUs (e.g. Intel Iris Xe) are especially strict.
+	// pipeline.RunProgram also calls LockOSThread before the VM runs; this locks earlier so any
+	// future code in main() before RunProgram stays on the same thread.
+	runtime.LockOSThread()
+}
 
 func main() {
 	var (

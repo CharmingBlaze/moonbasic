@@ -1,4 +1,4 @@
-//go:build cgo || (windows && !cgo)
+//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
 
 package terrain
 
@@ -114,6 +114,44 @@ func (t *TerrainObject) rebuildChunkMesh(cx, cz int) {
 		ch.Loaded = false
 	}
 	ch.Mesh = rl.GenMeshHeightmap(*im, rl.NewVector3(sizeX, sizeY, sizeZ))
+	rl.UnloadImage(im)
+	ch.Mat = rl.LoadMaterialDefault()
+	if t.DiffuseLoaded {
+		rl.SetMaterialTexture(&ch.Mat, rl.MapAlbedo, t.DiffuseTex)
+	}
+	ch.Loaded = true
+	ch.Dirty = false
+}
+
+// applyHeightmapPrep uploads CPU-built heightmap pixels (async worker) on the main thread.
+func (t *TerrainObject) applyHeightmapPrep(cx, cz int, prep *heightmapPrep) {
+	if prep == nil || prep.W < 2 || prep.H < 2 {
+		return
+	}
+	want := prep.W * prep.H * 4
+	if len(prep.Pixels) < want {
+		return
+	}
+	idx := idx2(t, cx, cz)
+	if idx < 0 || idx >= len(t.Chunks) {
+		return
+	}
+	ch := &t.Chunks[idx]
+	pix := append([]byte(nil), prep.Pixels[:want]...)
+	im := rl.NewImage(pix, int32(prep.W), int32(prep.H), 1, rl.UncompressedR8g8b8a8)
+	if im == nil {
+		return
+	}
+	ch.MinH = prep.MinH
+	ch.MaxH = prep.MaxH
+	ch.BoundsValid = true
+
+	if ch.Loaded {
+		rl.UnloadMaterial(ch.Mat)
+		rl.UnloadMesh(&ch.Mesh)
+		ch.Loaded = false
+	}
+	ch.Mesh = rl.GenMeshHeightmap(*im, rl.NewVector3(prep.SizeX, prep.SizeY, prep.SizeZ))
 	rl.UnloadImage(im)
 	ch.Mat = rl.LoadMaterialDefault()
 	if t.DiffuseLoaded {

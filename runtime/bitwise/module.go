@@ -13,3 +13,6 @@ func (m *Module) Register(r runtime.Registrar) {
 }
 
 func (m *Module) Shutdown() {}
+
+func (m *Module) Reset() {}
+

@@ -42,13 +42,13 @@ Classic Blitz3D drove the frame with **Flip**, **RenderWorld**, and **UpdateWorl
 Blitz3D used commands like **`ScaleEntity`**, **`PositionEntity`**, **`EntityColor`**. moonBASIC keeps the same **runtime** (**`ENTITY.*`** with integer ids) but also exposes **short constructors** that return a **heap handle** (**`ENTITYREF`**) so you can use **modern dot-syntax**:
 
 ```moonbasic
-cube = CUBE()           ; or CUBE(w#, h#, d#)
+cube = CUBE()           ; or CUBE(w, h, d)
 cube.Pos(0, 1.2, 5)
 cube.Scale(3, 0.35, 3)
 cube.Col(255, 140, 96)
 
 player = SPHERE(0.45)
-player.Pos(px#, py#, pz#)
+player.Pos(px, py, pz)
 player.Col(40, 95, 200)
 ```
 

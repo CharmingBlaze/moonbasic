@@ -57,3 +57,7 @@ func NewModule() *Module {
 		fpsHistory: make([]float32, 120),
 	}
 }
+
+func (m *Module) Reset() {}
+
+

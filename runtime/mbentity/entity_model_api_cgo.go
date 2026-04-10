@@ -563,14 +563,14 @@ func (m *Module) entSetShaderModel(args []value.Value) (value.Value, error) {
 
 func aabbWorldFromModel(bb rl.BoundingBox, mat rl.Matrix) (mn, mx rl.Vector3) {
 	corners := [8]rl.Vector3{
-		{bb.Min.X, bb.Min.Y, bb.Min.Z},
-		{bb.Max.X, bb.Min.Y, bb.Min.Z},
-		{bb.Min.X, bb.Max.Y, bb.Min.Z},
-		{bb.Max.X, bb.Max.Y, bb.Min.Z},
-		{bb.Min.X, bb.Min.Y, bb.Max.Z},
-		{bb.Max.X, bb.Min.Y, bb.Max.Z},
-		{bb.Min.X, bb.Max.Y, bb.Max.Z},
-		{bb.Max.X, bb.Max.Y, bb.Max.Z},
+		{X: bb.Min.X, Y: bb.Min.Y, Z: bb.Min.Z},
+		{X: bb.Max.X, Y: bb.Min.Y, Z: bb.Min.Z},
+		{X: bb.Min.X, Y: bb.Max.Y, Z: bb.Min.Z},
+		{X: bb.Max.X, Y: bb.Max.Y, Z: bb.Min.Z},
+		{X: bb.Min.X, Y: bb.Min.Y, Z: bb.Max.Z},
+		{X: bb.Max.X, Y: bb.Min.Y, Z: bb.Max.Z},
+		{X: bb.Min.X, Y: bb.Max.Y, Z: bb.Max.Z},
+		{X: bb.Max.X, Y: bb.Max.Y, Z: bb.Max.Z},
 	}
 	p0 := rl.Vector3Transform(corners[0], mat)
 	mn = p0

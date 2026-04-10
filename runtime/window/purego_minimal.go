@@ -3,6 +3,7 @@ package window
 import (
 	"fmt"
 	"os"
+	goruntime "runtime"
 
 	"moonbasic/internal/driver"
 	"moonbasic/internal/raylibpurego"
@@ -73,7 +74,10 @@ func (m *Module) puregoWOpen(rt *runtime.Runtime, args ...value.Value) (value.Va
 		m.closeWindowLockedPurego(g)
 	}
 
-	flags := uint32(raylibFlagWindowHighdpi)
+	var flags uint32
+	if windowOpenWantHighDPI() {
+		flags |= uint32(raylibFlagWindowHighdpi)
+	}
 	if m.msaaSamples >= 2 {
 		flags |= uint32(raylibFlagMsaa4xHint)
 	}
@@ -93,10 +97,16 @@ func (m *Module) puregoWOpen(rt *runtime.Runtime, args ...value.Value) (value.Va
 	}
 	m.opened = true
 	m.inFrame = false
-	m.fpsTick = 0
-	if m.onAudioOpen != nil {
-		m.onAudioOpen()
+	nWarmup := 2
+	if s := os.Getenv("MOONBASIC_OPEN_WARMUP_FRAMES"); s != "" {
+		fmt.Sscanf(s, "%d", &nWarmup)
 	}
+	for i := 0; i < nWarmup; i++ {
+		g.BeginDrawing()
+		g.ClearBackground(raylibpurego.ColorPtr(raylibpurego.Color{R: 0, G: 0, B: 0, A: 255}))
+		g.EndDrawing()
+	}
+
 	return value.Nil, nil
 }
 
@@ -296,6 +306,7 @@ func (m *Module) puregoRFrame(rt *runtime.Runtime, args ...value.Value) (value.V
 	}
 	g.EndDrawing()
 	m.inFrame = false
+	goruntime.Gosched()
 
 	if m.logFPS && m.diagOut != nil && g.GetFPS != nil {
 		m.fpsTick++

@@ -10,25 +10,25 @@ The **world manager** ties into the active [`terrain`](TERRAIN.md) module: it up
 
 ---
 
-## `World.SetCenter(x#, z#)`
+## `World.SetCenter(x, z)`
 
 Sets the streaming focal point (usually the camera or player XZ). The bound terrain uses this to decide which chunks to load.
 
 ---
 
-## `World.SetCenterEntity(entity#)`
+## `World.SetCenterEntity(entity)`
 
 Same as **`World.SetCenter`** but takes an **entity id** and uses that entity’s world **X** and **Z**. Prefer this when the player (or camera rig) is already positioned each frame — avoids duplicating **`EntityX` / `EntityZ`** calls. See [LESS_MATH.md](LESS_MATH.md).
 
 ---
 
-## `World.Update(dt#)`
+## `World.Update(dt)`
 
 Advances streaming for one frame. Call **once per frame** after moving the center. **`dt`** is accepted for API symmetry; the current implementation uses the terrain’s tick path.
 
 ---
 
-## `World.StreamEnable(enabled?)`
+## `World.StreamEnable(enabled)`
 
 Enables or disables chunk streaming on the bound terrain.
 
@@ -40,7 +40,7 @@ Loads chunks in a **Manhattan** or radius-based neighborhood around the current 
 
 ---
 
-## `World.Status()` → string$
+## `World.Status()` → string
 
 Human-readable status for debugging (implementation-defined).
 
@@ -52,7 +52,7 @@ Returns whether the given terrain handle has finished **initial** chunk work rel
 
 ---
 
-## `World.SetVegetation(terrain#, billboard#, density#)`
+## `World.SetVegetation(terrain, billboard, density)`
 
 Populates an internal **`SCATTER`** instance with random **XZ** samples over a fixed area and snaps **Y** to **`Terrain.GetHeight`** (same placement rule as **`Scatter.Apply`**). The **billboard** handle is **reserved** for future instanced mesh drawing; today **`Scatter.DrawAll`** uses simple debug spheres unless you extend the scatter renderer.
 

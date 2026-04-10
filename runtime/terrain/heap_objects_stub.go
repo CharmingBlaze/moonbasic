@@ -1,4 +1,4 @@
-//go:build !cgo && !windows
+//go:build (!cgo && !windows) || (windows && gopls_stub)
 
 package terrain
 
@@ -35,6 +35,10 @@ type TerrainObject struct {
 	ScaleX, ScaleY, ScaleZ float32
 	DetailFactor           float32
 
+	// Parity with heap_objects_raylib.go (async mesh is CGO-only; fields kept for matching layout).
+	MeshBuildBudgetPerTick int
+	MeshBuildAsync         bool
+
 	freed bool
 }
 
@@ -45,6 +49,7 @@ type chunkSlot struct {
 	LastUpload int64
 	MinH, MaxH float32
 	BoundsValid bool
+	PendingAsync bool
 }
 
 func (t *TerrainObject) TypeName() string { return "Terrain" }

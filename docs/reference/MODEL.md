@@ -9,7 +9,7 @@ A **model** is a Raylib **`Model`**: meshes, materials, optional animation data,
 ### Model.Load
 
 ```basic
-mdl = MODEL.LOAD(path$)
+mdl = MODEL.LOAD(path)
 ```
 
 Loads **GLTF/GLB/OBJ/IQM/B3D** (Raylib loaders). Returns a model handle.
@@ -45,8 +45,8 @@ MODEL.DRAW(mdl)
 ### Model.SetPos
 
 ```basic
-MODEL.SETPOS(mdl, x#, y#, z#)
-MODEL.SETPOSITION(mdl, x#, y#, z#)
+MODEL.SETPOS(mdl, x, y, z)
+MODEL.SETPOSITION(mdl, x, y, z)
 ```
 
 Sets the model’s root transform to **translation** (replaces rotation/scale from the previous matrix). Works for **`modelObj`** and **`lodModelObj`**.

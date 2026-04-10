@@ -70,3 +70,6 @@ func (m *Module) Shutdown() {
 	m.tpsCam = nil
 	m.config = nil
 }
+
+func (m *Module) Reset() {}
+

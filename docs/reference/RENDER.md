@@ -54,7 +54,7 @@ Aliases for **`Camera.Begin(cameraHandle)`** and **`Camera.End()`**. Use one cam
 
 Draws the FPS counter at integer pixel coordinates (registered with the render module).
 
-### `Render.Screenshot(path$)`
+### `Render.Screenshot(path)`
 
 Writes a PNG screenshot to `path` (`TakeScreenshot`).
 
@@ -98,7 +98,7 @@ Enables or disables wireframe mode (Raylib wire mode).
 
 Toggles the **4× MSAA window hint** (affects setup; may require appropriate window flags).
 
-### `Render.SetMode(mode$)`
+### `Render.SetMode(mode)`
 
 `"forward"` or `"deferred"` — switches internal 3D render pipeline mode where supported.
 

@@ -19,3 +19,6 @@ func (m *Module) OnWindowOpen() { raylibAudioOpen() }
 
 // OnWindowClose is registered on the window module (before CloseWindow).
 func (m *Module) OnWindowClose() { raylibAudioClose() }
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {}

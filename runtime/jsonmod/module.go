@@ -24,3 +24,6 @@ func (m *Module) Register(r runtime.Registrar) {
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
+
+func (m *Module) Reset() {}
+

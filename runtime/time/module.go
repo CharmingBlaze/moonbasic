@@ -140,3 +140,6 @@ func (m *Module) Shutdown() {}
 func errArgs(want, got int) error {
 	return runtime.Errorf("expects %d argument(s), got %d", want, got)
 }
+
+func (m *Module) Reset() {}
+
