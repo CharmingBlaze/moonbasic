@@ -11,3 +11,4 @@ examples/rpg/save.json
 
 # Build artifacts
 *.exe
+/dist/
