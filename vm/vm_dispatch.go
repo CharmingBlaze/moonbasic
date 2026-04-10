@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/opcode"
 	"moonbasic/vm/value"
@@ -441,6 +442,16 @@ func min3(a, b, c int) int {
 	return c
 }
 
+func (v *VM) validateEntityMacroID(id int64) error {
+	if id < 0 {
+		return v.runtimeError(fmt.Sprintf("ENTITY: entity id %d is invalid (negative)", id))
+	}
+	if id >= runtime.MaxEntitySpatialIndex {
+		return v.runtimeError(fmt.Sprintf("ENTITY: entity id %d exceeds maximum %d", id, runtime.MaxEntitySpatialIndex-1))
+	}
+	return nil
+}
+
 func (v *VM) doEntityPropGet(i opcode.Instruction) error {
 	idVal := v.reg(i.SrcA)
 	id := idVal.IVal
@@ -451,10 +462,16 @@ func (v *VM) doEntityPropGet(i opcode.Instruction) error {
 			}
 		}
 	}
+	if err := v.validateEntityMacroID(id); err != nil {
+		return err
+	}
 
 	// 1. Zero-Copy SoA Path
 	sp := v.Registry.Spatial
 	if sp != nil && id >= 0 && id < int64(len(sp.X)) {
+		if v.Registry.EntityIDActive != nil && !v.Registry.EntityIDActive(id) {
+			return v.runtimeError(fmt.Sprintf("ENTITY: no active entity with id %d (spatial read)", id))
+		}
 		var f float32
 		switch i.Operand {
 		case 0: f = sp.X[id]
@@ -492,11 +509,17 @@ func (v *VM) doEntityPropSet(i opcode.Instruction) error {
 			}
 		}
 	}
+	if err := v.validateEntityMacroID(id); err != nil {
+		return err
+	}
 	val := v.reg(i.SrcB)
 
 	// 1. Zero-Copy SoA Path
 	sp := v.Registry.Spatial
 	if sp != nil && id >= 0 && id < int64(len(sp.X)) {
+		if v.Registry.EntityIDActive != nil && !v.Registry.EntityIDActive(id) {
+			return v.runtimeError(fmt.Sprintf("ENTITY: no active entity with id %d (spatial write)", id))
+		}
 		fV, _ := val.ToFloat()
 		f := float32(fV)
 		switch i.Operand {

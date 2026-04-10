@@ -395,6 +395,7 @@ func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallSt
 		case "R": propID = 5
 		}
 		if propID >= 0 {
+			g.validateEntityMacroConstArg(n.Args[0], n.Line, n.Col)
 			idReg := g.emitExpr(ch, n.Args[0])
 			valReg := g.emitExpr(ch, n.Args[1])
 			ch.Emit(opcode.OpEntityPropSet, 0, idReg, valReg, int32(propID), n.Line)
@@ -428,6 +429,7 @@ func (g *CodeGen) emitNamespaceAssignStmt(ch *opcode.Chunk, n *ast.NamespaceAssi
 		case "R": propID = 5
 		}
 		if propID >= 0 {
+			g.validateEntityMacroConstArg(n.Args[0], n.Line, n.Col)
 			idReg := g.emitExpr(ch, n.Args[0])
 			valReg := g.emitExpr(ch, n.Expr)
 			ch.Emit(opcode.OpEntityPropSet, 0, idReg, valReg, int32(propID), n.Line)

@@ -77,6 +77,18 @@ func TestTypeCheckSetFPSString(t *testing.T) {
 	}
 }
 
+func TestEntitySpatialLiteralOOB(t *testing.T) {
+	src := "ENTITY.X(33554432) = 1.0\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	if err := a.Run(prog); err == nil {
+		t.Fatal("expected type error for ENTITY spatial literal above MaxEntitySpatialIndex")
+	}
+}
+
 func TestUnknownEngineCommandRejected(t *testing.T) {
 	src := "FOO.BAR()\n"
 	prog, err := parser.ParseSource("t.mbc", src)

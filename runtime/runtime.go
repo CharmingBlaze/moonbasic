@@ -108,6 +108,10 @@ type Registry struct {
 	// Set by mbentity to enable zero-copy spatial macros in the VM.
 	Spatial *SpatialBuffer
 
+	// EntityIDActive reports whether id refers to a live entity in the host store (mbentity sets this).
+	// When non-nil, OpEntityPropGet/Set refuse the SoA fast path for in-bounds but inactive slots.
+	EntityIDActive func(id int64) bool
+
 	// FastEntityPropGet/Set are fallback accessors if SoA is not present or for complex props.
 	FastEntityPropGet func(id int64, propID int) (value.Value, error)
 	FastEntityPropSet func(id int64, propID int, val value.Value) error
@@ -338,6 +342,11 @@ func (r *Registry) LastScriptErrorLine() int {
 	defer r.scriptErrMu.RUnlock()
 	return r.lastScriptLine
 }
+
+// MaxEntitySpatialIndex is the exclusive upper bound for numeric entity indices used with
+// ENTITY.X/Y/Z/... macros (compile-time literal check + VM guard). Keeps script mistakes
+// from indexing absurd offsets; the engine still grows SoA as needed below this cap.
+const MaxEntitySpatialIndex int64 = 1 << 24 // 16_777_216
 
 // SpatialBuffer is a Data-Oriented structure for fast entity transform access.
 type SpatialBuffer struct {

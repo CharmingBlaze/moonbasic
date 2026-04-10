@@ -1,0 +1,2 @@
+; Compile-time check: literal entity index must be < MaxEntitySpatialIndex (2^24).
+ENTITY.X(33554432) = 1.0

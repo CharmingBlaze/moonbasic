@@ -1,10 +1,10 @@
 # moonBASIC — common dev tasks (Unix / Git Bash / WSL).
 # On Windows without Make, use:  powershell -File scripts/dev.ps1 <target>
 
-.PHONY: build-compiler build-moonrun test check run-spin-cube help
+.PHONY: build-compiler build-moonrun test check check-builds run-spin-cube help
 
 help:
-	@echo "Targets: build-compiler, build-moonrun, test, check, run-spin-cube"
+	@echo "Targets: build-compiler, build-moonrun, test, check, check-builds, run-spin-cube"
 
 build-compiler:
 	go build -o moonbasic .
@@ -17,6 +17,10 @@ test:
 
 check:
 	go run . --check examples/mario64/main_entities.mb
+
+# Compile both tag axes (compiler CLI + moonrun); needs CGO for fullruntime (see docs/BUILDING.md).
+check-builds:
+	bash scripts/check_builds.sh
 
 # Opens a window — requires CGO + full runtime (see docs/BUILDING.md).
 run-spin-cube:

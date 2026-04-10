@@ -1,5 +1,8 @@
 {
   "gopls": {
+    // So gopls loads //go:build fullruntime files (main_fullruntime.go, cmd/moonrun).
+    // Root main.go and cmd/moonbasic use !fullruntime — temporarily remove buildFlags to edit those.
+    "buildFlags": ["-tags=fullruntime"],
     "build.env": {
       "CGO_ENABLED": "1"
     },

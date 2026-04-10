@@ -178,6 +178,10 @@ func (m *Module) Register(r runtime.Registrar) {
 
 	// Wire registry utility callbacks
 	if rt, ok := r.(*runtime.Registry); ok {
+		rt.EntityIDActive = func(id int64) bool {
+			_, ok := m.store().ents[id]
+			return ok
+		}
 		rt.ResolveEntityWorldPos = func(id int64) (rl.Vector3, bool) {
 			e := m.store().ents[id]
 			if e == nil {

@@ -227,6 +227,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 			case "R": propID = 5
 			}
 			if propID >= 0 {
+				g.validateEntityMacroConstArg(n.Args[0], n.Line, n.Col)
 				idReg := g.emitExpr(ch, n.Args[0])
 				dst := g.allocReg()
 				ch.Emit(opcode.OpEntityPropGet, dst, idReg, 0, int32(propID), n.Line)

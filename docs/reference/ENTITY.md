@@ -25,6 +25,14 @@ PascalCase names in other engines map to **`ENTITY.*`** as follows. **Rotation n
 | In-world messages | **`ENTITY.SENDMESSAGE(targetId, msg)`** queues a string; **`ENTITY.POLLMESSAGE(id)`** pops one message (FIFO) or **`""`**. Use in your game loop (not automatic networking). |
 | Visibility | **`ENTITY.SETVISIBLE(id, toggle)`** — alias of **`ENTITY.VISIBLE`**. |
 
+## Spatial macros (`ENTITY.X`, `ENTITY.Y`, …) and bounds safety
+
+Shorthand **`ENTITY.X(id)`**, **`ENTITY.Y(id)`**, **`ENTITY.Z(id)`**, **`ENTITY.P` / `W` / `YAW` / `R`** compile to fast bytecode that reads/writes the host **SoA spatial buffer** when the full entity runtime is linked.
+
+- **Literal ids**: If **`id`** is a **numeric literal**, the **compiler** rejects negative values and indices **≥ 2²⁴** (`runtime.MaxEntitySpatialIndex`).
+- **Dynamic ids**: Non-constant indices are checked **at run time** by the VM (same bounds). In-bounds SoA slots that are **not** active entities produce a clear **`ENTITY:`** error (no silent stale reads/writes).
+- **Details**: [COMPILER_SPEC.md](../COMPILER_SPEC.md) · [ARCHITECTURE.md](../../ARCHITECTURE.md) §8.3.
+
 ## Quick links
 
 - **3D skeletal clips & unified model API** — [ANIMATION_3D.md](ANIMATION_3D.md) (**`ENTITY.PLAY`** / **`PLAYNAME`**, **`ENTITY.LOADANIMATIONS`**, **`ENTITY.DRAW`**, **`GETBOUNDS`**, **`RAYHIT`**, …).

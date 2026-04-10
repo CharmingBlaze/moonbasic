@@ -6,6 +6,7 @@ import (
 
 	"moonbasic/compiler/ast"
 	"moonbasic/compiler/builtinmanifest"
+	"moonbasic/compiler/entityspatial"
 	"moonbasic/compiler/errors"
 )
 
@@ -365,6 +366,16 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 		}
 	case *ast.ExprStmt:
 		return a.checkExprCalls(n.Expr)
+	case *ast.NamespaceAssignNode:
+		if err := a.checkEntitySpatialMacroArgs(n.NS, n.Method, n.Args, n.Line, n.Col); err != nil {
+			return err
+		}
+		for _, arg := range n.Args {
+			if err := a.checkExprCalls(arg); err != nil {
+				return err
+			}
+		}
+		return a.checkExprCalls(n.Expr)
 	}
 	return nil
 }
@@ -440,6 +451,9 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 }
 
 func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, col int) error {
+	if err := a.checkEntitySpatialMacroArgs(ns, method, args, line, col); err != nil {
+		return err
+	}
 	for _, arg := range args {
 		if err := a.checkExprCalls(arg); err != nil {
 			return err
@@ -477,6 +491,27 @@ func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, 
 				fmt.Sprintf("%s.%s argument %d: expected %s, got %s", ns, method, i+1, kindName(want), formatGotKind(args[i])),
 				"Fix the argument type to match the built-in signature.")
 		}
+	}
+	return nil
+}
+
+// checkEntitySpatialMacroArgs rejects literal entity indices outside [0, MaxEntitySpatialIndex).
+func (a *Analyzer) checkEntitySpatialMacroArgs(ns, method string, args []ast.Expr, line, col int) error {
+	if !strings.EqualFold(ns, "ENTITY") {
+		return nil
+	}
+	if _, ok := entityspatial.SpatialPropID(method); !ok {
+		return nil
+	}
+	if len(args) < 1 {
+		return nil
+	}
+	id, ok := entityspatial.ConstEntitySlotID(args[0])
+	if !ok {
+		return nil
+	}
+	if err := entityspatial.ValidateLiteralSlot(id); err != nil {
+		return a.typeError(line, col, err.Error(), entityspatial.LiteralSlotHint())
 	}
 	return nil
 }

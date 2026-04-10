@@ -144,6 +144,14 @@ Statements and expressions may use **handle calls**: load a handle then call a m
 
 Unmapped **`TypeName.METHOD`** combinations should fail at runtime with an unknown-command error until explicitly wired. Method names are matched **case-insensitively** after **`strings.ToUpper`**.
 
+#### 8.3 `ENTITY` spatial macros (`OpEntityPropGet` / `OpEntityPropSet`) and validation
+
+- **Lowering**: **`ENTITY.X(id)`** (and **`Y`**, **`Z`**, **`P`**, **`W`/`YAW`**, **`R`**) in expressions and assignments compile to **`OpEntityPropGet`** / **`OpEntityPropSet`** when arity matches the macro fast path (**`codegen_expr.go`**, **`codegen_stmts.go`**).
+- **Shared memory**: When **`Registry.Spatial`** points at the host SoA (**`runtime.SpatialBuffer`**), the VM reads/writes **`float32`** columns directly for props **0–5**.
+- **Validation layer**:
+  - **Compile time**: known **literal** indices outside **`[0, runtime.MaxEntitySpatialIndex)`** are rejected in **semantic analysis** (so **`--check`** catches them) and again in **codegen** (**`compiler/entityspatial/validate.go`**, **`compiler/semantic/analyze.go`**, **`compiler/codegen/entity_macro_validate.go`**).
+  - **Run time**: every access runs **`validateEntityMacroID`** (negative or **≥ `MaxEntitySpatialIndex`** → **`ENTITY:`** runtime error). If **`Registry.EntityIDActive`** is set (**mbentity**), in-bounds SoA slots for **inactive** ids are rejected (avoids silent reads/writes on uninitialized rows). See **`docs/COMPILER_SPEC.md`**.
+
 ---
 
 ### 9. Phase B: Raylib window (CGO)

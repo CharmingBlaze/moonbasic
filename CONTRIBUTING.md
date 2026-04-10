@@ -27,6 +27,16 @@ The [`--check`](.github/workflows/ci.yml) samples mirror a subset of CI; fixing 
 
 Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** (see [docs/DEVELOPER.md](docs/DEVELOPER.md)).
 
+### IDE: gopls and build tags (“split brain”)
+
+VS Code / Cursor is configured (see [`.vscode/settings.json`](.vscode/settings.json)) with **`gopls` `buildFlags`: `-tags=fullruntime`** so IntelliSense covers the game runtime, [`main_fullruntime.go`](main_fullruntime.go), and [`cmd/moonrun/`](cmd/moonrun/). That **excludes** the default compiler entrypoints [`main.go`](main.go) and [`cmd/moonbasic/`](cmd/moonbasic/); you may see **“No packages found”** for those until you remove that flag and **restart the Go language server**. Full rationale and switching steps: **[docs/DEVELOPER.md](docs/DEVELOPER.md#developer-environment-vs-code-gopls-and-split-brain)**.
+
+Before pushing Go changes, run **`bash scripts/check_builds.sh`** (or **`make check-builds`**, or **`powershell -File scripts/check_builds.ps1`** on Windows) to compile **both** the default compiler path and **`-tags fullruntime`** (`moonrun` + full root). On Windows, if PowerShell hits **`runtime/cgo`** errors on the fullruntime steps, use **Git Bash / MSYS2** and `bash scripts/check_builds.sh` (see [docs/DEVELOPER.md](docs/DEVELOPER.md#pre-push-validate-both-build-paths)).
+
+**`ENTITY` spatial macros:** literal entity indices are range-checked in **semantic analysis** (visible to **`--check`**) and **codegen**; see [docs/COMPILER_SPEC.md](docs/COMPILER_SPEC.md). Regression: `go run . --check testdata/entity_spatial_id_oob.mb` must **fail** with a type error; other scripts in **`testdata/`** used by CI should still pass **`--check`** as before.
+
+**Memory note (`MaxEntitySpatialIndex` = 2²⁴):** This value is an **upper bound on numeric ids** the compiler and VM accept for **`ENTITY.X` / `Y` / `Z` / …** macros—not a preallocated heap. The host **SoA** (`runtime.SpatialBuffer`: six **`float32`** columns) starts at a **small capacity** and **grows on demand** when entities are created (see **`runtime/mbentity/entity_cgo.go`**). A *theoretical* full 2²⁴ rows would be on the order of **hundreds of MiB** for those six slices alone (plus separate entity structs and engine data); normal games stay far below that. There is **no** separate user-facing **`MAX_ENTITIES`** config yet—tightening caps for mobile/embedded would be a future engine option.
+
 ## Typical workflows
 
 | Goal | Command |
