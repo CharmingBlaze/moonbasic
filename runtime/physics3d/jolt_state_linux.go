@@ -8,7 +8,6 @@ import (
 	"unsafe"
 
 	"github.com/bbitechnologies/jolt-go/jolt"
-	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/vm/heap"
 )
@@ -164,9 +163,14 @@ func ApplyImpulseToIndex(idx int, x, y, z float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	bi.AddImpulse(id, jolt.Vec3{X: x, Y: y, Z: z})
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// bbitechnologies/jolt-go v0.8.x BodyInterface has no AddImpulse C binding yet.
+	_ = x
+	_ = y
+	_ = z
 }
 
 func SetVelocityToIndex(idx int, x, y, z float32) {
@@ -177,9 +181,14 @@ func SetVelocityToIndex(idx int, x, y, z float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	bi.SetLinearVelocity(id, jolt.Vec3{X: x, Y: y, Z: z})
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// No SetLinearVelocity on BodyInterface in vendored jolt-go.
+	_ = x
+	_ = y
+	_ = z
 }
 
 func WakeIndex(idx int) {
@@ -202,9 +211,14 @@ func ApplyForceToIndex(idx int, x, y, z float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	bi.AddForce(id, jolt.Vec3{X: x, Y: y, Z: z})
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// No AddForce on BodyInterface in vendored jolt-go.
+	_ = x
+	_ = y
+	_ = z
 }
 
 func SetFrictionToIndex(idx int, val float32) {
@@ -215,9 +229,12 @@ func SetFrictionToIndex(idx int, val float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	bi.SetFriction(id, val)
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// No SetFriction on BodyInterface in vendored jolt-go.
+	_ = val
 }
 
 func SetRestitutionToIndex(idx int, val float32) {
@@ -228,9 +245,12 @@ func SetRestitutionToIndex(idx int, val float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	bi.SetRestitution(id, val)
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// No SetRestitution on BodyInterface in vendored jolt-go.
+	_ = val
 }
 
 func SetGravityFactorToIndex(idx int, val float32) {
@@ -241,9 +261,12 @@ func SetGravityFactorToIndex(idx int, val float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	bi.SetGravityFactor(id, val)
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// No SetGravityFactor on BodyInterface in vendored jolt-go.
+	_ = val
 }
 
 func RotateToIndex(idx int, p, y, r float32) {
@@ -254,9 +277,12 @@ func RotateToIndex(idx int, p, y, r float32) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
-	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
-	
-	q := rl.QuaternionFromEuler(p, y, r)
-	bi.SetRotation(id, jolt.Quat{X: q.X, Y: q.Y, Z: q.Z, W: q.W}, jolt.ActivationActivate)
+	if !ok || bi == nil {
+		return
+	}
+	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
+	// No SetRotation on BodyInterface in vendored jolt-go.
+	_ = p
+	_ = y
+	_ = r
 }

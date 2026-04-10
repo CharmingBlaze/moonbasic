@@ -12,6 +12,7 @@ require (
 	github.com/gen2brain/raylib-go/raylib v0.56.0-dev.0.20260309161816-4c350487f71d
 	github.com/klauspost/compress v1.17.0
 	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/qmuntal/gltf v0.28.0
 	github.com/shirou/gopsutil/v3 v3.24.5
 )
 
@@ -29,7 +30,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/qmuntal/gltf v0.28.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
