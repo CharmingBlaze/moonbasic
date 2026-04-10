@@ -6,7 +6,7 @@
 
 **moonBASIC** wants you to type **`Window.Open`**, drop in a **`Camera`**, and feel a **hardware-accelerated**, **Jolt-powered** 3D world come alive while your coffee is still hot.
 
-This is a **language that looks like C/C++ but feels like BASIC**—built for **indie devs** who miss the **honest simplicity of the 90s** but refuse to give up **modern rendering, physics, and networking**. It is not a toy interpreter: it is a **real compiler** (lexer → AST → bytecode) plus a **production runtime** wired into the same libraries serious games use today.
+This is a **language is Modern BASIC**—built for **indie devs** who miss the **honest simplicity of the 90s** but refuse to give up **modern rendering, physics, and networking**. It is not a toy interpreter: it is a **real compiler** (lexer → AST → bytecode) plus a **production runtime** wired into the same libraries serious games use today.
 
 ---
 
