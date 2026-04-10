@@ -29,3 +29,7 @@ func HeapColorRGBA(s *heap.Store, h heap.Handle) (color.RGBA, error) {
 	}
 	return o.c, nil
 }
+// GetColor is an alias for HeapColorRGBA for cross-module usage.
+func GetColor(s *heap.Store, h heap.Handle) (color.RGBA, error) {
+	return HeapColorRGBA(s, h)
+}

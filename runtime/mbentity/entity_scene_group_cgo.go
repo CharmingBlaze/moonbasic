@@ -297,16 +297,17 @@ func (m *Module) entSaveScene(rt *runtime.Runtime, args ...value.Value) (value.V
 		if e == nil {
 			continue
 		}
+		p, w, r := e.getRot()
 		out.Ent = append(out.Ent, sceneEntRec{
 			K: int(e.kind),
-			PX: e.pos.X, PY: e.pos.Y, PZ: e.pos.Z,
-			Pitch: e.pitch, Yaw: e.yaw, Roll: e.roll,
+			PX: e.getPos().X, PY: e.getPos().Y, PZ: e.getPos().Z,
+			Pitch: p, Yaw: w, Roll: r,
 			SX: e.scale.X, SY: e.scale.Y, SZ: e.scale.Z,
 			W: e.w, H: e.h, D: e.d,
 			Rad: e.radius, CylH: e.cylH, SegH: e.segH, SegV: e.segV,
 			R: e.r, G: e.g, B: e.b,
 			Static: e.static, UseSphere: e.useSphere, Grav: e.gravity,
-			Path: e.loadPath,
+			Path: e.getExt().loadPath,
 		})
 	}
 	data, err := json.MarshalIndent(out, "", "  ")
@@ -354,10 +355,11 @@ func (m *Module) entLoadScene(rt *runtime.Runtime, args ...value.Value) (value.V
 	for _, r := range sf.Ent {
 		id := st.nextID
 		st.nextID++
-		e := newDefaultEnt(id)
+		st.ensureSlices(int(id))
+		e := newDefaultEnt(id, &st.spatial)
 		e.kind = entKind(r.K)
-		e.pos = rl.Vector3{X: r.PX, Y: r.PY, Z: r.PZ}
-		e.pitch, e.yaw, e.roll = r.Pitch, r.Yaw, r.Roll
+		e.setPos(rl.Vector3{X: r.PX, Y: r.PY, Z: r.PZ})
+		e.setRot(r.Pitch, r.Yaw, r.Roll)
 		e.scale = rl.Vector3{X: r.SX, Y: r.SY, Z: r.SZ}
 		if e.scale.X == 0 && e.scale.Y == 0 && e.scale.Z == 0 {
 			e.scale = rl.Vector3{X: 1, Y: 1, Z: 1}
@@ -370,19 +372,20 @@ func (m *Module) entLoadScene(rt *runtime.Runtime, args ...value.Value) (value.V
 		e.static = r.Static
 		e.useSphere = r.UseSphere
 		e.gravity = r.Grav
-		e.loadPath = r.Path
-		if e.loadPath != "" {
-			mod := rl.LoadModel(e.loadPath)
+		ext := e.getExt()
+		ext.loadPath = r.Path
+		if ext.loadPath != "" {
+			mod := rl.LoadModel(ext.loadPath)
 			if mod.MeshCount <= 0 {
-				return value.Nil, fmt.Errorf("ENTITY.LOADSCENE: no meshes in model %q", e.loadPath)
+				return value.Nil, fmt.Errorf("ENTITY.LOADSCENE: no meshes in model %q", ext.loadPath)
 			}
 			e.rlModel = mod
 			e.hasRLModel = true
 			e.kind = entKindModel
-			anims := rl.LoadModelAnimations(e.loadPath)
+			anims := rl.LoadModelAnimations(ext.loadPath)
 			if len(anims) > 0 {
-				e.modelAnims = anims
-				e.animLen = float32(anims[0].FrameCount)
+				ext.modelAnims = anims
+				ext.animLen = float32(anims[0].FrameCount)
 			}
 		} else if e.kind == entKindMesh {
 			mesh := rl.GenMeshCube(1, 1, 1)
@@ -423,3 +426,4 @@ func (m *Module) camSetTargetEntity(rt *runtime.Runtime, args ...value.Value) (v
 	}
 	return value.Nil, nil
 }
+

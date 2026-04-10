@@ -227,8 +227,8 @@ func (m *Module) levelLoadGLTF(rt *runtime.Runtime, args ...value.Value) (value.
 		var s rl.Vector3
 		wm.Decompose(&t, &q, &s)
 		eu := rl.QuaternionToEuler(q)
-		e.pos = t
-		e.pitch, e.yaw, e.roll = eu.Y, eu.Z, eu.X
+		e.setPos(t)
+		e.setRot(eu.Y, eu.Z, eu.X)
 		if s.X != 0 || s.Y != 0 || s.Z != 0 {
 			e.scale = s
 		}
@@ -265,7 +265,7 @@ func (m *Module) levelLoadGLTF(rt *runtime.Runtime, args ...value.Value) (value.
 				st.entMeta[eid] = meta
 			}
 			if t, ok := meta["tag"]; ok {
-				e.blenderTag = strings.TrimSpace(t)
+				e.getExt().blenderTag = strings.TrimSpace(t)
 			}
 		}
 	}

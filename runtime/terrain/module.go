@@ -2,6 +2,7 @@
 package terrain
 
 import (
+	mbentity "moonbasic/runtime/mbentity"
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 )
@@ -10,13 +11,17 @@ import (
 type Module struct {
 	h      *heap.Store
 	active heap.Handle
+	ent    *mbentity.Module
 }
 
-// NewModule creates the terrain module.
+// NewModule creates a terrain module.
 func NewModule() *Module { return &Module{} }
 
 // BindHeap implements runtime.HeapAware.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+// BindEntity wires the entity module for TERRAIN.APPLYTILES (ENTITY.COPY + position).
+func (m *Module) BindEntity(mod *mbentity.Module) { m.ent = mod }
 
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {

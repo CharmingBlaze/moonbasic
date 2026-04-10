@@ -13,6 +13,7 @@ Quick orientation for people and tools working on the **moonBASIC** repository (
 | [`cli_compile.go`](../cli_compile.go) | Shared “compile `.mb` → `.mbc`” helper used by CLI entrypoints |
 
 Design overview: [ARCHITECTURE.md](../ARCHITECTURE.md).
+Entity system refactor: [ARCHITECTURE_MODULAR_ENTITIES.md](ARCHITECTURE_MODULAR_ENTITIES.md).
 
 ## Build tags: `fullruntime` vs default
 

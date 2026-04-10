@@ -12,6 +12,37 @@
       ]
     },
     {
+      "key": "CONSOLE.LOG",
+      "args": [
+        "string"
+      ],
+      "description": "Add a message to the scrolling on-screen debug console.",
+      "namespace": "debug"
+    },
+    {
+      "key": "CONSOLE.LOG",
+      "args": [
+        "string",
+        "handle"
+      ],
+      "description": "Add a colored message to the scrolling on-screen debug console.",
+      "namespace": "debug"
+    },
+    {
+      "key": "SYSTEM.MONITOR",
+      "args": [
+        "bool"
+      ],
+      "description": "Toggle the system performance monitor (FPS, RAM).",
+      "namespace": "debug"
+    },
+    {
+      "key": "SYSTEM.MONITOR",
+      "args": [],
+      "description": "Toggle the system performance monitor (FPS, RAM).",
+      "namespace": "debug"
+    },
+    {
       "key": "PRINTLN",
       "args": [
         "any"
@@ -5948,6 +5979,21 @@
       ]
     },
     {
+      "key": "MATERIAL.SETEFFECT",
+      "args": [
+        "handle",
+        "string"
+      ]
+    },
+    {
+      "key": "MATERIAL.SETEFFECTPARAM",
+      "args": [
+        "handle",
+        "string",
+        "float"
+      ]
+    },
+    {
       "key": "SHADER.LOAD",
       "args": [
         "string",
@@ -6496,6 +6542,24 @@
         "int",
         "int"
       ]
+    },
+    {
+      "key": "IMAGE.LOADSEQUENCE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Glob files matching prefix (e.g. assets/water_*.png) sorted by name"
+    },
+    {
+      "key": "IMAGE.LOADGIF",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Animated GIF to ImageSequence (cumulative frames)"
     },
     {
       "key": "IMAGE.MAKEBLANK",
@@ -17229,6 +17293,38 @@
       "description": "LOD factor in (0,1]: lower = coarser chunk meshes"
     },
     {
+      "key": "TERRAIN.APPLYMAP",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering",
+      "description": "Apply CPU image as terrain diffuse + splat sample; rebuilds loaded chunk meshes"
+    },
+    {
+      "key": "TERRAIN.APPLYTILES",
+      "args": [
+        "handle",
+        "handle",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering",
+      "description": "Copy template entity to each non-empty tile on layer 0; returns count placed"
+    },
+    {
+      "key": "TERRAIN.APPLYTILES",
+      "args": [
+        "handle",
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering",
+      "description": "Same as 3-arg form with explicit tile layer index"
+    },
+    {
       "key": "CHUNK.GENERATE",
       "args": [
         "handle",
@@ -17631,6 +17727,146 @@
       "description": "Alias of ENTITY.SETPOSITION \u00e2\u20ac\u201d set world or local position"
     },
     {
+      "key": "ENTITY.POS",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode shorthand for positioning an entity"
+    },
+    {
+      "key": "ENTITY.ROT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode shorthand for rotating an entity (absolute)"
+    },
+    {
+      "key": "ENTITY.SCA",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Easy Mode shorthand for scaling an entity (absolute)"
+    },
+    {
+      "key": "ENTITY.X",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get X position of entity"
+    },
+    {
+      "key": "ENTITY.X",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Set X position of entity"
+    },
+    {
+      "key": "ENTITY.Y",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.Y",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.Z",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.Z",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.P",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get Pitch of entity"
+    },
+    {
+      "key": "ENTITY.P",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Set Pitch of entity"
+    },
+    {
+      "key": "ENTITY.W",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get Yaw (W) of entity"
+    },
+    {
+      "key": "ENTITY.W",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Set Yaw (W) of entity"
+    },
+    {
+      "key": "ENTITY.R",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Easy Mode: Get Roll of entity"
+    },
+    {
+      "key": "ENTITY.R",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Set Roll of entity"
+    },
+    {
+      "key": "ENTITY.RGB",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Easy Mode: Set entity color (id, r, g, b)"
+    },
+    {
+      "key": "ENTITY.ALPHA",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Easy Mode: Set entity transparency (0.0 to 1.0)"
+    },
+    {
       "key": "ENTITY.GETPOSITION",
       "args": [
         "int"
@@ -17926,6 +18162,25 @@
       ],
       "phase": "rendering",
       "description": "Bind secondary map as MATERIAL_MAP_NORMAL for blending/detail"
+    },
+    {
+      "key": "MATERIAL.SETUVSCROLL",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Alias of ENTITY.SCROLLMATERIAL (mesh material 0)"
+    },
+    {
+      "key": "MATERIAL.SETSECONDARYTEXTURE",
+      "args": [
+        "int",
+        "handle"
+      ],
+      "phase": "rendering",
+      "description": "Alias of ENTITY.SETDETAILTEXTURE"
     },
     {
       "key": "MATERIAL.BULKASSIGN",
@@ -20648,6 +20903,45 @@
       "phase": "rendering"
     },
     {
+      "key": "ENTITY.SETSPRITEFRAME",
+      "args": [
+        "int",
+        "int"
+      ],
+      "phase": "rendering",
+      "description": "Set atlas frame on billboard bound to a TEXTURE object"
+    },
+    {
+      "key": "ENTITY.SETANIMATION",
+      "args": [
+        "int",
+        "handle",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps"
+    },
+    {
+      "key": "ENTITY.SETANIMATION",
+      "args": [
+        "int",
+        "handle",
+        "float",
+        "bool"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "ENTITY.SETANIMATION",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Second arg 0 clears image-sequence animation"
+    },
+    {
       "key": "ENTITY.DELTAX",
       "args": [
         "int",
@@ -22058,6 +22352,694 @@
       "key": "PP_PIXELATE",
       "args": [],
       "returns": "int"
+    },
+    {
+      "key": "ENTITY.MOVETOWARD",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Moves an entity toward a coordinate."
+    },
+    {
+      "key": "ENTITY.LOOKAT",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Instantly rotates an entity to face a point."
+    },
+    {
+      "key": "ENTITY.TURNTOWARD",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Slowly rotates the entity to face a target over time."
+    },
+    {
+      "key": "ENTITY.DISTANCETO",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Returns distance."
+    },
+    {
+      "key": "WORLD.TOSCREEN",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Returns 2D Screen coords given 3D World coords and Camera."
+    },
+    {
+      "key": "WORLD.TOWORLD",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Returns 3D World coords from 2D."
+    },
+    {
+      "key": "WORLD.GETRAY",
+      "args": [
+        "float",
+        "float",
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Returns Array [px,py,pz,dx,dy,dz]"
+    },
+    {
+      "key": "ENTITY.CHECKRADIUS",
+      "args": [
+        "handle",
+        "float",
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Check sensor"
+    },
+    {
+      "key": "ENTITY.INFRUSTUM",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Boolean bounds."
+    },
+    {
+      "key": "ENTITY.RAYCAST",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Raycast sensor"
+    },
+    {
+      "key": "CAMERA.SHAKE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Shakes camera"
+    },
+    {
+      "key": "ENTITY.FADE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Lerps alpha."
+    },
+    {
+      "key": "ENTITY.COLORPULSE",
+      "args": [
+        "handle",
+        "handle",
+        "handle",
+        "float"
+      ],
+      "description": "Pulses color."
+    },
+    {
+      "key": "ENTITY.TAG",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "description": "Sets spatial tag."
+    },
+    {
+      "key": "ENTITY.PATROL",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ],
+      "description": "Loops an entity across a WAYPOINT array handle at speed."
+    },
+    {
+      "key": "ENTITY.FLEE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Runs away."
+    },
+    {
+      "key": "ENTITY.WANDER",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Moves an NPC randomly within a zone."
+    },
+    {
+      "key": "ENTITY.GETSTATE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Returns string AI state."
+    },
+    {
+      "key": "PHYSICS.EXPLOSION",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Applies physical impulse radially."
+    },
+    {
+      "key": "ENTITY.SETWEIGHT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Changes entity mass."
+    },
+    {
+      "key": "ENTITY.APPLYTORQUE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Spins physics object."
+    },
+    {
+      "key": "ENTITY.ONHIT",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "description": "Fires MB callback on collision."
+    },
+    {
+      "key": "WORLD.DAYNIGHTCYCLE",
+      "args": [
+        "float"
+      ],
+      "description": "Rotates global sunlight over duration (seconds)."
+    },
+    {
+      "key": "TRIGGER.CREATEZONE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Creates non-blocking zone firing hit tags."
+    },
+    {
+      "key": "ENTITY.ATTACH",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Welds entities together with offset."
+    },
+    {
+      "key": "ENTITY.EMITPARTICLES",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "description": "Attaches particles to entity."
+    },
+    {
+      "key": "CAMERA.FOLLOW",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Spring math camera tracker."
+    },
+    {
+      "key": "SOUND.PLAY3D",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Plays 3D spatialized audio."
+    },
+    {
+      "key": "SOUND.ATTACH",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "description": "Pins a sound to an entity."
+    },
+    {
+      "key": "WORLD.SETAMBIENCE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Plays a looping background track."
+    },
+    {
+      "key": "WORLD.SETREVERB",
+      "args": [
+        "int"
+      ],
+      "description": "Changes echo."
+    },
+    {
+      "key": "UI.BUTTON",
+      "args": [
+        "string",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "description": "Draws interactive button."
+    },
+    {
+      "key": "UI.PROGRESSBAR",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int"
+      ],
+      "description": "Draws progress bar."
+    },
+    {
+      "key": "UI.INVENTORYICON",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Draws a 3D model icon."
+    },
+    {
+      "key": "UI.LABEL3D",
+      "args": [
+        "string",
+        "handle",
+        "handle"
+      ],
+      "description": "Projects text into 3D world above object."
+    },
+    {
+      "key": "GAME.SETPAUSE",
+      "args": [
+        "int"
+      ],
+      "description": "Freezes physics/animation timers."
+    },
+    {
+      "key": "GAME.SLOWMOTION",
+      "args": [
+        "float",
+        "float"
+      ],
+      "description": "Slows time for cinematic."
+    },
+    {
+      "key": "SAVE.DATA",
+      "args": [
+        "string",
+        "string"
+      ],
+      "description": "Writes JSON data."
+    },
+    {
+      "key": "SAVE.GET",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "description": "Reads JSON data."
+    },
+    {
+      "key": "SCENE.SWITCH",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Smoothly transitions levels."
+    },
+    {
+      "key": "ENTITY.GHOSTMODE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Disables collisions temporarily."
+    },
+    {
+      "key": "ENTITY.EXPLODE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Instantly explodes object."
+    },
+    {
+      "key": "WORLD.SCREENSHAKE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "description": "Shakes the primary camera."
+    },
+    {
+      "key": "ENTITY.TWEEN",
+      "args": [
+        "int",
+        "string",
+        "any",
+        "float",
+        "string"
+      ],
+      "description": "Animate properties (position, scale, rotation) using easing functions (bounce, elastic, etc).",
+      "namespace": "entity"
+    },
+    {
+      "key": "ENTITY.OUTLINE",
+      "args": [
+        "int",
+        "float",
+        "handle"
+      ],
+      "description": "Apply a highlighted outline effect to a model.",
+      "namespace": "entity"
+    },
+    {
+      "key": "ENTITY.SNAPTO",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Instantly align one entity to another's transform.",
+      "namespace": "entity"
+    },
+    {
+      "key": "CAMERA.LERPTO",
+      "args": [
+        "handle",
+        "int",
+        "float"
+      ],
+      "description": "Smoothly interpolate camera target toward an entity.",
+      "namespace": "camera"
+    },
+    {
+      "key": "WORLD.FLASH",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Tints the screen temporarily (damage effects, etc).",
+      "namespace": "window"
+    },
+    {
+      "key": "NET.HOST",
+      "args": [
+        "int"
+      ],
+      "description": "Simplified command to start a server.",
+      "namespace": "net"
+    },
+    {
+      "key": "NET.CONNECT",
+      "args": [
+        "string",
+        "int"
+      ],
+      "description": "Simplified command to join a server.",
+      "namespace": "net"
+    },
+    {
+      "key": "NET.SEND",
+      "args": [
+        "int",
+        "string"
+      ],
+      "description": "Broadcast or send network data.",
+      "namespace": "net"
+    },
+    {
+      "key": "NET.SYNC",
+      "args": [
+        "int"
+      ],
+      "description": "Mark an entity for network replication.",
+      "namespace": "net"
+    },
+    {
+      "key": "DEBUG.INSPECT",
+      "args": [
+        "int"
+      ],
+      "description": "Display live transform/state info for an entity.",
+      "namespace": "debug"
+    },
+    {
+      "key": "DEBUG.DRAWPHYSICS",
+      "args": [
+        "bool"
+      ],
+      "description": "Toggle collision wireframe visualization.",
+      "namespace": "debug"
+    },
+    {
+      "key": "INPUT.GETINACTIVITY",
+      "args": [],
+      "returns": "float",
+      "description": "Returns time in seconds since the last user interaction.",
+      "namespace": "input"
+    },
+    {
+      "key": "ENTITY.PHYSICS",
+      "args": [
+        "int",
+        "string",
+        "float"
+      ],
+      "description": "Quickly setup a physics body for an entity (auto-sizes based on model/shape).",
+      "namespace": "entity"
+    },
+    {
+      "key": "ENTITY.PHYSICS",
+      "args": [
+        "int",
+        "string",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Quickly setup a physics body with mass, friction, and restitution.",
+      "namespace": "entity"
+    },
+    {
+      "key": "ENTITY.PHYSICS",
+      "args": [
+        "int",
+        "string",
+        "float",
+        "float",
+        "float",
+        "bool"
+      ],
+      "description": "Quickly setup a physics body with mass, friction, restitution, and CCD enabled.",
+      "namespace": "entity"
+    },
+    {
+      "key": "PHYSICS.AUTO",
+      "args": [
+        "int",
+        "string",
+        "float"
+      ],
+      "description": "Alias for ENTITY.PHYSICS.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "ENTITY.PHYSICSMOTION",
+      "args": [
+        "int",
+        "string"
+      ],
+      "description": "Toggle physics motion type (STATIC, DYNAMIC, KINEMATIC).",
+      "namespace": "entity"
+    },
+    {
+      "key": "PHYSICS.CCD",
+      "args": [
+        "int",
+        "bool"
+      ],
+      "description": "Enable Continuous Collision Detection to prevent high-speed tunneling.",
+      "namespace": "entity"
+    },
+    {
+      "key": "PHYSICS.SHAPE",
+      "args": [
+        "int",
+        "string"
+      ],
+      "description": "Modular building: Sets the physics shape for a pending body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.SIZE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Modular building: Sets dimensions for a pending physics shape.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.FRICTION",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Modular building: Sets friction for a pending physics body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.BOUNCE",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Modular building: Sets bounciness (restitution) for a pending physics body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.BUILD",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Modular building: Finalizes and commits the physics body with given mass.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.IMPULSE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Entity-First: Applies an instant impulse to an entity's physics body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.IMPULSE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Entity-First: Applies an impulse to an entity's physics body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.VELOCITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Entity-First: Sets the linear velocity of an entity's physics body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.FORCE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Entity-First: Applies a continuous force to an entity's physics body.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.SETROT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Entity-First: Instantly sets the rotation of an entity's physics body (Euler radians).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.GRAVITY",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Entity-First: Scale the gravity factor for a specific entity (e.g. 0.0 for zero-g).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS.WAKE",
+      "args": [
+        "int"
+      ],
+      "description": "Entity-First: Forces a sleeping physics body to wake up.",
+      "namespace": "physics3d"
     }
   ]
 }

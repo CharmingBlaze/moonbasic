@@ -84,7 +84,7 @@ func registerMeshOps(m *Module, reg runtime.Registrar) {
 		}
 		son := shadowDeferActive()
 		if mato.pbr && son {
-			bindPBRDrawState(&mato.mat, true)
+			bindPBRDrawState(mato, true)
 		}
 		rl.DrawMesh(mo.m, mato.mat, transform)
 		if mato.pbr && son {
@@ -127,7 +127,7 @@ func registerMeshOps(m *Module, reg runtime.Registrar) {
 		}
 		son := shadowDeferActive()
 		if mato.pbr && son {
-			bindPBRDrawState(&mato.mat, true)
+			bindPBRDrawState(mato, true)
 		}
 		rl.DrawMesh(mo.m, mato.mat, transform)
 		if mato.pbr && son {

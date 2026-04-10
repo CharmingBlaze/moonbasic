@@ -455,7 +455,7 @@ func (m *Module) twUpdate(args []value.Value) (value.Value, error) {
 			}
 			continue
 		}
-		cur := o.segOrigin + (o.segDest-o.segOrigin)*ease(p, s.Ease)
+		cur := o.segOrigin + (o.segDest-o.segOrigin)*Ease(p, s.Ease)
 		if err := m.writeGlobal(s.VarName, cur); err != nil {
 			o.running = false
 			return value.Nil, err

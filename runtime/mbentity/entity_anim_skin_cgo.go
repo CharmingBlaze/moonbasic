@@ -21,9 +21,10 @@ func pickAnimFrame(e *ent, anim rl.ModelAnimation) int32 {
 	}
 	fc := anim.FrameCount
 	lo, hi := int32(0), fc-1
-	if e.animClip0 >= 0 {
-		lo = e.animClip0
-		hi = e.animClip1
+	ext := e.getExt()
+	if ext.animClip0 >= 0 {
+		lo = ext.animClip0
+		hi = ext.animClip1
 		if hi < lo {
 			hi = lo
 		}
@@ -39,7 +40,7 @@ func pickAnimFrame(e *ent, anim rl.ModelAnimation) int32 {
 		return lo
 	}
 
-	mode := e.animMode
+	mode := ext.animMode
 	switch {
 	case mode == 2:
 		// Ping-pong over [lo..hi]
@@ -47,7 +48,7 @@ func pickAnimFrame(e *ent, anim rl.ModelAnimation) int32 {
 		if period <= 0 {
 			return lo
 		}
-		phase := float32(math.Mod(float64(e.animTime), float64(period)))
+		phase := float32(math.Mod(float64(ext.animTime), float64(period)))
 		if phase < 0 {
 			phase += period
 		}
@@ -65,7 +66,7 @@ func pickAnimFrame(e *ent, anim rl.ModelAnimation) int32 {
 		}
 		return lo + local
 	case mode >= 3:
-		off := int32(e.animTime)
+		off := int32(ext.animTime)
 		if off < 0 {
 			off = 0
 		}
@@ -76,7 +77,7 @@ func pickAnimFrame(e *ent, anim rl.ModelAnimation) int32 {
 	default:
 		// 0,1: loop
 		spanF := float32(span)
-		t := float32(math.Mod(float64(e.animTime), float64(spanF)))
+		t := float32(math.Mod(float64(ext.animTime), float64(spanF)))
 		if t < 0 {
 			t += spanF
 		}
@@ -99,30 +100,34 @@ func boneNameStr(name [32]int8) string {
 func (m *Module) syncBoneSockets() {
 	st := m.store()
 	for _, e := range st.ents {
-		if e == nil || e.boneIndex < 0 || e.boneHostID < 1 {
+		if e == nil {
 			continue
 		}
-		host := st.ents[e.boneHostID]
+		ext := e.ext
+		if ext == nil || ext.boneIndex < 0 || ext.boneHostID < 1 {
+			continue
+		}
+		host := st.ents[ext.boneHostID]
 		if host == nil || !host.hasRLModel {
-			e.boneWorldValid = false
+			ext.boneWorldValid = false
 			continue
 		}
 		meshes := host.rlModel.GetMeshes()
 		if len(meshes) == 0 {
-			e.boneWorldValid = false
+			ext.boneWorldValid = false
 			continue
 		}
 		mesh := meshes[0]
-		bi := int(e.boneIndex)
+		bi := int(ext.boneIndex)
 		if mesh.BoneMatrices == nil || bi < 0 || int(mesh.BoneCount) <= bi {
-			e.boneWorldValid = false
+			ext.boneWorldValid = false
 			continue
 		}
 		bm := unsafe.Slice(mesh.BoneMatrices, mesh.BoneCount)[bi]
 		hw := m.worldMatrix(host)
 		// bone matrix is in model space; host world × model-space bone = world bone transform
-		e.boneWorld = rl.MatrixMultiply(hw, bm)
-		e.boneWorldValid = true
+		ext.boneWorld = rl.MatrixMultiply(hw, bm)
+		ext.boneWorldValid = true
 	}
 }
 
@@ -156,13 +161,15 @@ func (m *Module) entFindBone(rt *runtime.Runtime, args ...value.Value) (value.Va
 	st := m.store()
 	nid := st.nextID
 	st.nextID++
-	e := newDefaultEnt(nid)
+	st.ensureSlices(int(nid))
+	e := newDefaultEnt(nid, &st.spatial)
 	e.kind = entKindEmpty
 	e.hidden = true
 	e.static = true
-	e.boneHostID = id
-	e.boneIndex = bi
-	e.boneWorldValid = false
+	ext := e.getExt()
+	ext.boneHostID = id
+	ext.boneIndex = bi
+	ext.boneWorldValid = false
 	st.ents[nid] = e
 	return value.FromInt(nid), nil
 }
@@ -184,8 +191,9 @@ func (m *Module) entExtractAnimSeq(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 {
 		return value.Nil, fmt.Errorf("frames must be numeric")
 	}
-	e.animClip0 = int32(s0)
-	e.animClip1 = int32(s1)
+	ext := e.getExt()
+	ext.animClip0 = int32(s0)
+	ext.animClip1 = int32(s1)
 	return value.Nil, nil
 }
 
@@ -205,8 +213,9 @@ func (m *Module) entSetAnimIndex(args []value.Value) (value.Value, error) {
 	if !ok || ai < 0 {
 		return value.Nil, fmt.Errorf("anim index must be >= 0")
 	}
-	e.animIndex = int32(ai)
-	e.animTime = 0
+	ext := e.getExt()
+	ext.animIndex = int32(ai)
+	ext.animTime = 0
 	return value.Nil, nil
 }
 
@@ -222,7 +231,7 @@ func (m *Module) entAnimCount(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	return value.FromInt(int64(len(e.modelAnims))), nil
+	return value.FromInt(int64(len(e.getExt().modelAnims))), nil
 }
 
 func (m *Module) entAnimIndex(args []value.Value) (value.Value, error) {
@@ -237,5 +246,6 @@ func (m *Module) entAnimIndex(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	return value.FromInt(int64(e.animIndex)), nil
+	return value.FromInt(int64(e.getExt().animIndex)), nil
 }
+

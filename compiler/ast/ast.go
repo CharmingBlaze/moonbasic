@@ -165,6 +165,22 @@ func (n *NamespaceCallStmt) String() string {
 	return fmt.Sprintf("NsCall(%s.%s)", n.NS, n.Method)
 }
 
+// NamespaceAssignNode is NS.METHOD(args) = expr.
+type NamespaceAssignNode struct {
+	NS     string
+	Method string
+	Args   []Expr
+	Expr   Expr
+	Line   int
+	Col    int
+}
+
+func (n *NamespaceAssignNode) stmt()            {}
+func (n *NamespaceAssignNode) Accept(v Visitor) { v.VisitStmt(n) }
+func (n *NamespaceAssignNode) String() string {
+	return fmt.Sprintf("NsAssign(%s.%s, %s)", n.NS, n.Method, n.Expr.String())
+}
+
 // HandleCallStmt is handleVar.METHOD(args).
 type HandleCallStmt struct {
 	Receiver string

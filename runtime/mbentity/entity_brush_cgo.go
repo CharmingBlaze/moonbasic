@@ -64,7 +64,7 @@ func (m *Module) entTintResolved(e *ent) rl.Color {
 		a = 1
 	}
 	r, g, b := e.r, e.g, e.b
-	if bobj := m.getBrush(e.brushH); bobj != nil {
+	if bobj := m.getBrush(e.getExt().brushH); bobj != nil {
 		r, g, b = bobj.r, bobj.g, bobj.b
 		if bobj.alpha >= 0 {
 			ba := bobj.alpha
@@ -91,7 +91,7 @@ func (m *Module) brushFullBright(e *ent) bool {
 	if e.fxFlags&1 != 0 {
 		return true
 	}
-	if b := m.getBrush(e.brushH); b != nil && b.fx&1 != 0 {
+	if b := m.getBrush(e.getExt().brushH); b != nil && b.fx&1 != 0 {
 		return true
 	}
 	return false
@@ -114,13 +114,13 @@ func (m *Module) entDrawBlendMode(e *ent) (use bool, mode rl.BlendMode) {
 	if e.blendMode >= 0 {
 		return true, rl.BlendMode(e.blendMode)
 	}
-	if b := m.getBrush(e.brushH); b != nil && b.blendMode >= 0 {
+	if b := m.getBrush(e.getExt().brushH); b != nil && b.blendMode >= 0 {
 		return true, blitzBrushBlendToRL(b.blendMode)
 	}
 	if e.fxFlags&16 != 0 {
 		return true, rl.BlendAdditive
 	}
-	if b := m.getBrush(e.brushH); b != nil && b.fx&16 != 0 {
+	if b := m.getBrush(e.getExt().brushH); b != nil && b.fx&16 != 0 {
 		return true, rl.BlendAdditive
 	}
 	return false, rl.BlendAlpha
@@ -258,7 +258,7 @@ func (m *Module) entEntityShadow(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
 	sv, _ := args[1].ToInt()
-	e.shadowCast = int32(sv)
+	e.getExt().shadowCast = int32(sv)
 	return value.Nil, nil
 }
 
@@ -281,7 +281,7 @@ func (m *Module) entPaintEntity(args []value.Value) (value.Value, error) {
 	if m.getBrush(bh) == nil {
 		return value.Nil, fmt.Errorf("invalid brush")
 	}
-	e.brushH = bh
+	e.getExt().brushH = bh
 	if b := m.getBrush(bh); b != nil {
 		e.r, e.g, e.b = b.r, b.g, b.b
 		e.fxFlags = b.fx

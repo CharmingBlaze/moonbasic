@@ -124,7 +124,8 @@ func (m *Module) entFindChild(rt *runtime.Runtime, args ...value.Value) (value.V
 		if ce == nil {
 			continue
 		}
-		if strings.EqualFold(strings.TrimSpace(ce.name), want) {
+		ext := ce.getExt()
+		if strings.EqualFold(strings.TrimSpace(ext.name), want) {
 			return value.FromInt(cid), nil
 		}
 		q = append(q, st.children[cid]...)

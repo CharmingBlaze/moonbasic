@@ -190,10 +190,10 @@ func (m *Module) entGetEntityBrush(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	if e.brushH == 0 {
+	if e.getExt().brushH == 0 {
 		return value.FromInt(0), nil
 	}
-	return value.FromHandle(e.brushH), nil
+	return value.FromHandle(e.getExt().brushH), nil
 }
 
 func (m *Module) entPaintSurface(args []value.Value) (value.Value, error) {

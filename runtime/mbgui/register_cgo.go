@@ -14,6 +14,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerSlidersAndLists(m, reg)
 	registerColorAndDialogs(m, reg)
 	registerTooltipIconsDraw(m, reg)
+	registerGuiQoLAPI(m, reg)
 }
 
 // Shutdown implements runtime.Module.

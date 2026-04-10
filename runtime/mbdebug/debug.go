@@ -12,6 +12,8 @@ import (
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 func truthy(v value.Value) bool {
@@ -63,6 +65,13 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("DEBUG.DUMPHEAP", "debug", runtime.AdaptLegacy(m.debugDumpHeap))
 	r.Register("DEBUG.LISTCOMMANDS", "debug", runtime.AdaptLegacy(m.debugListCommands))
 	r.Register("DEBUG.SHOWFPSGRAPH", "debug", m.debugShowFPSGraph)
+	
+	// Professional Studio Suite
+	r.Register("SYSTEM.MONITOR", "debug", m.srvMonitor)
+	r.Register("CONSOLE.LOG", "debug", m.conLog)
+	r.Register("DEBUG.INSPECT", "debug", m.debugInspect)
+	r.Register("DEBUG.DRAWPHYSICS", "debug", m.debugDrawPhysics)
+
 	m.registerDebugDraw3D(r)
 }
 
@@ -397,6 +406,57 @@ func (m *Module) debugShowFPSGraph(rt *runtime.Runtime, args ...value.Value) (va
 	on := truthy(args[0])
 	m.mu.Lock()
 	m.showFPSGraph = on
+	m.mu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) srvMonitor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	m.mu.Lock()
+	m.monitorOn = !m.monitorOn // Toggle
+	if len(args) >= 1 {
+		m.monitorOn = truthy(args[0])
+	}
+	m.mu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) conLog(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) < 1 { return value.Nil, fmt.Errorf("CONSOLE.LOG expects message$") }
+	msg, _ := rt.ArgString(args, 0)
+	col := rl.White
+	if len(args) >= 2 {
+		// Color mapping logic could go here
+	}
+	
+	m.mu.Lock()
+	m.logLines = append(m.logLines, logLine{msg: msg, color: col})
+	if len(m.logLines) > 10 {
+		m.logLines = m.logLines[1:]
+	}
+	m.mu.Unlock()
+	
+	// Mirror to stdout as well
+	fmt.Fprintln(runtime.DiagWriter(), "[CONSOLE]", msg)
+	return value.Nil, nil
+}
+
+func (m *Module) debugInspect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("DEBUG.INSPECT expects (entityID#)")
+	}
+	id, _ := args[0].ToInt()
+	m.mu.Lock()
+	m.inspectID = id
+	m.mu.Unlock()
+	return value.Nil, nil
+}
+
+func (m *Module) debugDrawPhysics(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	m.mu.Lock()
+	m.drawPhysicsOn = !m.drawPhysicsOn
+	if len(args) >= 1 {
+		m.drawPhysicsOn = truthy(args[0])
+	}
 	m.mu.Unlock()
 	return value.Nil, nil
 }

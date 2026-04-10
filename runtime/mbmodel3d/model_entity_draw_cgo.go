@@ -81,7 +81,7 @@ func DrawEntityModel(mod rl.Model, tint rl.Color) {
 		if shadowOn && shaderHasUniform(mmat.Shader, "shadowEnabled") {
 			rl.SetMaterialTexture(&mmat, rl.MapBrdf, shadowRT.Depth)
 		}
-		applyPBRUniformsIfAny(&mmat, shadowOn)
+		applyPBRUniformsIfAny(&mmat, shadowOn, nil)
 		rl.DrawMesh(meshes[mi], mmat, mod.Transform)
 		if shadowOn && shaderHasUniform(mmat.Shader, "shadowEnabled") {
 			rl.SetMaterialTexture(&mmat, rl.MapBrdf, rl.Texture2D{})

@@ -56,6 +56,9 @@ type entityStore struct {
 	levelSpawn    map[string]rl.Matrix
 	levelLayers   map[string][]int64
 	levelColliders []levelColliderRec
+
+	// DOD / SoA Spatial Buffers
+	spatial runtime.SpatialBuffer
 }
 
 type levelColliderRec struct {
@@ -77,12 +80,44 @@ func (m *Module) store() *entityStore {
 			byName:   make(map[string]int64),
 			children: make(map[int64][]int64),
 		}
+		// Initialize SoA with small capacity, will grow on demand
+		const initialCap = 256
+		s.spatial.X = make([]float32, initialCap)
+		s.spatial.Y = make([]float32, initialCap)
+		s.spatial.Z = make([]float32, initialCap)
+		s.spatial.P = make([]float32, initialCap)
+		s.spatial.W = make([]float32, initialCap)
+		s.spatial.R = make([]float32, initialCap)
+		
 		entityStores[m.h] = s
 	}
+	
+	// Link master registry spatial pointer for VM fast-path
+	if rt, ok := m.reg.(*runtime.Registry); ok {
+		rt.Spatial = &s.spatial
+	}
+	
 	return s
 }
 
+func (s *entityStore) ensureSlices(id int) {
+	if id < len(s.spatial.X) {
+		return
+	}
+	newCap := len(s.spatial.X) * 2
+	if id >= newCap {
+		newCap = id + 256
+	}
+	s.spatial.X = append(s.spatial.X, make([]float32, newCap-len(s.spatial.X))...)
+	s.spatial.Y = append(s.spatial.Y, make([]float32, newCap-len(s.spatial.Y))...)
+	s.spatial.Z = append(s.spatial.Z, make([]float32, newCap-len(s.spatial.Z))...)
+	s.spatial.P = append(s.spatial.P, make([]float32, newCap-len(s.spatial.P))...)
+	s.spatial.W = append(s.spatial.W, make([]float32, newCap-len(s.spatial.W))...)
+	s.spatial.R = append(s.spatial.R, make([]float32, newCap-len(s.spatial.R))...)
+}
+
 func (m *Module) Register(r runtime.Registrar) {
+	m.reg = r
 	r.Register("ENTITY.CREATE", "entity", runtime.AdaptLegacy(m.entCreate))
 	r.Register("ENTITY.CREATEENTITY", "entity", runtime.AdaptLegacy(m.entCreate))
 	r.Register("ENTITY.CREATEBOX", "entity", runtime.AdaptLegacy(m.entCreateBox))
@@ -92,8 +127,10 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerEntitySceneGroupAPI(m, r)
 	registerEntityUnifiedModelAPI(m, r)
 	registerEntityMaterialScrollAPI(m, r)
+	registerEntitySpriteAnimAPI(m, r)
 	registerLevelGLTFAPI(m, r)
 	registerEntityInteractionAPI(m, r)
+	registerEntityEasyAPI(m, r)
 	r.Register("ENTITY.SETPOSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.POSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.GETPOSITION", "entity", runtime.AdaptLegacy(m.entGetPosition))
@@ -132,7 +169,84 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerJoltEntityCollisionAPI(m, r)
 	registerEntityGameplayIntelAPI(m, r)
 	registerEntityTweenAPI(m, r)
+	registerEntityQoLAPI(m, r)
+	registerEntityAIAPI(m, r)
+	registerEntityPhysicsQoLAPI(m, r)
+	registerEntityEnvQoLAPI(m, r)
+	registerEntityPhysicsMacroAPI(m, r)
 	registerBlitzEntityHandles(m, r)
+
+	// Wire registry utility callbacks
+	if rt, ok := r.(*runtime.Registry); ok {
+		rt.ResolveEntityWorldPos = func(id int64) (rl.Vector3, bool) {
+			e := m.store().ents[id]
+			if e == nil {
+				return rl.Vector3{}, false
+			}
+			return m.worldPos(e), true
+		}
+
+		rt.FastEntityPropGet = func(id int64, propID int) (value.Value, error) {
+			e := m.store().ents[id]
+			if e == nil {
+				return value.Nil, fmt.Errorf("ENTITY.PROP_GET: unknown entity %d", id)
+			}
+			ep, ew, er := e.getRot()
+			pos := e.getPos()
+			switch propID {
+			case 0: return value.FromFloat(float64(pos.X)), nil
+			case 1: return value.FromFloat(float64(pos.Y)), nil
+			case 2: return value.FromFloat(float64(pos.Z)), nil
+			case 3: return value.FromFloat(float64(ep)), nil
+			case 4: return value.FromFloat(float64(ew)), nil
+			case 5: return value.FromFloat(float64(er)), nil
+			case 6: return value.FromFloat(float64(e.scale.X)), nil
+			case 7: return value.FromFloat(float64(e.scale.Y)), nil
+			case 8: return value.FromFloat(float64(e.scale.Z)), nil
+			case 9: return value.FromFloat(float64(e.alpha)), nil
+			case 10: return value.FromBool(e.hidden), nil
+			default: return value.Nil, fmt.Errorf("ENTITY.PROP_GET: invalid prop id %d", propID)
+			}
+		}
+
+		rt.FastEntityPropSet = func(id int64, propID int, val value.Value) error {
+			e := m.store().ents[id]
+			if e == nil {
+				return fmt.Errorf("ENTITY.PROP_SET: unknown entity %d", id)
+			}
+			f, _ := val.ToFloat()
+			switch propID {
+			case 0: 
+				vpos := e.getPos()
+				vpos.X = float32(f)
+				e.setPos(vpos)
+			case 1:
+				vpos := e.getPos()
+				vpos.Y = float32(f)
+				e.setPos(vpos)
+			case 2:
+				vpos := e.getPos()
+				vpos.Z = float32(f)
+				e.setPos(vpos)
+			case 3:
+				_, ew, er := e.getRot()
+				e.setRot(float32(f), ew, er)
+			case 4:
+				ep, _, er := e.getRot()
+				e.setRot(ep, float32(f), er)
+			case 5:
+				ep, ew, _ := e.getRot()
+				e.setRot(ep, ew, float32(f))
+			case 6: e.scale.X = float32(f)
+			case 7: e.scale.Y = float32(f)
+			case 8: e.scale.Z = float32(f)
+			case 9: e.alpha = float32(f)
+			case 10: e.hidden = val.IVal != 0
+			default: return fmt.Errorf("ENTITY.PROP_SET: invalid prop id %d", propID)
+			}
+			return nil
+		}
+	}
 
 	mblight.SetLightFollowWorldPosGetter(func(id int64) (float32, float32, float32, bool) {
 		e := m.store().ents[id]
@@ -149,7 +263,7 @@ func (m *Module) Shutdown() {
 	clearEntityRefFreeHookIfOwner(m)
 	if m.h != nil {
 		delete(entityStores, m.h)
-		delete(modulesByHeap, m.h)
+		delete(ModulesByStore, m.h)
 	}
 }
 
@@ -193,7 +307,8 @@ func (m *Module) camFollowEntity(rt *runtime.Runtime, args ...value.Value) (valu
 		dt = 1.0 / 60.0
 	}
 	wp := m.worldPos(e)
-	err := mbcamera.ThirdPersonFollowStep(m.h, ch, wp.X, wp.Y, wp.Z, e.yaw, dist, height, smooth, dt)
+	_, ew, _ := e.getRot()
+	err := mbcamera.ThirdPersonFollowStep(m.h, ch, wp.X, wp.Y, wp.Z, ew, dist, height, smooth, dt)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -207,7 +322,8 @@ func (m *Module) entCreate(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindSphere
 	e.w, e.h, e.d = 1, 1, 1
 	e.radius = 0.5
@@ -238,7 +354,8 @@ func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindBox
 	e.r, e.g, e.b = 180, 180, 200
 	e.w, e.h, e.d = w, h, d
@@ -282,7 +399,7 @@ func (m *Module) entSetPosition(args []value.Value) (value.Value, error) {
 	if global {
 		m.setLocalFromWorld(e, x, y, z)
 	} else {
-		e.pos = rl.Vector3{X: x, Y: y, Z: z}
+		e.setPos(rl.Vector3{X: x, Y: y, Z: z})
 	}
 	return value.Nil, nil
 }
@@ -372,7 +489,8 @@ func (m *Module) entMove(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("ENTITY.MOVE: deltas must be numeric")
 	}
-	fwd, right, up := localAxes(e.yaw, e.pitch)
+	ep, ew, _ := e.getRot()
+	fwd, right, up := localAxes(ew, ep)
 	delta := rl.Vector3Add(rl.Vector3Add(rl.Vector3Scale(fwd, f), rl.Vector3Scale(right, rg)), rl.Vector3Scale(up, u))
 	wp := m.worldPos(e)
 	nw := rl.Vector3Add(wp, delta)
@@ -422,9 +540,8 @@ func (m *Module) entRotate(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("ENTITY.ROTATE: angles must be numeric")
 	}
-	e.pitch += dp
-	e.yaw += dy
-	e.roll += dr
+	ep2, ew2, er2 := e.getRot()
+	e.setRot(ep2+dp, ew2+dy, er2+dr)
 	return value.Nil, nil
 }
 
@@ -562,7 +679,7 @@ func (m *Module) entCollided(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("ENTITY.COLLIDED: unknown entity %d", id)
 	}
-	return value.FromBool(e.collided), nil
+	return value.FromBool(e.getExt().collided), nil
 }
 
 func (m *Module) entCollisionOther(args []value.Value) (value.Value, error) {
@@ -577,7 +694,7 @@ func (m *Module) entCollisionOther(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("ENTITY.COLLISIONOTHER: unknown entity %d", id)
 	}
-	return value.FromInt(e.otherID), nil
+	return value.FromInt(e.getExt().otherID), nil
 }
 
 func (m *Module) entFloor(args []value.Value) (value.Value, error) {
@@ -611,7 +728,8 @@ func (m *Module) queryFloorY(e *ent) float64 {
 		if !s.static {
 			continue
 		}
-		bx, by, bz := float64(s.pos.X), float64(s.pos.Y), float64(s.pos.Z)
+		sp := s.getPos()
+		bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
 		bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
 		top := by + bh*0.5
 		halfW := bw*0.5 + pr
@@ -691,17 +809,37 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		return value.Nil, nil
 	}
 
+	m.advanceSpriteImageSequences(dt)
+
 	m.processEntityTweens(dt)
+	m.processAITasks(dt)
 
 	st := m.store()
 
+	for _, e := range st.ents {
+		if e == nil || e.ext == nil { continue }
+		ext := e.ext
+		if ext.ghostMode && ext.ghostTimer > 0 {
+			ext.ghostTimer -= dt
+			if ext.ghostTimer <= 0 {
+				ext.ghostTimer = 0
+				ext.ghostMode = false
+				// Logic to restore Jolt collision mask would go here
+			}
+		}
+	}
+	
 	// 1. Clear frame collision state
 	for _, e := range st.ents {
-		e.collided = false
-		e.hits = e.hits[:0]
-		e.hitPos = e.hitPos[:0]
-		e.hitN = e.hitN[:0]
-		e.hasHit = false
+		if e == nil || e.ext == nil {
+			continue
+		}
+		ext := e.ext
+		ext.collided = false
+		ext.hits = ext.hits[:0]
+		ext.hitPos = ext.hitPos[:0]
+		ext.hitN = ext.hitN[:0]
+		ext.hasHit = false
 	}
 
 	// 2. Discover and update all particle emitters in the heap
@@ -739,7 +877,8 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 				if !s.static {
 					continue
 				}
-				bx, by, bz := float64(s.pos.X), float64(s.pos.Y), float64(s.pos.Z)
+				sp := s.getPos()
+				bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
 				bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
 				snap := mbgame.BoxTopLandSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
 				if snap != 0 && (!found || snap > bestSnap) {
@@ -774,19 +913,20 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 
 	// 5. Update Animations (skeletal clips + GPU bone matrices for sockets)
 	for _, e := range st.ents {
-		if len(e.modelAnims) == 0 {
+		if e == nil || !e.hasRLModel || e.ext == nil || len(e.ext.modelAnims) == 0 {
 			continue
 		}
-		ai := e.animIndex
-		if ai < 0 || int(ai) >= len(e.modelAnims) {
+		ext := e.ext
+		ai := ext.animIndex
+		if ai < 0 || int(ai) >= len(ext.modelAnims) {
 			ai = 0
 		}
-		anim := e.modelAnims[ai]
+		anim := ext.modelAnims[ai]
 		if anim.FrameCount <= 0 {
 			continue
 		}
-		if e.animSpeed != 0 {
-			e.animTime += dt * e.animSpeed * 30
+		if ext.animSpeed != 0 {
+			ext.animTime += dt * ext.animSpeed * 30
 		}
 		frame := pickAnimFrame(e, anim)
 		rl.UpdateModelAnimation(e.rlModel, anim, frame)
@@ -823,11 +963,12 @@ func (m *Module) refreshGroundFromRules(e *ent) {
 	if e.static || !e.useSphere || e.onGround {
 		return
 	}
-	for i := range e.hits {
-		if i >= len(e.hitN) {
+	ext := e.getExt()
+	for i := range ext.hits {
+		if i >= len(ext.hitN) {
 			break
 		}
-		n := e.hitN[i]
+		n := ext.hitN[i]
 		if n.Y < 0.45 {
 			continue
 		}
@@ -867,10 +1008,11 @@ func (m *Module) resolveSphereVsStatics(e *ent) {
 			pen := r - d
 			nwp := rl.Vector3Add(wp, rl.Vector3Scale(n, pen))
 			m.setLocalFromWorld(e, nwp.X, nwp.Y, nwp.Z)
-			e.hasHit = true
-			e.hitX, e.hitY, e.hitZ = closest.X, closest.Y, closest.Z
-			e.hitNX, e.hitNY, e.hitNZ = n.X, n.Y, n.Z
-			if e.slide {
+			ext := e.getExt()
+			ext.hasHit = true
+			ext.hitX, ext.hitY, ext.hitZ = closest.X, closest.Y, closest.Z
+			ext.hitNX, ext.hitNY, ext.hitNZ = n.X, n.Y, n.Z
+			if ext.slide {
 				vn := rl.Vector3Scale(n, rl.Vector3DotProduct(e.vel, n))
 				e.vel = rl.Vector3Subtract(e.vel, vn)
 			}
@@ -977,10 +1119,10 @@ func (m *Module) pairwiseDynamic() {
 				npb := rl.Vector3Subtract(pb, rl.Vector3Scale(n, pen*0.5))
 				m.setLocalFromWorld(a, npa.X, npa.Y, npa.Z)
 				m.setLocalFromWorld(b, npb.X, npb.Y, npb.Z)
-				a.collided = true
-				b.collided = true
-				a.otherID = b.id
-				b.otherID = a.id
+				a.getExt().collided = true
+				b.getExt().collided = true
+				a.getExt().otherID = b.id
+				b.getExt().otherID = a.id
 			}
 		}
 	}
@@ -1016,7 +1158,8 @@ func (m *Module) drawOneEntity(e *ent) {
 	}
 	wp := m.worldPos(e)
 	col := m.entTintResolved(e)
-	if e.isSprite && e.texHandle != 0 {
+	ext := e.getExt()
+	if ext.isSprite && e.texHandle != 0 {
 		m.drawSpriteBillboard(e)
 		if useBlend {
 			rl.EndBlendMode()
@@ -1092,6 +1235,19 @@ func (m *Module) drawOneEntity(e *ent) {
 		wm := m.worldMatrix(e)
 		saved := e.rlModel.Transform
 		e.rlModel.Transform = wm
+
+		// Outline Pass
+		ext := e.getExt()
+		if ext.outlineThickness > 0 {
+			// Simple visual outline: draw slightly larger with solid color
+			thick := ext.outlineThickness * 0.05
+			outlineWM := rl.MatrixMultiply(rl.MatrixScale(1+thick, 1+thick, 1+thick), wm)
+			e.rlModel.Transform = outlineWM
+			mbmodel3d.DrawEntityModel(e.rlModel, ext.outlineColor)
+			
+			e.rlModel.Transform = wm
+		}
+
 		mbmodel3d.DrawEntityModel(e.rlModel, col)
 		e.rlModel.Transform = saved
 	default:
@@ -1115,7 +1271,7 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 		if e == nil || e.hidden || e.kind == entKindEmpty {
 			continue
 		}
-		if e.isSprite {
+		if e.getExt().isSprite {
 			drawList = append(drawList, e)
 			continue
 		}
@@ -1257,9 +1413,10 @@ func (m *Module) entReset(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
+	ext := e.getExt()
 	e.vel = rl.Vector3{}
-	e.collided = false
-	e.hits = nil
+	ext.collided = false
+	ext.hits = nil
 	return value.Nil, nil
 }
 
@@ -1273,9 +1430,10 @@ func (m *Module) entCollidedType(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
 	tp, _ := args[1].ToInt()
-	for _, rid := range e.hits {
+	ext := e.getExt()
+	for _, rid := range ext.hits {
 		re := m.store().ents[rid]
-		if re != nil && re.collType == int32(tp) {
+		if re != nil && re.getExt().collType == int32(tp) {
 			return value.FromInt(rid), nil
 		}
 	}
@@ -1300,7 +1458,7 @@ func (m *Module) entCountCollisions(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	return value.FromInt(int64(len(e.hits))), nil
+	return value.FromInt(int64(len(e.getExt().hits))), nil
 }
 
 func (m *Module) entGetCollisionEntity(args []value.Value) (value.Value, error) {
@@ -1313,10 +1471,11 @@ func (m *Module) entGetCollisionEntity(args []value.Value) (value.Value, error) 
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
 	idx, _ := args[1].ToInt()
-	if idx < 0 || int(idx) >= len(e.hits) {
+	hits := e.getExt().hits
+	if idx < 0 || int(idx) >= len(hits) {
 		return value.FromInt(0), nil
 	}
-	return value.FromInt(e.hits[idx]), nil
+	return value.FromInt(hits[idx]), nil
 }
 
 func (m *Module) resolveRules() {
@@ -1334,10 +1493,12 @@ func (m *Module) applyRule(rule collRule) {
 	var srcs []*ent
 	var dsts []*ent
 	for _, e := range st.ents {
-		if e.collType == rule.src {
+		if e == nil { continue }
+		ext := e.getExt()
+		if ext.collType == rule.src {
 			srcs = append(srcs, e)
 		}
-		if e.collType == rule.dst {
+		if ext.collType == rule.dst {
 			dsts = append(dsts, e)
 		}
 	}
@@ -1384,14 +1545,14 @@ func (m *Module) checkAndResolve(s, d *ent, rule collRule) {
 func (m *Module) resolveResponse(s, d *ent, n rl.Vector3, pen float32, resp int32, contact rl.Vector3) {
 	ps := m.worldPos(s)
 	ps = rl.Vector3Add(ps, rl.Vector3Scale(n, pen))
-	m.setLocalFromWorld(s, ps.X, ps.Y, ps.Z)
-	s.collided = true
-	s.hits = append(s.hits, d.id)
-	s.hitPos = append(s.hitPos, contact)
-	s.hitN = append(s.hitN, n)
-	s.hasHit = true
-	s.hitX, s.hitY, s.hitZ = contact.X, contact.Y, contact.Z
-	s.hitNX, s.hitNY, s.hitNZ = n.X, n.Y, n.Z
+	ext := s.getExt()
+	ext.collided = true
+	ext.hits = append(ext.hits, d.id)
+	ext.hitPos = append(ext.hitPos, contact)
+	ext.hitN = append(ext.hitN, n)
+	ext.hasHit = true
+	ext.hitX, ext.hitY, ext.hitZ = contact.X, contact.Y, contact.Z
+	ext.hitNX, ext.hitNY, ext.hitNZ = n.X, n.Y, n.Z
 	if resp >= 2 { // Slide
 		vn := rl.Vector3Scale(n, rl.Vector3DotProduct(s.vel, n))
 		s.vel = rl.Vector3Subtract(s.vel, vn)

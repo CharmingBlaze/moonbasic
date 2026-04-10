@@ -6,14 +6,16 @@ import (
 	"fmt"
 
 	"moonbasic/runtime"
-	"moonbasic/runtime/terrain"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
+// GetTerrainHeightCb breaks the import cycle (terrain -> mbentity -> terrain). Assigned by terrain during init.
+var GetTerrainHeightCb func(h *heap.Store, th heap.Handle, x, z float32) float32
+
 // EntityWorldXZ returns world-space X and Z for an entity id (for WORLD.SETCENTERENTITY, etc.).
 func EntityWorldXZ(h *heap.Store, id int64) (float32, float32, error) {
-	mod := modulesByHeap[h]
+	mod := ModulesByStore[h]
 	if mod == nil {
 		return 0, 0, fmt.Errorf("EntityWorldXZ: entity module not bound")
 	}
@@ -90,7 +92,10 @@ func (m *Module) entTerrainSnapY(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("TERRAIN.SNAPY: unknown entity %d", id)
 	}
 	wp := m.worldPos(e)
-	hy := terrain.HeightWorldPublic(m.h, th, wp.X, wp.Z) + off
+	var hy float32 = off
+	if GetTerrainHeightCb != nil {
+		hy = GetTerrainHeightCb(m.h, th, wp.X, wp.Z) + off
+	}
 	return m.entSetPosition([]value.Value{
 		args[1],
 		value.FromFloat(float64(wp.X)),
@@ -125,7 +130,10 @@ func (m *Module) entTerrainPlace(args []value.Value) (value.Value, error) {
 	if m.store().ents[id] == nil {
 		return value.Nil, fmt.Errorf("TERRAIN.PLACE: unknown entity %d", id)
 	}
-	hy := terrain.HeightWorldPublic(m.h, th, x, z) + off
+	var hy float32 = off
+	if GetTerrainHeightCb != nil {
+		hy = GetTerrainHeightCb(m.h, th, x, z) + off
+	}
 	return m.entSetPosition([]value.Value{
 		args[1],
 		value.FromFloat(float64(x)),

@@ -8,6 +8,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
@@ -54,6 +55,15 @@ func registerShaderCmds(m *Module, reg runtime.Registrar) {
 	})
 
 	reg.Register("SHADER.FREE", "shader", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 { return value.Nil, fmt.Errorf("SHADER.FREE expects shaderHandle") }
+		if m.h != nil {
+			if obj, ok := m.h.Get(heap.Handle(args[0].IVal)); ok {
+				if sh, ok := obj.(*shaderObj); ok {
+					sh.Free()
+					m.h.Free(heap.Handle(args[0].IVal))
+				}
+			}
+		}
 		return value.Nil, nil
 	})
 

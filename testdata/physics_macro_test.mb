@@ -1,0 +1,17 @@
+; Physics Macro Test
+e = ENTITY.MAKEBOX(1, 1, 1)
+
+; Build physics using the professional builder pattern
+PHYSICS.SHAPE(e, "BOX")
+PHYSICS.SIZE(e, 0.5, 0.5, 0.5)
+PHYSICS.FRICTION(e, 0.8)
+PHYSICS.BOUNCE(e, 0.5)
+PHYSICS.BUILD(e, 1.0) ; Commits with 1.0 mass
+
+; Interact with physics via EntityID
+PHYSICS.IMPULSE(e, 0, 10, 0)
+PHYSICS.FORCE(e, 5, 0, 0)
+PHYSICS.GRAVITY(e, 0.1) ; Low gravity for this object
+PHYSICS.SETROT(e, 0, 1.57, 0) ; Rotate 90 degrees
+
+PRINT "Physics Easy Mode Verified"

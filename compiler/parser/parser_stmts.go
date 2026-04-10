@@ -157,6 +157,15 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 			if err != nil {
 				return nil, err
 			}
+			p.skipNewlines()
+			if p.cur().Type == token.EQ {
+				p.advance()
+				rhs, err := p.parseExpr()
+				if err != nil {
+					return nil, err
+				}
+				return arena.Make(p.ar, ast.NamespaceAssignNode{NS: name, Method: field, Args: args, Expr: rhs, Line: line, Col: col}), nil
+			}
 			if p.sym.IsVar(name) {
 				return arena.Make(p.ar, ast.HandleCallStmt{Receiver: name, Method: field, Args: args, Line: line, Col: col}), nil
 			}

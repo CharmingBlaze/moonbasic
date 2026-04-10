@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func clamp01(t float64) float64 {
+func Clamp01(t float64) float64 {
 	if t < 0 {
 		return 0
 	}
@@ -15,9 +15,9 @@ func clamp01(t float64) float64 {
 	return t
 }
 
-// ease applies named easing to t in [0,1].
-func ease(t float64, name string) float64 {
-	t = clamp01(t)
+// Ease applies named easing to t in [0,1].
+func Ease(t float64, name string) float64 {
+	t = Clamp01(t)
 	switch strings.ToLower(strings.TrimSpace(name)) {
 	case "linear", "":
 		return t

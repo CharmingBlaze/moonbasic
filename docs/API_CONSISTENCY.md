@@ -455,6 +455,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.CREATE`** - args: (none) -> returns handle — Alias of CAMERA.MAKE â€” returns a Camera3D handle
 - **`CAMERA.END`** - args: (none)
 - **`CAMERA.END`** - args: handle
+- **`CAMERA.FOLLOW`** - args: handle, handle, float, float — Spring math camera tracker.
 - **`CAMERA.FOLLOW`** - args: handle, float, float, float, float, float, float, float
 - **`CAMERA.FOLLOWENTITY`** - args: handle, int, float, float, float
 - **`CAMERA.FREE`** - args: handle
@@ -466,6 +467,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.GETVIEWRAY`** - args: float, float, handle, int, int
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float -> returns bool
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float, float -> returns bool
+- **`CAMERA.LERPTO`** - args: handle, int, float — Smoothly interpolate camera target toward an entity.
 - **`CAMERA.LOOKAT`** - args: handle, float, float, float
 - **`CAMERA.LOOKATENTITY`** - args: handle, int — Sets camera target to entity world position (same idea as Blitz PointAt)
 - **`CAMERA.MAKE`** - args: (none)
@@ -493,6 +495,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.SETTARGETENTITY`** - args: handle, int
 - **`CAMERA.SETUP`** - args: handle, float, float, float
 - **`CAMERA.SHAKE`** - args: handle, float, float
+- **`CAMERA.SHAKE`** - args: handle, float, float — Shakes camera
 - **`CAMERA.SMOOTHEXP`** - args: float, float, float, float -> returns float — Exponential smoothing: current toward target using (1-exp(-smoothHz*dt)); for orbit angles
 - **`CAMERA.TURN`** - args: handle, float, float, float
 - **`CAMERA.TURNLEFT`** - args: handle, float -> returns float
@@ -916,13 +919,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### DEBUG
 
+- **`CONSOLE.LOG`** - args: string — Add a message to the scrolling on-screen debug console.
+- **`CONSOLE.LOG`** - args: string, handle — Add a colored message to the scrolling on-screen debug console.
 - **`DEBUG.ASSERT`** - args: any, string
 - **`DEBUG.BREAKPOINT`** - args: (none)
 - **`DEBUG.DRAWBOX`** - args: float, float, float, float, float, float, int, int, int
 - **`DEBUG.DRAWLINE`** - args: float, float, float, float, float, float, int, int, int
+- **`DEBUG.DRAWPHYSICS`** - args: bool — Toggle collision wireframe visualization.
 - **`DEBUG.DUMPHEAP`** - args: (none) — Professional: Scan all active handles and print to diagnostics.
 - **`DEBUG.GCSTATS`** - args: (none)
 - **`DEBUG.HEAPSTATS`** - args: (none)
+- **`DEBUG.INSPECT`** - args: int — Display live transform/state info for an entity.
 - **`DEBUG.LISTCOMMANDS`** - args: (none) — Professional: List all registered built-in commands.
 - **`DEBUG.LOG`** - args: string
 - **`DEBUG.LOGFILE`** - args: string, string
@@ -946,6 +953,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DEBUG.STACKTRACE`** - args: (none)
 - **`DEBUG.WATCH`** - args: string, any
 - **`DEBUG.WATCHCLEAR`** - args: (none)
+- **`SYSTEM.MONITOR`** - args: (none) — Toggle the system performance monitor (FPS, RAM).
+- **`SYSTEM.MONITOR`** - args: bool — Toggle the system performance monitor (FPS, RAM).
 
 ### DECAL
 
@@ -1175,6 +1184,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.ADDTRIANGLE`** - args: handle, int, int, int
 - **`ENTITY.ADDVERTEX`** - args: handle, float, float, float -> returns int
 - **`ENTITY.ALIGNTOVECTOR`** - args: int, float, float, float, int
+- **`ENTITY.ALPHA`** - args: int, float — Easy Mode: Set entity transparency (0.0 to 1.0)
 - **`ENTITY.ALPHA`** - args: int, float
 - **`ENTITY.ANIMATE`** - args: int, any, any
 - **`ENTITY.ANIMATETOWARD`** - args: int, float, float, float, float — Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE
@@ -1185,10 +1195,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.ANIMTIME`** - args: int -> returns float
 - **`ENTITY.APPLYGRAVITY`** - args: int, float, float
 - **`ENTITY.APPLYIMPULSE`** - args: int, float, float, float — Same as ENTITY.ADDFORCE / ApplyEntityImpulse (velocity change; not Jolt BodyInterface impulse until exposed)
+- **`ENTITY.APPLYTORQUE`** - args: handle, float, float, float — Spins physics object.
+- **`ENTITY.ATTACH`** - args: handle, handle, float, float, float — Welds entities together with offset.
 - **`ENTITY.BLEND`** - args: int, int
 - **`ENTITY.BOX`** - args: int, float, float, float
 - **`ENTITY.CANSEE`** - args: int, int, float, float -> returns bool — Vision cone (degrees) + max distance + unobstructed Jolt ray to target
 - **`ENTITY.CHECKCOLLISION`** - args: int, int -> returns bool — True if two entities had a Jolt contact last step (same as EntityCollided)
+- **`ENTITY.CHECKRADIUS`** - args: handle, float, string -> returns handle — Check sensor
 - **`ENTITY.CLAMPTOTERRAIN`** - args: int, handle — Sets Y from terrain height at entity XZ (offset 0); alias of TERRAIN.SNAPY argument order swap
 - **`ENTITY.CLEARPHYSBUFFER`** - args: int — Remove physics matrix buffer binding from entity#
 - **`ENTITY.CLEARSCENE`** - args: (none)
@@ -1205,6 +1218,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.COLOR`** - args: int, handle
 - **`ENTITY.COLOR`** - args: int, int, int, int
 - **`ENTITY.COLOR`** - args: int, int, int, int, int
+- **`ENTITY.COLORPULSE`** - args: handle, handle, handle, float — Pulses color.
 - **`ENTITY.COPY`** - args: int -> returns int
 - **`ENTITY.COUNTCHILDREN`** - args: int -> returns int
 - **`ENTITY.CREATE`** - args: (none) -> returns int
@@ -1228,9 +1242,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.DELTAY`** - args: int, int -> returns float
 - **`ENTITY.DELTAZ`** - args: int, int -> returns float
 - **`ENTITY.DISTANCE`** - args: int, int -> returns float
+- **`ENTITY.DISTANCETO`** - args: handle, handle -> returns float — Returns distance.
 - **`ENTITY.DRAW`** - args: int
 - **`ENTITY.DRAWALL`** - args: (none)
 - **`ENTITY.DRAWALL`** - args: (none)
+- **`ENTITY.EMITPARTICLES`** - args: handle, handle — Attaches particles to entity.
 - **`ENTITY.ENTITIESINBOX`** - args: float, float, float, float, float, float
 - **`ENTITY.ENTITIESINGROUP`** - args: any
 - **`ENTITY.ENTITIESINRADIUS`** - args: float, float, float, float
@@ -1240,11 +1256,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.ENTITYY`** - args: int, any -> returns float
 - **`ENTITY.ENTITYYAW`** - args: int, any -> returns float
 - **`ENTITY.ENTITYZ`** - args: int, any -> returns float
+- **`ENTITY.EXPLODE`** - args: handle, int — Instantly explodes object.
 - **`ENTITY.EXTRACTANIMSEQ`** - args: int, any, any
+- **`ENTITY.FADE`** - args: handle, float, float, float — Lerps alpha.
 - **`ENTITY.FIND`** - args: any -> returns int
 - **`ENTITY.FINDBONE`** - args: int, any -> returns int
 - **`ENTITY.FINDBYPROPERTY`** - args: string, string -> returns handle
 - **`ENTITY.FINDCHILD`** - args: int, string -> returns int
+- **`ENTITY.FLEE`** - args: handle, handle, float, float — Runs away.
 - **`ENTITY.FLOOR`** - args: int -> returns float
 - **`ENTITY.FREE`** - args: int
 - **`ENTITY.FREEENTITIES`** - args: handle
@@ -1261,7 +1280,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.GETOVERLAPCOUNT`** - args: int, string -> returns int — Counts tagged entities whose pivot lies in zone entity world AABB (sphere prefilter)
 - **`ENTITY.GETPOS`** - args: int -> returns handle
 - **`ENTITY.GETPOSITION`** - args: int -> returns handle
+- **`ENTITY.GETSTATE`** - args: handle -> returns int — Returns string AI state.
 - **`ENTITY.GETXZ`** - args: int -> returns handle
+- **`ENTITY.GHOSTMODE`** - args: handle, float — Disables collisions temporarily.
 - **`ENTITY.GRAVITY`** - args: int, float
 - **`ENTITY.GROUNDED`** - args: int -> returns bool
 - **`ENTITY.GROUPADD`** - args: any, int
@@ -1270,6 +1291,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.HASTAG`** - args: int, string -> returns bool — Glob match on Blender tag or entity name only (stricter than ENTITY.ISTYPE)
 - **`ENTITY.HIDE`** - args: int
 - **`ENTITY.INFRUSTUM`** - args: int -> returns bool — True if entity AABB intersects active CAMERA.BEGIN frustum (same as ENTITY.INVIEW without passing camera)
+- **`ENTITY.INFRUSTUM`** - args: handle, handle -> returns int — Boolean bounds.
 - **`ENTITY.INSTANCE`** - args: int -> returns int
 - **`ENTITY.INSTANCEGRID`** - args: int, int, int, float -> returns int
 - **`ENTITY.INVIEW`** - args: int, handle -> returns bool
@@ -1286,15 +1308,26 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.LOADSCENE`** - args: any
 - **`ENTITY.LOADSPRITE`** - args: string -> returns int
 - **`ENTITY.LOADSPRITE`** - args: string, int -> returns int
+- **`ENTITY.LOOKAT`** - args: handle, float, float — Instantly rotates an entity to face a point.
 - **`ENTITY.LOOKAT`** - args: int, float, float, float — Face world point (entity#, targetX#, targetY#, targetZ#); sets pitch/yaw
 - **`ENTITY.MATRIXELEMENT`** - args: int, int, int -> returns float
 - **`ENTITY.MOVE`** - args: int, float, float, float
 - **`ENTITY.MOVECAMERARELATIVE`** - args: int, float, float, handle — World XZ step from camera yaw: forward#/strafe# are deltas (typically speed*dt*input); camera is a Camera3D handle.
 - **`ENTITY.MOVEENTITY`** - args: int, float, float, float
 - **`ENTITY.MOVERELATIVE`** - args: int, float, float, float, float
+- **`ENTITY.MOVETOWARD`** - args: handle, float, float, float — Moves an entity toward a coordinate.
+- **`ENTITY.ONHIT`** - args: handle, string — Fires MB callback on collision.
 - **`ENTITY.ORDER`** - args: int, int
+- **`ENTITY.OUTLINE`** - args: int, float, handle — Apply a highlighted outline effect to a model.
+- **`ENTITY.P`** - args: int -> returns float — Easy Mode: Get Pitch of entity
+- **`ENTITY.P`** - args: int, float — Easy Mode: Set Pitch of entity
 - **`ENTITY.PARENT`** - args: int, int, any
 - **`ENTITY.PARENTCLEAR`** - args: int
+- **`ENTITY.PATROL`** - args: handle, handle, float — Loops an entity across a WAYPOINT array handle at speed.
+- **`ENTITY.PHYSICS`** - args: int, string, float — Quickly setup a physics body for an entity (auto-sizes based on model/shape).
+- **`ENTITY.PHYSICS`** - args: int, string, float, float, float — Quickly setup a physics body with mass, friction, and restitution.
+- **`ENTITY.PHYSICS`** - args: int, string, float, float, float, bool — Quickly setup a physics body with mass, friction, restitution, and CCD enabled.
+- **`ENTITY.PHYSICSMOTION`** - args: int, string — Toggle physics motion type (STATIC, DYNAMIC, KINEMATIC).
 - **`ENTITY.PICK`** - args: int, float -> returns bool
 - **`ENTITY.PICKMODE`** - args: int, int
 - **`ENTITY.PLAY`** - args: int, any
@@ -1302,18 +1335,28 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.POINTAT`** - args: int, int
 - **`ENTITY.POINTENTITY`** - args: int, int
 - **`ENTITY.POLLMESSAGE`** - args: int -> returns string
+- **`ENTITY.POS`** - args: int, float, float, float — Easy Mode shorthand for positioning an entity
 - **`ENTITY.POSITION`** - args: int, float, float, float, any — Alias of ENTITY.SETPOSITION â€” set world or local position
 - **`ENTITY.POSITIONENTITY`** - args: int, float, float, float, any
 - **`ENTITY.PUSHOUTOFGEOMETRY`** - args: int — Best-effort depenetration: nudges entity world Y up slightly
+- **`ENTITY.R`** - args: int -> returns float — Easy Mode: Get Roll of entity
+- **`ENTITY.R`** - args: int, float — Easy Mode: Set Roll of entity
 - **`ENTITY.RADIUS`** - args: int, float
+- **`ENTITY.RAYCAST`** - args: handle, float -> returns handle — Raycast sensor
 - **`ENTITY.RAYCAST`** - args: float, float, float, float, float, float, float -> returns int — Jolt ray cast; returns first hit entity# or 0 (same query path as PHYSICS3D/PICK)
 - **`ENTITY.RAYHIT`** - args: int, float, float, float, float, float, float -> returns bool
+- **`ENTITY.RGB`** - args: int, int, int, int — Easy Mode: Set entity color (id, r, g, b)
+- **`ENTITY.ROT`** - args: int, float, float, float — Easy Mode shorthand for rotating an entity (absolute)
 - **`ENTITY.ROTATE`** - args: int, float, float, float
 - **`ENTITY.ROTATEENTITY`** - args: int, float, float, float, any
 - **`ENTITY.SAVESCENE`** - args: any
+- **`ENTITY.SCA`** - args: int, float, float, float — Easy Mode shorthand for scaling an entity (absolute)
 - **`ENTITY.SCALE`** - args: int, float, float, float
 - **`ENTITY.SCROLLMATERIAL`** - args: int, float, float — Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)
 - **`ENTITY.SENDMESSAGE`** - args: int, string
+- **`ENTITY.SETANIMATION`** - args: int, int, float — Second arg 0 clears image-sequence animation
+- **`ENTITY.SETANIMATION`** - args: int, handle, float — Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps
+- **`ENTITY.SETANIMATION`** - args: int, handle, float, bool
 - **`ENTITY.SETANIMFRAME`** - args: int, float
 - **`ENTITY.SETANIMINDEX`** - args: int, any
 - **`ENTITY.SETANIMLOOP`** - args: int, any
@@ -1331,17 +1374,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SETROTATION`** - args: int, float, float, float, any — Absolute pitch/yaw/roll degrees â€” alias of ENTITY.ROTATEENTITY
 - **`ENTITY.SETSHADER`** - args: int, handle
 - **`ENTITY.SETSHADER`** - args: handle, int — Binds an active Shader Library component to the entity.
+- **`ENTITY.SETSPRITEFRAME`** - args: int, int — Set atlas frame on billboard bound to a TEXTURE object
 - **`ENTITY.SETSTATIC`** - args: int
 - **`ENTITY.SETTEXTUREFLIP`** - args: handle, float, float — Modifies UV scaling for horizontal/vertical mirroring.
 - **`ENTITY.SETTEXTUREMAP`** - args: int, any, handle
 - **`ENTITY.SETTEXTURESCROLL`** - args: handle, float, float — Injects offsets into the shader for animated water/lava.
 - **`ENTITY.SETTRIGGER`** - args: int
 - **`ENTITY.SETVISIBLE`** - args: int, any — Alias of ENTITY.VISIBLE
+- **`ENTITY.SETWEIGHT`** - args: handle, float — Changes entity mass.
 - **`ENTITY.SHININESS`** - args: int, float
 - **`ENTITY.SHOW`** - args: int
 - **`ENTITY.SLIDE`** - args: int, any
+- **`ENTITY.SNAPTO`** - args: int, int — Instantly align one entity to another's transform.
 - **`ENTITY.SPRITEVIEWMODE`** - args: int, int
 - **`ENTITY.STOPANIM`** - args: int
+- **`ENTITY.TAG`** - args: handle, string — Sets spatial tag.
 - **`ENTITY.TEXTURE`** - args: int, any
 - **`ENTITY.TFORMPOINT`** - args: float, float, float, int, int -> returns handle
 - **`ENTITY.TFORMVECTOR`** - args: float, float, float, int, int -> returns handle
@@ -1350,6 +1397,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.TRANSLATEENTITY`** - args: int, float, float, float, any
 - **`ENTITY.TURN`** - args: int, float, float, float — Add pitch/yaw/roll degrees â€” alias of ENTITY.ROTATE / TURNENTITY
 - **`ENTITY.TURNENTITY`** - args: int, float, float, float, any
+- **`ENTITY.TURNTOWARD`** - args: handle, float, float, float — Slowly rotates the entity to face a target over time.
+- **`ENTITY.TWEEN`** - args: int, string, any, float, string — Animate properties (position, scale, rotation) using easing functions (bounce, elastic, etc).
 - **`ENTITY.TYPE`** - args: int, int
 - **`ENTITY.UNPARENT`** - args: int — Alias of ENTITY.PARENTCLEAR â€” detach and keep world position
 - **`ENTITY.UPDATE`** - args: float
@@ -1359,6 +1408,16 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.VERTEXY`** - args: handle, int -> returns float
 - **`ENTITY.VERTEXZ`** - args: handle, int -> returns float
 - **`ENTITY.VISIBLE`** - args: int, any
+- **`ENTITY.W`** - args: int -> returns float — Easy Mode: Get Yaw (W) of entity
+- **`ENTITY.W`** - args: int, float — Easy Mode: Set Yaw (W) of entity
+- **`ENTITY.WANDER`** - args: handle, float, float, float, float — Moves an NPC randomly within a zone.
+- **`ENTITY.X`** - args: int -> returns float — Easy Mode: Get X position of entity
+- **`ENTITY.X`** - args: int, float — Easy Mode: Set X position of entity
+- **`ENTITY.Y`** - args: int -> returns float
+- **`ENTITY.Y`** - args: int, float
+- **`ENTITY.Z`** - args: int -> returns float
+- **`ENTITY.Z`** - args: int, float
+- **`PHYSICS.CCD`** - args: int, bool — Enable Continuous Collision Detection to prevent high-speed tunneling.
 
 ### ENTITYALPHA
 
@@ -1783,7 +1842,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GAME.SCREENH`** - args: (none) -> returns int
 - **`GAME.SCREENW`** - args: (none) -> returns int
 - **`GAME.SETAESTHETIC`** - args: int — Selects global visual profile.
+- **`GAME.SETPAUSE`** - args: int — Freezes physics/animation timers.
 - **`GAME.SETTIMESCALE`** - args: float — Scales frame delta (0 = treated as 1); use for slow-mo / fast-forward with GAME.DT and TIME.DELTA
+- **`GAME.SLOWMOTION`** - args: float, float — Slows time for cinematic.
 
 ### GESTURE
 
@@ -2041,7 +2102,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`IMAGE.GETPIXEL`** - args: handle, int, int -> returns int — Packed pixel color (host byte order; typically ARGB-style int)
 - **`IMAGE.HEIGHT`** - args: handle
 - **`IMAGE.LOAD`** - args: string
+- **`IMAGE.LOADGIF`** - args: string -> returns handle — Animated GIF to ImageSequence (cumulative frames)
 - **`IMAGE.LOADRAW`** - args: string, int, int, int, int
+- **`IMAGE.LOADSEQUENCE`** - args: string -> returns handle — Glob files matching prefix (e.g. assets/water_*.png) sorted by name
 - **`IMAGE.MAKE`** - args: int, int
 - **`IMAGE.MAKE`** - args: int, int, int, int, int, int
 - **`IMAGE.MAKEBLANK`** - args: int, int
@@ -2069,6 +2132,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.AXISDEG`** - args: any, any, float, float -> returns float — Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) â€” radians this frame
 - **`INPUT.GAMEPADAXISCOUNT`** - args: int -> returns int
 - **`INPUT.GAMEPADBUTTONCOUNT`** - args: int -> returns int
+- **`INPUT.GETINACTIVITY`** - args: (none) -> returns float — Returns time in seconds since the last user interaction.
 - **`INPUT.GETKEYNAME`** - args: int -> returns string
 - **`INPUT.GETMOUSEWORLDPOS`** - args: handle, int, int -> returns handle
 - **`INPUT.GETTOUCHPOINTID`** - args: int -> returns int
@@ -2076,8 +2140,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.JOYDOWN`** - args: any, any -> returns bool
 - **`INPUT.JOYX`** - args: (none) -> returns float
 - **`INPUT.JOYY`** - args: (none) -> returns float
-- **`INPUT.KEYDOWN`** - args: any
 - **`INPUT.KEYDOWN`** - args: int -> returns bool
+- **`INPUT.KEYDOWN`** - args: any
 - **`INPUT.KEYHIT`** - args: any -> returns bool
 - **`INPUT.KEYPRESSED`** - args: any
 - **`INPUT.KEYUP`** - args: any
@@ -2482,9 +2546,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MATERIAL.MAKEDEFAULT`** - args: (none)
 - **`MATERIAL.MAKEPBR`** - args: (none) -> returns handle
 - **`MATERIAL.SETCOLOR`** - args: handle, int, int, int, int, int
+- **`MATERIAL.SETEFFECT`** - args: handle, string
+- **`MATERIAL.SETEFFECTPARAM`** - args: handle, string, float
 - **`MATERIAL.SETFLOAT`** - args: handle, int, float
+- **`MATERIAL.SETSECONDARYTEXTURE`** - args: int, handle — Alias of ENTITY.SETDETAILTEXTURE
 - **`MATERIAL.SETSHADER`** - args: handle, handle
 - **`MATERIAL.SETTEXTURE`** - args: handle, int, handle
+- **`MATERIAL.SETUVSCROLL`** - args: int, float, float — Alias of ENTITY.SCROLLMATERIAL (mesh material 0)
 
 ### MATH
 
@@ -2931,19 +2999,23 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`NET.BROADCAST`** - args: handle, int, string, bool
 - **`NET.CLOSE`** - args: handle
+- **`NET.CONNECT`** - args: string, int — Simplified command to join a server.
 - **`NET.CONNECT`** - args: handle, string, int -> returns handle
 - **`NET.CREATECLIENT`** - args: (none) -> returns handle
 - **`NET.CREATESERVER`** - args: int, int -> returns handle
 - **`NET.FLUSH`** - args: handle
 - **`NET.GETPING`** - args: handle -> returns int
+- **`NET.HOST`** - args: int — Simplified command to start a server.
 - **`NET.PEERCOUNT`** - args: handle -> returns int
 - **`NET.RECEIVE`** - args: handle -> returns handle
+- **`NET.SEND`** - args: int, string — Broadcast or send network data.
 - **`NET.SERVICE`** - args: handle, int
 - **`NET.SETBANDWIDTH`** - args: handle, int, int
 - **`NET.SETCHANNELS`** - args: int
 - **`NET.SETTIMEOUT`** - args: handle, int
 - **`NET.START`** - args: (none)
 - **`NET.STOP`** - args: (none)
+- **`NET.SYNC`** - args: int — Mark an entity for network replication.
 - **`NET.UPDATE`** - args: handle
 
 ### NETMSG$
@@ -3145,6 +3217,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS.BOXCAST`** - args: any
 - **`PHYSICS.DISABLE`** - args: any
 - **`PHYSICS.ENABLE`** - args: any
+- **`PHYSICS.EXPLOSION`** - args: float, float, float, float, float — Applies physical impulse radially.
 - **`PHYSICS.GETBUOYANCY`** - args: int -> returns float — Reads stored buoyancy density (default 0)
 - **`PHYSICS.RAYCAST`** - args: float, float, float, float, float, float, float -> returns handle
 - **`PHYSICS.SETBUOYANCY`** - args: int, float — Stores per-entity buoyancy density for future Jolt/WASM fluid coupling (gameplay hint today)
@@ -3171,6 +3244,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PHYSICS3D
 
+- **`PHYSICS.AUTO`** - args: int, string, float — Alias for ENTITY.PHYSICS.
+- **`PHYSICS.BOUNCE`** - args: int, float — Modular building: Sets bounciness (restitution) for a pending physics body.
+- **`PHYSICS.BUILD`** - args: int, float — Modular building: Finalizes and commits the physics body with given mass.
+- **`PHYSICS.FORCE`** - args: int, float, float, float — Entity-First: Applies a continuous force to an entity's physics body.
+- **`PHYSICS.FRICTION`** - args: int, float — Modular building: Sets friction for a pending physics body.
+- **`PHYSICS.GRAVITY`** - args: int, float — Entity-First: Scale the gravity factor for a specific entity (e.g. 0.0 for zero-g).
+- **`PHYSICS.IMPULSE`** - args: int, float, float, float — Entity-First: Applies an instant impulse to an entity's physics body.
+- **`PHYSICS.IMPULSE`** - args: int, float, float, float — Entity-First: Applies an impulse to an entity's physics body.
+- **`PHYSICS.SETROT`** - args: int, float, float, float — Entity-First: Instantly sets the rotation of an entity's physics body (Euler radians).
+- **`PHYSICS.SHAPE`** - args: int, string — Modular building: Sets the physics shape for a pending body.
+- **`PHYSICS.SIZE`** - args: int, float, float, float — Modular building: Sets dimensions for a pending physics shape.
+- **`PHYSICS.VELOCITY`** - args: int, float, float, float — Entity-First: Sets the linear velocity of an entity's physics body.
+- **`PHYSICS.WAKE`** - args: int — Entity-First: Forces a sleeping physics body to wake up.
 - **`PHYSICS3D.DEBUGDRAW`** - args: int
 - **`PHYSICS3D.ONCOLLISION`** - args: handle, handle, string
 - **`PHYSICS3D.ONCOLLISION`** - args: handle, handle, string
@@ -3688,6 +3774,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`SATURATE`** - args: float -> returns float
 
+### SAVE
+
+- **`SAVE.DATA`** - args: string, string — Writes JSON data.
+- **`SAVE.GET`** - args: string -> returns string — Reads JSON data.
+
 ### SCALENT
 
 - **`SCALENT`** - args: int, float, float, float — Easy Mode: ENTITY.SCALEENTITY(ent, x, y, z)
@@ -3710,6 +3801,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SCENE.REGISTER`** - args: string, string
 - **`SCENE.SAVESCENE`** - args: any
 - **`SCENE.SETHANDLERS`** - args: string, string
+- **`SCENE.SWITCH`** - args: handle, float — Smoothly transitions levels.
 - **`SCENE.UPDATE`** - args: float
 
 ### SCREENHEIGHT
@@ -3839,8 +3931,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### SOUND
 
+- **`SOUND.ATTACH`** - args: handle, handle — Pins a sound to an entity.
 - **`SOUND.FREE`** - args: handle
 - **`SOUND.FROMWAVE`** - args: handle -> returns handle
+- **`SOUND.PLAY3D`** - args: handle, float, float, float, float — Plays 3D spatialized audio.
 
 ### SOUNDVOLUME
 
@@ -4072,6 +4166,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### TERRAIN
 
+- **`TERRAIN.APPLYMAP`** - args: handle, handle — Apply CPU image as terrain diffuse + splat sample; rebuilds loaded chunk meshes
+- **`TERRAIN.APPLYTILES`** - args: handle, handle, int -> returns int — Copy template entity to each non-empty tile on layer 0; returns count placed
+- **`TERRAIN.APPLYTILES`** - args: handle, handle, int, int -> returns int — Same as 3-arg form with explicit tile layer index
 - **`TERRAIN.DRAW`** - args: handle
 - **`TERRAIN.FILLFLAT`** - args: handle, float
 - **`TERRAIN.FILLPERLIN`** - args: handle, float, float
@@ -4229,6 +4326,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TRIGGER
 
 - **`TRIGGER.CREATEFROMENTITY`** - args: int
+- **`TRIGGER.CREATEZONE`** - args: float, float, float, float, float, float, string -> returns handle — Creates non-blocking zone firing hit tags.
 
 ### TRIM$
 
@@ -4261,6 +4359,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TranslateEntity
 
 - **`TranslateEntity`** - args: int, float, float, float — Args: (entity#, dx#, dy#, dz#). World-space position delta; same as ENTITY.TRANSLATE / ENTITY.TRANSLATEENTITY.
+
+### UI
+
+- **`UI.BUTTON`** - args: string, float, float, float, float -> returns int — Draws interactive button.
+- **`UI.INVENTORYICON`** - args: handle, float, float — Draws a 3D model icon.
+- **`UI.LABEL3D`** - args: string, handle, handle — Projects text into 3D world above object.
+- **`UI.PROGRESSBAR`** - args: float, float, float, float, float, int — Draws progress bar.
 
 ### UPDATEEMITTER
 
@@ -4488,6 +4593,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WINDOW.SHOULDCLOSE`** - args: (none)
 - **`WINDOW.TOGGLEFULLSCREEN`** - args: (none)
 - **`WINDOW.WIDTH`** - args: (none) -> returns int
+- **`WORLD.FLASH`** - args: handle, float — Tints the screen temporarily (damage effects, etc).
 
 ### WIRECUBE
 
@@ -4495,24 +4601,31 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### WORLD
 
+- **`WORLD.DAYNIGHTCYCLE`** - args: float — Rotates global sunlight over duration (seconds).
 - **`WORLD.FOGCOLOR`** - args: int, int, int — Set the fog color: (r, g, b).
 - **`WORLD.FOGCOLOR`** - args: int, int, int
 - **`WORLD.FOGDENSITY`** - args: float — Set the fog density (0.0 to 1.0).
 - **`WORLD.FOGDENSITY`** - args: float
 - **`WORLD.FOGMODE`** - args: int
 - **`WORLD.FOGMODE`** - args: int — Set the fog mode: 0=None, 1=Linear, 2=Exponential.
+- **`WORLD.GETRAY`** - args: float, float, handle -> returns handle — Returns Array [px,py,pz,dx,dy,dz]
 - **`WORLD.ISREADY`** - args: handle -> returns bool
 - **`WORLD.PRELOAD`** - args: handle, int
+- **`WORLD.SCREENSHAKE`** - args: float, float — Shakes the primary camera.
+- **`WORLD.SETAMBIENCE`** - args: handle, float — Plays a looping background track.
 - **`WORLD.SETCENTER`** - args: float, float
 - **`WORLD.SETCENTERENTITY`** - args: int
 - **`WORLD.SETREFLECTION`** - args: int
+- **`WORLD.SETREVERB`** - args: int — Changes echo.
 - **`WORLD.SETVEGETATION`** - args: handle, handle, float — Scatter helper: terrain + billboard entity reserved + density; uses internal SCATTER set
 - **`WORLD.STATUS`** - args: (none) -> returns string
 - **`WORLD.STREAMENABLE`** - args: bool
 - **`WORLD.TOSCREEN`** - args: float, float, float -> returns handle — World to screen using active CAMERA.BEGIN 3D camera; returns float array [sx,sy]
+- **`WORLD.TOSCREEN`** - args: float, float, float, handle -> returns handle — Returns 2D Screen coords given 3D World coords and Camera.
 - **`WORLD.TOWORLD`** - args: float, float, float -> returns handle — Unproject screen x,y with depth along view ray (active 3D camera); returns [wx,wy,wz]
-- **`WORLD.UPDATE`** - args: float — Update physics and world state
+- **`WORLD.TOWORLD`** - args: float, float, float, handle -> returns handle — Returns 3D World coords from 2D.
 - **`WORLD.UPDATE`** - args: float
+- **`WORLD.UPDATE`** - args: float — Update physics and world state
 
 ### WRAP
 

@@ -61,6 +61,12 @@ func registerHighLevelNet(m *Module, reg runtime.Registrar) {
 	reg.Register("LOBBY.FIND", "lobby", m.lobbyFind)
 	reg.Register("LOBBY.GETNAME", "lobby", m.lobbyGetName)
 	reg.Register("LOBBY.JOIN", "lobby", m.lobbyJoin)
+	
+	// Professional Shorthands
+	reg.Register("NET.HOST", "net", m.netHost)
+	reg.Register("NET.CONNECT", "net", m.cliConnect)
+	reg.Register("NET.SEND", "net", m.rpcCall)
+	reg.Register("NET.SYNC", "net", m.srvSyncEntity)
 }
 
 func argF64MP(v value.Value) (float64, bool) {
@@ -163,6 +169,13 @@ func broadcastHost(ho *hostObj, ch uint8, data string, reliable bool) error {
 		flags = enet.PacketFlagReliable
 	}
 	return ho.host.BroadcastString(data, ch, flags)
+}
+
+func (m *Module) netHost(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("NET.HOST expects (port)")
+	}
+	return m.srvStart(rt, args[0], value.FromInt(32))
 }
 
 func (m *Module) srvStart(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

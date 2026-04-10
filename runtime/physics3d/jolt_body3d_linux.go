@@ -27,65 +27,65 @@ func parseMotion(s string) jolt.MotionType {
 	}
 }
 
-func bdAddBox(m *Module, args []value.Value) (value.Value, error) {
+func BDAddBox(h *heap.Store, args []value.Value) (value.Value, error) {
 	if len(args) != 4 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.ADDBOX expects (builder, hw, hh, hd)")
 	}
-	bu, err := heap.Cast[*builderObj](m.h, heap.Handle(args[0].IVal))
+	bu, err := heap.Cast[*BuilderObj](h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
 	hx, _ := args[1].ToFloat()
 	hy, _ := args[2].ToFloat()
 	hz, _ := args[3].ToFloat()
-	if bu.shape != nil {
-		bu.shape.Destroy()
+	if bu.Shape != nil {
+		bu.Shape.Destroy()
 	}
-	bu.shape = jolt.CreateBox(jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)})
-	bu.qKind = 1
-	bu.qBox = jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)}
+	bu.Shape = jolt.CreateBox(jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)})
+	bu.QKind = 1
+	bu.QBox = jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)}
 	return value.Nil, nil
 }
 
-func bdAddSphere(m *Module, args []value.Value) (value.Value, error) {
+func BDAddSphere(h *heap.Store, args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.ADDSPHERE expects (builder, radius)")
 	}
-	bu, err := heap.Cast[*builderObj](m.h, heap.Handle(args[0].IVal))
+	bu, err := heap.Cast[*BuilderObj](h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
 	r, _ := args[1].ToFloat()
-	if bu.shape != nil {
-		bu.shape.Destroy()
+	if bu.Shape != nil {
+		bu.Shape.Destroy()
 	}
-	bu.shape = jolt.CreateSphere(float32(r))
-	bu.qKind = 2
-	bu.qSphere = float32(r)
+	bu.Shape = jolt.CreateSphere(float32(r))
+	bu.QKind = 2
+	bu.QSphere = float32(r)
 	return value.Nil, nil
 }
 
-func bdAddCapsule(m *Module, args []value.Value) (value.Value, error) {
+func BDAddCapsule(h *heap.Store, args []value.Value) (value.Value, error) {
 	if len(args) != 3 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.ADDCAPSULE expects (builder, radius, height)")
 	}
-	bu, err := heap.Cast[*builderObj](m.h, heap.Handle(args[0].IVal))
+	bu, err := heap.Cast[*BuilderObj](h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
 	r, _ := args[1].ToFloat()
-	h, _ := args[2].ToFloat()
-	hh := float32(h)/2 - float32(r)
+	h_val, _ := args[2].ToFloat()
+	hh := float32(h_val)/2 - float32(r)
 	if hh < 0.05 {
 		hh = 0.05
 	}
-	if bu.shape != nil {
-		bu.shape.Destroy()
+	if bu.Shape != nil {
+		bu.Shape.Destroy()
 	}
-	bu.shape = jolt.CreateCapsule(hh, float32(r))
-	bu.qKind = 3
-	bu.qCapH = hh
-	bu.qCapR = float32(r)
+	bu.Shape = jolt.CreateCapsule(hh, float32(r))
+	bu.QKind = 3
+	bu.QCapH = hh
+	bu.QCapR = float32(r)
 	return value.Nil, nil
 }
 
@@ -93,8 +93,8 @@ func bdAddMesh(m *Module, args []value.Value) (value.Value, error) {
 	return value.Nil, fmt.Errorf("BODY3D.ADDMESH: requires Phase D model handle (not implemented)")
 }
 
-func bdCommit(m *Module, args []value.Value) (value.Value, error) {
-	if m.h == nil {
+func BDCommit(h *heap.Store, args []value.Value) (value.Value, error) {
+	if h == nil {
 		return value.Nil, mbruntime.Errorf("BODY3D.COMMIT: heap not bound")
 	}
 	if len(args) != 4 || args[0].Kind != value.KindHandle {
@@ -106,35 +106,45 @@ func bdCommit(m *Module, args []value.Value) (value.Value, error) {
 	if bi == nil {
 		return value.Nil, mbruntime.Errorf("BODY3D.COMMIT: physics not started")
 	}
-	bu, err := heap.Cast[*builderObj](m.h, heap.Handle(args[0].IVal))
+	bu, err := heap.Cast[*BuilderObj](h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
-	if bu.shape == nil {
+	if bu.Shape == nil {
 		return value.Nil, fmt.Errorf("BODY3D.COMMIT: no shape (call ADDBOX/ADDSPHERE/ADDCAPSULE first)")
 	}
 	x, _ := args[1].ToFloat()
 	y, _ := args[2].ToFloat()
 	z, _ := args[3].ToFloat()
-	sh := bu.shape
-	bu.shape = nil
-	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, bu.motion, false)
+	sh := bu.Shape
+	bu.Shape = nil
+	
+	ccd := bu.EnableCCD && bu.Motion == jolt.MotionTypeDynamic
+	
+	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, bu.Motion, ccd)
 	sh.Destroy()
-
-	var qshape *jolt.Shape
-	switch bu.qKind {
-	case 1:
-		qshape = jolt.CreateBox(bu.qBox)
-	case 2:
-		qshape = jolt.CreateSphere(bu.qSphere)
-	case 3:
-		qshape = jolt.CreateCapsule(bu.qCapH, bu.qCapR)
+	
+	if bu.Friction > 0 {
+		bi.SetFriction(id, bu.Friction)
+	}
+	if bu.Restitution > 0 {
+		bi.SetRestitution(id, bu.Restitution)
 	}
 
-	m.h.Free(heap.Handle(args[0].IVal))
+	var qshape *jolt.Shape
+	switch bu.QKind {
+	case 1:
+		qshape = jolt.CreateBox(bu.QBox)
+	case 2:
+		qshape = jolt.CreateSphere(bu.QSphere)
+	case 3:
+		qshape = jolt.CreateCapsule(bu.QCapH, bu.QCapR)
+	}
+
+	h.Free(heap.Handle(args[0].IVal))
 	body := &body3dObj{id: id, queryShape: qshape}
 	body.setFinalizer()
-	bh, err := m.h.Alloc(body)
+	bh, err := h.Alloc(body)
 	if err != nil {
 		if qshape != nil {
 			qshape.Destroy()
@@ -149,6 +159,7 @@ func bdCommit(m *Module, args []value.Value) (value.Value, error) {
 	joltBodyMu.Lock()
 	bidx := nextBufferIndex
 	bufferIndexMap[uintptr(unsafe.Pointer(id))] = bidx
+	bufferIndexToBody[bidx] = uintptr(unsafe.Pointer(id))
 	body.bufferIndex = bidx
 	nextBufferIndex++
 	// Grow if needed
@@ -254,19 +265,125 @@ func bdGetPos(m *Module, args []value.Value) (value.Value, error) {
 	return value.FromHandle(ph), nil
 }
 
+// bdGetRotZero returns a 3-element array [pitch, yaw, roll]; placeholder until GetRotation is exposed on BodyInterface.
 func bdGetRotZero(m *Module, args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, mbruntime.Errorf("BODY3D.GETROT: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETROT expects body handle")
 	}
 	arr, err := heap.NewArray([]int64{3})
 	if err != nil {
 		return value.Nil, err
 	}
-	rh, err := m.h.Alloc(arr)
+	_ = arr.Set([]int64{0}, 0)
+	_ = arr.Set([]int64{1}, 0)
+	_ = arr.Set([]int64{2}, 0)
+	ph, err := m.h.Alloc(arr)
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(rh), nil
+	return value.FromHandle(ph), nil
+}
+
+func bdSetRotation(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.SETROT expects (body, p, y, r)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil { return value.Nil, mbruntime.Errorf("physics not started") }
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	p, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	r, _ := args[3].ToFloat()
+	q := rl.QuaternionFromEuler(float32(p), float32(y), float32(r))
+	bi.SetRotation(bo.id, jolt.Quat{X: q.X, Y: q.Y, Z: q.Z, W: q.W}, jolt.ActivationActivate)
+	return value.Nil, nil
+}
+
+func bdSetFriction(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.SETFRICTION expects (body, val#)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil { return value.Nil, nil }
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	val, _ := args[1].ToFloat()
+	bi.SetFriction(bo.id, float32(val))
+	return value.Nil, nil
+}
+
+func bdSetRestitution(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.SETRESTITUTION expects (body, val#)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil { return value.Nil, nil }
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	val, _ := args[1].ToFloat()
+	bi.SetRestitution(bo.id, float32(val))
+	return value.Nil, nil
+}
+
+func bdApplyForce(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.APPLYFORCE expects (body, x, y, z)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil { return value.Nil, nil }
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bi.AddForce(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	return value.Nil, nil
+}
+
+func bdApplyImpulse(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.APPLYIMPULSE expects (body, x, y, z)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil { return value.Nil, nil }
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bi.AddImpulse(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	return value.Nil, nil
+}
+
+func bdSetLinearVel(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.SETLINEARVEL expects (body, x, y, z)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil { return value.Nil, nil }
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bi.SetLinearVelocity(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	return value.Nil, nil
 }
 
 func bdNoOp(m *Module, args []value.Value) (value.Value, error) {
@@ -298,11 +415,11 @@ func bdAxis(m *Module, args []value.Value, axis int) (value.Value, error) {
 	}
 }
 
-func bdBufferIndex(m *Module, args []value.Value) (value.Value, error) {
+func BDBufferIndex(h *heap.Store, args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.BUFFERINDEX expects handle")
 	}
-	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	bo, err := heap.Cast[*body3dObj](h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}

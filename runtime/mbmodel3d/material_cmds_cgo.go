@@ -155,4 +155,48 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 		mp.Value = v
 		return value.Nil, nil
 	}))
+
+	reg.Register("MATERIAL.SETEFFECT", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) < 2 {
+			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECT expects material handle, effectName$")
+		}
+		mo, err := m.getMaterial(args, 0, "MATERIAL.SETEFFECT")
+		if err != nil {
+			return value.Nil, err
+		}
+		eff, _ := m.h.GetString(int32(args[1].IVal))
+		sh := globalShaderLib.GetShader(eff)
+		if rl.IsShaderValid(sh) {
+			mo.mat.Shader = sh
+		} else {
+			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECT: unknown or invalid effect '%s'", eff)
+		}
+		return value.Nil, nil
+	}))
+
+	reg.Register("MATERIAL.SETEFFECTPARAM", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECTPARAM expects (matHandle, paramName$, value#)")
+		}
+		mo, err := m.getMaterial(args, 0, "MATERIAL.SETEFFECTPARAM")
+		if err != nil {
+			return value.Nil, err
+		}
+		pname, _ := m.h.GetString(int32(args[1].IVal))
+		val, ok := args[2].ToFloat()
+		if !ok {
+			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECTPARAM: value must be numeric")
+		}
+		if mo.params == nil {
+			mo.params = make(map[string]float32)
+		}
+		mo.params[pname] = float32(val)
+		return value.Nil, nil
+	}))
 }

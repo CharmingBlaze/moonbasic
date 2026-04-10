@@ -100,10 +100,11 @@ func (m *Module) entHasTag(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.FromBool(false), nil
 	}
 	wu := strings.ToUpper(want)
-	if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(e.blenderTag))); ok {
+	ext := e.getExt()
+	if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(ext.blenderTag))); ok {
 		return value.FromBool(true), nil
 	}
-	if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(e.name))); ok {
+	if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(ext.name))); ok {
 		return value.FromBool(true), nil
 	}
 	return value.FromBool(false), nil
@@ -134,11 +135,12 @@ func entityMatchesTypeLabel(st *entityStore, id int64, e *ent, want string) bool
 		return false
 	}
 	wu := strings.ToUpper(want)
-	if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(e.name))); ok {
+	if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(e.getExt().name))); ok {
 		return true
 	}
-	if e.blenderTag != "" {
-		if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(e.blenderTag))); ok {
+	ext := e.getExt()
+	if ext.blenderTag != "" {
+		if ok, _ := path.Match(wu, strings.ToUpper(strings.TrimSpace(ext.blenderTag))); ok {
 			return true
 		}
 	}

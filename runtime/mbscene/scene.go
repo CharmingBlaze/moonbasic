@@ -53,6 +53,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SCENE.UPDATE", "scene", m.sceneUpdate)
 	reg.Register("SCENE.DRAW", "scene", m.sceneDraw)
 	reg.Register("SCENE.CURRENT", "scene", m.sceneCurrent)
+	reg.Register("SCENE.SWITCH", "scene", m.sceneSwitch)
 }
 
 // Shutdown implements runtime.Module.
@@ -363,4 +364,12 @@ func (m *Module) sceneCurrent(rt *runtime.Runtime, args ...value.Value) (value.V
 	id := m.currentID
 	m.mu.Unlock()
 	return rt.RetString(id), nil
+}
+
+func (m *Module) sceneSwitch(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("SCENE.SWITCH expects (sceneId$, fadeDuration)")
+	}
+	// Use default "fade" transition
+	return m.sceneLoadWithTransition(rt, args[0], value.FromStringIndex(rt.Heap.Intern("fade")), args[1])
 }

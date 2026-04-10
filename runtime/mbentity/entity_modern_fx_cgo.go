@@ -147,7 +147,8 @@ func (m *Module) cameraSmoothFollow(rt *runtime.Runtime, args ...value.Value) (v
 	if dt <= 0 {
 		dt = 1.0 / 60.0
 	}
-	if err := mbcamera.ThirdPersonFollowStep(m.h, ch, wp.X, wp.Y, wp.Z, e.yaw, dist, height, lerp, dt); err != nil {
+	_, yaw, _ := e.getRot()
+	if err := mbcamera.ThirdPersonFollowStep(m.h, ch, wp.X, wp.Y, wp.Z, yaw, dist, height, lerp, dt); err != nil {
 		return value.Nil, err
 	}
 	return value.Nil, nil

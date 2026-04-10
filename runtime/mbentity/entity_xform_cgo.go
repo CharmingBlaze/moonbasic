@@ -9,15 +9,16 @@ import (
 )
 
 func (m *Module) worldRotQuat(e *ent) rl.Quaternion {
-	ql := rl.QuaternionFromEuler(e.pitch, e.yaw, e.roll)
-	if e.parentID == 0 {
+	p, w, r := e.getRot()
+	ql := rl.QuaternionFromEuler(p, w, r)
+	if e.parentID() == 0 {
 		return ql
 	}
-	p := m.store().ents[e.parentID]
-	if p == nil {
+	parent := m.store().ents[e.parentID()]
+	if parent == nil {
 		return ql
 	}
-	qp := m.worldRotQuat(p)
+	qp := m.worldRotQuat(parent)
 	return rl.QuaternionMultiply(qp, ql)
 }
 
@@ -27,28 +28,28 @@ func (m *Module) worldPos(e *ent) rl.Vector3 {
 		wmat := m.worldMatrix(e)
 		return rl.Vector3{X: wmat.M12, Y: wmat.M13, Z: wmat.M14}
 	}
-	if e.parentID == 0 {
-		return e.pos
+	if e.parentID() == 0 {
+		return e.getPos()
 	}
-	p := m.store().ents[e.parentID]
+	p := m.store().ents[e.parentID()]
 	if p == nil {
-		return e.pos
+		return e.getPos()
 	}
 	pw := m.worldPos(p)
 	pq := m.worldRotQuat(p)
-	off := rl.Vector3RotateByQuaternion(e.pos, pq)
+	off := rl.Vector3RotateByQuaternion(e.getPos(), pq)
 	return rl.Vector3Add(pw, off)
 }
 
 func (m *Module) entityUsesBoneMatrixChain(e *ent) bool {
 	for e != nil {
-		if e.boneWorldValid {
+		if e.boneWorldValid() {
 			return true
 		}
-		if e.parentID == 0 {
+		if e.parentID() == 0 {
 			break
 		}
-		e = m.store().ents[e.parentID]
+		e = m.store().ents[e.parentID()]
 	}
 	return false
 }
@@ -61,20 +62,20 @@ func (m *Module) worldEuler(e *ent) (pitch, yaw, roll float32) {
 }
 
 func (m *Module) setLocalFromWorld(e *ent, wx, wy, wz float32) {
-	if e.parentID == 0 {
-		e.pos = rl.Vector3{X: wx, Y: wy, Z: wz}
+	if e.parentID() == 0 {
+		e.setPos(rl.Vector3{X: wx, Y: wy, Z: wz})
 		return
 	}
-	p := m.store().ents[e.parentID]
+	p := m.store().ents[e.parentID()]
 	if p == nil {
-		e.pos = rl.Vector3{X: wx, Y: wy, Z: wz}
+		e.setPos(rl.Vector3{X: wx, Y: wy, Z: wz})
 		return
 	}
 	pw := m.worldPos(p)
 	pq := m.worldRotQuat(p)
 	rel := rl.Vector3Subtract(rl.Vector3{X: wx, Y: wy, Z: wz}, pw)
 	inv := rl.QuaternionInvert(pq)
-	e.pos = rl.Vector3RotateByQuaternion(rel, inv)
+	e.setPos(rl.Vector3RotateByQuaternion(rel, inv))
 }
 
 func forwardFromYawPitch(yaw, pitch float32) rl.Vector3 {

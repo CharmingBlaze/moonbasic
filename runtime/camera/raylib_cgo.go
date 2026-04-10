@@ -27,6 +27,9 @@ type camObj struct {
 	clipFar       float64
 	fpsMode       bool
 	fpsSensitivity float32
+
+	lerpTarget    int64
+	lerpSmooth    float32
 }
 
 func (c *camObj) TypeName() string { return "Camera3D" }
@@ -84,10 +87,25 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.registerCamera2D(r)
 	m.registerCull(r)
 	registerCameraMore(m, r)
+	r.Register("CAMERA.LERPTO", "camera", runtime.AdaptLegacy(m.camLerpTo))
+	RegisterCameraQoLAPI(m, r)
 }
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
+
+// ActiveCameraHandle returns the handle of the most recently used 3D camera.
+func (m *Module) ActiveCameraHandle() heap.Handle {
+	return m.lastActive3D
+}
+
+// ActiveCamera returns the raw Raylib camera object for the most recently used 3D camera.
+func (m *Module) ActiveCamera() (rl.Camera3D, bool) {
+	if m.lastActive3D == 0 { return rl.Camera3D{}, false }
+	o, err := heap.Cast[*camObj](m.h, m.lastActive3D)
+	if err != nil { return rl.Camera3D{}, false }
+	return o.cam, true
+}
 
 func (m *Module) camMake(args []value.Value) (value.Value, error) {
 	if m.h == nil {
@@ -260,6 +278,22 @@ func (m *Module) camShake(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
+func (m *Module) camLerpTo(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("CAMERA.LERPTO expects (camera, targetEntity#, smoothness#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok { return value.Nil, fmt.Errorf("invalid camera handle") }
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil { return value.Nil, err }
+
+	tid, _ := args[1].ToInt()
+	smooth, _ := args[2].ToFloat()
+	o.lerpTarget = tid
+	o.lerpSmooth = float32(smooth)
+	return value.Nil, nil
+}
+
 func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("CAMERA.BEGIN expects 1 argument (handle)")
@@ -272,6 +306,32 @@ func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
+	
+	// Smooth lerp to target entity if set
+	if o.lerpTarget > 0 {
+		// We need to resolve entity position. Since camera doesn't directly import mbentity,
+		// we use the exported ResolveEntityWorldPos helper if available.
+		// Actually, we'll use a local interface or the registry.
+		reg := runtime.ActiveRegistry()
+		if reg != nil && reg.ResolveEntityWorldPos != nil {
+			targetPos, ok := reg.ResolveEntityWorldPos(o.lerpTarget)
+			if ok {
+				dt := rl.GetFrameTime()
+				alpha := float32(1.0)
+				if o.lerpSmooth > 0 {
+					alpha = 1.0 - float32(math.Pow(float64(o.lerpSmooth), float64(dt)))
+				}
+				o.cam.Target.X += (targetPos.X - o.cam.Target.X) * alpha
+				o.cam.Target.Y += (targetPos.Y - o.cam.Target.Y) * alpha
+				o.cam.Target.Z += (targetPos.Z - o.cam.Target.Z) * alpha
+				
+				// Keep position offset if we move as well? 
+				// The user said "LerpTo targetId", usually means look-at but we could also offset.
+				// We'll stick to look-at lerp for now as it's the most common request for "smooth camera".
+			}
+		}
+	}
+
 	cam := o.cam
 	if o.shakeTime > 0 && o.shakeMag > 0 {
 		dt := rl.GetFrameTime()

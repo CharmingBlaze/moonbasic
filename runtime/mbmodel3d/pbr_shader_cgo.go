@@ -19,6 +19,7 @@ in vec4 vertexTangent;
 uniform mat4 mvp;
 uniform mat4 matModel;
 uniform mat4 matNormal;
+uniform vec3 uvOffset;
 out vec3 fragPos;
 out vec2 fragUV;
 out vec4 fragCol;
@@ -29,7 +30,7 @@ out vec3 fragB;
 void main() {
     vec4 wp = matModel * vec4(vertexPosition, 1.0);
     fragPos = wp.xyz;
-    fragUV = vertexTexCoord;
+    fragUV = vertexTexCoord + uvOffset.xy;
     fragCol = vertexColor;
     mat3 nmat = mat3(matNormal);
     fragN = normalize(nmat * vertexNormal);

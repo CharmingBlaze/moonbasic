@@ -34,6 +34,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.registerVarietyPlayback(r)
 	m.registerAudioProps(r)
 	m.registerSpatialAudio(r)
+	registerAudioQoLAPI(m, r)
 }
 
 // Shutdown implements runtime.Module.

@@ -288,7 +288,7 @@ func entityInFrustum(m *Module, e *ent, f mbcamera.Frustum) bool {
 		}
 		return f.AABBVisible(wp.X-sx, wp.Y-0.01, wp.Z-sz, wp.X+sx, wp.Y+0.01, wp.Z+sz)
 	default:
-		if e.isSprite {
+		if e.ext != nil && e.ext.isSprite {
 			sx := e.w * e.scale.X * 0.5
 			sy := e.h * e.scale.Y * 0.5
 			if sx < 1e-3 {

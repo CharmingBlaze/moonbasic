@@ -9,6 +9,9 @@ import (
 	"moonbasic/vm/value"
 )
 
+func registerEntityEasyAPI(m *Module, r runtime.Registrar)         {}
+func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {}
+
 // Register implements runtime.Module — stubs when Raylib is unavailable.
 func (m *Module) Register(r runtime.Registrar) {
 	stub := func(name string) runtime.BuiltinFn {
@@ -119,6 +122,8 @@ func (m *Module) Register(r runtime.Registrar) {
 		"LinePick", "CameraPick", "PickedX", "PickedY", "PickedZ", "PickedNX", "PickedNY", "PickedNZ",
 		"PickedEntity", "PickedDistance", "PickedSurface", "PickedTriangle",
 		"TERRAIN.SNAPY", "TERRAIN.PLACE", "ENTITY.CLAMPTOTERRAIN", "ENTITY.GETXZ", "ENTITY.FREEENTITIES", "FREEENTITIES",
+		"ENTITY.SETSPRITEFRAME", "ENTITY.SETANIMATION",
+		"ENTITY.SCROLLMATERIAL", "ENTITY.SETDETAILTEXTURE", "MATERIAL.SETUVSCROLL", "MATERIAL.SETSECONDARYTEXTURE",
 	}
 	for _, n := range names {
 		r.Register(n, "entity", stub(n))

@@ -101,6 +101,21 @@ go build -o moonbasic .
 
 After a successful build, you can run the interpreter directly or add it to your system's PATH to run it from any directory.
 
+### Distribution-style builds (full runtime)
+
+Release archives ship **`moonbasic`** and **`moonrun`** built with **`-tags fullruntime`** so windowed programs, **`moonbasic --run`**, and the full builtin surface match what contributors test with **`go test -tags fullruntime ./...`**.
+
+```bash
+# Linux example
+export CGO_ENABLED=1
+go build -tags fullruntime -o moonbasic .
+go build -tags fullruntime -o moonrun ./cmd/moonrun
+```
+
+On **Windows**, set **`CGO_ENABLED=1`** and point **`CC`** at MinGW **`gcc.exe`** as in [Build on Windows](#2-build-on-windows) above, then use the same **`-tags fullruntime`** lines (outputs **`moonbasic.exe`** / **`moonrun.exe`**).
+
+**3D physics:** native **Jolt** (`PHYSICS3D.*` / `BODY3D.*`) is **Linux + CGO** in this repository. Other platforms still get a **full graphics** runtime, but those builtins **fail with a clear stub error**—see [PHYSICS3D.md](reference/PHYSICS3D.md).
+
 ---
 
 **See also:** [DEVELOPER.md](DEVELOPER.md) (command cheat sheet, compile vs run), [CONTRIBUTING.md](../CONTRIBUTING.md).

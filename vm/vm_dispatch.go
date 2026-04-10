@@ -81,6 +81,11 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 		return v.doArrayMakeTyped(i)
 	case opcode.OpNewFilled:
 		return v.doNewFilled(i)
+	
+	case opcode.OpEntityPropGet:
+		return v.doEntityPropGet(i)
+	case opcode.OpEntityPropSet:
+		return v.doEntityPropSet(i)
 
 	default:
 		return v.runtimeError(fmt.Sprintf("unknown or unimplemented opcode: %s", i.Op.String()))
@@ -434,4 +439,86 @@ func min3(a, b, c int) int {
 		return b
 	}
 	return c
+}
+
+func (v *VM) doEntityPropGet(i opcode.Instruction) error {
+	idVal := v.reg(i.SrcA)
+	id := idVal.IVal
+	if idVal.Kind == value.KindHandle {
+		if obj, ok := v.Heap.Get(heap.Handle(idVal.IVal)); ok {
+			if er, ok := obj.(*heap.EntityRef); ok {
+				id = er.ID
+			}
+		}
+	}
+
+	// 1. Zero-Copy SoA Path
+	sp := v.Registry.Spatial
+	if sp != nil && id >= 0 && id < int64(len(sp.X)) {
+		var f float32
+		switch i.Operand {
+		case 0: f = sp.X[id]
+		case 1: f = sp.Y[id]
+		case 2: f = sp.Z[id]
+		case 3: f = sp.P[id]
+		case 4: f = sp.W[id]
+		case 5: f = sp.R[id]
+		default: goto fallback
+		}
+		v.setReg(i.Dst, value.FromFloat(float64(f)))
+		return nil
+	}
+
+fallback:
+	// 2. Legacy/Complex Property Path
+	if v.Registry.FastEntityPropGet == nil {
+		return v.runtimeError("ENTITY_PROP_GET: optimized spatial access not supported by active runtime")
+	}
+	res, err := v.Registry.FastEntityPropGet(id, int(i.Operand))
+	if err != nil {
+		return v.runtimeError(err.Error())
+	}
+	v.setReg(i.Dst, res)
+	return nil
+}
+
+func (v *VM) doEntityPropSet(i opcode.Instruction) error {
+	idVal := v.reg(i.SrcA)
+	id := idVal.IVal
+	if idVal.Kind == value.KindHandle {
+		if obj, ok := v.Heap.Get(heap.Handle(idVal.IVal)); ok {
+			if er, ok := obj.(*heap.EntityRef); ok {
+				id = er.ID
+			}
+		}
+	}
+	val := v.reg(i.SrcB)
+
+	// 1. Zero-Copy SoA Path
+	sp := v.Registry.Spatial
+	if sp != nil && id >= 0 && id < int64(len(sp.X)) {
+		fV, _ := val.ToFloat()
+		f := float32(fV)
+		switch i.Operand {
+		case 0: sp.X[id] = f
+		case 1: sp.Y[id] = f
+		case 2: sp.Z[id] = f
+		case 3: sp.P[id] = f
+		case 4: sp.W[id] = f
+		case 5: sp.R[id] = f
+		default: goto fallback
+		}
+		return nil
+	}
+
+fallback:
+	// 2. Legacy/Complex Property Path
+	if v.Registry.FastEntityPropSet == nil {
+		return v.runtimeError("ENTITY_PROP_SET: optimized spatial access not supported by active runtime")
+	}
+	err := v.Registry.FastEntityPropSet(id, int(i.Operand), val)
+	if err != nil {
+		return v.runtimeError(err.Error())
+	}
+	return nil
 }

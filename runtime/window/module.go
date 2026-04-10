@@ -21,6 +21,7 @@ import (
 	"moonbasic/internal/raylibpurego"
 
 	"moonbasic/vm/heap"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // Module holds window/render state for one Registry. Use NewModule and RegisterModule.
@@ -62,6 +63,11 @@ type Module struct {
 	sidecarLib    *raylibpurego.LoadResult
 	sidecarGame   *raylibpurego.Game
 	sidecarLoadErr error
+
+	// Visual Polish: World Flash
+	flashColor   rl.Color
+	flashDur     float32
+	flashElapsed float32
 }
 
 // NewModule allocates state for the window/render builtins.

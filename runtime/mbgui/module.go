@@ -2,11 +2,16 @@
 // or a minimal Raylib-drawn subset on Windows when CGO is disabled.
 package mbgui
 
-import "moonbasic/vm/heap"
+import (
+	"moonbasic/runtime"
+	mbcamera "moonbasic/runtime/camera"
+	"moonbasic/vm/heap"
+)
 
 // Module implements GUI bindings for moonBASIC.
 type Module struct {
-	h *heap.Store
+	h   *heap.Store
+	cam *mbcamera.Module
 }
 
 // NewModule constructs the GUI builtin module.
@@ -14,3 +19,10 @@ func NewModule() *Module { return &Module{} }
 
 // BindHeap implements runtime.HeapAware.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
+
+// BindCamera implements runtime.CameraAware.
+func (m *Module) BindCamera(c runtime.Module) {
+	if cam, ok := c.(*mbcamera.Module); ok {
+		m.cam = cam
+	}
+}

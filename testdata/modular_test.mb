@@ -1,0 +1,11 @@
+; Test script for Modular Engine & Studio Shaders
+m = MATERIAL.MAKEDEFAULT()
+MATERIAL.SETEFFECT(m, "WATER")
+MATERIAL.SETEFFECTPARAM(m, "time", 1.0)
+MATERIAL.SETUVSCROLL(m, 0.1, 0.2)
+
+p = PHYSICS.IMPULSE(1, 0, 10, 0)
+PHYSICS.VELOCITY(1, 5, 0, 0)
+PHYSICS.WAKE(1)
+
+PRINT "Modular Studio Test Passed"

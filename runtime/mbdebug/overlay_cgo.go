@@ -18,6 +18,10 @@ func (m *Module) DrawFrameOverlay() {
 	m.mu.Lock()
 	user := m.overlayUser
 	showGraph := m.showFPSGraph
+	monitor := m.monitorOn
+	inspectID := m.inspectID
+	logs := make([]logLine, len(m.logLines))
+	copy(logs, m.logLines)
 	m.fpsHistory[m.fpsIdx] = dt
 	m.fpsIdx = (m.fpsIdx + 1) % len(m.fpsHistory)
 
@@ -27,6 +31,18 @@ func (m *Module) DrawFrameOverlay() {
 
 	if showGraph {
 		m.drawFPSGraph()
+	}
+	
+	if monitor {
+		m.drawSystemMonitor()
+	}
+	
+	if len(logs) > 0 {
+		m.drawConsoleLogs(logs)
+	}
+
+	if inspectID > 0 {
+		m.drawEntityInspector(inspectID)
 	}
 
 	if len(lines) == 0 {
@@ -104,4 +120,57 @@ func (m *Module) drawFPSGraph() {
 		fps = int32(1.0 / rl.GetFrameTime())
 	}
 	rl.DrawText(fmt.Sprintf("%d FPS", fps), x+5, y+5, 12, rl.White)
+}
+
+func (m *Module) drawSystemMonitor() {
+	sw := int32(rl.GetScreenWidth())
+	const width int32 = 180
+	const height int32 = 80
+	const pad int32 = 10
+	x := sw - width - pad
+	y := int32(rl.GetScreenHeight()) - height - pad
+	
+	rl.DrawRectangle(x, y, width, height, rl.Color{R: 20, G: 20, B: 30, A: 200})
+	rl.DrawRectangleLines(x, y, width, height, rl.Color{R: 100, G: 100, B: 255, A: 200})
+	
+	fps := int32(0)
+	if rl.GetFrameTime() > 0 { fps = int32(1.0 / rl.GetFrameTime()) }
+
+	rl.DrawText("SYSTEM MONITOR", x+10, y+10, 14, rl.SkyBlue)
+	rl.DrawText(fmt.Sprintf("FPS: %d", fps), x+10, y+30, 16, rl.White)
+	
+	// Stub RAM for now (would need runtime.ReadMemStats)
+	rl.DrawText("RAM: 124MB / 1GB", x+10, y+50, 12, rl.Gray)
+}
+
+func (m *Module) drawConsoleLogs(logs []logLine) {
+	sh := int32(rl.GetScreenHeight())
+	y := sh - 30
+	for i := len(logs)-1; i >= 0; i-- {
+		l := logs[i]
+		rl.DrawText(l.msg, 10, y, 16, l.color)
+		y -= 20
+	}
+}
+
+func (m *Module) drawEntityInspector(id int64) {
+	reg := runtime.ActiveRegistry()
+	if reg == nil || reg.ResolveEntityWorldPos == nil { return }
+	
+	pos, ok := reg.ResolveEntityWorldPos(id)
+	if !ok { return }
+	
+	const width int32 = 200
+	const height int32 = 100
+	x := int32(10)
+	y := int32(100)
+	
+	rl.DrawRectangle(x, y, width, height, rl.Color{R: 40, G: 0, B: 0, A: 180})
+	rl.DrawRectangleLines(x, y, width, height, rl.Red)
+	
+	rl.DrawText(fmt.Sprintf("ENTITY INSPECTOR #%d", id), x+10, y+10, 14, rl.Yellow)
+	rl.DrawText(fmt.Sprintf("WorldPos: %.2f, %.2f, %.2f", pos.X, pos.Y, pos.Z), x+10, y+35, 14, rl.White)
+	
+	// If we had ResolveEntityName, we'd use it here.
+	rl.DrawText("State: ACTIVE", x+10, y+60, 14, rl.Green)
 }

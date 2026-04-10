@@ -119,7 +119,7 @@ func FlushDeferred3D(h *heap.Store) {
 			continue
 		}
 		if mato.pbr && shadowOn {
-			bindPBRDrawState(&mato.mat, shadowOn)
+			bindPBRDrawState(mato, shadowOn)
 		}
 		rl.DrawMesh(mo.m, mato.mat, rec.mtx)
 		if mato.pbr && shadowOn {
@@ -178,7 +178,7 @@ func drawDeferredModelsColor(mo *modelObj, shadowOn bool) {
 		mesh := meshes[mi]
 		if shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled") {
 			rl.SetMaterialTexture(&mat, rl.MapBrdf, shadowRT.Depth)
-			applyPBRUniformsIfAny(&mat, shadowOn)
+			applyPBRUniformsIfAny(&mat, shadowOn, nil)
 		}
 		rl.DrawMesh(mesh, mat, mo.model.Transform)
 		if shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled") {
@@ -206,7 +206,7 @@ func drawLODModelColor(lo *lodModelObj, shadowOn bool) {
 		mesh := meshes[mi]
 		if shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled") {
 			rl.SetMaterialTexture(&mat, rl.MapBrdf, shadowRT.Depth)
-			applyPBRUniformsIfAny(&mat, shadowOn)
+			applyPBRUniformsIfAny(&mat, shadowOn, nil)
 		}
 		rl.DrawMesh(mesh, mat, mod.Transform)
 		if shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled") {
@@ -278,7 +278,7 @@ func drawInstancedRaster(io *instancedModelObj, lodMesh *meshObj, lodDist float3
 	shadowed := shadowOn && shaderHasUniform(mat.Shader, "shadowEnabled")
 	if shadowed {
 		rl.SetMaterialTexture(&mat, rl.MapBrdf, shadowRT.Depth)
-		applyPBRUniformsIfAny(&mat, shadowOn)
+		applyPBRUniformsIfAny(&mat, shadowOn, nil)
 	}
 	if shadowed {
 		defer rl.SetMaterialTexture(&mat, rl.MapBrdf, rl.Texture2D{})
@@ -420,11 +420,11 @@ func SetShadowMapResolution(size int32) {
 	}
 }
 
-func bindPBRDrawState(mat *rl.Material, shadowOn bool) {
+func bindPBRDrawState(mato *materialObj, shadowOn bool) {
 	if shadowOn {
-		rl.SetMaterialTexture(mat, rl.MapBrdf, shadowRT.Depth)
+		rl.SetMaterialTexture(&mato.mat, rl.MapBrdf, shadowRT.Depth)
 	}
-	applyPBRUniformsIfAny(mat, shadowOn)
+	applyPBRUniformsIfAny(&mato.mat, shadowOn, mato.params)
 }
 
 func clearShadowMapSlot(mat *rl.Material) {
@@ -435,27 +435,12 @@ func shaderHasUniform(sh rl.Shader, name string) bool {
 	return rl.GetShaderLocation(sh, name) >= 0
 }
 
-func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool) {
+func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool, extraParams map[string]float32) {
 	sh := mat.Shader
-	if sh.Locs == nil || rl.GetShaderLocation(sh, "roughnessValue") < 0 {
+	if sh.Locs == nil {
 		return
 	}
-	defTex := rl.GetTextureIdDefault()
-	nmap := mat.GetMap(rl.MapNormal)
-	useNorm := int32(0)
-	if nmap.Texture.ID != 0 && nmap.Texture.ID != defTex {
-		useNorm = 1
-	}
-
-	rough := mat.GetMap(rl.MapRoughness).Value
-	metal := mat.GetMap(rl.MapMetalness).Value
-	if rough <= 0 {
-		rough = 1
-	}
-	if metal <= 0 {
-		metal = 1
-	}
-
+	
 	hs := globalHeapForLight()
 	hh := mblight.ShadowCasterHandle()
 	lx, ly, lz, _ := mblight.LightDirection(hs, hh)
@@ -465,41 +450,62 @@ func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool) {
 
 	setInt := func(name string, v int32) {
 		loc := rl.GetShaderLocation(sh, name)
-		if loc < 0 {
-			return
+		if loc >= 0 {
+			rl.SetShaderValue(sh, loc, []float32{float32(v)}, rl.ShaderUniformInt)
 		}
-		rl.SetShaderValue(sh, loc, []float32{float32(v)}, rl.ShaderUniformInt)
 	}
 	setFloat := func(name string, v float32) {
 		loc := rl.GetShaderLocation(sh, name)
-		if loc < 0 {
-			return
+		if loc >= 0 {
+			rl.SetShaderValue(sh, loc, []float32{v}, rl.ShaderUniformFloat)
 		}
-		rl.SetShaderValue(sh, loc, []float32{v}, rl.ShaderUniformFloat)
 	}
 	setVec3 := func(name string, x, y, z float32) {
 		loc := rl.GetShaderLocation(sh, name)
-		if loc < 0 {
-			return
+		if loc >= 0 {
+			rl.SetShaderValue(sh, loc, []float32{x, y, z}, rl.ShaderUniformVec3)
 		}
-		rl.SetShaderValue(sh, loc, []float32{x, y, z}, rl.ShaderUniformVec3)
 	}
 
-	setFloat("roughnessValue", rough)
-	setFloat("metalnessValue", metal)
-	emPow := mat.GetMap(rl.MapEmission).Value
-	if emPow < 0 {
-		emPow = 0
-	}
-	if rl.GetShaderLocation(sh, "emissionPower") >= 0 {
-		setFloat("emissionPower", emPow)
-	}
+	// Always set time if the shader wants it
+	setFloat("time", float32(rl.GetTime()))
 	setVec3("camPos", activeCamPos.X, activeCamPos.Y, activeCamPos.Z)
 	setVec3("lightDir", lx, ly, lz)
 	setVec3("lightColor", lr, lg, lb)
 	setVec3("ambientColor", ar, ag, ab)
+	setFloat("fogDensity", 0.05) // Default studio fog
+
+	// Apply extra params (Studio Effects)
+	for k, v := range extraParams {
+		setFloat(k, v)
+	}
+
+	// UV Scroll support (from mat.Params[0,1])
+	setVec3("uvOffset", mat.Params[0], mat.Params[1], 0)
+
+	// PBR Specifics
+	if rl.GetShaderLocation(sh, "roughnessValue") >= 0 {
+		rough := mat.GetMap(rl.MapRoughness).Value
+		metal := mat.GetMap(rl.MapMetalness).Value
+		if rough <= 0 { rough = 1 }
+		if metal <= 0 { metal = 1 }
+		setFloat("roughnessValue", rough)
+		setFloat("metalnessValue", metal)
+		
+		nmap := mat.GetMap(rl.MapNormal)
+		useNorm := int32(0)
+		if nmap.Texture.ID != 0 && nmap.Texture.ID != rl.GetTextureIdDefault() {
+			useNorm = 1
+		}
+		setInt("useNormalMap", useNorm)
+	}
+
+	emPow := mat.GetMap(rl.MapEmission).Value
+	if emPow >= 0 {
+		setFloat("emissionPower", emPow)
+	}
+
 	setFloat("shadowBiasK", sbk)
-	setInt("useNormalMap", useNorm)
 	setInt("shadowEnabled", boolToInt(shadowOn))
 	if shadowOn {
 		loc := rl.GetShaderLocation(sh, "lightVP")

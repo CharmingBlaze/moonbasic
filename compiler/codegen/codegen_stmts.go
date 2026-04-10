@@ -65,6 +65,9 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 	case *ast.NamespaceCallStmt:
 		g.emitNamespaceCallStmt(ch, n)
 
+	case *ast.NamespaceAssignNode:
+		g.emitNamespaceAssignStmt(ch, n)
+
 	case *ast.HandleCallStmt:
 		g.emitHandleCallStmt(ch, n)
 
@@ -379,6 +382,27 @@ func (g *CodeGen) emitRepeat(ch *opcode.Chunk, n *ast.RepeatNode) {
 
 func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallStmt) {
 	g.nextReg = g.baseReg
+	
+	// Fast-path macro expansion for spatial setters
+	if n.NS == "ENTITY" && len(n.Args) == 2 {
+		propID := -1
+		switch strings.ToUpper(n.Method) {
+		case "X": propID = 0
+		case "Y": propID = 1
+		case "Z": propID = 2
+		case "P": propID = 3
+		case "W", "YAW": propID = 4
+		case "R": propID = 5
+		}
+		if propID >= 0 {
+			idReg := g.emitExpr(ch, n.Args[0])
+			valReg := g.emitExpr(ch, n.Args[1])
+			ch.Emit(opcode.OpEntityPropSet, 0, idReg, valReg, int32(propID), n.Line)
+			g.nextReg = g.baseReg
+			return
+		}
+	}
+
 	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
 	idx := ch.AddName(n.NS + "." + n.Method)
@@ -387,6 +411,35 @@ func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallSt
 	operand := (int32(len(n.Args)) << 24) | idx
 	ch.Emit(opcode.OpCallBuiltin, dst, 0, argStart, operand, n.Line)
 	g.nextReg = g.baseReg
+}
+
+func (g *CodeGen) emitNamespaceAssignStmt(ch *opcode.Chunk, n *ast.NamespaceAssignNode) {
+	g.nextReg = g.baseReg
+
+	// Fast-path macro expansion for spatial setters: ENTITY.X(id) = val
+	if n.NS == "ENTITY" && len(n.Args) == 1 {
+		propID := -1
+		switch strings.ToUpper(n.Method) {
+		case "X": propID = 0
+		case "Y": propID = 1
+		case "Z": propID = 2
+		case "P": propID = 3
+		case "W", "YAW": propID = 4
+		case "R": propID = 5
+		}
+		if propID >= 0 {
+			idReg := g.emitExpr(ch, n.Args[0])
+			valReg := g.emitExpr(ch, n.Expr)
+			ch.Emit(opcode.OpEntityPropSet, 0, idReg, valReg, int32(propID), n.Line)
+			g.nextReg = g.baseReg
+			return
+		}
+	}
+
+	// Fallback to standard NS call if no macro exists
+	// (Note: Currently only ENTITY macros are planned for this syntax)
+	g.codegenError(n.Line, n.Col, "assignment syntax not supported for this namespace call", 
+		"Use NS.METHOD(id, val) instead.")
 }
 
 func (g *CodeGen) emitIndexFieldAssign(ch *opcode.Chunk, n *ast.IndexFieldAssignNode) {

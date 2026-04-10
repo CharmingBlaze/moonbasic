@@ -52,8 +52,9 @@ func (m *Module) SurfaceMaterialHint(entityID int64) string {
 			}
 		}
 	}
-	if strings.TrimSpace(e.blenderTag) != "" {
-		return strings.TrimSpace(e.blenderTag)
+	ext := e.getExt()
+	if strings.TrimSpace(ext.blenderTag) != "" {
+		return strings.TrimSpace(ext.blenderTag)
 	}
 	return "Default"
 }
@@ -86,8 +87,9 @@ func (m *Module) PlayerBridgeNearbyTagged(cx, cy, cz, radius float64, tagPat str
 		if dx*dx+dy*dy+dz*dz > r2 {
 			continue
 		}
-		name := strings.ToUpper(strings.TrimSpace(e.name))
-		btag := strings.ToUpper(strings.TrimSpace(e.blenderTag))
+		ext := e.getExt()
+		name := strings.ToUpper(strings.TrimSpace(ext.name))
+		btag := strings.ToUpper(strings.TrimSpace(ext.blenderTag))
 		ok, _ := path.Match(tp, name)
 		if !ok {
 			ok, _ = path.Match(tp, btag)
@@ -120,8 +122,9 @@ func (m *Module) PlayerBridgeClosestTagged(cx, cy, cz, radius float64, tagPat st
 		if d2 > r2 {
 			continue
 		}
-		name := strings.ToUpper(strings.TrimSpace(e.name))
-		btag := strings.ToUpper(strings.TrimSpace(e.blenderTag))
+		ext := e.getExt()
+		name := strings.ToUpper(strings.TrimSpace(ext.name))
+		btag := strings.ToUpper(strings.TrimSpace(ext.blenderTag))
 		ok, _ := path.Match(tp, name)
 		if !ok {
 			ok, _ = path.Match(tp, btag)
@@ -187,7 +190,7 @@ func (m *Module) PlayerBridgeSetAnimSpeed(id int64, speed float32) bool {
 	if e == nil {
 		return false
 	}
-	e.animSpeed = speed
+	e.getExt().animSpeed = speed
 	return true
 }
 

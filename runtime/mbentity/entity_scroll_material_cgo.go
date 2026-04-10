@@ -16,6 +16,9 @@ import (
 func registerEntityMaterialScrollAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.SCROLLMATERIAL", "entity", runtime.AdaptLegacy(m.entScrollMaterial))
 	r.Register("ENTITY.SETDETAILTEXTURE", "entity", runtime.AdaptLegacy(m.entSetDetailTexture))
+	// Aliases for docs / parity with MODEL.SCROLLTEXTURE naming.
+	r.Register("MATERIAL.SETUVSCROLL", "entity", runtime.AdaptLegacy(m.entScrollMaterial))
+	r.Register("MATERIAL.SETSECONDARYTEXTURE", "entity", runtime.AdaptLegacy(m.entSetDetailTexture))
 }
 
 // entScrollMaterial adds (du,dv) to material 0 scroll params (same convention as MODEL.SCROLLTEXTURE).

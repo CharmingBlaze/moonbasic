@@ -29,6 +29,7 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("CHUNK.ISLOADED", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkIsLoaded(m, rt, args...) })
 	registerTerrainExtended(m, r)
 	registerTerrainBlitzAliases(m, r)
+	registerTerrainApply(m, r)
 }
 
 func castTerrain(m *Module, h heap.Handle) (*TerrainObject, error) {

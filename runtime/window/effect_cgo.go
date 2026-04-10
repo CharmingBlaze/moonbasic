@@ -7,10 +7,15 @@ import (
 	"strings"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 func (m *Module) registerEffectCommands(r runtime.Registrar) {
+	r.Register("WORLD.FLASH", "post", runtime.AdaptLegacy(m.worldFlash))
 	r.Register("EFFECT.SSAO", "post", m.effectSSAO)
 	r.Register("EFFECT.SSR", "post", m.effectSSR)
 	r.Register("EFFECT.MOTIONBLUR", "post", m.effectMotionBlur)
@@ -318,5 +323,30 @@ func (m *Module) effectFXAA(rt *runtime.Runtime, args ...value.Value) (value.Val
 	postMu.Lock()
 	postFXAA = on
 	postMu.Unlock()
+	return value.Nil, nil
+}
+func (m *Module) worldFlash(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("WORLD.FLASH expects (color#, duration#)")
+	}
+	colorH := heap.Handle(args[0].IVal)
+	dur, ok := argFloat32(args[1])
+	if !ok || dur < 0 {
+		return value.Nil, fmt.Errorf("WORLD.FLASH: duration must be numeric and non-negative")
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	
+	// Default to white if invalid color handle
+	m.flashColor = rl.White
+	if colorH != 0 && m.h != nil {
+		rgba, err := mbmatrix.HeapColorRGBA(m.h, colorH)
+		if err == nil {
+			m.flashColor = rl.Color{R: rgba.R, G: rgba.G, B: rgba.B, A: rgba.A}
+		}
+	}
+	m.flashDur = dur
+	m.flashElapsed = 0
 	return value.Nil, nil
 }

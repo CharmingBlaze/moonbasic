@@ -54,3 +54,10 @@ High-level pipeline and layout: [ARCHITECTURE.md](ARCHITECTURE.md). Deeper contr
 ## Optional: command coverage
 
 [`COMMAND_AUDIT.txt`](COMMAND_AUDIT.txt) tracks implementation status (`DONE`, `PARTIAL`, `MISSING`) for builtins—useful for larger features, not required for every small fix.
+
+## First-Time Contributor's Checklist
+When contributing to MoonBASIC, remember our Static-First philosophy to ensure single-binary Zero-DLL purity across releases!
+- [ ] No `C` headers bridging shared dll calls natively (unless encapsulated via CGO `#cgo LDFLAGS` specifying static archives).
+- [ ] Only utilize Pure-Go parsers (e.g. `qmuntal/gltf`) targeting GPU buffers statically.
+- [ ] Make sure resources utilize `//go:embed` targeting payload bundles rather than enforcing loose paths avoiding runtime disk crashes natively.
+- [ ] Remember to update the `commands.json` API manifest exactly aligning new methods directly with handle models.

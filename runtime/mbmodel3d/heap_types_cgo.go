@@ -55,6 +55,7 @@ func (o *meshObj) Free() {
 // materialObj owns Raylib materials/shaders; if moved==true, ownership transferred to a model — do not unload here.
 type materialObj struct {
 	mat     rl.Material
+	params  map[string]float32 // Professional Studio Effect parameters
 	moved   bool // after MODEL.SETMATERIAL steal; skip UnloadMaterial on Free
 	pbr     bool // MATERIAL.MAKEPBR: extra uniforms + optional shadow sampling
 	release heap.ReleaseOnce

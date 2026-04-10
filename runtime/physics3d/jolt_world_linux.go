@@ -40,6 +40,7 @@ func phStart(m *Module, args []value.Value) (value.Value, error) {
 	matrixBufferAlloc = 1024
 	matrixBuffer = make([]float32, matrixBufferAlloc*16)
 	bufferIndexMap = make(map[uintptr]int)
+	bufferIndexToBody = make(map[int]uintptr)
 	m.accumulator = 0
 	m.fixedStep = 1.0 / 60.0
 	resetCollisionBridgeState()
@@ -69,6 +70,7 @@ func phStop(m *Module, args []value.Value) (value.Value, error) {
 	joltBodyMu.Unlock()
 	matrixBuffer = nil
 	bufferIndexMap = nil
+	bufferIndexToBody = nil
 	resetCollisionBridgeState()
 	resetPickState()
 	return value.Nil, nil

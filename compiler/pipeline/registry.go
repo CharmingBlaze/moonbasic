@@ -165,6 +165,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	wirePlayerModules(reg)
 	wireWorldModules(reg)
 	wireGridEntity(reg)
+	wireTerrainEntity(reg)
 }
 
 func wireGridEntity(reg *runtime.Registry) {
@@ -180,6 +181,22 @@ func wireGridEntity(reg *runtime.Registry) {
 	}
 	if g != nil && ent != nil {
 		g.BindEntity(ent)
+	}
+}
+
+func wireTerrainEntity(reg *runtime.Registry) {
+	var t *terrain.Module
+	var ent *mbentity.Module
+	for _, mod := range reg.Modules {
+		switch x := mod.(type) {
+		case *terrain.Module:
+			t = x
+		case *mbentity.Module:
+			ent = x
+		}
+	}
+	if t != nil && ent != nil {
+		t.BindEntity(ent)
 	}
 }
 

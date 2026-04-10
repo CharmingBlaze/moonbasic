@@ -39,6 +39,8 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("TERRAIN.GETSPLAT", "terrain", hint("TERRAIN.GETSPLAT"))
 	r.Register("TERRAIN.RAYCAST", "terrain", hint("TERRAIN.RAYCAST"))
 	r.Register("TERRAIN.SETDETAIL", "terrain", hint("TERRAIN.SETDETAIL"))
+	r.Register("TERRAIN.APPLYMAP", "terrain", hint("TERRAIN.APPLYMAP"))
+	r.Register("TERRAIN.APPLYTILES", "terrain", hint("TERRAIN.APPLYTILES"))
 }
 
 // TickStreaming is a no-op without CGO.

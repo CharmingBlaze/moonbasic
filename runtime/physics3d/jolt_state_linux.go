@@ -8,6 +8,7 @@ import (
 	"unsafe"
 
 	"github.com/bbitechnologies/jolt-go/jolt"
+	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/vm/heap"
 )
@@ -28,6 +29,7 @@ var (
 	matrixBuffer      []float32
 	nextBufferIndex   int
 	bufferIndexMap    map[uintptr]int // *BodyID -> index
+	bufferIndexToBody map[int]uintptr // index -> *BodyID
 	matrixBufferAlloc int
 )
 
@@ -109,28 +111,31 @@ func (b *body3dObj) Free() {
 	})
 }
 
-// builderObj owns a Jolt shape; destroy shape before COMMIT discards builder (host order).
-type builderObj struct {
-	motion  jolt.MotionType
-	shape   *jolt.Shape
-	release heap.ReleaseOnce
+// BuilderObj owns a Jolt shape; destroy shape before COMMIT discards builder (host order).
+type BuilderObj struct {
+	Motion  jolt.MotionType
+	Shape   *jolt.Shape
+	Release heap.ReleaseOnce
 	// Query template (rebuild after COMMIT for overlap tests).
-	qKind   uint8 // 1 box, 2 sphere, 3 capsule
-	qBox    jolt.Vec3
-	qSphere float32
-	qCapH   float32
-	qCapR   float32
+	QKind   uint8 // 1 box, 2 sphere, 3 capsule
+	QBox    jolt.Vec3
+	QSphere float32
+	QCapH   float32
+	QCapR   float32
+	Friction    float32
+	Restitution float32
+	EnableCCD   bool
 }
 
-func (b *builderObj) TypeName() string { return "Body3DBuilder" }
+func (b *BuilderObj) TypeName() string { return "Body3DBuilder" }
 
-func (b *builderObj) TypeTag() uint16 { return heap.TagPhysicsBuilder }
+func (b *BuilderObj) TypeTag() uint16 { return heap.TagPhysicsBuilder }
 
-func (b *builderObj) Free() {
-	b.release.Do(func() {
-		if b.shape != nil {
-			b.shape.Destroy()
-			b.shape = nil
+func (b *BuilderObj) Free() {
+	b.Release.Do(func() {
+		if b.Shape != nil {
+			b.Shape.Destroy()
+			b.Shape = nil
 		}
 	})
 }
@@ -147,4 +152,111 @@ func GravityVec() jolt.Vec3 {
 	joltMu.Lock()
 	defer joltMu.Unlock()
 	return jolt.Vec3{X: gravX, Y: gravY, Z: gravZ}
+}
+
+// Helpers for Entity-Centric interaction (used by mbentity)
+
+func ApplyImpulseToIndex(idx int, x, y, z float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.AddImpulse(id, jolt.Vec3{X: x, Y: y, Z: z})
+}
+
+func SetVelocityToIndex(idx int, x, y, z float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetLinearVelocity(id, jolt.Vec3{X: x, Y: y, Z: z})
+}
+
+func WakeIndex(idx int) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.ActivateBody(id)
+}
+func ApplyForceToIndex(idx int, x, y, z float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.AddForce(id, jolt.Vec3{X: x, Y: y, Z: z})
+}
+
+func SetFrictionToIndex(idx int, val float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetFriction(id, val)
+}
+
+func SetRestitutionToIndex(idx int, val float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetRestitution(id, val)
+}
+
+func SetGravityFactorToIndex(idx int, val float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetGravityFactor(id, val)
+}
+
+func RotateToIndex(idx int, p, y, r float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil { return }
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	
+	q := rl.QuaternionFromEuler(p, y, r)
+	bi.SetRotation(id, jolt.Quat{X: q.X, Y: q.Y, Z: q.Z, W: q.W}, jolt.ActivationActivate)
 }

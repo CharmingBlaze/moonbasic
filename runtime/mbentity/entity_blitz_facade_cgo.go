@@ -92,7 +92,8 @@ func (m *Module) entCreateCone(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindCone
 	e.radius = rad
 	e.cylH = h
@@ -151,7 +152,7 @@ func (m *Module) entGetParent(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("GetParent: unknown entity")
 	}
-	return value.FromInt(e.parentID), nil
+	return value.FromInt(e.getExt().parentID), nil
 }
 
 func (m *Module) entEntityNameStr(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -166,7 +167,7 @@ func (m *Module) entEntityNameStr(rt *runtime.Runtime, args ...value.Value) (val
 	if e == nil {
 		return value.Nil, fmt.Errorf("EntityName: unknown entity")
 	}
-	return rt.RetString(e.name), nil
+	return rt.RetString(e.getExt().name), nil
 }
 
 func (m *Module) entCopyExtended(args []value.Value) (value.Value, error) {
@@ -256,7 +257,8 @@ func (m *Module) entCreatePivot(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindEmpty
 	e.hidden = true
 	st.ents[id] = e
@@ -276,3 +278,4 @@ func (m *Module) entCreatePivot(args []value.Value) (value.Value, error) {
 	}
 	return v, nil
 }
+

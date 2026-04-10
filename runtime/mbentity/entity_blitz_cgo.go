@@ -318,7 +318,8 @@ func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindSphere
 	e.radius = rad
 	e.segH, e.segV = int32(seg), int32(seg)
@@ -362,7 +363,8 @@ func (m *Module) entCreateCylinder(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindCylinder
 	e.radius = rad
 	e.cylH = h
@@ -384,7 +386,8 @@ func (m *Module) entCreatePlane(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindPlane
 	e.w, e.h, e.d = sz, 0.01, sz
 	e.static = true
@@ -404,12 +407,13 @@ func (m *Module) entCreateMesh(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindMesh
 	e.hasRLModel = false
 	e.hidden = true
 	e.static = true
-	e.procMeshH = bid
+	e.getExt().procMeshH = bid
 	st.ents[id] = e
 	v := value.FromInt(id)
 	if len(args) == 1 {
@@ -447,11 +451,13 @@ func (m *Module) entLoadMesh(rt *runtime.Runtime, args ...value.Value) (value.Va
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindModel
 	e.rlModel = mod
 	e.hasRLModel = true
-	e.loadPath = path
+	ext := e.getExt()
+	ext.loadPath = path
 	e.static = true
 	st.ents[id] = e
 	v := value.FromInt(id)
@@ -481,13 +487,17 @@ func (m *Module) entLoadAnimatedMesh(rt *runtime.Runtime, args ...value.Value) (
 		return v, nil
 	}
 	e := m.store().ents[id]
-	if e == nil || !e.hasRLModel || e.loadPath == "" {
+	if e == nil {
 		return v, nil
 	}
-	anims := rl.LoadModelAnimations(e.loadPath)
+	ext := e.getExt()
+	if !e.hasRLModel || ext.loadPath == "" {
+		return v, nil
+	}
+	anims := rl.LoadModelAnimations(ext.loadPath)
 	if len(anims) > 0 {
-		e.modelAnims = anims
-		e.animLen = float32(anims[0].FrameCount)
+		ext.modelAnims = anims
+		ext.animLen = float32(anims[0].FrameCount)
 		rl.UpdateModelAnimation(e.rlModel, anims[0], 0)
 		rl.UpdateModelAnimationBones(e.rlModel, anims[0], 0)
 	}
@@ -513,36 +523,36 @@ func (m *Module) entRotateEntityAbs(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.ROTATEENTITY: angles must be numeric")
 	}
 	_ = args // global reserved for future local-vs-world rotation composition
-	e.pitch, e.yaw, e.roll = p, y, r
+	e.setRot(p, y, r)
 	return value.Nil, nil
 }
 
 func (m *Module) entEntityX(args []value.Value) (value.Value, error) {
-	return m.getCoord(args, func(e *ent) float32 { return m.worldPos(e).X }, func(e *ent) float32 { return e.pos.X })
+	return m.getCoord(args, func(e *ent) float32 { return m.worldPos(e).X }, func(e *ent) float32 { return e.getPos().X })
 }
 func (m *Module) entEntityY(args []value.Value) (value.Value, error) {
-	return m.getCoord(args, func(e *ent) float32 { return m.worldPos(e).Y }, func(e *ent) float32 { return e.pos.Y })
+	return m.getCoord(args, func(e *ent) float32 { return m.worldPos(e).Y }, func(e *ent) float32 { return e.getPos().Y })
 }
 func (m *Module) entEntityZ(args []value.Value) (value.Value, error) {
-	return m.getCoord(args, func(e *ent) float32 { return m.worldPos(e).Z }, func(e *ent) float32 { return e.pos.Z })
+	return m.getCoord(args, func(e *ent) float32 { return m.worldPos(e).Z }, func(e *ent) float32 { return e.getPos().Z })
 }
 func (m *Module) entEntityPitch(args []value.Value) (value.Value, error) {
 	return m.getCoord(args, func(e *ent) float32 {
 		pp, _, _ := m.worldEuler(e)
 		return pp
-	}, func(e *ent) float32 { return e.pitch })
+	}, func(e *ent) float32 { p, _, _ := e.getRot(); return p })
 }
 func (m *Module) entEntityYaw(args []value.Value) (value.Value, error) {
 	return m.getCoord(args, func(e *ent) float32 {
 		_, yy, _ := m.worldEuler(e)
 		return yy
-	}, func(e *ent) float32 { return e.yaw })
+	}, func(e *ent) float32 { _, w, _ := e.getRot(); return w })
 }
 func (m *Module) entEntityRoll(args []value.Value) (value.Value, error) {
 	return m.getCoord(args, func(e *ent) float32 {
 		_, _, rr := m.worldEuler(e)
 		return rr
-	}, func(e *ent) float32 { return e.roll })
+	}, func(e *ent) float32 { _, _, r := e.getRot(); return r })
 }
 
 func (m *Module) getCoord(args []value.Value, world, local func(*ent) float32) (value.Value, error) {
@@ -601,19 +611,20 @@ func (m *Module) entParent(args []value.Value) (value.Value, error) {
 			return value.Nil, fmt.Errorf("global must be bool or 0/1")
 		}
 	}
-	oldPID := child.parentID
+	oldPID := child.getExt().parentID
 	if oldPID == pid {
 		return value.Nil, nil
 	}
 	if oldPID >= 1 {
 		childLinkRemove(st, oldPID, cid)
 	}
+	ext := child.getExt()
 	if global {
 		wp := m.worldPos(child)
-		child.parentID = pid
+		ext.parentID = pid
 		m.setLocalFromWorld(child, wp.X, wp.Y, wp.Z)
 	} else {
-		child.parentID = pid
+		ext.parentID = pid
 	}
 	childLinkAdd(st, pid, cid)
 	return value.Nil, nil
@@ -632,12 +643,13 @@ func (m *Module) entParentClear(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	if e.parentID >= 1 {
-		childLinkRemove(st, e.parentID, id)
+	ext := e.getExt()
+	if ext.parentID >= 1 {
+		childLinkRemove(st, ext.parentID, id)
 	}
 	wp := m.worldPos(e)
-	e.parentID = 0
-	e.pos = wp
+	ext.parentID = 0
+	e.setPos(wp)
 	return value.Nil, nil
 }
 
@@ -750,7 +762,7 @@ func (m *Module) entType(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
 	t, _ := args[1].ToInt()
-	e.collType = int32(t)
+	e.getExt().collType = int32(t)
 	return value.Nil, nil
 }
 
@@ -771,7 +783,7 @@ func (m *Module) entCollide(args []value.Value) (value.Value, error) {
 		if b.id == id || b.static {
 			continue
 		}
-		if int64(b.collType) != tid {
+		if int64(b.getExt().collType) != tid {
 			continue
 		}
 		if !a.useSphere || !b.useSphere {
@@ -788,62 +800,68 @@ func (m *Module) entCollide(args []value.Value) (value.Value, error) {
 
 func (m *Module) entCollisionX(args []value.Value) (value.Value, error) {
 	return m.hitComp(args,
-		func(e *ent) float64 { return float64(e.hitX) },
+		func(e *ent) float64 { return float64(e.getExt().hitX) },
 		func(e *ent, i int) float64 {
-			if i < 0 || i >= len(e.hitPos) {
+			ext := e.getExt()
+			if i < 0 || i >= len(ext.hitPos) {
 				return 0
 			}
-			return float64(e.hitPos[i].X)
+			return float64(ext.hitPos[i].X)
 		})
 }
 func (m *Module) entCollisionY(args []value.Value) (value.Value, error) {
 	return m.hitComp(args,
-		func(e *ent) float64 { return float64(e.hitY) },
+		func(e *ent) float64 { return float64(e.getExt().hitY) },
 		func(e *ent, i int) float64 {
-			if i < 0 || i >= len(e.hitPos) {
+			ext := e.getExt()
+			if i < 0 || i >= len(ext.hitPos) {
 				return 0
 			}
-			return float64(e.hitPos[i].Y)
+			return float64(ext.hitPos[i].Y)
 		})
 }
 func (m *Module) entCollisionZ(args []value.Value) (value.Value, error) {
 	return m.hitComp(args,
-		func(e *ent) float64 { return float64(e.hitZ) },
+		func(e *ent) float64 { return float64(e.getExt().hitZ) },
 		func(e *ent, i int) float64 {
-			if i < 0 || i >= len(e.hitPos) {
+			ext := e.getExt()
+			if i < 0 || i >= len(ext.hitPos) {
 				return 0
 			}
-			return float64(e.hitPos[i].Z)
+			return float64(ext.hitPos[i].Z)
 		})
 }
 func (m *Module) entCollisionNX(args []value.Value) (value.Value, error) {
 	return m.hitComp(args,
-		func(e *ent) float64 { return float64(e.hitNX) },
+		func(e *ent) float64 { return float64(e.getExt().hitNX) },
 		func(e *ent, i int) float64 {
-			if i < 0 || i >= len(e.hitN) {
+			ext := e.getExt()
+			if i < 0 || i >= len(ext.hitN) {
 				return 0
 			}
-			return float64(e.hitN[i].X)
+			return float64(ext.hitN[i].X)
 		})
 }
 func (m *Module) entCollisionNY(args []value.Value) (value.Value, error) {
 	return m.hitComp(args,
-		func(e *ent) float64 { return float64(e.hitNY) },
+		func(e *ent) float64 { return float64(e.getExt().hitNY) },
 		func(e *ent, i int) float64 {
-			if i < 0 || i >= len(e.hitN) {
+			ext := e.getExt()
+			if i < 0 || i >= len(ext.hitN) {
 				return 0
 			}
-			return float64(e.hitN[i].Y)
+			return float64(ext.hitN[i].Y)
 		})
 }
 func (m *Module) entCollisionNZ(args []value.Value) (value.Value, error) {
 	return m.hitComp(args,
-		func(e *ent) float64 { return float64(e.hitNZ) },
+		func(e *ent) float64 { return float64(e.getExt().hitNZ) },
 		func(e *ent, i int) float64 {
-			if i < 0 || i >= len(e.hitN) {
+			ext := e.getExt()
+			if i < 0 || i >= len(ext.hitN) {
 				return 0
 			}
-			return float64(e.hitN[i].Z)
+			return float64(ext.hitN[i].Z)
 		})
 }
 
@@ -866,7 +884,7 @@ func (m *Module) hitComp(args []value.Value, last func(*ent) float64, atIndex fu
 		}
 		return value.FromFloat(atIndex(e, int(idx))), nil
 	}
-	if !e.hasHit {
+	if !e.getExt().hasHit {
 		return value.FromFloat(0), nil
 	}
 	return value.FromFloat(last(e)), nil
@@ -963,9 +981,10 @@ func (m *Module) entSetSlide(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	e.slide = args[1].Kind == value.KindBool && args[1].IVal != 0
+	ext := e.getExt()
+	ext.slide = args[1].Kind == value.KindBool && args[1].IVal != 0
 	if args[1].Kind == value.KindInt {
-		e.slide = args[1].IVal != 0
+		ext.slide = args[1].IVal != 0
 	}
 	return value.Nil, nil
 }
@@ -983,7 +1002,8 @@ func (m *Module) entPick(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	fwd := forwardFromYawPitch(e.yaw, e.pitch)
+	p, w, _ := e.getRot()
+	fwd := forwardFromYawPitch(w, p)
 	origin := m.worldPos(e)
 	end := rl.Vector3Add(origin, rl.Vector3Scale(fwd, rng))
 	bestID := int64(0)
@@ -1090,7 +1110,8 @@ func (m *Module) entPointEntity(args []value.Value) (value.Value, error) {
 		return value.Nil, nil
 	}
 	d = rl.Vector3Normalize(d)
-	e.yaw = float32(math.Atan2(float64(d.X), float64(d.Z)))
+	p, _, r := e.getRot()
+	e.setRot(p, float32(math.Atan2(float64(d.X), float64(d.Z))), r)
 	return value.Nil, nil
 }
 
@@ -1123,7 +1144,7 @@ func (m *Module) entLookAtWorld(args []value.Value) (value.Value, error) {
 	dx /= mag
 	dy /= mag
 	dz /= mag
-	e.yaw = float32(math.Atan2(float64(dx), float64(dz)))
+	w := float32(math.Atan2(float64(dx), float64(dz)))
 	vy := float64(dy)
 	if vy > 1 {
 		vy = 1
@@ -1131,8 +1152,8 @@ func (m *Module) entLookAtWorld(args []value.Value) (value.Value, error) {
 	if vy < -1 {
 		vy = -1
 	}
-	e.pitch = float32(math.Asin(vy))
-	e.roll = 0
+	p := float32(math.Asin(vy))
+	e.setRot(p, w, 0)
 	return value.Nil, nil
 }
 
@@ -1158,16 +1179,12 @@ func (m *Module) entAlignToVector(args []value.Value) (value.Value, error) {
 	v := rl.Vector3Normalize(rl.Vector3{X: vx, Y: vy, Z: vz})
 	_ = ax
 	// Align local +Z to v (yaw/pitch)
-	e.yaw = float32(math.Atan2(float64(v.X), float64(v.Z)))
-	vyClamped := float64(v.Y)
-	if vyClamped > 1 {
-		vyClamped = 1
-	}
-	if vyClamped < -1 {
-		vyClamped = -1
-	}
-	e.pitch = float32(math.Asin(vyClamped))
-	e.roll = 0
+	vyCl := float64(v.Y)
+	if vyCl > 1 { vyCl = 1 }
+	if vyCl < -1 { vyCl = -1 }
+	p := float32(math.Asin(vyCl))
+	w := float32(math.Atan2(float64(v.X), float64(v.Z)))
+	e.setRot(p, w, 0)
 	return value.Nil, nil
 }
 
@@ -1184,13 +1201,14 @@ func (m *Module) entAnimate(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
+	ext := e.getExt()
 	if len(args) >= 2 {
 		md, _ := args[1].ToInt()
-		e.animMode = int32(md)
+		ext.animMode = int32(md)
 	}
 	if len(args) >= 3 {
 		s, _ := argF32(args[2])
-		e.animSpeed = s
+		ext.animSpeed = s
 	}
 	return value.Nil, nil
 }
@@ -1205,7 +1223,7 @@ func (m *Module) entSetAnimTime(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
 	t, _ := argF32(args[1])
-	e.animTime = t
+	e.getExt().animTime = t
 	return value.Nil, nil
 }
 
@@ -1218,7 +1236,7 @@ func (m *Module) entAnimTime(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	return value.FromFloat(float64(e.animTime)), nil
+	return value.FromFloat(float64(e.getExt().animTime)), nil
 }
 
 func (m *Module) entAnimLength(args []value.Value) (value.Value, error) {
@@ -1230,14 +1248,15 @@ func (m *Module) entAnimLength(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	if len(e.modelAnims) > 0 {
-		ai := e.animIndex
-		if ai < 0 || int(ai) >= len(e.modelAnims) {
+	ext := e.getExt()
+	if len(ext.modelAnims) > 0 {
+		ai := ext.animIndex
+		if ai < 0 || int(ai) >= len(ext.modelAnims) {
 			ai = 0
 		}
-		return value.FromFloat(float64(e.modelAnims[ai].FrameCount)), nil
+		return value.FromFloat(float64(ext.modelAnims[ai].FrameCount)), nil
 	}
-	return value.FromFloat(float64(e.animLen)), nil
+	return value.FromFloat(float64(ext.animLen)), nil
 }
 
 func (m *Module) entHide(args []value.Value) (value.Value, error) {
@@ -1296,28 +1315,25 @@ func (m *Module) entCopy(args []value.Value) (value.Value, error) {
 	}
 	cp := *src
 	cp.id = 0
-	cp.parentID = 0
-	cp.name = ""
-	cp.boneHostID = 0
-	cp.boneIndex = -1
-	cp.boneWorldValid = false
-	cp.brushH = 0
-	if src.procMeshH != 0 {
+	cp.ext = nil // Reset modular extensions for the copy
+	
+	if src.getExt().procMeshH != 0 {
 		return value.Nil, fmt.Errorf("ENTITY.COPY: procedural mesh entities cannot be copied yet")
 	}
 	if cp.hasRLModel {
-		if cp.loadPath == "" {
+		ext := src.getExt()
+		if ext.loadPath == "" {
 			return value.Nil, fmt.Errorf("ENTITY.COPY: model without load path (e.g. CREATEMESH) cannot be duplicated yet")
 		}
-		mod := rl.LoadModel(cp.loadPath)
+		mod := rl.LoadModel(ext.loadPath)
 		if mod.MeshCount <= 0 {
 			rl.UnloadModel(mod)
-			return value.Nil, fmt.Errorf("ENTITY.COPY: failed to load model %q", cp.loadPath)
+			return value.Nil, fmt.Errorf("ENTITY.COPY: failed to load model %q", ext.loadPath)
 		}
 		cp.rlModel = mod
-		cp.modelAnims = nil
-		if anims := rl.LoadModelAnimations(cp.loadPath); len(anims) > 0 {
-			cp.modelAnims = anims
+		cp.getExt().loadPath = ext.loadPath
+		if anims := rl.LoadModelAnimations(ext.loadPath); len(anims) > 0 {
+			cp.getExt().modelAnims = anims
 		}
 	}
 	st := m.store()
@@ -1346,7 +1362,7 @@ func (m *Module) entInstanceGrid(args []value.Value) (value.Value, error) {
 	if src == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	base := src.pos
+	base := src.getPos()
 	for z := int64(0); z < cz; z++ {
 		for x := int64(0); x < cx; x++ {
 			px := base.X + float32(x)*sp
@@ -1404,10 +1420,11 @@ func (m *Module) entSetName(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if !ok2 {
 		return value.Nil, fmt.Errorf("invalid string")
 	}
-	if e.name != "" {
-		delete(m.store().byName, strings.ToUpper(e.name))
+	ext := e.getExt()
+	if ext.name != "" {
+		delete(m.store().byName, strings.ToUpper(ext.name))
 	}
-	e.name = name
+	ext.name = name
 	m.store().byName[strings.ToUpper(name)] = id
 	return value.Nil, nil
 }
@@ -1449,7 +1466,8 @@ func (m *Module) entMoveRelative(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return value.Nil, fmt.Errorf("numeric args required")
 	}
-	fwd, right, up := localAxes(e.yaw, e.pitch)
+	p, w, _ := e.getRot()
+	fwd, right, up := localAxes(w, p)
 	delta := rl.Vector3Add(rl.Vector3Add(rl.Vector3Scale(fwd, f*sp*dt), rl.Vector3Scale(right, rg*sp*dt)), rl.Vector3Scale(up, 0))
 	wp := m.worldPos(e)
 	nw := rl.Vector3Add(wp, delta)
@@ -1635,10 +1653,12 @@ func (m *Module) entCreateSpriteFromTexture(rt *runtime.Runtime, args ...value.V
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindMesh
-	e.isSprite = true
-	e.spriteMode = 1
+	ext := e.getExt()
+	ext.isSprite = true
+	ext.spriteMode = 1
 	e.texHandle = th
 	e.scale = rl.Vector3{X: 1, Y: 1, Z: 1}
 	e.w = w
@@ -1649,7 +1669,7 @@ func (m *Module) entCreateSpriteFromTexture(rt *runtime.Runtime, args ...value.V
 		if !okp || pid < 1 || st.ents[pid] == nil {
 			return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE: invalid parent entity")
 		}
-		e.parentID = pid
+		e.getExt().parentID = pid
 		childLinkAdd(st, pid, id)
 	}
 	return value.FromInt(id), nil
@@ -1673,10 +1693,12 @@ func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindMesh
-	e.isSprite = true
-	e.spriteMode = 1 // default Y-billboard
+	ext := e.getExt()
+	ext.isSprite = true
+	ext.spriteMode = 1 // default Y-billboard
 	e.texHandle = th
 	e.scale = rl.Vector3{X: 1, Y: 1, Z: 1}
 	e.w = float32(tex.Width) / 100.0 // Reasonable default size
@@ -1687,7 +1709,7 @@ func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.
 		if !ok || pid < 1 || st.ents[pid] == nil {
 			return value.Nil, fmt.Errorf("LOADSPRITE: invalid parent entity")
 		}
-		e.parentID = pid
+		e.getExt().parentID = pid
 		childLinkAdd(st, pid, id)
 	}
 	return value.FromInt(id), nil
@@ -1699,7 +1721,7 @@ func (m *Module) entScaleSprite(args []value.Value) (value.Value, error) {
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
-	if e == nil || !e.isSprite {
+	if e == nil || !e.getExt().isSprite {
 		return value.Nil, fmt.Errorf("invalid sprite")
 	}
 	sx, _ := args[1].ToFloat()
@@ -1715,11 +1737,11 @@ func (m *Module) entSpriteMode(args []value.Value) (value.Value, error) {
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
-	if e == nil || !e.isSprite {
+	if e == nil || !e.getExt().isSprite {
 		return value.Nil, fmt.Errorf("invalid sprite")
 	}
 	mode, _ := args[1].ToInt()
-	e.spriteMode = int32(mode)
+	e.getExt().spriteMode = int32(mode)
 	return value.Nil, nil
 }
 
@@ -1730,3 +1752,4 @@ type textureObj struct {
 func (o *textureObj) TypeName() string { return "Texture" }
 func (o *textureObj) TypeTag() uint16  { return heap.TagTexture }
 func (o *textureObj) Free()            { rl.UnloadTexture(o.tex) }
+

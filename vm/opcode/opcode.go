@@ -103,6 +103,12 @@ const (
 
 	// OpArrayLen: Dst = size of first dimension (float); SrcA = array handle register.
 	OpArrayLen
+
+	// Entity property access macros (fast path)
+	// OpEntityPropGet: Dst (Value), SrcA (EntityID), Operand (PropID)
+	OpEntityPropGet
+	// OpEntityPropSet: SrcA (EntityID), SrcB (Value), Operand (PropID)
+	OpEntityPropSet
 )
 
 // Instruction is a fixed-width VM decoded unit (8 bytes, IR v3).
@@ -135,7 +141,7 @@ func (op OpCode) String() string {
 		"ARRAY_MAKE", "ARRAY_GET", "ARRAY_SET",
 		"NEW", "DELETE", "FIELD_GET", "FIELD_SET", "HALT",
 		"SWAP", "ARRAY_REDIM", "ARRAY_MAKE_TYPED", "NEW_FILLED", "ERASE_ALL",
-		"SYNC_PHYSICS", "ARRAY_LEN",
+		"SYNC_PHYSICS", "ARRAY_LEN", "ENTITY_PROP_GET", "ENTITY_PROP_SET",
 	}
 	if int(op) < 0 || int(op) >= len(names) {
 		return fmt.Sprintf("OP_%d", int(op))

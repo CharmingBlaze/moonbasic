@@ -51,36 +51,36 @@ func registerPhysics3DCommands(m *Module, reg mbruntime.Registrar) {
 		} else {
 			return value.Nil, fmt.Errorf("BODY3D.MAKE expects 0 arguments (default DYNAMIC) or 1 motion string (STATIC, KINEMATIC, DYNAMIC)")
 		}
-		b := &builderObj{motion: parseMotion(motion)}
+		b := &BuilderObj{Motion: parseMotion(motion)}
 		bid, err := m.h.Alloc(b)
 		if err != nil {
 			return value.Nil, err
 		}
 		return value.FromHandle(bid), nil
 	})
-	reg.Register("BODY3D.ADDBOX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAddBox(m, a) }))
-	reg.Register("BODY3D.ADDSPHERE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAddSphere(m, a) }))
-	reg.Register("BODY3D.ADDCAPSULE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAddCapsule(m, a) }))
+	reg.Register("BODY3D.ADDBOX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddBox(m.h, a) }))
+	reg.Register("BODY3D.ADDSPHERE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddSphere(m.h, a) }))
+	reg.Register("BODY3D.ADDCAPSULE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddCapsule(m.h, a) }))
 	reg.Register("BODY3D.ADDMESH", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAddMesh(m, a) }))
-	reg.Register("BODY3D.COMMIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdCommit(m, a) }))
+	reg.Register("BODY3D.COMMIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDCommit(m.h, a) }))
 	reg.Register("BODY3D.SETPOS", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
 	reg.Register("BODY3D.SETPOSITION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
 	reg.Register("BODY3D.GETPOS", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdGetPos(m, a) }))
 	reg.Register("BODY3D.ACTIVATE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdActivate(m, a) }))
 	reg.Register("BODY3D.DEACTIVATE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdDeactivate(m, a) }))
-	reg.Register("BODY3D.SETROT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+	reg.Register("BODY3D.SETROT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetRotation(m, a) }))
 	reg.Register("BODY3D.GETROT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdGetRotZero(m, a) }))
 	reg.Register("BODY3D.SETMASS", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
-	reg.Register("BODY3D.SETFRICTION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
-	reg.Register("BODY3D.SETRESTITUTION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
-	reg.Register("BODY3D.APPLYFORCE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
-	reg.Register("BODY3D.APPLYIMPULSE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
-	reg.Register("BODY3D.SETLINEARVEL", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+	reg.Register("BODY3D.SETFRICTION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetFriction(m, a) }))
+	reg.Register("BODY3D.SETRESTITUTION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetRestitution(m, a) }))
+	reg.Register("BODY3D.APPLYFORCE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdApplyForce(m, a) }))
+	reg.Register("BODY3D.APPLYIMPULSE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdApplyImpulse(m, a) }))
+	reg.Register("BODY3D.SETLINEARVEL", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetLinearVel(m, a) }))
 	reg.Register("BODY3D.SETANGULARVEL", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
 	reg.Register("BODY3D.X", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAxis(m, a, 0) }))
 	reg.Register("BODY3D.Y", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAxis(m, a, 1) }))
 	reg.Register("BODY3D.Z", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAxis(m, a, 2) }))
-	reg.Register("BODY3D.BUFFERINDEX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdBufferIndex(m, a) }))
+	reg.Register("BODY3D.BUFFERINDEX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDBufferIndex(m.h, a) }))
 	reg.Register("BODY3D.FREE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdFree(m, a) }))
 
 	// Blitz-style PHYSICS.* aliases (same implementation as PHYSICS3D.*).

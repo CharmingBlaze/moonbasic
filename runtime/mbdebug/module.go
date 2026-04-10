@@ -5,7 +5,14 @@ package mbdebug
 import (
 	"sync"
 	"time"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+type logLine struct {
+	msg   string
+	color rl.Color
+}
 
 type watchEntry struct {
 	label string
@@ -35,6 +42,13 @@ type Module struct {
 	fpsIdx        int
 	showFPSGraph  bool
 	lastFrameTime time.Time
+
+	// Professional QoL
+	monitorOn bool
+	logLines  []logLine
+
+	inspectID     int64
+	drawPhysicsOn bool
 }
 
 // NewModule creates the debug module.

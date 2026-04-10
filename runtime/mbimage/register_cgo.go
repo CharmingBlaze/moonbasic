@@ -7,6 +7,7 @@ import "moonbasic/runtime"
 // Register wires IMAGE.* Raylib builtins.
 func (m *Module) Register(reg runtime.Registrar) {
 	registerImageLoad(m, reg)
+	registerImageSequence(m, reg)
 	registerImageTransform(m, reg)
 	registerImageDraw(m, reg)
 	registerImageProcess(m, reg)

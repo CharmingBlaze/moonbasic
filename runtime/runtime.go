@@ -14,6 +14,8 @@ import (
 	"moonbasic/vm/heap"
 	"moonbasic/vm/opcode"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // Errorf formats a runtime error with the moonBASIC prefix (for use from subpackages).
@@ -66,6 +68,11 @@ type EntityAware interface {
 	BindEntity(m Module)
 }
 
+// CameraAware modules receive the mbcamera module for world-space projection.
+type CameraAware interface {
+	BindCamera(m Module)
+}
+
 // Registry manages the global dispatch table and handle heap.
 type Registry struct {
 	mu       sync.RWMutex
@@ -93,6 +100,17 @@ type Registry struct {
 	FrameCount uint64
 	// DebugMode mirrors pipeline Options.Debug (--info): DEBUG.* draw helpers no-op when false.
 	DebugMode bool
+
+	// ResolveEntityWorldPos is set by mbentity; used by mbdebug and mbcamera.
+	ResolveEntityWorldPos func(entID int64) (rl.Vector3, bool)
+
+	// Spatial is the Data-Oriented shared buffer for entity positions/rotations.
+	// Set by mbentity to enable zero-copy spatial macros in the VM.
+	Spatial *SpatialBuffer
+
+	// FastEntityPropGet/Set are fallback accessors if SoA is not present or for complex props.
+	FastEntityPropGet func(id int64, propID int) (value.Value, error)
+	FastEntityPropSet func(id int64, propID int, val value.Value) error
 
 	// Script error overlay (set when VM.Execute or CallUserFunction reports failure).
 	scriptErrMu    sync.RWMutex
@@ -243,6 +261,22 @@ func (r *Registry) RegisterModule(m Module) {
 			}
 		}
 	}
+
+	// Retroactive binding for CameraAware modules
+	var camModule Module
+	for _, mod := range r.Modules {
+		if strings.Contains(fmt.Sprintf("%T", mod), "mbcamera.Module") {
+			camModule = mod
+			break
+		}
+	}
+	if camModule != nil {
+		for _, mod := range r.Modules {
+			if ca, ok := mod.(CameraAware); ok {
+				ca.BindCamera(camModule)
+			}
+		}
+	}
 }
 
 var scriptErrLineRe = regexp.MustCompile(`[Ee]rror in [^\n]+ line (\d+):`)
@@ -303,4 +337,10 @@ func (r *Registry) LastScriptErrorLine() int {
 	r.scriptErrMu.RLock()
 	defer r.scriptErrMu.RUnlock()
 	return r.lastScriptLine
+}
+
+// SpatialBuffer is a Data-Oriented structure for fast entity transform access.
+type SpatialBuffer struct {
+	X, Y, Z []float32
+	P, W, R []float32
 }

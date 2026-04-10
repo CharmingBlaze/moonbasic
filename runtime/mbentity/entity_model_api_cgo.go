@@ -62,17 +62,18 @@ func (m *Module) entLoadAnimationsExternal(rt *runtime.Runtime, args ...value.Va
 	if path == "" {
 		return value.Nil, fmt.Errorf("ENTITY.LOADANIMATIONS: path required")
 	}
-	if len(e.modelAnims) > 0 {
-		rl.UnloadModelAnimations(e.modelAnims)
-		e.modelAnims = nil
+	ext := e.getExt()
+	if len(ext.modelAnims) > 0 {
+		rl.UnloadModelAnimations(ext.modelAnims)
+		ext.modelAnims = nil
 	}
-	e.modelAnims = rl.LoadModelAnimations(path)
-	e.animIndex = 0
-	e.animTime = 0
-	if len(e.modelAnims) > 0 {
-		e.animLen = float32(e.modelAnims[0].FrameCount)
-		rl.UpdateModelAnimation(e.rlModel, e.modelAnims[0], 0)
-		rl.UpdateModelAnimationBones(e.rlModel, e.modelAnims[0], 0)
+	ext.modelAnims = rl.LoadModelAnimations(path)
+	ext.animIndex = 0
+	ext.animTime = 0
+	if len(ext.modelAnims) > 0 {
+		ext.animLen = float32(ext.modelAnims[0].FrameCount)
+		rl.UpdateModelAnimation(e.rlModel, ext.modelAnims[0], 0)
+		rl.UpdateModelAnimationBones(e.rlModel, ext.modelAnims[0], 0)
 	}
 	return value.Nil, nil
 }
@@ -89,13 +90,14 @@ func (m *Module) entPlay(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
+	ext := e.getExt()
 	idx, ok := args[1].ToInt()
-	if !ok || idx < 0 || int(idx) >= len(e.modelAnims) {
+	if !ok || idx < 0 || int(idx) >= len(ext.modelAnims) {
 		return value.Nil, fmt.Errorf("ENTITY.PLAY: invalid animation index")
 	}
-	e.animIndex = int32(idx)
-	e.animTime = 0
-	e.animSpeed = 1
+	ext.animIndex = int32(idx)
+	ext.animTime = 0
+	ext.animSpeed = 1
 	return value.Nil, nil
 }
 
@@ -119,11 +121,12 @@ func (m *Module) entPlayName(rt *runtime.Runtime, args ...value.Value) (value.Va
 	if name == "" {
 		return value.Nil, fmt.Errorf("ENTITY.PLAYNAME: name required")
 	}
-	for i := range e.modelAnims {
-		if strings.EqualFold(e.modelAnims[i].GetName(), name) {
-			e.animIndex = int32(i)
-			e.animTime = 0
-			e.animSpeed = 1
+	ext := e.getExt()
+	for i := range ext.modelAnims {
+		if strings.EqualFold(ext.modelAnims[i].GetName(), name) {
+			ext.animIndex = int32(i)
+			ext.animTime = 0
+			ext.animSpeed = 1
 			return value.Nil, nil
 		}
 	}
@@ -142,7 +145,7 @@ func (m *Module) entStopAnim(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	e.animSpeed = 0
+	e.getExt().animSpeed = 0
 	return value.Nil, nil
 }
 
@@ -162,14 +165,15 @@ func (m *Module) entSetAnimFrame(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("frame must be numeric")
 	}
-	if len(e.modelAnims) == 0 {
+	ext := e.getExt()
+	if len(ext.modelAnims) == 0 {
 		return value.Nil, nil
 	}
-	ai := e.animIndex
-	if ai < 0 || int(ai) >= len(e.modelAnims) {
+	ai := ext.animIndex
+	if ai < 0 || int(ai) >= len(ext.modelAnims) {
 		ai = 0
 	}
-	fc := e.modelAnims[ai].FrameCount
+	fc := ext.modelAnims[ai].FrameCount
 	if fc <= 0 {
 		return value.Nil, nil
 	}
@@ -179,7 +183,7 @@ func (m *Module) entSetAnimFrame(args []value.Value) (value.Value, error) {
 	if fr >= float32(fc) {
 		fr = float32(fc) - 1
 	}
-	e.animTime = fr
+	ext.animTime = fr
 	return value.Nil, nil
 }
 
@@ -199,7 +203,7 @@ func (m *Module) entSetAnimSpeedOnly(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("speed must be numeric")
 	}
-	e.animSpeed = s
+	e.getExt().animSpeed = s
 	return value.Nil, nil
 }
 
@@ -219,10 +223,11 @@ func (m *Module) entSetAnimLoop(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("loop must be bool or numeric")
 	}
+	ext := e.getExt()
 	if loop {
-		e.animMode = 0
+		ext.animMode = 0
 	} else {
-		e.animMode = 3
+		ext.animMode = 3
 	}
 	return value.Nil, nil
 }
@@ -249,7 +254,8 @@ func (m *Module) entIsPlayingAnim(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	on := len(e.modelAnims) > 0 && e.animSpeed != 0
+	ext := e.getExt()
+	on := len(ext.modelAnims) > 0 && ext.animSpeed != 0
 	return value.FromBool(on), nil
 }
 
@@ -265,13 +271,14 @@ func (m *Module) entCrossfade(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
+	ext := e.getExt()
 	idx, ok := args[1].ToInt()
-	if !ok || idx < 0 || int(idx) >= len(e.modelAnims) {
+	if !ok || idx < 0 || int(idx) >= len(ext.modelAnims) {
 		return value.Nil, fmt.Errorf("ENTITY.CROSSFADE: invalid animation index")
 	}
-	e.animIndex = int32(idx)
-	e.animTime = 0
-	e.animSpeed = 1
+	ext.animIndex = int32(idx)
+	ext.animTime = 0
+	ext.animSpeed = 1
 	return value.Nil, nil
 }
 
@@ -478,7 +485,8 @@ func (m *Module) materialBulkAssign(args []value.Value) (value.Value, error) {
 		if e == nil || !e.hasRLModel {
 			continue
 		}
-		if !matchMaterialGlob(pat, e.name) && !matchMaterialGlob(pat, e.blenderTag) {
+		ext := e.getExt()
+		if !matchMaterialGlob(pat, ext.name) && !matchMaterialGlob(pat, ext.blenderTag) {
 			continue
 		}
 		mats := e.rlModel.GetMaterials()
@@ -677,11 +685,12 @@ func (m *Module) entAnimNameAt(rt *runtime.Runtime, args ...value.Value) (value.
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
+	ext := e.getExt()
 	idx, ok := args[1].ToInt()
-	if !ok || idx < 0 || int(idx) >= len(e.modelAnims) {
+	if !ok || idx < 0 || int(idx) >= len(ext.modelAnims) {
 		return value.Nil, fmt.Errorf("ENTITY.ANIMNAME$: invalid index")
 	}
-	return rt.RetString(e.modelAnims[idx].GetName()), nil
+	return rt.RetString(ext.modelAnims[idx].GetName()), nil
 }
 
 func (m *Module) entCurrentAnimName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -696,12 +705,13 @@ func (m *Module) entCurrentAnimName(rt *runtime.Runtime, args ...value.Value) (v
 	if e == nil {
 		return value.Nil, fmt.Errorf("unknown entity")
 	}
-	if len(e.modelAnims) == 0 {
+	ext := e.getExt()
+	if len(ext.modelAnims) == 0 {
 		return rt.RetString(""), nil
 	}
-	ai := e.animIndex
-	if ai < 0 || int(ai) >= len(e.modelAnims) {
+	ai := ext.animIndex
+	if ai < 0 || int(ai) >= len(ext.modelAnims) {
 		ai = 0
 	}
-	return rt.RetString(e.modelAnims[ai].GetName()), nil
+	return rt.RetString(ext.modelAnims[ai].GetName()), nil
 }

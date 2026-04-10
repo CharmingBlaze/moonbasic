@@ -10,12 +10,27 @@ import (
 
 // Module tracks monotonic clock origin.
 type Module struct {
-	start time.Time
+	start     time.Time
+	timeScale float64
+	paused    bool
+	lerpActive  bool
+	targetScale float64
+	lerpDur     float64
+	lerpElapsed float64
 }
+
+var (
+	GlobalTimeScale = 1.0
+	GlobalPaused    = false
+)
 
 // NewModule creates TIME builtins.
 func NewModule() *Module {
-	return &Module{start: time.Now()}
+	return &Module{
+		start:     time.Now(),
+		timeScale: 1.0,
+		paused:    false,
+	}
 }
 
 // Register implements runtime.Module.
@@ -65,10 +80,58 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("DELAY", "time", delayFn)
 	reg.Register("Delay", "time", delayFn)
 
+	reg.Register("TIME.UPDATE", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 { return value.Nil, errArgs(1, len(args)) }
+		dt, _ := args[0].ToFloat()
+		if m.lerpActive {
+			m.lerpElapsed += dt
+			if m.lerpElapsed >= m.lerpDur {
+				m.timeScale = m.targetScale
+				m.lerpActive = false
+			} else {
+				u := m.lerpElapsed / m.lerpDur
+				// Linear lerp back to 1.0 or target
+				m.timeScale = m.timeScale + (m.targetScale-m.timeScale)*u
+			}
+			GlobalTimeScale = m.timeScale
+			if rt != nil { rt.TimeScale = GlobalTimeScale }
+		}
+		return value.Nil, nil
+	})
+
 	registerWallClock(reg)
 	registerDeltaCapCommands(reg)
 	registerRaylibTiming(reg)
 	registerMilliSecs(m, reg)
+
+	reg.Register("GAME.SETPAUSE", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, errArgs(1, len(args))
+		}
+		b, _ := rt.ArgBool(args, 0)
+		m.paused = b
+		GlobalPaused = m.paused
+		if rt != nil { rt.GamePaused = b }
+		return value.Nil, nil
+	})
+
+	reg.Register("GAME.SLOWMOTION", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 2 {
+			return value.Nil, errArgs(2, len(args))
+		}
+		factor, ok1 := args[0].ToFloat()
+		dur, ok2 := args[1].ToFloat()
+		if ok1 && ok2 {
+			m.timeScale = factor
+			m.targetScale = 1.0
+			m.lerpDur = dur
+			m.lerpElapsed = 0
+			m.lerpActive = true
+			GlobalTimeScale = factor
+			if rt != nil { rt.TimeScale = GlobalTimeScale }
+		}
+		return value.Nil, nil
+	})
 }
 
 // Shutdown implements runtime.Module.

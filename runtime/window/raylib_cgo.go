@@ -309,6 +309,10 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		return m.puregoRFrame(rt, args...)
 	}
 	m.drainCleanupQueue()
+	if rt != nil {
+		// Advance time lerps (SlowMotion, etc.)
+		rt.Call("TIME.UPDATE", []value.Value{value.FromFloat(float64(rl.GetFrameTime()))})
+	}
 	m.mu.Lock()
 	if !m.opened {
 		m.mu.Unlock()
@@ -365,6 +369,23 @@ func (m *Module) rFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 			}
 		}
 	}
+
+	// Visual Polish: World Flash
+	m.mu.Lock()
+	if m.flashDur > 0 && m.flashElapsed < m.flashDur {
+		dt := rl.GetFrameTime()
+		m.flashElapsed += dt
+		alpha := 1.0 - (m.flashElapsed / m.flashDur)
+		if alpha > 0 {
+			fCol := m.flashColor
+			fCol.A = uint8(float32(fCol.A) * alpha)
+			sw := int32(rl.GetScreenWidth())
+			sh := int32(rl.GetScreenHeight())
+			rl.DrawRectangle(0, 0, sw, sh, fCol)
+		}
+	}
+	m.mu.Unlock()
+
 	rl.EndDrawing()
 	m.inFrame = false
 

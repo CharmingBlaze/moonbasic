@@ -68,7 +68,8 @@ func (m *Module) blitzCube(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindBox
 	e.r, e.g, e.b = 180, 180, 200
 	e.w, e.h, e.d = w, h, d
@@ -99,7 +100,8 @@ func (m *Module) blitzSphere(args []value.Value) (value.Value, error) {
 	st := m.store()
 	id := st.nextID
 	st.nextID++
-	e := newDefaultEnt(id)
+	st.ensureSlices(int(id))
+	e := newDefaultEnt(id, &st.spatial)
 	e.kind = entKindSphere
 	e.radius = rad
 	e.segH, e.segV = int32(seg), int32(seg)
@@ -119,28 +121,35 @@ func (m *Module) purgeEntityByID(id int64) {
 	if e == nil {
 		return
 	}
-	if e.hasRLModel {
-		if len(e.modelAnims) > 0 {
-			rl.UnloadModelAnimations(e.modelAnims)
-			e.modelAnims = nil
+	if e.ext != nil {
+		ext := e.ext
+		if e.hasRLModel {
+			if len(ext.modelAnims) > 0 {
+				rl.UnloadModelAnimations(ext.modelAnims)
+				ext.modelAnims = nil
+			}
+			rl.UnloadModel(e.rlModel)
 		}
+		if ext.procMeshH != 0 && m.h != nil {
+			_ = m.h.Free(ext.procMeshH)
+			ext.procMeshH = 0
+		}
+		if ext.name != "" {
+			delete(st.byName, strings.ToUpper(ext.name))
+		}
+		if ext.parentID >= 1 {
+			childLinkRemove(st, ext.parentID, id)
+		}
+	} else if e.hasRLModel {
 		rl.UnloadModel(e.rlModel)
 	}
-	if e.procMeshH != 0 && m.h != nil {
-		_ = m.h.Free(e.procMeshH)
-		e.procMeshH = 0
-	}
-	if e.name != "" {
-		delete(st.byName, strings.ToUpper(e.name))
-	}
-	if e.parentID >= 1 {
-		childLinkRemove(st, e.parentID, id)
-	}
+	
 	for _, oe := range st.ents {
-		if oe != nil && oe.boneHostID == id {
-			oe.boneWorldValid = false
-			oe.boneHostID = 0
-			oe.boneIndex = -1
+		if oe != nil && oe.ext != nil && oe.ext.boneHostID == id {
+			ext := oe.ext
+			ext.boneWorldValid = false
+			ext.boneHostID = 0
+			ext.boneIndex = -1
 		}
 	}
 	delete(st.children, id)
@@ -153,3 +162,4 @@ func (m *Module) purgeEntityByID(id int64) {
 	}
 	delete(st.ents, id)
 }
+

@@ -215,6 +215,27 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 
 	case *ast.NamespaceCallExpr:
 		// NS.METHOD(...)
+		// Fast-path macro expansion for high-frequency spatial getters
+		if n.NS == "ENTITY" && len(n.Args) == 1 {
+			propID := -1
+			switch strings.ToUpper(n.Method) {
+			case "X": propID = 0
+			case "Y": propID = 1
+			case "Z": propID = 2
+			case "P": propID = 3
+			case "W", "YAW": propID = 4
+			case "R": propID = 5
+			}
+			if propID >= 0 {
+				idReg := g.emitExpr(ch, n.Args[0])
+				dst := g.allocReg()
+				ch.Emit(opcode.OpEntityPropGet, dst, idReg, 0, int32(propID), n.Line)
+				g.nextReg = idReg
+				g.allocReg() // keep dst
+				return dst
+			}
+		}
+
 		argStart := g.emitArgsStable(ch, n.Args, n.Line)
 		idx := ch.AddName(n.NS + "." + n.Method)
 		dst := g.allocReg()

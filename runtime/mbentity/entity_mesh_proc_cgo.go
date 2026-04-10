@@ -45,10 +45,11 @@ func (m *Module) entCreateSurface(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CreateSurface: invalid entity")
 	}
 	e := m.store().ents[id]
-	if e == nil || e.procMeshH == 0 {
+	ext := e.getExt()
+	if e == nil || ext.procMeshH == 0 {
 		return value.Nil, fmt.Errorf("CreateSurface: entity has no procedural mesh (use CreateMesh)")
 	}
-	return value.FromHandle(e.procMeshH), nil
+	return value.FromHandle(ext.procMeshH), nil
 }
 
 func (m *Module) entAddVertex(args []value.Value) (value.Value, error) {
@@ -133,10 +134,11 @@ func (m *Module) entUpdateMesh(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("UpdateMesh: invalid entity")
 	}
 	e := m.store().ents[id]
-	if e == nil || e.procMeshH == 0 {
+	ext := e.getExt()
+	if e == nil || ext.procMeshH == 0 {
 		return value.Nil, fmt.Errorf("UpdateMesh: not a procedural mesh entity")
 	}
-	b, err := castMeshBuilder(m.h, e.procMeshH)
+	b, err := castMeshBuilder(m.h, ext.procMeshH)
 	if err != nil {
 		return value.Nil, err
 	}
