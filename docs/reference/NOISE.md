@@ -54,14 +54,14 @@ Releases generator state. Safe to call twice (second is a no-op on the handle ta
 Noise.SetType(ng, type$)
 ```
 
-Selects the algorithm **before the first sample**. `type$` examples: `"perlin"`, `"simplex"`, `"simplex_smooth"`, `"value"`, `"cellular"`, `"fractal_fbm"`, `"fractal_ridged"`, `"fractal_pingpong"`, `"domain_warp"`.
+Selects the algorithm **before the first sample**. `type` examples: `"perlin"`, `"simplex"`, `"simplex_smooth"`, `"value"`, `"cellular"`, `"fractal_fbm"`, `"fractal_ridged"`, `"fractal_pingpong"`, `"domain_warp"`.
 
 **Parameters**
 
 | Name | Type | Description |
 |------|------|-------------|
 | ng | int | Noise handle |
-| type$ | string | Algorithm name (case-insensitive) |
+| type | string | Algorithm name (case-insensitive) |
 
 ---
 
@@ -132,7 +132,7 @@ Noise.SetCellularDistance(ng, func$)
 Noise.SetCellularJitter(ng, jitter#)
 ```
 
-Cellular / Voronoi flavour. `type$` examples: `"distance"`, `"cell_value"`. Distance `"manhattan"` selects a different metric (approximate). Jitter is reserved for future fine-tuning.
+Cellular / Voronoi flavour. `type` examples: `"distance"`, `"cell_value"`. Distance `"manhattan"` selects a different metric (approximate). Jitter is reserved for future fine-tuning.
 
 ---
 
@@ -143,7 +143,7 @@ Noise.SetDomainWarpType(ng, type$)
 Noise.SetDomainWarpAmplitude(ng, amp#)
 ```
 
-`type$` is stored for compatibility; warp uses internal low-frequency **`Simplex2`** offsets. **`amp#`** scales warp strength (default `1`).
+`type` is stored for compatibility; warp uses internal low-frequency **`Simplex2`** offsets. **`amp`** scales warp strength (default `1`).
 
 ---
 
@@ -160,7 +160,7 @@ Samples **2D** noise ~`[-1,1]`. Locks configuration (no further **`Set*`**).
 | Name | Type | Description |
 |------|------|-------------|
 | ng | int | Handle |
-| x#, y# | float | World coordinates |
+| x, y | float | World coordinates |
 
 ---
 
@@ -200,7 +200,7 @@ Returns **`0..1`**: `(Get + 1) * 0.5` clamped.
 h# = Noise.GetTileable(ng, x#, y#, w#, h#)
 ```
 
-Approximate **seamless** tiling using a torus parameterisation; `w#`, `h#` are tile size in the same units as `x`, `y`.
+Approximate **seamless** tiling using a torus parameterisation; `w`, `h` are tile size in the same units as `x`, `y`.
 
 ---
 
@@ -243,7 +243,7 @@ ng = Noise.MakeDomainWarp(seed, freq#, amp#)
 ```
 
 Convenience constructors (pre-configured, no separate **`SetType`** needed).  
-**`MakeFractal`**: `type$` is **`"fbm"`**, **`"ridged"`**, or **`"pingpong"`** (aliases accepted).
+**`MakeFractal`**: `type` is **`"fbm"`**, **`"ridged"`**, or **`"pingpong"`** (aliases accepted).
 
 **Example**
 
@@ -257,7 +257,7 @@ Noise.Free(ng)
 
 ## Choosing a noise type
 
-| type$ | Typical use |
+| type | Typical use |
 |--------|-------------|
 | `simplex` | Smooth hills, general terrain |
 | `fractal_fbm` | Rolling organic terrain |

@@ -1,0 +1,9 @@
+; Compile-only check: remap + vec3 distance helpers (see docs/reference/MATH.md).
+r = MATH.REMAP(5.0, 0.0, 10.0, 0.0, 100.0)
+t = MATH.INVERSE_LERP(0.0, 10.0, 3.0)
+s = MATH.SATURATE(1.5)
+d = VEC3.DIST(0.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+q = VEC3.DISTSQ(0.0, 0.0, 0.0, 2.0, 0.0, 0.0)
+IF r > 0.0 AND t > 0.0 AND s <= 1.0 AND d > 0.0 AND q > 0.0 THEN
+    ; ok
+ENDIF

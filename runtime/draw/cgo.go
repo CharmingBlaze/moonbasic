@@ -13,6 +13,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerTextureCmds(m, r)
 	registerLineCmds(m, r)
 	registerTextCmds(m, r)
+	registerDebugPrint(m, r)
 	registerAdvancedCmds(m, r)
 	registerDraw3DCmds(m, r)
 	registerPrim3DWrappers(m, r)

@@ -1,0 +1,6 @@
+; Compile check: INTERP$ + COLOR.TOHSV tuple
+c = COLOR.RGB(200, 100, 50)
+h#, s#, v# = COLOR.TOHSV(c)
+s$ = INTERP$("h={0} s={1}", h#, s#)
+t$ = STRING.INTERP$("{0}-{1}", 10, 20)
+COLOR.FREE(c)

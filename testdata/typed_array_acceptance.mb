@@ -1,0 +1,18 @@
+TYPE Cell
+    value AS INTEGER
+    visited AS INTEGER
+ENDTYPE
+
+map AS Cell(10, 10, 5)
+
+FOR x = 1 TO 10
+    FOR y = 1 TO 10
+        FOR z = 1 TO 5
+            map(x, y, z).value = x * 100 + y * 10 + z
+            map(x, y, z).visited = 0
+        NEXT z
+    NEXT y
+NEXT x
+
+PRINT(map(3, 7, 2).value)
+PRINT(map.length)

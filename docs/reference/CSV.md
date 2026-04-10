@@ -10,16 +10,16 @@ Games and tools often exchange **spreadsheets** (loot tables, localisation, bala
 
 | Command | Purpose |
 |--------|---------|
-| `CSV.LOAD(path$)` | Read a file from disk; returns a new **`CSV`** handle. |
-| `CSV.SAVE(handle, path$)` | Write the table back to disk (UTF-8 text). |
-| `CSV.FROMSTRING(s$)` | Parse CSV text already in memory (no file). |
+| `CSV.LOAD(path)` | Read a file from disk; returns a new **`CSV`** handle. |
+| `CSV.SAVE(handle, path)` | Write the table back to disk (UTF-8 text). |
+| `CSV.FROMSTRING(s)` | Parse CSV text already in memory (no file). |
 | `CSV.TOSTRING(handle)` | Serialize the table to a single string (newline-terminated rows). |
 | `CSV.FREE(handle)` | Release the heap object. |
 
 ## Shape and indexing
 
 - **`CSV.ROWCOUNT`** / **`CSV.COLCOUNT`**: row and column counts. If the table is empty, column count is **0**; otherwise column count follows the **first** row’s width.
-- **`CSV.GET(handle, row, col)`** / **`CSV.SET(handle, row, col, val$)`**: **1-based** row and column indices (first row is **1**, first column is **1**), matching typical BASIC-style grids.
+- **`CSV.GET(handle, row, col)`** / **`CSV.SET(handle, row, col, val)`**: **1-based** row and column indices (first row is **1**, first column is **1**), matching typical BASIC-style grids.
 
 ## JSON bridge
 

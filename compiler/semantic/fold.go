@@ -23,6 +23,8 @@ func foldStmt(s ast.Stmt) {
 	switch n := s.(type) {
 	case *ast.AssignNode:
 		n.Expr = foldExpr(n.Expr)
+	case *ast.MultiAssignNode:
+		n.Expr = foldExpr(n.Expr)
 	case *ast.IndexAssignNode:
 		for i := range n.Index {
 			n.Index[i] = foldExpr(n.Index[i])

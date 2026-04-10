@@ -276,8 +276,8 @@ Variables are typed by their **name suffix**:
 
 | Suffix | Type | Example |
 |---|---|---|
-| `$` | String | `name$ = "Player"` |
-| `#` | Float | `speed# = 5.5` |
+| `$` | String | `name = "Player"` |
+| `#` | Float | `speed = 5.5` |
 | `?` | Boolean | `alive? = TRUE` |
 | (none) | Integer | `score = 100` |
 

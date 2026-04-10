@@ -33,8 +33,8 @@ These are **real** engine helpers — not legacy Blitz/DBPro names. Prefer them 
 
 | Designed | Implementation | Memory / notes |
 |----------|----------------|----------------|
-| **LoadScene (file$)** | **`ENTITY.LOADSCENE`**, **`SCENE.LOADSCENE`** | Clears entities then loads — **native** resources tracked per [MEMORY.md](../../MEMORY.md). |
-| **SaveScene (file$)** | **`ENTITY.SAVESCENE`**, **`SCENE.SAVESCENE`** | |
+| **LoadScene (file)** | **`ENTITY.LOADSCENE`**, **`SCENE.LOADSCENE`** | Clears entities then loads — **native** resources tracked per [MEMORY.md](../../MEMORY.md). |
+| **SaveScene (file)** | **`ENTITY.SAVESCENE`**, **`SCENE.SAVESCENE`** | |
 | **SceneEntities ()** | **`ENTITY.ENTITIESINRADIUS`**, **`ENTITIESINBOX`**, **groups** | Returns **array handles** — **`FREE`** when done. |
 
 See [QOL.md](../QOL.md) for **`SCREENW`**, **`DT`**, **`ENDGAME`**, etc.

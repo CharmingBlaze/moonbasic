@@ -85,12 +85,9 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		}
 		return call(rt,"RENDER.CLEAR")
 	})
-	reg.Register("FLIP", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("FLIP expects 0 arguments")
-		}
-		return call(rt,"RENDER.FRAME")
-	})
+	// Blitz3D Flip / RenderWorld / UpdateWorld are intentionally not wrapped here: use RENDER.FRAME,
+	// CAMERA.Begin/End or RENDER.Begin3D/End3D, Camera2D.Begin/End, ENTITY.DRAWALL, ENTITY.UPDATE(dt).
+	// See docs/reference/BLITZ3D.md § "Raylib render pipeline".
 
 	reg.Register("SETCOLOR", "blitzengine", m.setColor)
 	reg.Register("SETALPHA", "blitzengine", m.setAlpha)
@@ -108,9 +105,6 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		}
 		return value.Nil, nil
 	})
-	reg.Register("UPDATEWORLD", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		return call(rt,"ENTITY.UPDATE", args...)
-	})
 	// UpdatePhysics — one call per frame: ENTITY.UPDATE(dt), optional WORLD/2D/3D physics (errors ignored if inactive).
 	reg.Register("UPDATEPHYSICS", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
@@ -127,12 +121,6 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		_, _ = call(rt, "PHYSICS2D.STEP")
 		_, _ = call(rt, "PHYSICS3D.STEP", dt)
 		return value.Nil, nil
-	})
-	reg.Register("RENDERWORLD", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("RENDERWORLD expects 0 arguments")
-		}
-		return call(rt,"ENTITY.DRAWALL")
 	})
 	reg.Register("CLEARWORLD", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {

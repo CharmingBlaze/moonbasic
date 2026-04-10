@@ -21,12 +21,12 @@ SQLite gives you **durable**, **queryable** storage (saves, inventories, analyti
 
 | Command | Purpose |
 |--------|---------|
-| `DB.OPEN(path$)` | `sql.Open("sqlite3", path)`. Use `":memory:"` for RAM-only tests. |
+| `DB.OPEN(path)` | `sql.Open("sqlite3", path)`. Use `":memory:"` for RAM-only tests. |
 | `DB.CLOSE(handle)` | Close the DB and free resources. |
 | `DB.ISOPEN(handle)` | Returns whether the handle is still valid. |
-| `DB.EXEC(db, sql$, ...params)` | `Exec` with optional bound parameters. |
-| `DB.QUERY(db, sql$, ...params)` | Returns a **`ROWS`** handle. |
-| `DB.QUERYJSON(db, sql$, ...params)` | Runs a query and returns a **JSON array of objects** as a string (each column name → value). Handy when you do not need row-by-row iteration. |
+| `DB.EXEC(db, sql, ...params)` | `Exec` with optional bound parameters. |
+| `DB.QUERY(db, sql, ...params)` | Returns a **`ROWS`** handle. |
+| `DB.QUERYJSON(db, sql, ...params)` | Runs a query and returns a **JSON array of objects** as a string (each column name → value). Handy when you do not need row-by-row iteration. |
 | `DB.LASTINSERTID(db)` | `SELECT last_insert_rowid()`. |
 | `DB.CHANGES(db)` | `SELECT changes()`. |
 
@@ -48,7 +48,7 @@ Freed **`TX`** handles roll back if not yet committed.
 
 | Command | Purpose |
 |--------|---------|
-| `DB.PREPARE(db, sql$)` | Returns a **`STMT`** handle; SQL text is **normalized** (trim + collapse whitespace) so identical queries share one cached `sql.Stmt`. |
+| `DB.PREPARE(db, sql)` | Returns a **`STMT`** handle; SQL text is **normalized** (trim + collapse whitespace) so identical queries share one cached `sql.Stmt`. |
 | `DB.STMTEXEC(stmt, ...params)` | Executes the statement. Under an active transaction, uses `tx.Stmt`. |
 | `DB.STMTCLOSE(stmt)` | Marks the handle freed; underlying `sql.Stmt` stays cached on the DB. |
 

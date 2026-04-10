@@ -25,24 +25,24 @@ Constructors allocate a handle; methods dispatch to registry keys **`DRAWPRIM3D.
 
 | Constructor | Notes |
 |-------------|--------|
-| **`DRAWCUBE`**, **`DRAWCUBEWIRES`** | Optional **`(w#, h#, d#)`** or defaults **1,1,1**. |
-| **`DRAWSPHERE(radius#)`** | Solid sphere. |
-| **`DRAWSPHEREW(radius#, rings, slices)`** | Wire sphere. |
+| **`DRAWCUBE`**, **`DRAWCUBEWIRES`** | Optional **`(w, h, d)`** or defaults **1,1,1**. |
+| **`DRAWSPHERE(radius)`** | Solid sphere. |
+| **`DRAWSPHEREW(radius, rings, slices)`** | Wire sphere. |
 | **`DRAWCYLINDER`**, **`DRAWCYLINDERW`** | Defaults; use **`.Cyl`**, **`.Slices`**, **`.Pos`**, **`.Color`**. |
 | **`DRAWCAP`**, **`DRAWCAPW`** | Capsule; **`.EndPoint`** for end position, **`.Radius`**, slices/rings. |
-| **`DRAWPLANE`** | Optional **`(width#, depth#)`**. |
+| **`DRAWPLANE`** | Optional **`(width, depth)`**. |
 | **`DRAWBBOX`** | Use **`.BBox`** to set min/max corners. |
 | **`DRAWRAY`** | **`.SetRay(rayArrayHandle)`** (6 floats: origin + direction). |
 | **`DRAWLINE3D`**, **`DRAWPOINT3D`** | Line: **`.P2`**-style via **`.EndPoint`**; set endpoints with **`.Pos`** / **`.EndPoint`**. |
-| **`DRAWGRID3D`** | Optional **`(slices, spacing#)`**. |
+| **`DRAWGRID3D`** | Optional **`(slices, spacing)`**. |
 | **`DRAWBILLBOARD(tex)`**, **`DRAWBILLBOARDREC(tex)`** | **`.SetTexture`**, **`.SrcTex`** for rec variant; **inside `Camera.Begin`/`End`**. |
 
 ### Shared methods (3D)
 
 | Method | Role |
 |--------|------|
-| **`Pos(x#, y#, z#)`** | Position (and start point for line/capsule). |
-| **`Size(w#, h#, d#)`** | Box size; for sphere **`.Size(r)`** (one arg) sets radius where applicable. |
+| **`Pos(x, y, z)`** | Position (and start point for line/capsule). |
+| **`Size(w, h, d)`** | Box size; for sphere **`.Size(r)`** (one arg) sets radius where applicable. |
 | **`Color(r,g,b,a)`** / **`Col(...)`** | 0–255. |
 | **`Wire(on)`** | Toggle wireframe where supported (solid cube types). |
 | **`Radius`**, **`EndPoint`**, **`Cyl`**, **`BBox`**, **`Slices`**, **`Rings`**, **`Grid`**, **`SetRay`**, **`SetTexture`**, **`SrcTex`** | Kind-specific. |
@@ -59,13 +59,13 @@ Constructors use a **`2`** suffix to avoid clashing with **`DRAW.CIRCLE`** and e
 
 | Constructor | Notes |
 |-------------|--------|
-| **`DRAWCIRCLE2(r#)`**, **`DRAWCIRCLE2W(r#)`** | Circle / circle lines. |
-| **`DRAWELLIPSE2(rx#, ry#)`**, **`DRAWELLIPSE2W`** | Ellipse. |
+| **`DRAWCIRCLE2(r)`**, **`DRAWCIRCLE2W(r)`** | Circle / circle lines. |
+| **`DRAWELLIPSE2(rx, ry)`**, **`DRAWELLIPSE2W`** | Ellipse. |
 | **`DRAWRECT2(w, h)`**, **`DRAWRECT2W`** | Axis-aligned rectangle. |
 | **`DRAWLINE2`** | **`.Pos`** and **`.P2`** for endpoints. |
 | **`DRAWTRI2`**, **`DRAWTRI2W`** | **`.Pos`**, **`.P2`**, **`.P3`** for vertices. |
-| **`DRAWRING2`**, **`DRAWRING2W`** | Ring / ring lines: **`Size(inner#, outer#)`** or **`Ring(inner#, outer#, start#, end#)`**, **`Segs(n)`**, then **`Draw`**. |
-| **`DRAWPOLY2(sides#)`**, **`DRAWPOLY2W(sides#)`** | Regular polygon; **`Size(radius#)`**, **`Sides`**, **`Rot`**, and for wire **`Thick`**. |
+| **`DRAWRING2`**, **`DRAWRING2W`** | Ring / ring lines: **`Size(inner, outer)`** or **`Ring(inner, outer, start, end)`**, **`Segs(n)`**, then **`Draw`**. |
+| **`DRAWPOLY2(sides)`**, **`DRAWPOLY2W(sides)`** | Regular polygon; **`Size(radius)`**, **`Sides`**, **`Rot`**, and for wire **`Thick`**. |
 
 Registry: **`DRAWPRIM2D.*`**. Methods: **`Pos`**, **`Size`** (two floats, or one for circle radius), **`Color`**, **`Outline`**, **`P2`**, **`P3`**, **`Ring`**, **`Segs`**, **`Sides`**, **`Rot`**, **`Thick`**, **`Draw`**, **`Free`**.
 
@@ -75,8 +75,8 @@ Registry: **`DRAWPRIM2D.*`**. Methods: **`Pos`**, **`Size`** (two floats, or one
 
 | Constructor / API | Maps to |
 |-------------------|---------|
-| **`TEXTOBJ(text$)`** | Default font **`DRAW.TEXT`**-style state: **`TEXTDRAW.POS`**, **`SIZE`**, **`COLOR`**, **`SETTEXT`**, **`DRAW`**. |
-| **`TEXTOBJEX(font, text$)`** | **`DRAW.TEXTEX`** via **`TEXTEXOBJ.*`**. |
+| **`TEXTOBJ(text)`** | Default font **`DRAW.TEXT`**-style state: **`TEXTDRAW.POS`**, **`SIZE`**, **`COLOR`**, **`SETTEXT`**, **`DRAW`**. |
+| **`TEXTOBJEX(font, text)`** | **`DRAW.TEXTEX`** via **`TEXTEXOBJ.*`**. |
 | **`DRAWTEX2(tex)`** | **`DRAW.TEXTURE`**-style blit with position + tint (**`DRAWTEX2.*`**). |
 | **`DRAWTEXREC(tex)`** | Sub-rectangle draw (**`DRAW.TEXTUREREC`**): **`Src`**, **`Pos`** (float), **`Color`**, **`Draw`**. |
 | **`DRAWTEXPRO(tex)`** | **`DRAW.TEXTUREPRO`**: **`Src`**, **`Dst`**, **`Origin`**, **`Rot`**, **`Color`**, **`Draw`**. |
@@ -89,7 +89,7 @@ Registry: **`DRAWPRIM2D.*`**. Methods: **`Pos`**, **`Size`** (two floats, or one
 |--------|---------|
 | **`MOUSE()`** | **`DX`**, **`DY`**, **`WHEEL`**, **`DOWN(button)`**, **`PRESSED`**, **`RELEASED`** |
 | **`KEY()`** | **`DOWN(key)`**, **`HIT(key)`**, **`UP(key)`** |
-| **`GAMEPAD()`** | **`AXIS(pad#, axis#)`**, **`BUTTON(pad#, button#)`** |
+| **`GAMEPAD()`** | **`AXIS(pad, axis)`**, **`BUTTON(pad, button)`** |
 
 First **`MOUSE()`** / **`KEY()`** / **`GAMEPAD()`** call allocates a handle; later calls return the same handle (per module). Registry: **`MOUSE.DX`**, **`KEY.DOWN`**, etc.
 

@@ -59,6 +59,9 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 			ch.Emit(opcode.OpStoreGlobal, 0, valReg, 0, idx, n.Line)
 		}
 
+	case *ast.MultiAssignNode:
+		g.emitMultiAssign(ch, n)
+
 	case *ast.NamespaceCallStmt:
 		g.emitNamespaceCallStmt(ch, n)
 
@@ -152,7 +155,7 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 		// For variables, we resolve their slots and emit OpSwap.
 		symA := g.Symbols.Resolve(n.A)
 		symB := g.Symbols.Resolve(n.B)
-		
+
 		// This is tricky if they are mixed local/global.
 		// For now assume locals.
 		if symA != nil && symB != nil && (symA.Kind == symtable.Local || symA.Kind == symtable.Param) && (symB.Kind == symtable.Local || symB.Kind == symtable.Param) {
@@ -167,7 +170,7 @@ func (g *CodeGen) emitStmt(ch *opcode.Chunk, s ast.Stmt) {
 		}
 		r := g.emitLoadNamed(ch, n.Name, n.Line)
 		ch.Emit(opcode.OpDelete, 0, r, 0, 0, n.Line)
-		
+
 		// Set it to null
 		nullReg := g.allocReg()
 		ch.Emit(opcode.OpPushNull, nullReg, 0, 0, 0, n.Line)
@@ -208,7 +211,7 @@ func (g *CodeGen) emitLoadNamed(ch *opcode.Chunk, name string, line int) uint8 {
 		// Already in a register, but we MUST move it to a temporary if it's used in an expression
 		// that might overwrite it (like a Binop reusing the register).
 		// However, for simplicity now, let's just return the slot and be careful in emitExpr.
-		// Wait, emitExpr ALREADY does the OpMove for locals! 
+		// Wait, emitExpr ALREADY does the OpMove for locals!
 		// So emitLoadNamed is usually used by statements that want the value.
 		r := g.allocReg()
 		ch.Emit(opcode.OpMove, r, uint8(sym.Slot), 0, 0, line)
@@ -241,6 +244,19 @@ func (g *CodeGen) emitStoreNamed(ch *opcode.Chunk, name string, line int, src ui
 	ch.Emit(opcode.OpStoreGlobal, 0, src, 0, idx, line)
 }
 
+func (g *CodeGen) emitMultiAssign(ch *opcode.Chunk, n *ast.MultiAssignNode) {
+	g.nextReg = g.baseReg
+	rhs := g.emitExpr(ch, n.Expr)
+	for i, name := range n.Names {
+		idxReg := g.allocReg()
+		ch.Emit(opcode.OpPushInt, idxReg, 0, 0, int32(i+1), n.Line)
+		valReg := g.allocReg()
+		ch.Emit(opcode.OpArrayGet, valReg, rhs, idxReg, 1, n.Line)
+		g.emitStoreNamed(ch, name, n.Line, valReg)
+	}
+	g.nextReg = g.baseReg
+}
+
 func (g *CodeGen) emitIf(ch *opcode.Chunk, n *ast.IfNode) {
 	g.nextReg = g.baseReg
 	condReg := g.emitExpr(ch, n.Cond)
@@ -263,7 +279,7 @@ func (g *CodeGen) emitWhile(ch *opcode.Chunk, n *ast.WhileNode) {
 	condReg := g.emitExpr(ch, n.Cond)
 	exitJump := ch.Emit(opcode.OpJumpIfFalse, 0, condReg, 0, 0, n.Line)
 	g.nextReg = g.baseReg
-	
+
 	g.beginLoop("while", startIdx)
 	for _, st := range n.Body {
 		g.emitStmt(ch, st)
@@ -326,10 +342,10 @@ func (g *CodeGen) emitFor(ch *opcode.Chunk, n *ast.ForNode) {
 		stepReg = g.allocReg()
 		ch.Emit(opcode.OpPushInt, stepReg, 0, 0, idx, n.Line)
 	}
-	
+
 	newVarReg := g.allocReg()
 	ch.Emit(opcode.OpAdd, newVarReg, curVarReg, stepReg, 0, n.Line)
-	
+
 	if sym != nil && (sym.Kind == symtable.Local || sym.Kind == symtable.Param) {
 		ch.Emit(opcode.OpMove, uint8(sym.Slot), newVarReg, 0, 0, n.Line)
 	} else {
@@ -363,10 +379,7 @@ func (g *CodeGen) emitRepeat(ch *opcode.Chunk, n *ast.RepeatNode) {
 
 func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallStmt) {
 	g.nextReg = g.baseReg
-	argStart := g.nextReg
-	for _, a := range n.Args {
-		g.emitExpr(ch, a)
-	}
+	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
 	idx := ch.AddName(n.NS + "." + n.Method)
 	// Statements don't use the result, but builtins expect a Dst. We provide temporary.
@@ -385,9 +398,9 @@ func (g *CodeGen) emitIndexFieldAssign(ch *opcode.Chunk, n *ast.IndexFieldAssign
 	}
 	objReg := g.allocReg()
 	ch.Emit(opcode.OpArrayGet, objReg, arrReg, dimStart, int32(len(n.Index)), n.Line)
-	
+
 	valReg := g.emitExpr(ch, n.Expr)
-	fidx := ch.AddName(n.Field)
+	fidx := ch.AddName(strings.ToUpper(n.Field))
 	ch.Emit(opcode.OpFieldSet, 0, objReg, valReg, fidx, n.Line)
 	g.nextReg = g.baseReg
 }
@@ -396,7 +409,7 @@ func (g *CodeGen) emitFieldAssign(ch *opcode.Chunk, n *ast.FieldAssignNode) {
 	g.nextReg = g.baseReg
 	recReg := g.emitLoadNamed(ch, n.Object, n.Line)
 	valReg := g.emitExpr(ch, n.Expr)
-	fidx := ch.AddName(n.Field)
+	fidx := ch.AddName(strings.ToUpper(n.Field))
 	ch.Emit(opcode.OpFieldSet, 0, recReg, valReg, fidx, n.Line)
 	g.nextReg = g.baseReg
 }
@@ -404,10 +417,7 @@ func (g *CodeGen) emitFieldAssign(ch *opcode.Chunk, n *ast.FieldAssignNode) {
 func (g *CodeGen) emitHandleCallStmt(ch *opcode.Chunk, n *ast.HandleCallStmt) {
 	g.nextReg = g.baseReg
 	recReg := g.emitLoadNamed(ch, n.Receiver, n.Line)
-	argStart := g.nextReg
-	for _, a := range n.Args {
-		g.emitExpr(ch, a)
-	}
+	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
 	midx := ch.AddName(n.Method)
 	dst := g.allocReg() // discard result

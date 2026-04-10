@@ -45,6 +45,8 @@ Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary
 3. Run `go run . --check` on a sample that exercises the change.
 4. Regenerate API docs when the public surface changes: `go run ./tools/apidoc` (updates [`docs/API_CONSISTENCY.md`](docs/API_CONSISTENCY.md)).
 
+**Ease-of-use helpers:** New pattern commands (movement, snapping, camera-relative input, etc.) should complement—not replace—existing `MATH.*` / vector primitives. Naming, tuples, and documentation expectations are summarized in [`docs/EASY_LANGUAGE.md`](docs/EASY_LANGUAGE.md).
+
 ## Architecture
 
 High-level pipeline and layout: [ARCHITECTURE.md](ARCHITECTURE.md). Deeper contributor map: [docs/DEVELOPER.md](docs/DEVELOPER.md).

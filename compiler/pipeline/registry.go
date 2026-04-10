@@ -29,6 +29,7 @@ import (
 	mbevent "moonbasic/runtime/mbevent"
 	mbgame "moonbasic/runtime/mbgame"
 	mbentity "moonbasic/runtime/mbentity"
+	mbcharcontroller "moonbasic/runtime/charcontroller"
 	mbgui "moonbasic/runtime/mbgui"
 	"moonbasic/runtime/mbimage"
 	mblight "moonbasic/runtime/mblight"
@@ -36,6 +37,7 @@ import (
 	mbmatrix "moonbasic/runtime/mbmatrix"
 	mbmem "moonbasic/runtime/mbmem"
 	"moonbasic/runtime/mbmodel3d"
+	mbgrid "moonbasic/runtime/mbgrid"
 	mbnav "moonbasic/runtime/mbnav"
 	mbparticles "moonbasic/runtime/mbparticles"
 	mbpool "moonbasic/runtime/mbpool"
@@ -59,6 +61,7 @@ import (
 	mweather "moonbasic/runtime/weathermod"
 	"moonbasic/runtime/window"
 	worldmgr "moonbasic/runtime/worldmgr"
+	mbplayer "moonbasic/runtime/player"
 	"moonbasic/vm"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -121,6 +124,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbtween.NewModule())
 	reg.RegisterModule(mbevent.NewModule())
 	reg.RegisterModule(mbnav.NewModule())
+	reg.RegisterModule(mbgrid.NewModule())
 	reg.RegisterModule(mblight2d.NewModule())
 	reg.RegisterModule(mbtransition.NewModule())
 	reg.RegisterModule(mbfont.NewModule())
@@ -138,7 +142,8 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(msky.NewModule())
 	reg.RegisterModule(mcloud.NewModule())
 	reg.RegisterModule(mweather.NewModule())
-	reg.RegisterModule(mscatter.NewModule())
+	scatterMod := mscatter.NewModule()
+	reg.RegisterModule(scatterMod)
 	reg.RegisterModule(mbiome.NewModule())
 
 	// Call separate registration functions for physics and networking
@@ -149,11 +154,88 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbcollision.NewModule())
 	reg.RegisterModule(mnoise.NewModule())
 	reg.RegisterModule(mbentity.NewModule())
+	reg.RegisterModule(mbplayer.NewModule())
 	reg.RegisterModule(mbgame.NewModule())
 	reg.RegisterModule(mbblitz.NewModule())
 
 	// Stubs for manifest entries not yet implemented natively
 	reg.RegisterFromManifest(builtinmanifest.Default())
+
+	wireTextureEntity(reg)
+	wirePlayerModules(reg)
+	wireWorldModules(reg)
+	wireGridEntity(reg)
+}
+
+func wireGridEntity(reg *runtime.Registry) {
+	var g *mbgrid.Module
+	var ent *mbentity.Module
+	for _, mod := range reg.Modules {
+		switch t := mod.(type) {
+		case *mbgrid.Module:
+			g = t
+		case *mbentity.Module:
+			ent = t
+		}
+	}
+	if g != nil && ent != nil {
+		g.BindEntity(ent)
+	}
+}
+
+func wireWorldModules(reg *runtime.Registry) {
+	var wm *worldmgr.Module
+	var sc *mscatter.Module
+	for _, mod := range reg.Modules {
+		switch t := mod.(type) {
+		case *worldmgr.Module:
+			wm = t
+		case *mscatter.Module:
+			sc = t
+		}
+	}
+	if wm != nil && sc != nil {
+		wm.BindScatter(sc)
+	}
+}
+
+func wirePlayerModules(reg *runtime.Registry) {
+	var pl *mbplayer.Module
+	var ch *mbcharcontroller.Module
+	var ent *mbentity.Module
+	var wt *mwater.Module
+	for _, mod := range reg.Modules {
+		switch t := mod.(type) {
+		case *mbplayer.Module:
+			pl = t
+		case *mbcharcontroller.Module:
+			ch = t
+		case *mbentity.Module:
+			ent = t
+		case *mwater.Module:
+			wt = t
+		}
+	}
+	if pl != nil {
+		pl.Bind(ch, ent)
+		pl.BindWater(wt)
+	}
+}
+
+func wireTextureEntity(reg *runtime.Registry) {
+	var tex *texture.Module
+	var ent *mbentity.Module
+	for _, mod := range reg.Modules {
+		switch t := mod.(type) {
+		case *texture.Module:
+			tex = t
+		case *mbentity.Module:
+			ent = t
+		}
+	}
+	if tex != nil && ent != nil {
+		ent.BindTextureModule(tex)
+	}
 }
 
 func wireRegistryCallbacks(reg *runtime.Registry, machine *vm.VM) {

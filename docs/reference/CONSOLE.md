@@ -34,8 +34,8 @@ PRINT "Done!"
 
 Prompts the user for text input from the console.
 
-- `prompt$`: The message to display to the user.
-- `default$`: (Optional) The value to return if the user just presses Enter.
+- `prompt`: The message to display to the user.
+- `default`: (Optional) The value to return if the user just presses Enter.
 
 Returns the string entered by the user.
 

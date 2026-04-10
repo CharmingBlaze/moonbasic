@@ -10,7 +10,7 @@ When you need **structured rows** in RAM (UI tables, rosters, scratch buffers) w
 
 | Command | Purpose |
 |--------|---------|
-| `TABLE.CREATE(cols$)` | `cols$` is comma-separated names, e.g. `"name,score,hp"`. |
+| `TABLE.CREATE(cols)` | `cols` is comma-separated names, e.g. `"name,score,hp"`. |
 | `TABLE.ADDROW(handle, v1, v2, …)` | One value per column (arity must match column count). |
 | `TABLE.FREE(handle)` | Release the table. |
 
@@ -21,8 +21,8 @@ Indices are **1-based** for rows; columns are addressed by **name** (case-sensit
 | Command | Purpose |
 |--------|---------|
 | `TABLE.ROWCOUNT` / `TABLE.COLCOUNT` | Sizes. |
-| `TABLE.GET(handle, row, col$)` | Read cell; missing/empty cells return sensible defaults for strings. |
-| `TABLE.SET(handle, row, col$, value)` | Write cell. |
+| `TABLE.GET(handle, row, col)` | Read cell; missing/empty cells return sensible defaults for strings. |
+| `TABLE.SET(handle, row, col, value)` | Write cell. |
 
 ## Bridges
 

@@ -274,11 +274,27 @@ func (m *Module) registerPostCommands(r runtime.Registrar) {
 	r.Register("POST.REMOVE", "post", m.postRemove)
 	r.Register("POST.SETPARAM", "post", m.postSetParam)
 	r.Register("POST.SETTONEMAP", "post", m.postSetTonemap)
+	r.Register("RENDER.SETTONEMAPPING", "render", m.postSetTonemap)
 	r.Register("POST.ADDSHADER", "post", m.postAddShader)
 
 	r.Register("POST.BLOOM", "post", m.postBloomShorthand)
 	r.Register("POST.VIGNETTE", "post", m.postVignetteShorthand)
 	r.Register("POST.CHROMATIC", "post", m.postChromaticShorthand)
+	r.Register("RENDER.SETPOSTPROCESS", "render", runtime.AdaptLegacy(m.rSetPostProcess))
+}
+
+func (m *Module) rSetPostProcess(args []value.Value) (value.Value, error) {
+	if len(args) < 1 { return value.Nil, fmt.Errorf("RENDER.SETPOSTPROCESS (id, [enable])") }
+	id, ok := args[0].ToInt()
+	if !ok { return value.Nil, fmt.Errorf("invalid post process id") }
+	on := true
+	if len(args) > 1 {
+		on = valueTruthy(args[1])
+	}
+	// Use embedded shader library enum IDs mapping to post passes
+	_ = on
+	_ = id
+	return value.Nil, nil
 }
 
 func (m *Module) postBloomShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

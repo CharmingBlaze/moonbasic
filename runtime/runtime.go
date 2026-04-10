@@ -87,6 +87,8 @@ type Registry struct {
 
 	// GamePaused when true makes TIME.DELTA and DT() return 0 (game pause helpers).
 	GamePaused bool
+	// TimeScale scales frame delta (0 = treat as 1). Used by GAME.SETTIMESCALE for slow-mo / fast-forward.
+	TimeScale float64
 	// FrameCount increments once per successful RENDER.FRAME (instant game utilities).
 	FrameCount uint64
 	// DebugMode mirrors pipeline Options.Debug (--info): DEBUG.* draw helpers no-op when false.

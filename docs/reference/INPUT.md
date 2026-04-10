@@ -40,7 +40,7 @@ The registry name is **`INPUT.AXIS`** (see [API_CONSISTENCY.md](../API_CONSISTEN
 
 ### `Input.AxisDeg(negKey, posKey, degreesPerSec#, dt#)` → **float**
 
-Bundled **rotation delta** for this frame: **same result** as **`Input.Axis(negKey, posKey) * DEGPERSEC(degreesPerSec#, dt#)`** — radians to add to a yaw (e.g. **`camYaw#`**). Registry: **`INPUT.AXISDEG`**.
+Bundled **rotation delta** for this frame: **same result** as **`Input.Axis(negKey, posKey) * DEGPERSEC(degreesPerSec, dt)`** — radians to add to a yaw (e.g. **`camYaw`**). Registry: **`INPUT.AXISDEG`**.
 
 ```basic
 camYaw# = camYaw# + Input.AxisDeg(KEY_Q, KEY_E, 77.0, dt#)
@@ -96,6 +96,10 @@ Returns `TRUE` if the specified mouse button is currently being held down.
 
 Returns the current X or Y coordinate of the mouse cursor.
 
+### `Input.MouseWheel()` / `INPUT.MOUSEWHEELMOVE()` / `MouseWheel()`
+
+Returns the **mouse wheel** delta for this frame (implementation follows Raylib). **`Input.MouseWheel`** is a shorter alias for the same behavior as **`INPUT.MOUSEWHEELMOVE`**.
+
 ---
 
 ## Cursor
@@ -135,9 +139,9 @@ The action mapping system is a powerful way to handle input. Instead of checking
 
 First, map physical inputs to action names. This is typically done once at the start of your program.
 
-- `Input.MapKey(action$, key)`: Maps a keyboard key to an action.
-- `Input.MapGamepadButton(action$, gamepad, button)`: Maps a gamepad button.
-- `Input.MapGamepadAxis(action$, gamepad, axis, direction)`: Maps a gamepad axis direction (e.g., left stick up) to an action.
+- `Input.MapKey(action, key)`: Maps a keyboard key to an action.
+- `Input.MapGamepadButton(action, gamepad, button)`: Maps a gamepad button.
+- `Input.MapGamepadAxis(action, gamepad, axis, direction)`: Maps a gamepad axis direction (e.g., left stick up) to an action.
 
 ```basic
 ; Define a "move_right" action for multiple inputs
@@ -150,9 +154,9 @@ Input.MapGamepadButton("move_right", 0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT) ; D-pad
 
 In your main loop, check the state of the action by its name, not the key.
 
-- `Input.ActionDown(action$)`: Returns `TRUE` if any mapped input is currently active (held down).
-- `Input.ActionPressed(action$)`: Returns `TRUE` only on the frame the action was first triggered.
-- `Input.ActionReleased(action$)`: Returns `TRUE` on the frame the action was released.
+- `Input.ActionDown(action)`: Returns `TRUE` if any mapped input is currently active (held down).
+- `Input.ActionPressed(action)`: Returns `TRUE` only on the frame the action was first triggered.
+- `Input.ActionReleased(action)`: Returns `TRUE` on the frame the action was released.
 
 ```basic
 ; In the main loop, check the abstract action

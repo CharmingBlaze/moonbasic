@@ -209,3 +209,33 @@ func (m *Module) entSetAnimIndex(args []value.Value) (value.Value, error) {
 	e.animTime = 0
 	return value.Nil, nil
 }
+
+func (m *Module) entAnimCount(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.ANIMCOUNT expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	return value.FromInt(int64(len(e.modelAnims))), nil
+}
+
+func (m *Module) entAnimIndex(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.ANIMINDEX expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	return value.FromInt(int64(e.animIndex)), nil
+}

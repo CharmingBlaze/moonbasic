@@ -25,7 +25,7 @@ Export your maps in `.tmx` format (XML), place the tileset image next to the
 Loads a Tiled `.tmx` file and its associated tileset image. Returns a handle to
 the tilemap.
 
-- `path$`: Path to the `.tmx` file. The tileset image must be in the same
+- `path`: Path to the `.tmx` file. The tileset image must be in the same
   directory (or the path specified inside the `.tmx`).
 
 ```basic
@@ -64,7 +64,7 @@ Tilemap.Draw(map, -cam_x, -cam_y)
 Draws a single named layer. Use this when you need to draw some layers behind
 the player and others in front.
 
-- `layerName$`: The layer name exactly as it appears in Tiled (e.g. `"ground"`,
+- `layerName`: The layer name exactly as it appears in Tiled (e.g. `"ground"`,
   `"decoration"`).
 
 ```basic

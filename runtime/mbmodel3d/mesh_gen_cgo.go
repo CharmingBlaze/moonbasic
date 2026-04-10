@@ -30,7 +30,7 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		return m.allocMesh(mesh, "MESH.MAKEPOLY")
 	}))
 
-	reg.Register("MESH.MAKEPLANE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakePlane := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -46,9 +46,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshPlane(w, l, int(rx), int(rz))
 		return m.allocMesh(mesh, "MESH.MAKEPLANE")
-	}))
+	}
+	reg.Register("MESH.MAKEPLANE", "mesh", runtime.AdaptLegacy(meshMakePlane))
+	reg.Register("MESH.CREATEPLANE", "mesh", runtime.AdaptLegacy(meshMakePlane))
 
-	reg.Register("MESH.MAKECUBE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeCube := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -63,9 +65,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshCube(w, h, l)
 		return m.allocMesh(mesh, "MESH.MAKECUBE")
-	}))
+	}
+	reg.Register("MESH.MAKECUBE", "mesh", runtime.AdaptLegacy(meshMakeCube))
+	reg.Register("MESH.CREATECUBE", "mesh", runtime.AdaptLegacy(meshMakeCube))
 
-	reg.Register("MESH.MAKESPHERE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeSphere := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -80,7 +84,9 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshSphere(rad, int(rings), int(slices))
 		return m.allocMesh(mesh, "MESH.MAKESPHERE")
-	}))
+	}
+	reg.Register("MESH.MAKESPHERE", "mesh", runtime.AdaptLegacy(meshMakeSphere))
+	reg.Register("MESH.CREATESPHERE", "mesh", runtime.AdaptLegacy(meshMakeSphere))
 
 	reg.Register("MESH.MAKECYLINDER", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {

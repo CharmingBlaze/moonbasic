@@ -26,4 +26,7 @@ func registerWater(m *Module, r runtime.Registrar) {
 	r.Register("WATER.ISUNDER", "water", h("WATER.ISUNDER"))
 	r.Register("WATER.SETSHALLOWCOLOR", "water", h("WATER.SETSHALLOWCOLOR"))
 	r.Register("WATER.SETDEEPCOLOR", "water", h("WATER.SETDEEPCOLOR"))
+	r.Register("WATER.CREATE", "water", h("WATER.CREATE"))
+	r.Register("WATER.SETWAVE", "water", h("WATER.SETWAVE"))
+	r.Register("WATER.SETCOLOR", "water", h("WATER.SETCOLOR"))
 }

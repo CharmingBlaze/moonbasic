@@ -5,8 +5,6 @@ package terrain
 import (
 	"fmt"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
-
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -50,13 +48,15 @@ func (m *Module) terrainModifyHeight(rt *runtime.Runtime, args ...value.Value) (
 	if err != nil {
 		return value.Nil, err
 	}
-	lx := int((float32(wx) - obj.PX) / obj.CellSize)
-	lz := int((float32(wz) - obj.PZ) / obj.CellSize)
+	lx := int((float32(wx) - obj.PX) / (obj.CellSize * obj.scaleXEff()))
+	lz := int((float32(wz) - obj.PZ) / (obj.CellSize * obj.scaleZEff()))
 	if lx < 0 || lz < 0 || lx >= obj.WorldW || lz >= obj.WorldH {
 		return value.Nil, fmt.Errorf("ModifyTerrain: out of grid")
 	}
-	obj.Heights[lz*obj.WorldW+lx] = float32(ht) - obj.PY
-	obj.MaxHeight = maxFloatTerrain(obj.MaxHeight, float32(ht)-obj.PY)
+	sy := obj.scaleYEff()
+	obj.Heights[lz*obj.WorldW+lx] = (float32(ht) - obj.PY) / sy
+	raw := obj.Heights[lz*obj.WorldW+lx]
+	obj.MaxHeight = maxFloatTerrain(obj.MaxHeight, raw)
 	for i := range obj.Chunks {
 		obj.Chunks[i].Dirty = true
 	}
@@ -91,7 +91,7 @@ func (m *Module) terrainWorldToGridX(rt *runtime.Runtime, args ...value.Value) (
 	if err != nil {
 		return value.Nil, err
 	}
-	lx := (float32(wx) - obj.PX) / obj.CellSize
+	lx := (float32(wx) - obj.PX) / (obj.CellSize * obj.scaleXEff())
 	_ = wz
 	return value.FromFloat(float64(lx)), nil
 }
@@ -118,7 +118,7 @@ func (m *Module) terrainWorldToGridZ(rt *runtime.Runtime, args ...value.Value) (
 		return value.Nil, err
 	}
 	_ = wx
-	lz := (float32(wz) - obj.PZ) / obj.CellSize
+	lz := (float32(wz) - obj.PZ) / (obj.CellSize * obj.scaleZEff())
 	return value.FromFloat(float64(lz)), nil
 }
 
@@ -165,61 +165,14 @@ func (m *Module) terrainLoadHeightmap(rt *runtime.Runtime, args ...value.Value) 
 	if len(args) == 2 {
 		_, _ = args[1].ToInt()
 	}
-	im := rl.LoadImage(path)
-	if im == nil || im.Data == nil {
-		return value.Nil, fmt.Errorf("LoadTerrain: failed to load %q", path)
-	}
-	defer rl.UnloadImage(im)
-	w := int(im.Width)
-	h := int(im.Height)
-	if w < 2 || h < 2 {
-		return value.Nil, fmt.Errorf("LoadTerrain: image too small")
-	}
-	cellSize := float32(1)
-	cs := 64
-	cw := (w + cs - 1) / cs
-	ch := (h + cs - 1) / cs
-	t := &TerrainObject{
-		WorldW:        w,
-		WorldH:        h,
-		CellSize:      cellSize,
-		ChunkSize:     cs,
-		ChunkW:        cw,
-		ChunkH:        ch,
-		Heights:       make([]float32, w*h),
-		Chunks:        make([]chunkSlot, cw*ch),
-		StreamEnabled: true,
-		LoadDist:      400,
-		UnloadDist:    600,
-		MaxHeight:     1,
-	}
-	var maxH float32
-	for z := 0; z < h; z++ {
-		for x := 0; x < w; x++ {
-			c := rl.GetImageColor(*im, int32(x), int32(z))
-			v := (float32(c.R) + float32(c.G) + float32(c.B)) / (3.0 * 255.0)
-			hi := v * 100.0
-			t.Heights[z*w+x] = hi
-			if hi > maxH {
-				maxH = hi
-			}
-		}
-	}
-	t.MaxHeight = maxH
-	id, err := m.h.Alloc(t)
-	if err != nil {
-		return value.Nil, err
-	}
-	m.active = id
-	return value.FromHandle(int32(id)), nil
+	return m.loadTerrainFromPaths(path, "")
 }
 
 func (m *Module) terrainDetailStub(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) < 2 || len(args) > 3 {
 		return value.Nil, fmt.Errorf("TerrainDetail expects (terrain, detailLevel# [, morph#])")
 	}
-	_, _ = rt, args
-	return value.Nil, nil
+	return terrainSetDetail(m, rt, args[0], args[1])
 }
 
 func (m *Module) terrainShadingStub(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

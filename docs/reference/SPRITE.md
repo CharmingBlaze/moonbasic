@@ -8,6 +8,8 @@ Registry keys use **dots and uppercase** (e.g. `SPRITE.LOAD`). This document use
 
 **Related:** [ATLAS.md](ATLAS.md) (`ATLAS.LOAD`, `ATLAS.GETSPRITE`, `ATLAS.FREE`), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
 
+**Blitz-style “sprite collide”:** there is no separate **`Sprite.Collide`** name — use **`SPRITE.HIT`** / **`SPRITE.POINTHIT`** (bounding-box style tests). For pixel-perfect work, use **`IMAGE.*`** CPU pixels or custom overlap — see table below and [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md).
+
 ---
 
 ### Sprite.Load
@@ -22,7 +24,7 @@ Loads an image file from disk (**PNG**, **JPG**, etc.). Returns a **sprite handl
 
 | Name | Type | Description |
 |---|---|---|
-| path$ | string | Path to image file. |
+| path | string | Path to image file. |
 
 **Returns** — handle.
 
@@ -90,9 +92,9 @@ SPRITE.PLAYANIM(spr, name$)
 SPRITE.UPDATEANIM(spr, dt#)
 ```
 
-**Strip mode:** **`frameCount$`** is a **decimal string** (e.g. `"4"`) = equal-width frames in **one row** inside the texture. Frame width = region width ÷ frame count.
+**Strip mode:** **`frameCount`** is a **decimal string** (e.g. `"4"`) = equal-width frames in **one row** inside the texture. Frame width = region width ÷ frame count.
 
-**`SPRITE.PLAYANIM`** accepts **`name$`** for API symmetry; the strip player does not use distinct names yet.
+**`SPRITE.PLAYANIM`** accepts **`name`** for API symmetry; the strip player does not use distinct names yet.
 
 **`SPRITE.UPDATEANIM`** advances time using internal FPS (default **8**). Pass **`TIME.DELTA()`** each frame.
 
@@ -129,7 +131,7 @@ Groups are **named by handle**, not by string. **`SPRITEGROUP.MAKE`** takes **no
 | `SPRITEGROUP.DRAW` | `(group, x, y)` | Draw each member at base **`(x,y)`** + **`SETPOS`**. |
 | `SPRITEGROUP.FREE` | `(group)` | Frees **only** the group object (not member sprites). |
 
-> **Spec note:** Some docs describe **`SpriteGroup.Make(name$)`** — in moonBASIC the group is a **handle**; use your own string table if you need names.
+> **Spec note:** Some docs describe **`SpriteGroup.Make(name)`** — in moonBASIC the group is a **handle**; use your own string table if you need names.
 
 ---
 
@@ -137,10 +139,10 @@ Groups are **named by handle**, not by string. **`SPRITEGROUP.MAKE`** takes **no
 
 | Command | Signature | Notes |
 |---|---|---|
-| `SPRITELAYER.MAKE` | `(z#)` → handle | **`z#`** stored for your sorting; draw order is under your control. |
+| `SPRITELAYER.MAKE` | `(z)` → handle | **`z`** stored for your sorting; draw order is under your control. |
 | `SPRITELAYER.ADD` | `(layer, spr)` | |
 | `SPRITELAYER.CLEAR` | `(layer)` | Remove all members. |
-| `SPRITELAYER.SETZ` | `(layer, z#)` | Update stored **z**. |
+| `SPRITELAYER.SETZ` | `(layer, z)` | Update stored **z**. |
 | `SPRITELAYER.DRAW` | `(layer, x, y)` | Same base position semantics as group draw. |
 | `SPRITELAYER.FREE` | `(layer)` | Frees layer only. |
 
@@ -181,8 +183,8 @@ CPU-side **circles** (no texture). **`PARTICLE2D.MAKE(max, r, g, b, a)`** sets p
 | Command | Arguments |
 |---|---|
 | `PARTICLE2D.MAKE` | `(max, r, g, b, a)` |
-| `PARTICLE2D.EMIT` | `(p, x, y, vx, vy, life#)` |
-| `PARTICLE2D.UPDATE` | `(p, dt#)` |
+| `PARTICLE2D.EMIT` | `(p, x, y, vx, vy, life)` |
+| `PARTICLE2D.UPDATE` | `(p, dt)` |
 | `PARTICLE2D.DRAW` | `(p)` |
 | `PARTICLE2D.FREE` | `(p)` |
 

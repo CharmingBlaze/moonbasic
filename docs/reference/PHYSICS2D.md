@@ -46,14 +46,14 @@ Sets Box2D solver iterations (defaults **8** velocity, **3** position). Lower va
 
 ### 1. `Body2D.Make(type$)`
 
-Creates a body definition. `type$` can be `"static"`, `"dynamic"`, or `"kinematic"`.
+Creates a body definition. `type` can be `"static"`, `"dynamic"`, or `"kinematic"`.
 
 ### 2. `Body2D.AddShape(...)`
 
 Adds a collision shape to the definition.
 
-- `Body2D.AddRect(bodyDefHandle, width#, height#)`
-- `Body2D.AddCircle(bodyDefHandle, radius#)`
+- `Body2D.AddRect(bodyDefHandle, width, height)`
+- `Body2D.AddCircle(bodyDefHandle, radius)`
 
 ### 3. `Body2D.Commit(bodyDefHandle, x#, y#)`
 

@@ -15,6 +15,9 @@ func TestChunkEmit(t *testing.T) {
 	if len(c.Instructions) != 1 {
 		t.Fatal("expected 1 instr")
 	}
+	if len(c.ArrayDebugName) != 1 || c.ArrayDebugName[0] != -1 {
+		t.Fatalf("ArrayDebugName: got %v", c.ArrayDebugName)
+	}
 	if c.Instructions[0].Op != OpPushInt {
 		t.Fatal("wrong opcode")
 	}

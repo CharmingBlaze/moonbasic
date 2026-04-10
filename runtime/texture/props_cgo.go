@@ -20,6 +20,8 @@ func registerTexturePropCmds(m *Module, r runtime.Registrar) {
 	r.Register("TEXTUREWIDTH", "texture", runtime.AdaptLegacy(m.texWidth))   // Blitz-style flat alias
 	r.Register("TEXTUREHEIGHT", "texture", runtime.AdaptLegacy(m.texHeight)) // Blitz-style flat alias
 	r.Register("TEXTURE.SETFILTER", "texture", runtime.AdaptLegacy(m.texSetFilter))
+	r.Register("TEXTURE.SETDEFAULTFILTER", "texture", runtime.AdaptLegacy(m.texSetDefaultFilter))
+	r.Register("MATERIAL.AUTOFILTER", "entity", runtime.AdaptLegacy(m.texSetDefaultFilter))
 	r.Register("TEXTURE.SETWRAP", "texture", runtime.AdaptLegacy(m.texSetWrap))
 	r.Register("TEXTURE.UPDATE", "texture", runtime.AdaptLegacy(m.texUpdate))
 }
@@ -38,6 +40,17 @@ func (m *Module) texHeight(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromInt(int64(t.Height)), nil
+}
+
+func (m *Module) texSetDefaultFilter(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TEXTURE.SETDEFAULTFILTER expects (filterMode) — use FILTER_POINT, FILTER_BILINEAR, etc.; pass -1 to clear")
+	}
+	if i, ok := args[0].ToInt(); ok {
+		defaultTexFilter = int32(i)
+		return value.Nil, nil
+	}
+	return value.Nil, fmt.Errorf("TEXTURE.SETDEFAULTFILTER: filter must be numeric")
 }
 
 func (m *Module) texSetFilter(args []value.Value) (value.Value, error) {

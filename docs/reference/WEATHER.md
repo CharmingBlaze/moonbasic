@@ -10,9 +10,9 @@ Combined **weather state** (type, coverage), **distance fog** parameters stored 
 |--------|------|
 | `Weather.Make()` | Creates a weather controller handle. |
 | `Weather.Free(weather)` | Frees it. |
-| `Weather.Update(weather, dt#)` | Per-frame update. |
+| `Weather.Update(weather, dt)` | Per-frame update. |
 | `Weather.Draw(weather)` | Draw pass (particles/effects as implemented). |
-| `Weather.SetType(weather, name$)` | Sets named preset (e.g. `"clear"`, `"rain"` — see runtime). |
+| `Weather.SetType(weather, name)` | Sets named preset (e.g. `"clear"`, `"rain"` — see runtime). |
 | `Weather.GetCoverage(weather)` | Normalized coverage **0–1**. |
 | `Weather.GetType(weather)` | Current type string. |
 
@@ -22,8 +22,8 @@ Combined **weather state** (type, coverage), **distance fog** parameters stored 
 
 | Command | Role |
 |--------|------|
-| `Fog.Enable(enabled?)` | Turns fog application on/off where supported. |
-| `Fog.SetNear(near#)` / `Fog.SetFar(far#)` | Distance fog start/end. |
+| `Fog.Enable(enabled, optional)` | Turns fog application on/off where supported. |
+| `Fog.SetNear(near)` / `Fog.SetFar(far)` | Distance fog start/end. |
 | `Fog.SetColor(r, g, b, a)` | Fog color components **0–255**. |
 
 **Common mistake:** Expecting **`FOG`** to duplicate **`Render`** fog APIs — this namespace is **weather-scoped** state; combine with your render pipeline as documented in runtime.
@@ -34,7 +34,7 @@ Combined **weather state** (type, coverage), **distance fog** parameters stored 
 
 | Command | Role |
 |--------|------|
-| `Wind.Set(strength#, dx#, dz#)` | Sets wind **strength** and a horizontal direction on the XZ plane (components need not be normalized). |
+| `Wind.Set(strength, dx, dz)` | Sets wind **strength** and a horizontal direction on the XZ plane (components need not be normalized). |
 | `Wind.GetStrength()` | Reads current strength. |
 
 ---

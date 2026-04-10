@@ -63,6 +63,143 @@ func newLightWithKind(kind string) *lightObj {
 	}
 }
 
+func (m *Module) lightCreatePoint(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.CREATEPOINT: heap not bound")
+	}
+	if len(args) != 7 {
+		return value.Nil, fmt.Errorf("LIGHT.CREATEPOINT expects (x#, y#, z#, r#, g#, b#, energy#)")
+	}
+	x, ok1 := argF32(args[0])
+	y, ok2 := argF32(args[1])
+	z, ok3 := argF32(args[2])
+	rf, ok4 := argF32(args[3])
+	gf, ok5 := argF32(args[4])
+	bf, ok6 := argF32(args[5])
+	en, ok7 := argF32(args[6])
+	if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 || !ok7 {
+		return value.Nil, fmt.Errorf("LIGHT.CREATEPOINT: arguments must be numeric")
+	}
+	o := newLightWithKind("point")
+	id, err := m.h.Alloc(o)
+	if err != nil {
+		return value.Nil, err
+	}
+	o.self = id
+	o.posX, o.posY, o.posZ = x, y, z
+	if rf > 1 || gf > 1 || bf > 1 {
+		o.r = rf / 255
+		o.g = gf / 255
+		o.b = bf / 255
+	} else {
+		o.r, o.g, o.b = rf, gf, bf
+	}
+	o.colA = 1
+	o.intensity = en
+	if o.intensity < 0 {
+		o.intensity = 0
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) lightCreateDirectional(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.CREATEDIRECTIONAL: heap not bound")
+	}
+	if len(args) != 7 {
+		return value.Nil, fmt.Errorf("LIGHT.CREATEDIRECTIONAL expects (dx#, dy#, dz#, r#, g#, b#, energy#)")
+	}
+	dx, ok1 := argF32(args[0])
+	dy, ok2 := argF32(args[1])
+	dz, ok3 := argF32(args[2])
+	rf, ok4 := argF32(args[3])
+	gf, ok5 := argF32(args[4])
+	bf, ok6 := argF32(args[5])
+	en, ok7 := argF32(args[6])
+	if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 || !ok7 {
+		return value.Nil, fmt.Errorf("LIGHT.CREATEDIRECTIONAL: arguments must be numeric")
+	}
+	o := newLightWithKind("directional")
+	id, err := m.h.Alloc(o)
+	if err != nil {
+		return value.Nil, err
+	}
+	o.self = id
+	o.dirX, o.dirY, o.dirZ = normalizeDir3(dx, dy, dz)
+	if rf > 1 || gf > 1 || bf > 1 {
+		o.r = rf / 255
+		o.g = gf / 255
+		o.b = bf / 255
+	} else {
+		o.r, o.g, o.b = rf, gf, bf
+	}
+	o.colA = 1
+	o.intensity = en
+	if o.intensity < 0 {
+		o.intensity = 0
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) lightCreateSpot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.CREATESPOT: heap not bound")
+	}
+	if len(args) != 11 {
+		return value.Nil, fmt.Errorf("LIGHT.CREATESPOT expects (x#, y#, z#, tx#, ty#, tz#, r#, g#, b#, outerConeDeg#, energy#)")
+	}
+	x, ok1 := argF32(args[0])
+	y, ok2 := argF32(args[1])
+	z, ok3 := argF32(args[2])
+	tx, ok4 := argF32(args[3])
+	ty, ok5 := argF32(args[4])
+	tz, ok6 := argF32(args[5])
+	rf, ok7 := argF32(args[6])
+	gf, ok8 := argF32(args[7])
+	bf, ok9 := argF32(args[8])
+	cone, ok10 := argF32(args[9])
+	en, ok11 := argF32(args[10])
+	if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 || !ok7 || !ok8 || !ok9 || !ok10 || !ok11 {
+		return value.Nil, fmt.Errorf("LIGHT.CREATESPOT: arguments must be numeric")
+	}
+	o := newLightWithKind("spot")
+	id, err := m.h.Alloc(o)
+	if err != nil {
+		return value.Nil, err
+	}
+	o.self = id
+	o.posX, o.posY, o.posZ = x, y, z
+	o.targetX, o.targetY, o.targetZ = tx, ty, tz
+	ddx := tx - x
+	ddy := ty - y
+	ddz := tz - z
+	o.dirX, o.dirY, o.dirZ = normalizeDir3(ddx, ddy, ddz)
+	if cone < 0.5 {
+		cone = 0.5
+	}
+	if cone > 89 {
+		cone = 89
+	}
+	o.outerConeDeg = cone
+	o.innerConeDeg = cone * 0.85
+	if o.innerConeDeg < 0.5 {
+		o.innerConeDeg = 0.5
+	}
+	if rf > 1 || gf > 1 || bf > 1 {
+		o.r = rf / 255
+		o.g = gf / 255
+		o.b = bf / 255
+	} else {
+		o.r, o.g, o.b = rf, gf, bf
+	}
+	o.colA = 1
+	o.intensity = en
+	if o.intensity < 0 {
+		o.intensity = 0
+	}
+	return value.FromHandle(id), nil
+}
+
 func (m *Module) lightMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, runtime.Errorf("LIGHT.MAKE: heap not bound")

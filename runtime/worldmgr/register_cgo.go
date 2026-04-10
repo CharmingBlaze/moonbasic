@@ -6,17 +6,32 @@ import (
 	"fmt"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbentity"
+	scat "moonbasic/runtime/scatter"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
 func registerWorld(m *Module, r runtime.Registrar) {
 	r.Register("WORLD.SETCENTER", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldSetCenter(m, rt, args...) })
+	r.Register("WORLD.SETCENTERENTITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldSetCenterEntity(m, rt, args...) })
 	r.Register("WORLD.UPDATE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldUpdate(m, rt, args...) })
 	r.Register("WORLD.STREAMENABLE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldStreamEnable(m, rt, args...) })
 	r.Register("WORLD.PRELOAD", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldPreload(m, rt, args...) })
 	r.Register("WORLD.STATUS", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldStatus(m, rt, args...) })
 	r.Register("WORLD.ISREADY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldIsReady(m, rt, args...) })
+	r.Register("WORLD.SETVEGETATION", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldSetVegetation(m, rt, args...) })
+
+	r.Register("WORLD.SETREFLECTION", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("WORLD.SETREFLECTION expects (entity#)")
+		}
+		_, err := rt.ArgInt(args, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.Nil, fmt.Errorf("WORLD.SETREFLECTION: reflection probe capture not implemented yet (deferred renderer / cubemap)")
+	})
 
 	r.Register("WORLD.FOGMODE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
@@ -101,6 +116,22 @@ func worldSetCenter(m *Module, rt *runtime.Runtime, args ...value.Value) (value.
 	return value.Nil, nil
 }
 
+func worldSetCenterEntity(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("WORLD.SETCENTERENTITY expects entity#")
+	}
+	id, err := rt.ArgInt(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	x, z, err := mbentity.EntityWorldXZ(m.h, id)
+	if err != nil {
+		return value.Nil, err
+	}
+	m.terr.SetCenter(x, z)
+	return value.Nil, nil
+}
+
 func worldUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("WORLD.UPDATE expects dt#")
@@ -160,4 +191,38 @@ func worldIsReady(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	return value.FromBool(m.terr.IsReadyTerrain(heap.Handle(h))), nil
+}
+
+func worldSetVegetation(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("WORLD.SETVEGETATION: heap not bound")
+	}
+	if m.scat == nil {
+		return value.Nil, fmt.Errorf("WORLD.SETVEGETATION: scatter module not wired (internal)")
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("WORLD.SETVEGETATION expects (terrain#, billboard#, density#)")
+	}
+	ht, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	if _, err := rt.ArgHandle(args, 1); err != nil {
+		return value.Nil, err
+	}
+	den, err := rt.ArgFloat(args, 2)
+	if err != nil {
+		return value.Nil, err
+	}
+	if m.vegScatter == 0 {
+		id, err := m.h.Alloc(&scat.ScatterObject{Name: "world_vegetation", Seed: 0x5EED})
+		if err != nil {
+			return value.Nil, err
+		}
+		m.vegScatter = id
+	}
+	if err := m.scat.ApplyToTerrain(m.vegScatter, heap.Handle(ht), den); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
 }

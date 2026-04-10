@@ -1,6 +1,6 @@
 # Utility and filesystem (`UTIL.*`)
 
-Cross-platform **path and file helpers** under the `UTIL.` namespace. Many operations mirror the global names documented in [FILE.md](FILE.md) (`FILEEXISTS`, `READALLTEXT$`, …); `UTIL.*` exists for consistent `Module.Command` style and for a few **window-only** helpers.
+Cross-platform **path and file helpers** under the `UTIL.` namespace. Many operations mirror the global names documented in [FILE.md](FILE.md) (`FILEEXISTS`, `READALLTEXT`, …); `UTIL.*` exists for consistent `Module.Command` style and for a few **window-only** helpers.
 
 Implemented in `runtime/mbutil`.
 
@@ -10,14 +10,14 @@ Implemented in `runtime/mbutil`.
 
 | Command | Returns | Notes |
 |---------|---------|------|
-| `Util.FileExists(path$)` | bool | |
-| `Util.IsDir(path$)` | bool | |
-| `Util.GetFileExt(path$)` | string | Includes the dot (e.g. `.png`). |
-| `Util.GetFileName(path$)` | string | Final path segment. |
-| `Util.GetFileNameNoExt(path$)` | string | Base name without extension. |
-| `Util.GetFilePath(path$)` | string | Directory portion. |
-| `Util.GetFileSize(path$)` | int | `0` if stat fails. |
-| `Util.GetFileModTime(path$)` | int | **Unix seconds** since epoch; `0` if stat fails. |
+| `Util.FileExists(path)` | bool | |
+| `Util.IsDir(path)` | bool | |
+| `Util.GetFileExt(path)` | string | Includes the dot (e.g. `.png`). |
+| `Util.GetFileName(path)` | string | Final path segment. |
+| `Util.GetFileNameNoExt(path)` | string | Base name without extension. |
+| `Util.GetFilePath(path)` | string | Directory portion. |
+| `Util.GetFileSize(path)` | int | `0` if stat fails. |
+| `Util.GetFileModTime(path)` | int | **Unix seconds** since epoch; `0` if stat fails. |
 
 ---
 
@@ -25,7 +25,7 @@ Implemented in `runtime/mbutil`.
 
 ### `Util.LoadText(path$)` → string
 
-Reads the entire file as UTF-8/text (same idea as `READALLTEXT$`).
+Reads the entire file as UTF-8/text (same idea as `READALLTEXT`).
 
 ### `Util.SaveText(path$, text$)`
 
@@ -37,10 +37,10 @@ Writes a file, replacing contents.
 
 | Command | Returns / behavior |
 |---------|---------------------|
-| `Util.GetDirFiles(dir$)` | **JSON array string** of **all** entry names in the directory (files and subdirs), from `os.ReadDir`. |
-| `Util.ChangeDir(path$)` | **Bool** — `TRUE` if `chdir` succeeded. |
-| `Util.MakeDirectory(path$)` | **Bool** — `TRUE` if `MkdirAll` succeeded. |
-Current working directory and subdirectory listing use the global names **`GETDIR$`** and **`GETDIRS$`** (same implementation in `mbutil`; see [FILE.md](FILE.md)), not `UTIL.*` prefixes in the manifest.
+| `Util.GetDirFiles(dir)` | **JSON array string** of **all** entry names in the directory (files and subdirs), from `os.ReadDir`. |
+| `Util.ChangeDir(path)` | **Bool** — `TRUE` if `chdir` succeeded. |
+| `Util.MakeDirectory(path)` | **Bool** — `TRUE` if `MkdirAll` succeeded. |
+Current working directory and subdirectory listing use the global names **`GETDIR`** and **`GETDIRS`** (same implementation in `mbutil`; see [FILE.md](FILE.md)), not `UTIL.*` prefixes in the manifest.
 
 ---
 

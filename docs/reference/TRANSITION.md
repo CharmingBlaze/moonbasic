@@ -24,7 +24,7 @@ Fades the overlay **in** (blocking the view) or **out** (revealing the scene). D
 
 ### `Transition.Wipe(direction$, seconds#)`
 
-Wipe overlay using the current transition **color**. `direction$` (case-insensitive):
+Wipe overlay using the current transition **color**. `direction` (case-insensitive):
 
 - `left` — bar grows from the left edge.
 - `right` — from the right.

@@ -86,6 +86,71 @@ func (m *Module) registerAngleInterp(r runtime.Registrar) {
 		}
 		return value.FromFloat(wrapRL55(v, min, max)), nil
 	})
+	regFlat("LERPANGLE", "MATH.LERPANGLE", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, errNArgs(3, len(args))
+		}
+		a, _ := args[0].ToFloat()
+		b, _ := args[1].ToFloat()
+		t, _ := args[2].ToFloat()
+		// Shortest-path interpolation in radians (typical game yaw/pitch).
+		diff := math.Atan2(math.Sin(b-a), math.Cos(b-a))
+		return value.FromFloat(a + diff*t), nil
+	})
+	regFlat("APPROACH", "MATH.APPROACH", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, errNArgs(3, len(args))
+		}
+		cur, _ := args[0].ToFloat()
+		target, _ := args[1].ToFloat()
+		maxStep, _ := args[2].ToFloat()
+		if maxStep < 0 {
+			maxStep = -maxStep
+		}
+		return value.FromFloat(approachRL(cur, target, maxStep)), nil
+	})
+	r.Register("MOVE.TOWARD", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, errNArgs(3, len(args))
+		}
+		cur, _ := args[0].ToFloat()
+		target, _ := args[1].ToFloat()
+		maxStep, _ := args[2].ToFloat()
+		if maxStep < 0 {
+			maxStep = -maxStep
+		}
+		return value.FromFloat(approachRL(cur, target, maxStep)), nil
+	})
+	r.Register("MOVE.LERP", "math", threeFloat(lerpRL55))
+	r.Register("ANGLE.DIFFERENCE", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 2 {
+			return value.Nil, errNArgs(2, len(args))
+		}
+		a, _ := args[0].ToFloat()
+		b, _ := args[1].ToFloat()
+		return value.FromFloat(angleDiffDeg(a, b)), nil
+	})
+}
+
+func approachRL(cur, target, maxStep float64) float64 {
+	if maxStep == 0 {
+		return cur
+	}
+	if target > cur {
+		d := target - cur
+		if d <= maxStep {
+			return target
+		}
+		return cur + maxStep
+	}
+	if target < cur {
+		d := cur - target
+		if d <= maxStep {
+			return target
+		}
+		return cur - maxStep
+	}
+	return cur
 }
 
 func wrapAngle360(a float64) float64 {

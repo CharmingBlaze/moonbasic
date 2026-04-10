@@ -8,8 +8,8 @@ Commands for loading and using custom shaders.
 
 Loads a GLSL vertex and fragment shader from files. Returns a handle to the shader program.
 
-- `vertexPath$`: Path to the vertex shader file (`.vs`).
-- `fragmentPath$`: Path to the fragment shader file (`.fs`).
+- `vertexPath`: Path to the vertex shader file (`.vs`).
+- `fragmentPath`: Path to the fragment shader file (`.fs`).
 
 ---
 
@@ -30,11 +30,11 @@ Uniform names are **string** arguments (bytecode string table).
 | Command | Purpose |
 |--------|---------|
 | `Shader.Free(shader)` | Unloads shader GPU program (heap handle). |
-| `Shader.GetLoc(shader, name$)` | Raylib location index (`int`). |
-| `Shader.SetFloat(shader, name$, value#)` | |
+| `Shader.GetLoc(shader, name)` | Raylib location index (`int`). |
+| `Shader.SetFloat(shader, name, value)` | |
 | `Shader.SetVec2` / `SetVec3` / `SetVec4` | Name + float components. |
-| `Shader.SetInt(shader, name$, value)` | |
-| `Shader.SetTexture(shader, name$, textureHandle)` | Binds a `TEXTURE` heap handle. |
+| `Shader.SetInt(shader, name, value)` | |
+| `Shader.SetTexture(shader, name, textureHandle)` | Binds a `TEXTURE` heap handle. |
 
 ```basic
 sh = Shader.Load("custom.vs", "custom.fs")

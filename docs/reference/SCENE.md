@@ -2,6 +2,8 @@
 
 Registers **named scenes** backed by user **`FUNCTION`** loaders, optional **per-frame update/draw** hooks, and optional **transitions** when switching scenes. Implemented in `runtime/mbscene`.
 
+> **Note:** This module is **not** a glTF level loader. For the roadmap toward Blender → scoped scene graph, deduplicated assets, and Jolt buffer integration, see [SCENE_ENGINE_BRIEF.md](SCENE_ENGINE_BRIEF.md).
+
 The module must receive a **user-function invoker** from the host (same mechanism as tweens and behavior trees): without it, loads fail.
 
 ---
@@ -16,7 +18,7 @@ Maps a string id (stored uppercase) to the **name of a parameterless user functi
 
 Sets global names for:
 
-- **Update** — called as `update(dt#)` with delta time in seconds.
+- **Update** — called as `update(dt)` with delta time in seconds.
 - **Draw** — called with **no arguments** once per frame after transition polling.
 
 Names are folded to uppercase.
@@ -34,8 +36,8 @@ Names are folded to uppercase.
 
 Starts a transition **out**, then loads the scene when the transition completes, then optionally fades **in**:
 
-- `kind$` — `"fade"` or `"wipe"` (case-insensitive).
-- `duration#` — seconds, must be positive.
+- `kind` — `"fade"` or `"wipe"` (case-insensitive).
+- `duration` — seconds, must be positive.
 
 Uses [TRANSITION](TRANSITION.md) (`TRANSITION.FADEOUT`, `TRANSITION.WIPE`, `TRANSITION.FADEIN`, `TRANSITION.ISDONE`). Requires an active runtime registry so `TRANSITION.*` can be invoked.
 

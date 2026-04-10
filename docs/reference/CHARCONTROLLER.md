@@ -2,6 +2,8 @@
 
 Commands for creating and managing a kinematic character controller for 3D worlds. This provides a way to handle player movement that is driven by input rather than physics forces, while still respecting the collision geometry of the world.
 
+For an **entity-based** wrapper (**`PLAYER.CREATE`**, **`PLAYER.MOVE`**, look targets, tag queries), see [PLAYER.md](PLAYER.md).
+
 ## Core Workflow
 
 1.  **Start Physics**: The character controller relies on the 3D physics world. Start it with `Physics3D.Start()`.
@@ -15,8 +17,8 @@ Commands for creating and managing a kinematic character controller for 3D world
 
 Creates a new virtual character controller with a capsule shape.
 
-- `radius#`, `height#`: The dimensions of the capsule.
-- `x#`, `y#`, `z#`: The initial position of the controller.
+- `radius`, `height`: The dimensions of the capsule.
+- `x`, `y`, `z`: The initial position of the controller.
 
 Returns a handle to the controller.
 
@@ -27,7 +29,7 @@ Returns a handle to the controller.
 Updates the character's position based on a desired velocity or displacement vector. The controller will handle collisions with the physics world.
 
 - `handle`: The handle of the character controller.
-- `dx#`, `dy#`, `dz#`: The desired change in position for this frame.
+- `dx`, `dy`, `dz`: The desired change in position for this frame.
 
 ---
 

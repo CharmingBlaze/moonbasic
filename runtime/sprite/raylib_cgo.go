@@ -24,6 +24,8 @@ type spriteObj struct {
 	atlasRegionH int32
 
 	x, y      float32
+	originX   float32
+	originY   float32
 	frameW    int32
 	frameH    int32
 	numFrames int
@@ -31,6 +33,13 @@ type spriteObj struct {
 	playing   bool
 	fps       float32
 	accum     float32
+
+	rangeStart   int
+	rangeEnd     int
+	rangeSpeed   float32
+	rangeLoop    bool
+	rangePlaying bool
+	rangeAccum   float32
 
 	anim *animMachine
 
@@ -76,6 +85,29 @@ func argF(v value.Value) (float32, bool) {
 	return 0, false
 }
 
+func argSpriteInt(v value.Value) (int, bool) {
+	if i, ok := v.ToInt(); ok {
+		return int(i), true
+	}
+	if f, ok := v.ToFloat(); ok {
+		return int(f), true
+	}
+	return 0, false
+}
+
+func argBool(v value.Value) (bool, bool) {
+	if v.Kind == value.KindBool {
+		return v.IVal != 0, true
+	}
+	if i, ok := v.ToInt(); ok {
+		return i != 0, true
+	}
+	if f, ok := v.ToFloat(); ok {
+		return f != 0, true
+	}
+	return false, false
+}
+
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.LOAD", "sprite", m.spLoad)
@@ -85,6 +117,9 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.DEFANIM", "sprite", m.spDefAnim)
 	reg.Register("SPRITE.PLAYANIM", "sprite", m.spPlayAnim)
 	reg.Register("SPRITE.UPDATEANIM", "sprite", m.spUpdateAnim)
+	reg.Register("SPRITE.SETFRAME", "sprite", m.spSetFrame)
+	reg.Register("SPRITE.PLAY", "sprite", m.spPlayRange)
+	reg.Register("SPRITE.SETORIGIN", "sprite", m.spSetOrigin)
 	reg.Register("SPRITE.HIT", "sprite", m.spHit)
 	reg.Register("SPRITECOLLIDE", "sprite", m.spHit)
 	reg.Register("SPRITE.POINTHIT", "sprite", m.spPointHit)
@@ -176,7 +211,7 @@ func (m *Module) drawSpriteAtScreen(s *spriteObj, screenX, screenY int32) error 
 		Width:  float32(s.frameW),
 		Height: float32(s.frameH),
 	}
-	pos := rl.Vector2{X: float32(screenX) + s.x, Y: float32(screenY) + s.y}
+	pos := rl.Vector2{X: float32(screenX) + s.x - s.originX, Y: float32(screenY) + s.y - s.originY}
 	tint := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	rl.DrawTextureRec(s.tex, rec, pos, tint)
 	return nil
@@ -259,6 +294,104 @@ func (m *Module) spPlayAnim(rt *runtime.Runtime, args ...value.Value) (value.Val
 	return value.Nil, nil
 }
 
+func (m *Module) spSetFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("SPRITE.SETFRAME expects 2 arguments (handle, frameIndex)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETFRAME: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	idx, ok := argSpriteInt(args[1])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETFRAME: frame index must be numeric")
+	}
+	if s.numFrames > 0 {
+		if idx < 0 {
+			idx = 0
+		}
+		if idx >= s.numFrames {
+			idx = s.numFrames - 1
+		}
+	}
+	s.curFrame = idx
+	s.rangePlaying = false
+	return value.Nil, nil
+}
+
+func (m *Module) spPlayRange(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 5 {
+		return value.Nil, fmt.Errorf("SPRITE.PLAY expects 5 arguments (handle, start#, end#, speed#, loop)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.PLAY: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	start, ok1 := argSpriteInt(args[1])
+	end, ok2 := argSpriteInt(args[2])
+	speed, ok3 := argF(args[3])
+	loop, ok4 := argBool(args[4])
+	if !ok1 || !ok2 || !ok3 || !ok4 {
+		return value.Nil, fmt.Errorf("SPRITE.PLAY: start, end, speed, and loop must be valid")
+	}
+	if start > end {
+		start, end = end, start
+	}
+	if s.numFrames > 0 {
+		if start < 0 {
+			start = 0
+		}
+		if end >= s.numFrames {
+			end = s.numFrames - 1
+		}
+		if start > end {
+			start = end
+		}
+	}
+	s.rangeStart = start
+	s.rangeEnd = end
+	s.rangeSpeed = speed
+	s.rangeLoop = loop
+	s.rangeAccum = 0
+	s.rangePlaying = true
+	s.playing = false
+	s.curFrame = start
+	return value.Nil, nil
+}
+
+func (m *Module) spSetOrigin(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("SPRITE.SETORIGIN expects 3 arguments (handle, originX#, originY#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETORIGIN: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	ox, ok1 := argF(args[1])
+	oy, ok2 := argF(args[2])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("SPRITE.SETORIGIN: origin must be numeric")
+	}
+	s.originX = ox
+	s.originY = oy
+	return value.Nil, nil
+}
+
 func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
@@ -277,6 +410,25 @@ func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("SPRITE.UPDATEANIM: delta must be numeric")
 	}
 	if s.anim != nil {
+		return value.Nil, nil
+	}
+	if s.rangePlaying {
+		if s.rangeSpeed <= 0 {
+			return value.Nil, nil
+		}
+		s.rangeAccum += dt * s.rangeSpeed
+		for s.rangeAccum >= 1 {
+			s.rangeAccum--
+			if s.curFrame < s.rangeEnd {
+				s.curFrame++
+			} else {
+				if s.rangeLoop {
+					s.curFrame = s.rangeStart
+				} else {
+					s.rangePlaying = false
+				}
+			}
+		}
 		return value.Nil, nil
 	}
 	if !s.playing || s.numFrames < 1 || s.fps <= 0 {

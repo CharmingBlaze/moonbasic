@@ -147,26 +147,30 @@ func (m *Module) registerRayBuiltins(reg runtime.Registrar) {
 		return rl.GetRayCollisionMesh(ray, mesh, mat), nil
 	})
 
-	rayCollisionScalars(reg, "RAY.HITMODEL", 2, func(args []value.Value) (rl.RayCollision, error) {
-		if err := m.requireHeap(); err != nil {
-			return rl.RayCollision{}, err
+	hitModelRay := func(op string) func([]value.Value) (rl.RayCollision, error) {
+		return func(args []value.Value) (rl.RayCollision, error) {
+			if err := m.requireHeap(); err != nil {
+				return rl.RayCollision{}, err
+			}
+			if len(args) != 2 {
+				return rl.RayCollision{}, fmt.Errorf("%s_* expects 2 arguments (ray, model)", op)
+			}
+			ray, err := m.rayFromArgs(args, 0, op)
+			if err != nil {
+				return rl.RayCollision{}, err
+			}
+			if args[1].Kind != value.KindHandle {
+				return rl.RayCollision{}, fmt.Errorf("%s_*: model must be handle", op)
+			}
+			model, err := mbmodel3d.ModelRaylib(m.h, heap.Handle(args[1].IVal))
+			if err != nil {
+				return rl.RayCollision{}, fmt.Errorf("%s_*: %w", op, err)
+			}
+			return rayModelCollision(ray, model), nil
 		}
-		if len(args) != 2 {
-			return rl.RayCollision{}, fmt.Errorf("RAY.HITMODEL_* expects 2 arguments (ray, model)")
-		}
-		ray, err := m.rayFromArgs(args, 0, "RAY.HITMODEL")
-		if err != nil {
-			return rl.RayCollision{}, err
-		}
-		if args[1].Kind != value.KindHandle {
-			return rl.RayCollision{}, fmt.Errorf("RAY.HITMODEL_*: model must be handle")
-		}
-		model, err := mbmodel3d.ModelRaylib(m.h, heap.Handle(args[1].IVal))
-		if err != nil {
-			return rl.RayCollision{}, fmt.Errorf("RAY.HITMODEL_*: %w", err)
-		}
-		return rayModelCollision(ray, model), nil
-	})
+	}
+	rayCollisionScalars(reg, "RAY.HITMODEL", 2, hitModelRay("RAY.HITMODEL"))
+	rayCollisionScalars(reg, "RAY.INTERSECTSMODEL", 2, hitModelRay("RAY.INTERSECTSMODEL"))
 }
 
 func (m *Module) rayMake(args []value.Value) (value.Value, error) {

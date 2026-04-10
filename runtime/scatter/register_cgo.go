@@ -67,11 +67,22 @@ func sApply(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	if err != nil {
 		return value.Nil, err
 	}
-	o, err := heap.Cast[*ScatterObject](m.h, heap.Handle(hs))
-	if err != nil {
+	if err := m.ApplyToTerrain(heap.Handle(hs), heap.Handle(ht), den); err != nil {
 		return value.Nil, err
 	}
-	n := int(den * 200)
+	return value.Nil, nil
+}
+
+// ApplyToTerrain repopulates a scatter set with random XZ samples on the terrain heightfield (same rules as SCATTER.APPLY).
+func (m *Module) ApplyToTerrain(scatterH, terrainH heap.Handle, density float64) error {
+	if m.h == nil {
+		return fmt.Errorf("scatter: heap not bound")
+	}
+	o, err := heap.Cast[*ScatterObject](m.h, scatterH)
+	if err != nil {
+		return err
+	}
+	n := int(density * 200)
 	if n < 10 {
 		n = 10
 	}
@@ -87,9 +98,9 @@ func sApply(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		fz := rng.Float64() * 400
 		o.X[i] = float32(fx + 50)
 		o.Z[i] = float32(fz + 50)
-		o.Y[i] = terr.HeightWorldPublic(m.h, heap.Handle(ht), o.X[i], o.Z[i])
+		o.Y[i] = terr.HeightWorldPublic(m.h, terrainH, o.X[i], o.Z[i])
 	}
-	return value.Nil, nil
+	return nil
 }
 
 func sDrawAll(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

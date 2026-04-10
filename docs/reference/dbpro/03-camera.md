@@ -8,9 +8,9 @@ moonBASIC cameras are **`CAMERA.*`** on a **handle** from **`CAMERA.MAKE`** (see
 | **DELETE CAMERA** | ✓ **`CAMERA.FREE`** | |
 | **POSITION CAMERA** | ✓ **`CAMERA.SETPOS`** / **`SETPOSITION`** | |
 | **ROTATE CAMERA** | ✓ **`CAMERA.ROTATE`**, **`TURN`**, **`SETORBIT`** | Many orbit/follow helpers — [CAMERA.md](../CAMERA.md). |
-| **MOVE CAMERA (cam, distance#)** | ≈ **`CAMERA.MOVE`** | |
-| **POINT CAMERA (cam, x#, y#, z#)** | ✓ **`CAMERA.LOOKAT`**, **`SETTARGET`** | |
-| **SET CAMERA RANGE (near#, far#)** | ✓ **`CAMERA.SETRANGE`** | |
+| **MOVE CAMERA (cam, distance)** | ≈ **`CAMERA.MOVE`** | |
+| **POINT CAMERA (cam, x, y, z)** | ✓ **`CAMERA.LOOKAT`**, **`SETTARGET`** | |
+| **SET CAMERA RANGE (near, far)** | ✓ **`CAMERA.SETRANGE`** | |
 | **SET CAMERA FOV** | ✓ **`CAMERA.SETFOV`** | |
 | **SET CAMERA ASPECT** | ≈ projection / window aspect | Often implicit from **`WINDOW` / `RENDER`**. |
 | **SET CAMERA VIEW (x, y, w, h)** | ≈ **`RENDER.SETSCISSOR`**, **`RENDERTARGET.*`** | |

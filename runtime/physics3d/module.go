@@ -82,6 +82,7 @@ func (m *Module) SyncWasmPhysicsAfterStep() {
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
 	registerPhysics3DCommands(m, reg)
+	registerBuoyancyCommands(m, reg)
 }
 
 // Shutdown implements runtime.Module.

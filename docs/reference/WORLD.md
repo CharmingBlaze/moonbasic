@@ -16,9 +16,15 @@ Sets the streaming focal point (usually the camera or player XZ). The bound terr
 
 ---
 
+## `World.SetCenterEntity(entity#)`
+
+Same as **`World.SetCenter`** but takes an **entity id** and uses that entity’s world **X** and **Z**. Prefer this when the player (or camera rig) is already positioned each frame — avoids duplicating **`EntityX` / `EntityZ`** calls. See [LESS_MATH.md](LESS_MATH.md).
+
+---
+
 ## `World.Update(dt#)`
 
-Advances streaming for one frame. Call **once per frame** after moving the center. **`dt#`** is accepted for API symmetry; the current implementation uses the terrain’s tick path.
+Advances streaming for one frame. Call **once per frame** after moving the center. **`dt`** is accepted for API symmetry; the current implementation uses the terrain’s tick path.
 
 ---
 
@@ -43,6 +49,12 @@ Human-readable status for debugging (implementation-defined).
 ## `World.IsReady(terrain)` → bool
 
 Returns whether the given terrain handle has finished **initial** chunk work relevant to the current stream state (implementation-defined readiness).
+
+---
+
+## `World.SetVegetation(terrain#, billboard#, density#)`
+
+Populates an internal **`SCATTER`** instance with random **XZ** samples over a fixed area and snaps **Y** to **`Terrain.GetHeight`** (same placement rule as **`Scatter.Apply`**). The **billboard** handle is **reserved** for future instanced mesh drawing; today **`Scatter.DrawAll`** uses simple debug spheres unless you extend the scatter renderer.
 
 ---
 

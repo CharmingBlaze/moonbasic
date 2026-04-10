@@ -14,22 +14,22 @@
 | **`PARTICLE.FREE`** / **`PARTICLE3D.FREE`** | Free emitter. |
 | **`PARTICLE.SETTEXTURE`** | `(emitter, textureHandle)` |
 | **`PARTICLE.SETEMITRATE`** / **`PARTICLE.SETRATE`** | `(emitter, per_sec)` — **`SETRATE`** is an alias. **`PARTICLE3D.SETRATE`** same. |
-| **`PARTICLE.SETPOS`** | `(emitter, x#, y#, z#)` |
-| **`PARTICLE.SETLIFETIME`** | `(emitter, min#, max#)` seconds |
-| **`PARTICLE.SETVELOCITY`** | `(emitter, vx#, vy#, vz#, spread)` — **spread** is random component noise (same units as velocity components). |
-| **`PARTICLE.SETDIRECTION`** | `(emitter, vx#, vy#, vz#)` — base direction; combine with **`SETSPREAD`**. |
+| **`PARTICLE.SETPOS`** | `(emitter, x, y, z)` |
+| **`PARTICLE.SETLIFETIME`** | `(emitter, min, max)` seconds |
+| **`PARTICLE.SETVELOCITY`** | `(emitter, vx, vy, vz, spread)` — **spread** is random component noise (same units as velocity components). |
+| **`PARTICLE.SETDIRECTION`** | `(emitter, vx, vy, vz)` — base direction; combine with **`SETSPREAD`**. |
 | **`PARTICLE.SETSPREAD`** | `(emitter, angle)` — random jitter added to each velocity component at spawn. |
-| **`PARTICLE.SETSPEED`** | `(emitter, min#, max#)` — per-particle scalar applied after direction+spread. Default `1..1`. |
-| **`PARTICLE.SETSTARTSIZE`** | `(emitter, min#, max#)` — spawn size range. |
-| **`PARTICLE.SETENDSIZE`** | `(emitter, min#, max#)` — end-of-life size range. |
-| **`PARTICLE.SETSIZE`** | `(emitter, start#, end#)` — sets **both** start and end to **single** values (legacy shorthand). |
+| **`PARTICLE.SETSPEED`** | `(emitter, min, max)` — per-particle scalar applied after direction+spread. Default `1..1`. |
+| **`PARTICLE.SETSTARTSIZE`** | `(emitter, min, max)` — spawn size range. |
+| **`PARTICLE.SETENDSIZE`** | `(emitter, min, max)` — end-of-life size range. |
+| **`PARTICLE.SETSIZE`** | `(emitter, start, end)` — sets **both** start and end to **single** values (legacy shorthand). |
 | **`PARTICLE.SETCOLOR`** / **`PARTICLE.SETSTARTCOLOR`** | `(emitter, r, g, b, a)` 0–255 |
 | **`PARTICLE.SETCOLOREND`** / **`PARTICLE.SETENDCOLOR`** | End color |
-| **`PARTICLE.SETGRAVITY`** | `(emitter, g)` **legacy** → `(0, g, 0)`, or `(emitter, gx#, gy#, gz#)` |
+| **`PARTICLE.SETGRAVITY`** | `(emitter, g)` **legacy** → `(0, g, 0)`, or `(emitter, gx, gy, gz)` |
 | **`PARTICLE.SETBURST`** | `(emitter, count)` — spawn **count** particles immediately (capped). |
 | **`PARTICLE.SETBILLBOARD`** | `(emitter, TRUE/FALSE)` — **`TRUE`**: **`DrawBillboard`**. **`FALSE`**: draw **cubes** at particle positions (debug / non-camera-facing). |
 | **`PARTICLE.PLAY`** / **`PARTICLE.STOP`** | Start/stop continuous emission. |
-| **`PARTICLE.UPDATE`** | `(emitter, dt#)` |
+| **`PARTICLE.UPDATE`** | `(emitter, dt)` |
 | **`PARTICLE.DRAW`** | `(emitter)` uses **`CAMERA.BEGIN` … `CAMERA.END`** active camera, or **`(emitter, cameraHandle)`** for an explicit **`Camera3D`** handle. |
 | **`PARTICLE.ISALIVE`** | `→ int` (`1` = still playing **or** live particles remain). |
 | **`PARTICLE.COUNT`** | `→ int` live particles |

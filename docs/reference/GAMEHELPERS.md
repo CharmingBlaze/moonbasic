@@ -6,7 +6,7 @@ Small built-ins and idioms that keep gameplay code short without a full physics 
 
 ## `BOXTOPLAND`
 
-`BOXTOPLAND(px#, py#, pz#, pvy#, pr#, bx#, by#, bz#, bw#, bh#, bd#)` → **float**
+`BOXTOPLAND(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)` → **float**
 
 Returns **`0.0`** when there is **no** top landing this frame. Otherwise returns the **sphere center Y** to snap to (`box top + pr`).
 
@@ -27,7 +27,7 @@ ENDIF
 
 ## `LANDBOXES` / `LANDBOX`
 
-`LANDBOXES(px#, py#, pz#, pvy#, pr#, plx#, ply#, plz#, plw#, plh#, pld#, count)` → **float**
+`LANDBOXES(px, py, pz, pvy, pr, plx, ply, plz, plw, plh, pld, count)` → **float**
 
 **`LANDBOX`** is an **alias** — same arguments and return value.
 
@@ -39,7 +39,7 @@ Implementation note: it is equivalent to **`BOXTOPLAND`** per index — not a fu
 
 ## `PLAYER.MOVERELATIVE`
 
-`PLAYER.MOVERELATIVE(camYaw#, forward#, strafe#, speed#, dt#)` → **handle** (2-float array **`[deltaX, deltaZ]`**)
+`PLAYER.MOVERELATIVE(camYaw, forward, strafe, speed, dt)` → **handle** (2-float array **`[deltaX, deltaZ]`**)
 
 Same math as **`MOVESTEPX`** and **`MOVESTEPZ`** combined. **Free** the returned array with **`ERASE`** when you are done (each frame if you allocate every frame). For hot loops, **`MOVESTEPX`/`MOVESTEPZ`** avoid the extra heap array.
 
@@ -47,7 +47,7 @@ Same math as **`MOVESTEPX`** and **`MOVESTEPZ`** combined. **Free** the returned
 
 ## Simple physics without a physics engine
 
-Gravity and integration are only a few lines. Keep **`dt#`** from **`Time.Delta()`** or **`DT()`** (both are **clamped** by default so tab-switch spikes do not explode simulation).
+Gravity and integration are only a few lines. Keep **`dt`** from **`Time.Delta()`** or **`DT()`** (both are **clamped** by default so tab-switch spikes do not explode simulation).
 
 ```basic
 CONST GRAVITY# = -26.0
@@ -72,13 +72,13 @@ See also: [INPUT.md](INPUT.md) (keyboard table), [CAMERA.md](CAMERA.md) (`Camera
 
 ## Third-person orbit input (`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`)
 
-These **`GAME.*`** helpers (short names without the `GAME.` prefix also work) wrap **right-mouse drag** and **mouse wheel** together with the same **Q/E yaw** math as **`Input.Orbit`**. They return **plain floats** each frame — **no heap handles**, nothing to **`ERASE`**. Use them to update your **`camYaw#`**, **`camPitch#`**, and **`camDist#`**, then call **`Camera.SetOrbit`** (or **`Camera.OrbitAround`**) yourself.
+These **`GAME.*`** helpers (short names without the `GAME.` prefix also work) wrap **right-mouse drag** and **mouse wheel** together with the same **Q/E yaw** math as **`Input.Orbit`**. They return **plain floats** each frame — **no heap handles**, nothing to **`ERASE`**. Use them to update your **`camYaw`**, **`camPitch`**, and **`camDist`**, then call **`Camera.SetOrbit`** (or **`Camera.OrbitAround`**) yourself.
 
 | Command | Returns | Meaning |
 |--------|---------|--------|
-| **`ORBITYAWDELTA(dt#, mouseSens#, negKey, posKey, degPerSec#)`** | radians | **Keyboard:** same as **`Input.Orbit(negKey, posKey, degPerSec#, dt#)`** (degrees/sec → radians). **Mouse:** if **right button** is down, adds **`MDX * mouseSens`** (typically `mouseSens` ≈ `0.004`–`0.006`). |
-| **`ORBITPITCHDELTA(mouseSens#)`** | radians | If **right button** is down: **`-MDY * mouseSens`**. Otherwise **`0`**. |
-| **`ORBITDISTDELTA(wheelScale#)`** | world units | **`-MWHEEL * wheelScale`** — add to your orbit distance (scroll **up** moves the eye **closer** when **`wheelScale`** is positive). |
+| **`ORBITYAWDELTA(dt, mouseSens, negKey, posKey, degPerSec)`** | radians | **Keyboard:** same as **`Input.Orbit(negKey, posKey, degPerSec, dt)`** (degrees/sec → radians). **Mouse:** if **right button** is down, adds **`MDX * mouseSens`** (typically `mouseSens` ≈ `0.004`–`0.006`). |
+| **`ORBITPITCHDELTA(mouseSens)`** | radians | If **right button** is down: **`-MDY * mouseSens`**. Otherwise **`0`**. |
+| **`ORBITDISTDELTA(wheelScale)`** | world units | **`-MWHEEL * wheelScale`** — add to your orbit distance (scroll **up** moves the eye **closer** when **`wheelScale`** is positive). |
 
 Clamp **`pitch`** and **`dist`** in your script after adding deltas (the helpers do not clamp).
 
@@ -104,19 +104,19 @@ These read like classic Blitz commands: a **`PLAYER2D`** handle stores **X/Z** o
 | Command | Role |
 |--------|------|
 | **`p = PLAYER2D.MAKE()`** | Create a mover; **`PLAYER2D.FREE p`** or scene **`ERASE ALL`** when done. |
-| **`PLAYER2D.SETPOS p, x#, z#`** | Set world X/Z (e.g. spawn). |
-| **`MOVEENTITY2D p, camYaw#, f#, s#, speed#, dt#`** | Camera-relative move on **XZ** (same math as **`MOVESTEPX`/`MOVESTEPZ`** applied in place). Aliases: **`PLAYER2D.MOVE`**, **`MOVEPLAYER`**. |
-| **`CLAMPENTITY2D p, minX#, maxX#, minZ#, maxZ#`** | Store bounds and clamp **current** position into the axis-aligned box. Alias: **`PLAYER2D.CLAMP`**. |
+| **`PLAYER2D.SETPOS p, x, z`** | Set world X/Z (e.g. spawn). |
+| **`MOVEENTITY2D p, camYaw, f, s, speed, dt`** | Camera-relative move on **XZ** (same math as **`MOVESTEPX`/`MOVESTEPZ`** applied in place). Aliases: **`PLAYER2D.MOVE`**, **`MOVEPLAYER`**. |
+| **`CLAMPENTITY2D p, minX, maxX, minZ, maxZ`** | Store bounds and clamp **current** position into the axis-aligned box. Alias: **`PLAYER2D.CLAMP`**. |
 | **`KEEPPLAYERINBOUNDS p`** | Clamp again using the **last** bounds from **`CLAMPENTITY2D`** (call after **`MOVEENTITY2D`** each frame). No-op if bounds were never set. Alias: **`PLAYER2D.KEEPINBOUNDS`**. |
 | **`PLAYER2D.GETX p`**, **`PLAYER2D.GETZ p`** | Read position for **`BOXTOPLAND`**, rendering, etc. |
 
-Camera **yaw** is still a script variable (e.g. **`camYaw#`**). The camera handle is only validated so you do not pass the wrong object:
+Camera **yaw** is still a script variable (e.g. **`camYaw`**). The camera handle is only validated so you do not pass the wrong object:
 
 | Command | Returns | Role |
 |--------|---------|------|
-| **`CAMERA.TURNLEFT cam, amount#`** | **float** (radians) | **`-abs(amount)`** — add to **`camYaw#`** to turn left. |
-| **`CAMERA.TURNRIGHT cam, amount#`** | **float** (radians) | **`+abs(amount)`** — add to **`camYaw#`** to turn right. |
-| **`CAMERA.ORBITCAMERA cam, mouseSens#, keyDegPerSec#, dt#`** | **float** (radians) | Same as **`FLOAT(Input.MouseDeltaX()) * mouseSens + Input.Orbit(KEY_Q, KEY_E, keyDegPerSec#, dt#)`** — add the result to **`camYaw#`** each frame. |
+| **`CAMERA.TURNLEFT cam, amount`** | **float** (radians) | **`-abs(amount)`** — add to **`camYaw`** to turn left. |
+| **`CAMERA.TURNRIGHT cam, amount`** | **float** (radians) | **`+abs(amount)`** — add to **`camYaw`** to turn right. |
+| **`CAMERA.ORBITCAMERA cam, mouseSens, keyDegPerSec, dt`** | **float** (radians) | Same as **`FLOAT(Input.MouseDeltaX()) * mouseSens + Input.Orbit(KEY_Q, KEY_E, keyDegPerSec, dt)`** — add the result to **`camYaw`** each frame. |
 
 Example:
 

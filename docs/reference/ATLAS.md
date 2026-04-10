@@ -16,8 +16,8 @@ Commands for working with texture atlases, which are large images containing man
 
 Loads a texture atlas from an image and a JSON data file. Returns a handle to the atlas.
 
-- `imagePath$`: The path to the atlas texture sheet (e.g., `.png`).
-- `jsonPath$`: The path to the JSON data file.
+- `imagePath`: The path to the atlas texture sheet (e.g., `.png`).
+- `jsonPath`: The path to the JSON data file.
 
 ---
 
@@ -26,7 +26,7 @@ Loads a texture atlas from an image and a JSON data file. Returns a handle to th
 Retrieves a handle to a single sprite within the atlas.
 
 - `atlasHandle`: The handle of the loaded atlas.
-- `spriteName$`: The original filename of the sprite as it was packed into the atlas (e.g., `"player.png"`).
+- `spriteName`: The original filename of the sprite as it was packed into the atlas (e.g., `"player.png"`).
 
 ---
 

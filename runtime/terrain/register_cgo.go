@@ -27,6 +27,7 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("CHUNK.COUNT", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkCount(m, rt, args...) })
 	r.Register("CHUNK.SETRANGE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkSetRange(m, rt, args...) })
 	r.Register("CHUNK.ISLOADED", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkIsLoaded(m, rt, args...) })
+	registerTerrainExtended(m, r)
 	registerTerrainBlitzAliases(m, r)
 }
 
@@ -79,6 +80,10 @@ func terrainMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 		LoadDist:      400,
 		UnloadDist:    600,
 		MaxHeight:     100,
+		ScaleX:        1,
+		ScaleY:        1,
+		ScaleZ:        1,
+		DetailFactor:  1,
 	}
 	id, err := m.h.Alloc(t)
 	if err != nil {
@@ -330,10 +335,12 @@ func terrainLower(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 }
 
 func brush(obj *TerrainObject, wx, wz, radius, amount float32, sign int) {
-	cx0 := int((wx - obj.PX - radius) / obj.CellSize)
-	cx1 := int((wx - obj.PX + radius) / obj.CellSize)
-	cz0 := int((wz - obj.PZ - radius) / obj.CellSize)
-	cz1 := int((wz - obj.PZ + radius) / obj.CellSize)
+	sx := obj.scaleXEff()
+	sz := obj.scaleZEff()
+	cx0 := int((wx - obj.PX - radius) / (obj.CellSize * sx))
+	cx1 := int((wx - obj.PX + radius) / (obj.CellSize * sx))
+	cz0 := int((wz - obj.PZ - radius) / (obj.CellSize * sz))
+	cz1 := int((wz - obj.PZ + radius) / (obj.CellSize * sz))
 	if cx0 < 0 {
 		cx0 = 0
 	}
@@ -349,8 +356,8 @@ func brush(obj *TerrainObject, wx, wz, radius, amount float32, sign int) {
 	r2 := radius * radius
 	for z := cz0; z <= cz1; z++ {
 		for x := cx0; x <= cx1; x++ {
-			px := obj.PX + float32(x)*obj.CellSize
-			pz := obj.PZ + float32(z)*obj.CellSize
+			px := obj.PX + float32(x)*obj.CellSize*sx
+			pz := obj.PZ + float32(z)*obj.CellSize*sz
 			dx := px - wx
 			dz := pz - wz
 			if dx*dx+dz*dz <= r2 {
@@ -424,10 +431,12 @@ func terrainDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 				ch.MinH, ch.MaxH = minH, maxH
 				ch.BoundsValid = true
 			}
-			minX := obj.PX + float32(cx*cs)*obj.CellSize
-			minZ := obj.PZ + float32(cz*cs)*obj.CellSize
-			maxX := minX + float32(cs)*obj.CellSize
-			maxZ := minZ + float32(cs)*obj.CellSize
+			sx := obj.scaleXEff()
+			sz := obj.scaleZEff()
+			minX := obj.PX + float32(cx*cs)*obj.CellSize*sx
+			minZ := obj.PZ + float32(cz*cs)*obj.CellSize*sz
+			maxX := minX + float32(cs)*obj.CellSize*sx
+			maxZ := minZ + float32(cs)*obj.CellSize*sz
 			minY := obj.PY + minH
 			maxY := obj.PY + maxH
 			centX := (minX + maxX) * 0.5

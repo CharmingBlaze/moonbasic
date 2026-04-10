@@ -18,10 +18,11 @@ func (m *Module) registerBlitzAliases(r runtime.Registrar) {
 		}
 	}
 	for _, n := range []string{
+		"INPUT.MOUSEDELTA", "INPUT.MOVEDIR",
 		"INPUT.KEYHIT", "INPUT.MOUSEXSPEED", "INPUT.MOUSEYSPEED",
 		"INPUT.JOYX", "INPUT.JOYY", "INPUT.JOYBUTTON", "INPUT.JOYDOWN",
 		"MOUSEDX", "INPUT.MOUSEDX", "MOUSEDY", "INPUT.MOUSEDY",
-		"MOUSEWHEEL", "INPUT.MOUSEWHEEL", "MOUSEX", "MOUSEY", "MOUSEZ",
+		"MOUSEWHEEL", "INPUT.MOUSEWHEEL", "MouseWheel", "MOUSEX", "MOUSEY", "MOUSEZ",
 		"KEYHIT", "KEYDOWN", "INPUT.KEYDOWN", "KeyDown", "KEYUP", "INPUT.KEYUP", "AXIS",
 	} {
 		r.Register(n, "input", stub(n))

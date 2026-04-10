@@ -20,37 +20,51 @@ func (g *CodeGen) emitDim(ch *opcode.Chunk, n *ast.DimNode) {
 		if n.Preserve {
 			preserve = 1
 		}
-		// OpArrayRedim: Dst=PreserveFlag, SrcA=HandleReg, SrcB=ArgStart, Operand=DimCount
 		ch.Emit(opcode.OpArrayRedim, preserve, hReg, argStart, int32(len(n.Dims)), n.Line)
+		ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
 		g.nextReg = g.baseReg
 		return
 	}
-	
-	if n.ElemType != "" {
+
+	if n.TypeName != "" {
+		tn := strings.ToUpper(strings.TrimSpace(n.TypeName))
 		argStart := g.nextReg
 		for _, d := range n.Dims {
 			g.emitExpr(ch, d)
 		}
-		tn := strings.ToUpper(n.ElemType)
-		tidx := ch.AddName(tn)
-		
 		dst := g.allocReg()
-		// OpArrayMakeTyped: Dst=handle, SrcA=ArgStart, SrcB=DimCount, Operand=TypeIdx
-		ch.Emit(opcode.OpArrayMakeTyped, dst, argStart, uint8(len(n.Dims)), tidx, n.Line)
-		
+
+		switch tn {
+		case "HANDLE":
+			ch.Emit(opcode.OpArrayMake, dst, argStart, 3, int32(len(n.Dims)), n.Line)
+			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
+		case "STRING":
+			ch.Emit(opcode.OpArrayMake, dst, argStart, 1, int32(len(n.Dims)), n.Line)
+			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
+		case "INTEGER", "FLOAT":
+			ch.Emit(opcode.OpArrayMake, dst, argStart, 0, int32(len(n.Dims)), n.Line)
+			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
+		default:
+			// User TYPE array — heap instance per cell
+			tidx := ch.AddName(tn)
+			ch.Emit(opcode.OpArrayMakeTyped, dst, argStart, uint8(len(n.Dims)), tidx, n.Line)
+			ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
+		}
+
 		g.emitStoreNamed(ch, n.Name, n.Line, dst)
 		g.nextReg = g.baseReg
 		return
 	}
-	
+
 	argStart := g.nextReg
 	for _, d := range n.Dims {
 		g.emitExpr(ch, d)
 	}
 	dst := g.allocReg()
-	// OpArrayMake: Dst=handle, SrcA=Kind, SrcB=ArgStart, Operand=DimCount
-	ch.Emit(opcode.OpArrayMake, dst, flags, argStart, int32(len(n.Dims)), n.Line)
-	
+	// OpArrayMake: SrcA = dim value registers start, SrcB = kind flags (see vm doArrayMake)
+	ch.Emit(opcode.OpArrayMake, dst, argStart, flags, int32(len(n.Dims)), n.Line)
+	ch.SetLastArrayDebugName(ch.AddName(strings.ToUpper(n.Name)))
+
 	g.emitStoreNamed(ch, n.Name, n.Line, dst)
 	g.nextReg = g.baseReg
 }

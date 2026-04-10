@@ -28,6 +28,11 @@ type collRule struct {
 	response int32 // 1=Stop, 2=Slide, 3=Slide (no grav)
 }
 
+type scriptBindRec struct {
+	pattern string
+	fnName  string
+}
+
 type entityStore struct {
 	ents   map[int64]*ent
 	nextID int64
@@ -36,6 +41,26 @@ type entityStore struct {
 	children map[int64][]int64
 	groups   map[string]map[int64]struct{}
 	rules    []collRule
+
+	// entMeta: flattened glTF extras strings per entity (Blender custom properties).
+	entMeta map[int64]map[string]string
+	// scriptBinds: glob patterns → BASIC function names (dispatch via LEVEL.MATCHSCRIPTBIND).
+	scriptBinds []scriptBindRec
+
+	// msgQueues: ENTITY.SENDMESSAGE / ENTITY.POLLMESSAGE (FIFO strings per receiver entity).
+	msgQueues map[int64][]string
+
+	// LEVEL.* glTF scene graph (see entity_level_cgo.go)
+	levelRoot     string
+	levelMarkers  map[string]rl.Vector3
+	levelSpawn    map[string]rl.Matrix
+	levelLayers   map[string][]int64
+	levelColliders []levelColliderRec
+}
+
+type levelColliderRec struct {
+	Name  string
+	World rl.Matrix
 }
 
 func (m *Module) store() *entityStore {
@@ -65,11 +90,23 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerEntityBlitzAPI(m, r)
 	registerBrushBlitzAPI(m, r)
 	registerEntitySceneGroupAPI(m, r)
+	registerEntityUnifiedModelAPI(m, r)
+	registerEntityMaterialScrollAPI(m, r)
+	registerLevelGLTFAPI(m, r)
+	registerEntityInteractionAPI(m, r)
 	r.Register("ENTITY.SETPOSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
+	r.Register("ENTITY.POSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.GETPOSITION", "entity", runtime.AdaptLegacy(m.entGetPosition))
+	r.Register("ENTITY.GETPOS", "entity", runtime.AdaptLegacy(m.entGetPos))
+	r.Register("ENTITY.GETXZ", "entity", runtime.AdaptLegacy(m.entGetXZ))
+	r.Register("TERRAIN.SNAPY", "terrain", runtime.AdaptLegacy(m.entTerrainSnapY))
+	r.Register("TERRAIN.PLACE", "terrain", runtime.AdaptLegacy(m.entTerrainPlace))
+	r.Register("ENTITY.CLAMPTOTERRAIN", "entity", runtime.AdaptLegacy(m.entClampToTerrain))
+	r.Register("ENTITY.FREEENTITIES", "entity", runtime.AdaptLegacy(m.entFreeEntities))
 	r.Register("ENTITY.MOVE", "entity", runtime.AdaptLegacy(m.entMove))
 	r.Register("ENTITY.TRANSLATE", "entity", runtime.AdaptLegacy(m.entTranslate))
 	r.Register("ENTITY.ROTATE", "entity", runtime.AdaptLegacy(m.entRotate))
+	r.Register("ENTITY.TURN", "entity", runtime.AdaptLegacy(m.entRotate))
 	r.Register("ENTITY.SCALE", "entity", runtime.AdaptLegacy(m.entScale))
 	r.Register("ENTITY.COLOR", "entity", runtime.AdaptLegacy(m.entColor))
 	r.Register("ENTITY.RADIUS", "entity", runtime.AdaptLegacy(m.entRadius))
@@ -81,7 +118,6 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("SPHERECOLLIDE", "entity", runtime.AdaptLegacy(m.entRadius))
 
 	r.Register("ENTITY.UPDATE", "entity", runtime.AdaptLegacy(m.entUpdate))
-	r.Register("UPDATEWORLD", "entity", runtime.AdaptLegacy(m.entUpdate))
 	r.Register("RESETENTITY", "entity", runtime.AdaptLegacy(m.entReset))
 	r.Register("ENTITYCOLLIDED", "entity", runtime.AdaptLegacy(m.entCollidedType))
 	r.Register("EntityHitsType", "entity", runtime.AdaptLegacy(m.entEntityHitsType))
@@ -89,10 +125,13 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("GETCOLLISIONENTITY", "entity", runtime.AdaptLegacy(m.entGetCollisionEntity))
 
 	r.Register("ENTITY.DRAWALL", "entity", runtime.AdaptLegacy(m.entDrawAll))
+	r.Register("ENTITY.DRAW", "entity", runtime.AdaptLegacy(m.entDraw))
 	r.Register("ENTITY.SETCULLMODE", "entity", runtime.AdaptLegacy(m.entSetCullMode))
 	r.Register("CAMERA.FOLLOWENTITY", "entity", m.camFollowEntity)
 	registerPhysicsEntitySync(m, r)
 	registerJoltEntityCollisionAPI(m, r)
+	registerEntityGameplayIntelAPI(m, r)
+	registerEntityTweenAPI(m, r)
 	registerBlitzEntityHandles(m, r)
 
 	mblight.SetLightFollowWorldPosGetter(func(id int64) (float32, float32, float32, bool) {
@@ -110,6 +149,7 @@ func (m *Module) Shutdown() {
 	clearEntityRefFreeHookIfOwner(m)
 	if m.h != nil {
 		delete(entityStores, m.h)
+		delete(modulesByHeap, m.h)
 	}
 }
 
@@ -180,8 +220,14 @@ func (m *Module) entCreate(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
+	if len(args) == 1 {
+		if _, ok := argF32(args[0]); !ok {
+			return value.Nil, fmt.Errorf("ENTITY.CREATEBOX: size must be numeric")
+		}
+		return m.entCreateBox([]value.Value{args[0], args[0], args[0]})
+	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATEBOX expects 3 arguments (w#, h#, d#)")
+		return value.Nil, fmt.Errorf("ENTITY.CREATEBOX expects 1 argument (size#) or 3 (w#, h#, d#)")
 	}
 	w, ok1 := argF32(args[0])
 	h, ok2 := argF32(args[1])
@@ -258,6 +304,36 @@ func (m *Module) entGetPosition(args []value.Value) (value.Value, error) {
 	}
 	p := m.worldPos(e)
 	return mbmatrix.AllocVec3Value(m.h, p.X, p.Y, p.Z)
+}
+
+func (m *Module) entGetPos(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("ENTITY.GETPOS: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETPOS expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETPOS: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.GETPOS: unknown entity %d", id)
+	}
+	p := m.worldPos(e)
+	arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(p.X)
+	arr.Floats[1] = float64(p.Y)
+	arr.Floats[2] = float64(p.Z)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func localAxes(yaw, pitch float32) (forward, right, up rl.Vector3) {
@@ -376,8 +452,27 @@ func (m *Module) entScale(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entColor(args []value.Value) (value.Value, error) {
+	if len(args) == 2 && args[1].Kind == value.KindHandle {
+		id, ok := m.entID(args[0])
+		if !ok || id < 1 {
+			return value.Nil, fmt.Errorf("ENTITY.COLOR: invalid entity")
+		}
+		e := m.store().ents[id]
+		if e == nil {
+			return value.Nil, fmt.Errorf("ENTITY.COLOR: unknown entity %d", id)
+		}
+		c, err := mbmatrix.HeapColorRGBA(m.h, heap.Handle(args[1].IVal))
+		if err != nil {
+			return value.Nil, fmt.Errorf("ENTITY.COLOR: %w", err)
+		}
+		e.r = c.R
+		e.g = c.G
+		e.b = c.B
+		e.alpha = float32(c.A) / 255.0
+		return value.Nil, nil
+	}
 	if len(args) != 4 && len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.COLOR expects 4–5 arguments (entity#, r, g, b [, a])")
+		return value.Nil, fmt.Errorf("ENTITY.COLOR expects 2 arguments (entity#, colorHandle) or 4–5 arguments (entity#, r, g, b [, a])")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -585,16 +680,18 @@ func (m *Module) entJump(args []value.Value) (value.Value, error) {
 
 func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("UPDATEWORLD expects (dt#)")
+		return value.Nil, fmt.Errorf("ENTITY.UPDATE expects (dt#)")
 	}
 	dt, ok := argF32(args[0])
 	if !ok {
-		return value.Nil, fmt.Errorf("UPDATEWORLD: dt must be numeric")
+		return value.Nil, fmt.Errorf("ENTITY.UPDATE: dt must be numeric")
 	}
 	if dt <= 0 {
 		// First frame / vsync edge / closing window can yield 0 delta; skip tick instead of erroring out.
 		return value.Nil, nil
 	}
+
+	m.processEntityTweens(dt)
 
 	st := m.store()
 
@@ -889,6 +986,125 @@ func (m *Module) pairwiseDynamic() {
 	}
 }
 
+func (m *Module) entDraw(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.DRAW expects (entity#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.DRAW: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.DRAW: unknown entity")
+	}
+	m.drawOneEntity(e)
+	return value.Nil, nil
+}
+
+// drawOneEntity renders one entity (primitives, billboard sprite, or skinned model). Used by ENTITY.DRAW and ENTITY.DRAWALL.
+func (m *Module) drawOneEntity(e *ent) {
+	if e == nil || e.hidden || e.kind == entKindEmpty {
+		return
+	}
+	if !m.isVisible(e) {
+		return
+	}
+	useBlend, blendM := m.entDrawBlendMode(e)
+	if useBlend {
+		rl.BeginBlendMode(blendM)
+	}
+	wp := m.worldPos(e)
+	col := m.entTintResolved(e)
+	if e.isSprite && e.texHandle != 0 {
+		m.drawSpriteBillboard(e)
+		if useBlend {
+			rl.EndBlendMode()
+		}
+		return
+	}
+	switch e.kind {
+	case entKindBox:
+		rl.DrawCube(wp, e.w*e.scale.X, e.h*e.scale.Y, e.d*e.scale.Z, col)
+	case entKindSphere:
+		sx, sy, sz := e.scale.X, e.scale.Y, e.scale.Z
+		ms := sx
+		if sy > ms {
+			ms = sy
+		}
+		if sz > ms {
+			ms = sz
+		}
+		rad := e.radius * ms
+		if rad <= 1e-6 {
+			rad = 0.01
+		}
+		rings := e.segH
+		slices := e.segV
+		if rings < 8 {
+			rings = 16
+		}
+		if slices < 8 {
+			slices = 16
+		}
+		rl.DrawSphereEx(wp, rad, rings, slices, col)
+	case entKindCylinder:
+		h := e.cylH * e.scale.Y
+		rs := e.scale.X
+		if e.scale.Z > rs {
+			rs = e.scale.Z
+		}
+		rt := e.radius * rs
+		slices := e.segV
+		if slices < 3 {
+			slices = 16
+		}
+		rl.DrawCylinder(wp, rt, rt, h, slices, col)
+	case entKindCone:
+		h := e.cylH * e.scale.Y
+		rs := e.scale.X
+		if e.scale.Z > rs {
+			rs = e.scale.Z
+		}
+		rt := e.radius * rs
+		slices := e.segV
+		if slices < 3 {
+			slices = 16
+		}
+		rl.DrawCylinder(wp, 0, rt, h, slices, col)
+	case entKindPlane:
+		sx := e.w * e.scale.X
+		sz := e.d * e.scale.Z
+		if sx <= 1e-6 {
+			sx = 1
+		}
+		if sz <= 1e-6 {
+			sz = 1
+		}
+		rl.DrawPlane(wp, rl.Vector2{X: sx, Y: sz}, col)
+	case entKindMesh, entKindModel:
+		if !e.hasRLModel {
+			if useBlend {
+				rl.EndBlendMode()
+			}
+			return
+		}
+		wm := m.worldMatrix(e)
+		saved := e.rlModel.Transform
+		e.rlModel.Transform = wm
+		mbmodel3d.DrawEntityModel(e.rlModel, col)
+		e.rlModel.Transform = saved
+	default:
+		if useBlend {
+			rl.EndBlendMode()
+		}
+		return
+	}
+	if useBlend {
+		rl.EndBlendMode()
+	}
+}
+
 func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("ENTITY.DRAWALL expects 0 arguments")
@@ -912,106 +1128,7 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 		return drawList[i].drawOrder < drawList[j].drawOrder
 	})
 	for _, e := range drawList {
-		if !m.isVisible(e) {
-			continue
-		}
-		useBlend, blendM := m.entDrawBlendMode(e)
-		if useBlend {
-			rl.BeginBlendMode(blendM)
-		}
-		wp := m.worldPos(e)
-		col := m.entTintResolved(e)
-		if e.isSprite && e.texHandle != 0 {
-			if obj, ok := m.h.Get(e.texHandle); ok {
-				if to, ok := obj.(*textureObj); ok {
-					cam, okCam := mbmodel3d.ActiveCamera3D()
-					if okCam {
-						src := rl.Rectangle{X: 0, Y: 0, Width: float32(to.tex.Width), Height: float32(to.tex.Height)}
-						size := rl.Vector2{X: e.w * e.scale.X, Y: e.h * e.scale.Y}
-						rl.DrawBillboardRec(cam, to.tex, src, wp, size, col)
-					}
-				}
-			}
-			if useBlend {
-				rl.EndBlendMode()
-			}
-			continue
-		}
-		switch e.kind {
-		case entKindBox:
-			rl.DrawCube(wp, e.w*e.scale.X, e.h*e.scale.Y, e.d*e.scale.Z, col)
-		case entKindSphere:
-			sx, sy, sz := e.scale.X, e.scale.Y, e.scale.Z
-			ms := sx
-			if sy > ms {
-				ms = sy
-			}
-			if sz > ms {
-				ms = sz
-			}
-			rad := e.radius * ms
-			if rad <= 1e-6 {
-				rad = 0.01
-			}
-			rings := e.segH
-			slices := e.segV
-			if rings < 8 {
-				rings = 16
-			}
-			if slices < 8 {
-				slices = 16
-			}
-			rl.DrawSphereEx(wp, rad, rings, slices, col)
-		case entKindCylinder:
-			h := e.cylH * e.scale.Y
-			rs := e.scale.X
-			if e.scale.Z > rs {
-				rs = e.scale.Z
-			}
-			rt := e.radius * rs
-			slices := e.segV
-			if slices < 3 {
-				slices = 16
-			}
-			rl.DrawCylinder(wp, rt, rt, h, slices, col)
-		case entKindCone:
-			h := e.cylH * e.scale.Y
-			rs := e.scale.X
-			if e.scale.Z > rs {
-				rs = e.scale.Z
-			}
-			rt := e.radius * rs
-			slices := e.segV
-			if slices < 3 {
-				slices = 16
-			}
-			rl.DrawCylinder(wp, 0, rt, h, slices, col)
-		case entKindPlane:
-			sx := e.w * e.scale.X
-			sz := e.d * e.scale.Z
-			if sx <= 1e-6 {
-				sx = 1
-			}
-			if sz <= 1e-6 {
-				sz = 1
-			}
-			rl.DrawPlane(wp, rl.Vector2{X: sx, Y: sz}, col)
-		case entKindMesh, entKindModel:
-			if !e.hasRLModel {
-				if useBlend {
-					rl.EndBlendMode()
-				}
-				continue
-			}
-			wm := m.worldMatrix(e)
-			saved := e.rlModel.Transform
-			e.rlModel.Transform = wm
-			mbmodel3d.DrawEntityModel(e.rlModel, col)
-			e.rlModel.Transform = saved
-		}
-		if useBlend {
-			rl.EndBlendMode()
-		}
+		m.drawOneEntity(e)
 	}
 	return value.Nil, nil
 }

@@ -1,0 +1,7 @@
+; Type-check: Blitz-style essentials (see docs/reference/BLITZ_ESSENTIAL_API.md)
+; go run . --check examples/blitz_essential_check/main.mb
+
+n = RAND(1, 6)
+m = RND(10, 20)
+cv# = CURVEVALUE(100.0, 0.0, 10.0)
+ca# = CURVEANGLE(90.0, 0.0, 5.0)

@@ -55,6 +55,7 @@ jobs:
           go run . --check examples/fps/main.mb
           go run . --check examples/spin_cube/main.mb
           go run . --check examples/mario64/main_entities.mb
+          go run . --check examples/terrain_chase/main.mb
           go run . --check examples/rpg/main.mb
           go run . --check examples/racing/main.mb
           go run . --check benchmarks/alu.mb
@@ -118,6 +119,7 @@ jobs:
           go run . --check examples/fps/main.mb
           go run . --check examples/spin_cube/main.mb
           go run . --check examples/mario64/main_entities.mb
+          go run . --check examples/terrain_chase/main.mb
           go run . --check examples/rpg/main.mb
           go run . --check examples/racing/main.mb
           go run . --check benchmarks/alu.mb

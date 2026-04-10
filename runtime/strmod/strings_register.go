@@ -8,6 +8,7 @@ func registerStringBuiltins(r runtime.Registrar) {
 	registerStringsSlice(r)
 	registerStringsSearch(r)
 	registerStringsFormat(r)
+	registerStringsInterp(r)
 	registerStringsCheck(r)
 	registerStringsSplitJoin(r)
 }

@@ -1,8 +1,8 @@
-# Vec2, Vec3, and Quat — Heap Math Handles
+# Vec2, Vec3, and Quat
 
-These commands wrap Raylib’s `raymath` types as **handles** on the VM heap. They are useful for physics-facing math, camera helpers, and quaternion-based rotation without gimbal lock.
+These commands support both classic heap-handle vector math and scalar convenience overloads for gameplay code.
 
-**Convention:** Angles are in **radians** unless noted. Free handles with `Vec2.Free`, `Vec3.Free`, or `Quat.Free` when you no longer need them (or rely on `Heap.FreeAll` at shutdown).
+**Convention:** Angles are in **radians** unless noted. Free heap handles with `Vec2.Free`, `Vec3.Free`, or `Quat.Free` when you no longer need them (or rely on `FREE.ALL` at shutdown).
 
 ---
 
@@ -10,11 +10,11 @@ These commands wrap Raylib’s `raymath` types as **handles** on the VM heap. Th
 
 | Command | Notes |
 |--------|--------|
-| `Vec3.Make(x#, y#, z#)` | New vec3 handle. |
+| `Vec3.Make(x, y, z)` | New vec3 handle. |
 | `Vec3.Free(h)` | |
 | `Vec3.X(h)` / `Y` / `Z` | Components. |
-| `Vec3.Set(h, x#, y#, z#)` | Mutate in place. |
-| `Vec3.Add` / `Sub` / `Mul` / `Div` / `Dot` / `Cross` / `Length` / `Normalize` / `Lerp` / `Distance` / `Reflect` / `Negate` / `Equals` | See compiler manifest for arities. |
+| `Vec3.Set(h, x, y, z)` | Mutate in place. |
+| `Vec3.Add` / `Sub` / `Mul` / `Div` / `Dot` / `Cross` / `Length` / `Normalize` / `Lerp` / `Distance` / `Reflect` / `Negate` / `Equals` | Handle-based overloads. |
 | `Vec3.TransformMat4(v, mat)` | Returns new vec3: `Vector3Transform`. |
 | `Vec3.Angle(a, b)` | Returns float, radians between vectors. |
 | `Vec3.Project(v, onto)` | Returns new vec3 projection of `v` onto `onto`. |
@@ -29,20 +29,42 @@ Vec3.Free(v)
 Vec3.Free(u)
 ```
 
+Scalar convenience overloads (no vec3 handle required):
+
+- `VEC3.LENGTH(x, y, z) -> float`
+- `VEC3.NORMALIZE(x, y, z) -> handle` (tuple-like 3-float array for destructuring)
+- `VEC3.DIST(x1, y1, z1, x2, y2, z2) -> float` — distance between two points; overload with **two vec3 handles** (same as `VEC3.Distance`).
+- `VEC3.DISTSQ(x1, y1, z1, x2, y2, z2) -> float` — squared distance (cheap radius checks without `SQRT`).
+
+```basic
+dx, dy, dz = VEC3.NORMALIZE(dx, dy, dz)
+dist# = VEC3.LENGTH(dx, dy, dz)
+d# = VEC3.DIST(px#, py#, pz#, ex#, ey#, ez#)
+IF VEC3.DISTSQ(px#, py#, pz#, ex#, ey#, ez#) < 4.0 THEN
+    ; within 2 units
+ENDIF
+```
+
 ---
 
 ## Vec2
 
 | Command | Notes |
 |--------|--------|
+| `Vec2.Make(x, y)` / `Vec2.Free(h)` / `Vec2.X(h)` / `Vec2.Y(h)` / `Vec2.Set(h, x, y)` | Handle-based vec2 API. |
+| `Vec2.Add` / `Sub` / `Mul` / `Length` / `Normalize` / `Lerp` / `Distance` / `Angle` / `Rotate` | Handle-based overloads. |
 | `Vec2.TransformMat4(v, mat)` | Returns new vec2 (homogeneous transform). |
 
+Scalar convenience overloads:
+
+- `VEC2.LENGTH(x, y) -> float`
+- `VEC2.NORMALIZE(x, y) -> handle` (tuple-like 2-float array)
+- `VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist) -> handle`
+
 ```basic
-; After building a 2D camera matrix from Camera2D.GetMatrix
-p = Vec2.Make(100, 200)
-p2 = Vec2.TransformMat4(p, cam_mat)
-Vec2.Free(p)
-; use p2, then Vec2.Free(p2)
+f#, s# = VEC2.NORMALIZE(f#, s#)
+ex#, ez# = VEC2.MOVE_TOWARD(ex#, ez#, px#, pz#, chaseSpeed# * dt#)
+dist# = VEC2.LENGTH(ex# - px#, ez# - pz#)
 ```
 
 ---
@@ -52,10 +74,10 @@ Vec2.Free(p)
 | Command | Notes |
 |--------|--------|
 | `Quat.Identity()` | |
-| `Quat.FromEuler(pitch#, yaw#, roll#)` | Radians (Raylib `QuaternionFromEuler`). |
-| `Quat.FromAxisAngle(ax#, ay#, az#, angle#)` | Axis need not be normalized; Raylib normalizes internally. |
+| `Quat.FromEuler(pitch, yaw, roll)` | Radians (Raylib `QuaternionFromEuler`). |
+| `Quat.FromAxisAngle(ax, ay, az, angle)` | Axis need not be normalized; Raylib normalizes internally. |
 | `Quat.Multiply(a, b)` | Returns new quaternion. |
-| `Quat.Slerp(a, b, t#)` | Spherical interpolation, `t` in 0..1. |
+| `Quat.Slerp(a, b, t)` | Spherical interpolation, `t` in 0..1. |
 | `Quat.ToMat4(q)` | Returns new transform matrix handle (same type as `Transform.*`). |
 | `Quat.ToEuler(q)` | Returns new **Vec3** handle: **X=roll, Y=pitch, Z=yaw** (radians), per Raylib `QuaternionToEuler`. |
 | `Quat.FromVec3ToVec3(from, to)` | Shortest rotation from direction `from` to `to` (new quaternion). |

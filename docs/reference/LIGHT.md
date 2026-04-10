@@ -2,6 +2,8 @@
 
 moonBASIC exposes **3D** lights as small **CPU-side handles** (`TypeName` `Light`). The built-in **PBR + shadow** path uses a **single directional** light for diffuse shading and **one shadow-casting light** at a time. Registry keys use **dots and uppercase** (e.g. `LIGHT.MAKE`); the tables below show both **PascalCase** names (as in specs) and the **canonical keys**.
 
+**Engine-style constructors (`LIGHT.CREATEPOINT`, `CREATEDIRECTIONAL`, `CREATESPOT`, …):** [CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md).
+
 **GPU / memory**
 
 - **`RENDER.SETSHADOWMAPSIZE`** controls one depth render target; larger sizes use more VRAM and bandwidth.
@@ -18,13 +20,13 @@ sun = Light.Make()
 sun = Light.Make("directional")
 ```
 
-Creates a light handle. Optional `kind$`: `"directional"`, `"point"`, or `"spot"` (stored for your logic; the stock PBR path is built around a **directional** sun).
+Creates a light handle. Optional `kind`: `"directional"`, `"point"`, or `"spot"` (stored for your logic; the stock PBR path is built around a **directional** sun).
 
 **Parameters**
 
 | Name | Type | Description |
 |---|---|---|
-| kind$ | string | Optional. Light kind label. |
+| kind | string | Optional. Light kind label. |
 
 **Returns** — handle (integer).
 
@@ -76,7 +78,7 @@ Sets the **light travel direction** (into the scene), normalized internally. Use
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| x#, y#, z# | float | Direction components (need not be pre-normalized). |
+| x, y, z | float | Direction components (need not be pre-normalized). |
 
 ---
 
@@ -140,7 +142,7 @@ Non-negative scale for diffuse RGB (applied together with **`LIGHT.SETCOLOR`**).
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| amount# | float | Intensity; negative values are clamped to `0`. |
+| amount | float | Intensity; negative values are clamped to `0`. |
 
 ---
 
@@ -158,7 +160,7 @@ World position for **point** / **spot** workflows (stored for API completeness; 
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| x#, y#, z# | float | World position. |
+| x, y, z | float | World position. |
 
 ---
 
@@ -175,7 +177,7 @@ World point the **orthographic shadow camera** looks at (default `0, 2, 0`). Adj
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| x#, y#, z# | float | Look-at point in world space. |
+| x, y, z | float | Look-at point in world space. |
 
 > **Common mistake:** Moving only **`LIGHT.SETDIR`** and wondering why shadows slide — pair direction with a sensible **`LIGHT.SETTARGET`** for the shadow volume.
 
@@ -194,7 +196,7 @@ Multiplier for **depth bias** in shadow sampling (typical **0.5–2.0**, clamped
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| bias# | float | Bias multiplier (default `1`). |
+| bias | float | Bias multiplier (default `1`). |
 
 ---
 
@@ -212,7 +214,7 @@ Spotlight cone angles in **degrees** (stored for API completeness).
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| angle# | float | Half-cone style angle in degrees (engine defaults: inner 25°, outer 35° at creation). |
+| angle | float | Half-cone style angle in degrees (engine defaults: inner 25°, outer 35° at creation). |
 
 ---
 
@@ -229,7 +231,7 @@ Attenuation range for point/spot lights (stored).
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| range# | float | Range distance. |
+| range | float | Range distance. |
 
 ---
 
@@ -269,14 +271,14 @@ RENDER.SETAMBIENT(r#, g#, b#)
 RENDER.SETAMBIENT(r#, g#, b#, a#)
 ```
 
-**3D PBR** hemispheric ambient tint (per-channel multiplier on albedo). Components may be **0.0–1.0** or **0–255** (values &gt; 1 are normalized as 8-bit). With **four** arguments, **`a#`** scales **all three** RGB channels together (useful for global ambient strength).
+**3D PBR** hemispheric ambient tint (per-channel multiplier on albedo). Components may be **0.0–1.0** or **0–255** (values &gt; 1 are normalized as 8-bit). With **four** arguments, **`a`** scales **all three** RGB channels together (useful for global ambient strength).
 
 **Parameters**
 
 | Name | Type | Description |
 |---|---|---|
-| r#, g#, b# | float | Ambient tint per channel. |
-| a# | float | Optional. Scales r, g, b together (default `1` when using the 3-argument form). |
+| r, g, b | float | Ambient tint per channel. |
+| a | float | Optional. Scales r, g, b together (default `1` when using the 3-argument form). |
 
 **Example**
 

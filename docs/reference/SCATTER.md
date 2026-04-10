@@ -8,9 +8,9 @@
 
 | Command | Role |
 |--------|------|
-| `Scatter.Create(name$)` | New scatter set (`TagScatterSet`); **`name$`** is a label for debugging. |
+| `Scatter.Create(name)` | New scatter set (`TagScatterSet`); **`name`** is a label for debugging. |
 | `Scatter.Free(scatter)` | Frees the set. |
-| `Scatter.Apply(scatter, terrain, density#, scale#, seed)` | Populates instances over terrain (algorithm is implementation-defined). |
+| `Scatter.Apply(scatter, terrain, density, scale, seed)` | Populates instances over terrain (algorithm is implementation-defined). |
 | `Scatter.DrawAll(scatter)` | Draws all instances. |
 
 ---
@@ -19,7 +19,7 @@
 
 | Command | Role |
 |--------|------|
-| `Prop.Place(model, x#, y#, z#)` | Records a prop at a point (model handle reserved for future use). |
+| `Prop.Place(model, x, y, z)` | Records a prop at a point (model handle reserved for future use). |
 | `Prop.Free(prop)` | Frees one prop handle. |
 | `Prop.DrawAll()` | Draws all registered props. |
 

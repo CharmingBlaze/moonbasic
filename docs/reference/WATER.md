@@ -12,6 +12,20 @@ Creates a subdivided plane mesh for rendering. Size is in world units.
 
 ---
 
+## `Water.Create(x#, z#, width#, depth#, level#)` → handle
+
+Convenience constructor: **`Water.Make(width, depth)`** at origin, then positions the plane at **`(x, level, z)`** ( **`level`** is the nominal surface **Y**). Same rendering/query behavior as **`Water.Make`** + **`Water.SetPos`**.
+
+---
+
+## `Water.SetWave(water, speed#, height#)`
+
+Sets **wave frequency** (**`speed`**, used as **`WaveFreq`**) and **amplitude** (**`height`**, same as **`Water.SetWaveHeight`**). Use with **`Water.Update`**.
+
+**Physics note:** Buoyancy forces from Jolt **trigger** volumes are not wired yet; **`Physics.SetBuoyancy`** stores a per-entity hint for a future WASM/Jolt fluid pass.
+
+---
+
 ## `Water.Free(water)`
 
 Frees the water object.

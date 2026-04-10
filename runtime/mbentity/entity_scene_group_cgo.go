@@ -239,6 +239,7 @@ func (m *Module) entClearScene(args []value.Value) (value.Value, error) {
 	}
 	st.groups = make(map[string]map[int64]struct{})
 	st.nextID = 1
+	m.clearLevelState()
 	return value.Nil, nil
 }
 

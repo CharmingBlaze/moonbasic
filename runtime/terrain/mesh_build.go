@@ -5,6 +5,19 @@ package terrain
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+func (t *TerrainObject) detailStep() int {
+	d := t.DetailFactor
+	if d <= 0 || d > 1 {
+		d = 1
+	}
+	step := int(1.0/float64(d) + 0.5)
+	if step < 1 {
+		step = 1
+	}
+	return step
+}
+
 func (t *TerrainObject) rebuildChunkMesh(cx, cz int) {
 	cs := t.ChunkSize
 	if cs < 2 {
@@ -33,6 +46,16 @@ func (t *TerrainObject) rebuildChunkMesh(cx, cz int) {
 		return
 	}
 
+	step := t.detailStep()
+	ws := (w + step - 1) / step
+	hs := (h + step - 1) / step
+	if ws < 2 {
+		ws = 2
+	}
+	if hs < 2 {
+		hs = 2
+	}
+
 	minH := t.heightAtCell(x0, z0)
 	maxH := minH
 	for z := 0; z < h; z++ {
@@ -54,10 +77,19 @@ func (t *TerrainObject) rebuildChunkMesh(cx, cz int) {
 	ch.MaxH = maxH
 	ch.BoundsValid = true
 
-	im := rl.GenImageColor(int(w), int(h), rl.Color{R: 0, G: 0, B: 0, A: 0})
-	for z := 0; z < h; z++ {
-		for x := 0; x < w; x++ {
-			v := t.heightAtCell(x0+x, z0+z)
+	sy := t.scaleYEff()
+	im := rl.GenImageColor(int(ws), int(hs), rl.Color{R: 0, G: 0, B: 0, A: 0})
+	for z := 0; z < hs; z++ {
+		for x := 0; x < ws; x++ {
+			sx := x * step
+			sz := z * step
+			if sx >= w {
+				sx = w - 1
+			}
+			if sz >= h {
+				sz = h - 1
+			}
+			v := t.heightAtCell(x0+sx, z0+sz)
 			nv := (v - minH) / dh
 			if nv < 0 {
 				nv = 0
@@ -70,9 +102,11 @@ func (t *TerrainObject) rebuildChunkMesh(cx, cz int) {
 		}
 	}
 
-	sizeX := float32(w-1) * t.CellSize
-	sizeZ := float32(h-1) * t.CellSize
-	sizeY := dh
+	sx := t.scaleXEff()
+	sz := t.scaleZEff()
+	sizeX := float32(ws-1) * t.CellSize * float32(step) * sx
+	sizeZ := float32(hs-1) * t.CellSize * float32(step) * sz
+	sizeY := dh * sy
 
 	if ch.Loaded {
 		rl.UnloadMaterial(ch.Mat)
@@ -82,6 +116,9 @@ func (t *TerrainObject) rebuildChunkMesh(cx, cz int) {
 	ch.Mesh = rl.GenMeshHeightmap(*im, rl.NewVector3(sizeX, sizeY, sizeZ))
 	rl.UnloadImage(im)
 	ch.Mat = rl.LoadMaterialDefault()
+	if t.DiffuseLoaded {
+		rl.SetMaterialTexture(&ch.Mat, rl.MapAlbedo, t.DiffuseTex)
+	}
 	ch.Loaded = true
 	ch.Dirty = false
 }
@@ -130,9 +167,12 @@ func (t *TerrainObject) drawChunk(cx, cz int) {
 	if dh < 1e-4 {
 		dh = 1
 	}
-	tx := t.PX + float32(x0)*t.CellSize
-	ty := t.PY + minH
-	tz := t.PZ + float32(z0)*t.CellSize
+	sx := t.scaleXEff()
+	sz := t.scaleZEff()
+	sy := t.scaleYEff()
+	tx := t.PX + float32(x0)*t.CellSize*sx
+	ty := t.PY + minH*sy
+	tz := t.PZ + float32(z0)*t.CellSize*sz
 	mat := rl.MatrixTranslate(tx, ty, tz)
 	rl.DrawMesh(ch.Mesh, ch.Mat, mat)
 }

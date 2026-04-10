@@ -18,7 +18,7 @@ Terminates the program immediately. This is a hard exit; `Window.Close()` is pre
 
 Gets the value of an environment variable.
 
-- `varName$`: The name of the environment variable (e.g., "PATH").
+- `varName`: The name of the environment variable (e.g., "PATH").
 
 ### `System.OpenURL(url$)`
 

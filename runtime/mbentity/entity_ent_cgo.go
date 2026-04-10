@@ -73,6 +73,8 @@ type ent struct {
 	spriteMode int32 // 1=y-billboard, 2=full-billboard, 3=static
 	parentID   int64
 	name       string
+	// blenderTag: optional "tag" string from glTF extras (see MATERIAL.BULKASSIGN).
+	blenderTag string
 
 	rlModel    rl.Model
 	hasRLModel bool
@@ -108,6 +110,12 @@ type ent struct {
 
 	// procMeshH: TagMeshBuilder for ENTITY.CREATEMESH procedural geometry (AddVertex / UpdateMesh).
 	procMeshH heap.Handle
+
+	// tween*: ENTITY.ANIMATETOWARD linear world-space lerp (advanced in ENTITY.UPDATE).
+	tweenActive              bool
+	tweenSX, tweenSY, tweenSZ float32
+	tweenTX, tweenTY, tweenTZ float32
+	tweenElapsed, tweenDuration float32
 }
 
 func newDefaultEnt(id int64) *ent {

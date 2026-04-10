@@ -12,7 +12,7 @@ Commands for loading and manipulating raw wave audio data in memory.
 
 Loads a wave file (`.wav`) into memory. Returns a handle to the wave data.
 
-- `filePath$`: The path to the `.wav` file.
+- `filePath`: The path to the `.wav` file.
 
 ---
 

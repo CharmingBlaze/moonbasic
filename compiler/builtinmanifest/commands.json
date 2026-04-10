@@ -373,6 +373,159 @@
       ]
     },
     {
+      "key": "MATH.CIRCLEPOINT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "CIRCLEPOINT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MATH.LERPANGLE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MATH.APPROACH",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MATH.CURVE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Alias of CURVE \u00e2\u20ac\u201d current + (target-current)/divisor (divisor clamped to >= 1)"
+    },
+    {
+      "key": "MOVE.TOWARD",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Alias of MATH.APPROACH \u00e2\u20ac\u201d move current toward target by at most maxDelta without overshooting"
+    },
+    {
+      "key": "MOVE.LERP",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Alias of MATH.LERP"
+    },
+    {
+      "key": "ANGLE.DIFFERENCE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Shortest signed angle from a to b in degrees (alias of MATH.ANGLEDIFF)"
+    },
+    {
+      "key": "CURVEVALUE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "DBPro-style: move current toward target by (target-current)/speed per call"
+    },
+    {
+      "key": "CURVEANGLE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Like CURVEVALUE for degrees (360 wrap)"
+    },
+    {
+      "key": "REMAP",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MATH.REMAP",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "INVERSE_LERP",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MATH.INVERSE_LERP",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "SATURATE",
+      "args": [
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "MATH.SATURATE",
+      "args": [
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "LERP",
       "args": [
         "any",
@@ -403,6 +556,172 @@
         "any",
         "any"
       ]
+    },
+    {
+      "key": "SMOOTHERSTEP",
+      "args": [
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "float",
+      "description": "Ken Perlin smootherstep(edge0, edge1, x); clamps then 6t^5-15t^4+10t^3"
+    },
+    {
+      "key": "MATH.SMOOTHERSTEP",
+      "args": [
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "float",
+      "description": "Same as SMOOTHERSTEP"
+    },
+    {
+      "key": "HDIST",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Horizontal distance on XZ: hypot(x2-x1, z2-z1); ignores Y"
+    },
+    {
+      "key": "MATH.HDIST",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as HDIST"
+    },
+    {
+      "key": "HDISTSQ",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Squared HDIST for comparisons without sqrt"
+    },
+    {
+      "key": "MATH.HDISTSQ",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as HDISTSQ"
+    },
+    {
+      "key": "YAWFROMXZ",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Yaw radians from flat direction (dx, dz); matches MOVEX/MOVEZ convention"
+    },
+    {
+      "key": "MATH.YAWFROMXZ",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as YAWFROMXZ"
+    },
+    {
+      "key": "ANGLETO",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Heading in degrees [0,360) on XZ from (x1,z1) to (x2,z2)"
+    },
+    {
+      "key": "MATH.ANGLETO",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as ANGLETO"
+    },
+    {
+      "key": "ANGLEDIFFRAD",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Shortest signed angle difference b-a in radians"
+    },
+    {
+      "key": "MATH.ANGLEDIFFRAD",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as ANGLEDIFFRAD"
+    },
+    {
+      "key": "DIST2D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "2D Euclidean distance; alias of DISTANCE2D under MATH"
+    },
+    {
+      "key": "MATH.DIST2D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as DIST2D"
+    },
+    {
+      "key": "DISTSQ2D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Squared 2D distance"
+    },
+    {
+      "key": "MATH.DISTSQ2D",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "Same as DISTSQ2D"
     },
     {
       "key": "PINGPONG",
@@ -600,7 +919,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "Same as MOVEX(yaw,f,s)*speed*dt — world X delta this frame"
+      "description": "Same as MOVEX(yaw,f,s)*speed*dt \u00e2\u20ac\u201d world X delta this frame"
     },
     {
       "key": "MOVESTEPZ",
@@ -612,7 +931,27 @@
         "float"
       ],
       "returns": "float",
-      "description": "Same as MOVEZ(yaw,f,s)*speed*dt — world Z delta this frame"
+      "description": "Same as MOVEZ(yaw,f,s)*speed*dt \u00e2\u20ac\u201d world Z delta this frame"
+    },
+    {
+      "key": "MATH.NEWX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "currentX + MOVEX(yaw,1,0)*dist \u00e2\u20ac\u201d yaw in radians (XZ forward step)"
+    },
+    {
+      "key": "MATH.NEWZ",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "description": "currentZ + MOVEZ(yaw,1,0)*dist \u00e2\u20ac\u201d yaw in radians"
     },
     {
       "key": "FIX",
@@ -664,13 +1003,40 @@
     {
       "key": "RND",
       "args": [],
-      "description": "RND() float in [0,1); RND(n) int in [0,n-1] for integer n>=1."
+      "description": "RND() float in [0,1); RND(n) int in [0,n-1]; RND(lo,hi) inclusive int range."
     },
     {
       "key": "RND",
       "args": [
         "any"
       ]
+    },
+    {
+      "key": "RND",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "int",
+      "description": "Inclusive random integer in [min, max]"
+    },
+    {
+      "key": "RAND",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "int",
+      "description": "Same as RND(min, max) \u00e2\u20ac\u201d inclusive integer range"
+    },
+    {
+      "key": "MATH.RAND",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "int",
+      "description": "Same as RAND"
     },
     {
       "key": "MATH.RND",
@@ -681,6 +1047,15 @@
       "args": [
         "any"
       ]
+    },
+    {
+      "key": "MATH.RND",
+      "args": [
+        "any",
+        "any"
+      ],
+      "returns": "int",
+      "description": "Inclusive int range \u00e2\u20ac\u201d same as RND(lo, hi)"
     },
     {
       "key": "RNDF",
@@ -1150,6 +1525,377 @@
       "returns": "string"
     },
     {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
+      "key": "DEBUG.PRINT",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ]
+    },
+    {
       "key": "REVERSE$",
       "args": [
         "string"
@@ -1322,7 +2068,7 @@
       "args": [
         "handle"
       ],
-      "description": "Alias of POST.ADDSHADER — full-screen post shader for the render pipeline"
+      "description": "Alias of POST.ADDSHADER \u00e2\u20ac\u201d full-screen post shader for the render pipeline"
     },
     {
       "key": "WINDOW.WIDTH",
@@ -1422,6 +2168,19 @@
       "phase": "rendering"
     },
     {
+      "key": "GAME.SETTIMESCALE",
+      "args": [
+        "float"
+      ],
+      "description": "Scales frame delta (0 = treated as 1); use for slow-mo / fast-forward with GAME.DT and TIME.DELTA"
+    },
+    {
+      "key": "GAME.GETTIMESCALE",
+      "args": [],
+      "returns": "float",
+      "description": "Current time scale (0 stored reads as 1 for delta)"
+    },
+    {
       "key": "GAME.FPS",
       "args": [],
       "returns": "int",
@@ -1502,7 +2261,7 @@
       ],
       "returns": "handle",
       "phase": "any",
-      "description": "MOVESTEPX/Z combined — 2-float array [dx,dz]; ERASE when done"
+      "description": "MOVESTEPX/Z combined \u00e2\u20ac\u201d 2-float array [dx,dz]; ERASE when done"
     },
     {
       "key": "GAME.MX",
@@ -1819,6 +2578,33 @@
         "float",
         "float"
       ]
+    },
+    {
+      "key": "RENDER.SETFOG",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Fog RGB, near, far, density \u00e2\u20ac\u201d FOG.* + WORLD.FOGDENSITY"
+    },
+    {
+      "key": "RENDER.SETBLOOM",
+      "args": [
+        "float"
+      ],
+      "description": "POST.BLOOM threshold; intensity defaults to 1"
+    },
+    {
+      "key": "RENDER.SETBLOOM",
+      "args": [
+        "float",
+        "float"
+      ],
+      "description": "POST.BLOOM threshold and intensity"
     },
     {
       "key": "RENDER.SET2DAmbIENT",
@@ -2328,6 +3114,49 @@
       "returns": "handle"
     },
     {
+      "key": "NAV.BAKE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Builds a coarse walkability grid from a terrain heightmap (slope limit); returns nav handle and caches per terrain for NAV.GETPATH"
+    },
+    {
+      "key": "NAV.GETPATH",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "A* path on last NAV.BAKE for this terrain (start/end XZ; Y sampled from terrain)"
+    },
+    {
+      "key": "NAV.ISREACHABLE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool",
+      "description": "True if NAV.GETPATH would return a valid path"
+    },
+    {
+      "key": "ENEMY.FOLLOWPATH",
+      "args": [
+        "int",
+        "handle",
+        "float"
+      ],
+      "description": "Moves an entity along a PATH handle toward waypoints at speed (world units/sec)"
+    },
+    {
       "key": "NOISE.MAKE",
       "args": [],
       "returns": "handle",
@@ -2335,146 +3164,248 @@
     },
     {
       "key": "NOISE.FREE",
-      "args": ["handle"],
+      "args": [
+        "handle"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETTYPE",
-      "args": ["handle", "string"],
+      "args": [
+        "handle",
+        "string"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETSEED",
-      "args": ["handle", "int"],
+      "args": [
+        "handle",
+        "int"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETFREQUENCY",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETOCTAVES",
-      "args": ["handle", "int"],
+      "args": [
+        "handle",
+        "int"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETLACUNARITY",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETGAIN",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETWEIGHTEDSTRENGTH",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETPINGPONGSTRENGTH",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETCELLULARTYPE",
-      "args": ["handle", "string"],
+      "args": [
+        "handle",
+        "string"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETCELLULARDISTANCE",
-      "args": ["handle", "string"],
+      "args": [
+        "handle",
+        "string"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETCELLULARJITTER",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETDOMAINWARPTYPE",
-      "args": ["handle", "string"],
+      "args": [
+        "handle",
+        "string"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.SETDOMAINWARPAMPLITUDE",
-      "args": ["handle", "float"],
+      "args": [
+        "handle",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.GET",
-      "args": ["handle", "float", "float"],
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "NOISE.GET3D",
-      "args": ["handle", "float", "float", "float"],
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "NOISE.GETDOMAINWARPED",
-      "args": ["handle", "float", "float"],
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "NOISE.GETNORM",
-      "args": ["handle", "float", "float"],
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "NOISE.GETTILEABLE",
-      "args": ["handle", "float", "float", "float", "float"],
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "NOISE.FILLARRAY",
-      "args": ["handle", "handle", "int", "int", "float", "float"],
+      "args": [
+        "handle",
+        "handle",
+        "int",
+        "int",
+        "float",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.FILLARRAYNORM",
-      "args": ["handle", "handle", "int", "int", "float", "float"],
+      "args": [
+        "handle",
+        "handle",
+        "int",
+        "int",
+        "float",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.FILLIMAGE",
-      "args": ["handle", "handle", "float", "float"],
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float"
+      ],
       "phase": "any"
     },
     {
       "key": "NOISE.MAKEPERLIN",
-      "args": ["int", "float"],
+      "args": [
+        "int",
+        "float"
+      ],
       "returns": "handle",
       "phase": "any"
     },
     {
       "key": "NOISE.MAKESIMPLEX",
-      "args": ["int", "float"],
+      "args": [
+        "int",
+        "float"
+      ],
       "returns": "handle",
       "phase": "any"
     },
     {
       "key": "NOISE.MAKEFRACTAL",
-      "args": ["int", "float", "int", "string"],
+      "args": [
+        "int",
+        "float",
+        "int",
+        "string"
+      ],
       "returns": "handle",
       "phase": "any"
     },
     {
       "key": "NOISE.MAKECELLULAR",
-      "args": ["int", "float", "string"],
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
       "returns": "handle",
       "phase": "any"
     },
     {
       "key": "NOISE.MAKEDOMAINWARP",
-      "args": ["int", "float", "float"],
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
       "returns": "handle",
       "phase": "any"
     },
@@ -2750,7 +3681,13 @@
       "key": "CAM",
       "args": [],
       "returns": "handle",
-      "description": "Alias of CAMERA.MAKE — short Blitz-style 3D camera constructor"
+      "description": "Alias of CAMERA.MAKE \u00e2\u20ac\u201d short Blitz-style 3D camera constructor"
+    },
+    {
+      "key": "CAMERA.CREATE",
+      "args": [],
+      "returns": "handle",
+      "description": "Alias of CAMERA.MAKE \u00e2\u20ac\u201d returns a Camera3D handle"
     },
     {
       "key": "LIGHT.MAKE",
@@ -2763,6 +3700,52 @@
       "key": "LIGHT.MAKE",
       "args": [],
       "returns": "handle"
+    },
+    {
+      "key": "LIGHT.CREATEPOINT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Point light at (x,y,z) with RGB (0\u00e2\u20ac\u201c255 or 0\u00e2\u20ac\u201c1) and intensity (energy)"
+    },
+    {
+      "key": "LIGHT.CREATEDIRECTIONAL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Directional light: direction vector (dx,dy,dz), RGB, energy \u00e2\u20ac\u201d direction is normalized"
+    },
+    {
+      "key": "LIGHT.CREATESPOT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Spot: position, target point, RGB, outer cone degrees, energy"
     },
     {
       "key": "CreateLight",
@@ -2900,6 +3883,14 @@
         "handle",
         "bool"
       ]
+    },
+    {
+      "key": "LIGHT.SETSTATE",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "description": "Alias of LIGHT.ENABLE"
     },
     {
       "key": "LIGHT.ISENABLED",
@@ -4238,6 +5229,85 @@
       ]
     },
     {
+      "key": "TEXTURE.SETGRID",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "phase": "rendering",
+      "description": "Spritesheet layout: columns x rows of equal frames"
+    },
+    {
+      "key": "TEXTURE.SETFRAME",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering",
+      "description": "Select atlas frame index (0-based)"
+    },
+    {
+      "key": "TEXTURE.LOADANIM",
+      "args": [
+        "string",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "TEXTURE.LOAD + SETGRID in one call"
+    },
+    {
+      "key": "TEXTURE.PLAY",
+      "args": [
+        "handle",
+        "float",
+        "bool"
+      ],
+      "phase": "rendering",
+      "description": "Auto-advance atlas frames; call TEXTURE.TICKALL each frame"
+    },
+    {
+      "key": "TEXTURE.STOPANIM",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.TICKALL",
+      "args": [],
+      "phase": "rendering",
+      "description": "Advance all playing atlas animations (optional dt via overload)"
+    },
+    {
+      "key": "TEXTURE.TICKALL",
+      "args": [
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.SETUVSCROLL",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Source-rectangle scroll speeds for sampled UVs"
+    },
+    {
+      "key": "TEXTURE.SETDISTORTION",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Shader-side distortion amount hint"
+    },
+    {
       "key": "LOADTEXTURE",
       "args": [
         "string"
@@ -4249,6 +5319,14 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "IMAGE.TOTEXTURE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Alias of TEXTURE.FROMIMAGE; respects IMAGE.SETFILTER when set"
     },
     {
       "key": "TEXTURE.GENWHITENOISE",
@@ -4306,6 +5384,25 @@
       "args": [
         "handle",
         "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.SETDEFAULTFILTER",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "RENDER.CLEARCACHE",
+      "args": [],
+      "phase": "rendering"
+    },
+    {
+      "key": "TEXTURE.RELOAD",
+      "args": [
+        "handle"
       ],
       "phase": "rendering"
     },
@@ -4426,6 +5523,17 @@
       ]
     },
     {
+      "key": "MESH.CREATEPLANE",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Alias of MESH.MAKEPLANE \u00e2\u20ac\u201d procedural plane mesh handle"
+    },
+    {
       "key": "MESH.MAKECUBE",
       "args": [
         "float",
@@ -4440,6 +5548,26 @@
         "int",
         "int"
       ]
+    },
+    {
+      "key": "MESH.CREATECUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Alias of MESH.MAKECUBE"
+    },
+    {
+      "key": "MESH.CREATESPHERE",
+      "args": [
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Alias of MESH.MAKESPHERE"
     },
     {
       "key": "MESH.MAKECYLINDER",
@@ -5004,7 +6132,7 @@
       ],
       "returns": "float",
       "phase": "any",
-      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) — radians this frame"
+      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) \u00e2\u20ac\u201d radians this frame"
     },
     {
       "key": "INPUT.ORBIT",
@@ -5016,7 +6144,7 @@
       ],
       "returns": "float",
       "phase": "any",
-      "description": "Alias of INPUT.AXISDEG — orbit / yaw delta this frame"
+      "description": "Alias of INPUT.AXISDEG \u00e2\u20ac\u201d orbit / yaw delta this frame"
     },
     {
       "key": "INPUT.MOVEMENT2D",
@@ -5166,6 +6294,13 @@
       "description": "Alias of INPUT.MOUSEWHEELMOVE"
     },
     {
+      "key": "MouseWheel",
+      "args": [],
+      "returns": "float",
+      "phase": "any",
+      "description": "Alias of INPUT.MOUSEWHEELMOVE (Input.MouseWheel() style)"
+    },
+    {
       "key": "INPUT.KEYDOWN",
       "args": [
         "int"
@@ -5181,7 +6316,6 @@
       "returns": "bool",
       "phase": "any"
     },
-
     {
       "key": "INPUT.MOUSEWHEELMOVE",
       "args": [],
@@ -5440,6 +6574,24 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "IMAGE.GETPIXEL",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "description": "Packed pixel color (host byte order; typically ARGB-style int)"
+    },
+    {
+      "key": "IMAGE.SETFILTER",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Raylib texture filter applied on IMAGE.TOTEXTURE / TEXTURE.FROMIMAGE"
     },
     {
       "key": "IMAGE.FREE",
@@ -5788,6 +6940,14 @@
       "args": []
     },
     {
+      "key": "TIME.DELTA",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "TIME.SETMAXDELTA",
       "args": [
         "float"
@@ -5997,7 +7157,6 @@
       "args": [],
       "description": "Professional: List all registered built-in commands."
     },
-
     {
       "key": "FILE.OPEN",
       "args": [
@@ -6970,78 +8129,255 @@
       "phase": "any"
     },
     {
-      "key": "RAY2D.HITCIRCLE_HIT",
-      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "key": "RAY.INTERSECTSMODEL_HIT",
+      "args": [
+        "handle",
+        "handle"
+      ],
       "returns": "bool",
       "phase": "any",
-      "description": "2D ray vs circle — hit?"
+      "description": "Alias of RAY.HITMODEL_HIT \u00e2\u20ac\u201d ray vs loaded MODEL mesh union"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_DISTANCE",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_POINTX",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_POINTY",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_POINTZ",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_NORMALX",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_NORMALY",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY.INTERSECTSMODEL_NORMALZ",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "RAY2D.HITCIRCLE_HIT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "2D ray vs circle \u00e2\u20ac\u201d hit?"
     },
     {
       "key": "RAY2D.HITCIRCLE_DISTANCE",
-      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any",
       "description": "Distance along ray to hit (0 if miss)"
     },
     {
       "key": "RAY2D.HITCIRCLE_POINTX",
-      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITCIRCLE_POINTY",
-      "args": ["float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITRECT_HIT",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "bool",
       "phase": "any",
       "description": "2D ray vs axis-aligned rect (minx,miny,maxx,maxy)"
     },
     {
       "key": "RAY2D.HITRECT_DISTANCE",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITRECT_POINTX",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITRECT_POINTY",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITSEGMENT_HIT",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "bool",
       "phase": "any",
       "description": "2D ray vs segment (x1,y1)-(x2,y2)"
     },
     {
       "key": "RAY2D.HITSEGMENT_DISTANCE",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITSEGMENT_POINTX",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "RAY2D.HITSEGMENT_POINTY",
-      "args": ["float", "float", "float", "float", "float", "float", "float", "float"],
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
       "returns": "float",
       "phase": "any"
     },
@@ -7647,9 +8983,29 @@
       "phase": "any"
     },
     {
+      "key": "VEC3.LENGTH",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
       "key": "VEC3.NORMALIZE",
       "args": [
         "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.NORMALIZE",
+      "args": [
+        "float",
+        "float",
+        "float"
       ],
       "returns": "handle",
       "phase": "any"
@@ -7669,6 +9025,41 @@
       "args": [
         "handle",
         "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.DIST",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.DIST",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC3.DISTSQ",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
       ],
       "returns": "float",
       "phase": "any"
@@ -7820,9 +9211,82 @@
       "phase": "any"
     },
     {
+      "key": "VEC2.LENGTH",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
       "key": "VEC2.NORMALIZE",
       "args": [
         "handle"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.NORMALIZE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.MOVE_TOWARD",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.DIST",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.DIST",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.DISTSQ",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "VEC2.PUSHOUT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
       ],
       "returns": "handle",
       "phase": "any"
@@ -8024,6 +9488,36 @@
       "phase": "any"
     },
     {
+      "key": "COLOR.HSV",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "COLOR.HSV(index, total) \u00e2\u20ac\u201d evenly spaced hues on the wheel"
+    },
+    {
+      "key": "COLOR.FROMHSV",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
+      "key": "COLOR.CLAMP",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any"
+    },
+    {
       "key": "COLOR.FREE",
       "args": [
         "handle"
@@ -8103,6 +9597,14 @@
         "handle"
       ],
       "returns": "float",
+      "phase": "any"
+    },
+    {
+      "key": "COLOR.TOHSV",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
       "phase": "any"
     },
     {
@@ -8390,6 +9892,24 @@
       ],
       "returns": "bool",
       "phase": "any"
+    },
+    {
+      "key": "RES.PATH",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "phase": "any",
+      "description": "Resolve localPath relative to the running executable directory (absolute paths unchanged)"
+    },
+    {
+      "key": "RES.EXISTS",
+      "args": [
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "True if path exists on disk (same idea as UTIL.FILEEXISTS)"
     },
     {
       "key": "UTIL.ISDIR",
@@ -9420,6 +10940,37 @@
       "phase": "rendering"
     },
     {
+      "key": "SPRITE.SETFRAME",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "phase": "rendering",
+      "description": "Manual frame index (strip / DEFANIM); stops SPRITE.PLAY range playback"
+    },
+    {
+      "key": "SPRITE.PLAY",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "float",
+        "bool"
+      ],
+      "phase": "rendering",
+      "description": "Animate frames start..end at speed (frames/sec); call SPRITE.UPDATEANIM with Time.Delta()"
+    },
+    {
+      "key": "SPRITE.SETORIGIN",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Pivot offset in pixels (subtracted from draw position)"
+    },
+    {
       "key": "SPRITE.HIT",
       "args": [
         "handle",
@@ -10349,6 +11900,17 @@
       "phase": "rendering"
     },
     {
+      "key": "CAMERA.UNPROJECT",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Screen (x,y) to world ray \u00e2\u20ac\u201d alias of CAMERA.GETRAY / PICK"
+    },
+    {
       "key": "CAMERA.GETVIEWRAY",
       "args": [
         "float",
@@ -10394,6 +11956,58 @@
         "float"
       ],
       "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.PROJECT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Alias of CAMERA.WORLDTOSCREEN \u00e2\u20ac\u201d world point to screen [sx,sy]",
+      "phase": "rendering"
+    },
+    {
+      "key": "WORLD.TOSCREEN",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "World to screen using active CAMERA.BEGIN 3D camera; returns float array [sx,sy]",
+      "phase": "rendering"
+    },
+    {
+      "key": "WORLD.TOWORLD",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Unproject screen x,y with depth along view ray (active 3D camera); returns [wx,wy,wz]",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.LOOKATENTITY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Sets camera target to entity world position (same idea as Blitz PointAt)",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.POINTATENTITY",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Alias of CAMERA.LOOKATENTITY",
       "phase": "rendering"
     },
     {
@@ -10444,6 +12058,15 @@
         "int"
       ],
       "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETMODE",
+      "args": [
+        "handle",
+        "any"
+      ],
+      "phase": "rendering",
+      "description": "0/1 or perspective/orthographic \u00e2\u20ac\u201d alias-friendly CAMERA.SETPROJECTION"
     },
     {
       "key": "CAMERA2D.BEGIN",
@@ -11280,6 +12903,22 @@
       "returns": "handle"
     },
     {
+      "key": "PHYSICS.SETBUOYANCY",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Stores per-entity buoyancy density for future Jolt/WASM fluid coupling (gameplay hint today)"
+    },
+    {
+      "key": "PHYSICS.GETBUOYANCY",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Reads stored buoyancy density (default 0)"
+    },
+    {
       "key": "PHYSICS.SPHERECAST",
       "args": [
         "any"
@@ -11852,6 +13491,229 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "PLAYER.CREATE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "PLAYER.MOVE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ]
+    },
+    {
+      "key": "PLAYER.JUMP",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "PLAYER.ISGROUNDED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "PLAYER.GETLOOKTARGET",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "PLAYER.GETNEARBY",
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "PLAYER.ONTRIGGER",
+      "args": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "key": "PLAYER.SETSTATE",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "PLAYER.SYNCANIM",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "PLAYER.SETSTEPHEIGHT",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Stores max stair/curb step height for the player entity (reserved; Jolt runtime step tuning not exposed yet)"
+    },
+    {
+      "key": "PLAYER.SETSLOPELIMIT",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Rebuilds CharacterVirtual with MaxSlopeAngle = angle (degrees); requires PLAYER.CREATE (Linux+Jolt)"
+    },
+    {
+      "key": "PLAYER.GETVELOCITY",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Heap vec3 of linear velocity (CharacterVirtual); requires PLAYER.CREATE"
+    },
+    {
+      "key": "PLAYER.TELEPORT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Snaps capsule and entity to (x,y,z), clears linear velocity (no smoothing)"
+    },
+    {
+      "key": "PLAYER.SNAPTOGROUND",
+      "args": [
+        "int",
+        "handle",
+        "float"
+      ],
+      "description": "Sets entity Y from terrain height at entity XZ + offset (PLAYER.CREATE syncs capsule on Linux+Jolt)"
+    },
+    {
+      "key": "PLAYER.ISSWIMMING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True when entity origin is inside a WATER volume column (bed..surface)"
+    },
+    {
+      "key": "PLAYER.SETGRAVITYSCALE",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Scales CharacterVirtual gravity on Y (1=default; moon-jump / low-G zones)"
+    },
+    {
+      "key": "PLAYER.GETCROUCH",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Stored crouch flag (capsule resize not in Jolt wrapper yet)"
+    },
+    {
+      "key": "PLAYER.SETCROUCH",
+      "args": [
+        "int",
+        "any"
+      ],
+      "description": "Sets crouch flag (gameplay; capsule height unchanged until wrapper supports it)"
+    },
+    {
+      "key": "PLAYER.SWIM",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Swim mode: buoyancy reduces downward gravity; drag damps horizontal motion; (0,0) disables"
+    },
+    {
+      "key": "PLAYER.SETSTEPOFFSET",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PLAYER.SETSTEPHEIGHT (reserved step tuning)"
+    },
+    {
+      "key": "PLAYER.GETSTANDNORMAL",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "description": "Vec3 ground/floor normal under the player (CharacterVirtual or downward ray)"
+    },
+    {
+      "key": "PLAYER.PUSH",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "description": "Applies forward horizontal force to target entity (host ENTITY.ADDFORCE path; scaled by player mass)"
+    },
+    {
+      "key": "PLAYER.GRAB",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Welds target to player front each frame (target 0 releases); not a Jolt fixed constraint yet"
+    },
+    {
+      "key": "PLAYER.SETMASS",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Stores gameplay mass (PLAYER.Push scaling); Jolt capsule mass is fixed at create"
+    },
+    {
+      "key": "PLAYER.GETSURFACETYPE",
+      "args": [
+        "int"
+      ],
+      "returns": "string",
+      "description": "Footstep label from downward ray hit entity metadata / Blender tag (else Default)"
+    },
+    {
+      "key": "PLAYER.SETFOVKICK",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Stores extra FOV degrees; add Camera.SetFOV(base + Player.GetFovKick(id)) each frame"
+    },
+    {
+      "key": "PLAYER.GETFOVKICK",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Reads stored FOV kick offset (degrees)"
+    },
+    {
+      "key": "PLAYER.ISMOVING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True if horizontal linear speed > ~0.05 (CharacterVirtual)"
     },
     {
       "key": "CONTROLLER.CREATE",
@@ -13811,7 +15673,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CUBE — solid axis-aligned box"
+      "description": "alias of DRAW3D.CUBE \u00e2\u20ac\u201d solid axis-aligned box"
     },
     {
       "key": "BOXW",
@@ -13827,7 +15689,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CUBEWIRES — wire box"
+      "description": "alias of DRAW3D.CUBEWIRES \u00e2\u20ac\u201d wire box"
     },
     {
       "key": "WIRECUBE",
@@ -13857,7 +15719,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.SPHERE — solid sphere"
+      "description": "alias of DRAW3D.SPHERE \u00e2\u20ac\u201d solid sphere"
     },
     {
       "key": "BALLW",
@@ -13873,7 +15735,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.SPHEREWIRES — wire sphere"
+      "description": "alias of DRAW3D.SPHEREWIRES \u00e2\u20ac\u201d wire sphere"
     },
     {
       "key": "GRID3",
@@ -13881,7 +15743,7 @@
         "int",
         "float"
       ],
-      "description": "alias of DRAW3D.GRID — XZ reference grid"
+      "description": "alias of DRAW3D.GRID \u00e2\u20ac\u201d XZ reference grid"
     },
     {
       "key": "GRID3",
@@ -13891,6 +15753,142 @@
         "float"
       ],
       "description": "alias of DRAW3D.GRID with Y offset"
+    },
+    {
+      "key": "GRID.CREATE",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Logical XZ tactical grid (width x depth cells, cell size)"
+    },
+    {
+      "key": "GRID.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GRID.SETCELL",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GRID.GETCELL",
+      "args": [
+        "handle",
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
+      "key": "GRID.WORLDTOCELL",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Array handle [ix, iz]"
+    },
+    {
+      "key": "GRID.DRAW",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GRID.DRAW",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GRID.SNAP",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering",
+      "description": "Move entity to cell center (optional Y from GRID.FOLLOWTERRAIN)"
+    },
+    {
+      "key": "GRID.GETPATH",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Packed path [ix0,iz0, ix1,iz1, ...] or empty"
+    },
+    {
+      "key": "GRID.FOLLOWTERRAIN",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "phase": "rendering",
+      "description": "Bake per-cell Y from terrain height"
+    },
+    {
+      "key": "GRID.PLACEENTITY",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "GRID.RAYCAST",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Cell under mouse ray on XZ plane; [-1,-1] if miss"
+    },
+    {
+      "key": "GRID.GETNEIGHBORS",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Entity IDs occupying cells in Chebyshev radius"
     },
     {
       "key": "FLAT",
@@ -13905,7 +15903,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.PLANE — horizontal plane patch"
+      "description": "alias of DRAW3D.PLANE \u00e2\u20ac\u201d horizontal plane patch"
     },
     {
       "key": "CAP",
@@ -13924,7 +15922,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CAPSULE — solid capsule"
+      "description": "alias of DRAW3D.CAPSULE \u00e2\u20ac\u201d solid capsule"
     },
     {
       "key": "CAPW",
@@ -13943,7 +15941,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CAPSULEWIRES — wire capsule"
+      "description": "alias of DRAW3D.CAPSULEWIRES \u00e2\u20ac\u201d wire capsule"
     },
     {
       "key": "DRAW3D.CYLINDER",
@@ -14447,6 +16445,14 @@
       "returns": "float"
     },
     {
+      "key": "TIME.DELTA",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "TIME.GETFPS",
       "args": [],
       "returns": "float"
@@ -14524,6 +16530,20 @@
     },
     {
       "key": "UTIL.FILEEXISTS",
+      "args": [
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "RES.PATH",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "RES.EXISTS",
       "args": [
         "string"
       ],
@@ -14902,6 +16922,27 @@
       ]
     },
     {
+      "key": "WATER.CREATE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "x, z, width, depth, water level (Y); same plane as WATER.MAKE"
+    },
+    {
+      "key": "WATER.SETWAVE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Sets wave frequency (speed) and amplitude (height)"
+    },
+    {
       "key": "WATER.GETWAVEY",
       "args": [
         "handle",
@@ -14948,6 +16989,15 @@
         "int",
         "int"
       ]
+    },
+    {
+      "key": "WATER.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "float"
+      ],
+      "description": "Packed RGB diffuse (0xRRGGBB) and clarity (0..1 alpha, or 0..255); updates shallow/deep tint"
     },
     {
       "key": "LIGHT2D.MAKE",
@@ -15065,6 +17115,24 @@
       "returns": "float"
     },
     {
+      "key": "TERRAIN.SNAPY",
+      "args": [
+        "handle",
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "TERRAIN.PLACE",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ]
+    },
+    {
       "key": "TERRAIN.GETSLOPE",
       "args": [
         "handle",
@@ -15098,6 +17166,67 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "TERRAIN.LOAD",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Heightmap image path + optional diffuse/splat path; GPU mesh + CPU splat sample"
+    },
+    {
+      "key": "TERRAIN.GETNORMAL",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Unit terrain normal (heap vec3) for slope tilt"
+    },
+    {
+      "key": "TERRAIN.SETSCALE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Non-uniform scale: XZ stretch per cell, Y height multiplier (marks chunks dirty)"
+    },
+    {
+      "key": "TERRAIN.GETSPLAT",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "description": "Diffuse/splat map red channel 0..255 (-1 if no map); use for footstep ids"
+    },
+    {
+      "key": "TERRAIN.RAYCAST",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Ray vs terrain only; float array [hit, x, y, z]; max ray length is large by default"
+    },
+    {
+      "key": "TERRAIN.SETDETAIL",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "LOD factor in (0,1]: lower = coarser chunk meshes"
     },
     {
       "key": "CHUNK.GENERATE",
@@ -15139,6 +17268,12 @@
       ]
     },
     {
+      "key": "WORLD.SETCENTERENTITY",
+      "args": [
+        "int"
+      ]
+    },
+    {
       "key": "WORLD.UPDATE",
       "args": [
         "float"
@@ -15168,6 +17303,21 @@
         "handle"
       ],
       "returns": "bool"
+    },
+    {
+      "key": "WORLD.SETVEGETATION",
+      "args": [
+        "handle",
+        "handle",
+        "float"
+      ],
+      "description": "Scatter helper: terrain + billboard entity reserved + density; uses internal SCATTER set"
+    },
+    {
+      "key": "WORLD.SETREFLECTION",
+      "args": [
+        "int"
+      ]
     },
     {
       "key": "STOPWATCH.NEW",
@@ -15452,6 +17602,14 @@
       "returns": "int"
     },
     {
+      "key": "ENTITY.CREATEBOX",
+      "args": [
+        "float"
+      ],
+      "returns": "int",
+      "description": "Uniform cube: size# used for width, height, and depth (alias ENTITY.CREATECUBE)"
+    },
+    {
       "key": "ENTITY.SETPOSITION",
       "args": [
         "int",
@@ -15462,11 +17620,44 @@
       ]
     },
     {
+      "key": "ENTITY.POSITION",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ],
+      "description": "Alias of ENTITY.SETPOSITION \u00e2\u20ac\u201d set world or local position"
+    },
+    {
       "key": "ENTITY.GETPOSITION",
       "args": [
         "int"
       ],
       "returns": "handle"
+    },
+    {
+      "key": "ENTITY.GETPOS",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.GETXZ",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.CLAMPTOTERRAIN",
+      "args": [
+        "int",
+        "handle"
+      ],
+      "description": "Sets Y from terrain height at entity XZ (offset 0); alias of TERRAIN.SNAPY argument order swap"
     },
     {
       "key": "ENTITY.MOVE",
@@ -15496,6 +17687,16 @@
       ]
     },
     {
+      "key": "ENTITY.TURN",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Add pitch/yaw/roll degrees \u00e2\u20ac\u201d alias of ENTITY.ROTATE / TURNENTITY"
+    },
+    {
       "key": "ENTITY.SCALE",
       "args": [
         "int",
@@ -15511,6 +17712,13 @@
         "int",
         "int",
         "int"
+      ]
+    },
+    {
+      "key": "ENTITY.COLOR",
+      "args": [
+        "int",
+        "handle"
       ]
     },
     {
@@ -15591,6 +17799,324 @@
       "description": "Alias for ENTITY.DRAWALL: draw all entities in the scene graph (no arguments)"
     },
     {
+      "key": "ENTITY.DRAW",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "DrawEntity",
+      "args": [
+        "int"
+      ],
+      "phase": "rendering",
+      "description": "Draw one entity (same as ENTITY.DRAW)"
+    },
+    {
+      "key": "ENTITY.LOADANIMATIONS",
+      "args": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "key": "ENTITY.PLAY",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.PLAYNAME",
+      "args": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "key": "ENTITY.STOPANIM",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.SETANIMFRAME",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SETANIMSPEED",
+      "args": [
+        "int",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SETANIMLOOP",
+      "args": [
+        "int",
+        "any"
+      ]
+    },
+    {
+      "key": "ENTITY.ISPLAYING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.CROSSFADE",
+      "args": [
+        "int",
+        "any",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.TRANSITION",
+      "args": [
+        "int",
+        "string",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.GETBONEPOS",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.GETBONEROT",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.SETTEXTUREMAP",
+      "args": [
+        "int",
+        "any",
+        "handle"
+      ]
+    },
+    {
+      "key": "ENTITY.SCROLLMATERIAL",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)"
+    },
+    {
+      "key": "ENTITY.SETDETAILTEXTURE",
+      "args": [
+        "int",
+        "handle"
+      ],
+      "phase": "rendering",
+      "description": "Bind secondary map as MATERIAL_MAP_NORMAL for blending/detail"
+    },
+    {
+      "key": "MATERIAL.BULKASSIGN",
+      "args": [
+        "string",
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.GETMETADATA",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "ENTITY.SETSHADER",
+      "args": [
+        "int",
+        "handle"
+      ]
+    },
+    {
+      "key": "ENTITY.GETBOUNDS",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.RAYHIT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.POINTAT",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.ANIMNAME$",
+      "args": [
+        "int",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "ENTITY.CURRENTANIM$",
+      "args": [
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "LEVEL.SETROOT",
+      "args": [
+        "string"
+      ]
+    },
+    {
+      "key": "LEVEL.LOAD",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "LEVEL.PRELOAD",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "LEVEL.LOADSKYBOX",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "LEVEL.BINDSCRIPT",
+      "args": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "key": "LEVEL.MATCHSCRIPTBIND",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "LEVEL.OPTIMIZE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "LEVEL.FINDENTITY",
+      "args": [
+        "string"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "LEVEL.GETMARKER",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "LEVEL.GETSPAWN",
+      "args": [
+        "string"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "LEVEL.SHOWLAYER",
+      "args": [
+        "string",
+        "any"
+      ]
+    },
+    {
+      "key": "LEVEL.APPLYPHYSICS",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "LEVEL.SYNCLIGHTS",
+      "args": [
+        "any"
+      ]
+    },
+    {
+      "key": "PHYSICS.AUTOCREATE",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.SETSTATIC",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.SETTRIGGER",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "TRIGGER.CREATEFROMENTITY",
+      "args": [
+        "int"
+      ]
+    },
+    {
+      "key": "ENTITY.INSTANCE",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "MATERIAL.AUTOFILTER",
+      "args": [
+        "any"
+      ]
+    },
+    {
       "key": "MoveEntity",
       "args": [
         "int",
@@ -15653,6 +18179,312 @@
       ],
       "phase": "any",
       "description": "Alias for ENTITY.COLLISIONLAYER"
+    },
+    {
+      "key": "ENTITY.SETCOLLISIONGROUP",
+      "args": [
+        "int",
+        "int"
+      ],
+      "phase": "any",
+      "description": "Alias for ENTITY.COLLISIONLAYER (collision group / layer 0..31)"
+    },
+    {
+      "key": "EntitySetCollisionGroup",
+      "args": [
+        "int",
+        "int"
+      ],
+      "phase": "any",
+      "description": "Alias for ENTITY.SETCOLLISIONGROUP"
+    },
+    {
+      "key": "ENTITY.CHECKCOLLISION",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "True if two entities had a Jolt contact last step (same as EntityCollided)"
+    },
+    {
+      "key": "EntityCheckCollision",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Alias for ENTITY.CHECKCOLLISION"
+    },
+    {
+      "key": "ENTITY.RAYCAST",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Jolt ray cast; returns first hit entity# or 0 (same query path as PHYSICS3D/PICK)"
+    },
+    {
+      "key": "EntityRaycast",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Alias for ENTITY.RAYCAST"
+    },
+    {
+      "key": "ENTITY.GETGROUNDNORMAL",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "World ground normal under entity (CharacterVirtual if PLAYER.CREATE; else short downward Jolt ray)"
+    },
+    {
+      "key": "EntityGetGroundNormal",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "Alias for ENTITY.GETGROUNDNORMAL"
+    },
+    {
+      "key": "ENTITY.APPLYIMPULSE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Same as ENTITY.ADDFORCE / ApplyEntityImpulse (velocity change; not Jolt BodyInterface impulse until exposed)"
+    },
+    {
+      "key": "EntityApplyImpulse",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Alias for ENTITY.APPLYIMPULSE"
+    },
+    {
+      "key": "ENTITY.CANSEE",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Vision cone (degrees) + max distance + unobstructed Jolt ray to target"
+    },
+    {
+      "key": "EntityCanSee",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Alias for ENTITY.CANSEE"
+    },
+    {
+      "key": "ENTITY.GETCLOSESTWITHTAG",
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Nearest entity within radius matching name/tag glob (same rules as PLAYER.GETNEARBY)"
+    },
+    {
+      "key": "EntityGetClosestWithTag",
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Alias for ENTITY.GETCLOSESTWITHTAG"
+    },
+    {
+      "key": "ENTITY.PUSHOUTOFGEOMETRY",
+      "args": [
+        "int"
+      ],
+      "phase": "any",
+      "description": "Best-effort depenetration: nudges entity world Y up slightly"
+    },
+    {
+      "key": "EntityPushOutOfGeometry",
+      "args": [
+        "int"
+      ],
+      "phase": "any",
+      "description": "Alias for ENTITY.PUSHOUTOFGEOMETRY"
+    },
+    {
+      "key": "ENTITY.HASTAG",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Glob match on Blender tag or entity name only (stricter than ENTITY.ISTYPE)"
+    },
+    {
+      "key": "EntityHasTag",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Alias for ENTITY.HASTAG"
+    },
+    {
+      "key": "ENTITY.INFRUSTUM",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "True if entity AABB intersects active CAMERA.BEGIN frustum (same as ENTITY.INVIEW without passing camera)"
+    },
+    {
+      "key": "EntityInFrustum",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Alias for ENTITY.INFRUSTUM"
+    },
+    {
+      "key": "CHECK.INVIEW",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Same frustum test as ENTITY.INFRUSTUM (active CAMERA.BEGIN)"
+    },
+    {
+      "key": "ENTITY.ISSUBMERGED",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "phase": "any",
+      "description": "Fraction 0..1 of entity vertical extent below water surface (any overlapping WATER volume)"
+    },
+    {
+      "key": "ENTITY.SETBUOYANCY",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PHYSICS.SETBUOYANCY \u00e2\u20ac\u201d per-entity density hint for buoyancy"
+    },
+    {
+      "key": "ENTITY.GETBUOYANCY",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Alias of PHYSICS.GETBUOYANCY"
+    },
+    {
+      "key": "ENTITY.LINEOFSIGHT",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Unobstructed Jolt ray from observer eye to target (no FOV); sensors still occlude until filtered"
+    },
+    {
+      "key": "EntityLineOfSight",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "Alias for ENTITY.LINEOFSIGHT"
+    },
+    {
+      "key": "ENTITY.GETOVERLAPCOUNT",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Counts tagged entities whose pivot lies in zone entity world AABB (sphere prefilter)"
+    },
+    {
+      "key": "EntityGetOverlapCount",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "int",
+      "phase": "any",
+      "description": "Alias for ENTITY.GETOVERLAPCOUNT"
+    },
+    {
+      "key": "ENTITY.ANIMATETOWARD",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE"
+    },
+    {
+      "key": "EntityAnimateToward",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "any",
+      "description": "Alias for ENTITY.ANIMATETOWARD"
     },
     {
       "key": "EntityCollided",
@@ -15989,6 +18821,19 @@
         "int"
       ],
       "description": "Blitz-style: ENTITY.FREE(obj)"
+    },
+    {
+      "key": "FREEENTITIES",
+      "args": [
+        "handle"
+      ],
+      "description": "Free every entity# stored in a numeric array (DIM badGuy AS HANDLE(n))"
+    },
+    {
+      "key": "ENTITY.FREEENTITIES",
+      "args": [
+        "handle"
+      ]
     },
     {
       "key": "CREATECAMERA",
@@ -16417,14 +19262,6 @@
       "description": "Easy Mode: Set entity to use sphere collision with given radius"
     },
     {
-      "key": "UPDATEWORLD",
-      "args": [
-        "float"
-      ],
-      "returns": "void",
-      "description": "Easy Mode: Global simulation step (Physics, Particles, Collisions, Anims)"
-    },
-    {
       "key": "UPDATEPHYSICS",
       "args": [],
       "returns": "void",
@@ -16846,7 +19683,7 @@
       "key": "CUBE",
       "args": [],
       "returns": "handle",
-      "description": "Blitz-style static box entity (1×1×1); use CUBE(w,h,d) for dimensions — ENTITYREF handle"
+      "description": "Blitz-style static box entity (1\u00c3\u20141\u00c3\u20141); use CUBE(w,h,d) for dimensions \u00e2\u20ac\u201d ENTITYREF handle"
     },
     {
       "key": "CUBE",
@@ -16856,7 +19693,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Blitz-style static box entity — ENTITYREF handle"
+      "description": "Blitz-style static box entity \u00e2\u20ac\u201d ENTITYREF handle"
     },
     {
       "key": "ENTITY.CREATECUBE",
@@ -17146,6 +19983,12 @@
       ]
     },
     {
+      "key": "RENDER.SETTONEMAPPING",
+      "args": [
+        "int"
+      ]
+    },
+    {
       "key": "POST.REMOVE",
       "args": [
         "string"
@@ -17257,7 +20100,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Blitz-style static sphere entity — ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)"
+      "description": "Blitz-style static sphere entity \u00e2\u20ac\u201d ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)"
     },
     {
       "key": "SPHERE",
@@ -17266,7 +20109,7 @@
         "int"
       ],
       "returns": "handle",
-      "description": "Blitz-style static sphere entity — ENTITYREF handle"
+      "description": "Blitz-style static sphere entity \u00e2\u20ac\u201d ENTITYREF handle"
     },
     {
       "key": "ENTITY.CREATESPHERE",
@@ -17275,6 +20118,14 @@
         "int"
       ],
       "returns": "int"
+    },
+    {
+      "key": "ENTITY.CREATESPHERE",
+      "args": [
+        "float"
+      ],
+      "returns": "int",
+      "description": "Radius only \u00e2\u20ac\u201d default 16 segments"
     },
     {
       "key": "ENTITY.CREATECYLINDER",
@@ -17306,6 +20157,14 @@
         "any"
       ],
       "returns": "int"
+    },
+    {
+      "key": "ENTITY.LOAD",
+      "args": [
+        "any"
+      ],
+      "returns": "int",
+      "description": "Alias of ENTITY.LOADMESH \u00e2\u20ac\u201d static model path (Raylib-supported formats), optional parentEntity#"
     },
     {
       "key": "ENTITY.LOADANIMATEDMESH",
@@ -17442,6 +20301,17 @@
       ]
     },
     {
+      "key": "ENTITY.SETROTATION",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ],
+      "description": "Absolute pitch/yaw/roll degrees \u00e2\u20ac\u201d alias of ENTITY.ROTATEENTITY"
+    },
+    {
       "key": "ENTITY.TURNENTITY",
       "args": [
         "int",
@@ -17540,6 +20410,13 @@
       ]
     },
     {
+      "key": "ENTITY.UNPARENT",
+      "args": [
+        "int"
+      ],
+      "description": "Alias of ENTITY.PARENTCLEAR \u00e2\u20ac\u201d detach and keep world position"
+    },
+    {
       "key": "ENTITY.COUNTCHILDREN",
       "args": [
         "int"
@@ -17626,6 +20503,14 @@
         "int",
         "any"
       ]
+    },
+    {
+      "key": "ENTITY.SETVISIBLE",
+      "args": [
+        "int",
+        "any"
+      ],
+      "description": "Alias of ENTITY.VISIBLE"
     },
     {
       "key": "ENTITY.ALPHA",
@@ -17741,6 +20626,28 @@
       "returns": "int"
     },
     {
+      "key": "ENTITY.CREATESPRITE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "rendering",
+      "description": "Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)"
+    },
+    {
+      "key": "ENTITY.CREATESPRITE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering"
+    },
+    {
       "key": "ENTITY.DELTAX",
       "args": [
         "int",
@@ -17771,6 +20678,44 @@
         "int"
       ],
       "returns": "float"
+    },
+    {
+      "key": "ENTITY.GETDISTANCE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "ENTITY.ISTYPE",
+      "args": [
+        "int",
+        "string"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "ENTITY.SENDMESSAGE",
+      "args": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "key": "ENTITY.POLLMESSAGE",
+      "args": [
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "ENTITY.FINDBYPROPERTY",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "handle"
     },
     {
       "key": "ENTITY.LOADSPRITE",
@@ -17835,6 +20780,16 @@
       ]
     },
     {
+      "key": "ENTITY.LOOKAT",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Face world point (entity#, targetX#, targetY#, targetZ#); sets pitch/yaw"
+    },
+    {
       "key": "ENTITY.ALIGNTOVECTOR",
       "args": [
         "int",
@@ -17887,6 +20842,20 @@
         "int",
         "any"
       ]
+    },
+    {
+      "key": "ENTITY.ANIMCOUNT",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "ENTITY.ANIMINDEX",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
     },
     {
       "key": "ENTITY.FINDBONE",
@@ -18131,6 +21100,16 @@
       "returns": "int"
     },
     {
+      "key": "ENTITY.INSTANCEGRID",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "int"
+    },
+    {
       "key": "ENTITY.SETNAME",
       "args": [
         "int",
@@ -18252,6 +21231,19 @@
       "key": "INPUT.MOUSEXSPEED",
       "args": [],
       "returns": "float"
+    },
+    {
+      "key": "INPUT.MOUSEDELTA",
+      "args": [],
+      "returns": "handle"
+    },
+    {
+      "key": "INPUT.MOVEDIR",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle"
     },
     {
       "key": "INPUT.MOUSEYSPEED",
@@ -18657,7 +21649,7 @@
       "args": [
         "float"
       ],
-      "description": "Shorthand: UPDATEWORLD(dt)"
+      "description": "Shorthand: ENTITY.UPDATE(dt) \u00e2\u20ac\u201d use ENTITY.UPDATE in scripts"
     },
     {
       "key": "ENTX",
@@ -18948,6 +21940,124 @@
         "float"
       ],
       "description": "Set the fog density (0.0 to 1.0)."
+    },
+    {
+      "key": "ENTITY.SETTEXTURESCROLL",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Injects offsets into the shader for animated water/lava."
+    },
+    {
+      "key": "ENTITY.SETTEXTUREFLIP",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Modifies UV scaling for horizontal/vertical mirroring."
+    },
+    {
+      "key": "PLAYER.CREATE",
+      "args": [
+        "handle"
+      ],
+      "description": "Initializes a Kinematic Character Controller in the Jolt buffer."
+    },
+    {
+      "key": "SCENE.APPLYPHYSICS",
+      "args": [
+        "handle"
+      ],
+      "description": "Automatically parses glTF Extras to generate Jolt colliders."
+    },
+    {
+      "key": "ENTITY.SETSHADER",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Binds an active Shader Library component to the entity."
+    },
+    {
+      "key": "SHADER.SETFLOAT",
+      "args": [
+        "int",
+        "string",
+        "float"
+      ],
+      "description": "Injects a constant float to the custom shader uniformly."
+    },
+    {
+      "key": "SHADER.SETVECTOR",
+      "args": [
+        "int",
+        "string",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Injects a constant vec3."
+    },
+    {
+      "key": "SHADER.SETTEXTURE",
+      "args": [
+        "int",
+        "string",
+        "handle"
+      ],
+      "description": "Binds a texture resource to a sampler array element."
+    },
+    {
+      "key": "GAME.SETAESTHETIC",
+      "args": [
+        "int"
+      ],
+      "description": "Selects global visual profile."
+    },
+    {
+      "key": "SHADER.FREE",
+      "args": [
+        "int"
+      ],
+      "description": "Unloads shader."
+    },
+    {
+      "key": "SHADER_PBR_LIT",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "SHADER_PS1_RETRO",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "SHADER_CEL_STYLED",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "SHADER_WATER_PROCEDURAL",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "PP_BLOOM",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "PP_CRT_SCANLINES",
+      "args": [],
+      "returns": "int"
+    },
+    {
+      "key": "PP_PIXELATE",
+      "args": [],
+      "returns": "int"
     }
   ]
 }

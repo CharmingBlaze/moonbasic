@@ -17,7 +17,11 @@ const (
 	ArrayKindFloat32 // shared float32 buffer (e.g. physics matrices)
 )
 
-// Array is a dense 0-based array stored on the heap as a handle.
+// MaxArrayCells caps total elements (flat count) for one allocation.
+const MaxArrayCells int64 = 64_000_000
+
+// Array is a dense row-major array stored on the heap as a handle.
+// Language indices are 1-based per dimension; storage is 0-based flat.
 // Float and bool elements use Floats; bool is stored as 0/1.
 // String elements use Strings (program string-pool indices).
 // Handle elements use Handles (raw heap IDs; 0 = null).
@@ -29,6 +33,8 @@ type Array struct {
 	Handles  []int32
 	Kind     ArrayKind
 	empty    bool
+	// VarName is the source variable name (uppercase), for runtime errors; may be empty.
+	VarName string
 }
 
 func productDims(dims []int64) (int64, error) {
@@ -38,10 +44,10 @@ func productDims(dims []int64) (int64, error) {
 	n := int64(1)
 	for _, d := range dims {
 		if d < 1 {
-			return 0, fmt.Errorf("array: dimension must be >= 1, got %d", d)
+			return 0, fmt.Errorf("array: dimension size must be >= 1, got %d", d)
 		}
-		if n > 1<<50 {
-			return 0, fmt.Errorf("array: too large")
+		if n > MaxArrayCells/d {
+			return 0, fmt.Errorf("array: would require more than %d cells", MaxArrayCells)
 		}
 		n *= d
 	}
@@ -139,23 +145,43 @@ func (a *Array) totalLen() int {
 	return int(n)
 }
 
+func (a *Array) errPrefix() string {
+	if a.VarName != "" {
+		return a.VarName
+	}
+	return "array"
+}
+
+// linearIndex converts 1-based language indices to a flat storage index.
 func (a *Array) linearIndex(indices []int64) (int, error) {
 	if a.empty {
-		return 0, fmt.Errorf("array: use after free")
+		return 0, fmt.Errorf("%s: array handle has been freed", a.errPrefix())
 	}
+	prefix := a.errPrefix()
 	if len(indices) != len(a.Dims) {
-		return 0, fmt.Errorf("array: %d indices for %d-d array", len(indices), len(a.Dims))
+		return 0, fmt.Errorf("%s: array is %d-dimensional; got %d indices", prefix, len(a.Dims), len(indices))
 	}
-	off := int64(0)
-	for i, idx := range indices {
-		if idx < 0 || idx >= a.Dims[i] {
-			return 0, fmt.Errorf("array: index %d out of range [0,%d)", idx, a.Dims[i])
+	var off int64
+	for i, langIdx := range indices {
+		dimSize := a.Dims[i]
+		if langIdx < 1 || langIdx > dimSize {
+			return 0, fmt.Errorf("%s: index out of bounds (dimension %d: index %d, valid 1..%d)", prefix, i+1, langIdx, dimSize)
 		}
-		stride := int64(1)
+		internal := langIdx - 1
+		var stride int64 = 1
 		for j := i + 1; j < len(a.Dims); j++ {
+			if stride > MaxArrayCells/a.Dims[j] {
+				return 0, fmt.Errorf("%s: array index calculation overflow", prefix)
+			}
 			stride *= a.Dims[j]
 		}
-		off += idx * stride
+		if internal > 0 && stride > (MaxArrayCells-off)/internal {
+			return 0, fmt.Errorf("%s: array index calculation overflow", prefix)
+		}
+		off += internal * stride
+	}
+	if off < 0 || int64(int(off)) != off {
+		return 0, fmt.Errorf("%s: array index calculation overflow", prefix)
 	}
 	return int(off), nil
 }

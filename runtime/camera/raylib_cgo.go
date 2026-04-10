@@ -5,6 +5,7 @@ package mbcamera
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
@@ -54,17 +55,20 @@ func argHandle(v value.Value) (heap.Handle, bool) {
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.MAKE", "camera", runtime.AdaptLegacy(m.camMake))
+	r.Register("CAMERA.CREATE", "camera", runtime.AdaptLegacy(m.camMake))
 	r.Register("CAM", "camera", runtime.AdaptLegacy(m.camMake))
 	r.Register("CAMERA.SETPOS", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETPOSITION", "camera", runtime.AdaptLegacy(m.camSetPos))
 	r.Register("CAMERA.SETTARGET", "camera", runtime.AdaptLegacy(m.camSetTarget))
 	r.Register("CAMERA.LOOKAT", "camera", runtime.AdaptLegacy(m.camSetTarget))
 	r.Register("CAMERA.SETPROJECTION", "camera", runtime.AdaptLegacy(m.camSetProjection))
+	r.Register("CAMERA.SETMODE", "camera", m.camSetMode)
 	r.Register("CAMERA.SETFOV", "camera", runtime.AdaptLegacy(m.camSetFov))
 	r.Register("CAMERA.BEGIN", "camera", runtime.AdaptLegacy(m.camBegin))
 	r.Register("CAMERA.END", "camera", runtime.AdaptLegacy(m.camEnd))
 	r.Register("CAMERA.MOVE", "camera", runtime.AdaptLegacy(m.camMove))
 	r.Register("CAMERA.GETRAY", "camera", runtime.AdaptLegacy(m.camGetRay))
+	r.Register("CAMERA.UNPROJECT", "camera", runtime.AdaptLegacy(m.camGetRay))
 	r.Register("CAMERA.PICK", "camera", runtime.AdaptLegacy(m.camGetRay))
 	r.Register("CAMERA.SHAKE", "camera", runtime.AdaptLegacy(m.camShake))
 	r.Register("CameraFOV", "camera", runtime.AdaptLegacy(m.camSetFov))
@@ -181,6 +185,28 @@ func (m *Module) camSetProjection(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.SETPROJECTION: mode must be 0 (perspective) or 1 (orthographic)")
 	}
 	return value.Nil, nil
+}
+
+// camSetMode: alias-friendly projection picker — numeric 0/1 or strings "perspective"/"orthographic".
+func (m *Module) camSetMode(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("CAMERA.SETMODE expects (handle, mode): 0 perspective, 1 orthographic, or those names as a string")
+	}
+	if args[1].Kind == value.KindString {
+		s, err := rt.ArgString(args, 1)
+		if err != nil {
+			return value.Nil, err
+		}
+		switch strings.ToLower(strings.TrimSpace(s)) {
+		case "perspective", "camera_perspective", "persp", "proj_perspective":
+			return m.camSetProjection([]value.Value{args[0], value.FromInt(0)})
+		case "orthographic", "ortho", "camera_orthographic", "proj_orthographic":
+			return m.camSetProjection([]value.Value{args[0], value.FromInt(1)})
+		default:
+			return value.Nil, fmt.Errorf("CAMERA.SETMODE: unknown mode %q (use perspective or orthographic)", s)
+		}
+	}
+	return m.camSetProjection(args)
 }
 
 func (m *Module) camSetFov(args []value.Value) (value.Value, error) {

@@ -14,7 +14,7 @@ Heightfield terrain with **chunked** mesh generation (Raylib **`GenMeshHeightmap
 
 ## `Terrain.Make(worldW, worldH [, cellSize#])` → handle
 
-Creates a terrain object: `worldW` × `worldH` height samples in world units (integer dimensions ≥ 2). Optional **`cellSize#`** scales world spacing per sample (default **1**). Internal chunk size defaults to **64**; change with **`TERRAIN.SETCHUNKSIZE`**.
+Creates a terrain object: `worldW` × `worldH` height samples in world units (integer dimensions ≥ 2). Optional **`cellSize`** scales world spacing per sample (default **1**). Internal chunk size defaults to **64**; change with **`TERRAIN.SETCHUNKSIZE`**.
 
 **Returns:** Terrain handle (`TagTerrain`).
 
@@ -42,13 +42,13 @@ Sets the edge length in **height samples** per chunk (must match streaming expec
 
 ## `Terrain.FillPerlin(terrain, scale#, amplitude#)`
 
-Fills heights with layered value noise (implementation-defined seed). **`scale#`** controls feature size; **`amplitude#`** vertical range.
+Fills heights with layered value noise (implementation-defined seed). **`scale`** controls feature size; **`amplitude`** vertical range.
 
 ---
 
 ## `Terrain.FillFlat(terrain, height#)`
 
-Sets every sample to **`height#`**.
+Sets every sample to **`height`**.
 
 ---
 
@@ -58,15 +58,59 @@ Bilinear height at world XZ (clamped to valid range).
 
 ---
 
+## `Terrain.Place(terrain, entity#, x#, z#, yOffset#)`
+
+Sets the entity’s **world X** and **Z**, samples **`Terrain.GetHeight`** at that XZ, and sets **Y** to **`height + yOffset`**. Replaces **`PositionEntity(..., x, 0, z, ...)`** followed by **`Terrain.SnapY`** for grounded actors.
+
+---
+
 ## `Terrain.GetSlope(terrain, x#, z#)` → float
 
 Approximate slope angle in degrees at XZ.
 
 ---
 
+## `Terrain.Load(heightmapPath$, diffusePath$)` → handle
+
+Loads a **grayscale heightmap** image (same rules as Blitz **`LoadTerrain`**) and optionally a **second image** used as **diffuse albedo** on chunk meshes and as a **CPU splat map** for **`Terrain.GetSplat`**. Pass an empty second argument if you only need heights.
+
+**Collision note:** The runtime builds **Raylib heightmap meshes** for drawing. A **Jolt `HeightFieldShape`** in WASM (faster than triangle meshes for large worlds) is a separate integration step—see [PHYSICS3D.md](PHYSICS3D.md) when that path is enabled.
+
+---
+
+## `Terrain.GetNormal(terrain, x#, z#)` → vec3 handle
+
+Returns a **unit** surface normal (heap **vec3**) from the heightfield gradient—use to tilt a character mesh on slopes.
+
+---
+
+## `Terrain.SetScale(terrain, x#, y#, z#)`
+
+**Non-uniform scale:** multiplies horizontal spacing per grid cell on **X** and **Z**, and scales **raw** height samples on **Y** (mountain height). Marks all chunks **dirty** so meshes rebuild.
+
+---
+
+## `Terrain.GetSplat(terrain, x#, z#)` → int
+
+Samples the **diffuse/splat** image (if **`Terrain.Load`** provided one): returns the **red channel** **0…255** as a small integer surface id (e.g. map to footstep names). Returns **-1** when no splat image was loaded.
+
+---
+
+## `Terrain.Raycast(terrain, ox#, oy#, oz#, dx#, dy#, dz#)` → float array
+
+Casts a ray against the **terrain heightfield only** (not entities or other physics). Returns a **float array** **`[hit, x, y, z]`** where **`hit`** is **1** if the ray intersects the surface from above, else **0**.
+
+---
+
+## `Terrain.SetDetail(terrain, density#)`
+
+**LOD:** **`density`** must be in **(0, 1]**. Lower values build **coarser** internal heightmap images per chunk (fewer vertices), trading quality for speed on weaker hardware.
+
+---
+
 ## `Terrain.Raise` / `Terrain.Lower(terrain, x#, z#, radius#, delta#)`
 
-Brush edit: raise or lower height within **`radius#`** by **`delta#`** per call (used for sculpting).
+Brush edit: raise or lower height within **`radius`** by **`delta`** per call (used for sculpting).
 
 ---
 

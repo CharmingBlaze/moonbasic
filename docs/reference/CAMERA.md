@@ -2,6 +2,8 @@
 
 2D and 3D cameras map to Raylib `Camera2D` / `Camera3D`. In source, use the **`Camera`** and **`Camera2D`** namespaces (calls compile to `CAMERA.*` and `CAMERA2D.*`).
 
+**Quick map (Create, SetMode, FollowEntity, Project, Unproject, …):** [CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md).
+
 **Threading:** Raylib windowing and GL calls run on the **main thread** (see [ARCHITECTURE.md](../../ARCHITECTURE.md)); do not invoke `CAMERA.*` / `CAMERA2D.*` from background goroutines.
 
 ---
@@ -66,7 +68,7 @@ Translates **both** position and target by the delta (pan/strafe/fly without cha
 
 Third-person **spherical** orbit: places the eye on a shell around the target `(tx,ty,tz)` using **yaw** and **pitch** (radians) and **distance** (world units). Yaw follows the usual XZ orbit (sine on X, cosine on Z); pitch raises/lowers the camera.
 
-**Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw#` / `pitch#` / `dist#`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw#`**.
+**Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw` / `pitch` / `dist`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw`**.
 
 ### `Camera.SmoothExp(current#, target#, smoothHz#, dt#)` → **float**
 
@@ -86,9 +88,9 @@ Pass **`camYaw` / `camPitch`** into **`Camera.OrbitEntity`** (and into movement 
 
 ### `Camera.OrbitAround(camera, tx#, ty#, tz#, yaw#, distance#, cameraY#)` / `Camera.OrbitAroundDeg(...)`
 
-Simpler **third-person** placement: camera stays at fixed world height **`cameraY#`**, orbiting the target on the **XZ** plane at **distance** from `(tx,tz)`, with horizontal angle **`yaw#`** in **radians** (`OrbitAround`) or **degrees** (`OrbitAroundDeg`). Sets both position and target (target is `(tx,ty,tz)`).
+Simpler **third-person** placement: camera stays at fixed world height **`cameraY`**, orbiting the target on the **XZ** plane at **distance** from `(tx,tz)`, with horizontal angle **`yaw`** in **radians** (`OrbitAround`) or **degrees** (`OrbitAroundDeg`). Sets both position and target (target is `(tx,ty,tz)`).
 
-**Keyboard orbit:** store **`yaw#`** in radians, then each frame add **`Input.AxisDeg(negKey, posKey, degreesPerSec#, dt#)`** (same as **`Input.Axis` × `DEGPERSEC`**). Move the player with **`MOVESTEPX`/`MOVESTEPZ`** or **`MOVEX`/`MOVEZ`** × speed × **`dt#`** using the same **`yaw#`** so walking matches the camera. See **`examples/mario64/main_v2.mb`** and [INPUT.md](INPUT.md).
+**Keyboard orbit:** store **`yaw`** in radians, then each frame add **`Input.AxisDeg(negKey, posKey, degreesPerSec, dt)`** (same as **`Input.Axis` × `DEGPERSEC`**). Move the player with **`MOVESTEPX`/`MOVESTEPZ`** or **`MOVEX`/`MOVEZ`** × speed × **`dt`** using the same **`yaw`** so walking matches the camera. See **`examples/mario64/main_v2.mb`** and [INPUT.md](INPUT.md).
 
 ### `Camera.GetRay(camera, screenX#, screenY#)`
 
@@ -118,9 +120,21 @@ Frees the camera heap object.
 
 Projects a **world-space** point through the camera to **screen** coordinates (Raylib **`GetWorldToScreen`**). Returns a **handle** to a **2-float array**: `(screenX, screenY)`. Best used while the same camera is active for rendering (inside your 3D pass).
 
+### `Camera.Project(...)` / `CameraProject(...)`
+
+**Alias** of **`Camera.WorldToScreen`** — same arguments and return value. Use for HUD anchors (health bars above entities).
+
+### `Camera.LookAtEntity(camera, entity#)` / `Camera.PointAtEntity(...)`
+
+**Aliases** — sets the camera **target** to the **world position** of **`entity`** (via **`ENTITY.ENTITYX/Y/Z`** + **`SETTARGET`**). For “look at a point” without an entity, use **`Camera.LookAt(x,y,z)`** / **`SetTarget`**.
+
+### `Camera.Pick` / `Camera.GetRay` / picking entities
+
+**`CAMERA.PICK`** is an alias of **`CAMERA.GETRAY`**: it returns a **screen-space ray** (origin + direction), **not** an entity id. To pick objects, use **`RAY.HIT*_*`** or **`ENTITY.PICK`** / collision queries — see [RAYCAST.md](RAYCAST.md), [ENTITY.md](ENTITY.md).
+
 ### `Camera.IsOnScreen(camera, wx#, wy#, wz#)` / `Camera.IsOnScreen(camera, wx#, wy#, wz#, margin#)`
 
-Returns **`TRUE`** if the projected point lies inside the current render rectangle, optionally expanded by **`margin#`** pixels on each side.
+Returns **`TRUE`** if the projected point lies inside the current render rectangle, optionally expanded by **`margin`** pixels on each side.
 
 ### `Camera.MouseRay(camera)`
 
@@ -164,20 +178,20 @@ Between **`Camera.Begin`** and **`Camera.End`**, frustum tests use the **current
 
 | Command | Arguments | Returns | Notes |
 |--------|-----------|---------|--------|
-| **`Cull.SphereVisible`** | `cx#, cy#, cz#, r#` | `bool` | Inside Begin/End: distance (default max) then frustum. Outside Begin/End: always `TRUE`. |
-| **`Cull.AABBVisible`** | `minX#, minY#, minZ#, maxX#, maxY#, maxZ#` | `bool` | Uses box centre for distance vs default max, then AABB/frustum test. |
-| **`Cull.PointVisible`** | `x#, y#, z#` | `bool` | Cheapest frustum test; still uses default distance first. |
-| **`Cull.InRange`** | `cx#, cy#, cz#` **or** `cx#, cy#, cz#, maxdist#` | `bool` | Three-arg form uses **`Cull.SetMaxDistance`**. If no active Begin, returns **`TRUE`** (no distance reject). |
-| **`Cull.Distance`** | `cx#, cy#, cz#` | `float` | Euclidean distance to last Begin camera; **`0`** if no Begin yet. |
-| **`Cull.DistanceSq`** | `cx#, cy#, cz#` | `float` | Squared distance; no `sqrt`. |
-| **`Cull.BehindHorizon`** | `camera, maxY#, cx#, cz#` | `bool` | **`TRUE`** if terrain/feature top at `maxY` over `(cx,cz)` is fully below the camera’s bottom-of-view angle (uses camera pitch + FOV). Does **not** require Begin/End. |
+| **`Cull.SphereVisible`** | `cx, cy, cz, r` | `bool` | Inside Begin/End: distance (default max) then frustum. Outside Begin/End: always `TRUE`. |
+| **`Cull.AABBVisible`** | `minX, minY, minZ, maxX, maxY, maxZ` | `bool` | Uses box centre for distance vs default max, then AABB/frustum test. |
+| **`Cull.PointVisible`** | `x, y, z` | `bool` | Cheapest frustum test; still uses default distance first. |
+| **`Cull.InRange`** | `cx, cy, cz` **or** `cx, cy, cz, maxdist` | `bool` | Three-arg form uses **`Cull.SetMaxDistance`**. If no active Begin, returns **`TRUE`** (no distance reject). |
+| **`Cull.Distance`** | `cx, cy, cz` | `float` | Euclidean distance to last Begin camera; **`0`** if no Begin yet. |
+| **`Cull.DistanceSq`** | `cx, cy, cz` | `float` | Squared distance; no `sqrt`. |
+| **`Cull.BehindHorizon`** | `camera, maxY, cx, cz` | `bool` | **`TRUE`** if terrain/feature top at `maxY` over `(cx,cz)` is fully below the camera’s bottom-of-view angle (uses camera pitch + FOV). Does **not** require Begin/End. |
 | **`Cull.BatchSphere`** | `positions, radii, results` | — | **`positions`**: 1D float array `[x0,y0,z0,x1,y1,z1,…]`. **`radii`**: one float per sphere. **`results`**: bool array (same length as radii). Writes **`TRUE`/`FALSE`** per index. Uses default max distance + frustum when Begin is active. |
 | **`Cull.OcclusionEnable`** | `enable?` | `bool` | Phase A: stores flag; returns **`TRUE`**. Phase B: depth pyramid. |
 | **`Cull.OccluderAdd`** | `model` | — | Phase A: records handle for future use. |
 | **`Cull.OccluderClear`** | — | — | Clears occluder list. |
-| **`Cull.IsOccluded`** | `cx#, cy#, cz#, r#` | `bool` | Phase A: always **`FALSE`**. |
+| **`Cull.IsOccluded`** | `cx, cy, cz, r` | `bool` | Phase A: always **`FALSE`**. |
 | **`Cull.SetBackfaceCulling`** | `enable?` | — | Maps to Raylib **`EnableBackfaceCulling`** / **`DisableBackfaceCulling`**. |
-| **`Cull.SetMaxDistance`** | `maxdist#` | — | Default world radius for distance culling. |
+| **`Cull.SetMaxDistance`** | `maxdist` | — | Default world radius for distance culling. |
 | **`Cull.GetMaxDistance`** | — | `float` | Current default. |
 | **`Cull.StatsReset`** | — | — | Zeros all counters — call **once per frame** before your cull tests if you want clean numbers. |
 | **`Cull.StatsTotal`** | — | `int` | Tests recorded (sphere/AABB/point/batch iteration / horizon). |
@@ -232,7 +246,7 @@ Returns a **matrix handle** for `GetCameraMatrix2D` applied to that camera.
 
 ### `Camera2D.WorldToScreen(camera, worldX#, worldY#)` / `Camera2D.ScreenToWorld(camera, screenX#, screenY#)`
 
-Each returns a **handle** to a **2-float array** `[x#, y#]` for the converted point.
+Each returns a **handle** to a **2-float array** `[x, y]` for the converted point.
 
 ### `Camera2D.Free(camera)`
 

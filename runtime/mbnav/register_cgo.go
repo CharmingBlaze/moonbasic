@@ -24,6 +24,11 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("NAV.BUILD", "nav", m.navBuild)
 	reg.Register("NAV.DEBUGDRAW", "nav", m.navDebugDraw)
 	reg.Register("NAV.FINDPATH", "nav", m.navFindPath)
+	reg.Register("NAV.BAKE", "nav", m.navBakeTerrain)
+	reg.Register("NAV.GETPATH", "nav", m.navGetPathTerrain)
+	reg.Register("NAV.ISREACHABLE", "nav", m.navIsReachableTerrain)
+
+	reg.Register("ENEMY.FOLLOWPATH", "enemy", m.enemyFollowPath)
 
 	reg.Register("PATH.ISVALID", "path", m.pathIsValid)
 	reg.Register("PATH.NODECOUNT", "path", m.pathNodeCount)

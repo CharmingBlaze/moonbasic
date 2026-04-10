@@ -14,7 +14,7 @@ Commands for loading and drawing with custom fonts.
 
 Loads a font file from disk. It's best to load fonts once at the start of your program.
 
-- `filePath$`: The path to the font file (e.g., `.ttf`, `.otf`).
+- `filePath`: The path to the font file (e.g., `.ttf`, `.otf`).
 
 Returns a handle to the font resource.
 
@@ -33,7 +33,7 @@ Unloads a font from memory. This is important to prevent memory leaks.
 Draws text using a loaded font. This must be called within a **`Camera2D.Begin()`** / **`Camera2D.End()`** block (or between **`Camera2D.Begin(cam)`** / **`Camera2D.End()`** when using a 2D camera handle).
 
 - `fontHandle`: The handle of the font to use.
-- `text$`: The string to draw.
+- `text`: The string to draw.
 - `x`, `y`: The top-left position to start drawing.
 - `size`: The font size.
 - `spacing`: The spacing between characters.

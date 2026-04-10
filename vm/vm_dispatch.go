@@ -66,6 +66,9 @@ func (v *VM) dispatchComplex(i opcode.Instruction) error {
 			return v.runtimeError(err.Error())
 		}
 
+	case opcode.OpArrayLen:
+		return v.doArrayLen(i)
+
 	case opcode.OpArrayMake:
 		return v.doArrayMake(i)
 	case opcode.OpArrayGet:
@@ -252,6 +255,23 @@ func (v *VM) doFieldGet(i opcode.Instruction) error {
 		return v.runtimeError(fmt.Sprintf("field %s exists only on user types, got %s", fieldName, obj.TypeName()))
 	}
 
+	if td, ok2 := v.Program.Types[strings.ToUpper(inst.Type)]; ok2 {
+		found := false
+		for _, f := range td.Fields {
+			if f == fieldName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			hint := ""
+			if sug := suggestFieldName(fieldName, td.Fields); sug != "" {
+				hint = fmt.Sprintf("\n  Hint: did you mean %q?", sug)
+			}
+			return v.runtimeError(fmt.Sprintf("%s has no field %q%s", inst.Type, fieldName, hint))
+		}
+	}
+
 	v.setReg(i.Dst, inst.GetField(fieldName))
 	return nil
 }
@@ -275,6 +295,23 @@ func (v *VM) doFieldSet(i opcode.Instruction) error {
 	inst, ok := obj.(*heap.Instance)
 	if !ok {
 		return v.runtimeError(fmt.Sprintf("cannot set field %s on engine type %s", fieldName, obj.TypeName()))
+	}
+
+	if td, ok2 := v.Program.Types[strings.ToUpper(inst.Type)]; ok2 {
+		found := false
+		for _, f := range td.Fields {
+			if f == fieldName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			hint := ""
+			if sug := suggestFieldName(fieldName, td.Fields); sug != "" {
+				hint = fmt.Sprintf("\n  Hint: did you mean %q?", sug)
+			}
+			return v.runtimeError(fmt.Sprintf("%s has no field %q%s", inst.Type, fieldName, hint))
+		}
 	}
 
 	inst.SetField(fieldName, val)
@@ -348,4 +385,53 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 
 	v.setReg(i.Dst, res)
 	return nil
+}
+
+func suggestFieldName(want string, fields []string) string {
+	var best string
+	bestD := 100
+	for _, f := range fields {
+		d := levenshtein(want, f)
+		if d < bestD {
+			bestD, best = d, f
+		}
+	}
+	if bestD <= 2 && best != "" {
+		return best
+	}
+	return ""
+}
+
+func levenshtein(a, b string) int {
+	if len(a) < len(b) {
+		a, b = b, a
+	}
+	row := make([]int, len(b)+1)
+	for j := 0; j <= len(b); j++ {
+		row[j] = j
+	}
+	for i := 1; i <= len(a); i++ {
+		prev := row[0]
+		row[0] = i
+		for j := 1; j <= len(b); j++ {
+			cost := 1
+			if a[i-1] == b[j-1] {
+				cost = 0
+			}
+			tmp := row[j]
+			row[j] = min3(prev+cost, row[j]+1, row[j-1]+1)
+			prev = tmp
+		}
+	}
+	return row[len(b)]
+}
+
+func min3(a, b, c int) int {
+	if a <= b && a <= c {
+		return a
+	}
+	if b <= c {
+		return b
+	}
+	return c
 }

@@ -121,6 +121,10 @@ func readChunk(r io.Reader) (*opcode.Chunk, error) {
 		})
 		c.SourceLines = append(c.SourceLines, line)
 	}
+	c.ArrayDebugName = make([]int32, len(c.Instructions))
+	for i := range c.ArrayDebugName {
+		c.ArrayDebugName[i] = -1
+	}
 	c.IntConsts, err = readInt64Slice(r)
 	if err != nil {
 		return nil, err

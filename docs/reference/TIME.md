@@ -6,7 +6,7 @@ Commands for getting the current time, date, and measuring elapsed time.
 
 -   **Delta Time**: `Time.Delta()` is the most important command for game development. It gives you the time elapsed since the last frame, allowing you to create movement and logic that is independent of the frame rate.
 -   **Program Time**: `Time.Get()` or `TIMER()` gives you the total elapsed time since the program started.
--   **Wall-Clock Time**: `DATE$()`, `TIME$()`, `YEAR()`, etc., give you the real-world time from the system clock.
+-   **Wall-Clock Time**: `DATE()`, `TIME()`, `YEAR()`, etc., give you the real-world time from the system clock.
 
 ---
 
@@ -18,7 +18,15 @@ Returns the time in seconds that has passed since the last frame.
 
 By default the value is **clamped** to at most **0.05** seconds (so a hitch longer than ~20 FPS does not apply a huge delta to physics). **`GAME.DT()`** / **`DT()`** use the same clamped value.
 
-- **`Time.SetMaxDelta(seconds#)`** — set a different cap; use **`<= 0`** to **disable** clamping if you manage timing yourself.
+- **`Time.SetMaxDelta(seconds)`** — set a different cap; use **`<= 0`** to **disable** clamping if you manage timing yourself.
+
+### `Time.Delta(min#, max#)` → **float**
+
+Optional **per-call** clamp: same underlying frame delta as **`Time.Delta()`**, but forced into **`[min, max]`** (in seconds). Typical use: **`Time.Delta(0.0167, 0.05)`** — never below one frame at 60 Hz, never above ~20 FPS worth — without three lines of **`IF`**/clamp in every loop.
+
+```basic
+dt# = Time.Delta(0.0167, 0.05)
+```
 
 ```basic
 ; Move the player at 200 pixels per second, regardless of FPS

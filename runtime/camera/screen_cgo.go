@@ -14,8 +14,11 @@ import (
 
 func (m *Module) registerScreenHelpers(reg runtime.Registrar) {
 	reg.Register("CAMERA.WORLDTOSCREEN", "camera", runtime.AdaptLegacy(m.camWorldToScreen))
+	reg.Register("CAMERA.PROJECT", "camera", runtime.AdaptLegacy(m.camWorldToScreen))
 	reg.Register("CAMERA.ISONSCREEN", "camera", runtime.AdaptLegacy(m.camIsOnScreen))
 	reg.Register("CAMERA.MOUSERAY", "camera", runtime.AdaptLegacy(m.camMouseRay))
+	reg.Register("WORLD.TOSCREEN", "world", runtime.AdaptLegacy(m.worldToScreenActive))
+	reg.Register("WORLD.TOWORLD", "world", runtime.AdaptLegacy(m.worldFromScreenActive))
 }
 
 func (m *Module) camWorldToScreen(args []value.Value) (value.Value, error) {
@@ -109,4 +112,56 @@ func (m *Module) camMouseRay(args []value.Value) (value.Value, error) {
 	mp := rl.GetMousePosition()
 	ray := rl.GetScreenToWorldRayEx(mp, o.cam, int32(rl.GetRenderWidth()), int32(rl.GetRenderHeight()))
 	return m.allocRayHandle(ray)
+}
+
+// worldToScreenActive uses the last CAMERA.BEGIN 3D camera (same as CAMERA.GETACTIVE).
+func (m *Module) worldToScreenActive(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("WORLD.TOSCREEN: heap not bound")
+	}
+	if m.lastActive3D == 0 {
+		return value.Nil, fmt.Errorf("WORLD.TOSCREEN: no active 3D camera (call CAMERA.BEGIN first)")
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("WORLD.TOSCREEN expects wx#, wy#, wz#")
+	}
+	return m.camWorldToScreen([]value.Value{value.FromHandle(int32(m.lastActive3D)), args[0], args[1], args[2]})
+}
+
+// worldFromScreenActive unprojects screen pixels through the active 3D camera; depth is distance along the view ray.
+func (m *Module) worldFromScreenActive(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("WORLD.TOWORLD: heap not bound")
+	}
+	if m.lastActive3D == 0 {
+		return value.Nil, fmt.Errorf("WORLD.TOWORLD: no active 3D camera (call CAMERA.BEGIN first)")
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("WORLD.TOWORLD expects screenX#, screenY#, depth#")
+	}
+	o, err := heap.Cast[*camObj](m.h, m.lastActive3D)
+	if err != nil {
+		return value.Nil, err
+	}
+	sx, ok1 := argF(args[0])
+	sy, ok2 := argF(args[1])
+	d, ok3 := argF(args[2])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("WORLD.TOWORLD: arguments must be numeric")
+	}
+	ray := rl.GetScreenToWorldRayEx(rl.Vector2{X: sx, Y: sy}, o.cam, int32(rl.GetRenderWidth()), int32(rl.GetRenderHeight()))
+	dir := rl.Vector3Normalize(ray.Direction)
+	p := rl.Vector3Add(ray.Position, rl.Vector3Scale(dir, d))
+	arr, err := heap.NewArray([]int64{3})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, float64(p.X))
+	_ = arr.Set([]int64{1}, float64(p.Y))
+	_ = arr.Set([]int64{2}, float64(p.Z))
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }

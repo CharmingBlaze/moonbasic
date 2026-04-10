@@ -99,6 +99,7 @@ func (p *Parser) parseFunctionDef() (*ast.FunctionDef, error) {
 }
 
 // parseTypeDef parses: TYPE name FIELD ... ENDTYPE
+// Field lines may be legacy comma-separated names, or "name AS type" / "name AS type(dim...)".
 func (p *Parser) parseTypeDef() (*ast.TypeDef, error) {
 	line, col := p.cur().Line, p.cur().Col
 	p.advance() // consume TYPE
@@ -111,6 +112,8 @@ func (p *Parser) parseTypeDef() (*ast.TypeDef, error) {
 	}
 	p.advance()
 	var fields []string
+	var hints []string
+	var arrayFlags []bool
 	for {
 		p.skipNewlines()
 		if p.cur().Type == token.ENDTYPE {
@@ -120,27 +123,49 @@ func (p *Parser) parseTypeDef() (*ast.TypeDef, error) {
 		if p.cur().Type == token.FIELD {
 			p.advance()
 		}
-		// Comma-separated field names (with optional FIELD keyword on the line).
 		if p.cur().Type != token.IDENT {
 			return nil, p.failf("expected FIELD, identifier, or ENDTYPE, got %s", p.cur().Type.String())
 		}
-		for {
-			fname, err2 := p.expectIdent()
-			if err2 != nil {
-				return nil, err2
+		fname, err2 := p.expectIdent()
+		if err2 != nil {
+			return nil, err2
+		}
+		if p.cur().Type == token.AS {
+			p.advance()
+			tn, err3 := p.expectIdent()
+			if err3 != nil {
+				return nil, err3
+			}
+			isArr := false
+			if p.cur().Type == token.LPAREN {
+				if _, err4 := p.parseArgList(); err4 != nil {
+					return nil, err4
+				}
+				isArr = true
 			}
 			fields = append(fields, fname)
-			if p.cur().Type == token.COMMA {
+			hints = append(hints, strings.ToUpper(tn))
+			arrayFlags = append(arrayFlags, isArr)
+		} else {
+			fields = append(fields, fname)
+			hints = append(hints, "")
+			arrayFlags = append(arrayFlags, false)
+			for p.cur().Type == token.COMMA {
 				p.advance()
 				p.skipNewlines()
-				continue
+				fn2, err3 := p.expectIdent()
+				if err3 != nil {
+					return nil, err3
+				}
+				fields = append(fields, fn2)
+				hints = append(hints, "")
+				arrayFlags = append(arrayFlags, false)
 			}
-			break
 		}
 		if p.cur().Type == token.NEWLINE {
 			p.advance()
 		}
 	}
 	p.sym.DefineType(tname)
-	return arena.Make(p.ar, ast.TypeDef{Name: tname, Fields: fields, Line: line, Col: col}), nil
+	return arena.Make(p.ar, ast.TypeDef{Name: tname, Fields: fields, FieldTypeHints: hints, FieldIsArray: arrayFlags, Line: line, Col: col}), nil
 }

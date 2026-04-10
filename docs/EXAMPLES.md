@@ -20,16 +20,16 @@ See [examples/README.md](../examples/README.md) for compile vs run, Windows Powe
 
 | Idea | Typical API |
 |------|-------------|
-| Open window | `Window.Open(w, h, title$)` — on failure the runtime prints to stderr and exits; use `Window.CanOpen` if you must branch without opening |
+| Open window | `Window.Open(w, h, title)` — on failure the runtime prints to stderr and exits; use `Window.CanOpen` if you must branch without opening |
 | Frame timing | `Window.SetFPS(60)`, then each frame `Time.Delta()` for movement |
 | Quit | `Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose()` |
 | Clear + present | `Render.Clear(r,g,b)` … `Render.Frame()` |
 | 2D shapes | `Draw.Rectangle`, `Draw.Circle`, … |
-| HUD text (no font file) | `Draw.Text(msg$, x, y, size, r, g, b, a)` |
+| HUD text (no font file) | `Draw.Text(msg, x, y, size, r, g, b, a)` |
 
 Command names are **case-insensitive** at compile time (`Draw.Text` = `DRAW.TEXT`).
 
-For **all commands by namespace**, naming conventions, and `SetPos` / `SetPosition` aliases, see [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`). For errors (did-you-mean, runtime line info) see [ERROR_MESSAGES.md](ERROR_MESSAGES.md). **Live HUD:** `DEBUG.WATCH(label$, value)` each frame (on-screen overlay requires CGO; enable with `DEBUG.ENABLE` or host debug mode — see [DEBUG.md](reference/DEBUG.md)). Shortcuts and instant-game helpers (`SCREENW`, `DT`, collision math, timers, …) are documented under [QOL.md](reference/QOL.md).
+For **all commands by namespace**, naming conventions, and `SetPos` / `SetPosition` aliases, see [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`). For errors (did-you-mean, runtime line info) see [ERROR_MESSAGES.md](ERROR_MESSAGES.md). **Live HUD:** `DEBUG.WATCH(label, value)` each frame (on-screen overlay requires CGO; enable with `DEBUG.ENABLE` or host debug mode — see [DEBUG.md](reference/DEBUG.md)). Shortcuts and instant-game helpers (`SCREENW`, `DT`, collision math, timers, …) are documented under [QOL.md](reference/QOL.md).
 
 ---
 
@@ -101,7 +101,7 @@ Window.Close()
 
 ## 3D hop (orbit camera + platforms) — `examples/mario64/`
 
-Third-person hop on a plane and boxes. **`examples/mario64/README.md`** compares sources: **`main.mb`** (implicit typing + **`Draw3D`** only, no entity graph), **`main_entities.mb`** (**`CreateCube`/`CreateSphere`**, **`COLLISIONS`**, **`EntityGrounded`** (coyote), **`EntityMoveCameraRelative`**, **`Camera.OrbitEntity`**, **`CopyEntity`** platform template, **`ENTITY.UPDATE`**, **`DrawEntities`**, child hat), plus Blitz-teaching variants **`main_orbit_simple.mb`**, **`main_v2.mb`**, **`main_v3.mb`**. Older variants use **`Camera.SetOrbit`**, **`Input.Axis`**, **`MOVESTEPX`/`MOVESTEPZ`**, **`BOXTOPLAND`**, **`IIF$`**. See [ENTITY.md](reference/ENTITY.md) (**`MoveEntity`** vs **`TranslateEntity`**, **`EntityHitsType`**), [CAMERA.md](reference/CAMERA.md), [INPUT.md](reference/INPUT.md), [GAMEHELPERS.md](reference/GAMEHELPERS.md), [MATH.md](reference/MATH.md), [LANGUAGE.md](LANGUAGE.md).
+Third-person hop on a plane and boxes. **`examples/mario64/README.md`** compares sources: **`main.mb`** (implicit typing + **`Draw3D`** only, no entity graph), **`main_entities.mb`** (**`CreateCube`/`CreateSphere`**, **`COLLISIONS`**, **`EntityGrounded`** (coyote), **`EntityMoveCameraRelative`**, **`Camera.OrbitEntity`**, **`CopyEntity`** platform template, **`ENTITY.UPDATE`**, **`DrawEntities`**, child hat), plus Blitz-teaching variants **`main_orbit_simple.mb`**, **`main_v2.mb`**, **`main_v3.mb`**. Older variants use **`Camera.SetOrbit`**, **`Input.Axis`**, **`MOVESTEPX`/`MOVESTEPZ`**, **`BOXTOPLAND`**, **`IIF`**. See [ENTITY.md](reference/ENTITY.md) (**`MoveEntity`** vs **`TranslateEntity`**, **`EntityHitsType`**), [CAMERA.md](reference/CAMERA.md), [INPUT.md](reference/INPUT.md), [GAMEHELPERS.md](reference/GAMEHELPERS.md), [MATH.md](reference/MATH.md), [LANGUAGE.md](LANGUAGE.md).
 
 ---
 

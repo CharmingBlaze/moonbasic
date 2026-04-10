@@ -61,9 +61,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`AMBIENTLIGHT`** - args: int, int, int, float -> returns void — Easy Mode: Set global ambient light (r, g, b, intensity)
 
+### ANGLE
+
+- **`ANGLE.DIFFERENCE`** - args: float, float -> returns float — Shortest signed angle from a to b in degrees (alias of MATH.ANGLEDIFF)
+
 ### ANGLEDIFF
 
 - **`ANGLEDIFF`** - args: any, any
+
+### ANGLEDIFFRAD
+
+- **`ANGLEDIFFRAD`** - args: float, float -> returns float — Shortest signed angle difference b-a in radians
+
+### ANGLETO
+
+- **`ANGLETO`** - args: float, float, float, float -> returns float — Heading in degrees [0,360) on XZ from (x1,z1) to (x2,z2)
 
 ### ANIM
 
@@ -178,14 +190,15 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AUDIO.INIT`** - args: (none)
 - **`AUDIO.ISMUSICPLAYING`** - args: handle -> returns bool
 - **`AUDIO.ISSOUNDPLAYING`** - args: handle -> returns bool
+- **`AUDIO.LISTENERCAMERA`** - args: handle
 - **`AUDIO.LOADMUSIC`** - args: string
 - **`AUDIO.LOADMUSIC`** - args: string -> returns handle
 - **`AUDIO.LOADSOUND`** - args: string -> returns handle
 - **`AUDIO.LOADSOUND`** - args: string
 - **`AUDIO.PAUSE`** - args: (none)
 - **`AUDIO.PAUSE`** - args: handle
-- **`AUDIO.PLAY`** - args: handle
 - **`AUDIO.PLAY`** - args: any
+- **`AUDIO.PLAY`** - args: handle
 - **`AUDIO.RESUME`** - args: (none)
 - **`AUDIO.RESUME`** - args: handle
 - **`AUDIO.SEEKMUSIC`** - args: handle, float
@@ -219,13 +232,41 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AXIS`** - args: any, any -> returns float — Easy Mode: INPUT.AXIS(INPUT(), k1, k2)
 - **`AXIS`** - args: int, int -> returns float
 
+### ActiveShader
+
+- **`ActiveShader`** - args: handle — Alias of POST.ADDSHADER â€” full-screen post shader for the render pipeline
+
+### AddTriangle
+
+- **`AddTriangle`** - args: handle, int, int, int
+
+### AddVertex
+
+- **`AddVertex`** - args: handle, float, float, float -> returns int
+
+### AddWheel
+
+- **`AddWheel`** - args: any
+
+### Animate
+
+- **`Animate`** - args: int, any, any
+
+### AppTitle
+
+- **`AppTitle`** - args: string — Alias of WINDOW.SETTITLE
+
+### ApplyEntityImpulse
+
+- **`ApplyEntityImpulse`** - args: int, float, float, float
+
 ### BALL
 
-- **`BALL`** - args: float, float, float, float, int, int, int, int — alias of DRAW3D.SPHERE — solid sphere
+- **`BALL`** - args: float, float, float, float, int, int, int, int — alias of DRAW3D.SPHERE â€” solid sphere
 
 ### BALLW
 
-- **`BALLW`** - args: float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.SPHEREWIRES — wire sphere
+- **`BALLW`** - args: float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.SPHEREWIRES â€” wire sphere
 
 ### BAND
 
@@ -335,7 +376,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### BOX
 
-- **`BOX`** - args: float, float, float, float, float, float, int, int, int, int — alias of DRAW3D.CUBE — solid axis-aligned box
+- **`BOX`** - args: float, float, float, float, float, float, int, int, int, int — alias of DRAW3D.CUBE â€” solid axis-aligned box
 
 ### BOX2D
 
@@ -351,7 +392,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### BOXW
 
-- **`BOXW`** - args: float, float, float, float, float, float, int, int, int, int — alias of DRAW3D.CUBEWIRES — wire box
+- **`BOXW`** - args: float, float, float, float, float, float, int, int, int, int — alias of DRAW3D.CUBEWIRES â€” wire box
 
 ### BRSHIFT
 
@@ -389,9 +430,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`BXOR`** - args: any, any
 
+### BrushFX
+
+- **`BrushFX`** - args: handle, any
+
+### BrushShininess
+
+- **`BrushShininess`** - args: handle, float
+
+### BrushTexture
+
+- **`BrushTexture`** - args: handle, handle, any
+
 ### CAM
 
-- **`CAM`** - args: (none) -> returns handle — Alias of CAMERA.MAKE — short Blitz-style 3D camera constructor
+- **`CAM`** - args: (none) -> returns handle — Alias of CAMERA.MAKE â€” short Blitz-style 3D camera constructor
 
 ### CAMERA
 
@@ -399,6 +452,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.BEGIN`** - args: handle
 - **`CAMERA.CAMERAFOLLOW`** - args: handle, int, float, float, float
 - **`CAMERA.CLEARFPSMODE`** - args: handle
+- **`CAMERA.CREATE`** - args: (none) -> returns handle — Alias of CAMERA.MAKE â€” returns a Camera3D handle
 - **`CAMERA.END`** - args: (none)
 - **`CAMERA.END`** - args: handle
 - **`CAMERA.FOLLOW`** - args: handle, float, float, float, float, float, float, float
@@ -413,6 +467,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float -> returns bool
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float, float -> returns bool
 - **`CAMERA.LOOKAT`** - args: handle, float, float, float
+- **`CAMERA.LOOKATENTITY`** - args: handle, int — Sets camera target to entity world position (same idea as Blitz PointAt)
 - **`CAMERA.MAKE`** - args: (none)
 - **`CAMERA.MOUSERAY`** - args: handle -> returns handle
 - **`CAMERA.MOVE`** - args: handle, float, float, float
@@ -422,10 +477,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.ORBITCAMERA`** - args: handle, float, float, float -> returns float
 - **`CAMERA.ORBITENTITY`** - args: handle, int, float, float, float
 - **`CAMERA.PICK`** - args: handle, float, float -> returns handle
+- **`CAMERA.POINTATENTITY`** - args: handle, int — Alias of CAMERA.LOOKATENTITY
+- **`CAMERA.PROJECT`** - args: handle, float, float, float -> returns handle — Alias of CAMERA.WORLDTOSCREEN â€” world point to screen [sx,sy]
 - **`CAMERA.ROTATE`** - args: handle, float, float, float
 - **`CAMERA.SETACTIVE`** - args: handle
 - **`CAMERA.SETFOV`** - args: handle, float
 - **`CAMERA.SETFPSMODE`** - args: handle, float
+- **`CAMERA.SETMODE`** - args: handle, any — 0/1 or perspective/orthographic â€” alias-friendly CAMERA.SETPROJECTION
 - **`CAMERA.SETORBIT`** - args: handle, float, float, float, float, float, float
 - **`CAMERA.SETPOS`** - args: handle, float, float, float
 - **`CAMERA.SETPOSITION`** - args: handle, float, float, float
@@ -435,9 +493,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.SETTARGETENTITY`** - args: handle, int
 - **`CAMERA.SETUP`** - args: handle, float, float, float
 - **`CAMERA.SHAKE`** - args: handle, float, float
+- **`CAMERA.SMOOTHEXP`** - args: float, float, float, float -> returns float — Exponential smoothing: current toward target using (1-exp(-smoothHz*dt)); for orbit angles
 - **`CAMERA.TURN`** - args: handle, float, float, float
 - **`CAMERA.TURNLEFT`** - args: handle, float -> returns float
 - **`CAMERA.TURNRIGHT`** - args: handle, float -> returns float
+- **`CAMERA.UNPROJECT`** - args: handle, float, float -> returns handle — Screen (x,y) to world ray â€” alias of CAMERA.GETRAY / PICK
 - **`CAMERA.UPDATEFPS`** - args: handle
 - **`CAMERA.WORLDTOSCREEN`** - args: handle, float, float, float -> returns handle
 - **`CAMERA.WORLDTOSCREEN2D`** - args: handle, float, float, float -> returns handle
@@ -495,11 +555,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### CAP
 
-- **`CAP`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.CAPSULE — solid capsule
+- **`CAP`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.CAPSULE â€” solid capsule
 
 ### CAPW
 
-- **`CAPW`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.CAPSULEWIRES — wire capsule
+- **`CAPW`** - args: float, float, float, float, float, float, float, int, int, int, int, int, int — alias of DRAW3D.CAPSULEWIRES â€” wire capsule
 
 ### CEIL
 
@@ -517,6 +577,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHARCONTROLLER.X`** - args: handle -> returns float
 - **`CHARCONTROLLER.Y`** - args: handle -> returns float
 - **`CHARCONTROLLER.Z`** - args: handle -> returns float
+
+### CHECK
+
+- **`CHECK.INVIEW`** - args: int -> returns bool — Same frustum test as ENTITY.INFRUSTUM (active CAMERA.BEGIN)
 
 ### CHOOSE
 
@@ -542,6 +606,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHUNK.GENERATE`** - args: handle, int, int
 - **`CHUNK.ISLOADED`** - args: handle, int, int -> returns bool
 - **`CHUNK.SETRANGE`** - args: handle, float, float
+
+### CIRCLEPOINT
+
+- **`CIRCLEPOINT`** - args: float, float, float, float, float -> returns handle
 
 ### CLAMP
 
@@ -582,11 +650,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`COLOR.A`** - args: handle -> returns int
 - **`COLOR.B`** - args: handle -> returns int
 - **`COLOR.BRIGHTNESS`** - args: handle, float -> returns handle
+- **`COLOR.CLAMP`** - args: float, float, float -> returns handle
 - **`COLOR.CONTRAST`** - args: handle, float -> returns handle
 - **`COLOR.FADE`** - args: handle, float -> returns handle
 - **`COLOR.FREE`** - args: handle
+- **`COLOR.FROMHSV`** - args: float, float, float -> returns handle
 - **`COLOR.G`** - args: handle -> returns int
 - **`COLOR.HEX`** - args: string -> returns handle
+- **`COLOR.HSV`** - args: float, float -> returns handle — COLOR.HSV(index, total) â€” evenly spaced hues on the wheel
 - **`COLOR.HSV`** - args: float, float, float -> returns handle
 - **`COLOR.INVERT`** - args: handle -> returns handle
 - **`COLOR.LERP`** - args: handle, handle, float -> returns handle
@@ -594,6 +665,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`COLOR.RGB`** - args: int, int, int -> returns handle
 - **`COLOR.RGBA`** - args: int, int, int, int -> returns handle
 - **`COLOR.TOHEX`** - args: handle -> returns string
+- **`COLOR.TOHSV`** - args: handle -> returns handle
 - **`COLOR.TOHSVX`** - args: handle -> returns float
 - **`COLOR.TOHSVY`** - args: handle -> returns float
 - **`COLOR.TOHSVZ`** - args: handle -> returns float
@@ -686,8 +758,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### CUBE
 
-- **`CUBE`** - args: (none) -> returns handle — Blitz-style static box entity (1×1×1); use CUBE(w,h,d) for dimensions — ENTITYREF handle
-- **`CUBE`** - args: float, float, float -> returns handle — Blitz-style static box entity — ENTITYREF handle
+- **`CUBE`** - args: (none) -> returns handle — Blitz-style static box entity (1Ã—1Ã—1); use CUBE(w,h,d) for dimensions â€” ENTITYREF handle
+- **`CUBE`** - args: float, float, float -> returns handle — Blitz-style static box entity â€” ENTITYREF handle
 
 ### CURSOR
 
@@ -702,6 +774,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CURVE
 
 - **`CURVE`** - args: float, float, float -> returns float — Easy Mode: Blitz-style smooth follower (value, target, divisor)
+
+### CURVEANGLE
+
+- **`CURVEANGLE`** - args: float, float, float -> returns float — Like CURVEVALUE for degrees (360 wrap)
+
+### CURVEVALUE
+
+- **`CURVEVALUE`** - args: float, float, float -> returns float — DBPro-style: move current toward target by (target-current)/speed per call
 
 ### CVDOUBLE
 
@@ -722,6 +802,22 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CVSHORT
 
 - **`CVSHORT`** - args: string
+
+### CameraFOV
+
+- **`CameraFOV`** - args: handle, float
+
+### CameraLookAt
+
+- **`CameraLookAt`** - args: handle, float, float, float
+
+### CameraShake
+
+- **`CameraShake`** - args: handle, float, float
+
+### CameraSmoothFollow
+
+- **`CameraSmoothFollow`** - args: handle, int, float
 
 ### CollisionForce
 
@@ -759,6 +855,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`CountCollisions`** - args: int -> returns int — Count Jolt contact pairs involving entity# this frame (distinct from COUNTCOLLISIONS legacy hits)
 
+### CreateBrush
+
+- **`CreateBrush`** - args: float, float, float -> returns handle
+
 ### CreateCube
 
 - **`CreateCube`** - args: (none) -> returns int — Default 1x1x1 axis-aligned box; returns entity#
@@ -766,9 +866,25 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CreateCube`** - args: float, float, float -> returns int — Box with width, height, depth (no parent)
 - **`CreateCube`** - args: int, float, float, float -> returns int — Box (w,h,d) parented to entity#
 
+### CreateLight
+
+- **`CreateLight`** - args: any, any -> returns handle — Blitz-style: type 1=directional, 2=point, 3=spot; optional parent entity# stored for future attachment
+
 ### CreatePivot
 
 - **`CreatePivot`** - args: (none) -> returns int — Create empty transform node (entity#) for parenting; invisible, no mesh
+
+### CreatePointLight
+
+- **`CreatePointLight`** - args: int, float, float, float -> returns handle
+
+### CreateSurface
+
+- **`CreateSurface`** - args: int -> returns handle
+
+### CreateVehicle
+
+- **`CreateVehicle`** - args: int
 
 ### DATA
 
@@ -811,6 +927,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DEBUG.LOG`** - args: string
 - **`DEBUG.LOGFILE`** - args: string, string
 - **`DEBUG.PRINT`** - args: any
+- **`DEBUG.PRINT`** - args: string
+- **`DEBUG.PRINT`** - args: string, any
+- **`DEBUG.PRINT`** - args: string, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any, any, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any, any, any, any, any, any
+- **`DEBUG.PRINT`** - args: string, any, any, any, any, any, any, any, any, any, any
 - **`DEBUG.PRINTL`** - args: string, any
 - **`DEBUG.PROFILEEND`** - args: string
 - **`DEBUG.PROFILEREPORT`** - args: (none)
@@ -856,10 +983,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DIREXISTS`** - args: string
 - **`DIREXISTS`** - args: string -> returns bool
 
+### DIST2D
+
+- **`DIST2D`** - args: float, float, float, float -> returns float — 2D Euclidean distance; alias of DISTANCE2D under MATH
+
 ### DIST3D
 
 - **`DIST3D`** - args: float, float, float, float, float, float -> returns float — Easy Mode: Distance between two points in 3D space
 - **`DIST3D`** - args: float, float, float, float, float, float -> returns float
+
+### DISTSQ2D
+
+- **`DISTSQ2D`** - args: float, float, float, float -> returns float — Squared 2D distance
 
 ### DRAW
 
@@ -907,6 +1042,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DRAW3D.CYLINDER`** - args: float, float, float, float, float, float, int, int, int, int, int
 - **`DRAW3D.CYLINDERWIRES`** - args: float, float, float, float, float, float, int, int, int, int, int
 - **`DRAW3D.GRID`** - args: int, float
+- **`DRAW3D.GRID`** - args: int, float, float — XZ grid with optional Y offset (avoids z-fight with floor at Y=0)
 - **`DRAW3D.LINE`** - args: float, float, float, float, float, float, int, int, int, int
 - **`DRAW3D.PLANE`** - args: float, float, float, float, float, int, int, int, int
 - **`DRAW3D.POINT`** - args: float, float, float, int, int, int, int
@@ -958,6 +1094,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### DrawEntities
 
 - **`DrawEntities`** - args: (none) — Alias for ENTITY.DRAWALL: draw all entities in the scene graph (no arguments)
+
+### DrawEntity
+
+- **`DrawEntity`** - args: int — Draw one entity (same as ENTITY.DRAW)
 
 ### E
 
@@ -1011,6 +1151,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`ENDSWITH`** - args: string, string -> returns bool
 
+### ENEMY
+
+- **`ENEMY.FOLLOWPATH`** - args: int, handle, float — Moves an entity along a PATH handle toward waypoints at speed (world units/sec)
+
 ### ENET
 
 - **`ENET.CREATEHOST`** - args: string, int, int, int, int
@@ -1028,14 +1172,24 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### ENTITY
 
 - **`ENTITY.ADDFORCE`** - args: int, float, float, float
+- **`ENTITY.ADDTRIANGLE`** - args: handle, int, int, int
+- **`ENTITY.ADDVERTEX`** - args: handle, float, float, float -> returns int
 - **`ENTITY.ALIGNTOVECTOR`** - args: int, float, float, float, int
 - **`ENTITY.ALPHA`** - args: int, float
 - **`ENTITY.ANIMATE`** - args: int, any, any
+- **`ENTITY.ANIMATETOWARD`** - args: int, float, float, float, float — Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE
+- **`ENTITY.ANIMCOUNT`** - args: int -> returns int
+- **`ENTITY.ANIMINDEX`** - args: int -> returns int
 - **`ENTITY.ANIMLENGTH`** - args: int -> returns float
+- **`ENTITY.ANIMNAME$`** - args: int, any -> returns string
 - **`ENTITY.ANIMTIME`** - args: int -> returns float
 - **`ENTITY.APPLYGRAVITY`** - args: int, float, float
+- **`ENTITY.APPLYIMPULSE`** - args: int, float, float, float — Same as ENTITY.ADDFORCE / ApplyEntityImpulse (velocity change; not Jolt BodyInterface impulse until exposed)
 - **`ENTITY.BLEND`** - args: int, int
 - **`ENTITY.BOX`** - args: int, float, float, float
+- **`ENTITY.CANSEE`** - args: int, int, float, float -> returns bool — Vision cone (degrees) + max distance + unobstructed Jolt ray to target
+- **`ENTITY.CHECKCOLLISION`** - args: int, int -> returns bool — True if two entities had a Jolt contact last step (same as EntityCollided)
+- **`ENTITY.CLAMPTOTERRAIN`** - args: int, handle — Sets Y from terrain height at entity XZ (offset 0); alias of TERRAIN.SNAPY argument order swap
 - **`ENTITY.CLEARPHYSBUFFER`** - args: int — Remove physics matrix buffer binding from entity#
 - **`ENTITY.CLEARSCENE`** - args: (none)
 - **`ENTITY.COLLIDE`** - args: int, int
@@ -1048,24 +1202,33 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.COLLISIONX`** - args: int -> returns float
 - **`ENTITY.COLLISIONY`** - args: int -> returns float
 - **`ENTITY.COLLISIONZ`** - args: int -> returns float
+- **`ENTITY.COLOR`** - args: int, handle
 - **`ENTITY.COLOR`** - args: int, int, int, int
 - **`ENTITY.COLOR`** - args: int, int, int, int, int
 - **`ENTITY.COPY`** - args: int -> returns int
 - **`ENTITY.COUNTCHILDREN`** - args: int -> returns int
 - **`ENTITY.CREATE`** - args: (none) -> returns int
+- **`ENTITY.CREATEBOX`** - args: float -> returns int — Uniform cube: size# used for width, height, and depth (alias ENTITY.CREATECUBE)
 - **`ENTITY.CREATEBOX`** - args: float, float, float -> returns int
 - **`ENTITY.CREATECUBE`** - args: float, float, float -> returns int
 - **`ENTITY.CREATECYLINDER`** - args: float, float, int -> returns int
 - **`ENTITY.CREATEENTITY`** - args: (none) -> returns int
-- **`ENTITY.CREATEMESH`** - args: (none) -> returns int
+- **`ENTITY.CREATEMESH`** - args: any -> returns int — Procedural mesh: optional parentEntity#; use AddVertex/UpdateMesh
 - **`ENTITY.CREATEPLANE`** - args: float -> returns int
+- **`ENTITY.CREATESPHERE`** - args: float -> returns int — Radius only â€” default 16 segments
 - **`ENTITY.CREATESPHERE`** - args: float, int -> returns int
 - **`ENTITY.CREATESPRITE`** - args: string -> returns int
 - **`ENTITY.CREATESPRITE`** - args: string, int -> returns int
+- **`ENTITY.CREATESPRITE`** - args: handle, float, float -> returns int — Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)
+- **`ENTITY.CREATESPRITE`** - args: handle, float, float, int -> returns int
+- **`ENTITY.CREATESURFACE`** - args: int -> returns handle
+- **`ENTITY.CROSSFADE`** - args: int, any, float
+- **`ENTITY.CURRENTANIM$`** - args: int -> returns string
 - **`ENTITY.DELTAX`** - args: int, int -> returns float
 - **`ENTITY.DELTAY`** - args: int, int -> returns float
 - **`ENTITY.DELTAZ`** - args: int, int -> returns float
 - **`ENTITY.DISTANCE`** - args: int, int -> returns float
+- **`ENTITY.DRAW`** - args: int
 - **`ENTITY.DRAWALL`** - args: (none)
 - **`ENTITY.DRAWALL`** - args: (none)
 - **`ENTITY.ENTITIESINBOX`** - args: float, float, float, float, float, float
@@ -1077,65 +1240,124 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.ENTITYY`** - args: int, any -> returns float
 - **`ENTITY.ENTITYYAW`** - args: int, any -> returns float
 - **`ENTITY.ENTITYZ`** - args: int, any -> returns float
+- **`ENTITY.EXTRACTANIMSEQ`** - args: int, any, any
 - **`ENTITY.FIND`** - args: any -> returns int
+- **`ENTITY.FINDBONE`** - args: int, any -> returns int
+- **`ENTITY.FINDBYPROPERTY`** - args: string, string -> returns handle
 - **`ENTITY.FINDCHILD`** - args: int, string -> returns int
 - **`ENTITY.FLOOR`** - args: int -> returns float
 - **`ENTITY.FREE`** - args: int
+- **`ENTITY.FREEENTITIES`** - args: handle
 - **`ENTITY.FX`** - args: int, int
+- **`ENTITY.GETBONEPOS`** - args: int, string -> returns handle
+- **`ENTITY.GETBONEROT`** - args: int, string -> returns handle
+- **`ENTITY.GETBOUNDS`** - args: int -> returns handle
+- **`ENTITY.GETBUOYANCY`** - args: int -> returns float — Alias of PHYSICS.GETBUOYANCY
 - **`ENTITY.GETCHILD`** - args: int, int -> returns int
+- **`ENTITY.GETCLOSESTWITHTAG`** - args: int, float, string -> returns int — Nearest entity within radius matching name/tag glob (same rules as PLAYER.GETNEARBY)
+- **`ENTITY.GETDISTANCE`** - args: int, int -> returns float
+- **`ENTITY.GETGROUNDNORMAL`** - args: int -> returns handle — World ground normal under entity (CharacterVirtual if PLAYER.CREATE; else short downward Jolt ray)
+- **`ENTITY.GETMETADATA`** - args: int, string -> returns string
+- **`ENTITY.GETOVERLAPCOUNT`** - args: int, string -> returns int — Counts tagged entities whose pivot lies in zone entity world AABB (sphere prefilter)
+- **`ENTITY.GETPOS`** - args: int -> returns handle
 - **`ENTITY.GETPOSITION`** - args: int -> returns handle
+- **`ENTITY.GETXZ`** - args: int -> returns handle
 - **`ENTITY.GRAVITY`** - args: int, float
-- **`ENTITY.GROUNDED`** - args: int -> returns bool (floor contact or short coyote grace after leaving ground; upward **`ApplyEntityImpulse`** clears coyote)
-- **`EntityGrounded`** - args: int -> returns bool (alias of **`ENTITY.GROUNDED`**)
+- **`ENTITY.GROUNDED`** - args: int -> returns bool
 - **`ENTITY.GROUPADD`** - args: any, int
 - **`ENTITY.GROUPCREATE`** - args: any
 - **`ENTITY.GROUPREMOVE`** - args: any, int
+- **`ENTITY.HASTAG`** - args: int, string -> returns bool — Glob match on Blender tag or entity name only (stricter than ENTITY.ISTYPE)
 - **`ENTITY.HIDE`** - args: int
+- **`ENTITY.INFRUSTUM`** - args: int -> returns bool — True if entity AABB intersects active CAMERA.BEGIN frustum (same as ENTITY.INVIEW without passing camera)
+- **`ENTITY.INSTANCE`** - args: int -> returns int
+- **`ENTITY.INSTANCEGRID`** - args: int, int, int, float -> returns int
 - **`ENTITY.INVIEW`** - args: int, handle -> returns bool
+- **`ENTITY.ISPLAYING`** - args: int -> returns bool
+- **`ENTITY.ISSUBMERGED`** - args: int -> returns float — Fraction 0..1 of entity vertical extent below water surface (any overlapping WATER volume)
+- **`ENTITY.ISTYPE`** - args: int, string -> returns bool
 - **`ENTITY.JUMP`** - args: int, float
+- **`ENTITY.LINEOFSIGHT`** - args: int, int -> returns bool — Unobstructed Jolt ray from observer eye to target (no FOV); sensors still occlude until filtered
 - **`ENTITY.LINKPHYSBUFFER`** - args: int, int — Bind entity# to Jolt shared matrix slot index (use BODY3D.BUFFERINDEX on the body)
+- **`ENTITY.LOAD`** - args: any -> returns int — Alias of ENTITY.LOADMESH â€” static model path (Raylib-supported formats), optional parentEntity#
 - **`ENTITY.LOADANIMATEDMESH`** - args: any -> returns int
+- **`ENTITY.LOADANIMATIONS`** - args: int, string
 - **`ENTITY.LOADMESH`** - args: any -> returns int
 - **`ENTITY.LOADSCENE`** - args: any
 - **`ENTITY.LOADSPRITE`** - args: string -> returns int
 - **`ENTITY.LOADSPRITE`** - args: string, int -> returns int
+- **`ENTITY.LOOKAT`** - args: int, float, float, float — Face world point (entity#, targetX#, targetY#, targetZ#); sets pitch/yaw
 - **`ENTITY.MATRIXELEMENT`** - args: int, int, int -> returns float
 - **`ENTITY.MOVE`** - args: int, float, float, float
+- **`ENTITY.MOVECAMERARELATIVE`** - args: int, float, float, handle — World XZ step from camera yaw: forward#/strafe# are deltas (typically speed*dt*input); camera is a Camera3D handle.
 - **`ENTITY.MOVEENTITY`** - args: int, float, float, float
 - **`ENTITY.MOVERELATIVE`** - args: int, float, float, float, float
-- **`ENTITY.MOVECAMERARELATIVE`** - args: int, float, float, handle (world XZ delta from camera forward/strafe; **`EntityMoveCameraRelative`** alias)
 - **`ENTITY.ORDER`** - args: int, int
 - **`ENTITY.PARENT`** - args: int, int, any
 - **`ENTITY.PARENTCLEAR`** - args: int
 - **`ENTITY.PICK`** - args: int, float -> returns bool
 - **`ENTITY.PICKMODE`** - args: int, int
+- **`ENTITY.PLAY`** - args: int, any
+- **`ENTITY.PLAYNAME`** - args: int, string
+- **`ENTITY.POINTAT`** - args: int, int
 - **`ENTITY.POINTENTITY`** - args: int, int
+- **`ENTITY.POLLMESSAGE`** - args: int -> returns string
+- **`ENTITY.POSITION`** - args: int, float, float, float, any — Alias of ENTITY.SETPOSITION â€” set world or local position
 - **`ENTITY.POSITIONENTITY`** - args: int, float, float, float, any
+- **`ENTITY.PUSHOUTOFGEOMETRY`** - args: int — Best-effort depenetration: nudges entity world Y up slightly
 - **`ENTITY.RADIUS`** - args: int, float
+- **`ENTITY.RAYCAST`** - args: float, float, float, float, float, float, float -> returns int — Jolt ray cast; returns first hit entity# or 0 (same query path as PHYSICS3D/PICK)
+- **`ENTITY.RAYHIT`** - args: int, float, float, float, float, float, float -> returns bool
 - **`ENTITY.ROTATE`** - args: int, float, float, float
 - **`ENTITY.ROTATEENTITY`** - args: int, float, float, float, any
 - **`ENTITY.SAVESCENE`** - args: any
 - **`ENTITY.SCALE`** - args: int, float, float, float
+- **`ENTITY.SCROLLMATERIAL`** - args: int, float, float — Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)
+- **`ENTITY.SENDMESSAGE`** - args: int, string
+- **`ENTITY.SETANIMFRAME`** - args: int, float
+- **`ENTITY.SETANIMINDEX`** - args: int, any
+- **`ENTITY.SETANIMLOOP`** - args: int, any
+- **`ENTITY.SETANIMSPEED`** - args: int, float
 - **`ENTITY.SETANIMTIME`** - args: int, float
 - **`ENTITY.SETBOUNCE`** - args: int, float
+- **`ENTITY.SETBUOYANCY`** - args: int, float — Alias of PHYSICS.SETBUOYANCY â€” per-entity density hint for buoyancy
+- **`ENTITY.SETCOLLISIONGROUP`** - args: int, int — Alias for ENTITY.COLLISIONLAYER (collision group / layer 0..31)
+- **`ENTITY.SETDETAILTEXTURE`** - args: int, handle — Bind secondary map as MATERIAL_MAP_NORMAL for blending/detail
 - **`ENTITY.SETFRICTION`** - args: int, float
 - **`ENTITY.SETGRAVITY`** - args: int, float
 - **`ENTITY.SETMASS`** - args: int, float
 - **`ENTITY.SETNAME`** - args: int, any
 - **`ENTITY.SETPOSITION`** - args: int, float, float, float, any
+- **`ENTITY.SETROTATION`** - args: int, float, float, float, any — Absolute pitch/yaw/roll degrees â€” alias of ENTITY.ROTATEENTITY
+- **`ENTITY.SETSHADER`** - args: int, handle
+- **`ENTITY.SETSHADER`** - args: handle, int — Binds an active Shader Library component to the entity.
+- **`ENTITY.SETSTATIC`** - args: int
+- **`ENTITY.SETTEXTUREFLIP`** - args: handle, float, float — Modifies UV scaling for horizontal/vertical mirroring.
+- **`ENTITY.SETTEXTUREMAP`** - args: int, any, handle
+- **`ENTITY.SETTEXTURESCROLL`** - args: handle, float, float — Injects offsets into the shader for animated water/lava.
+- **`ENTITY.SETTRIGGER`** - args: int
+- **`ENTITY.SETVISIBLE`** - args: int, any — Alias of ENTITY.VISIBLE
 - **`ENTITY.SHININESS`** - args: int, float
 - **`ENTITY.SHOW`** - args: int
 - **`ENTITY.SLIDE`** - args: int, any
 - **`ENTITY.SPRITEVIEWMODE`** - args: int, int
+- **`ENTITY.STOPANIM`** - args: int
 - **`ENTITY.TEXTURE`** - args: int, any
 - **`ENTITY.TFORMPOINT`** - args: float, float, float, int, int -> returns handle
 - **`ENTITY.TFORMVECTOR`** - args: float, float, float, int, int -> returns handle
+- **`ENTITY.TRANSITION`** - args: int, string, float
 - **`ENTITY.TRANSLATE`** - args: int, float, float, float
 - **`ENTITY.TRANSLATEENTITY`** - args: int, float, float, float, any
+- **`ENTITY.TURN`** - args: int, float, float, float — Add pitch/yaw/roll degrees â€” alias of ENTITY.ROTATE / TURNENTITY
 - **`ENTITY.TURNENTITY`** - args: int, float, float, float, any
 - **`ENTITY.TYPE`** - args: int, int
+- **`ENTITY.UNPARENT`** - args: int — Alias of ENTITY.PARENTCLEAR â€” detach and keep world position
 - **`ENTITY.UPDATE`** - args: float
+- **`ENTITY.UPDATEMESH`** - args: int
 - **`ENTITY.VELOCITY`** - args: int, float, float, float
+- **`ENTITY.VERTEXX`** - args: handle, int -> returns float
+- **`ENTITY.VERTEXY`** - args: handle, int -> returns float
+- **`ENTITY.VERTEXZ`** - args: handle, int -> returns float
 - **`ENTITY.VISIBLE`** - args: int, any
 
 ### ENTITYALPHA
@@ -1308,6 +1530,30 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`EXP`** - args: any
 
+### EmitSound
+
+- **`EmitSound`** - args: handle, int
+
+### EntityAnimTime
+
+- **`EntityAnimTime`** - args: int -> returns float
+
+### EntityAnimateToward
+
+- **`EntityAnimateToward`** - args: int, float, float, float, float — Alias for ENTITY.ANIMATETOWARD
+
+### EntityApplyImpulse
+
+- **`EntityApplyImpulse`** - args: int, float, float, float — Alias for ENTITY.APPLYIMPULSE
+
+### EntityCanSee
+
+- **`EntityCanSee`** - args: int, int, float, float -> returns bool — Alias for ENTITY.CANSEE
+
+### EntityCheckCollision
+
+- **`EntityCheckCollision`** - args: int, int -> returns bool — Alias for ENTITY.CHECKCOLLISION
+
 ### EntityCollided
 
 - **`EntityCollided`** - args: int, int -> returns bool — True if two entities had a Jolt contact since last PHYSICS3D.STEP (Linux+CGO; link via ENTITY.LINKPHYSBUFFER)
@@ -1315,6 +1561,86 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### EntityCollisionLayer
 
 - **`EntityCollisionLayer`** - args: int, int — Alias for ENTITY.COLLISIONLAYER
+
+### EntityEmission
+
+- **`EntityEmission`** - args: int, handle, float
+
+### EntityFriction
+
+- **`EntityFriction`** - args: int, float
+
+### EntityGetClosestWithTag
+
+- **`EntityGetClosestWithTag`** - args: int, float, string -> returns int — Alias for ENTITY.GETCLOSESTWITHTAG
+
+### EntityGetGroundNormal
+
+- **`EntityGetGroundNormal`** - args: int -> returns handle — Alias for ENTITY.GETGROUNDNORMAL
+
+### EntityGetOverlapCount
+
+- **`EntityGetOverlapCount`** - args: int, string -> returns int — Alias for ENTITY.GETOVERLAPCOUNT
+
+### EntityGrounded
+
+- **`EntityGrounded`** - args: int -> returns bool — True when the entity has floor support or is within coyote frames after leaving the ground (same as ENTITY.GROUNDED).
+
+### EntityHasTag
+
+- **`EntityHasTag`** - args: int, string -> returns bool — Alias for ENTITY.HASTAG
+
+### EntityHitsType
+
+- **`EntityHitsType`** - args: int, int -> returns bool — Args: (entity#, type#). True after ENTITY.UPDATE if entity# has a rule-based hit against another body whose EntityType equals type# (requires COLLISIONS + EntityType). For other entity id use ENTITYCOLLIDED; for Jolt pair test use EntityCollided(a#, b#).
+
+### EntityInFrustum
+
+- **`EntityInFrustum`** - args: int -> returns bool — Alias for ENTITY.INFRUSTUM
+
+### EntityLineOfSight
+
+- **`EntityLineOfSight`** - args: int, int -> returns bool — Alias for ENTITY.LINEOFSIGHT
+
+### EntityMass
+
+- **`EntityMass`** - args: int, float
+
+### EntityMoveCameraRelative
+
+- **`EntityMoveCameraRelative`** - args: int, float, float, handle — Same as ENTITY.MOVECAMERARELATIVE.
+
+### EntityNormalMap
+
+- **`EntityNormalMap`** - args: int, handle
+
+### EntityPBR
+
+- **`EntityPBR`** - args: int, float, float
+
+### EntityPushOutOfGeometry
+
+- **`EntityPushOutOfGeometry`** - args: int — Alias for ENTITY.PUSHOUTOFGEOMETRY
+
+### EntityRaycast
+
+- **`EntityRaycast`** - args: float, float, float, float, float, float, float -> returns int — Alias for ENTITY.RAYCAST
+
+### EntityRestitution
+
+- **`EntityRestitution`** - args: int, float
+
+### EntitySetCollisionGroup
+
+- **`EntitySetCollisionGroup`** - args: int, int — Alias for ENTITY.SETCOLLISIONGROUP
+
+### EntityShadow
+
+- **`EntityShadow`** - args: int, any
+
+### ExtractAnimSeq
+
+- **`ExtractAnimSeq`** - args: int, any, any
 
 ### FILE
 
@@ -1350,7 +1676,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### FLAT
 
-- **`FLAT`** - args: float, float, float, float, float, int, int, int, int — alias of DRAW3D.PLANE — horizontal plane patch
+- **`FLAT`** - args: float, float, float, float, float, int, int, int, int — alias of DRAW3D.PLANE â€” horizontal plane patch
 
 ### FLOAT
 
@@ -1399,6 +1725,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`FREE.ALL`** - args: (none)
 
+### FREEENTITIES
+
+- **`FREEENTITIES`** - args: handle — Free every entity# stored in a numeric array (DIM badGuy AS HANDLE(n))
+
 ### FREEENTITY
 
 - **`FREEENTITY`** - args: int — Blitz-style: ENTITY.FREE(obj)
@@ -1412,12 +1742,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`FREETEXTURE`** - args: handle
 
+### FindBone
+
+- **`FindBone`** - args: int, any -> returns int
+
 ### GAME
 
 - **`GAME.ANYKEY`** - args: (none) -> returns bool
 - **`GAME.DT`** - args: (none) -> returns float
 - **`GAME.ENDGAME`** - args: (none)
 - **`GAME.FPS`** - args: (none) -> returns int
+- **`GAME.GETTIMESCALE`** - args: (none) -> returns float — Current time scale (0 stored reads as 1 for delta)
 - **`GAME.JOYBUTTON`** - args: int -> returns bool
 - **`GAME.JOYX`** - args: (none) -> returns float
 - **`GAME.JOYY`** - args: (none) -> returns float
@@ -1447,6 +1782,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GAME.SCREENCY`** - args: (none) -> returns float
 - **`GAME.SCREENH`** - args: (none) -> returns int
 - **`GAME.SCREENW`** - args: (none) -> returns int
+- **`GAME.SETAESTHETIC`** - args: int — Selects global visual profile.
+- **`GAME.SETTIMESCALE`** - args: float — Scales frame delta (0 = treated as 1); use for slow-mo / fast-forward with GAME.DT and TIME.DELTA
 
 ### GESTURE
 
@@ -1519,9 +1856,26 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GRAPHICS`** - args: int, int — Blitz-style: WINDOW.OPEN(w, h, 'moonBASIC')
 - **`GRAPHICS`** - args: int, int, string — Blitz-style: WINDOW.OPEN(w, h, title$)
 
+### GRID
+
+- **`GRID.CREATE`** - args: int, int, float -> returns handle — Logical XZ tactical grid (width x depth cells, cell size)
+- **`GRID.DRAW`** - args: handle, int, int, int
+- **`GRID.DRAW`** - args: handle, int, int, int, int
+- **`GRID.FOLLOWTERRAIN`** - args: handle, handle — Bake per-cell Y from terrain height
+- **`GRID.FREE`** - args: handle
+- **`GRID.GETCELL`** - args: handle, int, int -> returns int
+- **`GRID.GETNEIGHBORS`** - args: handle, int, int, int -> returns handle — Entity IDs occupying cells in Chebyshev radius
+- **`GRID.GETPATH`** - args: handle, float, float, float, float -> returns handle — Packed path [ix0,iz0, ix1,iz1, ...] or empty
+- **`GRID.PLACEENTITY`** - args: handle, int, int, int
+- **`GRID.RAYCAST`** - args: handle, float, float -> returns handle — Cell under mouse ray on XZ plane; [-1,-1] if miss
+- **`GRID.SETCELL`** - args: handle, int, int, int
+- **`GRID.SNAP`** - args: handle, int, int, int — Move entity to cell center (optional Y from GRID.FOLLOWTERRAIN)
+- **`GRID.WORLDTOCELL`** - args: handle, float, float -> returns handle — Array handle [ix, iz]
+
 ### GRID3
 
-- **`GRID3`** - args: int, float — alias of DRAW3D.GRID — XZ reference grid
+- **`GRID3`** - args: int, float — alias of DRAW3D.GRID â€” XZ reference grid
+- **`GRID3`** - args: int, float, float — alias of DRAW3D.GRID with Y offset
 
 ### GUI
 
@@ -1603,6 +1957,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GUI.VALUEBOXFLOATTEXT$`** - args: (none) -> returns string
 - **`GUI.WINDOWBOX`** - args: float, float, float, float, string -> returns bool
 
+### Graphics3D
+
+- **`Graphics3D`** - args: int, int — Resize window (w,h) with defaults: reserved depth and high-DPI mode
+- **`Graphics3D`** - args: int, int, int, int — Resize window (w,h); depth reserved; mode bit0 = high-DPI flag
+
+### HDIST
+
+- **`HDIST`** - args: float, float, float, float -> returns float — Horizontal distance on XZ: hypot(x2-x1, z2-z1); ignores Y
+
+### HDISTSQ
+
+- **`HDISTSQ`** - args: float, float, float, float -> returns float — Squared HDIST for comparisons without sqrt
+
 ### HELP
 
 - **`HELP`** - args: string — Live Discovery: Show arguments and description for any command.
@@ -1671,6 +2038,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`IMAGE.GETCOLORB`** - args: handle, int, int
 - **`IMAGE.GETCOLORG`** - args: handle, int, int
 - **`IMAGE.GETCOLORR`** - args: handle, int, int
+- **`IMAGE.GETPIXEL`** - args: handle, int, int -> returns int — Packed pixel color (host byte order; typically ARGB-style int)
 - **`IMAGE.HEIGHT`** - args: handle
 - **`IMAGE.LOAD`** - args: string
 - **`IMAGE.LOADRAW`** - args: string, int, int, int, int
@@ -1686,6 +2054,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`IMAGE.ROTATE`** - args: handle, int
 - **`IMAGE.ROTATECCW`** - args: handle
 - **`IMAGE.ROTATECW`** - args: handle
+- **`IMAGE.SETFILTER`** - args: handle, int — Raylib texture filter applied on IMAGE.TOTEXTURE / TEXTURE.FROMIMAGE
+- **`IMAGE.TOTEXTURE`** - args: handle -> returns handle — Alias of TEXTURE.FROMIMAGE; respects IMAGE.SETFILTER when set
 - **`IMAGE.WIDTH`** - args: handle
 
 ### INPUT
@@ -1696,7 +2066,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.ACTIONPRESSED`** - args: string -> returns bool
 - **`INPUT.ACTIONRELEASED`** - args: string -> returns bool
 - **`INPUT.AXIS`** - args: any, any -> returns float — Two-key axis: -1, 0, or 1 (negKey vs posKey)
-- **`INPUT.AXISDEG`** - args: any, any, float, float -> returns float — Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) — radians this frame
+- **`INPUT.AXISDEG`** - args: any, any, float, float -> returns float — Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) â€” radians this frame
 - **`INPUT.GAMEPADAXISCOUNT`** - args: int -> returns int
 - **`INPUT.GAMEPADBUTTONCOUNT`** - args: int -> returns int
 - **`INPUT.GETKEYNAME`** - args: int -> returns string
@@ -1716,6 +2086,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.MAPGAMEPADAXIS`** - args: string, int, int
 - **`INPUT.MAPGAMEPADBUTTON`** - args: string, int, int
 - **`INPUT.MAPKEY`** - args: string, int
+- **`INPUT.MOUSEDELTA`** - args: (none) -> returns handle
 - **`INPUT.MOUSEDELTAX`** - args: (none) -> returns float
 - **`INPUT.MOUSEDELTAY`** - args: (none) -> returns float
 - **`INPUT.MOUSEDOWN`** - args: int
@@ -1728,11 +2099,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`INPUT.MOUSEXSPEED`** - args: (none) -> returns float
 - **`INPUT.MOUSEY`** - args: (none)
 - **`INPUT.MOUSEYSPEED`** - args: (none) -> returns float
+- **`INPUT.MOVEDIR`** - args: float, float -> returns handle
 - **`INPUT.MOVEMENT2D`** - args: any, any, any, any -> returns handle — 2-float array [forward, strafe] from two Axis pairs; ERASE when done
-- **`INPUT.ORBIT`** - args: any, any, float, float -> returns float — Alias of INPUT.AXISDEG — orbit / yaw delta this frame
+- **`INPUT.ORBIT`** - args: any, any, float, float -> returns float — Alias of INPUT.AXISDEG â€” orbit / yaw delta this frame
 - **`INPUT.SAVEMAPPINGS`** - args: string
 - **`INPUT.SETGAMEPADMAPPINGS`** - args: string -> returns int
 - **`INPUT.SETMOUSEOFFSET`** - args: int, int
+- **`INPUT.SETMOUSEPOS`** - args: int, int — Warp OS cursor to client pixel (x,y); pair with CURSOR.DISABLE for game-style recenter
 - **`INPUT.SETMOUSESCALE`** - args: float, float
 - **`INPUT.TOUCHCOUNT`** - args: (none) -> returns int
 - **`INPUT.TOUCHPRESSED`** - args: int -> returns bool
@@ -1766,6 +2139,23 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### INT
 
 - **`INT`** - args: any
+
+### INTERP$
+
+- **`INTERP$`** - args: string, any -> returns string
+- **`INTERP$`** - args: string, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any, any, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any, any, any, any, any, any -> returns string
+- **`INTERP$`** - args: string, any, any, any, any, any, any, any, any, any, any -> returns string
+
+### INVERSE_LERP
+
+- **`INVERSE_LERP`** - args: float, float, float -> returns float
 
 ### ISALPHA
 
@@ -1899,8 +2289,27 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`LERP`** - args: any, any, any
 
+### LEVEL
+
+- **`LEVEL.APPLYPHYSICS`** - args: int
+- **`LEVEL.BINDSCRIPT`** - args: string, string
+- **`LEVEL.FINDENTITY`** - args: string -> returns int
+- **`LEVEL.GETMARKER`** - args: string -> returns handle
+- **`LEVEL.GETSPAWN`** - args: string -> returns handle
+- **`LEVEL.LOAD`** - args: string -> returns int
+- **`LEVEL.LOADSKYBOX`** - args: string -> returns handle
+- **`LEVEL.MATCHSCRIPTBIND`** - args: string -> returns string
+- **`LEVEL.OPTIMIZE`** - args: int
+- **`LEVEL.PRELOAD`** - args: string -> returns int
+- **`LEVEL.SETROOT`** - args: string
+- **`LEVEL.SHOWLAYER`** - args: string, any
+- **`LEVEL.SYNCLIGHTS`** - args: any
+
 ### LIGHT
 
+- **`LIGHT.CREATEDIRECTIONAL`** - args: float, float, float, float, float, float, float -> returns handle — Directional light: direction vector (dx,dy,dz), RGB, energy â€” direction is normalized
+- **`LIGHT.CREATEPOINT`** - args: float, float, float, float, float, float, float -> returns handle — Point light at (x,y,z) with RGB (0â€“255 or 0â€“1) and intensity (energy)
+- **`LIGHT.CREATESPOT`** - args: float, float, float, float, float, float, float, float, float, float, float -> returns handle — Spot: position, target point, RGB, outer cone degrees, energy
 - **`LIGHT.ENABLE`** - args: handle, bool
 - **`LIGHT.FREE`** - args: handle
 - **`LIGHT.ISENABLED`** - args: handle -> returns int
@@ -1917,6 +2326,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`LIGHT.SETRANGE`** - args: handle, float
 - **`LIGHT.SETSHADOW`** - args: handle, bool
 - **`LIGHT.SETSHADOWBIAS`** - args: handle, float
+- **`LIGHT.SETSTATE`** - args: handle, bool — Alias of LIGHT.ENABLE
 - **`LIGHT.SETTARGET`** - args: handle, float, float, float
 
 ### LIGHT2D
@@ -2013,6 +2423,26 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`LTRIM$`** - args: string -> returns string
 
+### LightColor
+
+- **`LightColor`** - args: handle, float, float, float — Alias of LIGHT.SETCOLOR (RGB)
+
+### LightRange
+
+- **`LightRange`** - args: handle, float — Alias of LIGHT.SETRANGE
+
+### Listener
+
+- **`Listener`** - args: handle — Sets spatial audio listener from CAMERA.MAKE handle (call each frame before EmitSound)
+
+### Load3DSound
+
+- **`Load3DSound`** - args: string -> returns handle — Loads WAV/OGG like AUDIO.LOADSOUND; use with Listener + EmitSound for 3D pan/attenuation
+
+### LoadAnimMesh
+
+- **`LoadAnimMesh`** - args: any -> returns int
+
 ### MAKEDIR
 
 - **`MAKEDIR`** - args: string
@@ -2045,6 +2475,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### MATERIAL
 
+- **`MATERIAL.AUTOFILTER`** - args: any
+- **`MATERIAL.BULKASSIGN`** - args: string, handle -> returns int
 - **`MATERIAL.CREATE`** - args: (none) -> returns handle
 - **`MATERIAL.FREE`** - args: handle
 - **`MATERIAL.MAKEDEFAULT`** - args: (none)
@@ -2059,40 +2491,58 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MATH.ABS`** - args: any
 - **`MATH.ACOS`** - args: any
 - **`MATH.ANGLEDIFF`** - args: any, any
+- **`MATH.ANGLEDIFFRAD`** - args: float, float -> returns float — Same as ANGLEDIFFRAD
+- **`MATH.ANGLETO`** - args: float, float, float, float -> returns float — Same as ANGLETO
+- **`MATH.APPROACH`** - args: float, float, float -> returns float
 - **`MATH.ASIN`** - args: any
 - **`MATH.ATAN`** - args: any
 - **`MATH.ATAN2`** - args: any, any
 - **`MATH.ATN`** - args: any
 - **`MATH.CEIL`** - args: any
+- **`MATH.CIRCLEPOINT`** - args: float, float, float, float, float -> returns handle
 - **`MATH.CLAMP`** - args: any, any, any
 - **`MATH.COS`** - args: any
 - **`MATH.COSD`** - args: any
+- **`MATH.CURVE`** - args: float, float, float -> returns float — Alias of CURVE â€” current + (target-current)/divisor (divisor clamped to >= 1)
 - **`MATH.DEG2RAD`** - args: any
 - **`MATH.DEGPERSEC`** - args: any, any
+- **`MATH.DIST2D`** - args: float, float, float, float -> returns float — Same as DIST2D
+- **`MATH.DISTSQ2D`** - args: float, float, float, float -> returns float — Same as DISTSQ2D
 - **`MATH.E`** - args: (none)
 - **`MATH.EXP`** - args: any
 - **`MATH.FIX`** - args: any
 - **`MATH.FLOOR`** - args: any
+- **`MATH.HDIST`** - args: float, float, float, float -> returns float — Same as HDIST
+- **`MATH.HDISTSQ`** - args: float, float, float, float -> returns float — Same as HDISTSQ
+- **`MATH.INVERSE_LERP`** - args: float, float, float -> returns float
 - **`MATH.LERP`** - args: any, any, any
+- **`MATH.LERPANGLE`** - args: float, float, float -> returns float
 - **`MATH.LOG`** - args: any
 - **`MATH.LOG10`** - args: any
 - **`MATH.LOG2`** - args: any
 - **`MATH.MAX`** - args: any, any
 - **`MATH.MIN`** - args: any, any
+- **`MATH.NEWX`** - args: float, float, float -> returns float — currentX + MOVEX(yaw,1,0)*dist â€” yaw in radians (XZ forward step)
+- **`MATH.NEWZ`** - args: float, float, float -> returns float — currentZ + MOVEZ(yaw,1,0)*dist â€” yaw in radians
 - **`MATH.PI`** - args: (none)
 - **`MATH.PINGPONG`** - args: any, any
 - **`MATH.POW`** - args: any, any
 - **`MATH.RAD2DEG`** - args: any
+- **`MATH.RAND`** - args: any, any -> returns int — Same as RAND
+- **`MATH.REMAP`** - args: float, float, float, float, float -> returns float
 - **`MATH.RND`** - args: (none)
 - **`MATH.RND`** - args: any
+- **`MATH.RND`** - args: any, any -> returns int — Inclusive int range â€” same as RND(lo, hi)
 - **`MATH.RNDF`** - args: any, any
 - **`MATH.RNDSEED`** - args: any
 - **`MATH.ROUND`** - args: any
 - **`MATH.ROUND`** - args: any, any
+- **`MATH.SATURATE`** - args: float -> returns float
 - **`MATH.SGN`** - args: any
 - **`MATH.SIGN`** - args: any
 - **`MATH.SIN`** - args: any
 - **`MATH.SIND`** - args: any
+- **`MATH.SMOOTHERSTEP`** - args: any, any, any -> returns float — Same as SMOOTHERSTEP
 - **`MATH.SMOOTHSTEP`** - args: any, any, any
 - **`MATH.SQR`** - args: any
 - **`MATH.SQRT`** - args: any
@@ -2102,6 +2552,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MATH.WRAP`** - args: any, any, any
 - **`MATH.WRAPANGLE`** - args: any
 - **`MATH.WRAPANGLE180`** - args: any
+- **`MATH.YAWFROMXZ`** - args: float, float -> returns float — Same as YAWFROMXZ
 
 ### MATRIX
 
@@ -2131,6 +2582,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### MESH
 
+- **`MESH.CREATECUBE`** - args: float, float, float -> returns handle — Alias of MESH.MAKECUBE
+- **`MESH.CREATEPLANE`** - args: float, float, int, int -> returns handle — Alias of MESH.MAKEPLANE â€” procedural plane mesh handle
+- **`MESH.CREATESPHERE`** - args: float, int, int -> returns handle — Alias of MESH.MAKESPHERE
 - **`MESH.CUBE`** - args: float, float, float
 - **`MESH.DRAW`** - args: handle, handle, handle
 - **`MESH.DRAWAT`** - args: handle, handle, float, float, float
@@ -2351,6 +2805,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`MOUSEZ`** - args: (none) -> returns int — Easy Mode: Get mouse wheel movement
 
+### MOVE
+
+- **`MOVE.LERP`** - args: float, float, float -> returns float — Alias of MATH.LERP
+- **`MOVE.TOWARD`** - args: float, float, float -> returns float — Alias of MATH.APPROACH â€” move current toward target by at most maxDelta without overshooting
+
 ### MOVEENTITY
 
 - **`MOVEENTITY`** - args: int, float, float, float — Blitz-style: ENTITY.MOVEENTITY(obj, x, y, z)
@@ -2378,12 +2837,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### MOVESTEPX
 
-- **`MOVESTEPX`** - args: float, float, float, float, float -> returns float — Same as MOVEX(yaw,f,s)*speed*dt — world X delta this frame
+- **`MOVESTEPX`** - args: float, float, float, float, float -> returns float — Same as MOVEX(yaw,f,s)*speed*dt â€” world X delta this frame
 - **`MOVESTEPX`** - args: float, float, float, float, float -> returns float
 
 ### MOVESTEPZ
 
-- **`MOVESTEPZ`** - args: float, float, float, float, float -> returns float — Same as MOVEZ(yaw,f,s)*speed*dt — world Z delta this frame
+- **`MOVESTEPZ`** - args: float, float, float, float, float -> returns float — Same as MOVEZ(yaw,f,s)*speed*dt â€” world Z delta this frame
 - **`MOVESTEPZ`** - args: float, float, float, float, float -> returns float
 
 ### MOVEX
@@ -2402,26 +2861,23 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`MUSICVOLUME`** - args: handle, float — Easy Mode: AUDIO.SETMUSICVOLUME(music, vol)
 
+### MilliSecs
+
+- **`MilliSecs`** - args: (none) -> returns float — Milliseconds since Raylib init (CGO); monotonic wall ms on stub builds
+
+### MouseWheel
+
+- **`MouseWheel`** - args: (none) -> returns float — Alias of INPUT.MOUSEWHEELMOVE (Input.MouseWheel() style)
+
 ### MoveEntity
 
-- **`MoveEntity`** - args: int, float, float, float — Local-space move: **forward#, right#, up#** along entity yaw/pitch (same as **`ENTITY.MOVE`**, **`MOVEENTITY`**). For world **dx,dy,dz** use **`TranslateEntity`**.
-
-### TranslateEntity
-
-- **`TranslateEntity`** - args: int, float, float, float — World-space translation **(entity#, dx#, dy#, dz#)**; same as **`ENTITY.TRANSLATE`** / **`ENTITY.TRANSLATEENTITY`**.
-
-### TFormVector
-
-- **`TFormVector`** - args: float, float, float, int, int -> returns handle — Blitz alias of **`ENTITY.TFORMVECTOR`**: direction **(x,y,z)** in **`srcEntity#`** space expressed in **`dstEntity#`** space; returns **3-float array** handle.
-
-### EntityHitsType
-
-- **`EntityHitsType`** - args: int, int -> returns bool — **`TRUE`** if **`entity#`** has any **rule-based** hit this frame against another entity whose **`EntityType`** equals **`type#`** (requires **`COLLISIONS`** + **`ENTITY.UPDATE`**). Same predicate as **`ENTITYCOLLIDED(entity#, type) <> 0`**.
+- **`MoveEntity`** - args: int, float, float, float — Args: (entity#, forward#, right#, up#). Move along entity local axes from pitch/yaw (same as MOVEENTITY / ENTITY.MOVE). For world-space offset use TranslateEntity(entity#, dx#, dy#, dz#).
 
 ### NAV
 
 - **`NAV.ADDOBSTACLE`** - args: handle, handle
 - **`NAV.ADDTERRAIN`** - args: handle, handle
+- **`NAV.BAKE`** - args: handle, float, float -> returns handle — Builds a coarse walkability grid from a terrain heightmap (slope limit); returns nav handle and caches per terrain for NAV.GETPATH
 - **`NAV.BUILD`** - args: handle
 - **`NAV.BUILD`** - args: handle
 - **`NAV.BUILD`** - args: int — Automatically scan the world for static geometry and bake the navigation grid.
@@ -2429,12 +2885,14 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`NAV.DEBUGDRAW`** - args: int — Render a debug overlay of the navigation grid (Green=Walkable, Red=Blocked).
 - **`NAV.FINDPATH`** - args: handle, float, float, float, float, float, float -> returns handle
 - **`NAV.FREE`** - args: handle
+- **`NAV.GETPATH`** - args: handle, float, float, float, float -> returns handle — A* path on last NAV.BAKE for this terrain (start/end XZ; Y sampled from terrain)
+- **`NAV.ISREACHABLE`** - args: handle, float, float, float, float -> returns bool — True if NAV.GETPATH would return a valid path
 - **`NAV.MAKE`** - args: (none) -> returns handle
 - **`NAV.MAKE`** - args: (none) -> returns handle
 - **`NAV.MAKE`** - args: (none) -> returns int — Create a new navigation grid handle.
 - **`NAV.SETGRID`** - args: handle, int, int, float, float, float
-- **`NAV.SETGRID`** - args: handle, int, int, float, float, float
 - **`NAV.SETGRID`** - args: int, int, int, float, float, float — Initialize navigation grid dimensions: (handle, width, height, cellSize#, offsetX#, offsetY#)
+- **`NAV.SETGRID`** - args: handle, int, int, float, float, float
 
 ### NAVAGENT
 
@@ -2683,10 +3141,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PHYSICS
 
+- **`PHYSICS.AUTOCREATE`** - args: int
 - **`PHYSICS.BOXCAST`** - args: any
 - **`PHYSICS.DISABLE`** - args: any
 - **`PHYSICS.ENABLE`** - args: any
+- **`PHYSICS.GETBUOYANCY`** - args: int -> returns float — Reads stored buoyancy density (default 0)
 - **`PHYSICS.RAYCAST`** - args: float, float, float, float, float, float, float -> returns handle
+- **`PHYSICS.SETBUOYANCY`** - args: int, float — Stores per-entity buoyancy density for future Jolt/WASM fluid coupling (gameplay hint today)
 - **`PHYSICS.SETGRAVITY`** - args: float, float, float
 - **`PHYSICS.SETSUBSTEPS`** - args: int
 - **`PHYSICS.SPHERECAST`** - args: any
@@ -2756,7 +3217,36 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PLAYER
 
-- **`PLAYER.MOVERELATIVE`** - args: float, float, float, float, float -> returns handle — MOVESTEPX/Z combined — 2-float array [dx,dz]; ERASE when done
+- **`PLAYER.CREATE`** - args: handle — Initializes a Kinematic Character Controller in the Jolt buffer.
+- **`PLAYER.CREATE`** - args: int
+- **`PLAYER.GETCROUCH`** - args: int -> returns bool — Stored crouch flag (capsule resize not in Jolt wrapper yet)
+- **`PLAYER.GETFOVKICK`** - args: int -> returns float — Reads stored FOV kick offset (degrees)
+- **`PLAYER.GETLOOKTARGET`** - args: int, float -> returns int
+- **`PLAYER.GETNEARBY`** - args: int, float, string -> returns handle
+- **`PLAYER.GETSTANDNORMAL`** - args: int -> returns handle — Vec3 ground/floor normal under the player (CharacterVirtual or downward ray)
+- **`PLAYER.GETSURFACETYPE`** - args: int -> returns string — Footstep label from downward ray hit entity metadata / Blender tag (else Default)
+- **`PLAYER.GETVELOCITY`** - args: int -> returns handle — Heap vec3 of linear velocity (CharacterVirtual); requires PLAYER.CREATE
+- **`PLAYER.GRAB`** - args: int, int — Welds target to player front each frame (target 0 releases); not a Jolt fixed constraint yet
+- **`PLAYER.ISGROUNDED`** - args: int -> returns bool
+- **`PLAYER.ISMOVING`** - args: int -> returns bool — True if horizontal linear speed > ~0.05 (CharacterVirtual)
+- **`PLAYER.ISSWIMMING`** - args: int -> returns bool — True when entity origin is inside a WATER volume column (bed..surface)
+- **`PLAYER.JUMP`** - args: int, float
+- **`PLAYER.MOVE`** - args: int, float, float
+- **`PLAYER.MOVERELATIVE`** - args: float, float, float, float, float -> returns handle — MOVESTEPX/Z combined â€” 2-float array [dx,dz]; ERASE when done
+- **`PLAYER.ONTRIGGER`** - args: int, string
+- **`PLAYER.PUSH`** - args: int, int, float — Applies forward horizontal force to target entity (host ENTITY.ADDFORCE path; scaled by player mass)
+- **`PLAYER.SETCROUCH`** - args: int, any — Sets crouch flag (gameplay; capsule height unchanged until wrapper supports it)
+- **`PLAYER.SETFOVKICK`** - args: int, float — Stores extra FOV degrees; add Camera.SetFOV(base + Player.GetFovKick(id)) each frame
+- **`PLAYER.SETGRAVITYSCALE`** - args: int, float — Scales CharacterVirtual gravity on Y (1=default; moon-jump / low-G zones)
+- **`PLAYER.SETMASS`** - args: int, float — Stores gameplay mass (PLAYER.Push scaling); Jolt capsule mass is fixed at create
+- **`PLAYER.SETSLOPELIMIT`** - args: int, float — Rebuilds CharacterVirtual with MaxSlopeAngle = angle (degrees); requires PLAYER.CREATE (Linux+Jolt)
+- **`PLAYER.SETSTATE`** - args: int, int
+- **`PLAYER.SETSTEPHEIGHT`** - args: int, float — Stores max stair/curb step height for the player entity (reserved; Jolt runtime step tuning not exposed yet)
+- **`PLAYER.SETSTEPOFFSET`** - args: int, float — Alias of PLAYER.SETSTEPHEIGHT (reserved step tuning)
+- **`PLAYER.SNAPTOGROUND`** - args: int, handle, float — Sets entity Y from terrain height at entity XZ + offset (PLAYER.CREATE syncs capsule on Linux+Jolt)
+- **`PLAYER.SWIM`** - args: int, float, float — Swim mode: buoyancy reduces downward gravity; drag damps horizontal motion; (0,0) disables
+- **`PLAYER.SYNCANIM`** - args: int, any
+- **`PLAYER.TELEPORT`** - args: int, float, float, float — Snaps capsule and entity to (x,y,z), clears linear velocity (no smoothing)
 
 ### PLAYER2D
 
@@ -2824,6 +3314,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`POW`** - args: any, any
 
+### PP_BLOOM
+
+- **`PP_BLOOM`** - args: (none) -> returns int
+
+### PP_CRT_SCANLINES
+
+- **`PP_CRT_SCANLINES`** - args: (none) -> returns int
+
+### PP_PIXELATE
+
+- **`PP_PIXELATE`** - args: (none) -> returns int
+
 ### PRINT
 
 - **`PRINT`** - args: any — Print values to stdout, space-separated, with newline.
@@ -2839,6 +3341,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### PRINTLN
 
 - **`PRINTLN`** - args: any — Same as PRINT (newline after output).
+
+### PaintEntity
+
+- **`PaintEntity`** - args: int, handle
 
 ### QUAT
 
@@ -2866,6 +3372,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### RAND
 
+- **`RAND`** - args: any, any -> returns int — Same as RND(min, max) â€” inclusive integer range
 - **`RAND`** - args: int, int -> returns int — Easy Mode: Random int in range
 - **`RAND.FREE`** - args: handle
 - **`RAND.MAKE`** - args: int -> returns handle
@@ -2929,13 +3436,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RAY.HITTRIANGLE_POINTX`** - args: handle, float, float, float, float, float, float, float, float, float -> returns float
 - **`RAY.HITTRIANGLE_POINTY`** - args: handle, float, float, float, float, float, float, float, float, float -> returns float
 - **`RAY.HITTRIANGLE_POINTZ`** - args: handle, float, float, float, float, float, float, float, float, float -> returns float
+- **`RAY.INTERSECTSMODEL_DISTANCE`** - args: handle, handle -> returns float
+- **`RAY.INTERSECTSMODEL_HIT`** - args: handle, handle -> returns bool — Alias of RAY.HITMODEL_HIT â€” ray vs loaded MODEL mesh union
+- **`RAY.INTERSECTSMODEL_NORMALX`** - args: handle, handle -> returns float
+- **`RAY.INTERSECTSMODEL_NORMALY`** - args: handle, handle -> returns float
+- **`RAY.INTERSECTSMODEL_NORMALZ`** - args: handle, handle -> returns float
+- **`RAY.INTERSECTSMODEL_POINTX`** - args: handle, handle -> returns float
+- **`RAY.INTERSECTSMODEL_POINTY`** - args: handle, handle -> returns float
+- **`RAY.INTERSECTSMODEL_POINTZ`** - args: handle, handle -> returns float
 - **`RAY.MAKE`** - args: float, float, float, float, float, float -> returns handle
 - **`RAY.MAKE`** - args: float, float, float, float, float, float -> returns handle
 
 ### RAY2D
 
 - **`RAY2D.HITCIRCLE_DISTANCE`** - args: float, float, float, float, float, float, float -> returns float — Distance along ray to hit (0 if miss)
-- **`RAY2D.HITCIRCLE_HIT`** - args: float, float, float, float, float, float, float -> returns bool — 2D ray vs circle — hit?
+- **`RAY2D.HITCIRCLE_HIT`** - args: float, float, float, float, float, float, float -> returns bool — 2D ray vs circle â€” hit?
 - **`RAY2D.HITCIRCLE_POINTX`** - args: float, float, float, float, float, float, float -> returns float
 - **`RAY2D.HITCIRCLE_POINTY`** - args: float, float, float, float, float, float, float -> returns float
 - **`RAY2D.HITRECT_DISTANCE`** - args: float, float, float, float, float, float, float, float -> returns float
@@ -3012,6 +3527,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`READSTRING$`** - args: handle, int
 
+### REMAP
+
+- **`REMAP`** - args: float, float, float, float, float -> returns float
+
 ### RENAMEFILE
 
 - **`RENAMEFILE`** - args: string, string
@@ -3028,6 +3547,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.CLEAR`** - args: handle
 - **`RENDER.CLEAR`** - args: int, int, int
 - **`RENDER.CLEAR`** - args: int, int, int, int
+- **`RENDER.CLEARCACHE`** - args: (none)
 - **`RENDER.CLEARSCISSOR`** - args: (none)
 - **`RENDER.DRAWFPS`** - args: int, int
 - **`RENDER.END3D`** - args: (none) — Alias for CAMERA.END (no arguments)
@@ -3043,10 +3563,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.SETAMBIENT`** - args: float, float, float, float
 - **`RENDER.SETBLEND`** - args: int
 - **`RENDER.SETBLENDMODE`** - args: int
+- **`RENDER.SETBLOOM`** - args: float — POST.BLOOM threshold; intensity defaults to 1
+- **`RENDER.SETBLOOM`** - args: float, float — POST.BLOOM threshold and intensity
 - **`RENDER.SETCULLFACE`** - args: int
 - **`RENDER.SETDEPTHMASK`** - args: bool
 - **`RENDER.SETDEPTHTEST`** - args: bool
 - **`RENDER.SETDEPTHWRITE`** - args: bool
+- **`RENDER.SETFOG`** - args: float, float, float, float, float, float — Fog RGB, near, far, density â€” FOG.* + WORLD.FOGDENSITY
 - **`RENDER.SETFPS`** - args: int
 - **`RENDER.SETIBLINTENSITY`** - args: float
 - **`RENDER.SETIBLSPLIT`** - args: float, float
@@ -3056,6 +3579,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDER.SETSHADOWMAPSIZE`** - args: int
 - **`RENDER.SETSHADOWMAPSIZE`** - args: int
 - **`RENDER.SETSKYBOX`** - args: string
+- **`RENDER.SETTONEMAPPING`** - args: int
 - **`RENDER.SETWIREFRAME`** - args: bool
 
 ### RENDERTARGET
@@ -3074,6 +3598,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`REPLACE$`** - args: string, string, string
 
+### RES
+
+- **`RES.EXISTS`** - args: string -> returns bool — True if path exists on disk (same idea as UTIL.FILEEXISTS)
+- **`RES.EXISTS`** - args: string -> returns bool
+- **`RES.PATH`** - args: string -> returns string — Resolve localPath relative to the running executable directory (absolute paths unchanged)
+- **`RES.PATH`** - args: string -> returns string
+
 ### RESETENTITY
 
 - **`RESETENTITY`** - args: handle -> returns void — Easy Mode: Reset entity velocity and collision state
@@ -3088,8 +3619,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### RND
 
-- **`RND`** - args: (none) — RND() float in [0,1); RND(n) int in [0,n-1] for integer n>=1.
+- **`RND`** - args: (none) — RND() float in [0,1); RND(n) int in [0,n-1]; RND(lo,hi) inclusive int range.
 - **`RND`** - args: any
+- **`RND`** - args: any, any -> returns int — Inclusive random integer in [min, max]
 - **`RND`** - args: float, float -> returns float — Easy Mode: Random float in range
 
 ### RNDF
@@ -3152,6 +3684,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`RTRIM$`** - args: string -> returns string
 
+### SATURATE
+
+- **`SATURATE`** - args: float -> returns float
+
 ### SCALENT
 
 - **`SCALENT`** - args: int, float, float, float — Easy Mode: ENTITY.SCALEENTITY(ent, x, y, z)
@@ -3163,6 +3699,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### SCENE
 
+- **`SCENE.APPLYPHYSICS`** - args: handle — Automatically parses glTF Extras to generate Jolt colliders.
 - **`SCENE.CLEARSCENE`** - args: (none)
 - **`SCENE.CURRENT`** - args: (none) -> returns string
 - **`SCENE.DRAW`** - args: (none)
@@ -3223,14 +3760,34 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### SHADER
 
 - **`SHADER.FREE`** - args: handle
+- **`SHADER.FREE`** - args: int — Unloads shader.
 - **`SHADER.GETLOC`** - args: handle, string -> returns int
 - **`SHADER.LOAD`** - args: string, string
+- **`SHADER.SETFLOAT`** - args: int, string, float — Injects a constant float to the custom shader uniformly.
 - **`SHADER.SETFLOAT`** - args: handle, string, float
 - **`SHADER.SETINT`** - args: handle, string, int
 - **`SHADER.SETTEXTURE`** - args: handle, string, handle
+- **`SHADER.SETTEXTURE`** - args: int, string, handle — Binds a texture resource to a sampler array element.
 - **`SHADER.SETVEC2`** - args: handle, string, float, float
 - **`SHADER.SETVEC3`** - args: handle, string, float, float, float
 - **`SHADER.SETVEC4`** - args: handle, string, float, float, float, float
+- **`SHADER.SETVECTOR`** - args: int, string, float, float, float — Injects a constant vec3.
+
+### SHADER_CEL_STYLED
+
+- **`SHADER_CEL_STYLED`** - args: (none) -> returns int
+
+### SHADER_PBR_LIT
+
+- **`SHADER_PBR_LIT`** - args: (none) -> returns int
+
+### SHADER_PS1_RETRO
+
+- **`SHADER_PS1_RETRO`** - args: (none) -> returns int
+
+### SHADER_WATER_PROCEDURAL
+
+- **`SHADER_WATER_PROCEDURAL`** - args: (none) -> returns int
 
 ### SHAKECAMERA
 
@@ -3272,6 +3829,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`SLEEP`** - args: any
 
+### SMOOTHERSTEP
+
+- **`SMOOTHERSTEP`** - args: any, any, any -> returns float — Ken Perlin smootherstep(edge0, edge1, x); clamps then 6t^5-15t^4+10t^3
+
 ### SMOOTHSTEP
 
 - **`SMOOTHSTEP`** - args: any, any, any
@@ -3295,8 +3856,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### SPHERE
 
-- **`SPHERE`** - args: float -> returns handle — Blitz-style static sphere entity — ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)
-- **`SPHERE`** - args: float, int -> returns handle — Blitz-style static sphere entity — ENTITYREF handle
+- **`SPHERE`** - args: float -> returns handle — Blitz-style static sphere entity â€” ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)
+- **`SPHERE`** - args: float, int -> returns handle — Blitz-style static sphere entity â€” ENTITYREF handle
 
 ### SPHERECOLLIDE
 
@@ -3313,8 +3874,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SPRITE.FREE`** - args: handle
 - **`SPRITE.HIT`** - args: handle, handle
 - **`SPRITE.LOAD`** - args: string
+- **`SPRITE.PLAY`** - args: handle, int, int, float, bool — Animate frames start..end at speed (frames/sec); call SPRITE.UPDATEANIM with Time.Delta()
 - **`SPRITE.PLAYANIM`** - args: handle, string
 - **`SPRITE.POINTHIT`** - args: handle, float, float
+- **`SPRITE.SETFRAME`** - args: handle, int — Manual frame index (strip / DEFANIM); stops SPRITE.PLAY range playback
+- **`SPRITE.SETORIGIN`** - args: handle, float, float — Pivot offset in pixels (subtracted from draw position)
 - **`SPRITE.SETPOS`** - args: handle, float, float
 - **`SPRITE.SETPOSITION`** - args: handle, float, float
 - **`SPRITE.UPDATEANIM`** - args: handle, float
@@ -3407,6 +3971,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`STR$`** - args: any
 
+### STRING
+
+- **`STRING.INTERP$`** - args: string, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP$`** - args: string, any, any, any, any, any, any, any, any, any, any -> returns string
+
 ### STRING$
 
 - **`STRING$`** - args: int, string -> returns string
@@ -3438,6 +4015,30 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SYSTEM.SETENV`** - args: string, string
 - **`SYSTEM.TOTALMEMORY`** - args: (none) -> returns int
 - **`SYSTEM.USERNAME`** - args: (none) -> returns string
+
+### SetAnimTime
+
+- **`SetAnimTime`** - args: int, float
+
+### SetMSAA
+
+- **`SetMSAA`** - args: int — Pre-window-open MSAA sample hint (alias of WINDOW.SETMSAA); 2+ enables GPU MSAA hint
+
+### SetPostProcess
+
+- **`SetPostProcess`** - args: handle — Full-screen post shader (alias of POST.ADDSHADER)
+
+### SetSSAO
+
+- **`SetSSAO`** - args: bool — Screen-space ambient occlusion (alias of EFFECT.SSAO enable)
+
+### SoundPitch
+
+- **`SoundPitch`** - args: handle, float — Alias of AUDIO.SETSOUNDPITCH
+
+### SoundVolume
+
+- **`SoundVolume`** - args: handle, float — Alias of AUDIO.SETSOUNDVOLUME
 
 ### TAB
 
@@ -3476,13 +4077,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`TERRAIN.FILLPERLIN`** - args: handle, float, float
 - **`TERRAIN.FREE`** - args: handle
 - **`TERRAIN.GETHEIGHT`** - args: handle, float, float -> returns float
+- **`TERRAIN.GETNORMAL`** - args: handle, float, float -> returns handle — Unit terrain normal (heap vec3) for slope tilt
 - **`TERRAIN.GETSLOPE`** - args: handle, float, float -> returns float
+- **`TERRAIN.GETSPLAT`** - args: handle, float, float -> returns int — Diffuse/splat map red channel 0..255 (-1 if no map); use for footstep ids
+- **`TERRAIN.LOAD`** - args: string, string -> returns handle — Heightmap image path + optional diffuse/splat path; GPU mesh + CPU splat sample
 - **`TERRAIN.LOWER`** - args: handle, float, float, float, float
 - **`TERRAIN.MAKE`** - args: int, int
 - **`TERRAIN.MAKE`** - args: int, int, float -> returns handle
+- **`TERRAIN.PLACE`** - args: handle, int, float, float, float
 - **`TERRAIN.RAISE`** - args: handle, float, float, float, float
+- **`TERRAIN.RAYCAST`** - args: handle, float, float, float, float, float, float -> returns handle — Ray vs terrain only; float array [hit, x, y, z]; max ray length is large by default
 - **`TERRAIN.SETCHUNKSIZE`** - args: handle, int
+- **`TERRAIN.SETDETAIL`** - args: handle, float — LOD factor in (0,1]: lower = coarser chunk meshes
 - **`TERRAIN.SETPOS`** - args: handle, float, float, float
+- **`TERRAIN.SETSCALE`** - args: handle, float, float, float — Non-uniform scale: XZ stretch per cell, Y height multiplier (marks chunks dirty)
+- **`TERRAIN.SNAPY`** - args: handle, int, float
 
 ### TEXTDRAW
 
@@ -3504,8 +4113,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`TEXTURE.GENWHITENOISE`** - args: int, int, float -> returns handle
 - **`TEXTURE.HEIGHT`** - args: handle -> returns int
 - **`TEXTURE.LOAD`** - args: string
+- **`TEXTURE.LOADANIM`** - args: string, int, int -> returns handle — TEXTURE.LOAD + SETGRID in one call
+- **`TEXTURE.PLAY`** - args: handle, float, bool — Auto-advance atlas frames; call TEXTURE.TICKALL each frame
+- **`TEXTURE.RELOAD`** - args: handle
+- **`TEXTURE.SETDEFAULTFILTER`** - args: int
+- **`TEXTURE.SETDISTORTION`** - args: handle, float — Shader-side distortion amount hint
 - **`TEXTURE.SETFILTER`** - args: handle, int
+- **`TEXTURE.SETFRAME`** - args: handle, int — Select atlas frame index (0-based)
+- **`TEXTURE.SETGRID`** - args: handle, int, int — Spritesheet layout: columns x rows of equal frames
+- **`TEXTURE.SETUVSCROLL`** - args: handle, float, float — Source-rectangle scroll speeds for sampled UVs
 - **`TEXTURE.SETWRAP`** - args: handle, int
+- **`TEXTURE.STOPANIM`** - args: handle
+- **`TEXTURE.TICKALL`** - args: (none) — Advance all playing atlas animations (optional dt via overload)
+- **`TEXTURE.TICKALL`** - args: float
 - **`TEXTURE.UPDATE`** - args: handle, handle
 - **`TEXTURE.WIDTH`** - args: handle -> returns int
 
@@ -3516,6 +4136,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TEXTUREWIDTH
 
 - **`TEXTUREWIDTH`** - args: handle -> returns int
+
+### TFormVector
+
+- **`TFormVector`** - args: float, float, float, int, int -> returns handle — Args: (x#, y#, z#, srcEntity#, dstEntity#). Blitz alias of ENTITY.TFORMVECTOR: direction in src local space as linear transform into dst local space; returns heap handle to 3 float components (no world-entity shortcut).
 
 ### THROW
 
@@ -3549,6 +4173,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`TIME.DELTA`** - args: (none)
 - **`TIME.DELTA`** - args: (none) -> returns float
+- **`TIME.DELTA`** - args: float, float -> returns float
+- **`TIME.DELTA`** - args: float, float -> returns float
 - **`TIME.GET`** - args: (none)
 - **`TIME.GET`** - args: (none) -> returns float
 - **`TIME.GETFPS`** - args: (none) -> returns float
@@ -3600,6 +4226,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`TRANSITION.SETCOLOR`** - args: int, int, int, int
 - **`TRANSITION.WIPE`** - args: string, float
 
+### TRIGGER
+
+- **`TRIGGER.CREATEFROMENTITY`** - args: int
+
 ### TRIM$
 
 - **`TRIM$`** - args: string
@@ -3628,17 +4258,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`TYPEOF`** - args: any
 
+### TranslateEntity
+
+- **`TranslateEntity`** - args: int, float, float, float — Args: (entity#, dx#, dy#, dz#). World-space position delta; same as ENTITY.TRANSLATE / ENTITY.TRANSLATEENTITY.
+
 ### UPDATEEMITTER
 
 - **`UPDATEEMITTER`** - args: handle, float -> returns void — Easy Mode: Update emitter simulation
 
-### UPDATEWORLD
+### UPDATEPHYSICS
 
-- **`UPDATEWORLD`** - args: float -> returns void — Easy Mode: Global simulation step (Physics, Particles, Collisions, Anims)
+- **`UPDATEPHYSICS`** - args: (none) -> returns void — Easy Mode: ENTITY.UPDATE(Time.Delta); best-effort WORLD.UPDATE, PHYSICS2D.STEP, PHYSICS3D.STEP
 
 ### UPDW
 
-- **`UPDW`** - args: float — Shorthand: UPDATEWORLD(dt)
+- **`UPDW`** - args: float — Shorthand: ENTITY.UPDATE(dt) â€” use ENTITY.UPDATE in scripts
 
 ### UPPER$
 
@@ -3684,6 +4318,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`UTIL.SAVETEXT`** - args: string, string
 - **`UTIL.SAVETEXT`** - args: string, string
 
+### UpdateMesh
+
+- **`UpdateMesh`** - args: int
+
 ### VAL
 
 - **`VAL`** - args: string -> returns float
@@ -3692,13 +4330,20 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`VEC2.ADD`** - args: handle, handle -> returns handle
 - **`VEC2.ANGLE`** - args: handle, handle -> returns float
+- **`VEC2.DIST`** - args: handle, handle -> returns float
+- **`VEC2.DIST`** - args: float, float, float, float -> returns float
 - **`VEC2.DISTANCE`** - args: handle, handle -> returns float
+- **`VEC2.DISTSQ`** - args: float, float, float, float -> returns float
 - **`VEC2.FREE`** - args: handle
 - **`VEC2.LENGTH`** - args: handle -> returns float
+- **`VEC2.LENGTH`** - args: float, float -> returns float
 - **`VEC2.LERP`** - args: handle, handle, float -> returns handle
 - **`VEC2.MAKE`** - args: float, float -> returns handle
+- **`VEC2.MOVE_TOWARD`** - args: float, float, float, float, float -> returns handle
 - **`VEC2.MUL`** - args: handle, float -> returns handle
 - **`VEC2.NORMALIZE`** - args: handle -> returns handle
+- **`VEC2.NORMALIZE`** - args: float, float -> returns handle
+- **`VEC2.PUSHOUT`** - args: float, float, float, float, float -> returns handle
 - **`VEC2.ROTATE`** - args: handle, float -> returns handle
 - **`VEC2.SET`** - args: handle, float, float
 - **`VEC2.SUB`** - args: handle, handle -> returns handle
@@ -3711,17 +4356,22 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`VEC3.ADD`** - args: handle, handle -> returns handle
 - **`VEC3.ANGLE`** - args: handle, handle -> returns float
 - **`VEC3.CROSS`** - args: handle, handle -> returns handle
+- **`VEC3.DIST`** - args: handle, handle -> returns float
+- **`VEC3.DIST`** - args: float, float, float, float, float, float -> returns float
 - **`VEC3.DISTANCE`** - args: handle, handle -> returns float
+- **`VEC3.DISTSQ`** - args: float, float, float, float, float, float -> returns float
 - **`VEC3.DIV`** - args: handle, float -> returns handle
 - **`VEC3.DOT`** - args: handle, handle -> returns float
 - **`VEC3.EQUALS`** - args: handle, handle -> returns bool
 - **`VEC3.FREE`** - args: handle
 - **`VEC3.LENGTH`** - args: handle -> returns float
+- **`VEC3.LENGTH`** - args: float, float, float -> returns float
 - **`VEC3.LERP`** - args: handle, handle, float -> returns handle
 - **`VEC3.MAKE`** - args: float, float, float -> returns handle
 - **`VEC3.MUL`** - args: handle, float -> returns handle
 - **`VEC3.NEGATE`** - args: handle -> returns handle
 - **`VEC3.NORMALIZE`** - args: handle -> returns handle
+- **`VEC3.NORMALIZE`** - args: float, float, float -> returns handle
 - **`VEC3.ORTHONORMALIZE`** - args: handle, handle
 - **`VEC3.PROJECT`** - args: handle, handle -> returns handle
 - **`VEC3.REFLECT`** - args: handle, handle -> returns handle
@@ -3741,22 +4391,37 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`VEC3.Y`** - args: handle -> returns float
 - **`VEC3.Z`** - args: handle -> returns float
 
+### VertexX
+
+- **`VertexX`** - args: handle, int -> returns float
+
+### VertexY
+
+- **`VertexY`** - args: handle, int -> returns float
+
+### VertexZ
+
+- **`VertexZ`** - args: handle, int -> returns float
+
 ### WAIT
 
 - **`WAIT`** - args: any
 
 ### WATER
 
+- **`WATER.CREATE`** - args: float, float, float, float, float -> returns handle — x, z, width, depth, water level (Y); same plane as WATER.MAKE
 - **`WATER.DRAW`** - args: handle
 - **`WATER.FREE`** - args: handle
 - **`WATER.GETDEPTH`** - args: handle, float, float -> returns float
 - **`WATER.GETWAVEY`** - args: handle, float, float -> returns float
 - **`WATER.ISUNDER`** - args: handle, float, float, float -> returns bool
 - **`WATER.MAKE`** - args: float, int, int, int, int -> returns handle
+- **`WATER.SETCOLOR`** - args: handle, int, float — Packed RGB diffuse (0xRRGGBB) and clarity (0..1 alpha, or 0..255); updates shallow/deep tint
 - **`WATER.SETDEEPCOLOR`** - args: handle, int, int, int, int
 - **`WATER.SETHEIGHT`** - args: handle, float
 - **`WATER.SETPOS`** - args: handle, float, float, float
 - **`WATER.SETSHALLOWCOLOR`** - args: handle, int, int, int, int
+- **`WATER.SETWAVE`** - args: handle, float, float — Sets wave frequency (speed) and amplitude (height)
 - **`WATER.SETWAVEHEIGHT`** - args: handle, float
 - **`WATER.SHOW`** - args: handle, bool
 - **`WATER.UPDATE`** - args: handle, float
@@ -3839,8 +4504,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WORLD.ISREADY`** - args: handle -> returns bool
 - **`WORLD.PRELOAD`** - args: handle, int
 - **`WORLD.SETCENTER`** - args: float, float
+- **`WORLD.SETCENTERENTITY`** - args: int
+- **`WORLD.SETREFLECTION`** - args: int
+- **`WORLD.SETVEGETATION`** - args: handle, handle, float — Scatter helper: terrain + billboard entity reserved + density; uses internal SCATTER set
 - **`WORLD.STATUS`** - args: (none) -> returns string
 - **`WORLD.STREAMENABLE`** - args: bool
+- **`WORLD.TOSCREEN`** - args: float, float, float -> returns handle — World to screen using active CAMERA.BEGIN 3D camera; returns float array [sx,sy]
+- **`WORLD.TOWORLD`** - args: float, float, float -> returns handle — Unproject screen x,y with depth along view ray (active 3D camera); returns [wx,wy,wz]
 - **`WORLD.UPDATE`** - args: float — Update physics and world state
 - **`WORLD.UPDATE`** - args: float
 
@@ -3893,6 +4563,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### WRITESTRING
 
 - **`WRITESTRING`** - args: handle, string
+
+### YAWFROMXZ
+
+- **`YAWFROMXZ`** - args: float, float -> returns float — Yaw radians from flat direction (dx, dz); matches MOVEX/MOVEZ convention
 
 ### YEAR
 

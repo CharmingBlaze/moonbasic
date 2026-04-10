@@ -29,6 +29,19 @@ type TextureObject struct {
 	CubeMode   int32
 	CoordsMode int32
 
+	// Atlas / animation (TEXTURE.SETGRID, SETFRAME, LOADANIM, PLAY, TICKALL)
+	AtlasCols   int32
+	AtlasRows   int32
+	FrameIndex  int32
+	AnimFPS     float32
+	AnimLoop    bool
+	AnimPlaying bool
+	animTime    float32
+	// ScrollSpeed* are UV units/sec added to ScrollAccum* each TEXTURE.TICKALL
+	ScrollSpeedU, ScrollSpeedV float32
+	ScrollAccumU, ScrollAccumV float32
+	Distortion float32 // reserved for heat-haze / ripple strength (future shader hook)
+
 	// Asynchronous state
 	mu        sync.RWMutex
 	isLoading bool

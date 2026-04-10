@@ -6,7 +6,7 @@ For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, `REN
 
 ## Conventions
 
-- **Entity#** — integer entity id from `ENTITY.CREATE*` / `Create*` helpers.
+- **Entity** — integer entity id from `ENTITY.CREATE*` / `Create*` helpers.
 - **camera** — heap handle from `CAMERA.MAKE` / `CreateCamera()`.
 - **Parent `0`** — no parent (world root). Optional parent arguments attach via `ENTITY.PARENT` / `EntityParent`.
 - **Dotted forms** — every friendly command has an equivalent `ENTITY.*` / `CAMERA.*` / `FOG.*` / `TERRAIN.*` name where applicable.
@@ -15,61 +15,61 @@ For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, `REN
 
 | Command | Arguments | Implementation |
 |--------|-----------|------------------|
-| `CreatePivot` | `[parent#]` | Empty hidden entity; optional parent. |
-| `CreateCamera` | `[parent#]` | `CAMERA.MAKE`; parent attachment not applied (camera is heap object). |
-| `CreateCube` | `()` / `(parent#)` / `(w,h,d)` / `(parent#,w,h,d)` | Box primitive. |
+| `CreatePivot` | `[parent]` | Empty hidden entity; optional parent. |
+| `CreateCamera` | `[parent]` | `CAMERA.MAKE`; parent attachment not applied (camera is heap object). |
+| `CreateCube` | `()` / `(parent)` / `(w,h,d)` / `(parent,w,h,d)` | Box primitive. |
 | `CreateSphere` | (see `ENTITY.CREATESPHERE`) | Radius + segments; parent overloads same pattern as cube where registered. |
 | `CreateCylinder` | `(radius, height, segments)` | Cylinder primitive. |
-| `CreateCone` | `()` / `(parent#)` / `(r,h,seg)` / `(parent#,r,h,seg)` | Cone primitive (`entKindCone`). |
-| `CreatePlane` | `(size#)` | Plane primitive. |
-| `CreateMesh` | `[parent#]` | Procedural mesh builder (`ENTITY.CREATEMESH`). |
+| `CreateCone` | `()` / `(parent)` / `(r,h,seg)` / `(parent,r,h,seg)` | Cone primitive (`entKindCone`). |
+| `CreatePlane` | `(size)` | Plane primitive. |
+| `CreateMesh` | `[parent]` | Procedural mesh builder (`ENTITY.CREATEMESH`). |
 | `CreateTerrain` | — | **Not an entity**: use `TERRAIN.MAKE(w, h [, cellSize])` (returns terrain handle). |
 | `CreateMirror` | — | **Not implemented** (planar reflection deferred). |
 | `CreateSprite` | (see `ENTITY.CREATESPRITE`) | Billboard sprite entity. |
-| `LoadMesh` | `(path$ [, parent#])` | `ENTITY.LOADMESH` |
+| `LoadMesh` | `(path [, parent])` | `ENTITY.LOADMESH` |
 | `LoadAnimMesh` / `LoadAnimMesh` | — | `ENTITY.LOADANIMATEDMESH` |
-| `CopyEntity` | `(entity# [, parent#])` | `ENTITY.COPY` + optional `ENTITY.PARENT` |
-| `FreeEntity` | `(entity#)` | `ENTITY.FREE` |
-| `EntityParent` | `(entity#, parent# [, global])` | `ENTITY.PARENT` |
-| `GetParent` | `(entity#)` | Returns parent entity# or 0 |
-| `FindChild` | `(entity#, name$)` | `ENTITY.FINDCHILD` |
-| `GetChild` | `(entity#, index#)` | `ENTITY.GETCHILD` |
-| `CountChildren` | `(entity#)` | `ENTITY.COUNTCHILDREN` |
+| `CopyEntity` | `(entity [, parent])` | `ENTITY.COPY` + optional `ENTITY.PARENT` |
+| `FreeEntity` | `(entity)` | `ENTITY.FREE` |
+| `EntityParent` | `(entity, parent [, global])` | `ENTITY.PARENT` |
+| `GetParent` | `(entity)` | Returns parent entity or 0 |
+| `FindChild` | `(entity, name)` | `ENTITY.FINDCHILD` |
+| `GetChild` | `(entity, index)` | `ENTITY.GETCHILD` |
+| `CountChildren` | `(entity)` | `ENTITY.COUNTCHILDREN` |
 
 ## Transformation and state
 
 | Command | Arguments | Notes |
 |--------|-----------|------|
-| `PositionEntity` | `(entity#, x#, y#, z# [, global])` | Same as `ENTITY.POSITIONENTITY` / `ENTITY.SETPOSITION`. |
-| `MoveEntity` | `(entity#, forward#, right#, up#)` | Same as `MOVEENTITY` / `ENTITY.MOVE` — **local** axes from pitch/yaw. |
-| `TranslateEntity` | `(entity#, dx#, dy#, dz#)` | Same as `ENTITY.TRANSLATE` / `ENTITY.TRANSLATEENTITY` — **world** delta. |
+| `PositionEntity` | `(entity, x, y, z [, global])` | Same as `ENTITY.POSITIONENTITY` / `ENTITY.SETPOSITION`. |
+| `MoveEntity` | `(entity, forward, right, up)` | Same as `MOVEENTITY` / `ENTITY.MOVE` — **local** axes from pitch/yaw. |
+| `TranslateEntity` | `(entity, dx, dy, dz)` | Same as `ENTITY.TRANSLATE` / `ENTITY.TRANSLATEENTITY` — **world** delta. |
 | `RotateEntity`, `TurnEntity`, `ScaleEntity` | (see `ENTITY.ROTATEENTITY`, `ENTITY.TURNENTITY`, `ENTITY.SCALE`) | Absolute vs delta rotation; non-uniform scale. |
-| `TFormVector` | `(x#, y#, z#, srcEntity#, dstEntity#)` → handle | Alias of `ENTITY.TFORMVECTOR`; **3-float array** handle in `dst` space. |
-| `PointEntity` | `(entity#, targetEntity# [, roll#])` | `ENTITY.POINTENTITY` (roll optional not fully wired). |
-| `AlignToVector` | `(entity#, vx#, vy#, vz#, axis)` | `ENTITY.ALIGNTOVECTOR` |
-| `EntityX` … `EntityRoll` | `(entity# [, global])` | Same as `ENTITY.ENTITYX` … |
-| `EntityVisible` | `(entity#, visible)` | `ENTITY.VISIBLE` |
-| `EntityDistance` | `(a#, b#)` | `ENTITY.DISTANCE` |
-| `EntityInView` | `(entity#, camera)` | `ENTITY.INVIEW` |
-| `EntityName` / `NameEntity` | `(entity#)` / `(entity#, name$)` | Get / set name (`ENTITY.SETNAME`) |
+| `TFormVector` | `(x, y, z, srcEntity, dstEntity)` → handle | Alias of `ENTITY.TFORMVECTOR`; **3-float array** handle in `dst` space. |
+| `PointEntity` | `(entity, targetEntity [, roll])` | `ENTITY.POINTENTITY` (roll optional not fully wired). |
+| `AlignToVector` | `(entity, vx, vy, vz, axis)` | `ENTITY.ALIGNTOVECTOR` |
+| `EntityX` … `EntityRoll` | `(entity [, global])` | Same as `ENTITY.ENTITYX` … |
+| `EntityVisible` | `(entity, visible)` | `ENTITY.VISIBLE` |
+| `EntityDistance` | `(a, b)` | `ENTITY.DISTANCE` |
+| `EntityInView` | `(entity, camera)` | `ENTITY.INVIEW` |
+| `EntityName` / `NameEntity` | `(entity)` / `(entity, name)` | Get / set name (`ENTITY.SETNAME`) |
 
 ## Physics and collisions
 
 | Command | Arguments | Notes |
 |--------|-----------|------|
-| `EntityType` | `(entity#, type#)` | Sets **collision type** id used by `COLLISIONS` / `ENTITYCOLLIDED` / `EntityHitsType`. |
-| `EntityRadius`, `EntityBox` | `(entity#, r#)` / `(entity#, w#, h#, d#)` | `ENTITY.RADIUS` / `ENTITY.BOX` |
+| `EntityType` | `(entity, type)` | Sets **collision type** id used by `COLLISIONS` / `ENTITYCOLLIDED` / `EntityHitsType`. |
+| `EntityRadius`, `EntityBox` | `(entity, r)` / `(entity, w, h, d)` | `ENTITY.RADIUS` / `ENTITY.BOX` |
 | `EntityMass`, `EntityFriction`, `EntityRestitution` | … | `ENTITY.SETMASS`, `SETFRICTION`, `SETBOUNCE` |
 | `Collisions` | `(srcType, dstType, method, response)` | `COLLISIONS` — register **rule-based** pairs (e.g. sphere–box `method` **2**). |
-| `ApplyEntityImpulse` / `ApplyEntityForce` | `(entity#, fx#, fy#, fz#)` | `ENTITY.ADDFORCE` (adds to velocity, mass-weighted). |
+| `ApplyEntityImpulse` / `ApplyEntityForce` | `(entity, fx, fy, fz)` | `ENTITY.ADDFORCE` (adds to velocity, mass-weighted). |
 | `ApplyEntityTorque` | — | **Stub** — no torque integrator |
-| `EntityHitsType` | `(entity#, type#)` → **bool** | **`TRUE`** if `entity#` hit any body with **`EntityType == type#`** after last `ENTITY.UPDATE`. |
-| `ENTITYCOLLIDED` | `(entity#, type#)` → **int** | Returns **other entity id** or **0** (same hit test as `EntityHitsType`). |
-| `EntityCollided` | `(entity#, entity#)` → **bool** | **Jolt** pairwise contact (Linux + `ENTITY.LINKPHYSBUFFER`); not the same as `EntityHitsType`. |
+| `EntityHitsType` | `(entity, type)` → **bool** | **`TRUE`** if `entity` hit any body with **`EntityType == type`** after last `ENTITY.UPDATE`. |
+| `ENTITYCOLLIDED` | `(entity, type)` → **int** | Returns **other entity id** or **0** (same hit test as `EntityHitsType`). |
+| `EntityCollided` | `(entity, entity)` → **bool** | **Jolt** pairwise contact (Linux + `ENTITY.LINKPHYSBUFFER`); not the same as `EntityHitsType`. |
 | `CountCollisions` | (0 args) | Jolt contact count (`PhysicsContactCount` alias) |
-| `COUNTCOLLISIONS` | `(entity#)` | Rule-based hit **count** |
-| `GETCOLLISIONENTITY` / `CollisionEntity` | `(entity#, index#)` | Hit entity at index |
-| `ENTITY.COLLISIONX` … / `CollisionX` … | Last hit **or** `(entity#, index#)` for indexed rule hits |
+| `COUNTCOLLISIONS` | `(entity)` | Rule-based hit **count** |
+| `GETCOLLISIONENTITY` / `CollisionEntity` | `(entity, index)` | Hit entity at index |
+| `ENTITY.COLLISIONX` … / `CollisionX` … | Last hit **or** `(entity, index)` for indexed rule hits |
 | `PhysicsCollisionNX` … `PhysicsContactCount` | (0 args) | **Jolt** last-contact globals |
 
 ## Picking
@@ -111,16 +111,16 @@ Friendly names `Animate`, `SetAnimTime`, `EntityAnimTime`, `ExtractAnimSeq`, `An
 
 | Command | Arguments | Notes |
 |--------|-----------|------|
-| `CreateBrush` | `()` or `(r#, g#, b#)` | Default RGB white. |
-| `LoadBrush` | `(path$ [, flags#, uScale#, vScale#])` | Loads texture + white brush; owns texture until `FreeBrush`. |
+| `CreateBrush` | `()` or `(r, g, b)` | Default RGB white. |
+| `LoadBrush` | `(path [, flags, uScale, vScale])` | Loads texture + white brush; owns texture until `FreeBrush`. |
 | `FreeBrush` | `(brush)` | Frees brush; unloads embedded texture from `LoadBrush`. |
 | `BrushColor` | `(brush, r, g, b)` | 0–1 or 0–255 channel convention (same as entity color). |
-| `BrushAlpha` | `(brush, alpha#)` | `>1` treated as 0–255 → normalized. |
-| `BrushBlend` | `(brush, mode#)` | `0/1` opaque/alpha → alpha blend; `2` multiply; `3` additive (Raylib blend). |
-| `BrushTexture` | `(brush, texture [, frame#, uvIndex#])` | `frame` reserved; `uvIndex` → internal UV slot. Replaces texture; frees prior embedded tex from `LoadBrush` if any. |
+| `BrushAlpha` | `(brush, alpha)` | `>1` treated as 0–255 → normalized. |
+| `BrushBlend` | `(brush, mode)` | `0/1` opaque/alpha → alpha blend; `2` multiply; `3` additive (Raylib blend). |
+| `BrushTexture` | `(brush, texture [, frame, uvIndex])` | `frame` reserved; `uvIndex` → internal UV slot. Replaces texture; frees prior embedded tex from `LoadBrush` if any. |
 | `BrushFX` / `BrushShininess` | | Existing builtins. |
 | `PaintEntity` | | Copies brush color/FX/shininess/alpha and texture ref to entity. |
-| `GetEntityBrush` | `(entity#)` | Brush handle or `0`. |
+| `GetEntityBrush` | `(entity)` | Brush handle or `0`. |
 | `PaintSurface` | `(surface, brush)` | Mesh-builder surface handle (`CreateSurface`). |
 | `GetSurfaceBrush` | `(surface)` | Brush handle or `0`. |
 
@@ -128,14 +128,14 @@ Friendly names `Animate`, `SetAnimTime`, `EntityAnimTime`, `ExtractAnimSeq`, `An
 
 | Command | Notes |
 |--------|------|
-| `LoadTexture` | Alias of `TEXTURE.LOAD` / `LOADTEXTURE`; optional second `flags#` (default `1` = trilinear + repeat). |
-| `CreateTexture` | `(w, h [, flags#])` — blank RGBA. |
-| `LoadAnimTexture` | `(path$, flags#, cellW#, cellH#, firstFrame#, frameCount#)` — **one cell** from a horizontal strip (`frameCount` reserved for future multi-frame). |
+| `LoadTexture` | Alias of `TEXTURE.LOAD` / `LOADTEXTURE`; optional second `flags` (default `1` = trilinear + repeat). |
+| `CreateTexture` | `(w, h [, flags])` — blank RGBA. |
+| `LoadAnimTexture` | `(path, flags, cellW, cellH, firstFrame, frameCount)` — **one cell** from a horizontal strip (`frameCount` reserved for future multi-frame). |
 | `TextureWidth` / `TextureHeight` | Same as `TEXTUREWIDTH` / `TEXTUREHEIGHT`. |
-| `TextureName$` | Source path when loaded from disk; else `""`. |
+| `TextureName` | Source path when loaded from disk; else `""`. |
 | `FreeTexture` | `TEXTURE.FREE` / `FREETEXTURE`. |
 | `ScaleTexture`, `PositionTexture`, `RotateTexture` | Store UV metadata on the texture object (for materials that read these fields). |
-| `TextureCoords` | `(texture, coords#)` — integer coord mode tag. |
+| `TextureCoords` | `(texture, coords)` — integer coord mode tag. |
 | `SetCubeFace`, `SetCubeMode` | Metadata for cubemap-style assets (no cubemap GPU path yet). |
 
 ## Terrain (friendly names)
@@ -143,9 +143,9 @@ Friendly names `Animate`, `SetAnimTime`, `EntityAnimTime`, `ExtractAnimSeq`, `An
 | Command | Notes |
 |--------|------|
 | `TerrainHeight` | Alias of `TERRAIN.GETHEIGHT`. |
-| `LoadTerrain` | `(path$ [, parent#])` — greyscale image → heightfield; `parent` reserved. |
+| `LoadTerrain` | `(path [, parent])` — greyscale image → heightfield; `parent` reserved. |
 | `TerrainDetail` / `TerrainShading` | No-op placeholders (API parity). |
-| `ModifyTerrain` | `(terrain, x#, z#, height# [, realtime#])` — sets nearest cell height; `realtime` reserved. |
+| `ModifyTerrain` | `(terrain, x, z, height [, realtime])` — sets nearest cell height; `realtime` reserved. |
 | `TerrainX` / `TerrainZ` | World position → grid fractional index along X / Z (Y argument ignored). |
 | `TerrainSize` | `(terrain)` → **2-element float array** `[cellsX, cellsY]`. |
 
@@ -174,15 +174,15 @@ Canonical chunk/streaming commands remain `TERRAIN.*` / `CHUNK.*` (see [TERRAIN.
 | `GraphicsWidth`, `GraphicsHeight` | `RENDER.WIDTH` / `HEIGHT`. |
 | `GraphicsDepth` | Returns `32` (placeholder; Raylib does not expose drawable depth bits per target). |
 | `AvailVidMem`, `TotalVidMem` | `-1` = unknown (no portable VRAM query in core runtime). |
-| `GpuName$` | Alias of `SYSTEM.GPUNAME`. |
+| `GpuName` | Alias of `SYSTEM.GPUNAME`. |
 
 ## File I/O (flat)
 
 | Command | Notes |
 |--------|------|
-| `WriteFile` / `ReadFile` | `(path$)` → open for write / read; returns **file handle** (same as `FILE.OPENWRITE` / `OPENREAD`). |
+| `WriteFile` / `ReadFile` | `(path)` → open for write / read; returns **file handle** (same as `FILE.OPENWRITE` / `OPENREAD`). |
 | `CloseFile` | `FILE.CLOSE`. |
-| `WriteLine` / `ReadLine$` | `FILE.WRITELN` / `READLINE`. |
+| `WriteLine` / `ReadLine` | `FILE.WRITELN` / `READLINE`. |
 | `WriteInt` / `ReadInt` | Little-endian 32-bit integers on the file stream. |
 | `WriteFloat` / `ReadFloat` | Little-endian 32-bit float. |
 | `EOF` | Already `EOF` → `FILE.EOF`. |
@@ -205,32 +205,32 @@ All math uses **float64** end-to-end. Friendly names live in the `math` namespac
 
 | Command | Arguments | Notes |
 |--------|-----------|--------|
-| `Sin` / `Cos` / `Tan` | `(angle#)` | **Degrees** (same as `SIN` / `COS` / `TAN`). |
-| `SINRAD` / `COSRAD` / `TANRAD` | `(radians#)` | Radian trig (physics / legacy). |
-| `ASin` / `ACos` / `ATan` | `(x#)` | Inverse trig; **radians** (same as `ASIN` / `ACOS` / `ATAN`). |
-| `ATan2` | `(y#, x#)` | `math.Atan2` (radians). |
-| `Sqrt` / `Abs` | `(x#)` | Same as `SQRT` / `ABS`. |
-| `Floor` / `Ceil` | `(x#)` | Same as `FLOOR` / `CEIL`. |
-| `ROUND` / `MATH.ROUND` | `(x# [, decimals#])` | Half-away-from-zero; optional second arg = decimal places (see `runtime/mathmod/basic.go`). |
-| `Exp` / `Log` / `Log10` | `(x#)` | Same as `EXP` / `LOG` / `LOG10`. |
-| `Rnd` | `(min#, max#)` | Random **float** in `[min, max]` (order-corrected if reversed). |
-| `Rand` | `(min#, max#)` | Random **int**, **inclusive** range. |
-| `SeedRnd` | `(seed#)` | Reseeds the runtime PRNG (same pool as `RNDSEED`). |
+| `Sin` / `Cos` / `Tan` | `(angle)` | **Degrees** (same as `SIN` / `COS` / `TAN`). |
+| `SINRAD` / `COSRAD` / `TANRAD` | `(radians)` | Radian trig (physics / legacy). |
+| `ASin` / `ACos` / `ATan` | `(x)` | Inverse trig; **radians** (same as `ASIN` / `ACOS` / `ATAN`). |
+| `ATan2` | `(y, x)` | `math.Atan2` (radians). |
+| `Sqrt` / `Abs` | `(x)` | Same as `SQRT` / `ABS`. |
+| `Floor` / `Ceil` | `(x)` | Same as `FLOOR` / `CEIL`. |
+| `ROUND` / `MATH.ROUND` | `(x [, decimals])` | Half-away-from-zero; optional second arg = decimal places (see `runtime/mathmod/basic.go`). |
+| `Exp` / `Log` / `Log10` | `(x)` | Same as `EXP` / `LOG` / `LOG10`. |
+| `Rnd` | `(min, max)` | Random **float** in `[min, max]` (order-corrected if reversed). |
+| `Rand` | `(min, max)` | Random **int**, **inclusive** range. |
+| `SeedRnd` | `(seed)` | Reseeds the runtime PRNG (same pool as `RNDSEED`). |
 | `MILLISECS` | `()` | **Float64** milliseconds since mathmod init (sub-ms precision). |
 
 ## String manipulation (UTF-8 runes)
 
 | Command | Arguments | Notes |
 |--------|-----------|--------|
-| `LEN` | `(s$)` | Rune count (not byte length). |
-| `LEFT$` / `RIGHT$` | `(s$, n)` | Substrings by rune count. |
-| `MID$` | `(s$, start [, count])` | **`start` is 1-based** rune index; `count` defaults to end of string. |
-| `UPPER$` / `LOWER$` | `(s$)` | Unicode case mapping. |
-| `INSTR` / `Instr` | `(hay$, needle$ [, start])` | 1-based start index; returns **1-based** position or `0`. |
-| `REPLACE$` | `(s$, find$, repl$)` | Global literal replacement. |
-| `TRIM$` / `LTRIM$` / `RTRIM$` | `(s$)` | Whitespace trim. |
-| `CHR$` / `ASC` | | Codepoint ↔ first character. |
-| `STRING$` | `(char$, n)` **or** `(n, char$)` | Repeats first **rune** of `char$`; legacy order still accepted. |
+| `LEN` | `(s)` | Rune count (not byte length). |
+| `LEFT` / `RIGHT` | `(s, n)` | Substrings by rune count. |
+| `MID` | `(s, start [, count])` | **`start` is 1-based** rune index; `count` defaults to end of string. |
+| `UPPER` / `LOWER` | `(s)` | Unicode case mapping. |
+| `INSTR` / `Instr` | `(hay, needle [, start])` | 1-based start index; returns **1-based** position or `0`. |
+| `REPLACE` | `(s, find, repl)` | Global literal replacement. |
+| `TRIM` / `LTRIM` / `RTRIM` | `(s)` | Whitespace trim. |
+| `CHR` / `ASC` | | Codepoint ↔ first character. |
+| `STRING` | `(char, n)` **or** `(n, char)` | Repeats first **rune** of `char`; legacy order still accepted. |
 
 ## Banks and memory buffers
 
@@ -254,11 +254,11 @@ Banks are `MEM.*` heap objects; Blitz names are aliases.
 
 | Command | Arguments | Notes |
 |--------|-----------|--------|
-| `CurrentTime$` | `()` | `"HH:MM:SS"` (local wall clock); same as `TIME$`. |
-| `CurrentDate$` | `()` | `"DD Mon YYYY"` (e.g. `02 Jan 2006` layout). |
+| `CurrentTime` | `()` | `"HH:MM:SS"` (local wall clock); same as `TIME`. |
+| `CurrentDate` | `()` | `"DD Mon YYYY"` (e.g. `02 Jan 2006` layout). |
 | `MilliSecs` | `()` | **Float64** ms (Raylib time when CGO; see `runtime/time/millis_*.go`). |
 | `Delay` / `DELAY` | `(ms)` | Sleep; **numeric** ms (int or float). |
-| `SystemProperty$` | `(key$)` | Keys: `os`, `os_version`, `arch`, `cpu_cores` (int), `compiler` (Go runtime string). Unknown keys → `""`. |
+| `SystemProperty` | `(key)` | Keys: `os`, `os_version`, `arch`, `cpu_cores` (int), `compiler` (Go runtime string). Unknown keys → `""`. |
 
 ---
 

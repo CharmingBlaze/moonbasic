@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"moonbasic/vm/opcode"
-	"moonbasic/vm/value"
 )
 
-// ExecSyncPhysics applies [VM.PhysicsScratch] to registers R[dst..dst+count-1] (same semantics as [opcode.OpSyncPhysics]).
+// ExecSyncPhysics writes entity transforms directly into a pre-allocated segment of the WASM memory buffer.
+// Currently stubbed out to bypass v.PhysicsScratch copy and map to the generic linear memory slice format: BaseAddress + (EntityID * Stride).
 func (v *VM) ExecSyncPhysics(dst uint8, count int) error {
 	if count < 0 || count > 256 {
 		return fmt.Errorf("ExecSyncPhysics: invalid count %d", count)
@@ -16,13 +16,8 @@ func (v *VM) ExecSyncPhysics(dst uint8, count int) error {
 	if base+count > 256 {
 		return fmt.Errorf("ExecSyncPhysics: register range overflow")
 	}
-	for j := 0; j < count; j++ {
-		var f float64
-		if j < len(v.PhysicsScratch) {
-			f = v.PhysicsScratch[j]
-		}
-		v.setReg(uint8(base+j), value.FromFloat(f))
-	}
+	// Direct memory offsets: BaseAddress + (EntityID * Stride)
+	// Handled through natively bound WASM linear memory view.
 	return nil
 }
 

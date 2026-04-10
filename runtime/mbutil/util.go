@@ -45,6 +45,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("UTIL.DELETEDIR", "util", m.utilDeleteDir)
 	r.Register("UTIL.GETDIR", "util", m.utilGetWd)
 	r.Register("UTIL.GETDIRS", "util", m.utilGetDirSubdirs)
+	r.Register("RES.PATH", "util", m.resPath)
+	r.Register("RES.EXISTS", "util", m.resExists)
 
 	// Flat spec names (manifest) → same handlers as UTIL.*.
 	r.Register("FILEEXISTS", "util", m.utilFileExists)
@@ -344,6 +346,42 @@ func (m *Module) utilDeleteDir(rt *runtime.Runtime, args ...value.Value) (value.
 		return value.Nil, err
 	}
 	return value.Nil, os.RemoveAll(path)
+}
+
+func (m *Module) resPath(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("RES.PATH expects (localPath$)")
+	}
+	local, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	local = strings.TrimSpace(local)
+	if local == "" {
+		return rt.RetString(""), nil
+	}
+	if filepath.IsAbs(local) {
+		return rt.RetString(filepath.Clean(local)), nil
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		return value.Nil, err
+	}
+	base := filepath.Dir(exe)
+	out := filepath.Join(base, filepath.Clean(local))
+	return rt.RetString(filepath.Clean(out)), nil
+}
+
+func (m *Module) resExists(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, runtime.Errorf("RES.EXISTS expects (path$)")
+	}
+	path, err := rt.ArgString(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	_, err = os.Stat(path)
+	return value.FromBool(err == nil), nil
 }
 
 func (m *Module) utilGetWd(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

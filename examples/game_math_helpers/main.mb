@@ -1,0 +1,10 @@
+; Type-check sample for MATH game helpers (HDIST, YAWFROMXZ, SMOOTHERSTEP, …).
+; go run . --check examples/game_math_helpers/main.mb
+
+d# = HDIST(0.0, 0.0, 3.0, 4.0)
+d2# = MATH.DIST2D(0.0, 0.0, 1.0, 1.0)
+yaw# = YAWFROMXZ(0.0, 1.0)
+ad# = ANGLEDRADIFF(0.0, 3.14159)
+t# = SMOOTHERSTEP(0.0, 1.0, 0.5)
+sq# = HDISTSQ(0.0, 0.0, 2.0, 0.0)
+sq2# = MATH.DISTSQ2D(0.0, 0.0, 0.0, 0.0)

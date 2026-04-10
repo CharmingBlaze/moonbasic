@@ -1,0 +1,146 @@
+; Terrain + orbit camera + slow chasing enemies (no external assets).
+; Run from repo root: go run -tags fullruntime ./cmd/moonrun examples/terrain_chase/main.mb
+;
+; Uses "less math" helpers: CIRCLEPOINT, VEC2.PUSHOUT, INPUT.MOVEDIR / MOUSEDELTA,
+; TERRAIN.SNAPY, WORLD.SETCENTERENTITY — see docs/reference/LESS_MATH.md.
+; Streaming: World.SetCenterEntity follows player; see docs/reference/TERRAIN.md and WORLD.md.
+
+CONST TW = 320
+CONST TCX = 160.0
+CONST TCZ = 160.0
+CONST ORBIT_MOUSE_BTN = 1
+CONST ORBIT_YAW_SENS = 0.0032
+CONST ORBIT_PITCH_SENS = 0.0032
+CONST PITCH_MIN = -0.12
+CONST PITCH_MAX = 1.35
+CONST DIST_MIN = 3.0
+CONST DIST_MAX = 28.0
+CONST ZOOM_WHEEL = 0.9
+CONST MOVE_SPD = 14.0
+CONST CHASE_SPD = 3.2
+CONST N_ENEMY = 8
+CONST N_BEACON = 6
+CONST BEACON_RADIUS = 120.0
+CONST BEACON_SAFE_RADIUS = 36.0
+
+SetMSAA(4)
+Window.Open(1280, 720, "moonBASIC - terrain chase")
+Window.SetFPS(60)
+
+terrain = Terrain.Make(TW, TW)
+Terrain.FillPerlin(terrain, 0.028, 52.0)
+Chunk.SetRange(terrain, 140.0, 240.0)
+World.SetCenter(TCX, TCZ)
+World.StreamEnable(TRUE)
+World.Preload(terrain, 4)
+
+cam = CreateCamera()
+cam.SetFOV(58)
+
+player = CreateSphere()
+ScaleEntity(player, 0.55, 0.55, 0.55)
+EntityColor(player, 80, 200, 255, 255)
+ph0 = Terrain.GetHeight(terrain, TCX, TCZ) + 0.55
+PositionEntity(player, TCX, ph0, TCZ, TRUE)
+
+badGuy AS HANDLE(N_ENEMY)
+FOR i = 1 TO N_ENEMY
+    badGuy(i) = CreateSphere()
+    ScaleEntity(badGuy(i), 0.5, 0.5, 0.5)
+    ; Evenly spaced hues on the color wheel (see COLOR.HSV index/total overload).
+    ec = COLOR.HSV(i, N_ENEMY)
+    EntityColor(badGuy(i), ec)
+    COLOR.FREE(ec)
+    ex, ez = MATH.CIRCLEPOINT(TCX, TCZ, 42.0, i, N_ENEMY)
+    ex = CLAMP(ex, 3.0, FLOAT(TW) - 3.0)
+    ez = CLAMP(ez, 3.0, FLOAT(TW) - 3.0)
+    Terrain.Place(terrain, badGuy(i), ex, ez, 0.42)
+NEXT i
+
+beacon AS HANDLE(N_BEACON)
+FOR i = 1 TO N_BEACON
+    beacon(i) = CreateCube()
+    ScaleEntity(beacon(i), 1.2, 6.0, 1.2)
+    bx, bz = MATH.CIRCLEPOINT(TCX, TCZ, BEACON_RADIUS, i, N_BEACON)
+    bx, bz = VEC2.PUSHOUT(bx, bz, TCX, TCZ, BEACON_SAFE_RADIUS)
+    bx = CLAMP(bx, 3.0, FLOAT(TW) - 3.0)
+    bz = CLAMP(bz, 3.0, FLOAT(TW) - 3.0)
+    bh = Terrain.GetHeight(terrain, bx, bz) + 3.0
+    PositionEntity(beacon(i), bx, bh, bz, TRUE)
+    br = 110 + INT(120.0 * MATH.SIN(FLOAT(i) * 0.8 + 0.2))
+    bg = 110 + INT(120.0 * MATH.SIN(FLOAT(i) * 1.1 + 2.0))
+    bb = 110 + INT(120.0 * MATH.SIN(FLOAT(i) * 1.4 + 4.1))
+    IF br < 0 THEN br = 0
+    IF bg < 0 THEN bg = 0
+    IF bb < 0 THEN bb = 0
+    IF br > 255 THEN br = 255
+    IF bg > 255 THEN bg = 255
+    IF bb > 255 THEN bb = 255
+    EntityColor(beacon(i), br, bg, bb, 255)
+NEXT i
+
+camYaw = 0.0
+camPitch = 0.28
+cd = 9.0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    Render.Clear(55, 72, 98)
+    dt = Time.Delta(0.0167, 0.05)
+
+    dx, dy = INPUT.MOUSEDELTA()
+    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+        camYaw = camYaw + dx * ORBIT_YAW_SENS
+        camPitch = camPitch - dy * ORBIT_PITCH_SENS
+    ENDIF
+    camPitch = CLAMP(camPitch, PITCH_MIN, PITCH_MAX)
+    mw = MouseWheel()
+    cd = cd - mw * ZOOM_WHEEL
+    cd = CLAMP(cd, DIST_MIN, DIST_MAX)
+    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.2 * dt
+    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.2 * dt
+
+    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+
+    stepX, stepZ = INPUT.MOVEDIR(camYaw, MOVE_SPD * dt)
+    IF stepX <> 0.0 OR stepZ <> 0.0 THEN
+        px, py, pz = Entity.GetPos(player)
+        Entity.SetPosition(player, px + stepX, py, pz + stepZ, TRUE)
+    ENDIF
+
+    ENTITY.UPDATE(dt)
+
+    px, py, pz = Entity.GetPos(player)
+    px = CLAMP(px, 4.0, FLOAT(TW) - 4.0)
+    pz = CLAMP(pz, 4.0, FLOAT(TW) - 4.0)
+    Entity.SetPosition(player, px, py, pz, TRUE)
+    Terrain.SnapY(terrain, player, 0.55)
+
+    FOR i = 1 TO N_ENEMY
+        ex, ez = Entity.GetXZ(badGuy(i))
+        px, py, pz = Entity.GetPos(player)
+        ex, ez = VEC2.MOVE_TOWARD(ex, ez, px, pz, CHASE_SPD * dt)
+        ex = CLAMP(ex, 2.0, FLOAT(TW) - 2.0)
+        ez = CLAMP(ez, 2.0, FLOAT(TW) - 2.0)
+        Terrain.Place(terrain, badGuy(i), ex, ez, 0.42)
+    NEXT i
+
+    World.SetCenterEntity(player)
+    World.Update(dt)
+
+    RENDER.Begin3D(cam)
+        Terrain.Draw(terrain)
+        DrawEntities()
+    RENDER.END3D()
+
+    Draw.Text("Terrain chase - RMB orbit  wheel zoom  Q/E  WASD  ESC", 12, 10, 16, 240, 245, 255, 255)
+    DEBUG.PRINT("Chunks {0}", Chunk.Count(terrain))
+    DEBUG.PRINT("Player {0}, {1}", EntityX(player), EntityZ(player))
+    Render.Frame()
+WEND
+
+FREEENTITIES(badGuy)
+FREEENTITIES(beacon)
+FreeEntity(player)
+Terrain.Free(terrain)
+Camera.Free(cam)
+Window.Close()

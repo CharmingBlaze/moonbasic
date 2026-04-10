@@ -10,8 +10,8 @@ For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plo
 
 | Intent | MoonBASIC command | Notes |
 |--------|-------------------|--------|
-| Save entities to JSON | **`ENTITY.SAVESCENE(path$)`** or **`SCENE.SAVESCENE`** | Same handler; format v1 (see below). |
-| Load entities from JSON | **`ENTITY.LOADSCENE(path$)`** or **`SCENE.LOADSCENE`** | Clears the world first, then spawns entities. |
+| Save entities to JSON | **`ENTITY.SAVESCENE(path)`** or **`SCENE.SAVESCENE`** | Same handler; format v1 (see below). |
+| Load entities from JSON | **`ENTITY.LOADSCENE(path)`** or **`SCENE.LOADSCENE`** | Clears the world first, then spawns entities. |
 | Clear all entities | **`ENTITY.CLEARSCENE`** or **`SCENE.CLEARSCENE`** | Resets entity ids and groups. |
 | Scene flow / transitions | **`SCENE.REGISTER`**, **`SCENE.LOAD`**, … | Existing [scene](SCENE.md) system for scripted scene switches. |
 
@@ -38,12 +38,12 @@ For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plo
 | Intent | MoonBASIC |
 |--------|-----------|
 | Set target to point | **`CAMERA.SETTARGET`** |
-| Set target to entity | **`CAMERA.SETTARGETENTITY(cam, entity#)`** |
+| Set target to entity | **`CAMERA.SETTARGETENTITY(cam, entity)`** |
 | Third-person follow | **`CAMERA.FOLLOW`** (world target) or **`CAMERA.FOLLOWENTITY`** / **`CAMERA.CAMERAFOLLOW`** (entity + dist/height/smooth) |
 | Orbit | **`CAMERA.SETORBIT`**, **`CAMERA.ORBIT`**, **`CAMERA.ORBITENTITY`** |
 | Zoom FOV | **`CAMERA.ZOOM`** |
 | Screen ray / pick | **`CAMERA.GETRAY(cam, sx, sy)`** or alias **`CAMERA.PICK`** (same as **`GETRAY`**) |
-| Shake | **`CAMERA.SHAKE(cam, amount#, duration#)`** — applied during **`CAMERA.BEGIN`** |
+| Shake | **`CAMERA.SHAKE(cam, amount, duration)`** — applied during **`CAMERA.BEGIN`** |
 
 ---
 
@@ -63,7 +63,7 @@ For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plo
 
 | Intent | MoonBASIC |
 |--------|-----------|
-| Fog color / range | **`FOG.SETCOLOR`**, **`FOG.SETNEAR` / `SETFAR`** or **`FOG.SETRANGE(near#, far#)`** |
+| Fog color / range | **`FOG.SETCOLOR`**, **`FOG.SETNEAR` / `SETFAR`** or **`FOG.SETRANGE(near, far)`** |
 | Lights | **`LIGHT.MAKE`**, **`LIGHT.SETCOLOR`**, **`LIGHT.SETRANGE`**, cones, … |
 | Skybox | **`RENDER.SETSKYBOX`** (path) — see [rendering docs](../BUILDING.md) / manifest |
 | Material | **`MATERIAL.MAKEDEFAULT`** or **`MATERIAL.CREATE`** (alias) |
@@ -97,11 +97,11 @@ Use **`AUDIO.LOADSOUND`**, **`AUDIO.PLAY`**, **`AUDIO.STOP`**, **`AUDIO.SETSOUND
 
 | Intent | MoonBASIC |
 |--------|-----------|
-| Exists | **`FILE.EXISTS(path$)`** |
-| Read whole text | **`FILE.READALLTEXT(path$)`** |
-| Write whole text | **`FILE.WRITEALLTEXT(path$, text$)`** |
-| Load JSON from file | **`JSON.PARSE(path$)`** or **`JSON.LOADFILE`** (same behavior: path on disk) |
-| Save JSON | **`JSON.TOFILE`** or **`JSON.SAVEFILE`** `(jsonHandle, path$)` |
+| Exists | **`FILE.EXISTS(path)`** |
+| Read whole text | **`FILE.READALLTEXT(path)`** |
+| Write whole text | **`FILE.WRITEALLTEXT(path, text)`** |
+| Load JSON from file | **`JSON.PARSE(path)`** or **`JSON.LOADFILE`** (same behavior: path on disk) |
+| Save JSON | **`JSON.TOFILE`** or **`JSON.SAVEFILE`** `(jsonHandle, path)` |
 
 ---
 

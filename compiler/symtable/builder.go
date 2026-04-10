@@ -76,6 +76,16 @@ func (b *Builder) collectGlobalFromStmt(stmt ast.Stmt) {
 			sym.Persistent = true
 			b.implicitGlobals[name] = true
 		}
+	case *ast.MultiAssignNode:
+		for _, nm := range s.Names {
+			name := strings.ToUpper(nm)
+			if !b.Symbols.IsVar(name) {
+				sym := b.Symbols.DefineGlobalVar(nm)
+				sym.Type = b.inferType(s.Expr, nm)
+				sym.Persistent = true
+				b.implicitGlobals[name] = true
+			}
+		}
 
 	case *ast.DimNode:
 		// DIM declares an array
@@ -185,6 +195,15 @@ func (b *Builder) collectLocalFromStmt(stmt ast.Stmt, funcName string) {
 			sym := b.Symbols.DefineLocal(s.Name)
 			sym.Type = varType
 			b.implicitLocals[funcName][name] = true
+		}
+	case *ast.MultiAssignNode:
+		for _, nm := range s.Names {
+			name := strings.ToUpper(nm)
+			if b.Symbols.Resolve(name) == nil {
+				sym := b.Symbols.DefineLocal(nm)
+				sym.Type = b.inferType(s.Expr, nm)
+				b.implicitLocals[funcName][name] = true
+			}
 		}
 
 	case *ast.DimNode:

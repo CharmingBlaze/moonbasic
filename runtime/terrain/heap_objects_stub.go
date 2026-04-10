@@ -32,6 +32,9 @@ type TerrainObject struct {
 
 	MaxHeight float32
 
+	ScaleX, ScaleY, ScaleZ float32
+	DetailFactor           float32
+
 	freed bool
 }
 
@@ -71,12 +74,34 @@ func (t *TerrainObject) heightAtCell(wx, wz int) float32 {
 	return t.Heights[cellIndex(t, wx, wz)]
 }
 
+func (t *TerrainObject) scaleXEff() float32 {
+	if t.ScaleX <= 0 {
+		return 1
+	}
+	return t.ScaleX
+}
+func (t *TerrainObject) scaleYEff() float32 {
+	if t.ScaleY <= 0 {
+		return 1
+	}
+	return t.ScaleY
+}
+func (t *TerrainObject) scaleZEff() float32 {
+	if t.ScaleZ <= 0 {
+		return 1
+	}
+	return t.ScaleZ
+}
+
 func (t *TerrainObject) HeightWorld(x, z float32) float32 {
 	if t.WorldW < 2 || t.WorldH < 2 {
 		return 0
 	}
-	lx := (x - t.PX) / t.CellSize
-	lz := (z - t.PZ) / t.CellSize
+	sx := t.scaleXEff()
+	sz := t.scaleZEff()
+	sy := t.scaleYEff()
+	lx := (x - t.PX) / (t.CellSize * sx)
+	lz := (z - t.PZ) / (t.CellSize * sz)
 	if lx < 0 || lz < 0 || lx >= float32(t.WorldW-1) || lz >= float32(t.WorldH-1) {
 		return 0
 	}
@@ -90,11 +115,34 @@ func (t *TerrainObject) HeightWorld(x, z float32) float32 {
 	h11 := t.heightAtCell(x0+1, z0+1)
 	a := h00*(1-fx) + h10*fx
 	b := h01*(1-fx) + h11*fx
-	return a*(1-fz) + b*fz + t.PY
+	raw := a*(1-fz) + b*fz
+	return raw*sy + t.PY
+}
+
+func max32StubTerrain(a, b float32) float32 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+// GridXZ matches the raylib TerrainObject implementation (fractional grid coords).
+func (t *TerrainObject) GridXZ(x, z float32) (lx, lz float32, ok bool) {
+	if t.WorldW < 2 || t.WorldH < 2 {
+		return 0, 0, false
+	}
+	sx := t.scaleXEff()
+	sz := t.scaleZEff()
+	lx = (x - t.PX) / (t.CellSize * sx)
+	lz = (z - t.PZ) / (t.CellSize * sz)
+	if lx < 0 || lz < 0 || lx >= float32(t.WorldW-1) || lz >= float32(t.WorldH-1) {
+		return lx, lz, false
+	}
+	return lx, lz, true
 }
 
 func (t *TerrainObject) SlopeDeg(x, z float32) float32 {
-	d := t.CellSize * 0.5
+	d := t.CellSize * 0.5 * max32StubTerrain(t.scaleXEff(), t.scaleZEff())
 	if d < 1e-4 {
 		d = 1
 	}

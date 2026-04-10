@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"fmt"
+	"strings"
 
 	"moonbasic/compiler/ast"
 	"moonbasic/compiler/symtable"
@@ -112,16 +113,13 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 
 	case *ast.CallExprNode:
 		// Constructors
-		if td, ok := g.Prog.Types[n.Name]; ok && g.Prog.Functions[n.Name] == nil {
+		if td, ok := g.Prog.Types[strings.ToUpper(n.Name)]; ok && g.Prog.Functions[strings.ToUpper(n.Name)] == nil {
 			if len(n.Args) != len(td.Fields) {
 				g.codegenError(n.Line, n.Col, fmt.Sprintf("type %s constructor: wrong field count", n.Name), "")
 				return 0
 			}
-			argStart := g.nextReg
-			for _, a := range n.Args {
-				g.emitExpr(ch, a)
-			}
-			idx := ch.AddName(n.Name)
+			argStart := g.emitArgsStable(ch, n.Args, n.Line)
+			idx := ch.AddName(strings.ToUpper(n.Name))
 			dst := g.allocReg()
 			// OpNewFilled Dst, FieldCount, ArgStart, NameIdx
 			ch.Emit(opcode.OpNewFilled, dst, uint8(len(n.Args)), argStart, idx, n.Line)
@@ -131,10 +129,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		}
 		
 		// Normal Calls
-		argStart := g.nextReg
-		for _, a := range n.Args {
-			g.emitExpr(ch, a)
-		}
+		argStart := g.emitArgsStable(ch, n.Args, n.Line)
 		idx := ch.AddName(n.Name)
 		op := opcode.OpCallBuiltin
 		if _, ok := g.Prog.Functions[n.Name]; ok {
@@ -154,10 +149,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		// Evaluate receiver into a register
 		recReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Receiver, Line: n.Line, Col: n.Col})
 		
-		argStart := g.nextReg
-		for _, a := range n.Args {
-			g.emitExpr(ch, a)
-		}
+		argStart := g.emitArgsStable(ch, n.Args, n.Line)
 		midx := ch.AddName(n.Method)
 		dst := g.allocReg()
 		
@@ -169,17 +161,25 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		return dst
 
 	case *ast.NewNode:
-		idx := ch.AddName(n.TypeName)
+		idx := ch.AddName(strings.ToUpper(n.TypeName))
 		dst := g.allocReg()
 		ch.Emit(opcode.OpNew, dst, 0, 0, idx, n.Line)
 		return dst
 
 	case *ast.FieldAccessNode:
+		if strings.EqualFold(n.Field, "length") {
+			recReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Object, Line: n.Line, Col: n.Col})
+			dst := g.allocReg()
+			ch.Emit(opcode.OpArrayLen, dst, recReg, 0, 0, n.Line)
+			g.nextReg = recReg
+			g.allocReg()
+			return dst
+		}
 		recReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Object, Line: n.Line, Col: n.Col})
-		fidx := ch.AddName(n.Field)
+		fidx := ch.AddName(strings.ToUpper(n.Field))
 		dst := g.allocReg()
 		ch.Emit(opcode.OpFieldGet, dst, recReg, 0, fidx, n.Line)
-		
+
 		g.nextReg = recReg
 		g.allocReg() // keep dst
 		return dst
@@ -215,10 +215,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 
 	case *ast.NamespaceCallExpr:
 		// NS.METHOD(...)
-		argStart := g.nextReg
-		for _, a := range n.Args {
-			g.emitExpr(ch, a)
-		}
+		argStart := g.emitArgsStable(ch, n.Args, n.Line)
 		idx := ch.AddName(n.NS + "." + n.Method)
 		dst := g.allocReg()
 		
@@ -241,7 +238,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		objReg := g.allocReg()
 		ch.Emit(opcode.OpArrayGet, objReg, arrReg, dimStart, int32(len(n.Index)), n.Line)
 		// 3. Get field
-		fidx := ch.AddName(n.Field)
+		fidx := ch.AddName(strings.ToUpper(n.Field))
 		dst := g.allocReg()
 		ch.Emit(opcode.OpFieldGet, dst, objReg, 0, fidx, n.Line)
 		

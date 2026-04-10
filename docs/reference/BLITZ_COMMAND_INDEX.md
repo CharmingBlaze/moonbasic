@@ -20,7 +20,7 @@ This page maps **familiar Blitz names** to **implemented** moonBASIC commands, w
 | **`TEXTUREWIDTH`** | **`TEXTURE.WIDTH`** |
 | **`TEXTUREHEIGHT`** | **`TEXTURE.HEIGHT`** |
 
-Also registered: **`OPENFILE`**, **`CLOSEFILE`**, **`READFILE$`**, **`SEEKFILE`**, **`FILEPOS`**, **`FILESIZE`**, **`KEYDOWN`**, **`KEYHIT`**, **`MOUSEX`**, … — see [FILE.md](FILE.md), [INPUT.md](INPUT.md), [GAMEHELPERS.md](GAMEHELPERS.md).
+Also registered: **`OPENFILE`**, **`CLOSEFILE`**, **`READFILE`**, **`SEEKFILE`**, **`FILEPOS`**, **`FILESIZE`**, **`KEYDOWN`**, **`KEYHIT`**, **`MOUSEX`**, … — see [FILE.md](FILE.md), [INPUT.md](INPUT.md), [GAMEHELPERS.md](GAMEHELPERS.md).
 
 ---
 
@@ -51,8 +51,9 @@ Blitz **2D** used a software framebuffer, **current pen color**, and **Origin/Vi
 | **CreateLight(type, parent)** | **≈** `LIGHT.MAKE` + **`LIGHT.SET*`** | See [LIGHT.md](LIGHT.md). |
 | **CreatePivot(parent)** | **—** | Use **empty entity** / **group** patterns or **`ENTITY.PARENT`**. |
 | **CreateListener(parent)** | **—** | No audio listener entity; use **spatial** audio APIs if exposed. |
-| **RenderWorld(tween)** | **≈** `RENDER.FRAME` + draw calls | Scene graph + **`ENTITY.DRAWALL`** / your loop. |
-| **UpdateWorld(speed)** | **≈** `TIME.DELTA` / `DT()` + `ENTITY.UPDATE` | Frame-step scaling in your code. |
+| **RenderWorld** | **—** *(intentional)* | Not a builtin — use **`CAMERA.Begin`/`End`** or **`RENDER.Begin3D`/`End3D`**, then **`ENTITY.DRAWALL`**, then **`RENDER.FRAME`**. See [BLITZ3D.md](BLITZ3D.md) § Raylib render pipeline. |
+| **UpdateWorld** | **—** *(intentional)* | Not a builtin — use **`ENTITY.UPDATE(dt)`** with **`TIME.DELTA()`**. See [BLITZ3D.md](BLITZ3D.md). |
+| **Flip** | **—** *(intentional)* | Not a builtin — use **`RENDER.FRAME`** to present. |
 | **ClearWorld(…)** | **≈** `ENTITY.CLEARSCENE` / `SCENE.CLEARSCENE` | See [BLITZ2025.md](BLITZ2025.md). |
 | **AmbientLight(r, g, b)** | **≈** `RENDER.SETAMBIENT` / `FOG.SETCOLOR` context | Plus **`RENDER.CLEAR`** for sky colour. |
 | **FogColor** / **FogRange** | **✓** `FOG.SETCOLOR`, `FOG.SETRANGE` / `SETNEAR`+`SETFAR` | [BLITZ2025.md](BLITZ2025.md) |
@@ -171,7 +172,7 @@ moonBASIC uses **`ENTITY.*`** with **integer entity ids** (and optional **`ENTIT
 
 ## File I/O
 
-Use **`FILE.OPEN`** / **`OPENFILE`**, **`FILE.CLOSE`** / **`CLOSEFILE`**, **`FILE.READLINE`** / **`READFILE$`**, **`FILE.WRITE`**, **`FILE.SEEK`** / **`SEEKFILE`**, **`FILE.TELL`** / **`FILEPOS`**, **`FILE.SIZE`** / **`FILESIZE`**, **`READALLTEXT$`**, **`WRITEALLTEXT`**, … — full list in [FILE.md](FILE.md) and [API_CONSISTENCY.md](../API_CONSISTENCY.md). Binary typed reads/writes: **`FILE.READBYTE`** etc. if present in manifest.
+Use **`FILE.OPEN`** / **`OPENFILE`**, **`FILE.CLOSE`** / **`CLOSEFILE`**, **`FILE.READLINE`** / **`READFILE`**, **`FILE.WRITE`**, **`FILE.SEEK`** / **`SEEKFILE`**, **`FILE.TELL`** / **`FILEPOS`**, **`FILE.SIZE`** / **`FILESIZE`**, **`READALLTEXT`**, **`WRITEALLTEXT`**, … — full list in [FILE.md](FILE.md) and [API_CONSISTENCY.md](../API_CONSISTENCY.md). Binary typed reads/writes: **`FILE.READBYTE`** etc. if present in manifest.
 
 ---
 

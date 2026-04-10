@@ -10,8 +10,8 @@ Earlier builds only supported flat objects. The current implementation keeps **o
 
 | Command | Purpose |
 |--------|---------|
-| `JSON.PARSE(path$)` | **Read a UTF-8 file** from disk and decode JSON. |
-| `JSON.PARSESTRING(s$)` | Decode JSON **from a string** (use this for inline text or loaded buffers). |
+| `JSON.PARSE(path)` | **Read a UTF-8 file** from disk and decode JSON. |
+| `JSON.PARSESTRING(s)` | Decode JSON **from a string** (use this for inline text or loaded buffers). |
 | `JSON.MAKE()` | New empty **object** `{}`. |
 | `JSON.MAKEARRAY()` | New empty **array** `[]`. |
 | `JSON.FREE(handle)` | Release the heap object (`Free` is idempotent). |
@@ -37,10 +37,10 @@ Empty path `""` refers to the **root** value (for **`LEN`**, **`TOCSV`**, etc.).
 
 | Command | Purpose |
 |--------|---------|
-| `JSON.HAS(handle, path$)` | Whether a value exists at the path (map key present or array index in range). |
-| `JSON.TYPE$(handle, path$)` | Rough type string: `object`, `array`, `string`, `number`, `bool`, `null`, or `missing`. |
-| `JSON.LEN(handle, path$)` | Length of object (key count), array, or string; `0` if not applicable. |
-| `JSON.KEYS(handle, path$)` | Object keys as a **`StringList`** handle (sorted lexicographically for stable output). |
+| `JSON.HAS(handle, path)` | Whether a value exists at the path (map key present or array index in range). |
+| `JSON.TYPE(handle, path)` | Rough type string: `object`, `array`, `string`, `number`, `bool`, `null`, or `missing`. |
+| `JSON.LEN(handle, path)` | Length of object (key count), array, or string; `0` if not applicable. |
+| `JSON.KEYS(handle, path)` | Object keys as a **`StringList`** handle (sorted lexicographically for stable output). |
 | `JSON.GETSTRING` / `GETINT` / `GETFLOAT` / `GETBOOL` | Read scalars; optional **3-argument** overloads supply a **default** when missing. |
 | `JSON.GETARRAY` / `JSON.GETOBJECT` | Return a **new** `JSON` handle aliasing the nested value (free separately). |
 
@@ -66,7 +66,7 @@ Numbers decode as `float64` internally; **`GETINT`** coerces.
 
 ## `JSON.QUERY` (minimal)
 
-`JSON.QUERY(handle, pattern$)` returns a **`StringList`** handle.
+`JSON.QUERY(handle, pattern)` returns a **`StringList`** handle.
 
 - If `pattern` contains **`[*]`**, the prefix before it must resolve to an **array**; for each element, the suffix path after `[*]` is read (if any), and values are collected as strings.
 - Without `[*]`, the pattern is a normal path; the result is **one** string in a list (or one empty string if missing).

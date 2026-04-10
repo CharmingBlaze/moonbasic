@@ -38,7 +38,7 @@ Window.Close()
 Initializes the window and sets its dimensions and title. This must be the first window command called. **`Window.Open` does not return a value.** If the window cannot be created, the runtime prints a short message to **stderr** and **exits the process** (so you do not need `IF NOT Window.Open ...` boilerplate in every program).
 
 -   `width`, `height`: The dimensions of the window's client area in pixels.
--   `title$`: The text to display in the window's title bar.
+-   `title`: The text to display in the window's title bar.
 
 ### `Window.CanOpen(width, height, title$)`
 
@@ -72,7 +72,7 @@ Sets the desired frames per second (FPS) for the application. The `Time.Delta()`
 
 Updates the window's title text while the program is running.
 
--   `title$`: The new title to display.
+-   `title`: The new title to display.
 
 ```basic
 score = 100
@@ -91,7 +91,7 @@ Sets the position of the top-left corner of the window on the screen.
 
 Sets the window's icon from an image file. Best results with a square `.png` file (e.g., 64x64).
 
--   `filePath$`: Path to the image file.
+-   `filePath`: Path to the image file.
 
 ---
 
@@ -99,7 +99,7 @@ Sets the window's icon from an image file. Best results with a square `.png` fil
 
 Sets the window's transparency.
 
--   `alpha#`: A value from `0.0` (fully transparent) to `1.0` (fully opaque).
+-   `alpha`: A value from `0.0` (fully transparent) to `1.0` (fully opaque).
 
 ---
 

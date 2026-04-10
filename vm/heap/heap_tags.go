@@ -103,4 +103,6 @@ const (
 	TagPlayer2D // 2D XZ mover with optional axis-aligned bounds (English-style helpers)
 	TagBrush       // Blitz-style material bundle (color, texture slot, FX flags) for PaintEntity
 	TagMeshBuilder // CPU vertex/index buffer for procedural ENTITY.CREATEMESH / UpdateMesh
+	TagTacticalGrid // GRID.* logical cell data + optional terrain projection
+	TagImageSequence // IMAGE.LOADSEQUENCE — packed list of IMAGE handles for ENTITY.SETANIMATION
 )

@@ -56,7 +56,7 @@ Draws the FPS counter at integer pixel coordinates (registered with the render m
 
 ### `Render.Screenshot(path$)`
 
-Writes a PNG screenshot to `path$` (`TakeScreenshot`).
+Writes a PNG screenshot to `path` (`TakeScreenshot`).
 
 ---
 

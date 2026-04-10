@@ -2,7 +2,7 @@
 
 | Designed | Implementation | Memory / notes |
 |----------|----------------|----------------|
-| **AppTitle (title$)** | **Flat:** **`APPTITLE`** → **`WINDOW.SETTITLE`**; or title in **`WINDOW.OPEN(…, title$)`** | Window string only. |
+| **AppTitle (title)** | **Flat:** **`APPTITLE`** → **`WINDOW.SETTITLE`**; or title in **`WINDOW.OPEN(…, title)`** | Window string only. |
 | **SetFPS (fps)** | **Flat:** **`SETFPS`** → **`WINDOW.SETFPS`** | Caps frame rate. |
 | **DeltaTime ()** | **Flat:** **`DELTATIME`** → **`TIME.DELTA`**; shortcut **`DT`** / **`GAME.DT`** | Float seconds. |
 | **TimeMS ()** | **Flat:** **`TIMEMS`** → **`TICKCOUNT`** (ms); or monotonic wall **`TIME.GET`** | |

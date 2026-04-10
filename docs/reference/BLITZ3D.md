@@ -2,7 +2,21 @@
 
 High-level commands inspired by Blitz3D naming. **3D camera** and **entity** natives require **CGO** (Raylib). **Input** aliases work wherever **`INPUT.*`** works.
 
-**Full Blitz name ↔ moonBASIC map** (2D, world, entity, camera, mesh, texture, audio, file, math): **[BLITZ_COMMAND_INDEX.md](BLITZ_COMMAND_INDEX.md)**.
+**Full Blitz name ↔ moonBASIC map** (2D, world, entity, camera, mesh, texture, audio, file, math): **[BLITZ_COMMAND_INDEX.md](BLITZ_COMMAND_INDEX.md)**. **Curated “essential” list** (entities, meshes, camera, 2D, **`CURVEVALUE`**, **`RAND`**): **[BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md)**.
+
+---
+
+## Raylib render pipeline (replaces Blitz **Flip** / **RenderWorld** / **UpdateWorld**)
+
+Classic Blitz3D drove the frame with **Flip**, **RenderWorld**, and **UpdateWorld**. moonBASIC targets **Raylib**: you control **when** the GPU draws and **which** camera is active. Those three Blitz entrypoints are **not** separate builtins — use the following instead:
+
+| Blitz3D | moonBASIC / Raylib |
+|---------|---------------------|
+| **Flip** | **`RENDER.FRAME`** — presents the back buffer (call once at end of each frame after all drawing). |
+| **RenderWorld** | After **`RENDER.CLEAR`**: **`CAMERA.Begin(cam)`** … **`ENTITY.DRAWALL`** (and any **`DRAW3D.*`**) … **`CAMERA.End(cam)`**, or **`RENDER.Begin3D(cam)`** / **`RENDER.End3D()`** — then 2D HUD with **`CAMERA2D.Begin()`** … **`CAMERA2D.End()`** if needed. |
+| **UpdateWorld** | **`ENTITY.UPDATE(dt)`** with **`dt = TIME.DELTA()`** (or **`DT()`**) — steps entities, collision discovery, particles tied to the entity system, etc. Optional **`UPDATEPHYSICS`** bundles **`ENTITY.UPDATE`** + world/physics steps. |
+
+**Note:** **`FlipMesh`** (mesh winding) is unrelated to **Flip** — see [MESH.md](MESH.md) / entity mesh helpers.
 
 ---
 
@@ -10,7 +24,7 @@ High-level commands inspired by Blitz3D naming. **3D camera** and **entity** nat
 
 | Blitz3D idea | moonBASIC |
 |--------------|-----------|
-| **`Graphics3D width, height, depth`** | **`Window.Open(w, h, title$)`** — depth is handled by the 3D camera / Z-buffer, not a third dimension argument. |
+| **`Graphics3D width, height, depth`** | **`Window.Open(w, h, title)`** — depth is handled by the 3D camera / Z-buffer, not a third dimension argument. |
 | **`AmbientLight` / `CameraClsMode`** | **`Render.Clear(r,g,b)`** before **`Camera.Begin`**; sky colour is your clear. |
 | **`CreateCamera` / orbit the view** | **`cam = Camera.Make()`** then **`Camera.SetOrbit`** or **`Camera.Orbit`** (same math — see [CAMERA.md](CAMERA.md)). Third-person yaw/pitch/distance helpers: **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** ([GAMEHELPERS.md](GAMEHELPERS.md)). |
 | **`WireCube` / `Cube` (immediate)** | Short globals **`WIRECUBE`** / **`BOX`** (same as **`DRAW3D.CUBEWIRES`** / **`DRAW3D.CUBE`**) — see [DRAW3D.md](DRAW3D.md). Optional OOP-style **`DRAWCUBE()`** / **`DRAWSPHERE()`** wrappers: [DRAW_WRAPPERS.md](DRAW_WRAPPERS.md) (distinct from **`CUBE()`** entities). |
@@ -82,13 +96,13 @@ See [CAMERA.md](CAMERA.md) for full **`CAMERA.*`** reference.
 
 | Command | Purpose |
 |--------|---------|
-| **`Camera.Turn(cam, dpitch#, dyaw#, droll#)`** | Incremental rotation (**radians**): yaw around world **+Y**, pitch around camera right, roll around view. Keeps eye–target distance. |
-| **`Camera.Rotate(cam, pitch#, yaw#, roll#)`** | Absolute orientation (**radians**): builds forward from pitch/yaw, applies roll to **up**, keeps distance from eye to target. |
+| **`Camera.Turn(cam, dpitch, dyaw, droll)`** | Incremental rotation (**radians**): yaw around world **+Y**, pitch around camera right, roll around view. Keeps eye–target distance. |
+| **`Camera.Rotate(cam, pitch, yaw, roll)`** | Absolute orientation (**radians**): builds forward from pitch/yaw, applies roll to **up**, keeps distance from eye to target. |
 | **`Camera.Orbit(...)`** | Same arguments as **`Camera.SetOrbit`** — spherical orbit around a target (**alias**). |
-| **`Camera.Zoom(cam, amount#)`** | Adds **amount** to vertical FOV (**degrees**), clamped **10–120**. |
-| **`Camera.Follow(cam, tx#, ty#, tz#, yaw#, dist#, height#, smooth#)`** | Third-person follow: camera lerps behind **(tx,ty,tz)** on **XZ** at **yaw**, fixed world **height** for the eye, target lerps toward the subject. **`smooth`** is blended with frame time (~`smooth×8×dt` cap 1). Uses **`Time.Delta`** internally. |
-| **`Camera.FollowEntity(cam, entity#, dist#, height#, smooth#)`** | Same as **`Follow`**, but target position and **yaw** come from an **entity** id (see below). |
-| **`Camera.OrbitEntity(cam, entity#, yaw#, pitch#, dist#)`** | Orbits the camera around the entity’s **world** position using the same math as **`Camera.SetOrbit`** (see [CAMERA.md](CAMERA.md)). |
+| **`Camera.Zoom(cam, amount)`** | Adds **amount** to vertical FOV (**degrees**), clamped **10–120**. |
+| **`Camera.Follow(cam, tx, ty, tz, yaw, dist, height, smooth)`** | Third-person follow: camera lerps behind **(tx,ty,tz)** on **XZ** at **yaw**, fixed world **height** for the eye, target lerps toward the subject. **`smooth`** is blended with frame time (~`smooth×8×dt` cap 1). Uses **`Time.Delta`** internally. |
+| **`Camera.FollowEntity(cam, entity, dist, height, smooth)`** | Same as **`Follow`**, but target position and **yaw** come from an **entity** id (see below). |
+| **`Camera.OrbitEntity(cam, entity, yaw, pitch, dist)`** | Orbits the camera around the entity’s **world** position using the same math as **`Camera.SetOrbit`** (see [CAMERA.md](CAMERA.md)). |
 
 See also [CAMERA.md](CAMERA.md) for **`SetOrbit`**, **`OrbitAround`**, **`GetRay`**, etc.
 
@@ -105,24 +119,24 @@ Optional **`global`** arguments (where documented) use **`TRUE`/`FALSE`** or **`
 | Command | Purpose |
 |--------|---------|
 | **`Entity.Create()`** / **`Entity.CreateEntity()`** | Empty marker entity; add **`Radius`** / **`Box`** to make it a dynamic body. Returns **id**. |
-| **`Entity.CreateBox` / `CreateCube(w#, h#, d#)`** | Static axis-aligned box (**full** dimensions), centred at origin until moved. |
-| **`Entity.CreateSphere(radius#, segments)`** | Static **sphere** (segments ≥ 3); used for drawing and static collision. |
-| **`Entity.CreateCylinder(radius#, height#, segments)`** | Static **cylinder** (simplified collision). |
-| **`Entity.CreatePlane(size#)`** | Static **XZ** plane tile (extent **size**). |
+| **`Entity.CreateBox` / `CreateCube(w, h, d)`** | Static axis-aligned box (**full** dimensions), centred at origin until moved. |
+| **`Entity.CreateSphere(radius, segments)`** | Static **sphere** (segments ≥ 3); used for drawing and static collision. |
+| **`Entity.CreateCylinder(radius, height, segments)`** | Static **cylinder** (simplified collision). |
+| **`Entity.CreatePlane(size)`** | Static **XZ** plane tile (extent **size**). |
 | **`Entity.CreateMesh()`** | Procedural mesh placeholder (no file path); **`Entity.Copy`** is not supported until a reload path exists. |
-| **`Entity.LoadMesh(path$)`** | **`rl.LoadModel`**: static model for drawing; animations are **not** loaded (use **`LoadAnimatedMesh`**). |
-| **`Entity.LoadAnimatedMesh(path$)`** | Loads model plus **`LoadModelAnimations`** (Raylib 5.x); animation is advanced in **`Entity.Update`** when **`Entity.Animate`** sets a non-zero speed. |
+| **`Entity.LoadMesh(path)`** | **`rl.LoadModel`**: static model for drawing; animations are **not** loaded (use **`LoadAnimatedMesh`**). |
+| **`Entity.LoadAnimatedMesh(path)`** | Loads model plus **`LoadModelAnimations`** (Raylib 5.x); animation is advanced in **`Entity.Update`** when **`Entity.Animate`** sets a non-zero speed. |
 
 ### Transforms (MoonBASIC names)
 
 | Command | Purpose |
 |--------|---------|
-| **`Entity.SetPosition(id, x#, y#, z# [, global])`** | Set position; optional **`global`** for parented entities. Aliases: **`PositionEntity`**. |
-| **`Entity.RotateEntity(id, pitch#, yaw#, roll# [, global])`** | **Absolute** euler (**radians**). |
-| **`Entity.TurnEntity(id, dpitch#, dyaw#, droll# [, global])`** | **Add** to euler (same as **`Entity.Rotate`**). |
-| **`Entity.Move` / `MoveEntity(id, f#, r#, u#)`** | Move along **local** forward/right/up from pitch/yaw. |
-| **`Entity.Translate` / `TranslateEntity(id, dx#, dy#, dz# [, global])`** | World-space delta (optional **`global`** flag matches Blitz overloads). |
-| **`Entity.Scale(id, sx#, sy#, sz#)`** | Non-uniform scale. |
+| **`Entity.SetPosition(id, x, y, z [, global])`** | Set position; optional **`global`** for parented entities. Aliases: **`PositionEntity`**. |
+| **`Entity.RotateEntity(id, pitch, yaw, roll [, global])`** | **Absolute** euler (**radians**). |
+| **`Entity.TurnEntity(id, dpitch, dyaw, droll [, global])`** | **Add** to euler (same as **`Entity.Rotate`**). |
+| **`Entity.Move` / `MoveEntity(id, f, r, u)`** | Move along **local** forward/right/up from pitch/yaw. |
+| **`Entity.Translate` / `TranslateEntity(id, dx, dy, dz [, global])`** | World-space delta (optional **`global`** flag matches Blitz overloads). |
+| **`Entity.Scale(id, sx, sy, sz)`** | Non-uniform scale. |
 
 ### Getters
 
@@ -153,9 +167,9 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 |--------|---------|
 | **`Collisions` / `COLLISIONS(srcType, dstType, method, response)`** | Register **rule-based** pairs (e.g. sphere–box **`method`** **2**); resolved inside **`ENTITY.UPDATE`**. |
 | **`EntityType` / `ENTITY.TYPE`** | Integer **collision type** id for **`COLLISIONS`** **`src`/`dst`** matching. |
-| **`EntityHitsType(entity#, type#)`** → **bool** | **`TRUE`** if **`entity#`** hit any other entity with **`EntityType == type#`** after the last **`ENTITY.UPDATE`**. |
-| **`ENTITYCOLLIDED(entity#, type#)`** → **int** | Same hit test; returns **other entity id** or **0**. |
-| **`EntityCollided(a#, b#)`** → **bool** | **Jolt** pairwise contact (Linux + physics buffer link); **not** the same as **`EntityHitsType`**. |
+| **`EntityHitsType(entity, type)`** → **bool** | **`TRUE`** if **`entity`** hit any other entity with **`EntityType == type`** after the last **`ENTITY.UPDATE`**. |
+| **`ENTITYCOLLIDED(entity, type)`** → **int** | Same hit test; returns **other entity id** or **0**. |
+| **`EntityCollided(a, b)`** → **bool** | **Jolt** pairwise contact (Linux + physics buffer link); **not** the same as **`EntityHitsType`**. |
 | **`Entity.Radius`**, **`Box`**, **`Type`**, **`Collide`** | Blitz-style **type** masks and **`Collide`**: which other types this entity hits. |
 | **`Entity.Collided`**, **`CollisionOther`** | Pairwise **dynamic**–**dynamic** overlap from last **`Update`**. |
 | **`Entity.CollisionX/Y/Z`**, **`CollisionNX/Y/Z`** | Last resolved **contact** point and **normal** (static resolution, sphere/box). |
@@ -176,13 +190,13 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 ### Pointing
 
 | **`Entity.PointEntity(id, targetId)`** | Aim **+Z** toward another entity’s **world** position (yaw; pitch flattened for stability). |
-| **`Entity.AlignToVector(id, vx#, vy#, vz#, axis)`** | Align local **+Z** to a **world** direction (**axis** reserved / simplified). |
+| **`Entity.AlignToVector(id, vx, vy, vz, axis)`** | Align local **+Z** to a **world** direction (**axis** reserved / simplified). |
 
 ### Animation
 
 | Command | Purpose |
 |--------|---------|
-| **`Entity.Animate(id [, mode, speed#])`** | **`speed`** **0** = frozen (use **`SetAnimTime`** only); non-zero = advance in **`Update`**. |
+| **`Entity.Animate(id [, mode, speed])`** | **`speed`** **0** = frozen (use **`SetAnimTime`** only); non-zero = advance in **`Update`**. |
 | **`Entity.SetAnimTime`**, **`AnimTime`**, **`AnimLength`** | Frame index / clip length (Raylib **`ModelAnimation.FrameCount`** when loaded). |
 
 ### Management
@@ -200,7 +214,7 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 | **`KeyHit(key)`** | **`Input.KeyHit`** / **`KeyHit`** / **`GAME.KEYHIT`** — same as **`KeyPressed`**. |
 | **`KeyDown(key)`** | **`Input.KeyDown`** / **`KeyDown`** (unchanged). |
 | **`MouseXSpeed` / `MouseYSpeed`** | **`Input.MouseXSpeed`**, **`Input.MouseYSpeed`**, or top-level **`MouseXSpeed`**, **`MouseYSpeed`** — same as mouse delta **X** / **Y**. |
-| **`JoyX` / `JoyY` / `JoyButton`** | **`Input.JoyX`**, **`Input.JoyY`**, **`Input.JoyButton`**, or **`GAME.***` — default **gamepad 0**, left stick **X**/**Y**; optional args **`(gamepad#)`** or **`(gamepad#, axis#)`** for **JoyX/JoyY**; **`JoyButton(button#)`** or **`(gamepad#, button#)`**. |
+| **`JoyX` / `JoyY` / `JoyButton`** | **`Input.JoyX`**, **`Input.JoyY`**, **`Input.JoyButton`**, or **`GAME.***` — default **gamepad 0**, left stick **X**/**Y**; optional args **`(gamepad)`** or **`(gamepad, axis)`** for **JoyX/JoyY**; **`JoyButton(button)`** or **`(gamepad, button)`**. |
 
 Axis and button indices follow **Raylib** (`GamepadAxis*`, `GamepadButton*`).
 

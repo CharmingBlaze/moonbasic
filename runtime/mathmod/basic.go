@@ -120,7 +120,8 @@ func (m *Module) registerBasic(r runtime.Registrar) {
 		return value.FromFloat(math.Sqrt(dx*dx + dy*dy + dz*dz)), nil
 	})
 
-	r.Register("CURVE", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	curveEase := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
 		if len(args) != 3 {
 			return value.Nil, errNArgs(3, len(args))
 		}
@@ -131,7 +132,9 @@ func (m *Module) registerBasic(r runtime.Registrar) {
 			div = 1
 		}
 		return value.FromFloat(v + (target-v)/div), nil
-	})
+	}
+	r.Register("CURVE", "math", curveEase)
+	r.Register("MATH.CURVE", "math", curveEase)
 
 	r.Register("WRAPANGLE", "math", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {

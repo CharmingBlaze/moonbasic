@@ -43,6 +43,7 @@ func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	m.registerPure(r)
+	m.registerTimeScale(r)
 	m.registerShortcuts(r)
 	m.registerDrawHelpers(r)
 	m.registerWorldCamera(r)

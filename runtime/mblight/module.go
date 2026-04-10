@@ -27,6 +27,9 @@ func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("LIGHT.MAKE", "light", m.lightMake)
+	r.Register("LIGHT.CREATEPOINT", "light", m.lightCreatePoint)
+	r.Register("LIGHT.CREATEDIRECTIONAL", "light", m.lightCreateDirectional)
+	r.Register("LIGHT.CREATESPOT", "light", m.lightCreateSpot)
 	r.Register("LIGHT.FREE", "light", m.lightFree)
 	r.Register("LIGHT.SETDIR", "light", m.lightSetDir)
 	r.Register("LIGHT.SETSHADOW", "light", m.lightSetShadow)
@@ -40,6 +43,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("LIGHT.SETOUTERCONE", "light", m.lightSetOuterCone)
 	r.Register("LIGHT.SETRANGE", "light", m.lightSetRange)
 	r.Register("LIGHT.ENABLE", "light", m.lightEnable)
+	r.Register("LIGHT.SETSTATE", "light", m.lightEnable)
 	r.Register("LIGHT.ISENABLED", "light", m.lightIsEnabled)
 
 	r.Register("CreateLight", "light", m.blitzCreateLight)

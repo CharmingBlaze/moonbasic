@@ -35,8 +35,8 @@ Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a handle.
 ### Spatial / Blitz-style 3D helpers
 
 - **`Listener(cameraHandle)`** / **`AUDIO.LISTENERCAMERA`** — sets the virtual listener from a **`CAMERA.MAKE`** handle (position + horizontal forward). Call **each frame** before **`EmitSound`** so pan and falloff stay correct.
-- **`Load3DSound(path$)`** — same buffers as **`AUDIO.LOADSOUND`**; the “3D” path is for scripts that pair it with **`Listener`** + **`EmitSound`**.
-- **`EmitSound(sound, entity#)`** (registered on **`ENTITY.*`**) — plays once with **quadratic distance falloff** (max distance ≈ 80 world units) and **stereo pan** from the horizontal angle to the source. Restores each sound’s last **`AUDIO.SETSOUNDVOLUME`** / **`AUDIO.SETSOUNDPAN`** after the play call.
+- **`Load3DSound(path)`** — same buffers as **`AUDIO.LOADSOUND`**; the “3D” path is for scripts that pair it with **`Listener`** + **`EmitSound`**.
+- **`EmitSound(sound, entity)`** (registered on **`ENTITY.*`**) — plays once with **quadratic distance falloff** (max distance ≈ 80 world units) and **stereo pan** from the horizontal angle to the source. Restores each sound’s last **`AUDIO.SETSOUNDVOLUME`** / **`AUDIO.SETSOUNDPAN`** after the play call.
 - **`SoundVolume`** / **`SoundPitch`** — aliases of **`AUDIO.SETSOUNDVOLUME`** / **`AUDIO.SETSOUNDPITCH`**.
 
 Raylib does not expose a full OpenAL-style HRTF; this is a lightweight **pan + attenuation** model.

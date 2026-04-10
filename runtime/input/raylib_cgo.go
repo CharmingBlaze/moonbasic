@@ -53,6 +53,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("INPUT.GETKEYNAME", "input", m.inGetKeyName)
 	m.registerBlitzAliases(r)
 	m.registerBlitzMouseKeys(r)
+	m.registerLessMathInput(r)
 	m.registerActionMapping(r)
 }
 

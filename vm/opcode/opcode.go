@@ -100,6 +100,9 @@ const (
 	// Host physics: WASM/Jolt SoA floats are copied into [VM.PhysicsScratch] by the engine (see joltwasm.UpdateVMPhysics).
 	// Operand: number of floats to copy; Dst: first destination register (fills R[Dst..Dst+count-1]).
 	OpSyncPhysics
+
+	// OpArrayLen: Dst = size of first dimension (float); SrcA = array handle register.
+	OpArrayLen
 )
 
 // Instruction is a fixed-width VM decoded unit (8 bytes, IR v3).
@@ -132,7 +135,7 @@ func (op OpCode) String() string {
 		"ARRAY_MAKE", "ARRAY_GET", "ARRAY_SET",
 		"NEW", "DELETE", "FIELD_GET", "FIELD_SET", "HALT",
 		"SWAP", "ARRAY_REDIM", "ARRAY_MAKE_TYPED", "NEW_FILLED", "ERASE_ALL",
-		"SYNC_PHYSICS",
+		"SYNC_PHYSICS", "ARRAY_LEN",
 	}
 	if int(op) < 0 || int(op) >= len(names) {
 		return fmt.Sprintf("OP_%d", int(op))
@@ -149,6 +152,8 @@ type Chunk struct {
 	FloatConsts  []float64
 	Names        []string // Interned uppercase identifiers (variables, functions, fields)
 	SourceLines  []int32  // Parallel to Instructions; used for stack traces
+	// ArrayDebugName is parallel to Instructions: Names index for ARRAY_MAKE/GET/SET ops, or -1.
+	ArrayDebugName []int32
 }
 
 // AddInt interns an integer constant and returns its index.
@@ -195,7 +200,16 @@ func (c *Chunk) Emit(op OpCode, dst, srcA, srcB uint8, operand int32, line int) 
 		Operand: operand,
 	})
 	c.SourceLines = append(c.SourceLines, int32(line))
+	c.ArrayDebugName = append(c.ArrayDebugName, -1)
 	return len(c.Instructions) - 1
+}
+
+// SetLastArrayDebugName sets the Names index for the most recently emitted instruction (array ops).
+func (c *Chunk) SetLastArrayDebugName(nameIdx int32) {
+	if len(c.ArrayDebugName) == 0 {
+		return
+	}
+	c.ArrayDebugName[len(c.ArrayDebugName)-1] = nameIdx
 }
 
 // Disassemble returns a human-readable listing of the chunk for debugging.

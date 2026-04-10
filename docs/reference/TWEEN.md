@@ -14,7 +14,7 @@ Creates an empty tween (default: **one** loop, no yoyo).
 
 ### `Tween.To(tween, varName$, target#, seconds#, easing$)`
 
-Appends a segment that animates the **global** named `varName$` (folded uppercase) from its **current value at segment start** toward `target#` over `seconds` (must be > 0).
+Appends a segment that animates the **global** named `varName` (folded uppercase) from its **current value at segment start** toward `target` over `seconds` (must be > 0).
 
 **Easing** names (case-insensitive; unknown names fall back to linear):
 

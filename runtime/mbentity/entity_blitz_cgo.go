@@ -10,6 +10,7 @@ import (
 	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime/mbmatrix"
+	texmod "moonbasic/runtime/texture"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -26,11 +27,13 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.CREATEPLANE", "entity", runtime.AdaptLegacy(m.entCreatePlane))
 	r.Register("ENTITY.CREATEMESH", "entity", runtime.AdaptLegacy(m.entCreateMesh))
 	r.Register("ENTITY.LOADMESH", "entity", m.entLoadMesh)
+	r.Register("ENTITY.LOAD", "entity", m.entLoadMesh)
 	r.Register("LoadMesh", "entity", m.entLoadMesh)
 	r.Register("ENTITY.LOADANIMATEDMESH", "entity", m.entLoadAnimatedMesh)
 
 	// Blitz names (aliases)
 	r.Register("ENTITY.POSITIONENTITY", "entity", runtime.AdaptLegacy(m.entSetPosition))
+	r.Register("ENTITY.SETROTATION", "entity", runtime.AdaptLegacy(m.entRotateEntityAbs))
 	r.Register("ENTITY.ROTATEENTITY", "entity", runtime.AdaptLegacy(m.entRotateEntityAbs))
 	r.Register("ENTITY.TURNENTITY", "entity", runtime.AdaptLegacy(m.entRotate))
 	r.Register("ENTITY.MOVEENTITY", "entity", runtime.AdaptLegacy(m.entMove))
@@ -55,6 +58,7 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("HIDEENTITY", "entity", runtime.AdaptLegacy(m.entHide))
 	r.Register("SHOWENTITY", "entity", runtime.AdaptLegacy(m.entShow))
 	r.Register("FREEENTITY", "entity", runtime.AdaptLegacy(m.entFree))
+	r.Register("FREEENTITIES", "entity", runtime.AdaptLegacy(m.entFreeEntities))
 	r.Register("ENTITYTEXTURE", "entity", runtime.AdaptLegacy(m.entTexture))
 
 	r.Register("MOVEENTITY", "entity", runtime.AdaptLegacy(m.entMove))
@@ -63,8 +67,10 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 
 	r.Register("ENTITY.PARENT", "entity", runtime.AdaptLegacy(m.entParent))
 	r.Register("ENTITY.PARENTCLEAR", "entity", runtime.AdaptLegacy(m.entParentClear))
+	r.Register("ENTITY.UNPARENT", "entity", runtime.AdaptLegacy(m.entParentClear))
 
 	r.Register("ENTITY.VISIBLE", "entity", runtime.AdaptLegacy(m.entVisible))
+	r.Register("ENTITY.SETVISIBLE", "entity", runtime.AdaptLegacy(m.entVisible))
 	r.Register("EntityVisible", "entity", runtime.AdaptLegacy(m.entVisible))
 	r.Register("ENTITY.COUNTCHILDREN", "entity", runtime.AdaptLegacy(m.entCountChildren))
 	r.Register("ENTITY.GETCHILD", "entity", runtime.AdaptLegacy(m.entGetChild))
@@ -115,6 +121,7 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.PICKMODE", "entity", runtime.AdaptLegacy(m.entPickMode))
 
 	r.Register("ENTITY.POINTENTITY", "entity", runtime.AdaptLegacy(m.entPointEntity))
+	r.Register("ENTITY.LOOKAT", "entity", runtime.AdaptLegacy(m.entLookAtWorld))
 	r.Register("ENTITY.ALIGNTOVECTOR", "entity", runtime.AdaptLegacy(m.entAlignToVector))
 
 	r.Register("ENTITY.ANIMATE", "entity", runtime.AdaptLegacy(m.entAnimate))
@@ -123,6 +130,8 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.ANIMLENGTH", "entity", runtime.AdaptLegacy(m.entAnimLength))
 	r.Register("ENTITY.EXTRACTANIMSEQ", "entity", runtime.AdaptLegacy(m.entExtractAnimSeq))
 	r.Register("ENTITY.SETANIMINDEX", "entity", runtime.AdaptLegacy(m.entSetAnimIndex))
+	r.Register("ENTITY.ANIMCOUNT", "entity", runtime.AdaptLegacy(m.entAnimCount))
+	r.Register("ENTITY.ANIMINDEX", "entity", runtime.AdaptLegacy(m.entAnimIndex))
 	r.Register("ENTITY.FINDBONE", "entity", m.entFindBone)
 
 	r.Register("LoadAnimMesh", "entity", m.entLoadAnimatedMesh)
@@ -159,6 +168,7 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.SHOW", "entity", runtime.AdaptLegacy(m.entShow))
 	r.Register("ENTITY.FREE", "entity", runtime.AdaptLegacy(m.entFree))
 	r.Register("ENTITY.COPY", "entity", runtime.AdaptLegacy(m.entCopy))
+	r.Register("ENTITY.INSTANCEGRID", "entity", runtime.AdaptLegacy(m.entInstanceGrid))
 	r.Register("ENTITY.SETNAME", "entity", m.entSetName)
 	r.Register("ENTITY.FIND", "entity", m.entFind)
 
@@ -176,6 +186,7 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 
 	// Modern Blitz-style scene graph API (aliases)
 	r.Register("DrawEntities", "entity", runtime.AdaptLegacy(m.entDrawAll))
+	r.Register("DrawEntity", "entity", runtime.AdaptLegacy(m.entDraw))
 	// MoveEntity: Blitz local-axis nudge (forward, right, up) — same as MOVEENTITY / ENTITY.MOVEENTITY.
 	// Use ENTITY.TRANSLATEENTITY / TranslateEntity for world-space (dx, dy, dz).
 	r.Register("MoveEntity", "entity", runtime.AdaptLegacy(m.entMove))
@@ -293,8 +304,11 @@ func (m *Module) entScaleEntity(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
+	if len(args) == 1 {
+		return m.entCreateSphere([]value.Value{args[0], value.FromInt(16)})
+	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATESPHERE expects 2 arguments (radius#, segments)")
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPHERE expects 1 argument (radius#) or 2 (radius#, segments)")
 	}
 	rad, ok1 := argF32(args[0])
 	seg, ok2 := args[1].ToInt()
@@ -1080,6 +1094,48 @@ func (m *Module) entPointEntity(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
+func (m *Module) entLookAtWorld(args []value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("ENTITY.LOOKAT expects (entity#, targetX#, targetY#, targetZ#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.LOOKAT: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.LOOKAT: unknown entity")
+	}
+	tx, ok1 := argF32(args[1])
+	ty, ok2 := argF32(args[2])
+	tz, ok3 := argF32(args[3])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("ENTITY.LOOKAT: target must be numeric")
+	}
+	wp := m.worldPos(e)
+	dx := tx - wp.X
+	dy := ty - wp.Y
+	dz := tz - wp.Z
+	mag := float32(math.Sqrt(float64(dx*dx + dy*dy + dz*dz)))
+	if mag < 1e-6 {
+		return value.Nil, nil
+	}
+	dx /= mag
+	dy /= mag
+	dz /= mag
+	e.yaw = float32(math.Atan2(float64(dx), float64(dz)))
+	vy := float64(dy)
+	if vy > 1 {
+		vy = 1
+	}
+	if vy < -1 {
+		vy = -1
+	}
+	e.pitch = float32(math.Asin(vy))
+	e.roll = 0
+	return value.Nil, nil
+}
+
 func (m *Module) entAlignToVector(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
 		return value.Nil, fmt.Errorf("ENTITY.ALIGNTOVECTOR expects (entity#, vx#, vy#, vz#, axis)")
@@ -1270,6 +1326,63 @@ func (m *Module) entCopy(args []value.Value) (value.Value, error) {
 	cp.id = nid
 	st.ents[nid] = &cp
 	return value.FromInt(nid), nil
+}
+
+func (m *Module) entInstanceGrid(args []value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("ENTITY.INSTANCEGRID expects (entity#, countX#, countZ#, spacing#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity")
+	}
+	cx, ok1 := args[1].ToInt()
+	cz, ok2 := args[2].ToInt()
+	sp, ok3 := argF32(args[3])
+	if !ok1 || !ok2 || !ok3 || cx < 1 || cz < 1 || sp < 0 {
+		return value.Nil, fmt.Errorf("ENTITY.INSTANCEGRID: counts must be >= 1 and spacing must be >= 0")
+	}
+	src := m.store().ents[id]
+	if src == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	base := src.pos
+	for z := int64(0); z < cz; z++ {
+		for x := int64(0); x < cx; x++ {
+			px := base.X + float32(x)*sp
+			pz := base.Z + float32(z)*sp
+			if x == 0 && z == 0 {
+				_, err := m.entSetPosition([]value.Value{
+					value.FromInt(id),
+					value.FromFloat(float64(px)),
+					value.FromFloat(float64(base.Y)),
+					value.FromFloat(float64(pz)),
+				})
+				if err != nil {
+					return value.Nil, err
+				}
+				continue
+			}
+			cp, err := m.entCopy([]value.Value{value.FromInt(id)})
+			if err != nil {
+				return value.Nil, err
+			}
+			nid, ok := cp.ToInt()
+			if !ok {
+				return value.Nil, fmt.Errorf("ENTITY.INSTANCEGRID: invalid entity id from COPY")
+			}
+			_, err = m.entSetPosition([]value.Value{
+				value.FromInt(nid),
+				value.FromFloat(float64(px)),
+				value.FromFloat(float64(base.Y)),
+				value.FromFloat(float64(pz)),
+			})
+			if err != nil {
+				return value.Nil, err
+			}
+		}
+	}
+	return value.FromInt(cx * cz), nil
 }
 
 func (m *Module) entSetName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -1491,10 +1604,55 @@ func (m *Module) camOrbitEntity(rt *runtime.Runtime, args ...value.Value) (value
 	return value.Nil, nil
 }
 func (m *Module) entCreateSpriteEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	// (textureHandle, w#, h# [, parent#]) — atlas-capable billboard
+	if len(args) >= 3 && args[0].Kind == value.KindHandle {
+		return m.entCreateSpriteFromTexture(rt, args...)
+	}
 	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE expects (path$) or (path$, parentEntity#)")
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE expects (path$), (path$, parentEntity#), or (textureHandle, w#, h# [, parent#])")
 	}
 	return m.entLoadSprite(rt, args...)
+}
+
+func (m *Module) entCreateSpriteFromTexture(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	n := len(args)
+	if n < 3 || n > 4 {
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE (texture): (texHandle, w#, h# [, parent#])")
+	}
+	th := heap.Handle(args[0].IVal)
+	obj, ok := rt.Heap.Get(th)
+	if !ok {
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE: invalid texture handle")
+	}
+	if _, ok := obj.(*texmod.TextureObject); !ok {
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE: handle must be a TEXTURE object")
+	}
+	w, ok1 := argF32(args[1])
+	h, ok2 := argF32(args[2])
+	if !ok1 || !ok2 || w <= 0 || h <= 0 {
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE: w, h must be positive numbers")
+	}
+	st := m.store()
+	id := st.nextID
+	st.nextID++
+	e := newDefaultEnt(id)
+	e.kind = entKindMesh
+	e.isSprite = true
+	e.spriteMode = 1
+	e.texHandle = th
+	e.scale = rl.Vector3{X: 1, Y: 1, Z: 1}
+	e.w = w
+	e.h = h
+	st.ents[id] = e
+	if n == 4 {
+		pid, okp := m.entID(args[3])
+		if !okp || pid < 1 || st.ents[pid] == nil {
+			return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE: invalid parent entity")
+		}
+		e.parentID = pid
+		childLinkAdd(st, pid, id)
+	}
+	return value.FromInt(id), nil
 }
 
 func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

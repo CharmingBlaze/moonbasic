@@ -24,27 +24,27 @@ Color components `r, g, b, a` are **0–255** unless noted.
 | `Draw.RectGrad` | `x, y, w, h, four corners × rgba` (20 args) |
 | `Draw.Circle` | `cx, cy, radius, r, g, b, a` |
 | `Draw.CircleLines` | same as `Draw.Circle` |
-| `Draw.CircleSector` | `cx, cy, radius#, start#, end#, segments, r, g, b, a` — angles in degrees |
-| `Draw.CircleGradient` | `cx, cy, radius#, inner r,g,b,a, outer r,g,b,a` |
+| `Draw.CircleSector` | `cx, cy, radius, start, end, segments, r, g, b, a` — angles in degrees |
+| `Draw.CircleGradient` | `cx, cy, radius, inner r,g,b,a, outer r,g,b,a` |
 | `Draw.Ellipse` | `cx, cy, rx, ry, r, g, b, a` |
 | `Draw.EllipseLines` | same as `Draw.Ellipse` |
-| `Draw.Ring` | `cx, cy, innerR#, outerR#, start#, end#, segments, r, g, b, a` |
+| `Draw.Ring` | `cx, cy, innerR, outerR, start, end, segments, r, g, b, a` |
 | `Draw.RingLines` | same arity as `Draw.Ring` |
 | `Draw.Triangle` | `x1,y1, x2,y2, x3,y3, r, g, b, a` |
 | `Draw.TriangleLines` | same arity as `Draw.Triangle` |
-| `Draw.Poly` | `cx, cy, sides, radius#, rotation#, r, g, b, a` |
-| `Draw.PolyLines` | `cx, cy, sides, radius#, rotation#, thick, r, g, b, a` |
+| `Draw.Poly` | `cx, cy, sides, radius, rotation, r, g, b, a` |
+| `Draw.PolyLines` | `cx, cy, sides, radius, rotation, thick, r, g, b, a` |
 
 ### UI-style helpers
 
 | Command | Arguments (summary) |
 |---------|---------------------|
-| `Draw.ProgressBar` | `x, y, w, h, t#, r, g, b, a` — **`t`** in **0..1**; gray track + filled bar |
-| `Draw.HealthBar` | `x, y, w, h, current#, max#, r, g, b, a` — fill ratio **`current/max`** |
-| `Draw.CenterText` | `text$, y, size, r, g, b, a` — horizontally centered on the screen |
-| `Draw.RightText` | `text$, marginRight, y, size, r, g, b, a` — right-aligned with **`marginRight`** from the right edge |
-| `Draw.ShadowText` | `text$, x, y, size, r, g, b, a` — offset shadow |
-| `Draw.OutlineText` | `text$, x, y, size, r, g, b, a` — 8-neighbor outline |
+| `Draw.ProgressBar` | `x, y, w, h, t, r, g, b, a` — **`t`** in **0..1**; gray track + filled bar |
+| `Draw.HealthBar` | `x, y, w, h, current, max, r, g, b, a` — fill ratio **`current/max`** |
+| `Draw.CenterText` | `text, y, size, r, g, b, a` — horizontally centered on the screen |
+| `Draw.RightText` | `text, marginRight, y, size, r, g, b, a` — right-aligned with **`marginRight`** from the right edge |
+| `Draw.ShadowText` | `text, x, y, size, r, g, b, a` — offset shadow |
+| `Draw.OutlineText` | `text, x, y, size, r, g, b, a` — 8-neighbor outline |
 | `Draw.Crosshair` | `cx, cy, radius, r, g, b, a` |
 | `Draw.RectGrid` | `x, y, cellW, cellH, cols, rows, line rgba, fill rgba` (14 args) |
 
@@ -55,11 +55,11 @@ Color components `r, g, b, a` are **0–255** unless noted.
 | Command | Arguments |
 |---------|-----------|
 | `Draw.Line` | `x1, y1, x2, y2, r, g, b, a` |
-| `Draw.LineEx` | `x1, y1, x2, y2, thick#, r, g, b, a` |
-| `Draw.LineBezier` | `x1,y1, x2,y2, thick#, r, g, b, a` |
-| `Draw.LineBezierQuad` | `x1,y1, cx,cy, x2,y2, thick#, r, g, b, a` |
-| `Draw.LineBezierCubic` | `x1,y1, c1x,c1y, c2x,c2y, x2,y2, thick#, r, g, b, a` |
-| `Draw.SplineLinear` | `(pointsArray, thick#, r, g, b, a)` |
+| `Draw.LineEx` | `x1, y1, x2, y2, thick, r, g, b, a` |
+| `Draw.LineBezier` | `x1,y1, x2,y2, thick, r, g, b, a` |
+| `Draw.LineBezierQuad` | `x1,y1, cx,cy, x2,y2, thick, r, g, b, a` |
+| `Draw.LineBezierCubic` | `x1,y1, c1x,c1y, c2x,c2y, x2,y2, thick, r, g, b, a` |
+| `Draw.SplineLinear` | `(pointsArray, thick, r, g, b, a)` |
 | `Draw.SplineBasis` | same |
 | `Draw.SplineCatmullRom` | same |
 | `Draw.SplineBezierQuad` | same |
@@ -77,12 +77,12 @@ All texture commands take a **texture handle** from `Texture.Load` / `Texture.Fr
 |---------|---------------------|
 | `Draw.Texture` | `tex, x, y, r, g, b, a` — integer pixel position |
 | `Draw.TextureV` | `tex, x, y, r, g, b, a` — float position |
-| `Draw.TextureEx` | `tex, x, y, rot#, scale#, r, g, b, a` |
-| `Draw.TextureRec` | `tex, srcX#, srcY#, srcW#, srcH#, x, y, r, g, b, a` |
-| `Draw.TexturePro` | `tex, src rect (4 floats), dest rect (4 floats), ox#, oy#, rot#, r, g, b, a` |
+| `Draw.TextureEx` | `tex, x, y, rot, scale, r, g, b, a` |
+| `Draw.TextureRec` | `tex, srcX, srcY, srcW, srcH, x, y, r, g, b, a` |
+| `Draw.TexturePro` | `tex, src rect (4 floats), dest rect (4 floats), ox, oy, rot, r, g, b, a` |
 | `Draw.TextureFull` | `tex` — stretches full texture to the screen |
 | `Draw.TextureFlipped` | `tex` — draws render-target texture flipped (Y) full screen |
-| `Draw.TextureTiled` | `tex, src rect (4 floats), dest rect (4 floats), ox#, oy#, rot#, scale#, r, g, b, a` (17 args). Tiles with `Draw.TexturePro` internally. For **`rot# = 0` and `ox# = oy# = 0`** behavior matches tiled fills; non-zero rotation/origin uses a **single** `Draw.TexturePro` over the destination (not per-tile). |
+| `Draw.TextureTiled` | `tex, src rect (4 floats), dest rect (4 floats), ox, oy, rot, scale, r, g, b, a` (17 args). Tiles with `Draw.TexturePro` internally. For **`rot = 0` and `ox = oy = 0`** behavior matches tiled fills; non-zero rotation/origin uses a **single** `Draw.TexturePro` over the destination (not per-tile). |
 | `Draw.TextureNPatch` | `tex, L, T, R, B, x, y, w, h, r, g, b, a` — border widths then destination rect |
 
 ---
@@ -91,15 +91,19 @@ All texture commands take a **texture handle** from `Texture.Load` / `Texture.Fr
 
 | Command | Arguments |
 |---------|-----------|
-| `Draw.Text` | `text$, x, y, size, r, g, b, a` — default font |
-| `Draw.TextEx` | `font, text$, x#, y#, size#, spacing#, r, g, b, a` |
+| `Draw.Text` | `text, x, y, size, r, g, b, a` — default font |
+| `Draw.TextEx` | `font, text, x, y, size, spacing, r, g, b, a` |
 | `Draw.TextFont` | **Alias of `Draw.TextEx`** (same 10 arguments) |
-| `Draw.TextPro` | `font, text$, x#, y#, ox#, oy#, rot#, size#, spacing#, r, g, b, a` |
-| `Draw.TextWidth` | `text$, size` → width in pixels |
-| `Draw.TextFontWidth` | `font, text$, size#, spacing#` → `[w#, h#]` array |
+| `Draw.TextPro` | `font, text, x, y, ox, oy, rot, size, spacing, r, g, b, a` |
+| `Draw.TextWidth` | `text, size` → width in pixels |
+| `Draw.TextFontWidth` | `font, text, size, spacing` → `[w, h]` array |
 | `MeasureText` | same as `Draw.TextWidth` |
-| `MeasureTextEx` | `font, text$, size#, spacing#` → `[w#, h#]` array |
-| `GetTextCodepointCount` | `text$` → integer |
+| `MeasureTextEx` | `font, text, size, spacing` → `[w, h]` array |
+| `GetTextCodepointCount` | `text` → integer |
+
+### `DEBUG.PRINT(template$, v0 [, v1 …])`
+
+Quick **debug HUD** lines: **`template`** uses placeholders **`{0}`** … **`{9}`**, filled from the following values. Draws with the default font at a fixed top-left column, **stacking downward** each frame; the vertical cursor **resets** when the render **frame** advances (same timing as **`RENDER.FRAME`** / runtime frame counter). For positioned or styled HUD text, use **`Draw.Text`** instead.
 
 ---
 
@@ -110,9 +114,9 @@ All texture commands take a **texture handle** from `Texture.Load` / `Texture.Fr
 | `Draw.Pixel` / `Draw.PixelV` | `x, y, r, g, b, a` (int vs float coordinates) |
 | `Draw.SetPixelColor` | Alias of `Draw.Pixel` |
 | `Draw.GetPixelColor` | `x, y` → **handle** to a 4-element float array `[r, g, b, a]` (0–255) sampled from the screen |
-| `Draw.Dot` | `x, y, size#, r, g, b, a` |
-| `Draw.Arc` | `cx, cy, radius#, start#, end#, thick#, r, g, b, a` |
-| `Draw.Grid2D` | `spacing#, r, g, b, a` — 2D cell grid in screen space |
+| `Draw.Dot` | `x, y, size, r, g, b, a` |
+| `Draw.Arc` | `cx, cy, radius, start, end, thick, r, g, b, a` |
+| `Draw.Grid2D` | `spacing, r, g, b, a` — 2D cell grid in screen space |
 
 ---
 

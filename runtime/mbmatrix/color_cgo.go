@@ -20,6 +20,8 @@ func (m *Module) registerColor(reg runtime.Registrar) {
 	reg.Register("COLOR.RGBA", "color", runtime.AdaptLegacy(m.colorRGBA))
 	reg.Register("COLOR.HEX", "color", m.colorHex)
 	reg.Register("COLOR.HSV", "color", runtime.AdaptLegacy(m.colorHSV))
+	reg.Register("COLOR.FROMHSV", "color", runtime.AdaptLegacy(m.colorHSV))
+	reg.Register("COLOR.CLAMP", "color", runtime.AdaptLegacy(m.colorClamp))
 	reg.Register("COLOR.FREE", "color", runtime.AdaptLegacy(m.colorFree))
 	reg.Register("COLOR.R", "color", runtime.AdaptLegacy(m.colorR))
 	reg.Register("COLOR.G", "color", runtime.AdaptLegacy(m.colorG))
@@ -30,6 +32,7 @@ func (m *Module) registerColor(reg runtime.Registrar) {
 	reg.Register("COLOR.TOHSVX", "color", runtime.AdaptLegacy(m.colorToHSVX))
 	reg.Register("COLOR.TOHSVY", "color", runtime.AdaptLegacy(m.colorToHSVY))
 	reg.Register("COLOR.TOHSVZ", "color", runtime.AdaptLegacy(m.colorToHSVZ))
+	reg.Register("COLOR.TOHSV", "color", runtime.AdaptLegacy(m.colorToHSVTuple))
 	reg.Register("COLOR.TOHEX", "color", m.colorToHex)
 	reg.Register("COLOR.INVERT", "color", runtime.AdaptLegacy(m.colorInvert))
 	reg.Register("COLOR.CONTRAST", "color", runtime.AdaptLegacy(m.colorContrast))
@@ -159,8 +162,25 @@ func (m *Module) colorHSV(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
+	if len(args) == 2 {
+		// COLOR.HSV(index, total) — evenly spaced hues on the wheel (1-based index).
+		idx, ok1 := args[0].ToFloat()
+		total, ok2 := args[1].ToFloat()
+		if !ok1 || !ok2 {
+			return value.Nil, fmt.Errorf("COLOR.HSV: index and total must be numeric")
+		}
+		if total < 1 {
+			return value.Nil, fmt.Errorf("COLOR.HSV: total must be >= 1")
+		}
+		h := (idx - 1) / total * 360
+		if h < 0 {
+			h = 0
+		}
+		c := rl.ColorFromHSV(float32(h), 0.85, 1.0)
+		return m.allocColor(c)
+	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("COLOR.HSV expects 3 arguments (h, s, v) — hue 0..360, s and v 0..1")
+		return value.Nil, fmt.Errorf("COLOR.HSV expects 2 arguments (index, total) or 3 arguments (h, s, v)")
 	}
 	h, ok1 := argF(args[0])
 	s, ok2 := argF(args[1])
@@ -168,8 +188,39 @@ func (m *Module) colorHSV(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("COLOR.HSV: components must be numeric")
 	}
-	c := rl.ColorFromHSV(h, s, v)
+	// Accept normalized hue 0..1 as a convenience form for procedural palettes.
+	if h >= 0 && h <= 1 {
+		h *= 360
+	}
+	c := rl.ColorFromHSV(float32(h), float32(s), float32(v))
 	return m.allocColor(c)
+}
+
+func (m *Module) colorClamp(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("COLOR.CLAMP expects 3 arguments (r, g, b)")
+	}
+	r, ok1 := argU8(args[0])
+	g, ok2 := argU8(args[1])
+	b, ok3 := argU8(args[2])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("COLOR.CLAMP: components must be numeric")
+	}
+	arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(r)
+	arr.Floats[1] = float64(g)
+	arr.Floats[2] = float64(b)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) colorFree(args []value.Value) (value.Value, error) {
@@ -279,6 +330,33 @@ func (m *Module) colorToHSVY(args []value.Value) (value.Value, error) {
 
 func (m *Module) colorToHSVZ(args []value.Value) (value.Value, error) {
 	return m.colorToHSVComponent(args, 2, "COLOR.TOHSVZ")
+}
+
+// colorToHSVTuple returns (h, s, v) as Raylib ColorToHSV — same components as TOHSVX/Y/Z in one tuple.
+func (m *Module) colorToHSVTuple(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("COLOR.TOHSV expects color handle")
+	}
+	c, err := m.colorFromArgs(args, 0, "COLOR.TOHSV")
+	if err != nil {
+		return value.Nil, err
+	}
+	v := rl.ColorToHSV(c)
+	arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(v.X)
+	arr.Floats[1] = float64(v.Y)
+	arr.Floats[2] = float64(v.Z)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) colorToHSVComponent(args []value.Value, axis int, op string) (value.Value, error) {

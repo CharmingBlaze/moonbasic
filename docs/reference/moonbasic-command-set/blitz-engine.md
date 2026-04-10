@@ -4,7 +4,7 @@ The **`blitzengine`** runtime module registers **uppercase flat globals** (`APPT
 
 **Reserved words:** `END` is a keyword — use **`FINISH`** to terminate the program (same as **`ENDGAME`**).
 
-**Breaking change:** **`WRITEFILE`** from this facade maps to **`FILE.WRITEALLTEXT`** `(path$, text$)` (whole-file write). Streaming write to an open handle remains **`FILE.WRITE`** / legacy patterns.
+**Breaking change:** **`WRITEFILE`** from this facade maps to **`FILE.WRITEALLTEXT`** `(path, text)` (whole-file write). Streaming write to an open handle remains **`FILE.WRITE`** / legacy patterns.
 
 ---
 
@@ -13,9 +13,9 @@ The **`blitzengine`** runtime module registers **uppercase flat globals** (`APPT
 | Area | Flat commands |
 |------|----------------|
 | Program | `APPTITLE`, `SETFPS`, `DELTATIME`, `TIMEMS`, `FINISH` (`SLEEP` stays core `SLEEP`) |
-| Display | `GRAPHICS`, `GRAPHICS3D`, `SETVSYNC`, `SETCLEARCOLOR`, `CLEAR`, `FLIP` |
+| Display | `GRAPHICS`, `GRAPHICS3D`, `SETVSYNC`, `SETCLEARCOLOR`, `CLEAR` — end each frame with **`RENDER.FRAME`** (Blitz **Flip** is not a separate flat command). |
 | 2D | `SETCOLOR`, `SETALPHA`, `SETORIGIN`, `SETVIEWPORT`, `PLOT`, `LINE`, `RECT`, `OVAL`, `TEXT` |
-| World | `CREATEWORLD`, `UPDATEWORLD`, `RENDERWORLD`, `CLEARWORLD`, `SETAMBIENT`, `SETFOG`, `SETWIREFRAME` |
+| World | `CREATEWORLD`, `CLEARWORLD`, `SETAMBIENT`, `SETFOG`, `SETWIREFRAME` — use **`ENTITY.UPDATE(dt)`** + **`CAMERA.Begin`/`End`** + **`ENTITY.DRAWALL`** instead of Blitz **UpdateWorld** / **RenderWorld** ([BLITZ3D.md](../BLITZ3D.md)). |
 | Camera | `CREATECAMERA`, `POSITIONCAMERA`, `ROTATECAMERA`, `MOVECAMERA`, `CAMERARANGE`, `CAMERAZOOM`, `CAMERAVIEWPORT`, `CAMERAPROJECT`, `CAMERAPICK` |
 | Lights | `CREATELIGHT`, `LIGHTCOLOR`, `LIGHTRANGE`, `LIGHTCONE`, `LIGHTPOSITION`, `LIGHTPOINTAT` |
 | Entities | `CREATECUBE`, `CREATESPHERE`, `CREATEPLANE`, `CREATEMESH`, `COPYENTITY`, `FREEENTITY`, transforms/getters/state — see [`entities.md`](entities.md) |

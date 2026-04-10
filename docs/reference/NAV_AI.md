@@ -65,12 +65,12 @@ Create with `NavAgent.Make(nav)` — ties the agent to that **`nav`** handle.
 
 | Command | Role |
 |--------|------|
-| `NavAgent.SetPos(agent, x#, y#, z#)` | Teleport position. |
-| `NavAgent.SetSpeed(agent, speed#)` | Max speed (≥ 0). |
-| `NavAgent.SetMaxForce(agent, maxForce#)` | Caps acceleration from `APPLYFORCE`. |
-| `NavAgent.ApplyForce(agent, fx#, fy#, fz#)` | Adds to velocity, then clamps speed. |
-| `NavAgent.MoveTo(agent, tx#, ty#, tz#)` | Plans a path with `NAV.FINDPATH`; on success stores waypoints and clears velocity. |
-| `NavAgent.Update(agent, dt#)` | Advances along waypoints at `speed`, or integrates velocity with damping when no path. |
+| `NavAgent.SetPos(agent, x, y, z)` | Teleport position. |
+| `NavAgent.SetSpeed(agent, speed)` | Max speed (≥ 0). |
+| `NavAgent.SetMaxForce(agent, maxForce)` | Caps acceleration from `APPLYFORCE`. |
+| `NavAgent.ApplyForce(agent, fx, fy, fz)` | Adds to velocity, then clamps speed. |
+| `NavAgent.MoveTo(agent, tx, ty, tz)` | Plans a path with `NAV.FINDPATH`; on success stores waypoints and clears velocity. |
+| `NavAgent.Update(agent, dt)` | Advances along waypoints at `speed`, or integrates velocity with damping when no path. |
 | `NavAgent.IsAtDestination(agent)` → bool | `TRUE` when there is no active `MoveTo` destination. |
 | `NavAgent.X` / `.Y` / `.Z` | Current position. |
 | `NavAgent.Free(agent)` | Frees the agent. |
@@ -83,12 +83,12 @@ Steering helpers return **`VEC3`-style handles** (three floats) meant to be comb
 
 | Command | Arguments | Result |
 |--------|-----------|--------|
-| `Steer.Seek` | `(agent, tx#, ty#, tz#)` | Vector toward target. |
-| `Steer.Flee` | `(agent, tx#, ty#, tz#)` | Vector away from target. |
-| `Steer.Arrive` | `(agent, tx#, ty#, tz#, slowingRadius#)` | Seek with speed ramp inside radius. |
-| `Steer.Wander` | `(agent, speed#, jitterRadius#)` | Pseudo-random direction from agent id. |
-| `Steer.Flock` | `(selfAgent, group, cohesion#, separation#, alignment#)` | Blended boids-style force. |
-| `Steer.AvoidObstacles` | `(agent, radius#)` | Repulsion from **blocked** nav cells near the agent. |
+| `Steer.Seek` | `(agent, tx, ty, tz)` | Vector toward target. |
+| `Steer.Flee` | `(agent, tx, ty, tz)` | Vector away from target. |
+| `Steer.Arrive` | `(agent, tx, ty, tz, slowingRadius)` | Seek with speed ramp inside radius. |
+| `Steer.Wander` | `(agent, speed, jitterRadius)` | Pseudo-random direction from agent id. |
+| `Steer.Flock` | `(selfAgent, group, cohesion, separation, alignment)` | Blended boids-style force. |
+| `Steer.AvoidObstacles` | `(agent, radius)` | Repulsion from **blocked** nav cells near the agent. |
 | `Steer.FollowPath` | `(agent, path)` | Seeks the nearest waypoint on the path. |
 
 `Steer.GroupClear(group)` empties the group.

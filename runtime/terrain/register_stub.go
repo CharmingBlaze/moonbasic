@@ -27,10 +27,18 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("TERRAIN.RAISE", "terrain", hint("TERRAIN.RAISE"))
 	r.Register("TERRAIN.LOWER", "terrain", hint("TERRAIN.LOWER"))
 	r.Register("TERRAIN.DRAW", "terrain", hint("TERRAIN.DRAW"))
+	r.Register("TERRAIN.PLACE", "terrain", hint("TERRAIN.PLACE"))
+	r.Register("TERRAIN.SNAPY", "terrain", hint("TERRAIN.SNAPY"))
 	r.Register("CHUNK.GENERATE", "chunk", hint("CHUNK.GENERATE"))
 	r.Register("CHUNK.COUNT", "chunk", hint("CHUNK.COUNT"))
 	r.Register("CHUNK.SETRANGE", "chunk", hint("CHUNK.SETRANGE"))
 	r.Register("CHUNK.ISLOADED", "chunk", hint("CHUNK.ISLOADED"))
+	r.Register("TERRAIN.LOAD", "terrain", hint("TERRAIN.LOAD"))
+	r.Register("TERRAIN.GETNORMAL", "terrain", hint("TERRAIN.GETNORMAL"))
+	r.Register("TERRAIN.SETSCALE", "terrain", hint("TERRAIN.SETSCALE"))
+	r.Register("TERRAIN.GETSPLAT", "terrain", hint("TERRAIN.GETSPLAT"))
+	r.Register("TERRAIN.RAYCAST", "terrain", hint("TERRAIN.RAYCAST"))
+	r.Register("TERRAIN.SETDETAIL", "terrain", hint("TERRAIN.SETDETAIL"))
 }
 
 // TickStreaming is a no-op without CGO.

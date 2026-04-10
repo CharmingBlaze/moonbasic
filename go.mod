@@ -6,7 +6,7 @@ require (
 	github.com/ByteArena/box2d v1.0.2
 	github.com/bbitechnologies/jolt-go v0.8.4
 	github.com/codecat/go-enet v0.0.0-20250728072647-ae229138f138
-	github.com/fsnotify/fsnotify v1.8.0
+	github.com/fsnotify/fsnotify v1.9.0
 	// raylib-go: upstream tags raylib/v0.55.x align with Raylib C 5.5; this repo uses a newer raylib-go + raygui revision for the binding API (GUI.*, etc.). See docs/BUILDING.md.
 	github.com/gen2brain/raylib-go/raygui v0.0.0-20260309161816-4c350487f71d
 	github.com/gen2brain/raylib-go/raylib v0.56.0-dev.0.20260309161816-4c350487f71d
@@ -29,6 +29,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
+	github.com/qmuntal/gltf v0.28.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect

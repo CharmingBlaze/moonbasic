@@ -176,6 +176,72 @@ func pickScreenCast(m *Module, args []value.Value) (value.Value, error) {
 	return pickCast(m, nil)
 }
 
+// RaycastDownNormal casts a short ray along -Y and returns the hit surface normal (Jolt CastRay), or ok=false.
+func RaycastDownNormal(ox, oy, oz, maxDown float64) (nx, ny, nz float64, ok bool) {
+	joltMu.Lock()
+	ps := joltSys
+	joltMu.Unlock()
+	if ps == nil || maxDown <= 1e-9 {
+		return 0, 1, 0, false
+	}
+	origin := jolt.Vec3{X: float32(ox), Y: float32(oy), Z: float32(oz)}
+	dir := jolt.Vec3{X: 0, Y: float32(-maxDown), Z: 0}
+	hit, hitOK := ps.CastRay(origin, dir)
+	if !hitOK {
+		return 0, 1, 0, false
+	}
+	return float64(hit.Normal.X), float64(hit.Normal.Y), float64(hit.Normal.Z), true
+}
+
+// PickCastEntityID casts a ray in the Jolt world and returns the first entity id (via body→entity mapping), or 0.
+// ox,oy,oz is origin; (dx,dy,dz) is a direction; maxDist scales the normalized direction (same rules as PICK with MAXDIST).
+func PickCastEntityID(ox, oy, oz, dx, dy, dz, maxDist float64) int64 {
+	joltMu.Lock()
+	ps := joltSys
+	joltMu.Unlock()
+	if ps == nil {
+		return 0
+	}
+	lensq := dx*dx + dy*dy + dz*dz
+	if lensq < 1e-30 {
+		return 0
+	}
+	var jdir jolt.Vec3
+	if maxDist > 0 {
+		inv := 1.0 / math.Sqrt(lensq)
+		jdir = jolt.Vec3{
+			X: float32(dx * inv * maxDist),
+			Y: float32(dy * inv * maxDist),
+			Z: float32(dz * inv * maxDist),
+		}
+	} else {
+		jdir = jolt.Vec3{X: float32(dx), Y: float32(dy), Z: float32(dz)}
+	}
+	origin := jolt.Vec3{X: float32(ox), Y: float32(oy), Z: float32(oz)}
+	hits := ps.CastRayGetHits(origin, jdir, 64)
+	mask := uint32(0)
+	pickMu.Lock()
+	defer pickMu.Unlock()
+	for _, hit := range hits {
+		if hit.BodyID == nil {
+			continue
+		}
+		bh, ok := joltLookupHandle(hit.BodyID)
+		if !ok {
+			continue
+		}
+		eid, ok := EntityIDForBodyHandle(bh)
+		if !ok || eid < 1 {
+			continue
+		}
+		if !pickLayerAllowedLocked(eid, mask) {
+			continue
+		}
+		return eid
+	}
+	return 0
+}
+
 func pickCast(m *Module, args []value.Value) (value.Value, error) {
 	if args != nil && len(args) != 0 {
 		return value.Nil, fmt.Errorf("PICK.CAST expects 0 arguments")

@@ -104,6 +104,11 @@ func (a *Analyzer) checkProgram(prog *ast.Program) error {
 			}
 			seen[f] = true
 		}
+		for i := range t.Fields {
+			if i < len(t.FieldIsArray) && t.FieldIsArray[i] {
+				return a.typeError(t.Line, t.Col, fmt.Sprintf("field %s: array-typed fields inside TYPE are not implemented yet", t.Fields[i]), "Use scalar fields only for now, or store a handle in a single field.")
+			}
+		}
 	}
 
 	a.currentFunc = "<MAIN>"
@@ -172,6 +177,14 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			return err
 		}
 		a.assign(n.Name)
+		return nil
+	case *ast.MultiAssignNode:
+		if err := a.checkExprCalls(n.Expr); err != nil {
+			return err
+		}
+		for _, nm := range n.Names {
+			a.assign(nm)
+		}
 		return nil
 	case *ast.IndexAssignNode:
 		if !a.isAssigned(n.Array) {

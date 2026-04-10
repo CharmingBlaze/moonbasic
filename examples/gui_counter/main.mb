@@ -1,0 +1,45 @@
+; raygui counter with Inter (variable TTF, SIL Open Font License).
+; Font file: examples/gui_counter/fonts/InterVariable.ttf (upstream: github.com/rsms/inter)
+; Run from repo root: CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/gui_counter/main.mb
+
+WINDOW.OPEN(800, 520, "GUI counter")
+WINDOW.SETFPS(60)
+GUI.ENABLE()
+GUI.THEMEAPPLY("DARK")
+
+uiFont = FONT.LOAD("examples/gui_counter/fonts/InterVariable.ttf")
+IF uiFont = 0 THEN
+    PRINT("FONT.LOAD failed: run from repo root so fonts/ path resolves")
+    WINDOW.CLOSE()
+    SYSTEM.EXIT()
+ENDIF
+GUI.SETFONT(uiFont)
+GUI.SETTEXTSIZE(20)
+GUI.SETTEXTSPACING(1)
+
+count = 0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(28, 30, 38)
+
+    IF GUI.WINDOWBOX(56, 48, 688, 360, "Counter") THEN
+        count = 0
+    ENDIF
+
+    GUI.LABEL(72, 96, 640, 36, "GUI.BUTTON demo — click +1 or Reset")
+
+    IF GUI.BUTTON(72, 144, 168, 44, "+1") THEN
+        count = count + 1
+    ENDIF
+    IF GUI.BUTTON(256, 144, 168, 44, "Reset") THEN
+        count = 0
+    ENDIF
+
+    GUI.LABEL(72, 212, 640, 40, "Count = " + STR$(count))
+
+    GUI.LABEL(24, 472, 752, 32, "ESC to quit")
+    RENDER.FRAME()
+WEND
+
+FONT.FREE(uiFont)
+WINDOW.CLOSE()

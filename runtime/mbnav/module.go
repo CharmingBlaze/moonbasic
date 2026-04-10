@@ -18,10 +18,25 @@ type Module struct {
 	h      *heap.Store
 	ent    *mbentity.Module
 	invoke func(string, []value.Value) (value.Value, error)
+
+	// terrainNav maps a baked terrain heap handle to its NAV grid handle (see NAV.BAKE).
+	terrainNav map[heap.Handle]heap.Handle
+	// enemyFollow tracks waypoint indices for ENEMY.FOLLOWPATH(entity#, path#, speed#).
+	enemyFollow map[int64]enemyFollowState
+}
+
+type enemyFollowState struct {
+	pathH heap.Handle
+	idx   int
 }
 
 // NewModule creates the module.
-func NewModule() *Module { return &Module{} }
+func NewModule() *Module {
+	return &Module{
+		terrainNav:  make(map[heap.Handle]heap.Handle),
+		enemyFollow: make(map[int64]enemyFollowState),
+	}
+}
 
 // BindHeap implements runtime.HeapAware.
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }

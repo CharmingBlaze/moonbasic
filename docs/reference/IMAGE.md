@@ -62,7 +62,7 @@ Loads **PNG, JPG, BMP, TGA, GIF, HDR**, etc. from disk (Raylib). File is read an
 
 | Name | Type | Description |
 |---|---|---|
-| path$ | string | File path. |
+| path | string | File path. |
 
 **Returns** — handle.
 
@@ -162,7 +162,7 @@ Use separate channel queries (no array value in core **`IMAGE.*`**):
 | `IMAGE.DRAWLINE` | Line |
 | `IMAGE.DRAWCIRCLE` | Filled circle |
 | `IMAGE.DRAWRECTLINES` | Rectangle outline (`float` geometry + thickness) |
-| `IMAGE.DRAWTEXT` | Default font text: `(h, x, y, text$, fontSize, r, g, b, a)` |
+| `IMAGE.DRAWTEXT` | Default font text: `(h, x, y, text, fontSize, r, g, b, a)` |
 | `IMAGE.DRAWIMAGE` | Blit: source rect → dest rect + tint |
 
 ---
@@ -211,7 +211,7 @@ All **mutate** in place.
 
 | Command | Returns |
 |---|---|
-| `IMAGE.GETBBOXX`, `GETBBOXY`, `GETBBOXW`, `GETBBOXH` | `(h, alphaThreshold#)` → int |
+| `IMAGE.GETBBOXX`, `GETBBOXY`, `GETBBOXW`, `GETBBOXH` | `(h, alphaThreshold)` → int |
 
 ---
 

@@ -21,9 +21,11 @@ func (m *Module) Register(reg runtime.Registrar) {
 	}
 	for _, n := range []string{
 		"NAV.MAKE", "NAV.FREE", "NAV.SETGRID", "NAV.ADDTERRAIN", "NAV.ADDOBSTACLE", "NAV.BUILD", "NAV.FINDPATH",
+		"NAV.BAKE", "NAV.GETPATH", "NAV.ISREACHABLE",
 	} {
 		reg.Register(n, "nav", stub(n))
 	}
+	reg.Register("ENEMY.FOLLOWPATH", "enemy", stub("ENEMY.FOLLOWPATH"))
 	for _, n := range []string{
 		"PATH.ISVALID", "PATH.NODECOUNT", "PATH.NODEX", "PATH.NODEY", "PATH.NODEZ", "PATH.FREE",
 	} {

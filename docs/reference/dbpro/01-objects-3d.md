@@ -8,8 +8,8 @@ See [README.md](README.md) for legend. Deeper Blitz-style entity naming also app
 
 | DBPro | moonBASIC | Notes |
 |-------|-----------|--------|
-| **MAKE OBJECT (obj, file$)** | ≈ **`MODEL.LOAD`** / **`ENTITY.LOADMESH`** / **`ENTITY.CREATE*`** | DBPro reused integer slots; moon uses **handles** + **entity ids** depending on path. [MODEL.md](../MODEL.md), [ENTITY.md](../ENTITY.md). |
-| **LOAD OBJECT (file$, obj)** | ≈ **`MODEL.LOAD`**, **`ENTITY.LOADMESH`** | Order of args differs. |
+| **MAKE OBJECT (obj, file)** | ≈ **`MODEL.LOAD`** / **`ENTITY.LOADMESH`** / **`ENTITY.CREATE*`** | DBPro reused integer slots; moon uses **handles** + **entity ids** depending on path. [MODEL.md](../MODEL.md), [ENTITY.md](../ENTITY.md). |
+| **LOAD OBJECT (file, obj)** | ≈ **`MODEL.LOAD`**, **`ENTITY.LOADMESH`** | Order of args differs. |
 | **DELETE OBJECT (obj)** | ≈ **`ENTITY.FREE`**, **`MODEL` unload patterns** | What to call depends on whether you used **entity** or **model** handle. |
 | **CLONE OBJECT** / **INSTANCE OBJECT** / **COPY OBJECT** | ≈ **`ENTITY.COPY`**, **`MODEL`** parenting / duplicate workflows | No single “instance” keyword; see manifest. |
 | **HIDE OBJECT** / **SHOW OBJECT** | ≈ **`ENTITY.HIDE`** / **`SHOW`**, **`MODEL.HIDE`** / **`SHOW`** | |
@@ -21,12 +21,12 @@ See [README.md](README.md) for legend. Deeper Blitz-style entity naming also app
 
 | DBPro | moonBASIC | Notes |
 |-------|-----------|--------|
-| **POSITION OBJECT (obj, x#, y#, z#)** | ✓ **`ENTITY.POSITIONENTITY`**, **`ENTITY.SETPOSITION`**, **`MODEL.SETPOS`** / transforms | |
+| **POSITION OBJECT (obj, x, y, z)** | ✓ **`ENTITY.POSITIONENTITY`**, **`ENTITY.SETPOSITION`**, **`MODEL.SETPOS`** / transforms | |
 | **ROTATE OBJECT** | ✓ **`ENTITY.ROTATEENTITY`**, **`MODEL.SETROT`**, **`MODEL.ROTATE`** | Radians vs degrees: check each command. |
-| **MOVE OBJECT (obj, distance#)** | ≈ **`ENTITY.MOVE`**, **`MODEL.MOVE`** | Axis semantics differ from DBPro “forward”. |
+| **MOVE OBJECT (obj, distance)** | ≈ **`ENTITY.MOVE`**, **`MODEL.MOVE`** | Axis semantics differ from DBPro “forward”. |
 | **TURN OBJECT LEFT/RIGHT/UP/DOWN** | ≈ **`ENTITY.TURNENTITY`**, **`MODEL.ROTATE`** | Incremental rotation. |
-| **SCALE OBJECT (obj, sx#, sy#, sz#)** | ✓ **`ENTITY.SCALE`**, **`MODEL.SETSCALE`** | |
-| **POINT OBJECT (obj, x#, y#, z#)** | ✓ **`ENTITY.POINTENTITY`** | |
+| **SCALE OBJECT (obj, sx, sy, sz)** | ✓ **`ENTITY.SCALE`**, **`MODEL.SETSCALE`** | |
+| **POINT OBJECT (obj, x, y, z)** | ✓ **`ENTITY.POINTENTITY`** | |
 
 ---
 

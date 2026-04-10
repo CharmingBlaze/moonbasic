@@ -4,6 +4,7 @@ package mbmatrix
 
 import (
 	"fmt"
+	"math"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
@@ -29,6 +30,8 @@ func (m *Module) registerVec3(reg runtime.Registrar) {
 	reg.Register("VEC3.NORMALIZE", "vec3", runtime.AdaptLegacy(m.vec3Normalize))
 	reg.Register("VEC3.LERP", "vec3", runtime.AdaptLegacy(m.vec3Lerp))
 	reg.Register("VEC3.DISTANCE", "vec3", runtime.AdaptLegacy(m.vec3Distance))
+	reg.Register("VEC3.DIST", "vec3", runtime.AdaptLegacy(m.vec3Dist))
+	reg.Register("VEC3.DISTSQ", "vec3", runtime.AdaptLegacy(m.vec3DistSq))
 	reg.Register("VEC3.REFLECT", "vec3", runtime.AdaptLegacy(m.vec3Reflect))
 	reg.Register("VEC3.NEGATE", "vec3", runtime.AdaptLegacy(m.vec3Negate))
 	reg.Register("VEC3.EQUALS", "vec3", runtime.AdaptLegacy(m.vec3Equals))
@@ -252,11 +255,20 @@ func (m *Module) vec3Cross(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) vec3Length(args []value.Value) (value.Value, error) {
+	if len(args) == 3 {
+		x, ok1 := argF(args[0])
+		y, ok2 := argF(args[1])
+		z, ok3 := argF(args[2])
+		if !ok1 || !ok2 || !ok3 {
+			return value.Nil, fmt.Errorf("VEC3.LENGTH: components must be numeric")
+		}
+		return value.FromFloat(math.Sqrt(float64(x*x + y*y + z*z))), nil
+	}
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("VEC3.LENGTH expects vec3 handle")
+		return value.Nil, fmt.Errorf("VEC3.LENGTH expects vec3 handle or (x, y, z)")
 	}
 	v, err := m.vec3FromArgs(args, 0, "VEC3.LENGTH")
 	if err != nil {
@@ -266,17 +278,50 @@ func (m *Module) vec3Length(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) vec3Normalize(args []value.Value) (value.Value, error) {
+	if len(args) == 3 {
+		x, ok1 := argF(args[0])
+		y, ok2 := argF(args[1])
+		z, ok3 := argF(args[2])
+		if !ok1 || !ok2 || !ok3 {
+			return value.Nil, fmt.Errorf("VEC3.NORMALIZE: components must be numeric")
+		}
+		mag := float32(math.Sqrt(float64(x*x + y*y + z*z)))
+		if mag > 0 {
+			x /= mag
+			y /= mag
+			z /= mag
+		}
+		return m.allocTuple3(x, y, z)
+	}
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("VEC3.NORMALIZE expects vec3 handle")
+		return value.Nil, fmt.Errorf("VEC3.NORMALIZE expects vec3 handle or (x, y, z)")
 	}
 	v, err := m.vec3FromArgs(args, 0, "VEC3.NORMALIZE")
 	if err != nil {
 		return value.Nil, err
 	}
 	return m.allocVec3(rl.Vector3Normalize(v))
+}
+
+func (m *Module) allocTuple3(x, y, z float32) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(x)
+	arr.Floats[1] = float64(y)
+	arr.Floats[2] = float64(z)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) vec3Lerp(args []value.Value) (value.Value, error) {
@@ -299,6 +344,44 @@ func (m *Module) vec3Lerp(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("VEC3.LERP: t must be numeric")
 	}
 	return m.allocVec3(rl.Vector3Lerp(a, b, t))
+}
+
+func (m *Module) vec3Dist(args []value.Value) (value.Value, error) {
+	if len(args) == 6 {
+		x1, ok1 := argF(args[0])
+		y1, ok2 := argF(args[1])
+		z1, ok3 := argF(args[2])
+		x2, ok4 := argF(args[3])
+		y2, ok5 := argF(args[4])
+		z2, ok6 := argF(args[5])
+		if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 {
+			return value.Nil, fmt.Errorf("VEC3.DIST: components must be numeric")
+		}
+		dx := float64(x2 - x1)
+		dy := float64(y2 - y1)
+		dz := float64(z2 - z1)
+		return value.FromFloat(math.Sqrt(dx*dx + dy*dy + dz*dz)), nil
+	}
+	return m.vec3Distance(args)
+}
+
+func (m *Module) vec3DistSq(args []value.Value) (value.Value, error) {
+	if len(args) != 6 {
+		return value.Nil, fmt.Errorf("VEC3.DISTSQ expects (x1, y1, z1, x2, y2, z2)")
+	}
+	x1, ok1 := argF(args[0])
+	y1, ok2 := argF(args[1])
+	z1, ok3 := argF(args[2])
+	x2, ok4 := argF(args[3])
+	y2, ok5 := argF(args[4])
+	z2, ok6 := argF(args[5])
+	if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 {
+		return value.Nil, fmt.Errorf("VEC3.DISTSQ: components must be numeric")
+	}
+	dx := float64(x2 - x1)
+	dy := float64(y2 - y1)
+	dz := float64(z2 - z1)
+	return value.FromFloat(dx*dx + dy*dy + dz*dz), nil
 }
 
 func (m *Module) vec3Distance(args []value.Value) (value.Value, error) {

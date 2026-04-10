@@ -97,6 +97,46 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 		return arena.Make(p.ar, ast.CallStmtNode{Name: name, Args: nil, Line: line, Col: col}), nil
 	}
 	p.skipNewlines()
+	// a, b, c = expr  (destructuring assignment)
+	if p.cur().Type == token.COMMA {
+		names := []string{name}
+		for p.cur().Type == token.COMMA {
+			p.advance()
+			nm, err := p.expectIdent()
+			if err != nil {
+				return nil, err
+			}
+			names = append(names, nm)
+		}
+		if p.cur().Type != token.EQ {
+			return nil, p.failf("expected '=' after destructuring targets")
+		}
+		p.advance()
+		e, err := p.parseExpr()
+		if err != nil {
+			return nil, err
+		}
+		for _, nm := range names {
+			p.defineAssignedName(nm)
+		}
+		return arena.Make(p.ar, ast.MultiAssignNode{Names: names, Expr: e, Line: line, Col: col}), nil
+	}
+	// name AS type(dim...) — typed array declaration without DIM
+	if p.cur().Type == token.AS {
+		p.advance()
+		typeName, err := p.expectIdent()
+		if err != nil {
+			return nil, err
+		}
+		args, err := p.parseArgList()
+		if err != nil {
+			return nil, err
+		}
+		p.defineAssignedName(name)
+		return arena.Make(p.ar, ast.DimNode{
+			Name: name, TypeName: typeName, Dims: args, Line: line, Col: col,
+		}), nil
+	}
 	if p.cur().Type == token.DOT {
 		p.advance()
 		field, err := p.expectIdent()
@@ -133,6 +173,24 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 			return nil, err
 		}
 		p.skipNewlines()
+		// arr(idx...).field = expr
+		if p.cur().Type == token.DOT {
+			p.advance()
+			field, err2 := p.expectIdent()
+			if err2 != nil {
+				return nil, err2
+			}
+			p.skipNewlines()
+			if p.cur().Type != token.EQ {
+				return nil, p.failf("expected '=' after %s(...).%s", name, field)
+			}
+			p.advance()
+			rhs, err3 := p.parseExpr()
+			if err3 != nil {
+				return nil, err3
+			}
+			return arena.Make(p.ar, ast.IndexFieldAssignNode{Array: name, Index: args, Field: field, Expr: rhs, Line: line, Col: col}), nil
+		}
 		if p.cur().Type == token.EQ || p.cur().Type == token.PLUSEQ || p.cur().Type == token.MINUSEQ || p.cur().Type == token.STAREQ || p.cur().Type == token.SLASHEQ {
 			// It is an assignment to an array or object method result (if we allowed that, but we don't yet).
 			// We treat it as an IndexAssignNode and let the Analyzer flag if 'name' isn't an array.
@@ -402,14 +460,14 @@ func (p *Parser) parseDim() (ast.Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	elemType := ""
+	typeName := ""
 	if !isRedim && p.cur().Type == token.AS {
 		p.advance()
 		tn, err2 := p.expectIdent()
 		if err2 != nil {
 			return nil, err2
 		}
-		elemType = tn
+		typeName = tn
 	}
 	args, err := p.parseArgList()
 	if err != nil {
@@ -417,7 +475,7 @@ func (p *Parser) parseDim() (ast.Stmt, error) {
 	}
 	p.defineAssignedName(name)
 	return arena.Make(p.ar, ast.DimNode{
-		Name: name, ElemType: elemType, Dims: args, Line: line, Col: col,
+		Name: name, TypeName: typeName, Dims: args, Line: line, Col: col,
 		IsRedim: isRedim, Preserve: preserve,
 	}), nil
 }

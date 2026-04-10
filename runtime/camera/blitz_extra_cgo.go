@@ -13,6 +13,8 @@ func registerBlitzCameraExtras(m *Module, r runtime.Registrar) {
 	r.Register("CameraRange", "camera", runtime.AdaptLegacy(m.camSetRange))
 	r.Register("CameraZoom", "camera", runtime.AdaptLegacy(m.camZoom))
 	r.Register("CameraProject", "camera", runtime.AdaptLegacy(m.camWorldToScreen))
+	r.Register("CAMERA.LOOKATENTITY", "camera", m.camLookAtEntity)
+	r.Register("CAMERA.POINTATENTITY", "camera", m.camLookAtEntity)
 	r.Register("CameraFogMode", "camera", m.cameraFogModeBlitz)
 	r.Register("CameraFogRange", "camera", m.cameraFogRangeBlitz)
 	r.Register("CameraFogColor", "camera", m.cameraFogColorBlitz)
@@ -91,6 +93,35 @@ func (m *Module) cameraFogColorBlitz(rt *runtime.Runtime, args ...value.Value) (
 	_, err := reg.Call("FOG.SETCOLOR", []value.Value{
 		value.FromInt(ri), value.FromInt(gi), value.FromInt(bi), value.FromInt(255),
 	})
+	_ = rt
+	return value.Nil, err
+}
+
+// camLookAtEntity sets the camera look-at target to an entity's world position (Blitz-style aim at object).
+func (m *Module) camLookAtEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("CAMERA.LOOKATENTITY expects (camera, entity#)")
+	}
+	if args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA.LOOKATENTITY: camera handle required")
+	}
+	reg := runtime.ActiveRegistry()
+	if reg == nil {
+		return value.Nil, fmt.Errorf("CAMERA.LOOKATENTITY: registry not active")
+	}
+	ex, err := reg.Call("ENTITY.ENTITYX", []value.Value{args[1]})
+	if err != nil {
+		return value.Nil, err
+	}
+	ey, err := reg.Call("ENTITY.ENTITYY", []value.Value{args[1]})
+	if err != nil {
+		return value.Nil, err
+	}
+	ez, err := reg.Call("ENTITY.ENTITYZ", []value.Value{args[1]})
+	if err != nil {
+		return value.Nil, err
+	}
+	_, err = reg.Call("CAMERA.SETTARGET", []value.Value{args[0], ex, ey, ez})
 	_ = rt
 	return value.Nil, err
 }

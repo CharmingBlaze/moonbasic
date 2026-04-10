@@ -113,9 +113,13 @@ func (g *CodeGen) Compile(tree *ast.Program) (*opcode.Program, error) {
 
 	// User-defined TYPE metadata (needed when emitting main: constructors use Prog.Types)
 	for _, t := range tree.Types {
-		g.Prog.Types[t.Name] = &opcode.TypeDef{
-			Name:   t.Name,
-			Fields: t.Fields,
+		uf := make([]string, len(t.Fields))
+		for i, f := range t.Fields {
+			uf[i] = strings.ToUpper(f)
+		}
+		g.Prog.Types[strings.ToUpper(t.Name)] = &opcode.TypeDef{
+			Name:   strings.ToUpper(t.Name),
+			Fields: uf,
 		}
 	}
 

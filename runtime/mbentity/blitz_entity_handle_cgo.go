@@ -145,5 +145,11 @@ func (m *Module) purgeEntityByID(id int64) {
 	}
 	delete(st.children, id)
 	mbphysics3d.UnregisterEntityCollision(id)
+	if st.entMeta != nil {
+		delete(st.entMeta, id)
+	}
+	if st.msgQueues != nil {
+		delete(st.msgQueues, id)
+	}
 	delete(st.ents, id)
 }

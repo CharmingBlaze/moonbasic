@@ -19,6 +19,10 @@ func dimsFromLinear(dims []int64, li int64) []int64 {
 		out[i] = rem / stride
 		rem %= stride
 	}
+	// Language indices are 1-based; linearIndex expects 1-based per dimension.
+	for i := range out {
+		out[i]++
+	}
 	return out
 }
 
@@ -28,9 +32,27 @@ func arrayKindFromFlags(f uint8) heap.ArrayKind {
 		return heap.ArrayKindString
 	case 2:
 		return heap.ArrayKindBool
+	case 3:
+		return heap.ArrayKindHandle
 	default:
 		return heap.ArrayKindFloat
 	}
+}
+
+func (v *VM) arrayDebugNameAtInstruction() string {
+	frame := v.CallStack.Top()
+	if frame == nil {
+		return ""
+	}
+	ip := frame.IP - 1
+	if ip < 0 || ip >= len(frame.Chunk.ArrayDebugName) {
+		return ""
+	}
+	ni := frame.Chunk.ArrayDebugName[ip]
+	if ni < 0 || int(ni) >= len(frame.Chunk.Names) {
+		return ""
+	}
+	return frame.Chunk.Names[ni]
 }
 
 func (v *VM) doArrayMake(i opcode.Instruction) error {
@@ -38,7 +60,7 @@ func (v *VM) doArrayMake(i opcode.Instruction) error {
 	if nd < 1 {
 		return v.runtimeError("ARRAYMAKE: need at least 1 dimension")
 	}
-	
+
 	dims := make([]int64, nd)
 	argStart := i.SrcA
 	for j := 0; j < nd; j++ {
@@ -52,6 +74,9 @@ func (v *VM) doArrayMake(i opcode.Instruction) error {
 	arr, err := heap.NewArrayOfKind(dims, kind, emptyStr)
 	if err != nil {
 		return v.runtimeError(err.Error())
+	}
+	if vn := v.arrayDebugNameAtInstruction(); vn != "" {
+		arr.VarName = vn
 	}
 	h, err := v.Heap.Alloc(arr)
 	if err != nil {
@@ -70,6 +95,26 @@ func (v *VM) regInt64(reg uint8) int64 {
 		return int64(f)
 	}
 	return 0
+}
+
+func (v *VM) doArrayLen(i opcode.Instruction) error {
+	hv := v.reg(i.SrcA)
+	if hv.Kind != value.KindHandle {
+		return v.runtimeError("ARRAY_LEN: not a handle")
+	}
+	obj, ok := v.Heap.Get(heap.Handle(hv.IVal))
+	if !ok {
+		return v.runtimeError(fmt.Sprintf("ARRAY_LEN: array handle %d has been freed", hv.IVal))
+	}
+	arr, ok := obj.(*heap.Array)
+	if !ok {
+		return v.runtimeError("ARRAY_LEN: expected array")
+	}
+	if len(arr.Dims) < 1 {
+		return v.runtimeError("ARRAY_LEN: invalid array")
+	}
+	v.setReg(i.Dst, value.FromFloat(float64(arr.Dims[0])))
+	return nil
 }
 
 
@@ -91,7 +136,7 @@ func (v *VM) doArrayGet(i opcode.Instruction) error {
 	}
 	obj, ok := v.Heap.Get(heap.Handle(hv.IVal))
 	if !ok {
-		return v.runtimeError("ARRAYGET: invalid handle")
+		return v.runtimeError(fmt.Sprintf("ARRAYGET: array handle %d has been freed", hv.IVal))
 	}
 	arr, ok := obj.(*heap.Array)
 	if !ok {
@@ -145,7 +190,7 @@ func (v *VM) doArraySet(i opcode.Instruction) error {
 	}
 	obj, ok := v.Heap.Get(heap.Handle(hv.IVal))
 	if !ok {
-		return v.runtimeError("ARRAYSET: invalid handle")
+		return v.runtimeError(fmt.Sprintf("ARRAYSET: array handle %d has been freed", hv.IVal))
 	}
 	arr, ok := obj.(*heap.Array)
 	if !ok {
@@ -248,6 +293,9 @@ func (v *VM) doArrayMakeTyped(i opcode.Instruction) error {
 	arr, err := heap.NewArrayOfKind(dims, heap.ArrayKindHandle, 0)
 	if err != nil {
 		return v.runtimeError(err.Error())
+	}
+	if vn := v.arrayDebugNameAtInstruction(); vn != "" {
+		arr.VarName = vn
 	}
 	n := arr.TotalElements()
 	for li := 0; li < n; li++ {

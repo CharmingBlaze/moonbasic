@@ -1,5 +1,7 @@
 # Local Claude / Cursor agent permissions (machine-specific paths)
 .claude/
+# Accidental path created by bad tooling (do not track)
+.../
 
 testdata/file_test_out.txt
 testdata/sprite_test_texture.png

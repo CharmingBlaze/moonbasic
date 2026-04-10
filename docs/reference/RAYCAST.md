@@ -10,7 +10,7 @@ Implemented with Raylib (**requires CGO** on typical Unix builds; on **non-Windo
 
 ### Ray handle
 
-- **`RAY.MAKE(ox#, oy#, oz#, dx#, dy#, dz#)`** — returns a **handle** to a ray. Origin `(ox,oy,oz)`; direction `(dx,dy,dz)` (need not be unit length; Raylib normalizes internally for collision).
+- **`RAY.MAKE(ox, oy, oz, dx, dy, dz)`** — returns a **handle** to a ray. Origin `(ox,oy,oz)`; direction `(dx,dy,dz)` (need not be unit length; Raylib normalizes internally for collision).
 - **`RAY.FREE(handle)`** — frees the ray handle.
 
 **Screen picking:** **`Camera.GetRay`**, **`Camera.GetViewRay`**, and **`Camera.MouseRay`** return a **6-float array handle**: origin then direction — same layout as the six floats passed to **`RAY.MAKE`**. See [CAMERA.md](CAMERA.md).
@@ -26,10 +26,10 @@ Each test has a family of commands with the same arguments except for the suffix
 | **`_POINTX`**, **`_POINTY`**, **`_POINTZ`** | World position of the hit (or **`0.0`** if no hit). |
 | **`_NORMALX`**, **`_NORMALY`**, **`_NORMALZ`** | Surface normal at the hit (or **`0.0`** if none). |
 
-**Sphere** — `RAY.HITSPHERE_* (ray, cx#, cy#, cz#, r#)`  
-**Axis-aligned box** — `RAY.HITBOX_* (ray, minX#, minY#, minZ#, maxX#, maxY#, maxZ#)`  
-**Plane** — `RAY.HITPLANE_* (ray, nx#, ny#, nz#, d#)` — plane `nx*x + ny*y + nz*z + d = 0`  
-**Triangle** — `RAY.HITTRIANGLE_* (ray, ax#, ay#, az#, bx#, by#, bz#, cx#, cy#, cz#)`  
+**Sphere** — `RAY.HITSPHERE_* (ray, cx, cy, cz, r)`  
+**Axis-aligned box** — `RAY.HITBOX_* (ray, minX, minY, minZ, maxX, maxY, maxZ)`  
+**Plane** — `RAY.HITPLANE_* (ray, nx, ny, nz, d)` — plane `nx*x + ny*y + nz*z + d = 0`  
+**Triangle** — `RAY.HITTRIANGLE_* (ray, ax, ay, az, bx, by, bz, cx, cy, cz)`  
 **Mesh** — `RAY.HITMESH_* (ray, mesh, transform)` — mesh and transform handles  
 **Model** — `RAY.HITMODEL_* (ray, model)` — model handle  
 
@@ -43,19 +43,19 @@ Pure math in **`runtime/mbcollision/ray2d.go`** — available **with or without 
 
 ### Circle
 
-**`RAY2D.HITCIRCLE_* (ox#, oy#, dx#, dy#, cx#, cy#, r#)`**
+**`RAY2D.HITCIRCLE_* (ox, oy, dx, dy, cx, cy, r)`**
 
 Ray vs circle centre **`(cx,cy)`** radius **`r`** (negative **`r`** is treated as absolute). Returns the **first** forward intersection **`t ≥ 0`** (smaller positive root of the quadratic). If the origin is inside the circle, the hit is at **`t = 0`**.
 
 ### Axis-aligned rectangle
 
-**`RAY2D.HITRECT_* (ox#, oy#, dx#, dy#, minX#, minY#, maxX#, maxY#)`**
+**`RAY2D.HITRECT_* (ox, oy, dx, dy, minX, minY, maxX, maxY)`**
 
 Slab test on the AABB. **`min*`**/**`max*`** are swapped if given in reverse order. If the origin lies inside the box, **`_DISTANCE`** is **`0`** and the point is the origin.
 
 ### Segment
 
-**`RAY2D.HITSEGMENT_* (ox#, oy#, dx#, dy#, x1#, y1#, x2#, y2#)`**
+**`RAY2D.HITSEGMENT_* (ox, oy, dx, dy, x1, y1, x2, y2)`**
 
 Ray vs finite segment **`(x1,y1)`–`(x2,y2)`**. Parallel ray and segment yields no hit.
 

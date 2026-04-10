@@ -33,7 +33,7 @@ These builtins are **aliases** of the matching **`DRAW3D.*`** command (same argu
 
 ### `Draw3D.Grid(slices, spacing#)`
 
-Reference grid in the XZ plane. `slices`: number of divisions; `spacing#`: world units between lines.
+Reference grid in the XZ plane. `slices`: number of divisions; `spacing`: world units between lines.
 
 ### `Draw3D.Line(x1#, y1#, z1#, x2#, y2#, z2#, r, g, b, a)`
 
@@ -61,7 +61,7 @@ Same arguments as `Draw3D.Cube`; wireframe box.
 
 ### `Draw3D.Cylinder(x#, y#, z#, rTop#, rBot#, h#, slices, r, g, b, a)`
 
-Solid cylinder; `rTop#` / `rBot#` are top and bottom radii.
+Solid cylinder; `rTop` / `rBot` are top and bottom radii.
 
 ### `Draw3D.CylinderWires(...)`
 
@@ -93,7 +93,7 @@ Textured billboard facing the **active 3D camera**. **Must** be called inside `C
 
 ### `Draw3D.BillboardRec(tex, srcX#, srcY#, srcW#, srcH#, x#, y#, z#, w#, h#, r, g, b, a)`
 
-Billboard with a source rectangle on the texture and destination size `(w#, h#)` in world units. Same active-camera requirement as `Draw3D.Billboard`.
+Billboard with a source rectangle on the texture and destination size `(w, h)` in world units. Same active-camera requirement as `Draw3D.Billboard`.
 
 ---
 

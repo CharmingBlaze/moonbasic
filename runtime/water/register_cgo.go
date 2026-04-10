@@ -15,16 +15,43 @@ import (
 
 func registerWater(m *Module, r runtime.Registrar) {
 	r.Register("WATER.MAKE", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wMake(m, rt, args...) })
+	r.Register("WATER.CREATE", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wCreate(m, rt, args...) })
 	r.Register("WATER.FREE", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wFree(m, rt, args...) })
 	r.Register("WATER.SETPOS", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wSetPos(m, rt, args...) })
 	r.Register("WATER.DRAW", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wDraw(m, rt, args...) })
 	r.Register("WATER.UPDATE", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wUpdate(m, rt, args...) })
 	r.Register("WATER.SETWAVEHEIGHT", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wSetWaveHeight(m, rt, args...) })
+	r.Register("WATER.SETWAVE", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wSetWave(m, rt, args...) })
 	r.Register("WATER.GETWAVEY", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wGetWaveY(m, rt, args...) })
 	r.Register("WATER.GETDEPTH", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wGetDepth(m, rt, args...) })
 	r.Register("WATER.ISUNDER", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wIsUnder(m, rt, args...) })
 	r.Register("WATER.SETSHALLOWCOLOR", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wSetShallow(m, rt, args...) })
 	r.Register("WATER.SETDEEPCOLOR", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wSetDeep(m, rt, args...) })
+	r.Register("WATER.SETCOLOR", "water", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wSetColor(m, rt, args...) })
+}
+
+// PointInWaterVolume reports whether (x,y,z) lies inside any water column (between bed and wavy surface).
+func (m *Module) PointInWaterVolume(x, y, z float32) bool {
+	if m.h == nil {
+		return false
+	}
+	for _, id := range m.waters {
+		o, err := castW(m, id)
+		if err != nil {
+			continue
+		}
+		halfW := o.Width * 0.5
+		halfD := o.Depth * 0.5
+		if x < o.PX-halfW || x > o.PX+halfW || z < o.PZ-halfD || z > o.PZ+halfD {
+			continue
+		}
+		bob := float32(math.Sin(float64(o.WaveT))) * o.WaveAmp * 0.15
+		surfY := o.PY + bob
+		if y <= surfY && y >= o.BedY {
+			return true
+		}
+	}
+	return false
 }
 
 func castW(m *Module, h heap.Handle) (*WaterObject, error) {
@@ -67,6 +94,85 @@ func wMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 	}
 	m.waters = append(m.waters, id)
 	return value.FromHandle(int32(id)), nil
+}
+
+func wCreate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 5 {
+		return value.Nil, fmt.Errorf("WATER.CREATE expects x#, z#, width#, depth#, level#")
+	}
+	x, err := rt.ArgFloat(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	z, err := rt.ArgFloat(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	wf, err := rt.ArgFloat(args, 2)
+	if err != nil {
+		return value.Nil, err
+	}
+	df, err := rt.ArgFloat(args, 3)
+	if err != nil {
+		return value.Nil, err
+	}
+	level, err := rt.ArgFloat(args, 4)
+	if err != nil {
+		return value.Nil, err
+	}
+	w := float32(wf)
+	d := float32(df)
+	if w <= 0 || d <= 0 {
+		return value.Nil, fmt.Errorf("WATER.CREATE: width and depth must be > 0")
+	}
+	mesh := rl.GenMeshPlane(w, d, 32, 32)
+	mat := rl.LoadMaterialDefault()
+	o := &WaterObject{
+		Mesh:     mesh,
+		Mat:      mat,
+		Width:    w,
+		Depth:    d,
+		WaveAmp:  0.35,
+		WaveFreq: 1.2,
+		Shallow:  rl.Color{R: 0, G: 160, B: 200, A: 180},
+		Deep:     rl.Color{R: 0, G: 50, B: 100, A: 230},
+		BedY:     -50,
+		PX:       float32(x),
+		PY:       float32(level),
+		PZ:       float32(z),
+	}
+	o.BedY = o.PY - 12
+	id, err := m.h.Alloc(o)
+	if err != nil {
+		return value.Nil, err
+	}
+	m.waters = append(m.waters, id)
+	return value.FromHandle(int32(id)), nil
+}
+
+func wSetWave(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("WATER.SETWAVE expects water, speed#, height#")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	o, err := castW(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	sp, err := rt.ArgFloat(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	amp, err := rt.ArgFloat(args, 2)
+	if err != nil {
+		return value.Nil, err
+	}
+	o.WaveFreq = float32(sp)
+	o.WaveAmp = float32(amp)
+	return value.Nil, nil
 }
 
 func wFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -289,4 +395,58 @@ func wSetDeep(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 	ai, _ := rt.ArgInt(args, 4)
 	o.Deep = rl.Color{R: uint8(ri), G: uint8(gi), B: uint8(bi), A: uint8(ai)}
 	return value.Nil, nil
+}
+
+// wSetColor sets shallow tint from packed RGB (bits 16..23, 8..15, 0..7) and scales both shallow/deep alpha from clarity (0..1 or 0..255).
+func wSetColor(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("WATER.SETCOLOR expects water, diffuse#, clarity#")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	o, err := castW(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	di, err := rt.ArgInt(args, 1)
+	if err != nil {
+		return value.Nil, err
+	}
+	cl, err := rt.ArgFloat(args, 2)
+	if err != nil {
+		return value.Nil, err
+	}
+	r := uint8((di >> 16) & 0xff)
+	g := uint8((di >> 8) & 0xff)
+	b := uint8(di & 0xff)
+	var a uint8
+	if cl > 1 {
+		if cl > 255 {
+			a = 255
+		} else {
+			a = uint8(cl)
+		}
+	} else if cl < 0 {
+		a = 0
+	} else {
+		a = uint8(cl * 255)
+	}
+	o.Shallow = rl.Color{R: r, G: g, B: b, A: a}
+	// Deep: darker tint for depth gradient
+	o.Deep = rl.Color{
+		R: uint8(minInt(255, int(r)*2/3)),
+		G: uint8(minInt(255, int(g)*2/3)),
+		B: uint8(minInt(255, int(b)*2/3)),
+		A: uint8(minInt(255, int(a)*13/10)),
+	}
+	return value.Nil, nil
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

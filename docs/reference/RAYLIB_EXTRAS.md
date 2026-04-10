@@ -68,7 +68,7 @@ Primitives, text, textures, billboards — see **[DRAW2D.md](DRAW2D.md)** and **
 
 ## Clipboard
 
-**`SYSTEM.GETCLIPBOARD`** (returns string) and **`SYSTEM.SETCLIPBOARD`** `(text$)` wrap Raylib clipboard when CGO is enabled; see **`runtime/system/clipboard_cgo.go`**.
+**`SYSTEM.GETCLIPBOARD`** (returns string) and **`SYSTEM.SETCLIPBOARD`** `(text)` wrap Raylib clipboard when CGO is enabled; see **`runtime/system/clipboard_cgo.go`**.
 
 ---
 

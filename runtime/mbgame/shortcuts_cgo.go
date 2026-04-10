@@ -244,6 +244,14 @@ func (m *Module) registerShortcuts(r runtime.Registrar) {
 		}
 		return value.FromFloat(float64(rl.GetGamepadAxisMovement(gp, ax))), nil
 	})
+
+	regRT0("GAME.SETAESTHETIC", "GAME.SETAESTHETIC", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("GAME.SETAESTHETIC expects (modeID)")
+		}
+		return value.Nil, nil
+	})
+	
 	regLegacy2("JOYBUTTON", "GAME.JOYBUTTON", func(args []value.Value) (value.Value, error) {
 		var gp, btn int32
 		switch len(args) {

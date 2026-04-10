@@ -9,7 +9,7 @@ These commands are available globally and act as shortcuts to the standard MoonB
 | Easy Mode | Canonical MoonBASIC | Description |
 |-----------|----------------------|-------------|
 | `Graphics(w, h)` | `WINDOW.OPEN(w, h, "moonBASIC")` | Opens a game window. |
-| `Graphics(w, h, title$)` | `WINDOW.OPEN(w, h, title$)` | Opens a game window with a title. |
+| `Graphics(w, h, title)` | `WINDOW.OPEN(w, h, title)` | Opens a game window with a title. |
 | `PositionEntity(ent, x, y, z)` | `ENTITY.POSITIONENTITY(ent, x, y, z)` | Set an entity's absolute position (optional global flag on canonical API). |
 | `RotateEntity(ent, p, y, r)` | `ENTITY.ROTATEENTITY(ent, p, y, r)` | Set an entity's absolute rotation (pitch, yaw, roll). |
 | `MoveEntity(ent, f, r, u)` | `ENTITY.MOVE(ent, f, r, u)`, `MOVEENTITY` | Move along **local** forward, right, and up by **`f`**, **`r`**, **`u`** (from entity yaw/pitch). |
@@ -17,7 +17,7 @@ These commands are available globally and act as shortcuts to the standard MoonB
 | `TFormVector(x, y, z, srcEnt, dstEnt)` | `ENTITY.TFORMVECTOR` | Transform direction **`(x,y,z)`** from **`srcEnt`** local space to **`dstEnt`** local space; returns **3-float array handle**. |
 | `EntityHitsType(ent, type)` | (wrapper over `ENTITYCOLLIDED`) | **`TRUE`** if **`ent`** hit any other entity whose **`EntityType`** is **`type`** this frame (after **`ENTITY.UPDATE`** / **`UPDATEPHYSICS`**). |
 | `EntityColor(obj, r, g, b)` | `ENTITY.COLOR(obj, r, g, b)` | Set an entity's color. |
-| `EntityAlpha(obj, a#)` | `ENTITY.ALPHA(obj, a#)` | Set an entity's alpha transparency (0-1). |
+| `EntityAlpha(obj, a)` | `ENTITY.ALPHA(obj, a)` | Set an entity's alpha transparency (0-1). |
 | `FreeEntity(obj)` | `ENTITY.FREE(obj)` | Free an entity's memory. |
 | `CreateCamera()` | `CAMERA.CREATE3D` | Create a standard 3D camera. |
 | `TurnCamera(cam, p, y, r)` | `CAMERA.TURN(cam, p, y, r)` | Rotate camera relative to orientation. |

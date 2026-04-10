@@ -34,7 +34,14 @@ func DeltaSeconds(rt *runtime.Runtime) float64 {
 	if rt != nil && rt.GamePaused {
 		return 0
 	}
-	return applyDeltaCap(float64(rl.GetFrameTime()))
+	dt := applyDeltaCap(float64(rl.GetFrameTime()))
+	if rt != nil {
+		s := rt.TimeScale
+		if s != 0 && s != 1 {
+			dt *= s
+		}
+	}
+	return dt
 }
 
 func registerDeltaCapCommands(reg runtime.Registrar) {

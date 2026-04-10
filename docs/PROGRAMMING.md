@@ -1,6 +1,6 @@
 # Programming in moonBASIC
 
-This guide explains how **built-in commands** fit together, how to structure programs, and where to look up APIs. Pair it with [Language Reference](LANGUAGE.md) (syntax), [Command Index](COMMANDS.md) (topic index), and [API_CONSISTENCY.md](API_CONSISTENCY.md) (every registered command name and arity, generated from the manifest).
+This guide explains how **built-in commands** fit together, how to structure programs, and where to look up APIs. Pair it with [Language Reference](LANGUAGE.md) (syntax), [Command Index](COMMANDS.md) (topic index), and [API_CONSISTENCY.md](API_CONSISTENCY.md) (every registered command name and arity, generated from the manifest). For **distance, spawn rings, WASD vs yaw, and terrain snap** without repeating `SQRT`/`SIN`/`COS`, see [Less math](reference/LESS_MATH.md). For the project’s stance on **powerful helpers alongside full `MATH.*`**, see [Easy language](EASY_LANGUAGE.md).
 
 ---
 
@@ -26,8 +26,8 @@ Commands are **type-checked** against the manifest (`compiler/builtinmanifest/co
 | Kind | In source | Example |
 |------|-----------|---------|
 | Integer | `score`, literal `10` | `ARRAYLEN(arr)` |
-| Float | `x#`, `1.5` | `MATH.SIN(angle#)` |
-| String | `msg$`, `"hi"` | `FILE.OPEN(path$, "r")` |
+| Float | `x`, `1.5` | `MATH.SIN(angle)` |
+| String | `msg`, `"hi"` | `FILE.OPEN(path, "r")` |
 | Boolean | `ok?`, `TRUE` / `FALSE` | `Input.KeyDown(KEY_SPACE)` |
 | Handle | value from `Load`, `Make`, etc. | `Mesh.Draw(mesh, mat, transform)` |
 
@@ -68,11 +68,11 @@ Rules of thumb:
 
 - **`Render.Clear`** — first drawing call each frame (or after `Camera2D.Begin` / `Camera.Begin`, depending on your pipeline).
 - **`Render.Frame`** — last call each frame; swaps / presents the buffer.
-- **`Time.Delta()`** — seconds since last frame; multiply speeds by `dt#` for **frame-rate-independent** motion.
+- **`Time.Delta()`** — seconds since last frame; multiply speeds by `dt` for **frame-rate-independent** motion.
 - **`Window.ShouldClose()`** — true when the user closes the window.
 - **`Input.KeyDown(KEY_ESCAPE)`** — common explicit quit.
 
-moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt#`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell. For Blitz-style entity graphs, **`UpdatePhysics()`** (alias **`UPDATEPHYSICS`**) bundles **`ENTITY.UPDATE(Time.Delta)`** with optional world / physics steps — see [GETTING_STARTED](GETTING_STARTED.md) (**Modern Blitz-style 3D**).
+moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell. For Blitz-style entity graphs, **`UpdatePhysics()`** (alias **`UPDATEPHYSICS`**) bundles **`ENTITY.UPDATE(Time.Delta)`** with optional world / physics steps — see [GETTING_STARTED](GETTING_STARTED.md) (**Modern Blitz-style 3D**).
 
 ---
 
@@ -87,9 +87,9 @@ Some 3D helpers are also registered under `DRAW.*` (e.g. `Draw.Grid` inside a ca
 
 ## 5. Text without shipping a font file
 
-`Draw.Text(text$, x, y, size, r, g, b, a)` uses Raylib’s **default font** — no `.ttf` path required. Use this in small demos and HUD.
+`Draw.Text(text, x, y, size, r, g, b, a)` uses Raylib’s **default font** — no `.ttf` path required. Use this in small demos and HUD.
 
-For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.TextEx` / `Draw.TextFont` style APIs (see [FONT](reference/FONT.md)). The repo **does not** ship `.ttf` files under `assets/`; add your own or rely on `Draw.Text`.
+For a **custom** font, `Font.Load(path)` returns a handle; draw with `Draw.TextEx` / `Draw.TextFont` style APIs (see [FONT](reference/FONT.md)). The repo **does not** ship `.ttf` files under `assets/`; add your own or rely on `Draw.Text`.
 
 ---
 
@@ -97,7 +97,7 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 
 `GUI.*` wraps **raygui** when **CGO** is enabled. On **Windows** with **`CGO_ENABLED=0`**, a **minimal** Raylib-drawn `GUI.*` subset runs instead (not full raygui); see [GUI.md](reference/GUI.md).
 
-- The [GUI reference](reference/GUI.md) is the full catalog: **every `GUI.*` command**, **how to theme and restyle** (`GUI.THEMEAPPLY`, `SETCOLOR`, `SETSTYLE`, `GCTL_*` / `GPROP_*`), and **stateful array handles** (`SCROLLPANEL`, `LISTVIEW`, `DROPDOWNBOX`, …). Use **`GUI.THEMENAMES$`** for the list of built-in / bundled theme names.
+- The [GUI reference](reference/GUI.md) is the full catalog: **every `GUI.*` command**, **how to theme and restyle** (`GUI.THEMEAPPLY`, `SETCOLOR`, `SETSTYLE`, `GCTL_*` / `GPROP_*`), and **stateful array handles** (`SCROLLPANEL`, `LISTVIEW`, `DROPDOWNBOX`, …). Use **`GUI.THEMENAMES`** for the list of built-in / bundled theme names.
 - Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_theme/main.mb`, `examples/gui_form/main.mb`.
 
 ---
@@ -115,9 +115,16 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 
 ## 8. Arrays, `DIM`, and handles
 
-- **`DIM a(10)`** — numeric array; indices `0` … `9`.
-- **`DIM plat AS Platform(4)`** — array of a **record type** defined with **`TYPE` … `ENDTYPE`** (see [LANGUAGE.md](LANGUAGE.md)). Use **`plat(i) = Platform(...)`** and **`plat(i).field`**.
+- **`DIM a(10)`** — numeric array; indices `1` … `10`.
+- **`enemies AS Enemy(100)`** (preferred) or **`DIM enemies AS Enemy(100)`** (compatible) — typed array from **`TYPE` … `ENDTYPE`** (see [LANGUAGE.md](LANGUAGE.md)).
 - Some builtins return **handles** to heap arrays (e.g. `MEASURETEXTEX`, `GUI.GETCOLOR`). Index with the same `arr(i)` syntax as `DIM` arrays.
+- **`arr.length`** returns the first dimension size (for multidimensional arrays this is dimension 1).
+- **Destructuring**: `a, b = expr` and `x, y, z = expr` unpack tuple-like array returns.
+- Convenience tuple-return helpers:
+  - **`VEC2.NORMALIZE(x, y)`** -> `(x, y)`
+  - **`VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist)`** -> `(x, y)`
+  - **`ENTITY.GETPOS(entity)`** -> `(x, y, z)`
+  - **`COLOR.CLAMP(r, g, b)`** -> `(r, g, b)`
 - **`ERASE(name)`** — frees a `DIM` array or typed array and clears the variable when you no longer need it.
 - **`ERASE ALL`** / **`FREE.ALL`** — frees every VM heap object and nulls handle variables; see [MEMORY.md](MEMORY.md).
 - **`ARRAYFREE(handle)`** when you are done with a heap array you no longer need.
@@ -129,6 +136,8 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 | Need | Document |
 |------|----------|
 | Syntax (`IF`, `FUNCTION`, …) | [LANGUAGE.md](LANGUAGE.md) |
+| Helpers vs raw math (design stance) | [EASY_LANGUAGE.md](EASY_LANGUAGE.md) |
+| String / color hot path vs UI strings | [reference/STRING_HEAP.md](reference/STRING_HEAP.md) |
 | Topic command index | [COMMANDS.md](COMMANDS.md) |
 | Every manifest name (arity, types) | [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`) |
 | Namespace → reference map (counts, blurbs) | [COMMAND_AUDIT.md](COMMAND_AUDIT.md) (`go run ./tools/cmdaudit`) |
@@ -147,7 +156,7 @@ For a **custom** font, `Font.Load(path$)` returns a handle; draw with `Draw.Text
 Use this alongside the loop in **§3**:
 
 - **Motion and animation** — Multiply speeds by **`Time.Delta()`** so gameplay stays consistent when FPS changes.
-- **2D physics** — Call **`Physics2D.Step()`** once per frame in the common case; set **`Physics2D.SetStep(dt#)`** to match that step (e.g. `1/60` with **`Window.SetFPS(60)`**). Tune cost vs stability with **`Physics2D.SetIterations`** — see [PHYSICS2D.md](reference/PHYSICS2D.md).
+- **2D physics** — Call **`Physics2D.Step()`** once per frame in the common case; set **`Physics2D.SetStep(dt)`** to match that step (e.g. `1/60` with **`Window.SetFPS(60)`**). Tune cost vs stability with **`Physics2D.SetIterations`** — see [PHYSICS2D.md](reference/PHYSICS2D.md).
 - **Heap handles** — Call **`*.Free`** for textures, fonts, sounds, and other handles when you are done, especially in long sessions or when reloading assets. **`Window.Close`** and process shutdown still run **`Heap.FreeAll`** as a safety net — see [MEMORY.md](MEMORY.md).
 - **Churn** — Avoid creating many new handles or large temporary work every frame when you can reuse values or keep allocations outside the inner loop.
 - **Assets** — Prefer texture sizes and counts appropriate for the target resolution; fewer draw state changes usually help.

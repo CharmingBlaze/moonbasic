@@ -11,6 +11,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	registerImageDraw(m, reg)
 	registerImageProcess(m, reg)
 	registerImageQuery(m, reg)
+	registerPixelFilterCmds(m, reg)
 	registerClipboardImage(m, reg)
 }
 

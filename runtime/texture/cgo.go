@@ -10,6 +10,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerTextureGenCmds(m, r)
 	registerRenderTargetCmds(m, r)
 	registerTextureBlitzCmds(m, r)
+	registerTexturePreloadCmds(m, r)
+	registerTextureAtlasCmds(m, r)
 }
 
 func (m *Module) Shutdown() {}

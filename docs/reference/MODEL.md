@@ -129,7 +129,7 @@ Texture **stage** helpers (`SETTEXTURESTAGE`, `SETSTAGEBLEND`, `SCROLLTEXTURE`, 
 
 | Command | Notes |
 |---|---|
-| `MODEL.MAKEINSTANCED` | `path$`, instance count |
+| `MODEL.MAKEINSTANCED` | `path`, instance count |
 | `MODEL.SETINSTANCEPOS` / `SETINSTANCESCALE` | Per-instance |
 | `MODEL.UPDATEINSTANCES` | Rebuild instance matrices |
 | `MODEL.DRAW` | Same as regular draw (handles instanced object) |
@@ -161,7 +161,9 @@ See **`testdata/model_complete_test.mb`**: **`MESH.MAKECUBE`** → **`MODEL.MAKE
 
 ### Animation (external clip file)
 
-After **`MODEL.LOAD`**, call **`MODEL.LOADANIMATIONS(model, path$)`** (same format Raylib supports for **`LoadModelAnimations`**). Then **`MODEL.PLAYIDX`**, **`MODEL.UPDATEANIM(model, dt#)`**, **`MODEL.STOP`**, **`MODEL.LOOP`**, **`MODEL.SETSPEED`** (multiplier). **`MODEL.ANIMNAME$(model, idx)`** returns the clip name. **`MODEL.PLAY(model, name$)`** is not wired — use **`PLAYIDX`**.
+After **`MODEL.LOAD`**, call **`MODEL.LOADANIMATIONS(model, path)`** (same format Raylib supports for **`LoadModelAnimations`**). Then **`MODEL.PLAYIDX`**, **`MODEL.UPDATEANIM(model, dt)`**, **`MODEL.STOP`**, **`MODEL.LOOP`**, **`MODEL.SETSPEED`** (multiplier). **`MODEL.ANIMNAME(model, idx)`** returns the clip name. **`MODEL.PLAY(model, name)`** is not wired — use **`PLAYIDX`**.
+
+For **entity-based** skinning (**`ENTITY.LOADANIMATEDMESH`**, **`ENTITY.UPDATE`**, bone sockets), see **[ANIMATION_3D.md](ANIMATION_3D.md)**.
 
 ---
 
@@ -175,6 +177,7 @@ After **`MODEL.LOAD`**, call **`MODEL.LOADANIMATIONS(model, path$)`** (same form
 
 ## See also
 
+- [ANIMATION_3D.md](ANIMATION_3D.md) — skeletal clips: **`MODEL.*`** vs **`ENTITY.*`**
 - [MESH.md](MESH.md) — procedural meshes, **`MESH.UPLOAD`**, **`MESH.DRAW`**
 - [CAMERA.md](CAMERA.md) — 3D camera
 - [LIGHT.md](LIGHT.md) — PBR lighting

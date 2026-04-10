@@ -34,7 +34,7 @@ Advances the physics simulation by one step. This should be called once per fram
 
 Sets the global gravity for the physics world.
 
-- `x#`, `y#`, `z#`: The gravity vector.
+- `x`, `y`, `z`: The gravity vector.
 
 ```basic
 ; Standard earth-like gravity
@@ -51,7 +51,7 @@ Creating a physics body is a multi-step process.
 
 Creates a body *definition*. This is a temporary object used to build the body's properties before adding it to the world.
 
-- `type$`: The type of body:
+- `type`: The type of body:
     - `"static"`: Immovable, unaffected by forces (e.g., floors, walls).
     - `"dynamic"`: Movable, affected by forces and collisions (e.g., players, boxes).
     - `"kinematic"`: Movable by code (`SetPos`), but not by forces.
@@ -62,9 +62,9 @@ Returns a handle to the body definition.
 
 Adds a collision shape to the body definition.
 
-- `Body3D.AddBox(bodyDefHandle, width#, height#, depth#)`
-- `Body3D.AddSphere(bodyDefHandle, radius#)`
-- `Body3D.AddCapsule(bodyDefHandle, height#, radius#)`
+- `Body3D.AddBox(bodyDefHandle, width, height, depth)`
+- `Body3D.AddSphere(bodyDefHandle, radius)`
+- `Body3D.AddCapsule(bodyDefHandle, height, radius)`
 
 ### 3. `Body3D.Commit(bodyDefHandle, x#, y#, z#)`
 
@@ -138,17 +138,17 @@ Short **dot-notation** commands (no long argument lists). Stage a ray, then **`P
 
 | Command | Role |
 |--------|------|
-| **`PICK.ORIGIN(x#, y#, z#)`** | Ray start |
-| **`PICK.DIRECTION(dx#, dy#, dz#)`** | Ray direction; **vector length** is used as max travel unless **`PICK.MAXDIST`** is set |
-| **`PICK.MAXDIST(d#)`** | If set, **normalize** direction and scale to this length |
-| **`PICK.LAYERMASK(m#)`** | Bit `i` = accept hits on **`ENTITY.COLLISIONLAYER`** `i`; **`0`** = accept all |
-| **`PICK.RADIUS(r#)`** | Reserved; non-zero is rejected until sphere pick exists |
-| **`PICK.CAST()`** | Closest Jolt hit → fills registry; **returns entity#** or `0` (entity must be linked via **`LINKPHYSBUFFER`**) |
-| **`PICK.FROMCAMERA(cam, sx#, sy#)`** | Builds ray from Raylib screen position; sets default **`MAXDIST`** if unset |
-| **`PICK.SCREENCAST(cam, sx#, sy#)`** | **`FROMCAMERA`** + **`CAST`** (returns entity#) |
+| **`PICK.ORIGIN(x, y, z)`** | Ray start |
+| **`PICK.DIRECTION(dx, dy, dz)`** | Ray direction; **vector length** is used as max travel unless **`PICK.MAXDIST`** is set |
+| **`PICK.MAXDIST(d)`** | If set, **normalize** direction and scale to this length |
+| **`PICK.LAYERMASK(m)`** | Bit `i` = accept hits on **`ENTITY.COLLISIONLAYER`** `i`; **`0`** = accept all |
+| **`PICK.RADIUS(r)`** | Reserved; non-zero is rejected until sphere pick exists |
+| **`PICK.CAST()`** | Closest Jolt hit → fills registry; **returns entity** or `0` (entity must be linked via **`LINKPHYSBUFFER`**) |
+| **`PICK.FROMCAMERA(cam, sx, sy)`** | Builds ray from Raylib screen position; sets default **`MAXDIST`** if unset |
+| **`PICK.SCREENCAST(cam, sx, sy)`** | **`FROMCAMERA`** + **`CAST`** (returns entity) |
 | **`PICK.X` … `PICK.Z`** | Last hit world position |
 | **`PICK.NX` … `PICK.NZ`** | Last hit surface normal |
-| **`PICK.ENTITY`** | Last hit entity# |
+| **`PICK.ENTITY`** | Last hit entity |
 | **`PICK.DIST`** | Distance along ray |
 | **`PICK.HIT`** | Whether the last cast hit |
 
@@ -158,7 +158,7 @@ Register **`ENTITY.COLLISIONLAYER`** for **`PICK.LAYERMASK`** filtering (lookup 
 
 ## Entity ↔ Jolt collision bridge (Linux + CGO)
 
-After you **commit** rigid bodies with `BODY3D.COMMIT`, each body gets a shared **matrix buffer index** (`BODY3D.BUFFERINDEX(body)`). Link entities to those slots with **`ENTITY.LINKPHYSBUFFER(entity#, bufferIndex)`**. That call also registers the pair for **frame collision queries** (implemented with post-step Jolt shape overlap, not a C++ contact listener—see note below).
+After you **commit** rigid bodies with `BODY3D.COMMIT`, each body gets a shared **matrix buffer index** (`BODY3D.BUFFERINDEX(body)`). Link entities to those slots with **`ENTITY.LINKPHYSBUFFER(entity, bufferIndex)`**. That call also registers the pair for **frame collision queries** (implemented with post-step Jolt shape overlap, not a C++ contact listener—see note below).
 
 Run **`PHYSICS3D.STEP`** each frame, then:
 

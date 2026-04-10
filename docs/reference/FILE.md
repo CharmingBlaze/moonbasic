@@ -4,7 +4,7 @@ Commands for reading from and writing to files, and for managing the file system
 
 ## Core Concepts
 
--   **Simple I/O**: For basic needs, `READALLTEXT$` and `WRITEALLTEXT` are the easiest way to read or write entire files at once.
+-   **Simple I/O**: For basic needs, `READALLTEXT` and `WRITEALLTEXT` are the easiest way to read or write entire files at once.
 -   **Advanced I/O**: For more control (e.g., reading a large file line-by-line), you must `OPENFILE`, perform your read/write operations, and then `CLOSEFILE`.
 
 ---
@@ -25,7 +25,7 @@ Writes an entire string to a file, creating it if it doesn't exist and overwriti
 
 ### `OPENFILE(filePath$, mode$)`
 
-**[PARTIAL]** Opens a file and returns a handle. `mode$` can be `"r"` (read), `"w"` (write), or `"a"` (append).
+**[PARTIAL]** Opens a file and returns a handle. `mode` can be `"r"` (read), `"w"` (write), or `"a"` (append).
 
 ### `CLOSEFILE(fileHandle)`
 

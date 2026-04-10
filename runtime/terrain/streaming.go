@@ -10,8 +10,10 @@ import (
 
 func chunkDistanceMeters(t *TerrainObject, cx, cz int) float64 {
 	cs := t.ChunkSize
-	ccx := float64(t.PX) + (float64(cx*cs)+float64(cs)*0.5)*float64(t.CellSize)
-	ccz := float64(t.PZ) + (float64(cz*cs)+float64(cs)*0.5)*float64(t.CellSize)
+	sx := float64(t.scaleXEff())
+	sz := float64(t.scaleZEff())
+	ccx := float64(t.PX) + (float64(cx*cs)+float64(cs)*0.5)*float64(t.CellSize)*sx
+	ccz := float64(t.PZ) + (float64(cz*cs)+float64(cs)*0.5)*float64(t.CellSize)*sz
 	dx := float64(t.CenterX) - ccx
 	dz := float64(t.CenterZ) - ccz
 	return math.Sqrt(dx*dx + dz*dz)

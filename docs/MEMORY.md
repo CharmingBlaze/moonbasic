@@ -66,7 +66,7 @@ These use the same **`FREE`** / **`ERASE`** rules as other **`KindHandle`** obje
 
 ## Game orbit helpers (`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`)
 
-These **`GAME`** builtins return **numeric floats only** (radians or distance delta). They do **not** allocate VM heap objects — **no `ERASE`**. Pair them with your own **`camYaw#` / `camPitch#` / `camDist#`** variables and **`Camera.SetOrbit`** (see [GAMEHELPERS.md](reference/GAMEHELPERS.md)).
+These **`GAME`** builtins return **numeric floats only** (radians or distance delta). They do **not** allocate VM heap objects — **no `ERASE`**. Pair them with your own **`camYaw` / `camPitch` / `camDist`** variables and **`Camera.SetOrbit`** (see [GAMEHELPERS.md](reference/GAMEHELPERS.md)).
 
 ---
 

@@ -12,7 +12,7 @@ GPU **texture** handles: images uploaded for fast `Draw.Texture*` calls. For **C
 
 | Command | Arguments | Returns | Notes |
 |--------|-----------|---------|--------|
-| **`TEXTURE.LOAD`** | `path$` | handle | `LoadTexture` from disk. |
+| **`TEXTURE.LOAD`** | `path` | handle | `LoadTexture` from disk. |
 | **`TEXTURE.FROMIMAGE`** | `image` | handle | From a heap **Image** (see [IMAGE.md](IMAGE.md)). |
 | **`TEXTURE.FREE`** | `texture` | — | Unloads GPU data (`UnloadTexture`) unless the handle is **borrowed** (see render targets below). |
 
@@ -23,8 +23,8 @@ GPU **texture** handles: images uploaded for fast `Draw.Texture*` calls. For **C
 | Command | Arguments | Returns | Notes |
 |--------|-----------|---------|--------|
 | **`TEXTURE.WIDTH`** / **`TEXTURE.HEIGHT`** | `texture` | int | Pixel dimensions. |
-| **`TEXTURE.SETFILTER`** | `texture`, `filter#` | — | Use globals **`FILTER_POINT`**, **`FILTER_BILINEAR`**, … (see below). |
-| **`TEXTURE.SETWRAP`** | `texture`, `wrap#` | — | Use **`WRAP_REPEAT`**, **`WRAP_CLAMP`**, … |
+| **`TEXTURE.SETFILTER`** | `texture`, `filter` | — | Use globals **`FILTER_POINT`**, **`FILTER_BILINEAR`**, … (see below). |
+| **`TEXTURE.SETWRAP`** | `texture`, `wrap` | — | Use **`WRAP_REPEAT`**, **`WRAP_CLAMP`**, … |
 | **`TEXTURE.UPDATE`** | `texture`, `image` | — | `UpdateTexture` from CPU **Image** pixels (format/size must match usage). |
 
 Filter/wrap enum values are installed as globals by the runtime (same numeric values as Raylib):
@@ -38,7 +38,7 @@ Filter/wrap enum values are installed as globals by the runtime (same numeric va
 
 | Command | Arguments | Returns | Notes |
 |--------|-----------|---------|--------|
-| **`TEXTURE.GENWHITENOISE`** | `w`, `h` **or** `w`, `h`, `factor#` | handle | `GenImageWhiteNoise` → GPU texture. Default **factor** = **1**. |
+| **`TEXTURE.GENWHITENOISE`** | `w`, `h` **or** `w`, `h`, `factor` | handle | `GenImageWhiteNoise` → GPU texture. Default **factor** = **1**. |
 | **`TEXTURE.GENCHECKED`** | `w`, `h`, `tileW`, `tileH`, `color1`, `color2` | handle | **Colors** are **COLOR** handles. |
 | **`TEXTURE.GENGRADIENTV`** | `w`, `h`, `topColor`, `bottomColor` | handle | Vertical gradient. |
 | **`TEXTURE.GENGRADIENTH`** | `w`, `h`, `leftColor`, `rightColor` | handle | Horizontal gradient (90° linear). |
@@ -72,7 +72,26 @@ Use **`Draw.Texture`**, **`Draw.TextureRec`**, **`Draw.TexturePro`**, etc. (see 
 
 ## Atlas
 
-Sprite sheets as a single GPU texture are documented in **[ATLAS.md](ATLAS.md)** (`ATLAS.*`).
+Sprite sheets as a single GPU texture are documented in **[ATLAS.md](ATLAS.md)** (`ATLAS.*` — JSON-packed rectangles).
+
+### Uniform grid animation (`TEXTURE.SETGRID`, `TEXTURE.*`)
+
+For **equal-sized frames** laid out in a regular **columns × rows** grid on one texture (water ripples, fire strips, etc.):
+
+| Command | Purpose |
+|--------|---------|
+| **`TEXTURE.SETGRID`** | `(texture, columns, rows)` — frame layout |
+| **`TEXTURE.SETFRAME`** | `(texture, frameIndex)` — pick a cell (0-based) |
+| **`TEXTURE.LOADANIM`** | `(path, columns, rows)` — load + set grid in one step |
+| **`TEXTURE.PLAY`** | `(texture, fps, loop?)` — auto-advance frames |
+| **`TEXTURE.STOPANIM`** | Stop auto-advance |
+| **`TEXTURE.TICKALL`** | Call **once per frame** (optional `dt`) so **`TEXTURE.PLAY`** advances |
+| **`TEXTURE.SETUVSCROLL`** | `(texture, speedU, speedV)` — scroll source rect (for “infinite” flow) |
+| **`TEXTURE.SETDISTORTION`** | `(texture, amount)` — hint for shader-side distortion |
+
+**Billboards:** **`ENTITY.CREATESPRITE`** accepts **`(textureHandle, width, height [, parent])`** so a loaded atlas applies to a 3D-facing quad; combine with **`TEXTURE.TICKALL`** and/or **`TEXTURE.SETFRAME`**.
+
+**Meshes:** **`ENTITY.SCROLLMATERIAL`** adds **(du, dv)** to material 0’s scroll (same idea as **`MODEL.SCROLLTEXTURE`**). **`ENTITY.SETDETAILTEXTURE`** binds a second texture as **normal/detail** for the same material.
 
 ---
 

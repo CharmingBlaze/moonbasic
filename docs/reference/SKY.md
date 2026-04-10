@@ -18,7 +18,7 @@ Frees the sky handle.
 
 ## `Sky.Update(sky, dt#)`
 
-Advances internal time using **`dt#`** and day length.
+Advances internal time using **`dt`** and day length.
 
 ---
 

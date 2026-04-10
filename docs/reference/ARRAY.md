@@ -1,95 +1,84 @@
-# Array Commands
+﻿# Array Commands
 
 Commands for creating and manipulating arrays.
 
 ## Core Concepts
 
--   **Declaration**: Arrays are created with the `DIM` keyword. The number in parentheses is the *size*, not the upper bound. `DIM my_array(10)` creates an array with indices 0 through 9.
--   **Handles**: When you pass an array to a command (like `ARRAYLEN`), you are passing its handle, not its contents.
--   **Types**: An array holds values of the same type, determined by the variable's suffix (e.g., `my_strings$(10)`), or by a **`TYPE`** name with **`DIM name AS TypeName(n)`**.
+- **Declaration**: Arrays are declared with `DIM` or typed declaration syntax `name AS Type(...)`.
+- **Indexing**: Arrays are **1-based**. `DIM a(10)` uses indices `1..10`.
+- **Dimensions**: Arrays support any number of comma-separated dimensions (`a(10,10,5,2,...)`).
+- **Storage**: Arrays are flat heap-backed storage internally (row-major), with runtime bounds checking.
+- **Type hints**: `AS INTEGER` / `AS FLOAT` / `AS STRING` are stored as hints today; runtime remains dynamic for array slots.
 
 ---
 
-### `DIM`
+## Declaration Syntax
 
-Declares a new array. This is a language keyword, not a command.
+### Classic `DIM`
 
 ```basic
-; Declare an array of 10 integers (indices 0-9)
 DIM scores(10)
-
-; Declare a 2D array for a tilemap
-DIM map(20, 15)
-
-; Declare an array of strings
+DIM grid(20, 15)
 DIM names$(5)
 ```
 
-### Typed arrays (`DIM … AS` record types)
-
-If you have defined a **`TYPE`** (see [LANGUAGE.md](../LANGUAGE.md)), allocate an array of that type with:
+### Typed declaration (preferred)
 
 ```basic
-TYPE Vec3
-    x#, y#, z#
+enemies AS INTEGER(100)
+grid AS INTEGER(10, 10)
+map AS INTEGER(10, 10, 5)
+```
+
+### Arrays of user `TYPE`
+
+```basic
+TYPE Enemy
+    x AS FLOAT
+    y AS FLOAT
+    health AS INTEGER
 ENDTYPE
 
-DIM path AS Vec3(8)
-path(0) = Vec3(1.0, 2.0, 3.0)
-path(0).x# = path(0).x# + DT()
+enemies AS Enemy(100)
+enemies(1).x = 32.0
+enemies(1).health = 100
 ```
 
-Each element is stored **inline**; there is no separate per-element heap object. Use **`ERASE(path)`** when the array is no longer needed.
+`DIM name AS TypeName(...)` also works for compatibility.
 
 ---
 
-### `ARRAYLEN(arrayHandle)`
+## Access and Safety
 
-Returns the total number of elements in an array.
+- Access uses one parenthesized index list: `arr(i)`, `grid(x, y)`, `map(x, y, z)`.
+- Runtime enforces:
+  - bounds checks per dimension,
+  - dimension-count checks,
+  - allocation-size limits,
+  - stale-handle protection after free.
+
+Out-of-bounds errors include array name, dimension, index, and valid range.
+
+---
+
+## Length
+
+Use `.length` to get the first dimension size:
 
 ```basic
-DIM my_array(20)
-PRINT ARRAYLEN(my_array) ; Outputs 20
+FOR i = 1 TO enemies.length
+    PRINT enemies(i).health
+NEXT i
 ```
 
----
-
-### `ARRAYFREE(arrayHandle)`
-
-Frees the memory used by an array. This is especially important for arrays returned by commands like `SPLIT$`.
-
-### `FREE.ALL`
-
-Frees **all** VM heap objects and clears every handle-typed **global** and **stack** slot (same as the statement **`ERASE ALL`**). See [MEMORY.md](../MEMORY.md).
+For multidimensional arrays, `.length` returns dimension 1 size.
 
 ---
 
-## Full Example: Populating and Reading an Array
+## Memory Management
 
-```basic
-; Create an array to hold 5 high scores
-DIM high_scores(5)
+- `ERASE(name)` frees a `DIM`/typed array and clears the variable.
+- `ARRAYFREE(handle)` frees a heap array handle directly.
+- `ERASE ALL` / `FREE.ALL` frees all heap objects and nulls handle globals/stack values.
 
-; Populate the array using a loop
-FOR i = 0 TO ARRAYLEN(high_scores) - 1
-    high_scores(i) = (5 - i) * 1000
-NEXT
-
-; Print the contents of the array
-PRINT "High Scores:"
-FOR i = 0 TO ARRAYLEN(high_scores) - 1
-    PRINT STR$(i+1) + ". " + STR$(high_scores(i))
-NEXT
-```
-
----
-
-## Other Commands
-
-- `REDIM`: **[PARTIAL]** Coming soon.
-- `ERASE`: **[DONE]** Frees a `DIM` or typed array and clears the variable (see [LANGUAGE.md](../LANGUAGE.md)).
-- `ARRAYFILL`: **[PARTIAL]** Coming soon.
-- `ARRAYCOPY`: **[PARTIAL]** Coming soon.
-- `ARRAYSORT`: **[PARTIAL]** Coming soon.
-- `ARRAYPUSH`: **[PARTIAL]** Coming soon.
-- `ARRAYPOP`: **[PARTIAL]** Coming soon.
+See [MEMORY.md](../MEMORY.md).

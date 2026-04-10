@@ -28,6 +28,8 @@ func (m *Module) registerRenderAdvanced(r runtime.Registrar) {
 	r.Register("RENDER.SETMSAA", "window", runtime.AdaptLegacy(m.rSetMSAA))
 	r.Register("RENDER.SETSHADOWMAPSIZE", "render", runtime.AdaptLegacy(m.rSetShadowMapSize))
 	r.Register("RENDER.SETAMBIENT", "render", runtime.AdaptLegacy(m.rSetAmbient))
+	r.Register("RENDER.SETFOG", "render", m.rSetFog)
+	r.Register("RENDER.SETBLOOM", "render", m.rSetBloom)
 	r.Register("RENDER.SETMODE", "render", m.rSetRenderMode)
 }
 
@@ -226,4 +228,48 @@ func (m *Module) rSetAmbient(args []value.Value) (value.Value, error) {
 	}
 	mbmodel3d.SetSceneAmbientScaled(rf, gf, bf, sf)
 	return value.Nil, nil
+}
+
+// rSetFog enables distance fog via FOG.* + WORLD.FOGDENSITY (same plumbing as SETFOG in blitzengine).
+func (m *Module) rSetFog(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = m
+	_ = rt
+	reg := runtime.ActiveRegistry()
+	if reg == nil {
+		return value.Nil, fmt.Errorf("RENDER.SETFOG: no active registry")
+	}
+	if len(args) != 6 {
+		return value.Nil, fmt.Errorf("RENDER.SETFOG expects (r#, g#, b#, start#, end#, density#)")
+	}
+	if _, err := reg.Call("FOG.ENABLE", []value.Value{value.FromBool(true)}); err != nil {
+		return value.Nil, err
+	}
+	if _, err := reg.Call("FOG.SETCOLOR", []value.Value{args[0], args[1], args[2], value.FromInt(255)}); err != nil {
+		return value.Nil, err
+	}
+	if _, err := reg.Call("FOG.SETRANGE", []value.Value{args[3], args[4]}); err != nil {
+		return value.Nil, err
+	}
+	if _, err := reg.Call("WORLD.FOGDENSITY", []value.Value{args[5]}); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+// rSetBloom enables built-in post-process bloom (threshold / optional intensity).
+func (m *Module) rSetBloom(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	reg := runtime.ActiveRegistry()
+	if reg == nil {
+		return value.Nil, fmt.Errorf("RENDER.SETBLOOM: no active registry")
+	}
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("RENDER.SETBLOOM expects (threshold#) or (threshold#, intensity#)")
+	}
+	intensity := value.FromFloat(1.0)
+	if len(args) == 2 {
+		intensity = args[1]
+	}
+	_, err := reg.Call("POST.BLOOM", []value.Value{value.FromBool(true), args[0], intensity})
+	return value.Nil, err
 }

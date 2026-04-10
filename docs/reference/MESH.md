@@ -25,16 +25,16 @@ m = MESH.MAKEPLANE(width#, length#, resX, resZ)
 
 | Command | Arguments |
 |---|---|
-| `MESH.MAKEPOLY` | `sides, radius#` |
-| `MESH.MAKEPLANE` | `width#, length#, resX, resZ` |
-| `MESH.MAKECUBE` | `width#, height#, length#` |
-| `MESH.MAKESPHERE` | `radius#, rings, slices` |
-| `MESH.MAKECYLINDER` | `radius#, height#, slices` |
-| `MESH.MAKECONE` | `radius#, height#, slices` |
-| `MESH.MAKETORUS` | `radius#, size#, radSeg, sides` |
-| `MESH.MAKEKNOT` | `radius#, size#, radSeg, sides` |
-| `MESH.MAKEHEIGHTMAP` | `image, sizeX#, sizeY#, sizeZ#` |
-| `MESH.MAKECUBICMAP` | `image, cubeX#, cubeY#, cubeZ#` |
+| `MESH.MAKEPOLY` | `sides, radius` |
+| `MESH.MAKEPLANE` | `width, length, resX, resZ` |
+| `MESH.MAKECUBE` | `width, height, length` |
+| `MESH.MAKESPHERE` | `radius, rings, slices` |
+| `MESH.MAKECYLINDER` | `radius, height, slices` |
+| `MESH.MAKECONE` | `radius, height, slices` |
+| `MESH.MAKETORUS` | `radius, size, radSeg, sides` |
+| `MESH.MAKEKNOT` | `radius, size, radSeg, sides` |
+| `MESH.MAKEHEIGHTMAP` | `image, sizeX, sizeY, sizeZ` |
+| `MESH.MAKECUBICMAP` | `image, cubeX, cubeY, cubeZ` |
 
 ### Legacy aliases
 
@@ -43,6 +43,9 @@ m = MESH.MAKEPLANE(width#, length#, resX, resZ)
 | `MESH.CUBE` | `MESH.MAKECUBE` |
 | `MESH.SPHERE` | `MESH.MAKESPHERE` |
 | `MESH.PLANE` | `MESH.MAKEPLANE` |
+| `MESH.CREATECUBE` | `MESH.MAKECUBE` |
+| `MESH.CREATESPHERE` | `MESH.MAKESPHERE` |
+| `MESH.CREATEPLANE` | `MESH.MAKEPLANE` |
 
 ---
 
@@ -130,13 +133,13 @@ MESH.FREE(m)
 
 Unloads GPU and CPU mesh data (`UnloadMesh`). Idempotent object **`Free`** via heap; a second **`MESH.FREE`** on the same handle fails (stale handle).
 
-**`MESH.LOAD(path$)`** — loads the **first submesh** of a file via Raylib **`LoadModel`**; the runtime keeps the parent model alive until **`MESH.FREE`** (do not mix with manual unload of the same file elsewhere).
+**`MESH.LOAD(path)`** — loads the **first submesh** of a file via Raylib **`LoadModel`**; the runtime keeps the parent model alive until **`MESH.FREE`** (do not mix with manual unload of the same file elsewhere).
 
-**`MESH.EXPORT(m, path$)`** — writes **`ExportMesh`** (e.g. OBJ).
+**`MESH.EXPORT(m, path)`** — writes **`ExportMesh`** (e.g. OBJ).
 
 **`MESH.GETBOUNDS(m)`** — returns a **6-element float array** `[minX,minY,minZ,maxX,maxY,maxZ]` (caller should **`ERASE`** when done).
 
-**`MESH.DRAWAT(m, material, x#, y#, z#)`** — draws with **`MatrixTranslate`** (identity rotation).
+**`MESH.DRAWAT(m, material, x, y, z)`** — draws with **`MatrixTranslate`** (identity rotation).
 
 **`MESH.DRAWINSTANCED(m, material, transforms_array, count)`** — **`transforms_array`** is a flat float array of **`count×16`** values (column-major **`MAT4`** per instance).
 
