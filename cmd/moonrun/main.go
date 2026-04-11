@@ -15,7 +15,7 @@ import (
 	"moonbasic/internal/driver"
 )
 
-const version = "1.2.5"
+const version = "1.2.7"
 
 func init() {
 	// Pin the main goroutine before any work. OpenGL/GLFW contexts (Raylib) must stay on the OS
