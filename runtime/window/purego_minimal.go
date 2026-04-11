@@ -9,6 +9,7 @@ import (
 	"moonbasic/internal/raylibpurego"
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -97,6 +98,7 @@ func (m *Module) puregoWOpen(rt *runtime.Runtime, args ...value.Value) (value.Va
 	}
 	m.opened = true
 	m.inFrame = false
+	mbphysics3d.LogJoltPhysicsBackendHint()
 	nWarmup := 2
 	if s := os.Getenv("MOONBASIC_OPEN_WARMUP_FRAMES"); s != "" {
 		fmt.Sscanf(s, "%d", &nWarmup)

@@ -578,6 +578,26 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`CEIL`** - args: any
 
+### CHAR
+
+- **`CHAR.DIST`** - args: int, int -> returns float — Alias of ENTITY.DIST — distance between two entities
+- **`CHAR.ISGROUNDED`** - args: int -> returns bool — Alias of PLAYER.ISGROUNDED
+- **`CHAR.ISGROUNDED`** - args: int, float -> returns bool — KCC ground test with optional coyote grace (seconds)
+- **`CHAR.JUMP`** - args: int, float — Alias of PLAYER.JUMP
+- **`CHAR.MAKE`** - args: int — Alias of PLAYER.CREATE: (entity) or (entity, radius#, height#); allocates Jolt CharacterVirtual and clears scripted gravity/velocity for stable KCC (Linux+CGO)
+- **`CHAR.MAKE`** - args: int, float, float — Alias of PLAYER.CREATE(entity, radius#, height#)
+- **`CHAR.MOVE`** - args: int, float, float, float — KCC world move: (entity, dirX#, dirZ#, speed#) → horizontal velocity = dir * speed; slides on walls (CharacterVirtual; Linux+CGO)
+- **`CHAR.MOVEWITHCAM`** - args: int, handle, float, float, float — Alias of CHAR.MOVEWITHCAMERA / PLAYER.MOVEWITHCAMERA
+- **`CHAR.MOVEWITHCAMERA`** - args: int, handle, float, float, float — Alias of PLAYER.MOVEWITHCAMERA
+- **`CHAR.NAVTO`** - args: int, float, float, float — Alias of PLAYER.NAVTO
+- **`CHAR.NAVTO`** - args: int, float, float, float, float — Alias of PLAYER.NAVTO (5-arg)
+- **`CHAR.NAVTO`** - args: int, float, float, float, float, float — Alias of PLAYER.NAVTO (6-arg)
+- **`CHAR.NAVUPDATE`** - args: int — Alias of PLAYER.NAVUPDATE
+- **`CHAR.SETPADDING`** - args: int, float — Alias of PLAYER.SETPADDING (KCC skin padding)
+- **`CHAR.SETSLOPE`** - args: int, float — Alias of PLAYER.SETSLOPELIMIT
+- **`CHAR.SETSTEP`** - args: int, float — Alias of PLAYER.SETSTEPOFFSET / stair step-up height
+- **`CHAR.STICK`** - args: int, float — Alias of PLAYER.SETSTICKFLOOR — glue to floor within max step down (world units)
+
 ### CHARCONTROLLER
 
 - **`CHARCONTROLLER.FREE`** - args: handle
@@ -1184,6 +1204,24 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENET.PEERPING`** - args: handle
 - **`ENET.PEERSEND`** - args: handle, int, handle
 
+### ENT
+
+- **`ENT.DAMAGE`** - args: int, float — Reduce entity HP by amount#; triggers damage effects/logic
+- **`ENT.DIST`** - args: int, int -> returns float — Alias of ENTITY.DIST
+- **`ENT.FADE`** - args: int, float, float — Smoothly interpolate entity alpha to targetValue over duration
+- **`ENT.FADE`** - args: int, float, float — Fade to target alpha over duration — convenience over ENTITY.FADE
+- **`ENT.GETNEAREST`** - args: int, float, string -> returns handle — Alias of ENT.GET_NEAREST / PLAYER.GETNEARBY
+- **`ENT.GET_NEAREST`** - args: int, float, string -> returns handle — Alias of PLAYER.GETNEARBY — entities with matching tag within radius (float array of ids)
+- **`ENT.ONDEATH`** - args: int, string — Prefab by ENTITY.SETNAME / registry name (same as int overload)
+- **`ENT.ONDEATH`** - args: int, int — Death-drop prefab with 100% chance — alias of ENTITY.ONDEATHDROP(entity, prefab, 100)
+- **`ENT.SETHP`** - args: int, float, float — Alias of ENT.SET_HP / ENTITY.SETHEALTH
+- **`ENT.SETTEAM`** - args: int, int — Alias of ENT.SET_TEAM
+- **`ENT.SET_TEAM`** - args: int, int — Stores team id on entity (gameplay / friendly-fire bookkeeping)
+- **`ENT.SHOOT`** - args: int, int, float -> returns int — Spawn ENTITY.COPY of prefab at shooter forward; sets host velocity (scripted projectile)
+- **`ENT.SHOOT`** - args: int, string, float -> returns int — Prefab by registered name string
+- **`ENT.TWEEN`** - args: int, float, float, float, float — Smooth move to world (x,y,z) over duration — alias of ENTITY.ANIMATETOWARD
+- **`ENT.WOBBLE`** - args: int, float, float — Alias of ENTITY.ADDWOBBLE — bob amplitude and speed
+
 ### ENTHIT
 
 - **`ENTHIT`** - args: handle, int -> returns handle — Shorthand: ENTITYCOLLIDED(ent, type)
@@ -1253,6 +1291,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.DELTAX`** - args: int, int -> returns float
 - **`ENTITY.DELTAY`** - args: int, int -> returns float
 - **`ENTITY.DELTAZ`** - args: int, int -> returns float
+- **`ENTITY.DIST`** - args: int, int -> returns float — 3D distance between two entities (alias of ENTITY.DISTANCE semantics)
 - **`ENTITY.DISTANCE`** - args: int, int -> returns float
 - **`ENTITY.DISTANCETO`** - args: handle, handle -> returns float — Returns distance.
 - **`ENTITY.DRAW`** - args: int
@@ -2967,21 +3006,27 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`NAV.ADDOBSTACLE`** - args: handle, handle
 - **`NAV.ADDTERRAIN`** - args: handle, handle
 - **`NAV.BAKE`** - args: handle, float, float -> returns handle — Builds a coarse walkability grid from a terrain heightmap (slope limit); returns nav handle and caches per terrain for NAV.GETPATH
-- **`NAV.BUILD`** - args: handle
-- **`NAV.BUILD`** - args: handle
 - **`NAV.BUILD`** - args: int — Automatically scan the world for static geometry and bake the navigation grid.
-- **`NAV.DEBUGDRAW`** - args: handle
+- **`NAV.BUILD`** - args: handle
+- **`NAV.BUILD`** - args: handle
+- **`NAV.CHASE`** - args: int, int, float, float — KCC follow: move toward target entity until within standoff gap (world units)
 - **`NAV.DEBUGDRAW`** - args: int — Render a debug overlay of the navigation grid (Green=Walkable, Red=Blocked).
+- **`NAV.DEBUGDRAW`** - args: handle
 - **`NAV.FINDPATH`** - args: handle, float, float, float, float, float, float -> returns handle
 - **`NAV.FREE`** - args: handle
 - **`NAV.GETPATH`** - args: handle, float, float, float, float -> returns handle — A* path on last NAV.BAKE for this terrain (start/end XZ; Y sampled from terrain)
+- **`NAV.GOTO`** - args: int, float, float, float — Alias of PLAYER.NAVTO — click-to-move for KCC (default arrival ~0.2 world units)
+- **`NAV.GOTO`** - args: int, float, float, float, float — NAV.GOTO with arrival distance (alias of PLAYER.NAVTO)
+- **`NAV.GOTO`** - args: int, float, float, float, float, float — NAV.GOTO with arrival and brake distance
 - **`NAV.ISREACHABLE`** - args: handle, float, float, float, float -> returns bool — True if NAV.GETPATH would return a valid path
 - **`NAV.MAKE`** - args: (none) -> returns handle
 - **`NAV.MAKE`** - args: (none) -> returns handle
 - **`NAV.MAKE`** - args: (none) -> returns int — Create a new navigation grid handle.
+- **`NAV.PATROL`** - args: int, float, float, float, float, float — KCC ping-pong patrol between world XZ points A and B
+- **`NAV.SETGRID`** - args: handle, int, int, float, float, float
 - **`NAV.SETGRID`** - args: handle, int, int, float, float, float
 - **`NAV.SETGRID`** - args: int, int, int, float, float, float — Initialize navigation grid dimensions: (handle, width, height, cellSize#, offsetX#, offsetY#)
-- **`NAV.SETGRID`** - args: handle, int, int, float, float, float
+- **`NAV.UPDATE`** - args: int — Alias of PLAYER.NAVUPDATE
 
 ### NAVAGENT
 
@@ -3326,6 +3371,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`PLAYER.CREATE`** - args: handle — Initializes a Kinematic Character Controller in the Jolt buffer.
 - **`PLAYER.CREATE`** - args: int
+- **`PLAYER.CREATE`** - args: int, float, float — KCC with explicit capsule radius and height (world units)
 - **`PLAYER.GETCROUCH`** - args: int -> returns bool — Stored crouch flag (capsule resize not in Jolt wrapper yet)
 - **`PLAYER.GETFOVKICK`** - args: int -> returns float — Reads stored FOV kick offset (degrees)
 - **`PLAYER.GETLOOKTARGET`** - args: int, float -> returns int
@@ -3335,21 +3381,29 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.GETVELOCITY`** - args: int -> returns handle — Heap vec3 of linear velocity (CharacterVirtual); requires PLAYER.CREATE
 - **`PLAYER.GRAB`** - args: int, int — Welds target to player front each frame (target 0 releases); not a Jolt fixed constraint yet
 - **`PLAYER.ISGROUNDED`** - args: int -> returns bool
+- **`PLAYER.ISGROUNDED`** - args: int, float -> returns bool — Optional coyote time (seconds): true shortly after leaving ground
 - **`PLAYER.ISMOVING`** - args: int -> returns bool — True if horizontal linear speed > ~0.05 (CharacterVirtual)
 - **`PLAYER.ISSWIMMING`** - args: int -> returns bool — True when entity origin is inside a WATER volume column (bed..surface)
 - **`PLAYER.JUMP`** - args: int, float
 - **`PLAYER.MOVE`** - args: int, float, float
 - **`PLAYER.MOVERELATIVE`** - args: float, float, float, float, float -> returns handle — MOVESTEPX/Z combined â€” 2-float array [dx,dz]; ERASE when done
+- **`PLAYER.MOVEWITHCAMERA`** - args: int, handle, float, float, float — WASD-style: (entity, camera, forwardAxis#, strafeAxis#, speed#) movement on XZ relative to camera view (Linux+CGO KCC)
+- **`PLAYER.NAVTO`** - args: int, float, float, float — Click-to-move target: (entity, targetX#, targetZ#, speed# [, arrivalXZ# [, brakeDist#]]); use with PLAYER.NAVUPDATE each frame; soft brake near target (Linux+CGO KCC)
+- **`PLAYER.NAVTO`** - args: int, float, float, float, float — NAVTO with arrival distance
+- **`PLAYER.NAVTO`** - args: int, float, float, float, float, float — NAVTO with arrival and brake distance (soft stop)
+- **`PLAYER.NAVUPDATE`** - args: int — Advances PLAYER.NAVTO / CHAR.NAVTO toward target with soft deceleration (Linux+CGO)
 - **`PLAYER.ONTRIGGER`** - args: int, string
 - **`PLAYER.PUSH`** - args: int, int, float — Applies forward horizontal force to target entity (host ENTITY.ADDFORCE path; scaled by player mass)
 - **`PLAYER.SETCROUCH`** - args: int, any — Sets crouch flag (gameplay; capsule height unchanged until wrapper supports it)
 - **`PLAYER.SETFOVKICK`** - args: int, float — Stores extra FOV degrees; add Camera.SetFOV(base + Player.GetFovKick(id)) each frame
 - **`PLAYER.SETGRAVITYSCALE`** - args: int, float — Scales CharacterVirtual gravity on Y (1=default; moon-jump / low-G zones)
 - **`PLAYER.SETMASS`** - args: int, float — Stores gameplay mass (PLAYER.Push scaling); Jolt capsule mass is fixed at create
+- **`PLAYER.SETPADDING`** - args: int, float — Character capsule skin padding (world units, >0); rebuilds CharacterVirtual (Linux+CGO)
 - **`PLAYER.SETSLOPELIMIT`** - args: int, float — Rebuilds CharacterVirtual with MaxSlopeAngle = angle (degrees); requires PLAYER.CREATE (Linux+Jolt)
 - **`PLAYER.SETSTATE`** - args: int, int
 - **`PLAYER.SETSTEPHEIGHT`** - args: int, float — Stores max stair/curb step height for the player entity (reserved; Jolt runtime step tuning not exposed yet)
-- **`PLAYER.SETSTEPOFFSET`** - args: int, float — Alias of PLAYER.SETSTEPHEIGHT (reserved step tuning)
+- **`PLAYER.SETSTEPOFFSET`** - args: int, float — Alias of PLAYER.SETSTEPHEIGHT; maps to Jolt ExtendedUpdate WalkStairsStepUp (Linux+CGO)
+- **`PLAYER.SETSTICKFLOOR`** - args: int, float — Stick-to-floor max step down (world units); Jolt CharacterVirtual ExtendedUpdateSettings (Linux+CGO)
 - **`PLAYER.SNAPTOGROUND`** - args: int, handle, float — Sets entity Y from terrain height at entity XZ + offset (PLAYER.CREATE syncs capsule on Linux+Jolt)
 - **`PLAYER.SWIM`** - args: int, float, float — Swim mode: buoyancy reduces downward gravity; drag damps horizontal motion; (0,0) disables
 - **`PLAYER.SYNCANIM`** - args: int, any
@@ -4629,17 +4683,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`WORLD.DAYNIGHTCYCLE`** - args: float — Rotates global sunlight over duration (seconds).
 - **`WORLD.EXPLOSION`** - args: float, float, float, float, float — Alias of PHYSICS.EXPLOSION
-- **`WORLD.FOGCOLOR`** - args: int, int, int — Set the fog color: (r, g, b).
 - **`WORLD.FOGCOLOR`** - args: int, int, int
+- **`WORLD.FOGCOLOR`** - args: int, int, int — Set the fog color: (r, g, b).
 - **`WORLD.FOGDENSITY`** - args: float
 - **`WORLD.FOGDENSITY`** - args: float — Set the fog density (0.0 to 1.0).
 - **`WORLD.FOGMODE`** - args: int — Set the fog mode: 0=None, 1=Linear, 2=Exponential.
 - **`WORLD.FOGMODE`** - args: int
 - **`WORLD.GETRAY`** - args: float, float, handle -> returns handle — Returns Array [px,py,pz,dx,dy,dz]
 - **`WORLD.GRAVITY`** - args: float, float, float — Alias: forwards to PHYSICS3D.SETGRAVITY (global Jolt gravity)
+- **`WORLD.HITSTOP`** - args: float — Pause simulation (hit-stop) for duration seconds for better combat feel
+- **`WORLD.HITSTOP`** - args: float — Freeze gameplay delta for duration (wall-clock seconds) — impact frames
 - **`WORLD.ISREADY`** - args: handle -> returns bool
 - **`WORLD.MOUSE2D`** - args: handle -> returns handle — Mouse position through Camera2D; float array [wx,wy]
+- **`WORLD.MOUSEFLOOR`** - args: handle, float -> returns handle — Alias of WORLD.MOUSEFLOOR3D — mouse ray vs plane y=floorY → [wx,wz] or NIL
 - **`WORLD.MOUSEFLOOR3D`** - args: handle, float -> returns handle — Mouse ray vs plane y=floorY; float array [wx,wz] or NIL
+- **`WORLD.MOUSEPICK`** - args: handle -> returns int — Alias of WORLD.MOUSETOENTITY — entity id under mouse cursor (physics ray; Linux+Jolt)
 - **`WORLD.MOUSETOENTITY`** - args: handle -> returns int — Jolt ray pick at cursor (Linux+CGO); entity# or 0. Same as CAMERA.RAYCASTMOUSE
 - **`WORLD.MOUSETOFLOOR`** - args: handle, float -> returns handle — Alias of WORLD.MOUSEFLOOR3D
 - **`WORLD.PRELOAD`** - args: handle, int
@@ -4652,8 +4710,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WORLD.SETREVERB`** - args: int — Changes echo.
 - **`WORLD.SETTIMESCALE`** - args: float — Alias of GAME.SETTIMESCALE
 - **`WORLD.SETVEGETATION`** - args: handle, handle, float — Scatter helper: terrain + billboard entity reserved + density; uses internal SCATTER set
+- **`WORLD.SHAKE`** - args: float, float — Alias of WORLD.SCREENSHAKE — screen impact via active camera
 - **`WORLD.STATUS`** - args: (none) -> returns string
 - **`WORLD.STREAMENABLE`** - args: bool
+- **`WORLD.TOSCREEN`** - args: int -> returns handle — WORLD.TOSCREEN(entity#) — screen [x,y] for entity world position via active 3D camera
 - **`WORLD.TOSCREEN`** - args: float, float, float -> returns handle — World to screen using active CAMERA.BEGIN 3D camera; returns float array [sx,sy]
 - **`WORLD.TOSCREEN`** - args: float, float, float, handle -> returns handle — Returns 2D Screen coords given 3D World coords and Camera.
 - **`WORLD.TOWORLD`** - args: float, float, float -> returns handle — Unproject screen x,y with depth along view ray (active 3D camera); returns [wx,wy,wz]

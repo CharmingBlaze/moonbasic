@@ -31,6 +31,13 @@ func applyDeltaCap(dt float64) float64 {
 
 // DeltaSeconds returns Raylib frame time with optional cap (see TIME.SETMAXDELTA). Used by GAME.DT.
 func DeltaSeconds(rt *runtime.Runtime) float64 {
+	if rt != nil && rt.HitStopEndAt > 0 {
+		now := float64(rl.GetTime())
+		if now < rt.HitStopEndAt {
+			return 0
+		}
+		rt.HitStopEndAt = 0
+	}
 	if rt != nil && rt.GamePaused {
 		return 0
 	}

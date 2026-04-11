@@ -8,7 +8,8 @@ import (
 
 // Module holds optional 2D pen state for SETCOLOR / SETALPHA / SETORIGIN / SETVIEWPORT.
 type Module struct {
-	pen pen2D
+	pen    pen2D
+	player runtime.Module
 }
 
 // NewModule creates the Blitz-style facade module.
@@ -26,6 +27,11 @@ func (m *Module) Register(reg runtime.Registrar) {
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
+
+// BindPlayer implements runtime.PlayerAware.
+func (m *Module) BindPlayer(p runtime.Module) {
+	m.player = p
+}
 
 func (m *Module) Reset() {}
 

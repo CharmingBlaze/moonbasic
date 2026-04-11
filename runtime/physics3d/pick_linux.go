@@ -83,6 +83,7 @@ func registerPickCommands(m *Module, reg mbruntime.Registrar) {
 	reg.Register("PICK.HIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return pickHitGet(m, a) }))
 	reg.Register("PHYSICS3D.MOUSEHIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phMouseHit(m, a) }))
 	reg.Register("WORLD.MOUSETOENTITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return camRaycastMouseEntity(m, a) }))
+	reg.Register("WORLD.MOUSEPICK", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return camRaycastMouseEntity(m, a) }))
 	reg.Register("CAMERA.RAYCASTMOUSE", "camera", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return camRaycastMouseEntity(m, a) }))
 }
 

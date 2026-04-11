@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 
+	mbcamera "moonbasic/runtime/camera"
 	mbentity "moonbasic/runtime/mbentity"
 	mbmatrix "moonbasic/runtime/mbmatrix"
 	mbphysics3d "moonbasic/runtime/physics3d"
@@ -13,6 +14,8 @@ import (
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const defaultEyeY = 1.65
@@ -27,6 +30,8 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PLAYER.ISGROUNDED", "player", m.playerIsGrounded)
 	reg.Register("PLAYER.GETLOOKTARGET", "player", m.playerGetLookTarget)
 	reg.Register("PLAYER.GETNEARBY", "player", m.playerGetNearby)
+	reg.Register("ENT.GET_NEAREST", "player", m.playerGetNearby)
+	reg.Register("ENT.GETNEAREST", "player", m.playerGetNearby)
 	reg.Register("PLAYER.ONTRIGGER", "player", m.playerOnTrigger)
 	reg.Register("PLAYER.SETSTATE", "player", m.playerSetState)
 	reg.Register("PLAYER.SYNCANIM", "player", m.playerSyncAnim)
@@ -39,6 +44,29 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PLAYER.SETCROUCH", "player", m.playerSetCrouch)
 	reg.Register("PLAYER.SWIM", "player", m.playerSwim)
 	reg.Register("PLAYER.SETSTEPOFFSET", "player", m.playerSetStepOffset)
+	reg.Register("PLAYER.SETSTICKFLOOR", "player", m.playerSetStickFloor)
+	reg.Register("PLAYER.NAVTO", "player", m.playerNavTo)
+	reg.Register("PLAYER.NAVUPDATE", "player", m.playerNavUpdate)
+	reg.Register("PLAYER.SETPADDING", "player", m.playerSetPadding)
+	reg.Register("PLAYER.MOVEWITHCAMERA", "player", m.playerMoveWithCamera)
+	// NAV.* — intent layer (same KCC backend as PLAYER.NAVTO).
+	reg.Register("NAV.GOTO", "player", m.playerNavTo)
+	reg.Register("NAV.UPDATE", "player", m.playerNavUpdate)
+	reg.Register("NAV.CHASE", "player", m.playerNavChase)
+	reg.Register("NAV.PATROL", "player", m.playerNavPatrol)
+	// CHAR.* Kinematic Character Controller (CharacterVirtual).
+	reg.Register("CHAR.MAKE", "player", m.playerCreate)
+	reg.Register("CHAR.SETSTEP", "player", m.playerSetStepOffset)
+	reg.Register("CHAR.SETSLOPE", "player", m.playerSetSlopeLimit)
+	reg.Register("CHAR.SETPADDING", "player", m.playerSetPadding)
+	reg.Register("CHAR.MOVE", "player", m.playerCharMoveDir)
+	reg.Register("CHAR.MOVEWITHCAMERA", "player", m.playerMoveWithCamera)
+	reg.Register("CHAR.MOVEWITHCAM", "player", m.playerMoveWithCamera)
+	reg.Register("CHAR.NAVTO", "player", m.playerNavTo)
+	reg.Register("CHAR.NAVUPDATE", "player", m.playerNavUpdate)
+	reg.Register("CHAR.STICK", "player", m.playerSetStickFloor)
+	reg.Register("CHAR.ISGROUNDED", "player", m.playerIsGrounded)
+	reg.Register("CHAR.JUMP", "player", m.playerJump)
 	reg.Register("PLAYER.GETSTANDNORMAL", "player", m.playerGetStandNormal)
 	reg.Register("PLAYER.PUSH", "player", m.playerPush)
 	reg.Register("PLAYER.GRAB", "player", m.playerGrab)
@@ -55,8 +83,8 @@ func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.V
 	if m.h == nil || m.char == nil || m.ent == nil {
 		return value.Nil, fmt.Errorf("PLAYER.CREATE: not available (requires Linux+Jolt fullruntime)")
 	}
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE expects (entity)")
+	if len(args) != 1 && len(args) != 3 {
+		return value.Nil, fmt.Errorf("PLAYER.CREATE / CHAR.MAKE expects (entity) or (entity, radius#, height#)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -65,15 +93,25 @@ func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.V
 	if _, dup := m.entToChar[id]; dup {
 		return value.Nil, fmt.Errorf("PLAYER.CREATE: entity already has a character controller")
 	}
+	rad, hei := playerCapsuleRadius, playerCapsuleHeight
+	if len(args) == 3 {
+		r, ok1 := args[1].ToFloat()
+		h, ok2 := args[2].ToFloat()
+		if !ok1 || !ok2 || r <= 0 || h <= 0 {
+			return value.Nil, fmt.Errorf("CHAR.MAKE: radius and height must be positive numbers")
+		}
+		rad, hei = r, h
+	}
 	px, py, pz, ok := m.ent.PlayerBridgeWorldPos(id)
 	if !ok {
 		return value.Nil, fmt.Errorf("PLAYER.CREATE: unknown entity")
 	}
-	h, err := m.char.AllocCharacter(playerCapsuleRadius, playerCapsuleHeight, px, py, pz, 0)
+	h, err := m.char.AllocCharacter(rad, hei, px, py, pz, 0, -1)
 	if err != nil {
 		return value.Nil, err
 	}
 	m.entToChar[id] = h
+	_ = m.ent.PlayerBridgeClearScriptedMotion(id)
 	return value.Nil, nil
 }
 
@@ -125,6 +163,338 @@ func (m *Module) playerMove(rt *runtime.Runtime, args ...value.Value) (value.Val
 	return value.Nil, nil
 }
 
+// playerCharMoveDir implements CHAR.MOVE(entity, dirX, dirZ, speed): world XZ velocity = dir * speed (typ. dir ∈ {-1,0,1}).
+func (m *Module) playerCharMoveDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.char == nil || m.ent == nil {
+		return value.Nil, fmt.Errorf("CHAR.MOVE: not available on this platform")
+	}
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("CHAR.MOVE expects (entity, dirX#, dirZ#, speed#)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("CHAR.MOVE: invalid entity")
+	}
+	dx, ok1 := args[1].ToFloat()
+	dz, ok2 := args[2].ToFloat()
+	spd, ok3 := args[3].ToFloat()
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("CHAR.MOVE: numeric arguments required")
+	}
+	if spd < 0 {
+		return value.Nil, fmt.Errorf("CHAR.MOVE: speed must be non-negative")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("CHAR.MOVE: call PLAYER.CREATE / CHAR.MAKE first")
+	}
+	vx := dx * spd
+	vz := dz * spd
+	dt := mbtime.DeltaSeconds(rt)
+	if dt <= 0 {
+		dt = 1.0 / 60.0
+	}
+	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
+		return value.Nil, err
+	}
+	x, y, z, ok := m.char.CharacterPosition(ch)
+	if ok {
+		_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+	}
+	return value.Nil, nil
+}
+
+// playerMoveWithCamera implements CHAR.MOVEWITHCAMERA / PLAYER.MOVEWITHCAMERA — camera XZ walk basis × input axes × speed.
+func (m *Module) playerMoveWithCamera(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil || m.char == nil || m.ent == nil {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: not available on this platform")
+	}
+	if len(args) != 5 {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA expects (entity, camera, forwardAxis#, strafeAxis#, speed#)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: invalid entity")
+	}
+	if args[1].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: camera handle required")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: call PLAYER.CREATE first")
+	}
+	f, ok1 := args[2].ToFloat()
+	s, ok2 := args[3].ToFloat()
+	spd, ok3 := args[4].ToFloat()
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: forward/strafe/speed must be numeric")
+	}
+	if spd < 0 {
+		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: speed must be non-negative")
+	}
+	camH := heap.Handle(args[1].IVal)
+	fwd, right, err := mbcamera.CameraXZWalkBasis(m.h, camH)
+	if err != nil {
+		return value.Nil, err
+	}
+	vx := (float64(fwd.X)*f + float64(right.X)*s) * spd
+	vz := (float64(fwd.Z)*f + float64(right.Z)*s) * spd
+	dt := mbtime.DeltaSeconds(rt)
+	if dt <= 0 {
+		dt = 1.0 / 60.0
+	}
+	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
+		return value.Nil, err
+	}
+	x, y, z, ok := m.char.CharacterPosition(ch)
+	if ok {
+		_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerNavTo(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.kccNav == nil {
+		m.kccNav = make(map[int64]*kccNavState)
+	}
+	if len(args) < 4 || len(args) > 6 {
+		return value.Nil, fmt.Errorf("PLAYER.NAVTO expects (entity, targetX#, targetZ#, speed# [, arrivalXZ# [, brakeDist#]])")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.NAVTO: invalid entity")
+	}
+	if _, ok := m.entToChar[id]; !ok {
+		return value.Nil, fmt.Errorf("PLAYER.NAVTO: call PLAYER.CREATE first")
+	}
+	tx, _ := args[1].ToFloat()
+	tz, _ := args[2].ToFloat()
+	spd, _ := args[3].ToFloat()
+	if spd < 0 {
+		return value.Nil, fmt.Errorf("PLAYER.NAVTO: speed must be non-negative")
+	}
+	arr := 0.2
+	if len(args) >= 5 {
+		if a, _ := args[4].ToFloat(); a > 0 {
+			arr = a
+		}
+	}
+	brake := 0.75
+	if len(args) == 6 {
+		if b, _ := args[5].ToFloat(); b > 0 {
+			brake = b
+		}
+	}
+	m.kccNav[id] = &kccNavState{mode: kccNavGoto, active: true, tx: tx, tz: tz, speed: spd, arrival: arr, brake: brake}
+	return value.Nil, nil
+}
+
+func (m *Module) playerNavChase(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.kccNav == nil {
+		m.kccNav = make(map[int64]*kccNavState)
+	}
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("NAV.CHASE expects (entity, targetEntity#, standoffGap#, speed#)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("NAV.CHASE: invalid entity")
+	}
+	if _, ok := m.entToChar[id]; !ok {
+		return value.Nil, fmt.Errorf("NAV.CHASE: call PLAYER.CREATE / CHAR.MAKE first")
+	}
+	tid, ok := args[1].ToInt()
+	if !ok || tid < 1 {
+		return value.Nil, fmt.Errorf("NAV.CHASE: invalid target entity")
+	}
+	gap, ok := args[2].ToFloat()
+	if !ok || gap < 0 {
+		return value.Nil, fmt.Errorf("NAV.CHASE: gap must be non-negative")
+	}
+	spd, ok := args[3].ToFloat()
+	if !ok || spd < 0 {
+		return value.Nil, fmt.Errorf("NAV.CHASE: speed must be non-negative")
+	}
+	m.kccNav[id] = &kccNavState{
+		mode: kccNavChase, active: true, chaseTarget: tid, chaseGap: gap, speed: spd,
+		arrival: 0.2, brake: 0.75,
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerNavPatrol(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.kccNav == nil {
+		m.kccNav = make(map[int64]*kccNavState)
+	}
+	if len(args) != 6 {
+		return value.Nil, fmt.Errorf("NAV.PATROL expects (entity, ax#, az#, bx#, bz#, speed#)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("NAV.PATROL: invalid entity")
+	}
+	if _, ok := m.entToChar[id]; !ok {
+		return value.Nil, fmt.Errorf("NAV.PATROL: call PLAYER.CREATE / CHAR.MAKE first")
+	}
+	ax, _ := args[1].ToFloat()
+	az, _ := args[2].ToFloat()
+	bx, _ := args[3].ToFloat()
+	bz, _ := args[4].ToFloat()
+	spd, ok := args[5].ToFloat()
+	if !ok || spd < 0 {
+		return value.Nil, fmt.Errorf("NAV.PATROL: speed must be non-negative")
+	}
+	m.kccNav[id] = &kccNavState{
+		mode: kccNavPatrol, active: true,
+		patrolAX: ax, patrolAZ: az, patrolBX: bx, patrolBZ: bz,
+		speed: spd, arrival: 0.2, brake: 0.75,
+		patrolToB: true,
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerNavUpdate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.char == nil || m.ent == nil || m.kccNav == nil {
+		return value.Nil, nil
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("PLAYER.NAVUPDATE expects (entity)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.NAVUPDATE: invalid entity")
+	}
+	st, ok := m.kccNav[id]
+	if !ok || st == nil || !st.active {
+		return value.Nil, nil
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		st.active = false
+		return value.Nil, nil
+	}
+	px, _, pz, ok := m.ent.PlayerBridgeWorldPos(id)
+	if !ok {
+		return value.Nil, nil
+	}
+
+	var tx, tz float64
+	switch st.mode {
+	case kccNavGoto:
+		tx, tz = st.tx, st.tz
+	case kccNavChase:
+		var ok2 bool
+		tx, _, tz, ok2 = m.ent.PlayerBridgeWorldPos(st.chaseTarget)
+		if !ok2 {
+			return value.Nil, nil
+		}
+		if math.Hypot(tx-px, tz-pz) <= st.chaseGap {
+			dt := mbtime.DeltaSeconds(rt)
+			if dt <= 0 {
+				dt = 1.0 / 60.0
+			}
+			_ = m.char.CharacterMoveXZVelocity(ch, 0, 0, dt)
+			x, y, z, ok2 := m.char.CharacterPosition(ch)
+			if ok2 {
+				_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+			}
+			return value.Nil, nil
+		}
+	case kccNavPatrol:
+		if st.patrolToB {
+			tx, tz = st.patrolBX, st.patrolBZ
+		} else {
+			tx, tz = st.patrolAX, st.patrolAZ
+		}
+	default:
+		tx, tz = st.tx, st.tz
+	}
+
+	dx := tx - px
+	dz := tz - pz
+	dist := math.Hypot(dx, dz)
+	if st.mode == kccNavPatrol {
+		if dist <= st.arrival {
+			dt := mbtime.DeltaSeconds(rt)
+			if dt <= 0 {
+				dt = 1.0 / 60.0
+			}
+			_ = m.char.CharacterMoveXZVelocity(ch, 0, 0, dt)
+			x, y, z, ok2 := m.char.CharacterPosition(ch)
+			if ok2 {
+				_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+			}
+			st.patrolToB = !st.patrolToB
+			return value.Nil, nil
+		}
+	} else if st.mode == kccNavGoto {
+		if dist <= st.arrival {
+			dt := mbtime.DeltaSeconds(rt)
+			if dt <= 0 {
+				dt = 1.0 / 60.0
+			}
+			_ = m.char.CharacterMoveXZVelocity(ch, 0, 0, dt)
+			x, y, z, ok2 := m.char.CharacterPosition(ch)
+			if ok2 {
+				_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+			}
+			st.active = false
+			return value.Nil, nil
+		}
+	}
+
+	spd := st.speed
+	if st.brake > 0 && dist < st.brake {
+		t := dist / st.brake
+		spd *= t * t
+	}
+	vx := (dx / dist) * spd
+	vz := (dz / dist) * spd
+	dt := mbtime.DeltaSeconds(rt)
+	if dt <= 0 {
+		dt = 1.0 / 60.0
+	}
+	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
+		return value.Nil, err
+	}
+	x, y, z, ok := m.char.CharacterPosition(ch)
+	if ok {
+		_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerSetPadding(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.SETPADDING: not available on this platform")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.SETPADDING expects (entity, padding#)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.SETPADDING: invalid entity")
+	}
+	pad, ok := args[1].ToFloat()
+	if !ok || pad <= 0 {
+		return value.Nil, fmt.Errorf("PLAYER.SETPADDING: padding must be > 0")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETPADDING: call PLAYER.CREATE first")
+	}
+	newH, err := m.char.SetCharacterPadding(ch, float32(pad))
+	if err != nil {
+		return value.Nil, err
+	}
+	m.entToChar[id] = newH
+	return value.Nil, nil
+}
+
 func (m *Module) playerJump(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if m.char == nil {
@@ -162,8 +532,8 @@ func (m *Module) playerIsGrounded(rt *runtime.Runtime, args ...value.Value) (val
 	if m.char == nil {
 		return value.FromBool(false), nil
 	}
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity)")
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity) or (entity, coyoteTimeSec#)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -177,7 +547,23 @@ func (m *Module) playerIsGrounded(rt *runtime.Runtime, args ...value.Value) (val
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromBool(g), nil
+	now := float64(rl.GetTime())
+	if m.kccLastGroundedAt == nil {
+		m.kccLastGroundedAt = make(map[int64]float64)
+	}
+	if g {
+		m.kccLastGroundedAt[id] = now
+		return value.FromBool(true), nil
+	}
+	if len(args) == 2 {
+		grace, ok := args[1].ToFloat()
+		if ok && grace > 0 {
+			if t, ok := m.kccLastGroundedAt[id]; ok && now-t <= grace {
+				return value.FromBool(true), nil
+			}
+		}
+	}
+	return value.FromBool(false), nil
 }
 
 func (m *Module) playerGetLookTarget(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -315,10 +701,14 @@ func (m *Module) playerSetStepHeight(rt *runtime.Runtime, args ...value.Value) (
 	if !ok || h < 0 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTEPHEIGHT: height must be >= 0")
 	}
-	if _, ok := m.entToChar[id]; !ok {
+	ch, ok := m.entToChar[id]
+	if !ok {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTEPHEIGHT: call PLAYER.CREATE first")
 	}
 	m.stepHeight[id] = h
+	if err := m.char.SetCharacterWalkStairsStepUp(ch, float32(h)); err != nil {
+		return value.Nil, err
+	}
 	return value.Nil, nil
 }
 
@@ -510,6 +900,32 @@ func (m *Module) playerSwim(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) playerSetStepOffset(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	return m.playerSetStepHeight(rt, args...)
+}
+
+func (m *Module) playerSetStickFloor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR: not available on this platform")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR expects (entity, downDistance#)")
+	}
+	id, ok := args[0].ToInt()
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR: invalid entity")
+	}
+	down, ok := args[1].ToFloat()
+	if !ok || down < 0 {
+		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR: downDistance must be >= 0")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR: call PLAYER.CREATE first")
+	}
+	if err := m.char.SetCharacterStickToFloorDown(ch, float32(down)); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
 }
 
 func (m *Module) playerGetStandNormal(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

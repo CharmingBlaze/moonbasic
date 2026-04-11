@@ -3,7 +3,7 @@
 package mbphysics3d
 
 // MatrixBufferForEntitySync returns the shared float buffer filled by syncSharedBuffers.
-// Indices are body bufferIndex*16 .. +15 (column-major 4x4, translation in slots 12–14).
+// Indices are body bufferIndex*16 .. +15 (column-major 4×4: rotation in 0–10, translation in 12–14).
 // Nil when physics has not started or buffer not allocated.
 func MatrixBufferForEntitySync() []float32 {
 	joltMu.Lock()

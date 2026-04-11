@@ -1015,12 +1015,23 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		if e.physicsDriven {
 			continue
 		}
+		if entityUsesKinematicCharacter(e.id) {
+			continue
+		}
 		// Scripted spheres: avoid gravity-vs-snap jitter — when feet are already in the landing band
 		// on a static and vertical speed is small, skip gravity for this frame (resting contact).
 		if e.useSphere {
 			wp0 := m.worldPos(e)
 			px, py, pz := float64(wp0.X), float64(wp0.Y), float64(wp0.Z)
-			pr := float64(e.radius)
+			
+			// Detect scripted "feet" position for snapping (Stub/Windows path)
+			bottomOff := float64(e.physBottomOffset) * float64(e.scale.Y)
+			if bottomOff < 1e-4 {
+				// Fallback for uninitialized offsets
+				bottomOff = float64(e.radius)
+				if e.kind == entKindCapsule { bottomOff += float64(e.cylH) * 0.5 }
+			}
+			
 			supported := false
 			for _, s := range st.ents {
 				if s == nil || !s.static {
@@ -1029,7 +1040,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 				sp := s.getPos()
 				bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
 				bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
-				if mbgame.SphereFeetInBoxTopSupport(px, py, pz, pr, bx, by, bz, bw, bh, bd) {
+				if mbgame.SphereFeetInBoxTopSupport(px, py, pz, bottomOff, bx, by, bz, bw, bh, bd) {
 					supported = true
 					break
 				}
@@ -1047,11 +1058,17 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
 
 		// Basic ground snapping / floor check
-		if e.useSphere {
+		if e.useSphere || e.kind == entKindCapsule || e.kind == entKindModel {
 			wp2 := m.worldPos(e)
-			px, py, pz := float64(wp2.X), float64(wp2.Y), float64(wp2.Z)
-			pvy := float64(e.vel.Y)
-			pr := float64(e.radius)
+			px, py, pz := float32(wp2.X), float32(wp2.Y), float32(wp2.Z)
+			pvy := float32(e.vel.Y)
+			
+			bottomOff := float64(e.physBottomOffset) * float64(e.scale.Y)
+			if bottomOff < 1e-4 {
+				bottomOff = float64(e.radius)
+				if e.kind == entKindCapsule { bottomOff += float64(e.cylH) * 0.5 }
+			}
+			
 			var bestSnap float64
 			found := false
 			for _, s := range st.ents {
@@ -1061,7 +1078,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 				sp := s.getPos()
 				bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
 				bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
-				snap := mbgame.BoxTopLandSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd)
+				snap := mbgame.BoxTopLandSnap(float64(px), float64(py), float64(pz), float64(pvy), bottomOff, bx, by, bz, bw, bh, bd)
 				if snap != 0 && (!found || snap > bestSnap) {
 					bestSnap = snap
 					found = true
@@ -1071,7 +1088,9 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 				wp := m.worldPos(e)
 				wp.Y = float32(bestSnap)
 				m.setLocalFromWorld(e, wp.X, wp.Y, wp.Z)
-				e.vel.Y = 0
+				if e.vel.Y < 0 {
+					e.vel.Y = 0
+				}
 				e.onGround = true
 			} else {
 				e.onGround = false
@@ -1079,6 +1098,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		}
 	}
 
+	m.processDamageBlink(dt)
 	m.processGameplayMotion(dt)
 	m.processWobble(dt)
 
@@ -1563,6 +1583,11 @@ func (m *Module) entID(v value.Value) (int64, bool) {
 	return 0, false
 }
 
+// ResolveEntityID resolves a VM entity argument (numeric entity# or EntityRef handle from MODEL.* / ENTITY.*) to the internal entity id.
+func (m *Module) ResolveEntityID(v value.Value) (int64, bool) {
+	return m.entID(v)
+}
+
 // WorldPosFromEntityHandle resolves an EntityRef heap handle to world position (e.g. camera orbit).
 func (m *Module) WorldPosFromEntityHandle(handle heap.Handle) (rl.Vector3, bool) {
 	if m.h == nil {
@@ -1578,6 +1603,43 @@ func (m *Module) WorldPosFromEntityHandle(handle heap.Handle) (rl.Vector3, bool)
 		return rl.Vector3{}, false
 	}
 	return m.worldPos(e), true
+}
+// TranslateEntityByID (Internal) nudge an entity in world space.
+func (m *Module) TranslateEntityByID(id int, dx, dy, dz float32) {
+	st := m.store()
+	if id < 1 || id >= len(st.ents) { return }
+	e := st.ents[int64(id)]
+	if e == nil { return }
+	wp := m.worldPos(e)
+	m.setLocalFromWorld(e, wp.X+dx, wp.Y+dy, wp.Z+dz)
+}
+
+// RotateEntityAbsByID (Internal) set entity absolute rotation.
+func (m *Module) RotateEntityAbsByID(id int, p, w, r float32) {
+	st := m.store()
+	if id < 1 || id >= len(st.ents) { return }
+	e := st.ents[int64(id)]
+	if e == nil { return }
+	e.setRot(p, w, r)
+}
+
+// SetWorldPosByID (Internal) set entity world position.
+func (m *Module) SetWorldPosByID(id int, x, y, z float32) {
+	st := m.store()
+	if id < 1 || id >= len(st.ents) { return }
+	e := st.ents[int64(id)]
+	if e == nil { return }
+	m.setLocalFromWorld(e, x, y, z)
+}
+
+// DisablePhysicsByID (Internal) kills scripted gravity and physics for KCC takeover.
+func (m *Module) DisablePhysicsByID(id int) {
+	st := m.store()
+	if id < 1 || id >= len(st.ents) { return }
+	e := st.ents[int64(id)]
+	if e == nil { return }
+	e.physicsDriven = false
+	e.gravity = 0
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {

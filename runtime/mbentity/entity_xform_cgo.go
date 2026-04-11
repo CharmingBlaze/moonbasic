@@ -78,6 +78,27 @@ func (m *Module) setLocalFromWorld(e *ent, wx, wy, wz float32) {
 	e.setPos(rl.Vector3RotateByQuaternion(rel, inv))
 }
 
+// setLocalRotFromWorldQuat applies a world-space orientation to the entity's local pitch/yaw/roll,
+// accounting for parent chain (same euler convention as worldEuler / QuaternionFromEuler).
+func (m *Module) setLocalRotFromWorldQuat(e *ent, qWorld rl.Quaternion) {
+	if e.parentID() == 0 {
+		v := rl.QuaternionToEuler(qWorld)
+		e.setRot(v.Y, v.Z, v.X)
+		return
+	}
+	parent := m.store().ents[e.parentID()]
+	if parent == nil {
+		v := rl.QuaternionToEuler(qWorld)
+		e.setRot(v.Y, v.Z, v.X)
+		return
+	}
+	qp := m.worldRotQuat(parent)
+	inv := rl.QuaternionInvert(qp)
+	qLocal := rl.QuaternionMultiply(inv, qWorld)
+	v := rl.QuaternionToEuler(qLocal)
+	e.setRot(v.Y, v.Z, v.X)
+}
+
 func forwardFromYawPitch(yaw, pitch float32) rl.Vector3 {
 	cp := float32(math.Cos(float64(pitch)))
 	sp := float32(math.Sin(float64(pitch)))

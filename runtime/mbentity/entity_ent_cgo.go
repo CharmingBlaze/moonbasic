@@ -70,6 +70,7 @@ type ent struct {
 	mass             float32
 	friction         float32
 	bounce           float32
+	physBottomOffset float32
 	pickMode         int32
 
 	// Core Handles
@@ -164,6 +165,7 @@ type entExt struct {
 	navTZ      float32
 	navSpeed   float32
 	navArrival float32
+	navBrake   float32 // distance over which speed eases to 0 (soft stop); 0 = default 0.75
 
 	patrolActive       bool
 	patrolAX, patrolAZ float32
@@ -191,6 +193,13 @@ type entExt struct {
 	trailHead              int
 	trailCount             int
 	trailR, trailG, trailB uint8
+
+	// Gameplay (teams / friendly fire)
+	teamID int32
+
+	// ENTITY.DAMAGE feedback: brief red tint (restored in processDamageBlink).
+	damageBlinkRemain                      float32
+	damageBlinkR0, damageBlinkG0, damageBlinkB0 uint8
 
 	// Polish
 	outlineThickness float32

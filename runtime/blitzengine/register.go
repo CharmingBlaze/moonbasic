@@ -117,6 +117,11 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		if _, err := call(rt, "ENTITY.UPDATE", dt); err != nil {
 			return value.Nil, err
 		}
+		if m.player != nil {
+			if pm, ok := m.player.(runtime.PlayerModule); ok {
+				pm.Process(valFloat(dt))
+			}
+		}
 		_, _ = call(rt, "WORLD.UPDATE", dt)
 		_, _ = call(rt, "PHYSICS2D.STEP")
 		_, _ = call(rt, "PHYSICS3D.STEP", dt)

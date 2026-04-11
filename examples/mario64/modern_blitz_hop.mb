@@ -1,13 +1,18 @@
 ; ==========================================
-; moonBASIC 64 — Clean orbit hop (engine-owned yaw/pitch/dist)
+; moonBASIC 64 — Orbit hop (Kinematic Character Controller)
 ; ==========================================
 ; Beginner walkthrough: examples/mario64/MODERN_BLITZ_HOP_BEGINNER.md
 ;
-; cam.Orbit(entity, distance) — R-drag + Q/E + wheel; cam.Yaw() for player facing.
-; ENTITY.MOVEWITHCAMERA — walk velocity follows the camera view on XZ (after cam.Orbit), including mouse orbit.
+; KCC (CHAR.* / PLAYER.*): Jolt CharacterVirtual — slide on walls, stairs, stick-to-floor.
+; No dynamic ENTITY.PHYSICS on the hero (the capsule owns movement). Floor stays static.
+;
+; cam.Orbit(entity, distance) — R-drag + Q/E + wheel; cam.Yaw() for facing.
+; CHAR.MOVEWITHCAMERA — WASD in camera space (same idea as the old ENTITY.MOVEWITHCAMERA hop).
 ;
 ;   go run . --check examples/mario64/modern_blitz_hop.mb
 ;   CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/mario64/modern_blitz_hop.mb
+;
+; Full KCC runtime: Linux + CGO + Jolt. On Windows, compile/check works; run KCC on Linux/WSL.
 
 Window.Open(1280, 720, "moonBASIC 64")
 Window.SetFPS(60)
@@ -21,16 +26,17 @@ cam.SetFOV(60)
 player = Model.CreateCapsule(0.4, 1.0)
 player.Pos(0, 5, 0)
 player.Color(255, 60, 60)
-player.AddPhysics("dynamic", "capsule")
-player.SetBounciness(0.0)
+
+CHAR.MAKE(player, 0.4, 1.0)
+CHAR.SETSTEP(player, 0.3)
+CHAR.SETSLOPE(player, 45.0)
+CHAR.STICK(player, 0.5)
 
 floor = Model.CreateBox(100, 2, 100)
 floor.Pos(0, -1, 0)
 floor.Color(60, 200, 90)
-floor.AddPhysics("static", "box")
-floor.SetBounciness(0.0)
+ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
 
-; Prime orbit so the first rendered frame already looks at the player (Orbit runs after physics each frame).
 cam.Orbit(player, 12.0)
 player.SetRot(0, cam.Yaw(), 0)
 
@@ -38,14 +44,14 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
 
     fwd = Input.Axis(KEY_S, KEY_W)
     side = Input.Axis(KEY_A, KEY_D)
-    ENTITY.MOVEWITHCAMERA(player, cam, fwd, side, 10.0)
+    CHAR.MOVEWITHCAMERA(player, cam, fwd, side, 10.0)
+    PLAYER.NAVUPDATE(player)
 
-    IF KEYPRESSED(KEY_SPACE) AND player.IsGrounded() THEN
-        player.Jump(12.0)
+    IF KEYPRESSED(KEY_SPACE) AND CHAR.ISGROUNDED(player, 0.12) THEN
+        CHAR.JUMP(player, 12.0)
         player.Squash(0.5, 0.3)
     ENDIF
 
-    ; Physics first, then orbit camera to the new player pose (otherwise the rig lags a frame and feels like WASD moves the view).
     UPDATEPHYSICS()
     cam.Orbit(player, 12.0)
     player.SetRot(0, cam.Yaw(), 0)
@@ -56,7 +62,7 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
         ENTITY.DRAWALL()
     cam.End()
 
-    DRAW.TEXT("WASD = camera-relative · R-drag orbit · Q/E yaw · wheel · Space jump · ESC", 20, 20, 14, 255, 255, 255, 255)
+    DRAW.TEXT("KCC · WASD · R-drag orbit · Space jump · ESC", 20, 20, 14, 255, 255, 255, 255)
 
     RENDER.FRAME()
 WEND

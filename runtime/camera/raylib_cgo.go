@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"moonbasic/runtime/window"
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
@@ -418,6 +419,14 @@ func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 	mbmodel3d.StoreActiveCamera3D(cam)
 	m.lastActive3D = h
 	rl.BeginMode3D(cam)
+	if window.IsPostActive() {
+		// Fix double-flip: Raylib BeginMode3D auto-inverts Y if render target is a texture.
+		// Since MoonBASIC window.Update also flips for presentation, we get upside-down.
+		// Manual flip here cancels out Raylib's auto-flip.
+		proj := rl.GetMatrixProjection()
+		proj = rl.MatrixMultiply(proj, rl.MatrixScale(1, -1, 1))
+		rl.SetMatrixProjection(proj)
+	}
 	rw := float32(rl.GetRenderWidth())
 	rh := float32(rl.GetRenderHeight())
 	aspect := float32(16.0 / 9.0)

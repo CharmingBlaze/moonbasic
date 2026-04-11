@@ -176,21 +176,26 @@ func phSyncWasmToPhysRegs(m *Module, args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-// matrix16TranslationRL writes a column-major 4x4 translation matrix in the layout consumed by
-// MODEL.DRAW when given a shared physics matrix buffer (see mbmodel3d/model_inst_draw_cgo.go).
-// jolt-go exposes BodyInterface.GetPosition but not a full world transform in this version.
-func matrix16TranslationRL(dest []float32, p jolt.Vec3) {
-	dest[0] = 1
-	dest[1] = 0
-	dest[2] = 0
+// matrix16FromPosQuatRL writes a column-major 4×4 world matrix (Raylib MODEL.DRAW layout) from
+// Jolt position + quaternion. Matches three.js makeRotationFromQuaternion column packing.
+func matrix16FromPosQuatRL(dest []float32, p jolt.Vec3, q jolt.Quat) {
+	x, y, z, w := q.X, q.Y, q.Z, q.W
+	x2, y2, z2 := x+x, y+y, z+z
+	xx, xy, xz := x*x2, x*y2, x*z2
+	yy, yz, zz := y*y2, y*z2, z*z2
+	wx, wy, wz := w*x2, w*y2, w*z2
+
+	dest[0] = 1 - (yy + zz)
+	dest[1] = xy + wz
+	dest[2] = xz - wy
 	dest[3] = 0
-	dest[4] = 0
-	dest[5] = 1
-	dest[6] = 0
+	dest[4] = xy - wz
+	dest[5] = 1 - (xx + zz)
+	dest[6] = yz + wx
 	dest[7] = 0
-	dest[8] = 0
-	dest[9] = 0
-	dest[10] = 1
+	dest[8] = xz + wy
+	dest[9] = yz - wx
+	dest[10] = 1 - (xx + yy)
 	dest[11] = 0
 	dest[12] = p.X
 	dest[13] = p.Y
@@ -217,8 +222,9 @@ func (m *Module) syncSharedBuffers() {
 		}
 		id := (*jolt.BodyID)(unsafe.Pointer(ptr))
 		pos := bi.GetPosition(id)
+		rot := bi.GetRotation(id)
 		dest := matrixBuffer[idx*16 : (idx+1)*16]
-		matrix16TranslationRL(dest, pos)
+		matrix16FromPosQuatRL(dest, pos, rot)
 	}
 }
 

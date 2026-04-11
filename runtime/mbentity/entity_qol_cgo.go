@@ -21,6 +21,7 @@ func registerEntityQoLAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.CHECKRADIUS", "entity", runtime.AdaptLegacy(m.entCheckRadius))
 	r.Register("ENTITY.INFRUSTUM", "entity", runtime.AdaptLegacy(m.entInFrustum))
 	r.Register("ENTITY.FADE", "entity", runtime.AdaptLegacy(m.entFade))
+	r.Register("ENT.FADE", "entity", runtime.AdaptLegacy(m.entFadeTo))
 	r.Register("ENTITY.COLORPULSE", "entity", m.entColorPulse)
 }
 
@@ -213,6 +214,27 @@ func (m *Module) entCheckRadius(args []value.Value) (value.Value, error) {
 }
 
 
+
+// entFadeTo implements ENT.FADE(entity, targetAlpha#, duration#) via ENTITY.FADE start→end tween.
+func (m *Module) entFadeTo(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("ENT.FADE expects (entity, targetAlpha#, duration#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENT.FADE: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENT.FADE: unknown entity")
+	}
+	return m.entFade([]value.Value{
+		args[0],
+		value.FromFloat(float64(e.alpha)),
+		args[1],
+		args[2],
+	})
+}
 
 func (m *Module) entFade(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {

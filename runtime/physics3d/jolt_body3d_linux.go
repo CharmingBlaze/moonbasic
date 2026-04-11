@@ -8,6 +8,7 @@ import (
 	"unsafe"
 
 	"github.com/bbitechnologies/jolt-go/jolt"
+	rl "github.com/gen2brain/raylib-go/raylib"
 
 	mbruntime "moonbasic/runtime"
 	"moonbasic/vm/heap"
@@ -259,7 +260,7 @@ func bdGetPos(m *Module, args []value.Value) (value.Value, error) {
 	return value.FromHandle(ph), nil
 }
 
-// bdGetRotZero returns a 3-element array [pitch, yaw, roll]; placeholder until GetRotation is exposed on BodyInterface.
+// bdGetRotZero returns a 3-element array [pitch, yaw, roll] in ENTITY rotation order (QuaternionToEuler Y,Z,X).
 func bdGetRotZero(m *Module, args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, mbruntime.Errorf("BODY3D.GETROT: heap not bound")
@@ -267,13 +268,26 @@ func bdGetRotZero(m *Module, args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.GETROT expects body handle")
 	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return value.Nil, mbruntime.Errorf("BODY3D.GETROT: physics not started")
+	}
+	q := bi.GetRotation(bo.id)
+	v := rl.QuaternionToEuler(rl.Quaternion{X: q.X, Y: q.Y, Z: q.Z, W: q.W})
+	pitch, yaw, roll := v.Y, v.Z, v.X
 	arr, err := heap.NewArray([]int64{3})
 	if err != nil {
 		return value.Nil, err
 	}
-	_ = arr.Set([]int64{0}, 0)
-	_ = arr.Set([]int64{1}, 0)
-	_ = arr.Set([]int64{2}, 0)
+	_ = arr.Set([]int64{0}, float64(pitch))
+	_ = arr.Set([]int64{1}, float64(yaw))
+	_ = arr.Set([]int64{2}, float64(roll))
 	ph, err := m.h.Alloc(arr)
 	if err != nil {
 		return value.Nil, err

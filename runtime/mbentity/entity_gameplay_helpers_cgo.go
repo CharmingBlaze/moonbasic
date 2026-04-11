@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"strings"
 
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
@@ -15,24 +16,37 @@ import (
 
 func registerEntityGameplayHelpersAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.NAVTO", "entity", runtime.AdaptLegacy(m.entNavTo))
+	r.Register("ENT.NAVTO", "entity", runtime.AdaptLegacy(m.entNavTo))
+	r.Register("ENTITY.DIST", "entity", runtime.AdaptLegacy(m.entDistance))
+	r.Register("ENT.DIST", "entity", runtime.AdaptLegacy(m.entDistance))
+	r.Register("CHAR.DIST", "entity", runtime.AdaptLegacy(m.entDistance))
 	r.Register("ENTITY.SETHEALTH", "entity", runtime.AdaptLegacy(m.entSetHealth))
+	r.Register("ENT.SET_HP", "entity", runtime.AdaptLegacy(m.entSetHealth))
+	r.Register("ENT.SETHP", "entity", runtime.AdaptLegacy(m.entSetHealth))
 	r.Register("ENTITY.DAMAGE", "entity", runtime.AdaptLegacy(m.entDamage))
+	r.Register("ENT.DAMAGE", "entity", runtime.AdaptLegacy(m.entDamage))
 	r.Register("ENTITY.ISALIVE", "entity", runtime.AdaptLegacy(m.entIsAlive))
+	r.Register("ENT.ISALIVE", "entity", runtime.AdaptLegacy(m.entIsAlive))
+	r.Register("ENT.SET_TEAM", "entity", runtime.AdaptLegacy(m.entSetTeam))
+	r.Register("ENT.SETTEAM", "entity", runtime.AdaptLegacy(m.entSetTeam))
 	r.Register("ENTITY.ONDEATHDROP", "entity", runtime.AdaptLegacy(m.entOnDeathDrop))
+	r.Register("ENT.ONDEATH", "entity", runtime.AdaptLegacy(m.entOnDeath))
 	r.Register("ENTITY.MAGNETTO", "entity", runtime.AdaptLegacy(m.entMagnetTo))
 	r.Register("ENTITY.SETTAG", "entity", runtime.AdaptLegacy(m.entSetTag))
 	r.Register("ENTITY.ADDWOBBLE", "entity", runtime.AdaptLegacy(m.entAddWobble))
+	r.Register("ENT.WOBBLE", "entity", runtime.AdaptLegacy(m.entAddWobble))
 	r.Register("ENTITY.ADDTRAIL", "entity", runtime.AdaptLegacy(m.entAddTrail))
 	r.Register("ENTITY.WASGROUNDED", "entity", runtime.AdaptLegacy(m.entWasGrounded))
 	r.Register("ENTITY.ISWALLSLIDING", "entity", runtime.AdaptLegacy(m.entIsWallSliding))
 	r.Register("ENTITY.CUTJUMP", "entity", runtime.AdaptLegacy(m.entCutJump))
 	r.Register("ENTITY.SETGRAVITYSCALE", "entity", runtime.AdaptLegacy(m.entSetGravityScaleEnt))
 	r.Register("SPAWNER.MAKE", "entity", runtime.AdaptLegacy(m.spawnerMake))
+	r.Register("ENT.SHOOT", "entity", runtime.AdaptLegacy(m.entShoot))
 }
 
 func (m *Module) entNavTo(args []value.Value) (value.Value, error) {
-	if len(args) != 4 && len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.NAVTO expects (entity, targetX, targetZ, speed# [, arrivalXZ#])")
+	if len(args) != 4 && len(args) != 5 && len(args) != 6 {
+		return value.Nil, fmt.Errorf("ENTITY.NAVTO expects (entity, targetX, targetZ, speed# [, arrivalXZ# [, brakeDist#]])")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -58,13 +72,40 @@ func (m *Module) entNavTo(args []value.Value) (value.Value, error) {
 	ext.navTZ = float32(tz)
 	ext.navSpeed = float32(spd)
 	ext.navArrival = 0
-	if len(args) == 5 {
+	ext.navBrake = 0.75
+	if len(args) >= 5 {
 		ar, _ := args[4].ToFloat()
 		if ar > 0 {
 			ext.navArrival = float32(ar)
 		}
 	}
+	if len(args) == 6 {
+		br, _ := args[5].ToFloat()
+		if br > 0 {
+			ext.navBrake = float32(br)
+		}
+	}
 	return m.chainEntityRef(args[0])
+}
+
+func (m *Module) entSetTeam(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENT.SET_TEAM expects (entity, teamId#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENT.SET_TEAM: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENT.SET_TEAM: unknown entity")
+	}
+	tid, ok := args[1].ToInt()
+	if !ok {
+		return value.Nil, fmt.Errorf("ENT.SET_TEAM: teamId must be numeric")
+	}
+	e.getExt().teamID = int32(tid)
+	return value.Nil, nil
 }
 
 func (m *Module) entSetHealth(args []value.Value) (value.Value, error) {
@@ -129,6 +170,13 @@ func (m *Module) entDamage(args []value.Value) (value.Value, error) {
 	if ext.hpCur < 0 {
 		ext.hpCur = 0
 	}
+	if amt > 0 {
+		if ext.damageBlinkRemain <= 0 {
+			ext.damageBlinkR0, ext.damageBlinkG0, ext.damageBlinkB0 = e.r, e.g, e.b
+		}
+		ext.damageBlinkRemain = 0.1
+		e.r, e.g, e.b = 255, 48, 48
+	}
 	if ext.hpCur <= 0 && ext.deathDropPrefab >= 1 && ext.deathDropChance > 0 {
 		if rand.Float64()*100 < float64(ext.deathDropChance) {
 			wp := m.worldPos(e)
@@ -161,6 +209,83 @@ func (m *Module) entIsAlive(args []value.Value) (value.Value, error) {
 		return value.FromBool(true), nil
 	}
 	return value.FromBool(ext.hpCur > 0), nil
+}
+
+func (m *Module) resolvePrefabNameOrEntity(v value.Value) (int64, error) {
+	if v.Kind == value.KindString {
+		if m.h == nil {
+			return 0, fmt.Errorf("heap not bound")
+		}
+		tag, ok := m.h.GetString(int32(v.IVal))
+		if !ok {
+			return 0, fmt.Errorf("invalid prefab name string")
+		}
+		id, ok2 := m.store().byName[strings.ToUpper(tag)]
+		if !ok2 || id < 1 {
+			return 0, fmt.Errorf("unknown prefab name %q (use ENTITY.SETNAME on a template entity)", tag)
+		}
+		return id, nil
+	}
+	id, ok := m.entID(v)
+	if !ok || id < 1 {
+		return 0, fmt.Errorf("invalid prefab entity")
+	}
+	return id, nil
+}
+
+func (m *Module) entOnDeath(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENT.ONDEATH expects (entity, prefabEntity# or prefabName$); use ENTITY.ONDEATHDROP for custom drop chance")
+	}
+	pid, err := m.resolvePrefabNameOrEntity(args[1])
+	if err != nil {
+		return value.Nil, err
+	}
+	return m.entOnDeathDrop([]value.Value{args[0], value.FromInt(pid), value.FromFloat(100)})
+}
+
+func (m *Module) entShoot(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("ENT.SHOOT expects (shooterEntity, prefabEntity# or prefabName$, speed#)")
+	}
+	sid, ok := m.entID(args[0])
+	if !ok || sid < 1 {
+		return value.Nil, fmt.Errorf("ENT.SHOOT: invalid shooter entity")
+	}
+	pid, err := m.resolvePrefabNameOrEntity(args[1])
+	if err != nil {
+		return value.Nil, err
+	}
+	spd, ok3 := args[2].ToFloat()
+	if !ok3 || spd < 0 {
+		return value.Nil, fmt.Errorf("ENT.SHOOT: speed must be non-negative")
+	}
+	sh := m.store().ents[sid]
+	pref := m.store().ents[pid]
+	if sh == nil || pref == nil {
+		return value.Nil, fmt.Errorf("ENT.SHOOT: unknown entity")
+	}
+	v, err := m.entCopy([]value.Value{value.FromInt(pid)})
+	if err != nil {
+		return value.Nil, err
+	}
+	newID, ok4 := v.ToInt()
+	if !ok4 || newID < 1 {
+		return value.Nil, fmt.Errorf("ENT.SHOOT: copy failed")
+	}
+	bullet := m.store().ents[newID]
+	if bullet == nil {
+		return value.Nil, fmt.Errorf("ENT.SHOOT: internal error")
+	}
+	wp := m.worldPos(sh)
+	p, w, _ := sh.getRot()
+	fwd := forwardFromYawPitch(w, p)
+	off := rl.Vector3Scale(fwd, 0.6)
+	bullet.setPos(rl.Vector3Add(wp, off))
+	f32 := float32(spd)
+	bullet.vel = rl.Vector3{X: fwd.X * f32, Y: fwd.Y * f32, Z: fwd.Z * f32}
+	bullet.static = false
+	return value.FromInt(newID), nil
 }
 
 func (m *Module) entOnDeathDrop(args []value.Value) (value.Value, error) {
@@ -416,6 +541,23 @@ func (m *Module) entSetGravityScaleEnt(args []value.Value) (value.Value, error) 
 	return value.Nil, nil
 }
 
+func (m *Module) processDamageBlink(dt float32) {
+	st := m.store()
+	for _, e := range st.ents {
+		if e == nil || e.ext == nil {
+			continue
+		}
+		ext := e.ext
+		if ext.damageBlinkRemain <= 0 {
+			continue
+		}
+		ext.damageBlinkRemain -= dt
+		if ext.damageBlinkRemain <= 0 {
+			e.r, e.g, e.b = ext.damageBlinkR0, ext.damageBlinkG0, ext.damageBlinkB0
+		}
+	}
+}
+
 // --- per-frame processing from ENTITY.UPDATE ---
 
 func (m *Module) processSpawners(dt float32) {
@@ -460,7 +602,16 @@ func (m *Module) processGameplayMotion(dt float32) {
 			if dist < arr {
 				ext.navActive = false
 			} else {
-				step := ext.navSpeed * dt
+				spd := ext.navSpeed
+				br := ext.navBrake
+				if br <= 0 {
+					br = 0.75
+				}
+				if dist < br {
+					t := dist / br
+					spd *= t * t
+				}
+				step := spd * dt
 				var nx, nz float32
 				if step >= dist {
 					nx, nz = tx, tz

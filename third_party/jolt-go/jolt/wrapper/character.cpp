@@ -117,19 +117,36 @@ void JoltCharacterVirtualUpdate(JoltCharacterVirtual character,
 void JoltCharacterVirtualExtendedUpdate(JoltCharacterVirtual character,
 										JoltPhysicsSystem system,
 										float deltaTime,
-										float gravityX, float gravityY, float gravityZ)
+										float gravityX, float gravityY, float gravityZ,
+										const JoltCharacterExtendedUpdateSettings* extendedSettingsOrNull)
 {
 	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
 	PhysicsSystemWrapper* wrapper = static_cast<PhysicsSystemWrapper*>(system);
 
-	// Use default extended update settings
 	CharacterVirtual::ExtendedUpdateSettings settings;
+	if (extendedSettingsOrNull != nullptr)
+	{
+		settings.mStickToFloorStepDown =
+			Vec3(extendedSettingsOrNull->stickToFloorStepDownX,
+				 extendedSettingsOrNull->stickToFloorStepDownY,
+				 extendedSettingsOrNull->stickToFloorStepDownZ);
+		settings.mWalkStairsStepUp =
+			Vec3(extendedSettingsOrNull->walkStairsStepUpX,
+				 extendedSettingsOrNull->walkStairsStepUpY,
+				 extendedSettingsOrNull->walkStairsStepUpZ);
+		settings.mWalkStairsMinStepForward = extendedSettingsOrNull->walkStairsMinStepForward;
+		settings.mWalkStairsStepForwardTest = extendedSettingsOrNull->walkStairsStepForwardTest;
+		settings.mWalkStairsCosAngleForwardContact = extendedSettingsOrNull->walkStairsCosAngleForwardContact;
+		settings.mWalkStairsStepDownExtra =
+			Vec3(extendedSettingsOrNull->walkStairsStepDownExtraX,
+				 extendedSettingsOrNull->walkStairsStepDownExtraY,
+				 extendedSettingsOrNull->walkStairsStepDownExtraZ);
+	}
 
 	// Use MOVING layer for character (same as dynamic bodies)
 	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(wrapper), Layers::MOVING);
 	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(wrapper), Layers::MOVING);
 
-	// Call ExtendedUpdate with gravity vector and layer filters
 	cv->ExtendedUpdate(
 		deltaTime,
 		Vec3(gravityX, gravityY, gravityZ),

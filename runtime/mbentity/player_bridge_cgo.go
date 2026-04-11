@@ -10,6 +10,48 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+// PlayerBridgeAnalyticFloorTopForFeet returns the highest static box top Y under (px,pz) when feet at footY
+// can stand on that surface (same static AABB scan as ENTITY.FLOOR / queryFloorY, but pivot at feet).
+func (m *Module) PlayerBridgeAnalyticFloorTopForFeet(px, footY, pz, horizRadius float64) (topY float64, ok bool) {
+	var best float64
+	found := false
+	for _, s := range m.store().ents {
+		if s == nil || !s.static {
+			continue
+		}
+		sp := s.getPos()
+		bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
+		bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
+		top := by + bh*0.5
+		halfW := bw*0.5 + horizRadius
+		halfD := bd*0.5 + horizRadius
+		if math.Abs(px-bx) > halfW || math.Abs(pz-bz) > halfD {
+			continue
+		}
+		if footY <= top+3.0 && footY >= top-0.25 {
+			if !found || top > best {
+				best = top
+				found = true
+			}
+		}
+	}
+	if !found {
+		return 0, false
+	}
+	return best, true
+}
+
+// PlayerBridgeClearScriptedMotion zeros scripted gravity and velocity for PLAYER.CREATE / KCC entities.
+func (m *Module) PlayerBridgeClearScriptedMotion(id int64) bool {
+	e := m.store().ents[id]
+	if e == nil {
+		return false
+	}
+	e.gravity = 0
+	e.vel = rl.Vector3{}
+	return true
+}
+
 // PlayerBridgeWorldPos returns the entity world position (feet / pivot).
 func (m *Module) PlayerBridgeWorldPos(id int64) (x, y, z float64, ok bool) {
 	e := m.store().ents[id]

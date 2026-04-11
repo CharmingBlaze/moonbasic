@@ -13,7 +13,7 @@ func SphereFeetInBoxTopSupport(px, py, pz, pr, bx, by, bz, bw, bh, bd float64) b
 	}
 	top := by + bh*0.5
 	feet := py - pr
-	return feet <= top+0.12 && feet >= top-0.55
+	return feet <= top+0.22 && feet >= top-1.25
 }
 
 // BoxTopLandSnap returns sphere-centre Y to snap to when landing on the top of an AABB box,
@@ -29,7 +29,7 @@ func BoxTopLandSnap(px, py, pz, pvy, pr, bx, by, bz, bw, bh, bd float64) float64
 	}
 	top := by + bh*0.5
 	feet := py - pr
-	if feet <= top+0.12 && feet >= top-0.55 {
+	if feet <= top+0.22 && feet >= top-1.25 {
 		return top + pr
 	}
 	return 0

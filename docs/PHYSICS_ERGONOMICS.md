@@ -2,6 +2,10 @@
 
 This document describes the modern, simplified physics API for MoonBASIC. These commands are designed to be "Entity-First," abstracting away the complexity of the underlying Jolt physics system.
 
+**Example:** [examples/mario64/modern_blitz_hop.mb](../examples/mario64/modern_blitz_hop.mb) uses **`ENTITY.PHYSICS`** for the player capsule and static floor (friction + restitution in one call).
+
+**Kinematic hero (KCC):** For **CharacterVirtual** movement (slide on walls, stairs, stick-to-floor) instead of a **dynamic** rigid body, use **`CHAR.MAKE`** / **`PLAYER.CREATE`** and avoid **`ENTITY.PHYSICS`** on the hero. See [reference/KCC.md](reference/KCC.md) and [examples/mario64/modern_blitz_hop_kcc.mb](../examples/mario64/modern_blitz_hop_kcc.mb).
+
 ## 1. Quick Setup (`ENTITY.PHYSICS`)
 
 The fastest way to add physics to an entity.

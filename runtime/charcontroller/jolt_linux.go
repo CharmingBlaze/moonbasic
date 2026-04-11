@@ -33,9 +33,15 @@ func untrackChar(h heap.Handle) {
 
 const charDt = float32(1.0 / 60.0)
 
+// charVerticalSleepVy: when Jolt reports OnGround and |vy| is below this, zero vy (stationary bounce).
+const charVerticalSleepVy = float32(0.25)
+
 type charObj struct {
 	cv      *jolt.CharacterVirtual
 	release heap.ReleaseOnce
+
+	// extUpdate is passed to CharacterVirtual.ExtendedUpdate (StickToFloor / WalkStairs tuning).
+	extUpdate jolt.ExtendedUpdateSettings
 
 	gravityScale float32 // 1 = default world gravity response on Y
 	swimMode     bool
@@ -43,6 +49,12 @@ type charObj struct {
 	swimDrag     float32 // horizontal velocity damping per second when swimming
 	crouch       bool    // gameplay flag (capsule resize not in wrapper yet)
 	charMass     float32 // stored for gameplay; Jolt CharacterVirtual mass is fixed at create
+
+	// Capsule + padding (for rebuild after PLAYER.SETSLOPE / CHAR.SETPADDING).
+	capRadius   float32
+	capFullH    float32 // total capsule height passed to CreateCapsule
+	maxSlopeDeg float32
+	charPad     float32 // CharacterVirtualSettings.CharacterPadding
 }
 
 func (c *charObj) TypeName() string { return "CharController" }
@@ -99,6 +111,30 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CONTROLLER.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccFree(m, args) }))
 }
 
+func (m *Module) extendedUpdateChar(co *charObj, dt float32) {
+	if co == nil || co.cv == nil {
+		return
+	}
+	g := mbphysics3d.GravityVec()
+	co.cv.ExtendedUpdate(dt, g, &co.extUpdate)
+	m.characterVerticalSleep(co)
+}
+
+func (m *Module) characterVerticalSleep(co *charObj) {
+	if co == nil || co.cv == nil {
+		return
+	}
+	if co.cv.GetGroundState() != jolt.GroundStateOnGround {
+		return
+	}
+	v := co.cv.GetLinearVelocity()
+	if math.Abs(float64(v.Y)) >= float64(charVerticalSleepVy) {
+		return
+	}
+	v.Y = 0
+	co.cv.SetLinearVelocity(v)
+}
+
 func shutdownCharController(m *Module) {
 	if m.h == nil {
 		return
@@ -142,7 +178,7 @@ func ccMake(m *Module, args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("CHARCONTROLLER.MAKE: z must be numeric")
 	}
-	h, err := createCharacterVirtualFromParams(m, radius, height, x, y, z, 45)
+	h, err := createCharacterVirtualFromParams(m, radius, height, x, y, z, 45, -1)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -150,7 +186,8 @@ func ccMake(m *Module, args []value.Value) (value.Value, error) {
 }
 
 // createCharacterVirtualFromParams allocates a CharacterVirtual. maxSlopeDeg ≤ 0 uses 45°.
-func createCharacterVirtualFromParams(m *Module, radius, height, x, y, z, maxSlopeDeg float64) (heap.Handle, error) {
+// padding ≤ 0 uses Jolt default CharacterPadding (0.02); else sets CharacterVirtualSettings.CharacterPadding.
+func createCharacterVirtualFromParams(m *Module, radius, height, x, y, z, maxSlopeDeg, padding float64) (heap.Handle, error) {
 	ps := mbphysics3d.ActiveJoltPhysics()
 	if ps == nil {
 		return 0, fmt.Errorf("CHARCONTROLLER: PHYSICS3D not started")
@@ -166,8 +203,16 @@ func createCharacterVirtualFromParams(m *Module, radius, height, x, y, z, maxSlo
 	capsule := jolt.CreateCapsule(hh, fr)
 	settings := jolt.NewCharacterVirtualSettings(capsule)
 	settings.MaxSlopeAngle = jolt.DegreesToRadians(float32(maxSlopeDeg))
+	if padding > 0 {
+		settings.CharacterPadding = float32(padding)
+	}
 	cv := ps.CreateCharacterVirtual(settings, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
-	h, err := m.h.Alloc(&charObj{cv: cv, gravityScale: 1, charMass: 70})
+	ext := jolt.DefaultExtendedUpdateSettings()
+	pad := settings.CharacterPadding
+	h, err := m.h.Alloc(&charObj{
+		cv: cv, extUpdate: ext, gravityScale: 1, charMass: 70,
+		capRadius: fr, capFullH: fh, maxSlopeDeg: float32(maxSlopeDeg), charPad: pad,
+	})
 	if err != nil {
 		if cv != nil {
 			cv.Destroy()
@@ -202,8 +247,7 @@ func ccSetPos(m *Module, args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CHARCONTROLLER.SETPOS: z must be numeric")
 	}
 	co.cv.SetPosition(jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
-	g := mbphysics3d.GravityVec()
-	co.cv.ExtendedUpdate(charDt, g)
+	m.extendedUpdateChar(co, charDt)
 	return value.Nil, nil
 }
 
@@ -242,8 +286,7 @@ func ccMove(m *Module, args []value.Value) (value.Value, error) {
 		Y: p.Y + float32(dy),
 		Z: p.Z + float32(dz),
 	})
-	g := mbphysics3d.GravityVec()
-	co.cv.ExtendedUpdate(charDt, g)
+	m.extendedUpdateChar(co, charDt)
 	return value.Nil, nil
 }
 
@@ -335,8 +378,9 @@ func ccFree(m *Module, args []value.Value) (value.Value, error) {
 
 // AllocCharacter creates a Jolt CharacterVirtual (used by runtime/player).
 // maxSlopeDeg ≤ 0 defaults to 45° (matches prior CHARCONTROLLER.MAKE behavior).
-func (m *Module) AllocCharacter(radius, height, x, y, z float64, maxSlopeDeg float64) (heap.Handle, error) {
-	return createCharacterVirtualFromParams(m, radius, height, x, y, z, maxSlopeDeg)
+// padding ≤ 0 uses default skin width; >0 sets CharacterPadding.
+func (m *Module) AllocCharacter(radius, height, x, y, z float64, maxSlopeDeg, padding float64) (heap.Handle, error) {
+	return createCharacterVirtualFromParams(m, radius, height, x, y, z, maxSlopeDeg, padding)
 }
 
 // RecreateCharacterWithSlope destroys a character and creates a new one at the same pose with a new max walk slope.
@@ -350,6 +394,7 @@ func (m *Module) RecreateCharacterWithSlope(oldH heap.Handle, radius, height, ma
 	}
 	p := co.cv.GetPosition()
 	v := co.cv.GetLinearVelocity()
+	extCopy := co.extUpdate
 	gs := co.gravityScale
 	sm := co.swimMode
 	sb, sd := co.swimBuoyancy, co.swimDrag
@@ -361,7 +406,7 @@ func (m *Module) RecreateCharacterWithSlope(oldH heap.Handle, radius, height, ma
 	if err := m.h.Free(oldH); err != nil {
 		return 0, err
 	}
-	h, err := createCharacterVirtualFromParams(m, radius, height, float64(p.X), float64(p.Y), float64(p.Z), maxSlopeDeg)
+	h, err := createCharacterVirtualFromParams(m, radius, height, float64(p.X), float64(p.Y), float64(p.Z), maxSlopeDeg, float64(co.charPad))
 	if err != nil {
 		return 0, err
 	}
@@ -370,6 +415,7 @@ func (m *Module) RecreateCharacterWithSlope(oldH heap.Handle, radius, height, ma
 		return 0, fmt.Errorf("RecreateCharacterWithSlope: internal")
 	}
 	co2.cv.SetLinearVelocity(v)
+	co2.extUpdate = extCopy
 	co2.gravityScale = gs
 	co2.swimMode = sm
 	co2.swimBuoyancy, co2.swimDrag = sb, sd
@@ -410,6 +456,45 @@ func (m *Module) SetCharacterSwim(h heap.Handle, buoyancy, drag float64, on bool
 	co.swimMode = on
 	co.swimBuoyancy = float32(buoyancy)
 	co.swimDrag = float32(drag)
+	return nil
+}
+
+// SetCharacterPadding rebuilds the CharacterVirtual with a new CharacterPadding (collision skin).
+func (m *Module) SetCharacterPadding(h heap.Handle, pad float32) (heap.Handle, error) {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return 0, fmt.Errorf("invalid character handle")
+	}
+	if pad < 1e-4 {
+		pad = 0.02
+	}
+	co.charPad = pad
+	return m.RecreateCharacterWithSlope(h, float64(co.capRadius), float64(co.capFullH), float64(co.maxSlopeDeg))
+}
+
+// SetCharacterWalkStairsStepUp sets ExtendedUpdateSettings.mWalkStairsStepUp (typically Y-only curb height).
+func (m *Module) SetCharacterWalkStairsStepUp(h heap.Handle, stepUpY float32) error {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return fmt.Errorf("invalid character handle")
+	}
+	if stepUpY < 0 {
+		stepUpY = 0
+	}
+	co.extUpdate.WalkStairsStepUp = jolt.Vec3{X: 0, Y: stepUpY, Z: 0}
+	return nil
+}
+
+// SetCharacterStickToFloorDown sets how far down StickToFloor searches (positive distance → world -Y step vector).
+func (m *Module) SetCharacterStickToFloorDown(h heap.Handle, down float32) error {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return fmt.Errorf("invalid character handle")
+	}
+	if down < 0 {
+		down = 0
+	}
+	co.extUpdate.StickToFloorStepDown = jolt.Vec3{X: 0, Y: -down, Z: 0}
 	return nil
 }
 
@@ -462,8 +547,7 @@ func (m *Module) CharacterTeleport(h heap.Handle, x, y, z float64) error {
 	}
 	co.cv.SetPosition(jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
 	co.cv.SetLinearVelocity(jolt.Vec3{})
-	g := mbphysics3d.GravityVec()
-	co.cv.ExtendedUpdate(charDt, g)
+	m.extendedUpdateChar(co, charDt)
 	return nil
 }
 
@@ -503,7 +587,7 @@ func (m *Module) CharacterMoveXZVelocity(h heap.Handle, vx, vz, dt float64) erro
 	}
 	vel.Y += gy
 	co.cv.SetLinearVelocity(vel)
-	co.cv.ExtendedUpdate(float32(dt), g)
+	m.extendedUpdateChar(co, float32(dt))
 	return nil
 }
 
@@ -519,8 +603,7 @@ func (m *Module) CharacterJump(h heap.Handle, impulseY float64) error {
 	v := co.cv.GetLinearVelocity()
 	v.Y += float32(impulseY)
 	co.cv.SetLinearVelocity(v)
-	g := mbphysics3d.GravityVec()
-	co.cv.ExtendedUpdate(charDt, g)
+	m.extendedUpdateChar(co, charDt)
 	return nil
 }
 

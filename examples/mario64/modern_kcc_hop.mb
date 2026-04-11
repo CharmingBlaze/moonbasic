@@ -1,0 +1,88 @@
+; ==========================================
+; moonBASIC 64 — Modern KCC Hop
+; ==========================================
+; Demonstrates the "Ultimate Engine" Gameplay API.
+; Works on Windows (Software KCC) and Linux (Jolt KCC).
+;
+; cam.Orbit(entity, distance) — engine orbit: R-drag, Q/E yaw, wheel zoom (no manual MOUSEDX).
+; CHAR.MOVEWITHCAMERA — WASD in camera space.
+
+Window.Open(1280, 720, "moonBASIC 64 (Ultimate KCC)")
+Window.SetFPS(60)
+
+PHYSICS3D.START()
+WORLD.Gravity(0, -40, 0)
+
+cam = Camera.Make()
+cam.SetFOV(60)
+
+; Player Setup
+player = Model.CreateCapsule(0.4, 1.0)
+player.Pos(0, 5, 0)
+player.Color(255, 60, 60)
+CHAR.MAKE(player, 0.4, 1.0)
+CHAR.SETSTEP(player, 0.3)
+CHAR.STICK(player, 0.5)
+
+; Floor
+floor = Model.CreateBox(100, 2, 100)
+floor.Pos(0, -1, 0)
+floor.Color(60, 200, 90)
+ENTITY.SETCOLLISIONGROUP(floor, 1)
+
+; A little stair to test steps
+stair = Model.CreateBox(4, 0.25, 4)
+stair.Pos(5, 0.1, 0)
+stair.Color(200, 256, 200) ; Tinting
+ENTITY.SETCOLLISIONGROUP(stair, 1)
+
+; Target for Navigation test
+target = Model.CreateBox(1, 1, 1)
+target.Pos(10, 0.5, 10)
+target.Color(255, 255, 0)
+ENTITY.RADIUS(target, 0.5)
+ENT.WOBBLE(target, 0.2, 5.0)
+
+cam.Orbit(player, 12.0)
+player.SetRot(0, cam.Yaw(), 0)
+
+While Not (KEYDOWN(KEY_ESCAPE) Or Window.ShouldClose())
+    mz = Input.Axis(KEY_S, KEY_W)
+    mx = Input.Axis(KEY_A, KEY_D)
+
+    CHAR.MOVEWITHCAMERA(player, cam, mz, mx, 10.0)
+    NAV.UPDATE(player)
+
+    If KEYPRESSED(KEY_SPACE) And CHAR.ISGROUNDED(player) Then
+        CHAR.JUMP(player, 15.0)
+        ENTITY.SQUASH(player, 0.7, 0.2)
+    EndIf
+
+    ; Navigation Toggle (G key)
+    If KEYPRESSED(71) Then
+        NAV.GOTO(player, 10, 10, 8.0)
+    EndIf
+
+    UPDATEPHYSICS()
+
+    cam.Orbit(player, 12.0)
+    player.SetRot(0, cam.Yaw(), 0)
+
+    RENDER.Clear(100, 150, 250)
+
+    cam.Begin()
+        ENTITY.DRAWALL()
+    cam.End()
+
+    DRAW.TEXT("WASD: Move · R-drag orbit · Q/E yaw · wheel zoom · SPACE: Jump · G: Nav to yellow", 10, 10, 20, 255, 255, 255, 255)
+
+    If CHAR.ISGROUNDED(player) Then
+        DRAW.TEXT("GROUNDED", 10, 40, 20, 0, 255, 0, 255)
+    Else
+        DRAW.TEXT("AIRBORNE", 10, 40, 20, 255, 0, 0, 255)
+    EndIf
+
+    RENDER.FRAME()
+Wend
+
+Window.Close()

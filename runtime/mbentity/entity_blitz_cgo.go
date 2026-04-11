@@ -328,6 +328,7 @@ func (m *Module) entCreateSphere(args []value.Value) (value.Value, error) {
 	e.useSphere = true
 	e.static = true
 	e.w, e.h, e.d = rad*2, rad*2, rad*2
+	e.physBottomOffset = rad
 	st.ents[id] = e
 	return value.FromInt(id), nil
 }
@@ -374,6 +375,7 @@ func (m *Module) entCreateCylinder(args []value.Value) (value.Value, error) {
 	e.segV = int32(seg)
 	e.w, e.h, e.d = rad*2, h, rad*2
 	e.static = true
+	e.physBottomOffset = h * 0.5
 	st.ents[id] = e
 	return value.FromInt(id), nil
 }
@@ -394,6 +396,7 @@ func (m *Module) entCreatePlane(args []value.Value) (value.Value, error) {
 	e.kind = entKindPlane
 	e.w, e.h, e.d = sz, 0.01, sz
 	e.static = true
+	e.physBottomOffset = 0 // Plane is already 0+tiny
 	st.ents[id] = e
 	return value.FromInt(id), nil
 }
@@ -459,6 +462,11 @@ func (m *Module) entLoadMesh(rt *runtime.Runtime, args ...value.Value) (value.Va
 	e.kind = entKindModel
 	e.rlModel = mod
 	e.hasRLModel = true
+	
+	// Smart bottom-pivot detection (fallback for physics ground snap)
+	bb := rl.GetModelBoundingBox(mod)
+	e.physBottomOffset = float32(math.Max(0, float64(-bb.Min.Y)))
+
 	ext := e.getExt()
 	ext.loadPath = path
 	e.static = true

@@ -82,6 +82,23 @@ JoltCharacterVirtual JoltCreateCharacterVirtual(JoltPhysicsSystem system,
 // Destroy a virtual character
 void JoltDestroyCharacterVirtual(JoltCharacterVirtual character);
 
+// Tunable parameters for CharacterVirtual::ExtendedUpdate (StickToFloor / WalkStairs).
+// Defaults match Jolt's CharacterVirtual::ExtendedUpdateSettings when passing NULL to ExtendedUpdate.
+typedef struct {
+    float stickToFloorStepDownX;
+    float stickToFloorStepDownY;
+    float stickToFloorStepDownZ;
+    float walkStairsStepUpX;
+    float walkStairsStepUpY;
+    float walkStairsStepUpZ;
+    float walkStairsMinStepForward;
+    float walkStairsStepForwardTest;
+    float walkStairsCosAngleForwardContact;
+    float walkStairsStepDownExtraX;
+    float walkStairsStepDownExtraY;
+    float walkStairsStepDownExtraZ;
+} JoltCharacterExtendedUpdateSettings;
+
 // Update virtual character (basic update - moves character according to velocity and handles collision)
 // gravityX/Y/Z: gravity vector applied when character stands on another object
 void JoltCharacterVirtualUpdate(JoltCharacterVirtual character,
@@ -91,10 +108,12 @@ void JoltCharacterVirtualUpdate(JoltCharacterVirtual character,
 
 // Update virtual character with extended update (combines Update, StickToFloor, WalkStairs)
 // gravityX/Y/Z: gravity vector applied when character stands on another object
+// extendedSettingsOrNull: if NULL, uses Jolt defaults for ExtendedUpdateSettings
 void JoltCharacterVirtualExtendedUpdate(JoltCharacterVirtual character,
                                         JoltPhysicsSystem system,
                                         float deltaTime,
-                                        float gravityX, float gravityY, float gravityZ);
+                                        float gravityX, float gravityY, float gravityZ,
+                                        const JoltCharacterExtendedUpdateSettings* extendedSettingsOrNull);
 
 // Set the linear velocity of a virtual character
 void JoltCharacterVirtualSetLinearVelocity(JoltCharacterVirtual character,

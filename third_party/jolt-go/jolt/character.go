@@ -2,6 +2,7 @@ package jolt
 
 // #include "wrapper/character.h"
 import "C"
+import "math"
 
 // BackFaceMode controls how the character collides with back faces
 type BackFaceMode int
@@ -128,6 +129,29 @@ type CharacterVirtual struct {
 	ps     *PhysicsSystem
 }
 
+// ExtendedUpdateSettings mirrors Jolt's CharacterVirtual::ExtendedUpdateSettings (StickToFloor / WalkStairs).
+// Pass to ExtendedUpdate; nil uses Jolt's built-in defaults (same as upstream CharacterVirtual.cpp).
+type ExtendedUpdateSettings struct {
+	StickToFloorStepDown           Vec3
+	WalkStairsStepUp               Vec3
+	WalkStairsMinStepForward       float32
+	WalkStairsStepForwardTest      float32
+	WalkStairsCosAngleForwardContact float32
+	WalkStairsStepDownExtra        Vec3
+}
+
+// DefaultExtendedUpdateSettings returns Jolt's default extended-update tuning (see CharacterVirtual.h).
+func DefaultExtendedUpdateSettings() ExtendedUpdateSettings {
+	return ExtendedUpdateSettings{
+		StickToFloorStepDown:           Vec3{X: 0, Y: -0.5, Z: 0},
+		WalkStairsStepUp:               Vec3{X: 0, Y: 0.4, Z: 0},
+		WalkStairsMinStepForward:       0.02,
+		WalkStairsStepForwardTest:      0.15,
+		WalkStairsCosAngleForwardContact: float32(math.Cos(75.0 * math.Pi / 180.0)),
+		WalkStairsStepDownExtra:        Vec3{},
+	}
+}
+
 // GroundState indicates the ground contact state of a CharacterVirtual
 type GroundState int
 
@@ -217,7 +241,25 @@ func (cv *CharacterVirtual) Update(deltaTime float32, gravity Vec3) {
 // Combines Update, StickToFloor, and WalkStairs into a unified operation
 // deltaTime: duration of simulation step in seconds
 // gravity: acceleration vector (e.g., Vec3{0, -9.81, 0} for Earth gravity)
-func (cv *CharacterVirtual) ExtendedUpdate(deltaTime float32, gravity Vec3) {
+// ext: optional stair/step tuning; nil uses Jolt defaults (StickToFloor / WalkStairs distances).
+func (cv *CharacterVirtual) ExtendedUpdate(deltaTime float32, gravity Vec3, ext *ExtendedUpdateSettings) {
+	var cExt *C.JoltCharacterExtendedUpdateSettings
+	var s C.JoltCharacterExtendedUpdateSettings
+	if ext != nil {
+		s.stickToFloorStepDownX = C.float(ext.StickToFloorStepDown.X)
+		s.stickToFloorStepDownY = C.float(ext.StickToFloorStepDown.Y)
+		s.stickToFloorStepDownZ = C.float(ext.StickToFloorStepDown.Z)
+		s.walkStairsStepUpX = C.float(ext.WalkStairsStepUp.X)
+		s.walkStairsStepUpY = C.float(ext.WalkStairsStepUp.Y)
+		s.walkStairsStepUpZ = C.float(ext.WalkStairsStepUp.Z)
+		s.walkStairsMinStepForward = C.float(ext.WalkStairsMinStepForward)
+		s.walkStairsStepForwardTest = C.float(ext.WalkStairsStepForwardTest)
+		s.walkStairsCosAngleForwardContact = C.float(ext.WalkStairsCosAngleForwardContact)
+		s.walkStairsStepDownExtraX = C.float(ext.WalkStairsStepDownExtra.X)
+		s.walkStairsStepDownExtraY = C.float(ext.WalkStairsStepDownExtra.Y)
+		s.walkStairsStepDownExtraZ = C.float(ext.WalkStairsStepDownExtra.Z)
+		cExt = &s
+	}
 	C.JoltCharacterVirtualExtendedUpdate(
 		cv.handle,
 		cv.ps.handle,
@@ -225,6 +267,7 @@ func (cv *CharacterVirtual) ExtendedUpdate(deltaTime float32, gravity Vec3) {
 		C.float(gravity.X),
 		C.float(gravity.Y),
 		C.float(gravity.Z),
+		cExt,
 	)
 }
 

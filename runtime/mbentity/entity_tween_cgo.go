@@ -14,6 +14,7 @@ import (
 
 func registerEntityTweenAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.ANIMATETOWARD", "entity", runtime.AdaptLegacy(m.entAnimateToward))
+	r.Register("ENT.TWEEN", "entity", runtime.AdaptLegacy(m.entAnimateToward))
 	r.Register("ENTITY.SQUASH", "entity", runtime.AdaptLegacy(m.entSquash))
 	r.Register("ENTITY.TWEEN", "entity", m.entTween)
 }
@@ -109,10 +110,33 @@ func (m *Module) setEntityProperty(e *ent, prop string, val float32) {
 	case "b": e.b = uint8(val)
 	}
 }
-
 func (m *Module) entTween(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) == 5 && args[1].Kind != value.KindString {
+		// Shorthand: ENT.TWEEN(e, x, y, z, duration)
+		if len(args) != 5 { return value.Nil, fmt.Errorf("ENT.TWEEN shorthand expects (entity, x, y, z, duration)") }
+		x, _ := args[1].ToFloat()
+		y, _ := args[2].ToFloat()
+		z, _ := args[3].ToFloat()
+		dur, _ := args[4].ToFloat()
+		
+		id, ok := m.entID(args[0])
+		if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+		
+		wp, ok := m.GetWorldPosByID(int(id))
+		if !ok { return value.Nil, fmt.Errorf("unknown entity") }
+		
+		e := m.store().ents[id]
+		ext := e.getExt()
+		ext.tweenSX, ext.tweenSY, ext.tweenSZ = wp.X, wp.Y, wp.Z
+		ext.tweenTX, ext.tweenTY, ext.tweenTZ = float32(x), float32(y), float32(z)
+		ext.tweenElapsed = 0
+		ext.tweenDuration = float32(dur)
+		ext.tweenActive = true
+		return value.Nil, nil
+	}
+
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.TWEEN expects (entity, property, targetValue, duration, easeType)")
+		return value.Nil, fmt.Errorf("ENTITY.TWEEN expects (entity, property$, targetValue#, duration#, easeType$)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }

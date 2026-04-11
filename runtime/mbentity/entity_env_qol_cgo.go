@@ -18,6 +18,8 @@ func registerEntityEnvQoLAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.EMITPARTICLES", "entity", runtime.AdaptLegacy(m.entEmitParticles))
 	r.Register("CAMERA.FOLLOW", "entity", runtime.AdaptLegacy(m.camFollow))
 	r.Register("WORLD.SCREENSHAKE", "entity", m.worldScreenShake)
+	r.Register("WORLD.SHAKE", "entity", m.worldScreenShake)
+	r.Register("WORLD.HITSTOP", "entity", m.worldHitStop)
 }
 
 func (m *Module) worldDayNightCycle(args []value.Value) (value.Value, error) {
@@ -97,6 +99,22 @@ func (m *Module) camFollow(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.FOLLOW expects (camera#, entity#, distance#, smoothness#)")
 	}
 	return m.camFollowEntity(nil, args[0], args[1], args[2], value.FromFloat(10), args[3])
+}
+
+// worldHitStop freezes gameplay time for a wall-clock duration (impact frames); see Registry.HitStopEndAt + mbtime.DeltaSeconds.
+func (m *Module) worldHitStop(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("WORLD.HITSTOP expects (durationSeconds#)")
+	}
+	if rt == nil {
+		return value.Nil, fmt.Errorf("WORLD.HITSTOP: runtime not available")
+	}
+	sec, ok := args[0].ToFloat()
+	if !ok || sec < 0 {
+		return value.Nil, fmt.Errorf("WORLD.HITSTOP: duration must be a non-negative number")
+	}
+	rt.HitStopEndAt = float64(rl.GetTime()) + sec
+	return value.Nil, nil
 }
 
 func (m *Module) worldScreenShake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

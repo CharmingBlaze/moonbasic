@@ -22,6 +22,7 @@ func (m *Module) registerScreenHelpers(reg runtime.Registrar) {
 	reg.Register("WORLD.TOWORLD", "world", runtime.AdaptLegacy(m.worldFromScreenActive))
 	reg.Register("WORLD.MOUSE2D", "world", runtime.AdaptLegacy(m.worldMouse2D))
 	reg.Register("WORLD.MOUSEFLOOR3D", "world", runtime.AdaptLegacy(m.worldMouseFloor3D))
+	reg.Register("WORLD.MOUSEFLOOR", "world", runtime.AdaptLegacy(m.worldMouseFloor3D))
 	reg.Register("WORLD.MOUSETOFLOOR", "world", runtime.AdaptLegacy(m.worldMouseFloor3D))
 }
 
@@ -119,6 +120,7 @@ func (m *Module) camMouseRay(args []value.Value) (value.Value, error) {
 }
 
 // worldToScreenActive uses the last CAMERA.BEGIN 3D camera (same as CAMERA.GETACTIVE).
+// Overload: (wx, wy, wz) world coords, or (entity#) — uses registry entity world position.
 func (m *Module) worldToScreenActive(args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, runtime.Errorf("WORLD.TOSCREEN: heap not bound")
@@ -126,8 +128,28 @@ func (m *Module) worldToScreenActive(args []value.Value) (value.Value, error) {
 	if m.lastActive3D == 0 {
 		return value.Nil, fmt.Errorf("WORLD.TOSCREEN: no active 3D camera (call CAMERA.BEGIN first)")
 	}
+	if len(args) == 1 {
+		id, ok := args[0].ToInt()
+		if !ok || id < 1 {
+			return value.Nil, fmt.Errorf("WORLD.TOSCREEN: invalid entity")
+		}
+		reg := runtime.ActiveRegistry()
+		if reg == nil || reg.ResolveEntityWorldPos == nil {
+			return value.Nil, fmt.Errorf("WORLD.TOSCREEN: entity position resolver not available")
+		}
+		wp, ok := reg.ResolveEntityWorldPos(id)
+		if !ok {
+			return value.Nil, fmt.Errorf("WORLD.TOSCREEN: unknown entity")
+		}
+		return m.camWorldToScreen([]value.Value{
+			value.FromHandle(int32(m.lastActive3D)),
+			value.FromFloat(float64(wp.X)),
+			value.FromFloat(float64(wp.Y)),
+			value.FromFloat(float64(wp.Z)),
+		})
+	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WORLD.TOSCREEN expects wx#, wy#, wz#")
+		return value.Nil, fmt.Errorf("WORLD.TOSCREEN expects (wx#, wy#, wz#) or (entity#)")
 	}
 	return m.camWorldToScreen([]value.Value{value.FromHandle(int32(m.lastActive3D)), args[0], args[1], args[2]})
 }

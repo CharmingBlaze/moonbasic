@@ -75,6 +75,16 @@ type CameraAware interface {
 	BindCamera(m Module)
 }
 
+// PlayerAware modules receive the player module for KCC updates.
+type PlayerAware interface {
+	BindPlayer(m Module)
+}
+
+// PlayerModule is implemented by the player package to expose its simulation tick.
+type PlayerModule interface {
+	Process(dt float64)
+}
+
 // Registry manages the global dispatch table and handle heap.
 type Registry struct {
 	mu       sync.RWMutex
@@ -96,6 +106,8 @@ type Registry struct {
 
 	// GamePaused when true makes TIME.DELTA and DT() return 0 (game pause helpers).
 	GamePaused bool
+	// HitStopEndAt is wall-clock seconds (Raylib GetTime) until which DeltaSeconds returns 0 for impact frames (WORLD.HITSTOP).
+	HitStopEndAt float64
 	// TimeScale scales frame delta (0 = treat as 1). Used by GAME.SETTIMESCALE for slow-mo / fast-forward.
 	TimeScale float64
 	// FrameCount increments once per successful RENDER.FRAME (instant game utilities).
@@ -307,6 +319,22 @@ func (r *Registry) RegisterModule(m Module) {
 		for _, mod := range r.Modules {
 			if ca, ok := mod.(CameraAware); ok {
 				ca.BindCamera(camModule)
+			}
+		}
+	}
+
+	// Retroactive binding for PlayerAware modules
+	var playerModule Module
+	for _, mod := range r.Modules {
+		if strings.Contains(fmt.Sprintf("%T", mod), "player.Module") {
+			playerModule = mod
+			break
+		}
+	}
+	if playerModule != nil {
+		for _, mod := range r.Modules {
+			if pa, ok := mod.(PlayerAware); ok {
+				pa.BindPlayer(playerModule)
 			}
 		}
 	}

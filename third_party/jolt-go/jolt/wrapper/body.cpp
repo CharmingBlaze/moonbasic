@@ -43,6 +43,20 @@ void JoltGetBodyPosition(const JoltBodyInterface bodyInterface,
 	*z = static_cast<float>(pos.GetZ());
 }
 
+void JoltGetBodyRotation(const JoltBodyInterface bodyInterface,
+						 const JoltBodyID bodyID,
+						 float *x, float *y, float *z, float *w)
+{
+	const BodyInterface *bi = static_cast<const BodyInterface *>(bodyInterface);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+
+	Quat q = bi->GetRotation(*bid);
+	*x = q.GetX();
+	*y = q.GetY();
+	*z = q.GetZ();
+	*w = q.GetW();
+}
+
 void JoltSetBodyPosition(JoltBodyInterface bodyInterface,
 						 JoltBodyID bodyID,
 						 float x, float y, float z)

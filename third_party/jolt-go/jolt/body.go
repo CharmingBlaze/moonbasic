@@ -51,6 +51,18 @@ func (bi *BodyInterface) GetPosition(bodyID *BodyID) Vec3 {
 	}
 }
 
+// GetRotation returns the body's world-space orientation (Jolt quaternion: x, y, z, w).
+func (bi *BodyInterface) GetRotation(bodyID *BodyID) Quat {
+	var x, y, z, w C.float
+	C.JoltGetBodyRotation(bi.handle, bodyID.handle, &x, &y, &z, &w)
+	return Quat{
+		X: float32(x),
+		Y: float32(y),
+		Z: float32(z),
+		W: float32(w),
+	}
+}
+
 // CreateBody creates a body with specific motion type and sensor flag.
 //
 // Parameters:

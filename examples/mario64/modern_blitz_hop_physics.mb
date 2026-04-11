@@ -1,0 +1,58 @@
+; ==========================================
+; moonBASIC 64 — Orbit hop (dynamic rigid body fallback)
+; ==========================================
+; Same controls as modern_blitz_hop.mb but uses ENTITY.PHYSICS on the hero instead of KCC.
+; Useful when Jolt KCC is unavailable (e.g. Windows stub); behavior differs from CHAR.* sample.
+;
+;   go run . --check examples/mario64/modern_blitz_hop_physics.mb
+;   go run -tags fullruntime ./cmd/moonrun examples/mario64/modern_blitz_hop_physics.mb
+
+Window.Open(1280, 720, "moonBASIC 64 (physics hop)")
+Window.SetFPS(60)
+
+PHYSICS3D.START()
+WORLD.Gravity(0, -40, 0)
+
+cam = Camera.Make()
+cam.SetFOV(60)
+
+player = Model.CreateCapsule(0.4, 1.0)
+player.Pos(0, 5, 0)
+player.Color(255, 60, 60)
+ENTITY.PHYSICS(player, "CAPSULE", 1.0, 0.9, 0.0)
+
+floor = Model.CreateBox(100, 2, 100)
+floor.Pos(0, -1, 0)
+floor.Color(60, 200, 90)
+ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
+
+cam.Orbit(player, 12.0)
+player.SetRot(0, cam.Yaw(), 0)
+
+WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
+
+    fwd = Input.Axis(KEY_S, KEY_W)
+    side = Input.Axis(KEY_A, KEY_D)
+    ENTITY.MOVEWITHCAMERA(player, cam, fwd, side, 10.0)
+
+    IF KEYPRESSED(KEY_SPACE) AND player.IsGrounded() THEN
+        player.Jump(12.0)
+        player.Squash(0.5, 0.3)
+    ENDIF
+
+    UPDATEPHYSICS()
+    cam.Orbit(player, 12.0)
+    player.SetRot(0, cam.Yaw(), 0)
+
+    RENDER.Clear(100, 150, 250)
+
+    cam.Begin()
+        ENTITY.DRAWALL()
+    cam.End()
+
+    DRAW.TEXT("Physics hop · WASD · orbit · Space · ESC", 20, 20, 14, 255, 255, 255, 255)
+
+    RENDER.FRAME()
+WEND
+
+Window.Close()

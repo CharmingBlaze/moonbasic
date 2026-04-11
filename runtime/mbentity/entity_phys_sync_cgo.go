@@ -42,42 +42,29 @@ func joltColliderHalfExtentDown(e *ent) float64 {
 	if e == nil {
 		return 0.5
 	}
-	switch e.kind {
-	case entKindCapsule:
-		if e.cylH > 1e-4 {
-			return float64(e.cylH) * 0.5
-		}
-	case entKindSphere:
-		if e.radius > 1e-4 {
-			return float64(e.radius)
-		}
-	case entKindBox, entKindPlane:
-		if e.h > 1e-4 {
-			return float64(e.h) * 0.5
-		}
-	case entKindCylinder, entKindCone:
-		if e.cylH > 1e-4 {
-			return float64(e.cylH) * 0.5
-		}
-		if e.h > 1e-4 {
-			return float64(e.h) * 0.5
+	// Smart bottom-pivot offset: detects distance from center to feet for Primitives
+	// and distance from pivot to mesh-bottom for Models, multiplied by scale.
+	off := float64(e.physBottomOffset)
+	if off < 1e-4 {
+		// Fallback for objects with no offset (pivot already at feet or uninitialized)
+		// but check h/2 if it's a centered primitive kind.
+		switch e.kind {
+		case entKindBox, entKindSphere, entKindCylinder, entKindCapsule:
+			off = float64(e.h) * 0.5
+			if e.kind == entKindSphere { off = float64(e.radius) }
+			if e.kind == entKindCapsule { off = float64(e.cylH)*0.5 + float64(e.radius) }
 		}
 	}
-	if e.cylH > 1e-4 {
-		return float64(e.cylH) * 0.5
+	res := off * float64(e.scale.Y)
+	if res < 0.01 {
+		return 0.01 // Avoid zero-length rays
 	}
-	if e.h > 1e-4 {
-		return float64(e.h) * 0.5
-	}
-	if e.radius > 1e-4 {
-		return float64(e.radius)
-	}
-	return 0.5
+	return res
 }
 
-// syncEntitiesFromPhysics copies world translation from the Jolt matrix buffer into linked entities
-// (parent-aware local pose via setLocalFromWorld). Rotation in the buffer is not applied (jolt-go
-// currently exposes position; buffer holds translation-only matrices from syncSharedBuffers).
+// syncEntitiesFromPhysics copies world pose from the Jolt matrix buffer + body rotation into linked
+// entities (parent-aware local TRS). Shared buffer columns 0–10 hold the 3×3 rotation written by
+// syncSharedBuffers; translation uses 12–14 (with optional visual Y snap for physics-driven bodies).
 func (m *Module) syncEntitiesFromPhysics() {
 	buf := mbphysics3d.MatrixBufferForEntitySync()
 	if len(buf) == 0 {
@@ -130,6 +117,9 @@ func (m *Module) syncEntitiesFromPhysics() {
 			}
 		}
 		m.setLocalFromWorld(e, tx, ty, tz)
+		if qx, qy, qz, qw, ok := mbphysics3d.GetBodyQuaternionForBufferIndex(e.physBufIndex); ok {
+			m.setLocalRotFromWorldQuat(e, rl.Quaternion{X: qx, Y: qy, Z: qz, W: qw})
+		}
 	}
 }
 

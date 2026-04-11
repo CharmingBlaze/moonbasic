@@ -114,7 +114,7 @@ func (pc *PlayerController) ApplyInput(req InputRequest) {
 	// Set desired velocity and call extended update to resolve movement
 	pc.character.SetLinearVelocity(velocity)
 	gravity := jolt.Vec3{X: 0, Y: GravityY, Z: 0}
-	pc.character.ExtendedUpdate(req.DeltaTime, gravity)
+	pc.character.ExtendedUpdate(req.DeltaTime, gravity, nil)
 }
 
 // GetPosition returns the current character position

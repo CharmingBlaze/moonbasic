@@ -189,6 +189,24 @@ func GetLinearVelocityToIndex(idx int) (x, y, z float32) {
 	return v.X, v.Y, v.Z
 }
 
+// GetBodyQuaternionForBufferIndex returns the Jolt body's world rotation for a matrix buffer index
+// (see syncSharedBuffers / ENTITY.LINKPHYSBUFFER). ok is false when physics is down or the index is unknown.
+func GetBodyQuaternionForBufferIndex(idx int) (x, y, z, w float32, ok bool) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, have := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !have || bi == nil {
+		return 0, 0, 0, 1, false
+	}
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	q := bi.GetRotation(id)
+	return q.X, q.Y, q.Z, q.W, true
+}
+
 func SetVelocityToIndex(idx int, x, y, z float32) {
 	joltMu.Lock()
 	bi := joltBi

@@ -216,6 +216,7 @@ void main() {
 var (
 	postMu             sync.Mutex
 	postActive         bool
+	postActiveExported bool // track for IsPostActive
 	deferredPipeline   bool
 	postBloom          bool
 	postVignette       bool
@@ -277,6 +278,15 @@ func postRebuildActiveLocked() {
 	postActive = deferredPipeline || postCustomOn || postBloom || postVignette || postChromatic ||
 		postSSAO || postSSR || postMotionBlur || postDOF || postSharpen || postGrain || postFXAA ||
 		postTonemapMode != 0
+	postActiveExported = postActive
+}
+
+// IsPostActive returns true if the engine is currently rendering to an offscreen buffer.
+// Used by camera logic to compensate for Raylib's automatic Y-flip on render textures.
+func IsPostActive() bool {
+	postMu.Lock()
+	defer postMu.Unlock()
+	return postActive
 }
 
 func (m *Module) registerPostCommands(r runtime.Registrar) {

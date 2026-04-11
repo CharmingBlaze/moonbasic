@@ -106,19 +106,19 @@ Window.SetFPS(60)
 
 ---
 
-### Lines 13–14 — physics world
+### Lines 15–16 — physics world
 
 ```moonbasic
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
 ```
 
-- **`PHYSICS3D.START`** turns on the 3D physics engine used by **`AddPhysics`**.
+- **`PHYSICS3D.START`** turns on the 3D physics engine used by **`ENTITY.PHYSICS`** / **`AddPhysics`** (see [PHYSICS_ERGONOMICS.md](../../docs/PHYSICS_ERGONOMICS.md)).
 - **`WORLD.Gravity(x, y, z)`** sets gravity. **−40** on **Y** means “down” is the negative Y direction, so things fall toward the floor.
 
 ---
 
-### Lines 16–17 — camera
+### Lines 18–19 — camera
 
 ```moonbasic
 cam = Camera.Make()
@@ -130,40 +130,48 @@ cam.SetFOV(60)
 
 ---
 
-### Lines 19–23 — player (dynamic capsule)
+### Lines 21–26 — player (dynamic capsule)
 
 ```moonbasic
 player = Model.CreateCapsule(0.4, 1.0)
 player.Pos(0, 5, 0)
 player.Color(255, 60, 60)
-player.AddPhysics("dynamic", "capsule")
-player.SetBounciness(0.0)
+ENTITY.PHYSICS(player, "CAPSULE", 1.0, 0.9, 0.0)
 ```
 
-- **`CreateCapsule(radius, height)`** builds a **capsule** entity: the mesh is a rounded capsule (not a plain cylinder), aligned with **Jolt** when you call **`AddPhysics(..., "capsule")`**.
+- **`CreateCapsule(radius, height)`** builds a **capsule** entity: the mesh is a rounded capsule (not a plain cylinder), aligned with **Jolt** when you add physics.
 - **`Pos`** places it in world space: here **5** units up so it starts above the floor.
 - **`Color`** is RGB **0–255** (red-ish capsule).
-- **`AddPhysics("dynamic", "capsule")`** makes it a **moving** physics body shaped like a capsule (collides with the floor).
-- **`SetBounciness(0.0)`** means no bounce when landing (feel free to try **0.2** later).
+- **`ENTITY.PHYSICS(player, "CAPSULE", 1.0, 0.9, 0.0)`** — entity-first setup: **mass 1** = dynamic, **friction 0.9**, **restitution 0** (no bounce). Equivalent to older **`AddPhysics("dynamic", "capsule")`** plus **`SetBounciness`**, but **one call**; full options in [PHYSICS_ERGONOMICS.md](../../docs/PHYSICS_ERGONOMICS.md).
 
 ---
 
-### Lines 25–29 — floor (static box)
+### Lines 28–32 — floor (static box)
 
 ```moonbasic
 floor = Model.CreateBox(100, 2, 100)
 floor.Pos(0, -1, 0)
 floor.Color(60, 200, 90)
-floor.AddPhysics("static", "box")
-floor.SetBounciness(0.0)
+ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
 ```
 
-- A large thin **box** acts as the ground. **`static`** means it does not move; **`"box"`** matches the collision shape.
+- A large thin **box** acts as the ground. **Mass `0.0`** = **static**; friction/restitution match the player so the floor is not a “trampoline.”
 - **`Pos(0, -1, 0)`** centers it so the top surface is near **Y = 0** (with the given height **2**, the center at **−1** puts the top at **0**).
 
 ---
 
-### Lines 31–57 — main loop
+### Lines 33–35 — prime orbit (before the loop)
+
+```moonbasic
+cam.Orbit(player, 12.0)
+player.SetRot(0, cam.Yaw(), 0)
+```
+
+Places the camera **once** before the first frame is drawn so you do not start with the default camera pose. Inside the loop, **`UPDATEPHYSICS`** runs **before** **`cam.Orbit`** so the camera follows the same-frame player position.
+
+---
+
+### Lines 37–62 — main loop
 
 ```moonbasic
 WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
@@ -173,35 +181,20 @@ Repeat until the user presses **Escape** or closes the window.
 
 ---
 
-#### Lines 33–34 — camera orbit
+#### Lines 39–41 — camera-relative walk
 
 ```moonbasic
-    cam.Orbit(player, 12.0)
-```
-
-Every frame, update internal orbit state and place the camera around **`player`**. **12.0** is the **base distance** (still clamped and changed by zoom). You do **not** pass angles here; the engine tracks them.
-
-**Default controls:** right-drag, **Q/E**, mouse wheel (see **[README orbit section](README.md#orbit-configuration-optional--step-by-step)** to customize).
-
----
-
-#### Lines 35–39 — face the camera and walk
-
-```moonbasic
-    player.SetRot(0, cam.Yaw(), 0)
-
     fwd = Input.Axis(KEY_S, KEY_W)
     side = Input.Axis(KEY_A, KEY_D)
-    player.Move(10.0 * fwd, 10.0 * side, 0)
+    ENTITY.MOVEWITHCAMERA(player, cam, fwd, side, 10.0)
 ```
 
-- **`SetRot(pitch, yaw, roll)`** in **radians**. Here **pitch** and **roll** are **0**; **yaw** comes from **`cam.Yaw()`** so the capsule **faces** the direction the camera looks horizontally. That way **“forward”** on **W** matches the view.
 - **`Input.Axis(neg, pos)`** returns roughly **−1..1** depending on keys (**S** vs **W**, **A** vs **D**).
-- **`Move(forward, right, up)`** uses **forward / right / up** in the character’s local axes at **10** units per second (scaled by the engine with frame time as documented for your build).
+- **`ENTITY.MOVEWITHCAMERA`** sets horizontal **walk velocity** in the camera’s ground plane (orbit yaw), so **W** matches what you see after **right-drag** orbit. **10.0** is speed in world units per second.
 
 ---
 
-#### Lines 41–44 — jump
+#### Lines 43–46 — jump
 
 ```moonbasic
     IF KEYPRESSED(KEY_SPACE) AND player.IsGrounded() THEN
@@ -210,23 +203,26 @@ Every frame, update internal orbit state and place the camera around **`player`*
     ENDIF
 ```
 
-- Jump only if **Space** was pressed **this frame** and the engine says the player is **on the ground**.
-- **`Jump`** strength is in engine-defined units (tune with gravity for feel).
-- **`Squash`** is a small visual juice (optional).
+- Jump only if **Space** was pressed **this frame** and the player is **grounded**.
+- **`Jump`** / **`Squash`** — see engine docs for units.
 
 ---
 
-#### Line 46 — physics step
+#### Lines 48–51 — physics, then orbit + facing
 
 ```moonbasic
     UPDATEPHYSICS()
+    cam.Orbit(player, 12.0)
+    player.SetRot(0, cam.Yaw(), 0)
 ```
 
-Advances simulation (collisions, integration). Call **once per frame** after you’ve set movement intent.
+- **`UPDATEPHYSICS`** advances **ENTITY.UPDATE** and **PHYSICS3D.STEP** (Jolt on Linux+CGO).
+- **`cam.Orbit`** after physics keeps the third-person rig from lagging a frame.
+- **`SetRot(0, cam.Yaw(), 0)`** makes the capsule face orbit **yaw** (radians).
 
 ---
 
-#### Lines 48–52 — draw 3D
+#### Lines 53–61 — draw 3D, HUD, present
 
 ```moonbasic
     RENDER.Clear(100, 150, 250)
@@ -234,28 +230,22 @@ Advances simulation (collisions, integration). Call **once per frame** after you
     cam.Begin()
         ENTITY.DRAWALL()
     cam.End()
-```
 
-- **`RENDER.Clear`** fills the background (sky color as RGB).
-- **`cam.Begin` / `cam.End`** bracket 3D drawing with **this** camera’s view.
-- **`ENTITY.DRAWALL`** draws the player, floor, and any other entities.
-
----
-
-#### Lines 54–56 — HUD and present
-
-```moonbasic
-    DRAW.TEXT("WASD move · R-drag orbit · Q/E yaw · wheel zoom · Space jump · ESC", 20, 20, 14, 255, 255, 255, 255)
+    DRAW.TEXT("WASD = camera-relative · ...", 20, 20, 14, 255, 255, 255, 255)
 
     RENDER.FRAME()
 ```
 
-- **`DRAW.TEXT`** draws 2D text on top (position, size, RGBA).
-- **`RENDER.FRAME`** swaps buffers so you see the frame.
+- **`RENDER.Clear`** — background RGB.
+- **`cam.Begin` / `cam.End`** — 3D pass with this camera.
+- **`ENTITY.DRAWALL`** — player, floor, etc.
+- **`DRAW.TEXT`** / **`RENDER.FRAME`** — HUD and swap buffers.
+
+**Orbit controls:** right-drag, **Q/E**, wheel (see **[README](README.md)**).
 
 ---
 
-### Lines 59–60 — shutdown
+### Lines 64–65 — shutdown
 
 ```moonbasic
 Window.Close()

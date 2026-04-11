@@ -5,6 +5,7 @@ Small **third-person** demos in a **Blitz3D-style** spirit: walk on a plane, jum
 | File | What to notice |
 |------|----------------|
 | **`modern_blitz_hop.mb`** | **Minimal loop:** **`cam.Orbit(player, distance)`** (engine-owned yaw/pitch/zoom), **`cam.Yaw()`** for facing, **`player.Move`** in units/sec. **Start here:** **[`MODERN_BLITZ_HOP_BEGINNER.md`](MODERN_BLITZ_HOP_BEGINNER.md)** (line-by-line tutorial). Optional **orbit configuration** (see below). |
+| **`modern_blitz_hop_kcc.mb`** | Same orbit camera, but the hero uses **Jolt KCC** (**`CHAR.MAKE`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.JUMP`**) instead of **`ENTITY.PHYSICS`** on the player. **Linux + CGO + fullruntime.** See **[`docs/reference/KCC.md`](../../docs/reference/KCC.md)**. |
 | **`main_orbit_simple.mb`** | **Easiest read:** commented “map” at the top, **`CONST`** palette + world bounds, one floor + one box — **`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`**, **`MOVESTEPX`/`Z`**, **`LANDBOXES`**, **`Camera.SetOrbit`**, **`ERASE ALL`**. |
 | **`main.mb`** | **Default pick:** same hop as before, **implicit types** (no `#` / `$` / `?` suffixes), **Draw3D** + **Camera** only — no skybox or entity graph. |
 | **`main_entities.mb`** | **Engine-style:** **CreateCube** / **CreateSphere**, **COLLISIONS**, **EntityGrounded** (coyote), **EntityMoveCameraRelative**, **Camera.OrbitEntity**, **CopyEntity** platforms, **ENTITY.UPDATE**, **DrawEntities**, child **hat** on **player**. |
@@ -45,14 +46,12 @@ cam.SetFOV(60)
 player = Model.CreateCapsule(0.4, 1.0)
 player.Pos(0, 5, 0)
 player.Color(255, 60, 60)
-player.AddPhysics("dynamic", "capsule")
-player.SetBounciness(0.0)
+ENTITY.PHYSICS(player, "CAPSULE", 1.0, 0.9, 0.0)
 
 floor = Model.CreateBox(100, 2, 100)
 floor.Pos(0, -1, 0)
 floor.Color(60, 200, 90)
-floor.AddPhysics("static", "box")
-floor.SetBounciness(0.0)
+ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
 
 WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
 

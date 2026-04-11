@@ -36,6 +36,7 @@ func (m *Module) modelCreateCapsule(args []value.Value) (value.Value, error) {
 	e.w, e.h, e.d = rad*2, h, rad*2
 	e.static = false
 	e.useSphere = true
+	e.physBottomOffset = rad + h*0.5
 	e.gravity = -28
 	st.ents[id] = e
 	st.dynamicEnts = append(st.dynamicEnts, e)
@@ -76,6 +77,7 @@ func (m *Module) modelCreateBox(args []value.Value) (value.Value, error) {
 	e.w, e.h, e.d = w, h, d
 	e.static = staticEnt
 	e.useSphere = false
+	e.physBottomOffset = h * 0.5
 	e.gravity = 0
 	st.ents[id] = e
 	if staticEnt {

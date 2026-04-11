@@ -33,6 +33,11 @@ void JoltGetBodyPosition(const JoltBodyInterface bodyInterface,
                         const JoltBodyID bodyID,
                         float* x, float* y, float* z);
 
+// Get the rotation of a body (world-space quaternion x, y, z, w — Jolt convention)
+void JoltGetBodyRotation(const JoltBodyInterface bodyInterface,
+                        const JoltBodyID bodyID,
+                        float* x, float* y, float* z, float* w);
+
 // Set the position of a body
 void JoltSetBodyPosition(JoltBodyInterface bodyInterface,
                         JoltBodyID bodyID,

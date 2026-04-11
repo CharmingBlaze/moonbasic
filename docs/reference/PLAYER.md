@@ -11,18 +11,25 @@ High-level helpers for **kinematic character control** (KCC) and **spatial queri
 
 Start the world with **`PHYSICS3D.START()`** before **`PLAYER.CREATE`**.
 
+**Gameplay-oriented KCC guide (beginner → advanced):** **[KCC.md](KCC.md)** — **`CHAR.MOVE`**, **`CHAR.MOVEWITHCAMERA`**, **`NAVTO` / `NAVUPDATE`**, **`WORLD.MOUSEFLOOR`**, **`WORLD.MOUSEPICK`**, and RPG helpers.
+
 ---
 
 ## Kinematic character (Linux + Jolt)
 
 | Command | Purpose |
 |--------|---------|
-| **`PLAYER.CREATE(entity)`** | Spawns a **capsule** character controller at the entity’s world position (default radius **0.4**, height **1.75**). Stores a mapping **entity → controller** for subsequent **`PLAYER.*`** calls. |
+| **`PLAYER.CREATE(entity)`** or **`PLAYER.CREATE(entity, radius#, height#)`** | Spawns a **capsule** character controller at the entity’s world position (defaults **0.4** × **1.75** if omitted). Clears scripted gravity/velocity on the entity. Stores **entity → controller**. |
 | **`PLAYER.MOVE(entity, velocityX, velocityZ)`** | World-space **horizontal** velocity in **units per second** (multiplied by **`TIME.DELTA`** internally). Uses **`CharacterMoveXZVelocity`** (slide/step via Jolt **`ExtendedUpdate`**). Syncs the **entity** transform to the capsule after the move. |
+| **`PLAYER.MOVEWITHCAMERA(entity, camera, forwardAxis#, strafeAxis#, speed#)`** | Camera-relative **WASD** on **XZ** (same idea as **`CHAR.MOVEWITHCAMERA`**). |
+| **`PLAYER.NAVTO` / `PLAYER.NAVUPDATE`** | **Click-to-move** target + per-frame update; optional **arrival** and **`brakeDist`** for **soft stop** (see **[KCC.md](KCC.md)**). |
+| **`PLAYER.SETPADDING(entity, padding#)`** | Rebuilds **`CharacterVirtual`** with **character padding** (skin; **&gt; 0**). |
 | **`PLAYER.JUMP(entity, impulseY)`** | Adds **impulseY** to upward linear velocity (same idea as **`CharacterJump`**). |
 | **`PLAYER.ISGROUNDED(entity)`** → **bool** | **`true`** if the Jolt character reports ground support (**`IsSupported`**). |
 
 Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** ([CHARCONTROLLER.md](CHARCONTROLLER.md)).
+
+**`CHAR.*` aliases:** **`CHAR.MAKE`** = **`PLAYER.CREATE`**; **`CHAR.MOVE(entity, dirX, dirZ, speed)`** = **direction × speed** (not raw velocity — see **[KCC.md](KCC.md)**); **`CHAR.SETSTEP`**, **`CHAR.SETSLOPE`**, **`CHAR.SETPADDING`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.NAVTO`**, **`CHAR.NAVUPDATE`**, **`CHAR.STICK`** map to the corresponding **`PLAYER.*`** commands.
 
 ---
 
@@ -32,6 +39,7 @@ Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** 
 |--------|---------|
 | **`PLAYER.GETLOOKTARGET(entity, maxDist)`** → **entity** | **Eye height ≈ 1.65** above feet. Casts a **physics ray** along the entity’s **world forward** (`PickCastEntityID`). If the first hit is the player or nothing, falls back to **`ENTITY.PICK`-style AABB** ray vs **static** entities. Returns **0** if none. |
 | **`PLAYER.GETNEARBY(entity, radius, tag)`** → **float array** | Entities within **radius** whose **`ENTITY`** name **or** Blender **`tag`** extra matches **`tag`** (case-insensitive **`path.Match`** glob, e.g. **`Enemy*`**). Returns a **numeric array** of entity ids (same pattern as other “list of ids” APIs). |
+| **`ENT.GET_NEAREST`** | Alias of **`PLAYER.GETNEARBY`**. |
 
 ---
 
@@ -93,6 +101,7 @@ Naming: use **`LEVEL.LOAD`** / **`Entity.Draw`** (or your project’s draw path)
 
 ## See also
 
+- [KCC.md](KCC.md) — **`CHAR.*`** tutorial, mouse floor/pick, RPG helpers  
 - [CHARCONTROLLER.md](CHARCONTROLLER.md) — capsule API and full sample  
 - [LEVEL.md](LEVEL.md) — glTF, tags, **`LEVEL.BINDSCRIPT`**  
 - [PHYSICS3D.md](PHYSICS3D.md) — Jolt world, **`PICK.*`**, rays  

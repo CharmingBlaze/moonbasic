@@ -13760,6 +13760,15 @@
       ]
     },
     {
+      "key": "PLAYER.CREATE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "KCC with explicit capsule radius and height (world units)"
+    },
+    {
       "key": "PLAYER.MOVE",
       "args": [
         "int",
@@ -13780,6 +13789,15 @@
         "int"
       ],
       "returns": "bool"
+    },
+    {
+      "key": "PLAYER.ISGROUNDED",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "bool",
+      "description": "Optional coyote time (seconds): true shortly after leaving ground"
     },
     {
       "key": "PLAYER.GETLOOKTARGET",
@@ -13909,7 +13927,482 @@
         "int",
         "float"
       ],
-      "description": "Alias of PLAYER.SETSTEPHEIGHT (reserved step tuning)"
+      "description": "Alias of PLAYER.SETSTEPHEIGHT; maps to Jolt ExtendedUpdate WalkStairsStepUp (Linux+CGO)"
+    },
+    {
+      "key": "PLAYER.SETSTICKFLOOR",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Stick-to-floor max step down (world units); Jolt CharacterVirtual ExtendedUpdateSettings (Linux+CGO)"
+    },
+    {
+      "key": "CHAR.MAKE",
+      "args": [
+        "int"
+      ],
+      "description": "Alias of PLAYER.CREATE: (entity) or (entity, radius#, height#); allocates Jolt CharacterVirtual and clears scripted gravity/velocity for stable KCC (Linux+CGO)"
+    },
+    {
+      "key": "CHAR.MAKE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PLAYER.CREATE(entity, radius#, height#)"
+    },
+    {
+      "key": "CHAR.SETSTEP",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PLAYER.SETSTEPOFFSET / stair step-up height"
+    },
+    {
+      "key": "CHAR.SETSLOPE",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PLAYER.SETSLOPELIMIT"
+    },
+    {
+      "key": "CHAR.MOVE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "KCC world move: (entity, dirX#, dirZ#, speed#) → horizontal velocity = dir * speed; slides on walls (CharacterVirtual; Linux+CGO)"
+    },
+    {
+      "key": "CHAR.ISGROUNDED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Alias of PLAYER.ISGROUNDED"
+    },
+    {
+      "key": "CHAR.ISGROUNDED",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "bool",
+      "description": "KCC ground test with optional coyote grace (seconds)"
+    },
+    {
+      "key": "CHAR.JUMP",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PLAYER.JUMP"
+    },
+    {
+      "key": "PLAYER.NAVTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Click-to-move target: (entity, targetX#, targetZ#, speed# [, arrivalXZ# [, brakeDist#]]); use with PLAYER.NAVUPDATE each frame; soft brake near target (Linux+CGO KCC)"
+    },
+    {
+      "key": "PLAYER.NAVTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "NAVTO with arrival distance"
+    },
+    {
+      "key": "PLAYER.NAVTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "NAVTO with arrival and brake distance (soft stop)"
+    },
+    {
+      "key": "PLAYER.NAVUPDATE",
+      "args": [
+        "int"
+      ],
+      "description": "Advances PLAYER.NAVTO / CHAR.NAVTO toward target with soft deceleration (Linux+CGO)"
+    },
+    {
+      "key": "NAV.GOTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PLAYER.NAVTO — click-to-move for KCC (default arrival ~0.2 world units)"
+    },
+    {
+      "key": "NAV.UPDATE",
+      "args": [
+        "int"
+      ],
+      "description": "Alias of PLAYER.NAVUPDATE"
+    },
+    {
+      "key": "NAV.CHASE",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "KCC follow: move toward target entity until within standoff gap (world units)"
+    },
+    {
+      "key": "NAV.PATROL",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "KCC ping-pong patrol between world XZ points A and B"
+    },
+    {
+      "key": "NAV.GOTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "NAV.GOTO with arrival distance (alias of PLAYER.NAVTO)"
+    },
+    {
+      "key": "NAV.GOTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "NAV.GOTO with arrival and brake distance"
+    },
+    {
+      "key": "PLAYER.SETPADDING",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Character capsule skin padding (world units, >0); rebuilds CharacterVirtual (Linux+CGO)"
+    },
+    {
+      "key": "PLAYER.MOVEWITHCAMERA",
+      "args": [
+        "int",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "WASD-style: (entity, camera, forwardAxis#, strafeAxis#, speed#) movement on XZ relative to camera view (Linux+CGO KCC)"
+    },
+    {
+      "key": "CHAR.SETPADDING",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PLAYER.SETPADDING (KCC skin padding)"
+    },
+    {
+      "key": "CHAR.MOVEWITHCAMERA",
+      "args": [
+        "int",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PLAYER.MOVEWITHCAMERA"
+    },
+    {
+      "key": "CHAR.MOVEWITHCAM",
+      "args": [
+        "int",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of CHAR.MOVEWITHCAMERA / PLAYER.MOVEWITHCAMERA"
+    },
+    {
+      "key": "CHAR.NAVTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PLAYER.NAVTO"
+    },
+    {
+      "key": "CHAR.NAVTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PLAYER.NAVTO (5-arg)"
+    },
+    {
+      "key": "CHAR.NAVTO",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PLAYER.NAVTO (6-arg)"
+    },
+    {
+      "key": "CHAR.NAVUPDATE",
+      "args": [
+        "int"
+      ],
+      "description": "Alias of PLAYER.NAVUPDATE"
+    },
+    {
+      "key": "CHAR.STICK",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Alias of PLAYER.SETSTICKFLOOR — glue to floor within max step down (world units)"
+    },
+    {
+      "key": "ENT.GET_NEAREST",
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Alias of PLAYER.GETNEARBY — entities with matching tag within radius (float array of ids)"
+    },
+    {
+      "key": "ENTITY.DIST",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "description": "3D distance between two entities (alias of ENTITY.DISTANCE semantics)"
+    },
+    {
+      "key": "ENT.DIST",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "description": "Alias of ENTITY.DIST"
+    },
+    {
+      "key": "CHAR.DIST",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "description": "Alias of ENTITY.DIST — distance between two entities"
+    },
+    {
+      "key": "WORLD.MOUSEFLOOR",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Alias of WORLD.MOUSEFLOOR3D — mouse ray vs plane y=floorY → [wx,wz] or NIL"
+    },
+    {
+      "key": "WORLD.MOUSEPICK",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Alias of WORLD.MOUSETOENTITY — entity id under mouse cursor (physics ray; Linux+Jolt)"
+    },
+    {
+      "key": "ENT.SET_TEAM",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Stores team id on entity (gameplay / friendly-fire bookkeeping)"
+    },
+    {
+      "key": "ENT.SETHP",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Alias of ENT.SET_HP / ENTITY.SETHEALTH"
+    },
+    {
+      "key": "ENT.DAMAGE",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Reduce entity HP by amount#; triggers damage effects/logic"
+    },
+    {
+      "key": "ENT.SETTEAM",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Alias of ENT.SET_TEAM"
+    },
+    {
+      "key": "ENT.GETNEAREST",
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Alias of ENT.GET_NEAREST / PLAYER.GETNEARBY"
+    },
+    {
+      "key": "ENT.ONDEATH",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Death-drop prefab with 100% chance — alias of ENTITY.ONDEATHDROP(entity, prefab, 100)"
+    },
+    {
+      "key": "ENT.ONDEATH",
+      "args": [
+        "int",
+        "string"
+      ],
+      "description": "Prefab by ENTITY.SETNAME / registry name (same as int overload)"
+    },
+    {
+      "key": "ENT.SHOOT",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "int",
+      "description": "Spawn ENTITY.COPY of prefab at shooter forward; sets host velocity (scripted projectile)"
+    },
+    {
+      "key": "ENT.SHOOT",
+      "args": [
+        "int",
+        "string",
+        "float"
+      ],
+      "returns": "int",
+      "description": "Prefab by registered name string"
+    },
+    {
+      "key": "ENT.FADE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Fade to target alpha over duration — convenience over ENTITY.FADE"
+    },
+    {
+      "key": "WORLD.HITSTOP",
+      "args": [
+        "float"
+      ],
+      "description": "Freeze gameplay delta for duration (wall-clock seconds) — impact frames"
+    },
+    {
+      "key": "WORLD.TOSCREEN",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "description": "WORLD.TOSCREEN(entity#) — screen [x,y] for entity world position via active 3D camera"
+    },
+    {
+      "key": "ENT.WOBBLE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Alias of ENTITY.ADDWOBBLE — bob amplitude and speed"
+    },
+    {
+      "key": "ENT.TWEEN",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Smooth move to world (x,y,z) over duration — alias of ENTITY.ANIMATETOWARD"
+    },
+    {
+      "key": "ENT.FADE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Smoothly interpolate entity alpha to targetValue over duration"
+    },
+    {
+      "key": "WORLD.SHAKE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "description": "Alias of WORLD.SCREENSHAKE — screen impact via active camera"
+    },
+    {
+      "key": "WORLD.HITSTOP",
+      "args": [
+        "float"
+      ],
+      "description": "Pause simulation (hit-stop) for duration seconds for better combat feel"
     },
     {
       "key": "PLAYER.GETSTANDNORMAL",

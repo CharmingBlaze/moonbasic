@@ -55,6 +55,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 		"PICK.X", "PICK.Y", "PICK.Z", "PICK.NX", "PICK.NY", "PICK.NZ", "PICK.ENTITY", "PICK.DIST", "PICK.HIT",
 		"PHYSICS3D.MOUSEHIT",
 		"WORLD.MOUSETOENTITY",
+		"WORLD.MOUSEPICK",
 		"CAMERA.RAYCASTMOUSE",
 	}
 	for _, k := range errKeys {
@@ -102,6 +103,11 @@ func BDBufferIndex(h any, args []value.Value) (value.Value, error) {
 
 func ApplyImpulseToIndex(idx int, x, y, z float32)     {}
 func GetLinearVelocityToIndex(idx int) (x, y, z float32) { return 0, 0, 0 }
+
+func GetBodyQuaternionForBufferIndex(idx int) (x, y, z, w float32, ok bool) {
+	_ = idx
+	return 0, 0, 0, 1, false
+}
 func SetVelocityToIndex(idx int, x, y, z float32)      {}
 func SetPositionToIndex(idx int, x, y, z float32)      {}
 func SetFrictionToIndex(idx int, x float32)            {}
