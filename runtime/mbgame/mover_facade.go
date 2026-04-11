@@ -43,7 +43,7 @@ func (m *Module) makeMover(args []value.Value) (value.Value, error) {
 func (m *Module) moverMoveXZ(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("MOVER.MOVEXZ expects (handle, yaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("MOVER.MOVEXZ expects (handle, yaw, forward, strafe, speed, dt)")
 	}
 	if _, err := heap.Cast[*moverFacade](m.h, heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, err
@@ -73,7 +73,7 @@ func (m *Module) moverMoveXZ(rt *runtime.Runtime, args ...value.Value) (value.Va
 
 func (m *Module) moverMoveStepX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("MOVER.MOVESTEPX expects (handle, yaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("MOVER.MOVESTEPX expects (handle, yaw, forward, strafe, speed, dt)")
 	}
 	if _, err := heap.Cast[*moverFacade](m.h, heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, err
@@ -83,7 +83,7 @@ func (m *Module) moverMoveStepX(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) moverMoveStepZ(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("MOVER.MOVESTEPZ expects (handle, yaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("MOVER.MOVESTEPZ expects (handle, yaw, forward, strafe, speed, dt)")
 	}
 	if _, err := heap.Cast[*moverFacade](m.h, heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, err
@@ -93,7 +93,7 @@ func (m *Module) moverMoveStepZ(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) moverMoveRelArray(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("MOVER.MOVEREL expects (handle, camYaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("MOVER.MOVEREL expects (handle, camYaw, forward, strafe, speed, dt)")
 	}
 	if _, err := heap.Cast[*moverFacade](m.h, heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, err

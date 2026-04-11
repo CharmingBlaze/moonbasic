@@ -45,7 +45,7 @@ func registerAxis(r runtime.Registrar) {
 	}))
 	axisDegLegacy := func(args []value.Value) (value.Value, error) {
 		if len(args) != 4 {
-			return value.Nil, fmt.Errorf("INPUT.AXISDEG expects 4 arguments (negKey, posKey, degreesPerSec#, dt#)")
+			return value.Nil, fmt.Errorf("INPUT.AXISDEG expects 4 arguments (negKey, posKey, degreesPerSec, dt)")
 		}
 		ax, err := axisValueFromKeys(args[0], args[1])
 		if err != nil {

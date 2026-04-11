@@ -26,5 +26,5 @@ The **camera** argument validates the handle; **yaw** still lives in your **`cam
 Example:
 
 ```basic
-camYaw# = camYaw# + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS#, 77.0, dt#)
+camYaw = camYaw + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS, 77.0, dt)
 ```

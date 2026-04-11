@@ -33,7 +33,7 @@ func (m *Module) inputMouseDelta(rt *runtime.Runtime, args ...value.Value) (valu
 func (m *Module) inputMoveDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("INPUT.MOVEDIR expects (yaw#, speed#)")
+		return value.Nil, fmt.Errorf("INPUT.MOVEDIR expects (yaw, speed)")
 	}
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("INPUT.MOVEDIR: heap not bound")

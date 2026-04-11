@@ -71,7 +71,7 @@ func (m *Module) graphics3DBlitz(rt *runtime.Runtime, args ...value.Value) (valu
 			return value.Nil, fmt.Errorf("Graphics3D: mode must be numeric")
 		}
 	default:
-		return value.Nil, fmt.Errorf("Graphics3D expects (width#, height#) or (width#, height#, depth#, mode#)")
+		return value.Nil, fmt.Errorf("Graphics3D expects (width, height) or (width, height, depth, mode)")
 	}
 	rl.SetWindowSize(int(w), int(h))
 	if mode&1 != 0 {

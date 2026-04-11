@@ -4,7 +4,6 @@ package mbentity
 
 import (
 	"moonbasic/runtime"
-	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/value"
 )
 
@@ -12,13 +11,14 @@ import (
 // Full API: entity_physics_macro_cgo.go (linux && cgo).
 
 func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {
+	// Succeed without Jolt so the same .mb runs on Windows; physics has no effect until Linux+CGO Jolt.
 	noop := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		_ = args
-		return value.Nil, mbphysics3d.ErrPhysicsUnavailable()
+		return value.Nil, nil
 	})
 	keys := []string{
-		"ENTITY.PHYSICS", "PHYSICS.AUTO", "ENTITY.PHYSICSMOTION",
-		"PHYSICS.SHAPE", "PHYSICS.SIZE", "PHYSICS.FRICTION", "PHYSICS.BOUNCE", "PHYSICS.BUILD",
+		"ENTITY.PHYSICS", "ENTITY.ADDPHYSICS", "PHYSICS.AUTO", "ENTITY.PHYSICSMOTION",
+		"PHYSICS.SHAPE", "PHYSICS.SIZE", "PHYSICS.FRICTION", "PHYSICS.BOUNCE", "ENTITY.SETBOUNCINESS", "PHYSICS.BUILD",
 		"PHYSICS.IMPULSE", "PHYSICS.VELOCITY", "PHYSICS.FORCE", "PHYSICS.TORQUE", "PHYSICS.SETROT",
 		"PHYSICS.GRAVITY", "PHYSICS.WAKE", "PHYSICS.CCD",
 	}

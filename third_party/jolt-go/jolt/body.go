@@ -12,6 +12,13 @@ const (
 	MotionTypeDynamic   MotionType = C.JoltMotionTypeDynamic   // Affected by forces
 )
 
+// AllowedDOFsOrZero passes 0 to Jolt body creation to keep EAllowedDOFs::All.
+// AllowedDOFsPlatformer is world-space TranslationX|Y|Z + RotationY (upright capsule / character).
+const (
+	AllowedDOFsOrZero     int = 0
+	AllowedDOFsPlatformer int = 0x17 // 1+2+4+16; see Jolt AllowedDOFs.h
+)
+
 // BodyInterface provides methods to create and manipulate physics bodies
 type BodyInterface struct {
 	handle C.JoltBodyInterface
@@ -65,9 +72,9 @@ func (bi *BodyInterface) GetPosition(bodyID *BodyID) Vec3 {
 //
 //	// Create kinematic sensor
 //	capsule := jolt.CreateCapsule(0.5, 1.8)
-//	sensor := bi.CreateBody(capsule, jolt.Vec3{X: 0, Y: 1, Z: 0}, jolt.MotionTypeKinematic, true)
+//	sensor := bi.CreateBody(capsule, jolt.Vec3{X: 0, Y: 1, Z: 0}, jolt.MotionTypeKinematic, true, 0.2, 0, jolt.AllowedDOFsOrZero)
 //	bi.ActivateBody(sensor)
-func (bi *BodyInterface) CreateBody(shape *Shape, position Vec3, motionType MotionType, isSensor bool) *BodyID {
+func (bi *BodyInterface) CreateBody(shape *Shape, position Vec3, motionType MotionType, isSensor bool, friction, restitution float32, allowedDOFsOrZero int) *BodyID {
 	sensor := C.int(0)
 	if isSensor {
 		sensor = C.int(1)
@@ -81,9 +88,22 @@ func (bi *BodyInterface) CreateBody(shape *Shape, position Vec3, motionType Moti
 		C.float(position.Z),
 		C.JoltMotionType(motionType),
 		sensor,
+		C.float(friction),
+		C.float(restitution),
+		C.int(allowedDOFsOrZero),
 	)
 
 	return &BodyID{handle: handle}
+}
+
+// SetFriction sets the friction coefficient on an existing body (0 = no friction).
+func (bi *BodyInterface) SetFriction(bodyID *BodyID, friction float32) {
+	C.JoltSetBodyFriction(bi.handle, bodyID.handle, C.float(friction))
+}
+
+// SetRestitution sets restitution on an existing body (0 = no bounce).
+func (bi *BodyInterface) SetRestitution(bodyID *BodyID, restitution float32) {
+	C.JoltSetBodyRestitution(bi.handle, bodyID.handle, C.float(restitution))
 }
 
 // SetPosition updates the position of a body
@@ -94,6 +114,35 @@ func (bi *BodyInterface) SetPosition(bodyID *BodyID, position Vec3) {
 		C.float(position.X),
 		C.float(position.Y),
 		C.float(position.Z),
+	)
+}
+
+// GetLinearVelocity returns the linear velocity of a body (world space).
+func (bi *BodyInterface) GetLinearVelocity(bodyID *BodyID) Vec3 {
+	var x, y, z C.float
+	C.JoltGetBodyLinearVelocity(bi.handle, bodyID.handle, &x, &y, &z)
+	return Vec3{X: float32(x), Y: float32(y), Z: float32(z)}
+}
+
+// SetLinearVelocity sets the linear velocity of a body (world space).
+func (bi *BodyInterface) SetLinearVelocity(bodyID *BodyID, velocity Vec3) {
+	C.JoltSetBodyLinearVelocity(
+		bi.handle,
+		bodyID.handle,
+		C.float(velocity.X),
+		C.float(velocity.Y),
+		C.float(velocity.Z),
+	)
+}
+
+// AddImpulse applies an impulse to a dynamic body (world space).
+func (bi *BodyInterface) AddImpulse(bodyID *BodyID, impulse Vec3) {
+	C.JoltAddBodyImpulse(
+		bi.handle,
+		bodyID.handle,
+		C.float(impulse.X),
+		C.float(impulse.Y),
+		C.float(impulse.Z),
 	)
 }
 

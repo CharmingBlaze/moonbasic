@@ -30,7 +30,7 @@ Creates a server host that listens for incoming connections.
 
 Creates a client host.
 
-### `Net.Connect(clientHandle, address$, port)`
+### `Net.Connect(clientHandle, address, port)`
 
 Connects a client to a server. Returns a handle to the server peer.
 
@@ -46,15 +46,15 @@ This must be called every frame to process network packets.
 
 Retrieves the next available network event. Returns an event handle, or `0` if no events are waiting. You should call this in a loop until it returns `0`.
 
-### `Net.Broadcast(serverHandle, channel, data$, reliable?)`
+### `Net.Broadcast(serverHandle, channel, data, reliable)`
 
 (Server-only) Sends a message to every connected client.
 
-### `Peer.Send(peerHandle, channel, data$, reliable?)`
+### `Peer.Send(peerHandle, channel, data, reliable)`
 
 Sends a message to a specific peer.
 
-- `reliable?`: `TRUE` guarantees delivery and order. `FALSE` is faster but packets can be lost or arrive out of order.
+- `reliable`: `TRUE` guarantees delivery and order. `FALSE` is faster but packets can be lost or arrive out of order.
 
 ---
 
@@ -64,8 +64,8 @@ To avoid **head-of-line blocking** when mixing **critical state** with **high-fr
 
 | Channel index | Typical use | Packet style |
 |---------------|-------------|--------------|
-| **0** | Scores, health, RPCs, chat, match events | **`reliable? = TRUE`** (ordered delivery) |
-| **1** | Position / rotation snapshots, frequent state | **`reliable? = FALSE`** (unreliable; may drop or reorder) |
+| **0** | Scores, health, RPCs, chat, match events | **`reliable = TRUE`** (ordered delivery) |
+| **1** | Position / rotation snapshots, frequent state | **`reliable = FALSE`** (unreliable; may drop or reorder) |
 
 **Rules of thumb:**
 

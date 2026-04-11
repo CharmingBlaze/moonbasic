@@ -80,7 +80,7 @@ func argPlayer2D(h *heap.Store, v value.Value) (*player2DObj, error) {
 func (m *Module) player2DMove(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("PLAYER2D.MOVE expects (player, camYaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("PLAYER2D.MOVE expects (player, camYaw, forward, strafe, speed, dt)")
 	}
 	o, err := argPlayer2D(m.h, args[0])
 	if err != nil {
@@ -104,7 +104,7 @@ func (m *Module) player2DMove(rt *runtime.Runtime, args ...value.Value) (value.V
 func (m *Module) player2DClamp(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("PLAYER2D.CLAMP expects (player, minX#, maxX#, minZ#, maxZ#)")
+		return value.Nil, fmt.Errorf("PLAYER2D.CLAMP expects (player, minX, maxX, minZ, maxZ)")
 	}
 	o, err := argPlayer2D(m.h, args[0])
 	if err != nil {
@@ -179,7 +179,7 @@ func (m *Module) player2DGetZ(rt *runtime.Runtime, args ...value.Value) (value.V
 func (m *Module) player2DSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER2D.SETPOS expects (player, x#, z#)")
+		return value.Nil, fmt.Errorf("PLAYER2D.SETPOS expects (player, x, z)")
 	}
 	o, err := argPlayer2D(m.h, args[0])
 	if err != nil {

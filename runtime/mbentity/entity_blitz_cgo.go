@@ -972,7 +972,7 @@ func (m *Module) entAddForce(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetSlide(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SLIDE expects (entity#, enable)")
+		return value.Nil, fmt.Errorf("ENTITY.SLIDE expects (entity, enable)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -992,7 +992,7 @@ func (m *Module) entSetSlide(args []value.Value) (value.Value, error) {
 
 func (m *Module) entPick(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.PICK expects (entity#, range#)")
+		return value.Nil, fmt.Errorf("ENTITY.PICK expects (entity, range)")
 	}
 	id, ok := m.entID(args[0])
 	rng, ok2 := argF32(args[1])
@@ -1074,7 +1074,7 @@ func maxFloat32(a, b float32) float32 {
 
 func (m *Module) entPickMode(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.PICKMODE expects (entity#, mode)")
+		return value.Nil, fmt.Errorf("ENTITY.PICKMODE expects (entity, mode)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1091,7 +1091,7 @@ func (m *Module) entPickMode(args []value.Value) (value.Value, error) {
 
 func (m *Module) entPointEntity(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.POINTENTITY expects (entity#, targetEntity#)")
+		return value.Nil, fmt.Errorf("ENTITY.POINTENTITY expects (entity, targetEntity)")
 	}
 	id, ok := m.entID(args[0])
 	tid, ok2 := m.entID(args[1])
@@ -1118,7 +1118,7 @@ func (m *Module) entPointEntity(args []value.Value) (value.Value, error) {
 
 func (m *Module) entLookAtWorld(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("ENTITY.LOOKAT expects (entity#, targetX#, targetY#, targetZ#)")
+		return value.Nil, fmt.Errorf("ENTITY.LOOKAT expects (entity, targetX, targetY, targetZ)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1160,7 +1160,7 @@ func (m *Module) entLookAtWorld(args []value.Value) (value.Value, error) {
 
 func (m *Module) entAlignToVector(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.ALIGNTOVECTOR expects (entity#, vx#, vy#, vz#, axis)")
+		return value.Nil, fmt.Errorf("ENTITY.ALIGNTOVECTOR expects (entity, vx, vy, vz, axis)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1192,7 +1192,7 @@ func (m *Module) entAlignToVector(args []value.Value) (value.Value, error) {
 func (m *Module) entAnimate(args []value.Value) (value.Value, error) {
 	// Mode: 0–1 = loop, 2 = ping-pong, 3+ = clamp at clip end. Dual-pose cross-fade is not implemented yet (Raylib single-clip pose).
 	if len(args) < 1 || len(args) > 3 {
-		return value.Nil, fmt.Errorf("ENTITY.ANIMATE expects (entity# [, mode, speed#])")
+		return value.Nil, fmt.Errorf("ENTITY.ANIMATE expects (entity [, mode, speed])")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1216,7 +1216,7 @@ func (m *Module) entAnimate(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetAnimTime(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETANIMTIME expects (entity#, time#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETANIMTIME expects (entity, time)")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1230,7 +1230,7 @@ func (m *Module) entSetAnimTime(args []value.Value) (value.Value, error) {
 
 func (m *Module) entAnimTime(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.ANIMTIME expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.ANIMTIME expects entity")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1242,7 +1242,7 @@ func (m *Module) entAnimTime(args []value.Value) (value.Value, error) {
 
 func (m *Module) entAnimLength(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.ANIMLENGTH expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.ANIMLENGTH expects entity")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1262,7 +1262,7 @@ func (m *Module) entAnimLength(args []value.Value) (value.Value, error) {
 
 func (m *Module) entHide(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.HIDE expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.HIDE expects entity")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1275,7 +1275,7 @@ func (m *Module) entHide(args []value.Value) (value.Value, error) {
 
 func (m *Module) entShow(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.SHOW expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.SHOW expects entity")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1288,7 +1288,7 @@ func (m *Module) entShow(args []value.Value) (value.Value, error) {
 
 func (m *Module) entFree(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.FREE expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.FREE expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1304,7 +1304,7 @@ func (m *Module) entFree(args []value.Value) (value.Value, error) {
 
 func (m *Module) entCopy(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.COPY expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.COPY expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1347,7 +1347,7 @@ func (m *Module) entCopy(args []value.Value) (value.Value, error) {
 
 func (m *Module) entInstanceGrid(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("ENTITY.INSTANCEGRID expects (entity#, countX#, countZ#, spacing#)")
+		return value.Nil, fmt.Errorf("ENTITY.INSTANCEGRID expects (entity, countX, countZ, spacing)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1404,7 +1404,7 @@ func (m *Module) entInstanceGrid(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETNAME expects (entity#, name$)")
+		return value.Nil, fmt.Errorf("ENTITY.SETNAME expects (entity, name)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1432,7 +1432,7 @@ func (m *Module) entSetName(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) entFind(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.FIND expects name$")
+		return value.Nil, fmt.Errorf("ENTITY.FIND expects name")
 	}
 	if args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("name must be string")
@@ -1450,7 +1450,7 @@ func (m *Module) entFind(rt *runtime.Runtime, args ...value.Value) (value.Value,
 
 func (m *Module) entMoveRelative(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.MOVERELATIVE expects (entity#, forward#, right#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("ENTITY.MOVERELATIVE expects (entity, forward, right, speed, dt)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1478,7 +1478,7 @@ func (m *Module) entMoveRelative(args []value.Value) (value.Value, error) {
 
 func (m *Module) entApplyGravity(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.APPLYGRAVITY expects (entity#, gravity#, dt#)")
+		return value.Nil, fmt.Errorf("ENTITY.APPLYGRAVITY expects (entity, gravity, dt)")
 	}
 	id, ok := m.entID(args[0])
 	g, ok1 := argF32(args[1])
@@ -1497,7 +1497,7 @@ func (m *Module) entApplyGravity(args []value.Value) (value.Value, error) {
 
 func (m *Module) entGrounded(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.GROUNDED expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.GROUNDED expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -1512,7 +1512,7 @@ func (m *Module) entGrounded(args []value.Value) (value.Value, error) {
 
 func (m *Module) entMoveCameraRelative(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("EntityMoveCameraRelative expects (entity#, forward#, strafe#, camera)")
+		return value.Nil, fmt.Errorf("EntityMoveCameraRelative expects (entity, forward, strafe, camera)")
 	}
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("EntityMoveCameraRelative: heap not bound")
@@ -1553,7 +1553,7 @@ func (m *Module) entMoveCameraRelative(args []value.Value) (value.Value, error) 
 
 func (m *Module) entSetMass(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETMASS expects (entity#, mass#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETMASS expects (entity, mass)")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1567,7 +1567,7 @@ func (m *Module) entSetMass(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetFriction(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETFRICTION expects (entity#, amount#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETFRICTION expects (entity, amount)")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1581,7 +1581,7 @@ func (m *Module) entSetFriction(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetBounce(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETBOUNCE expects (entity#, amount#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETBOUNCE expects (entity, amount)")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]
@@ -1596,7 +1596,7 @@ func (m *Module) entSetBounce(args []value.Value) (value.Value, error) {
 func (m *Module) camOrbitEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("CAMERA.ORBITENTITY expects (camera, entity#, yaw#, pitch#, dist#)")
+		return value.Nil, fmt.Errorf("CAMERA.ORBITENTITY expects (camera, entity, yaw, pitch, dist)")
 	}
 	ch, ok := argHandle(args[0])
 	if !ok {
@@ -1628,7 +1628,7 @@ func (m *Module) entCreateSpriteEntity(rt *runtime.Runtime, args ...value.Value)
 		return m.entCreateSpriteFromTexture(rt, args...)
 	}
 	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE expects (path$), (path$, parentEntity#), or (textureHandle, w#, h# [, parent#])")
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE expects (path), (path, parentEntity), or (textureHandle, w, h [, parent])")
 	}
 	return m.entLoadSprite(rt, args...)
 }
@@ -1636,7 +1636,7 @@ func (m *Module) entCreateSpriteEntity(rt *runtime.Runtime, args ...value.Value)
 func (m *Module) entCreateSpriteFromTexture(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	n := len(args)
 	if n < 3 || n > 4 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE (texture): (texHandle, w#, h# [, parent#])")
+		return value.Nil, fmt.Errorf("ENTITY.CREATESPRITE (texture): (texHandle, w, h [, parent])")
 	}
 	th := heap.Handle(args[0].IVal)
 	obj, ok := rt.Heap.Get(th)
@@ -1678,7 +1678,7 @@ func (m *Module) entCreateSpriteFromTexture(rt *runtime.Runtime, args ...value.V
 
 func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if (len(args) != 1 && len(args) != 2) || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LOADSPRITE expects (path$) or (path$, parentEntity#)")
+		return value.Nil, fmt.Errorf("LOADSPRITE expects (path) or (path, parentEntity)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -1718,7 +1718,7 @@ func (m *Module) entLoadSprite(rt *runtime.Runtime, args ...value.Value) (value.
 
 func (m *Module) entScaleSprite(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("SCALESPRITE expects (sprite, x#, y#)")
+		return value.Nil, fmt.Errorf("SCALESPRITE expects (sprite, x, y)")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]

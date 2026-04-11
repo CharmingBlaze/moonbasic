@@ -52,16 +52,16 @@ func TestLexReferenceProgram(t *testing.T) {
 	if !foundWhile {
 		t.Fatal("expected WHILE")
 	}
-	// dt# suffix
+	// dt name (no suffix)
 	foundDt := false
 	for _, tk := range toks {
-		if tk.Type == token.IDENT && tk.Lit == "DT#" {
+		if tk.Type == token.IDENT && tk.Lit == "DT" {
 			foundDt = true
 			break
 		}
 	}
 	if !foundDt {
-		t.Fatal("expected DT# ident")
+		t.Fatal("expected DT ident")
 	}
 }
 

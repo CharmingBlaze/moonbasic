@@ -28,7 +28,7 @@ func terrainLoad(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, runtime.Errorf("TERRAIN.LOAD: heap not bound")
 	}
 	if len(args) < 1 || len(args) > 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("TERRAIN.LOAD expects (heightmapPath$ [, diffusePath$])")
+		return value.Nil, fmt.Errorf("TERRAIN.LOAD expects (heightmapPath [, diffusePath])")
 	}
 	hm, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -129,7 +129,7 @@ func terrainGetNormal(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 		return value.Nil, runtime.Errorf("TERRAIN.GETNORMAL: heap not bound")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("TERRAIN.GETNORMAL expects (terrain, x#, z#)")
+		return value.Nil, fmt.Errorf("TERRAIN.GETNORMAL expects (terrain, x, z)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -153,7 +153,7 @@ func terrainGetNormal(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 
 func terrainSetScale(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("TERRAIN.SETSCALE expects (terrain, x#, y#, z#)")
+		return value.Nil, fmt.Errorf("TERRAIN.SETSCALE expects (terrain, x, y, z)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -189,7 +189,7 @@ func terrainSetScale(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 
 func terrainGetSplat(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("TERRAIN.GETSPLAT expects (terrain, x#, z#)")
+		return value.Nil, fmt.Errorf("TERRAIN.GETSPLAT expects (terrain, x, z)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -216,7 +216,7 @@ func terrainRaycast(m *Module, rt *runtime.Runtime, args ...value.Value) (value.
 		return value.Nil, runtime.Errorf("TERRAIN.RAYCAST: heap not bound")
 	}
 	if len(args) != 7 {
-		return value.Nil, fmt.Errorf("TERRAIN.RAYCAST expects (terrain, ox#, oy#, oz#, dx#, dy#, dz#)")
+		return value.Nil, fmt.Errorf("TERRAIN.RAYCAST expects (terrain, ox, oy, oz, dx, dy, dz)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -273,7 +273,7 @@ func terrainRaycast(m *Module, rt *runtime.Runtime, args ...value.Value) (value.
 
 func terrainSetDetail(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("TERRAIN.SETDETAIL expects (terrain, density#)")
+		return value.Nil, fmt.Errorf("TERRAIN.SETDETAIL expects (terrain, density)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {

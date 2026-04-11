@@ -4,7 +4,7 @@ Commands for loading and using custom shaders.
 
 ---
 
-### `Shader.Load(vertexPath$, fragmentPath$)`
+### `Shader.Load(vertexPath, fragmentPath)`
 
 Loads a GLSL vertex and fragment shader from files. Returns a handle to the shader program.
 
@@ -38,7 +38,7 @@ Uniform names are **string** arguments (bytecode string table).
 
 ```basic
 sh = Shader.Load("custom.vs", "custom.fs")
-t# = TIME.GET()
-Shader.SetFloat(sh, "uTime", t#)
+t = TIME.GET()
+Shader.SetFloat(sh, "uTime", t)
 Shader.Free(sh)
 ```

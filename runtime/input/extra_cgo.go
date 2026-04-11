@@ -299,7 +299,7 @@ func (m *Module) inGamepadAxisCount(args []value.Value) (value.Value, error) {
 
 func (m *Module) inSetGamepadMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.SETGAMEPADMAPPINGS expects 1 string argument (mappings$)")
+		return value.Nil, fmt.Errorf("INPUT.SETGAMEPADMAPPINGS expects 1 string argument (mappings)")
 	}
 	mappings, err := rt.ArgString(args, 0)
 	if err != nil {

@@ -14,6 +14,7 @@ import (
 
 func registerEntityTweenAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.ANIMATETOWARD", "entity", runtime.AdaptLegacy(m.entAnimateToward))
+	r.Register("ENTITY.SQUASH", "entity", runtime.AdaptLegacy(m.entSquash))
 	r.Register("ENTITY.TWEEN", "entity", m.entTween)
 }
 
@@ -111,7 +112,7 @@ func (m *Module) setEntityProperty(e *ent, prop string, val float32) {
 
 func (m *Module) entTween(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.TWEEN expects (entity#, property$, targetValue, duration, easeType$)")
+		return value.Nil, fmt.Errorf("ENTITY.TWEEN expects (entity, property, targetValue, duration, easeType)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
@@ -169,9 +170,35 @@ func (m *Module) getEntityProperty(e *ent, prop string) float32 {
 	return 0
 }
 
+func (m *Module) entSquash(args []value.Value) (value.Value, error) {
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("ENTITY.SQUASH expects (entity#, squashFactor#, duration#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.SQUASH: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.SQUASH: unknown entity")
+	}
+	fac, ok1 := argF32(args[1])
+	dur, ok2 := argF32(args[2])
+	if !ok1 || !ok2 || dur <= 0 {
+		return value.Nil, fmt.Errorf("ENTITY.SQUASH: factor and duration must be numeric (duration > 0)")
+	}
+	base := e.scale.Y
+	ext := e.getExt()
+	e.scale.Y = base * fac
+	ext.complexTweens = append(ext.complexTweens, complexTween{
+		prop: "scale_y", start: base * fac, target: base, elapsed: 0, duration: dur, ease: "easeOutQuad",
+	})
+	return value.Nil, nil
+}
+
 func (m *Module) entAnimateToward(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.ANIMATETOWARD expects (entity#, x#, y#, z#, duration#)")
+		return value.Nil, fmt.Errorf("ENTITY.ANIMATETOWARD expects (entity, x, y, z, duration)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {

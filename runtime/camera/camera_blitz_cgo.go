@@ -17,7 +17,7 @@ import (
 func (m *Module) registerBlitzCamera(reg runtime.Registrar) {
 	reg.Register("CAMERA.TURN", "camera", runtime.AdaptLegacy(m.camTurn))
 	reg.Register("CAMERA.ROTATE", "camera", runtime.AdaptLegacy(m.camRotateAbs))
-	reg.Register("CAMERA.ORBIT", "camera", runtime.AdaptLegacy(m.camSetOrbit))
+	reg.Register("CAMERA.ORBIT", "camera", runtime.AdaptLegacy(m.camOrbitDispatch))
 	reg.Register("CAMERA.ZOOM", "camera", runtime.AdaptLegacy(m.camZoom))
 	reg.Register("CAMERA.FOLLOW", "camera", m.camFollow)
 }

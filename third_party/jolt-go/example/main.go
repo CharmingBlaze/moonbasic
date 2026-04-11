@@ -154,6 +154,7 @@ func main() {
 		jolt.Vec3{X: 0, Y: 0, Z: 0}, // position
 		jolt.MotionTypeStatic,
 		false, // not a sensor
+		0.2, 0.0, jolt.AllowedDOFsOrZero, // friction / restitution / DOFs (Jolt-friendly defaults)
 	)
 	defer platform.Destroy()
 

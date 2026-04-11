@@ -76,7 +76,7 @@ func (m *Module) effectSSAO(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.SSAO expects (enable, radius?, intensity?)")
+		return value.Nil, fmt.Errorf("EFFECT.SSAO expects (enable, radius, intensity)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -102,7 +102,7 @@ func (m *Module) effectSSR(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.SSR expects (enable, steps?, stride?)")
+		return value.Nil, fmt.Errorf("EFFECT.SSR expects (enable, steps, stride)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -128,7 +128,7 @@ func (m *Module) effectMotionBlur(rt *runtime.Runtime, args ...value.Value) (val
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.MOTIONBLUR expects (enable, strength?)")
+		return value.Nil, fmt.Errorf("EFFECT.MOTIONBLUR expects (enable, strength)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -149,7 +149,7 @@ func (m *Module) effectDOF(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.DEPTHOFFIELD expects (enable, focus?, range?)")
+		return value.Nil, fmt.Errorf("EFFECT.DEPTHOFFIELD expects (enable, focus, range)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -175,7 +175,7 @@ func (m *Module) effectBloom(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.BLOOM expects (enable, threshold?, intensity?)")
+		return value.Nil, fmt.Errorf("EFFECT.BLOOM expects (enable, threshold, intensity)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -233,7 +233,7 @@ func (m *Module) effectSharpen(rt *runtime.Runtime, args ...value.Value) (value.
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.SHARPEN expects (enable, amount?)")
+		return value.Nil, fmt.Errorf("EFFECT.SHARPEN expects (enable, amount)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -254,7 +254,7 @@ func (m *Module) effectGrain(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.GRAIN expects (enable, amount?)")
+		return value.Nil, fmt.Errorf("EFFECT.GRAIN expects (enable, amount)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -275,7 +275,7 @@ func (m *Module) effectVignette(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.VIGNETTE expects (enable, amount?)")
+		return value.Nil, fmt.Errorf("EFFECT.VIGNETTE expects (enable, amount)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -296,7 +296,7 @@ func (m *Module) effectChromatic(rt *runtime.Runtime, args ...value.Value) (valu
 		return value.Nil, err
 	}
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("EFFECT.CHROMATICABERRATION expects (enable, amount?)")
+		return value.Nil, fmt.Errorf("EFFECT.CHROMATICABERRATION expects (enable, amount)")
 	}
 	on := argBool01(args[0])
 	effectEnableBasics()
@@ -327,7 +327,7 @@ func (m *Module) effectFXAA(rt *runtime.Runtime, args ...value.Value) (value.Val
 }
 func (m *Module) worldFlash(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("WORLD.FLASH expects (color#, duration#)")
+		return value.Nil, fmt.Errorf("WORLD.FLASH expects (color, duration)")
 	}
 	colorH := heap.Handle(args[0].IVal)
 	dur, ok := argFloat32(args[1])

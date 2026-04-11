@@ -81,7 +81,7 @@ func registerBlitzFacadeCommands(m *Module, r runtime.Registrar) {
 
 func (m *Module) entCreateCone(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.CREATECONE expects (radius#, height#, segments#)")
+		return value.Nil, fmt.Errorf("ENTITY.CREATECONE expects (radius, height, segments)")
 	}
 	rad, ok1 := argF32(args[0])
 	h, ok2 := argF32(args[1])
@@ -136,13 +136,13 @@ func (m *Module) entCreateConeEasy(args []value.Value) (value.Value, error) {
 		_, err = m.entParent([]value.Value{value.FromInt(cid), value.FromInt(pid)})
 		return v, err
 	default:
-		return value.Nil, fmt.Errorf("CreateCone expects 0, 1 (parent#), 3 (r,h,seg), or 4 (parent,r,h,seg)")
+		return value.Nil, fmt.Errorf("CreateCone expects 0, 1 (parent), 3 (r,h,seg), or 4 (parent,r,h,seg)")
 	}
 }
 
 func (m *Module) entGetParent(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("GetParent expects entity#")
+		return value.Nil, fmt.Errorf("GetParent expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -157,7 +157,7 @@ func (m *Module) entGetParent(args []value.Value) (value.Value, error) {
 
 func (m *Module) entEntityNameStr(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("EntityName expects entity#")
+		return value.Nil, fmt.Errorf("EntityName expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -172,7 +172,7 @@ func (m *Module) entEntityNameStr(rt *runtime.Runtime, args ...value.Value) (val
 
 func (m *Module) entCopyExtended(args []value.Value) (value.Value, error) {
 	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("CopyEntity expects entity# [, parent#]")
+		return value.Nil, fmt.Errorf("CopyEntity expects entity [, parent]")
 	}
 	v, err := m.entCopy([]value.Value{args[0]})
 	if err != nil {
@@ -252,7 +252,7 @@ func (m *Module) entCountTrianglesStub(args []value.Value) (value.Value, error) 
 // entCreatePivot: optional parent# (0 = world root, i.e. none)
 func (m *Module) entCreatePivot(args []value.Value) (value.Value, error) {
 	if len(args) > 1 {
-		return value.Nil, fmt.Errorf("CreatePivot expects 0 or 1 (parent#) arguments")
+		return value.Nil, fmt.Errorf("CreatePivot expects 0 or 1 (parent) arguments")
 	}
 	st := m.store()
 	id := st.nextID

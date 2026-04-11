@@ -13,6 +13,12 @@ import (
 )
 
 func registerWorld(m *Module, r runtime.Registrar) {
+	r.Register("WORLD.GRAVITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("WORLD.GRAVITY expects 3 floats (gx, gy, gz)")
+		}
+		return rt.Call("PHYSICS3D.SETGRAVITY", []value.Value{args[0], args[1], args[2]})
+	})
 	r.Register("WORLD.SETCENTER", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldSetCenter(m, rt, args...) })
 	r.Register("WORLD.SETCENTERENTITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldSetCenterEntity(m, rt, args...) })
 	r.Register("WORLD.UPDATE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return worldUpdate(m, rt, args...) })
@@ -24,7 +30,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 
 	r.Register("WORLD.SETREFLECTION", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("WORLD.SETREFLECTION expects (entity#)")
+			return value.Nil, fmt.Errorf("WORLD.SETREFLECTION expects (entity)")
 		}
 		_, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -35,7 +41,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 
 	r.Register("WORLD.FOGMODE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("WORLD.FOGMODE expects mode%%")
+			return value.Nil, fmt.Errorf("WORLD.FOGMODE expects mode")
 		}
 		mode, _ := rt.ArgInt(args, 0)
 		m.FogMode = int(mode)
@@ -43,7 +49,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 	})
 	r.Register("FOGMODE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("FOGMODE expects mode%%")
+			return value.Nil, fmt.Errorf("FOGMODE expects mode")
 		}
 		mode, _ := rt.ArgInt(args, 0)
 		m.FogMode = int(mode)
@@ -81,7 +87,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 	})
 	r.Register("WORLD.FOGDENSITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("WORLD.FOGDENSITY expects density#")
+			return value.Nil, fmt.Errorf("WORLD.FOGDENSITY expects density")
 		}
 		d, _ := rt.ArgFloat(args, 0)
 		m.FogDensity = float32(d)
@@ -89,7 +95,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 	})
 	r.Register("FOGDENSITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("FOGDENSITY expects density#")
+			return value.Nil, fmt.Errorf("FOGDENSITY expects density")
 		}
 		d, _ := rt.ArgFloat(args, 0)
 		m.FogDensity = float32(d)
@@ -102,7 +108,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 
 func worldSetCenter(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("WORLD.SETCENTER expects x#, z#")
+		return value.Nil, fmt.Errorf("WORLD.SETCENTER expects x, z")
 	}
 	x, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -118,7 +124,7 @@ func worldSetCenter(m *Module, rt *runtime.Runtime, args ...value.Value) (value.
 
 func worldSetCenterEntity(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("WORLD.SETCENTERENTITY expects entity#")
+		return value.Nil, fmt.Errorf("WORLD.SETCENTERENTITY expects entity")
 	}
 	id, err := rt.ArgInt(args, 0)
 	if err != nil {
@@ -134,7 +140,7 @@ func worldSetCenterEntity(m *Module, rt *runtime.Runtime, args ...value.Value) (
 
 func worldUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("WORLD.UPDATE expects dt#")
+		return value.Nil, fmt.Errorf("WORLD.UPDATE expects dt")
 	}
 	_, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -146,7 +152,7 @@ func worldUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func worldStreamEnable(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("WORLD.STREAMENABLE expects enabled?")
+		return value.Nil, fmt.Errorf("WORLD.STREAMENABLE expects enabled")
 	}
 	b, err := rt.ArgBool(args, 0)
 	if err != nil {
@@ -201,7 +207,7 @@ func worldSetVegetation(m *Module, rt *runtime.Runtime, args ...value.Value) (va
 		return value.Nil, fmt.Errorf("WORLD.SETVEGETATION: scatter module not wired (internal)")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WORLD.SETVEGETATION expects (terrain#, billboard#, density#)")
+		return value.Nil, fmt.Errorf("WORLD.SETVEGETATION expects (terrain, billboard, density)")
 	}
 	ht, err := rt.ArgHandle(args, 0)
 	if err != nil {

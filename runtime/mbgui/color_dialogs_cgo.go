@@ -16,7 +16,7 @@ import (
 func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	reg.Register("GUI.COLORPANEL", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 9 {
-			return value.Nil, fmt.Errorf("GUI.COLORPANEL expects (x,y,w,h, text$, r,g,b,a)")
+			return value.Nil, fmt.Errorf("GUI.COLORPANEL expects (x,y,w,h, text, r,g,b,a)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -35,7 +35,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.COLORBARALPHA", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 6 {
-			return value.Nil, fmt.Errorf("GUI.COLORBARALPHA expects (x,y,w,h, text$, alpha#)")
+			return value.Nil, fmt.Errorf("GUI.COLORBARALPHA expects (x,y,w,h, text, alpha)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -54,7 +54,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.COLORBARHUE", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 6 {
-			return value.Nil, fmt.Errorf("GUI.COLORBARHUE expects (x,y,w,h, text$, value#)")
+			return value.Nil, fmt.Errorf("GUI.COLORBARHUE expects (x,y,w,h, text, value)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -73,7 +73,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.COLORPICKER", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 9 {
-			return value.Nil, fmt.Errorf("GUI.COLORPICKER expects (x,y,w,h, text$, r,g,b,a)")
+			return value.Nil, fmt.Errorf("GUI.COLORPICKER expects (x,y,w,h, text, r,g,b,a)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -92,7 +92,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.COLORPICKERHSV", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 6 {
-			return value.Nil, fmt.Errorf("GUI.COLORPICKERHSV expects (x,y,w,h, text$, hsvHandle) 3 floats XYZ=HSV")
+			return value.Nil, fmt.Errorf("GUI.COLORPICKERHSV expects (x,y,w,h, text, hsvHandle) 3 floats XYZ=HSV")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -128,7 +128,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.COLORPANELHSV", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 6 {
-			return value.Nil, fmt.Errorf("GUI.COLORPANELHSV expects (x,y,w,h, text$, hsvHandle)")
+			return value.Nil, fmt.Errorf("GUI.COLORPANELHSV expects (x,y,w,h, text, hsvHandle)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -164,7 +164,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.MESSAGEBOX", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 7 {
-			return value.Nil, fmt.Errorf("GUI.MESSAGEBOX expects (x,y,w,h, title$, message$, buttons$)")
+			return value.Nil, fmt.Errorf("GUI.MESSAGEBOX expects (x,y,w,h, title, message, buttons)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -187,7 +187,7 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.TEXTINPUTBOX", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 10 {
-			return value.Nil, fmt.Errorf("GUI.TEXTINPUTBOX expects (x,y,w,h, title$, message$, buttons$, text$, maxLen, secretHandle)")
+			return value.Nil, fmt.Errorf("GUI.TEXTINPUTBOX expects (x,y,w,h, title, message, buttons, text, maxLen, secretHandle)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -227,15 +227,15 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 		}
 		return rt.RetInt(int64(btn)), nil
 	})
-	reg.Register("GUI.TEXTINPUTLAST$", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg.Register("GUI.TEXTINPUTLAST", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("GUI.TEXTINPUTLAST$ expects 0 arguments (after GUI.TEXTINPUTBOX)")
+			return value.Nil, fmt.Errorf("GUI.TEXTINPUTLAST expects 0 arguments (after GUI.TEXTINPUTBOX)")
 		}
 		return rt.RetString(lastTextInputBuf), nil
 	})
 	reg.Register("GUI.GRID", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 8 {
-			return value.Nil, fmt.Errorf("GUI.GRID expects (x,y,w,h, text$, spacing#, subdivs, cellHandle)")
+			return value.Nil, fmt.Errorf("GUI.GRID expects (x,y,w,h, text, spacing, subdivs, cellHandle)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {

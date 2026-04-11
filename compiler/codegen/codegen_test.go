@@ -32,7 +32,7 @@ func TestCompilePrintLiteral(t *testing.T) {
 }
 
 func TestCompileLogicalOrAndXor(t *testing.T) {
-	src := "a? = TRUE: b? = FALSE\nx? = a? OR b?\ny? = a? AND b?\nz? = a? XOR b?\n"
+	src := "a = TRUE: b = FALSE\nx = a OR b\ny = a AND b\nz = a XOR b\n"
 	lines := parser.SplitLines(src)
 	tree, err := parser.ParseSource("t.mb", src)
 	if err != nil {

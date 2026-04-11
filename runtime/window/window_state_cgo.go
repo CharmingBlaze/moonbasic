@@ -244,7 +244,7 @@ func (m *Module) wGetScaleDPIY(rt *runtime.Runtime, args ...value.Value) (value.
 
 func (m *Module) wSetIcon(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("WINDOW.SETICON expects 1 argument (image path$)")
+		return value.Nil, fmt.Errorf("WINDOW.SETICON expects 1 argument (image path)")
 	}
 	if err := m.requireOpen("WINDOW.SETICON"); err != nil {
 		return value.Nil, err
@@ -265,7 +265,7 @@ func (m *Module) wSetIcon(rt *runtime.Runtime, args ...value.Value) (value.Value
 func (m *Module) wSetOpacity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("WINDOW.SETOPACITY expects 1 argument (alpha#)")
+		return value.Nil, fmt.Errorf("WINDOW.SETOPACITY expects 1 argument (alpha)")
 	}
 	var a float64
 	var ok bool

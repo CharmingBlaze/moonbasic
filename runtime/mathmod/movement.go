@@ -24,7 +24,7 @@ func (m *Module) mathNewX(rt *runtime.Runtime, args ...value.Value) (value.Value
 	_ = m
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("MATH.NEWX expects 3 arguments (currentX#, yawRadians#, distance#)")
+		return value.Nil, fmt.Errorf("MATH.NEWX expects 3 arguments (currentX, yawRadians, distance)")
 	}
 	cx, ok1 := args[0].ToFloat()
 	yaw, ok2 := args[1].ToFloat()
@@ -40,7 +40,7 @@ func (m *Module) mathNewZ(rt *runtime.Runtime, args ...value.Value) (value.Value
 	_ = m
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("MATH.NEWZ expects 3 arguments (currentZ#, yawRadians#, distance#)")
+		return value.Nil, fmt.Errorf("MATH.NEWZ expects 3 arguments (currentZ, yawRadians, distance)")
 	}
 	cz, ok1 := args[0].ToFloat()
 	yaw, ok2 := args[1].ToFloat()
@@ -54,7 +54,7 @@ func (m *Module) mathNewZ(rt *runtime.Runtime, args ...value.Value) (value.Value
 
 func (m *Module) moveX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("MOVEX expects 3 arguments (yaw#, forward#, strafe#)")
+		return value.Nil, fmt.Errorf("MOVEX expects 3 arguments (yaw, forward, strafe)")
 	}
 	yaw, ok1 := args[0].ToFloat()
 	fwd, ok2 := args[1].ToFloat()
@@ -68,7 +68,7 @@ func (m *Module) moveX(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 
 func (m *Module) moveZ(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("MOVEZ expects 3 arguments (yaw#, forward#, strafe#)")
+		return value.Nil, fmt.Errorf("MOVEZ expects 3 arguments (yaw, forward, strafe)")
 	}
 	yaw, ok1 := args[0].ToFloat()
 	fwd, ok2 := args[1].ToFloat()
@@ -83,7 +83,7 @@ func (m *Module) moveZ(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 func (m *Module) moveStepX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("MOVESTEPX expects 5 arguments (yaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("MOVESTEPX expects 5 arguments (yaw, forward, strafe, speed, dt)")
 	}
 	yaw, ok1 := args[0].ToFloat()
 	fwd, ok2 := args[1].ToFloat()
@@ -100,7 +100,7 @@ func (m *Module) moveStepX(rt *runtime.Runtime, args ...value.Value) (value.Valu
 func (m *Module) moveStepZ(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("MOVESTEPZ expects 5 arguments (yaw#, forward#, strafe#, speed#, dt#)")
+		return value.Nil, fmt.Errorf("MOVESTEPZ expects 5 arguments (yaw, forward, strafe, speed, dt)")
 	}
 	yaw, ok1 := args[0].ToFloat()
 	fwd, ok2 := args[1].ToFloat()

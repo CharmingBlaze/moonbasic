@@ -89,7 +89,7 @@ Updates the window's title text while the program is running.
 
 ```basic
 score = 100
-Window.SetTitle("My Game | Score: " + STR$(score))
+Window.SetTitle("My Game | Score: " + STR(score))
 ```
 
 ---

@@ -89,7 +89,7 @@ func pollAnyKeyPressed() (int32, bool) {
 
 func (m *Module) inMoveMouse(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("MoveMouse expects (x#, y#)")
+		return value.Nil, fmt.Errorf("MoveMouse expects (x, y)")
 	}
 	x, ok1 := args[0].ToInt()
 	y, ok2 := args[1].ToInt()

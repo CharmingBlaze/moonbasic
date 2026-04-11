@@ -26,7 +26,7 @@ func registerScatter(m *Module, r runtime.Registrar) {
 
 func sCreate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil || len(args) != 1 {
-		return value.Nil, fmt.Errorf("SCATTER.CREATE expects name$")
+		return value.Nil, fmt.Errorf("SCATTER.CREATE expects name")
 	}
 	name, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -52,9 +52,7 @@ func sFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 }
 
 func sApply(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("SCATTER.APPLY expects scatter, terrain, density#")
-	}
+		return value.Nil, fmt.Errorf("SCATTER.APPLY expects scatter, terrain, density")
 	hs, err := rt.ArgHandle(args, 0)
 	if err != nil {
 		return value.Nil, err
@@ -124,7 +122,7 @@ func sDrawAll(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 
 func pPlace(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("PROP.PLACE expects x#, y#, z# (model param reserved)")
+		return value.Nil, fmt.Errorf("PROP.PLACE expects x, y, z (model param reserved)")
 	}
 	x, err := rt.ArgFloat(args, 1)
 	if err != nil {

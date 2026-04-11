@@ -34,7 +34,7 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 5 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("IMAGE.LOADRAW expects path$, width, height, format, headerSize (Raylib PixelFormat int)")
+			return value.Nil, fmt.Errorf("IMAGE.LOADRAW expects path, width, height, format, headerSize (Raylib PixelFormat int)")
 		}
 		w, ok1 := argInt(args[1])
 		h, ok2 := argInt(args[2])
@@ -107,7 +107,7 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 6 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("IMAGE.MAKETEXT expects text$, fontSize, r, g, b, a")
+			return value.Nil, fmt.Errorf("IMAGE.MAKETEXT expects text, fontSize, r, g, b, a")
 		}
 		fs, ok := argInt(args[1])
 		if !ok || fs < 1 {
@@ -147,7 +147,7 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 || args[1].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("IMAGE.EXPORT expects image handle and path$")
+			return value.Nil, fmt.Errorf("IMAGE.EXPORT expects image handle and path")
 		}
 		img, err := m.getImage(args, 0, "IMAGE.EXPORT")
 		if err != nil {

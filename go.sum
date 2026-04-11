@@ -1,7 +1,5 @@
 github.com/ByteArena/box2d v1.0.2 h1:f7f9KEQWhCs1n516DMLzi5w6u0MeeE78Mes4fWMcj9k=
 github.com/ByteArena/box2d v1.0.2/go.mod h1:LzEuxY9iCz+tskfWCY3o0ywYBRafDDugdSj+/YGI6sE=
-github.com/bbitechnologies/jolt-go v0.8.4 h1:vvL3v6glALuzN8OgWH/U5WTA6uqJaAmFe47LzqmFmt0=
-github.com/bbitechnologies/jolt-go v0.8.4/go.mod h1:7Ofh6w3bEhoEJuKurymDEgJXBwJE6qMHC9nNPgptcJI=
 github.com/codecat/go-enet v0.0.0-20250728072647-ae229138f138 h1:qQaqly9oVi84i4nLWmM551z7kcFZIy5koCLoPwCarGY=
 github.com/codecat/go-enet v0.0.0-20250728072647-ae229138f138/go.mod h1:sXkhNvv8T1d/aPEwipUzk7rGWwGJ3uJST2P/Z0zE0L4=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

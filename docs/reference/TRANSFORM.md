@@ -20,7 +20,7 @@ xform = Transform.Identity()
 
 ---
 
-### `Transform.Translation(x#, y#, z#)`
+### `Transform.Translation(x, y, z)`
 
 Matrix that moves an object to a world position (same idea as the old `Mat4.FromTranslation`).
 
@@ -31,7 +31,7 @@ Mesh.Draw(cube, mat, xform)
 
 ---
 
-### `Transform.Rotation(rx#, ry#, rz#)`
+### `Transform.Rotation(rx, ry, rz)`
 
 Rotation from XYZ Euler angles **in radians**. Returns a new handle. Order: XYZ.
 
@@ -41,7 +41,7 @@ xform = Transform.Rotation(0, PI() / 2, 0) ; 90° around Y
 
 ---
 
-### `Transform.Scale(sx#, sy#, sz#)`
+### `Transform.Scale(sx, sy, sz)`
 
 Scale matrix.
 
@@ -51,13 +51,13 @@ xform = Transform.Scale(2, 2, 2)
 
 ---
 
-### `Transform.LookAt(eyeX#, eyeY#, eyeZ#, atX#, atY#, atZ#, upX#, upY#, upZ#)`
+### `Transform.LookAt(eyeX, eyeY, eyeZ, atX, atY, atZ, upX, upY, upZ)`
 
 View matrix: eye at `(eyeX,eyeY,eyeZ)` looking at `(atX,atY,atZ)` with `up`. For custom cameras or billboards.
 
 ---
 
-### `Transform.Perspective(fovY#, aspect#, near#, far#)` / `Transform.Ortho(left#, right#, bottom#, top#, near#, far#)`
+### `Transform.Perspective(fovY, aspect, near, far)` / `Transform.Ortho(left, right, bottom, top, near, far)`
 
 Projection matrices. Usually the **Camera** handles this; exposed for custom pipelines.
 
@@ -67,13 +67,13 @@ Projection matrices. Usually the **Camera** handles this; exposed for custom pip
 
 Prefer these in the game loop so you **reuse one handle** instead of allocating every frame.
 
-### `Transform.SetRotation(handle, rx#, ry#, rz#)`
+### `Transform.SetRotation(handle, rx, ry, rz)`
 
 Sets rotation (radians); keeps translation and scale.
 
 ```basic
-angle# = angle# + Time.Delta()
-Transform.SetRotation(xform, 0, angle#, 0)
+angle = angle + Time.Delta()
+Transform.SetRotation(xform, 0, angle, 0)
 ```
 
 ---
@@ -86,7 +86,7 @@ Standard matrix ops. `Multiply` order matters.
 
 ```basic
 t = Transform.Translation(5, 0, 0)
-r = Transform.Rotation(0, angle#, 0)
+r = Transform.Rotation(0, angle, 0)
 combined = Transform.Multiply(t, r)
 ```
 
@@ -98,15 +98,15 @@ Single entry (rows/cols **0–3**).
 
 ---
 
-### `Transform.ApplyX(handle, x#, y#, z#)` / `ApplyY` / `ApplyZ`
+### `Transform.ApplyX(handle, x, y, z)` / `ApplyY` / `ApplyZ`
 
 Multiplies the matrix by the point `(x,y,z)` and returns that **world** X, Y, or Z component. Use this to move a local point into world space (or read a component after the multiply).
 
 ```basic
 phys_mat = Body3D.GetMatrix(cube_body)
-x# = Transform.ApplyX(phys_mat, 0, 0, 0)
-y# = Transform.ApplyY(phys_mat, 0, 0, 0)
-z# = Transform.ApplyZ(phys_mat, 0, 0, 0)
+x = Transform.ApplyX(phys_mat, 0, 0, 0)
+y = Transform.ApplyY(phys_mat, 0, 0, 0)
+z = Transform.ApplyZ(phys_mat, 0, 0, 0)
 ```
 
 ---
@@ -133,11 +133,11 @@ mat  = Material.MakeDefault()
 Material.SetColor(mat, MATERIAL_MAP_ALBEDO, 100, 180, 255, 255)
 
 xform = Transform.Identity()
-angle# = 0.0
+angle = 0.0
 
 WHILE NOT Window.ShouldClose()
-    angle# = angle# + 1.2 * Time.Delta()
-    Transform.SetRotation(xform, angle# * 0.5, angle#, angle# * 0.3)
+    angle = angle + 1.2 * Time.Delta()
+    Transform.SetRotation(xform, angle * 0.5, angle, angle * 0.3)
 
     Render.Clear(12, 14, 22)
     cam.Begin()

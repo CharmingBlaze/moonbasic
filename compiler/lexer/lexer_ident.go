@@ -45,12 +45,7 @@ func (l *Lexer) lexIdent() (token.Token, error) {
 	for !l.eof() && isIdentCont(l.peek()) {
 		b.WriteByte(l.advance())
 	}
-	if !l.eof() {
-		switch l.peek() {
-		case '#', '$', '?':
-			b.WriteByte(l.advance())
-		}
-	}
+
 	raw := b.String()
 	upper := strings.ToUpper(raw)
 	kw := token.LookupKeyword(upper)
@@ -71,12 +66,7 @@ func (l *Lexer) scanIdentUpper() string {
 	for !l.eof() && isIdentCont(l.peek()) {
 		b.WriteByte(l.advance())
 	}
-	if !l.eof() {
-		switch l.peek() {
-		case '#', '$', '?':
-			b.WriteByte(l.advance())
-		}
-	}
+
 	return strings.ToUpper(b.String())
 }
 

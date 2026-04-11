@@ -46,7 +46,7 @@ func registerPickBlitz(m *Module, r runtime.Registrar) {
 // LinePick(ox, oy, oz, dx, dy, dz [, radius]) — ray vs static entity AABBs; radius reserved (swept test not implemented).
 func (m *Module) linePick(args []value.Value) (value.Value, error) {
 	if len(args) != 6 && len(args) != 7 {
-		return value.Nil, fmt.Errorf("LinePick expects (x#, y#, z#, dx#, dy#, dz# [, radius#])")
+		return value.Nil, fmt.Errorf("LinePick expects (x, y, z, dx, dy, dz [, radius])")
 	}
 	ox, ok1 := argF32(args[0])
 	oy, ok2 := argF32(args[1])
@@ -75,7 +75,7 @@ func (m *Module) linePick(args []value.Value) (value.Value, error) {
 			continue
 		}
 		switch e.kind {
-		case entKindBox, entKindPlane, entKindCylinder, entKindCone, entKindMesh, entKindModel:
+		case entKindBox, entKindPlane, entKindCylinder, entKindCapsule, entKindCone, entKindMesh, entKindModel:
 			mn, mx := m.aabbWorldMinMax(e)
 			t := rayAABB(origin, end, mn, mx)
 			if t >= 0 && t < bestT {
@@ -160,7 +160,7 @@ func (m *Module) cameraPick(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, runtime.Errorf("CameraPick: heap not bound")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("CameraPick expects (camera, screenX#, screenY#)")
+		return value.Nil, fmt.Errorf("CameraPick expects (camera, screenX, screenY)")
 	}
 	if args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("CameraPick: camera handle required")
@@ -193,7 +193,7 @@ func (m *Module) cameraPick(rt *runtime.Runtime, args ...value.Value) (value.Val
 			continue
 		}
 		switch e.kind {
-		case entKindBox, entKindPlane, entKindCylinder, entKindCone, entKindMesh, entKindModel:
+		case entKindBox, entKindPlane, entKindCylinder, entKindCapsule, entKindCone, entKindMesh, entKindModel:
 			mn, mx := m.aabbWorldMinMax(e)
 			t := rayAABB(origin, end, mn, mx)
 			if t >= 0 && t < bestT {

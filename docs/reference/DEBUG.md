@@ -14,7 +14,7 @@ Returns **`TRUE`** when the overlay is allowed to draw: **`DEBUG.ENABLE`** was u
 
 ---
 
-### `ASSERT(condition, message$)`
+### `ASSERT(condition, message)`
 
 An assertion is a statement that a condition must be true at a specific point in your program. If the `condition` evaluates to `FALSE`, the program will halt and print the `message`. This is a powerful tool for catching bugs early.
 
@@ -30,7 +30,7 @@ ASSERT(player_tex <> 0, "Failed to load player texture!")
 
 ; Example: Ensure a value is within an expected range
 FUNCTION SetHealth(health)
-    ASSERT(health >= 0 AND health <= 100, "Health value out of range: " + STR$(health))
+    ASSERT(health >= 0 AND health <= 100, "Health value out of range: " + STR(health))
     ; ... set health ...
 ENDFUNCTION
 ```

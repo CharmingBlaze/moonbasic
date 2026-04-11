@@ -55,7 +55,7 @@ func wFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 
 func wUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("WEATHER.UPDATE expects weather, dt#")
+		return value.Nil, fmt.Errorf("WEATHER.UPDATE expects weather, dt")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -83,7 +83,7 @@ func wDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 
 func wSetType(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("WEATHER.SETTYPE expects weather, type$")
+		return value.Nil, fmt.Errorf("WEATHER.SETTYPE expects weather, type")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -148,7 +148,7 @@ func fogEnable(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 
 func fogSetNear(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("FOG.SETNEAR expects metres#")
+		return value.Nil, fmt.Errorf("FOG.SETNEAR expects metres")
 	}
 	v, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -160,7 +160,7 @@ func fogSetNear(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Valu
 
 func fogSetFar(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("FOG.SETFAR expects metres#")
+		return value.Nil, fmt.Errorf("FOG.SETFAR expects metres")
 	}
 	v, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -172,7 +172,7 @@ func fogSetFar(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 
 func fogSetRange(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("FOG.SETRANGE expects (near#, far#)")
+		return value.Nil, fmt.Errorf("FOG.SETRANGE expects (near, far)")
 	}
 	near, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -202,7 +202,7 @@ func fogSetColor(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func windSet(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WIND.SET expects strength#, dx#, dz#")
+		return value.Nil, fmt.Errorf("WIND.SET expects strength, dx, dz")
 	}
 	s, err := rt.ArgFloat(args, 0)
 	if err != nil {

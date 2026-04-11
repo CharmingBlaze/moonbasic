@@ -6,11 +6,11 @@ String-in / string-out helpers for **compression**, **Base64**, and **checksums*
 
 ## Compression (Zstandard)
 
-### `Data.Compress(raw$)` → string
+### `Data.Compress(raw)` → string
 
 Compresses the input bytes with **Zstandard** (`zstd`). Returns binary data as a Go string payload (opaque bytes).
 
-### `Data.Decompress(zstdData$)` → string
+### `Data.Decompress(zstdData)` → string
 
 Decompresses a buffer previously produced by `Data.Compress`. Errors if the payload is invalid.
 
@@ -18,11 +18,11 @@ Decompresses a buffer previously produced by `Data.Compress`. Errors if the payl
 
 ## Base64
 
-### `Data.EncodeBase64(raw$)` → string
+### `Data.EncodeBase64(raw)` → string
 
 Standard Base64 encoding.
 
-### `Data.DecodeBase64(encoded$)` → string
+### `Data.DecodeBase64(encoded)` → string
 
 Standard Base64 decoding. Errors on invalid input.
 

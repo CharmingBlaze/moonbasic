@@ -7,6 +7,7 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/AllowedDOFs.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <memory>
@@ -52,11 +53,65 @@ void JoltSetBodyPosition(JoltBodyInterface bodyInterface,
 	bi->SetPosition(*bid, RVec3(x, y, z), EActivation::DontActivate);
 }
 
+void JoltGetBodyLinearVelocity(const JoltBodyInterface bodyInterface,
+							   const JoltBodyID bodyID,
+							   float *x, float *y, float *z)
+{
+	const BodyInterface *bi = static_cast<const BodyInterface *>(bodyInterface);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+
+	Vec3 vel = bi->GetLinearVelocity(*bid);
+	*x = vel.GetX();
+	*y = vel.GetY();
+	*z = vel.GetZ();
+}
+
+void JoltSetBodyLinearVelocity(JoltBodyInterface bodyInterface,
+							   JoltBodyID bodyID,
+							   float x, float y, float z)
+{
+	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+
+	bi->SetLinearVelocity(*bid, Vec3(x, y, z));
+}
+
+void JoltAddBodyImpulse(JoltBodyInterface bodyInterface,
+						JoltBodyID bodyID,
+						float x, float y, float z)
+{
+	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+
+	bi->AddImpulse(*bid, Vec3(x, y, z));
+}
+
+void JoltSetBodyFriction(JoltBodyInterface bodyInterface,
+						 JoltBodyID bodyID,
+						 float friction)
+{
+	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+	bi->SetFriction(*bid, friction);
+}
+
+void JoltSetBodyRestitution(JoltBodyInterface bodyInterface,
+							JoltBodyID bodyID,
+							float restitution)
+{
+	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+	bi->SetRestitution(*bid, restitution);
+}
+
 JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
 						  JoltShape shape,
 						  float x, float y, float z,
 						  JoltMotionType motionType,
-						  int isSensor)
+						  int isSensor,
+						  float friction,
+						  float restitution,
+						  int allowedDOFsOrZero)
 {
 	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
 	const Shape *s = static_cast<const Shape *>(shape);
@@ -93,6 +148,12 @@ JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
 
 	// Set sensor flag if requested
 	body_settings.mIsSensor = (isSensor != 0);
+	body_settings.mFriction = friction;
+	body_settings.mRestitution = restitution;
+	if (allowedDOFsOrZero != 0)
+	{
+		body_settings.mAllowedDOFs = static_cast<EAllowedDOFs>(static_cast<uint8_t>(allowedDOFsOrZero));
+	}
 
 	Body *body = bi->CreateBody(body_settings);
 	if (!body)

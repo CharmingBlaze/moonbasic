@@ -47,7 +47,7 @@ func (m *Module) puregoWOpen(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WINDOW.OPEN expects 3 arguments (width, height, title$)")
+		return value.Nil, fmt.Errorf("WINDOW.OPEN expects 3 arguments (width, height, title)")
 	}
 	w, okw := argInt(args[0])
 	h, okh := argInt(args[1])

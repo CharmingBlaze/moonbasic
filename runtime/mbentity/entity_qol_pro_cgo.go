@@ -20,7 +20,7 @@ func registerEntityQoLProAPI(m *Module, r runtime.Registrar) {
 
 func (m *Module) entOutline(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.OUTLINE expects (entity#, thickness#, color#)")
+		return value.Nil, fmt.Errorf("ENTITY.OUTLINE expects (entity, thickness, color)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
@@ -48,7 +48,7 @@ func (m *Module) entOutline(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSnapTo(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SNAPTO expects (entity#, targetEntity#)")
+		return value.Nil, fmt.Errorf("ENTITY.SNAPTO expects (entity, targetEntity)")
 	}
 	id1, ok1 := m.entID(args[0])
 	id2, ok2 := m.entID(args[1])

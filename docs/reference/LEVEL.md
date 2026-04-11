@@ -31,7 +31,7 @@ Naming note: workflows described as **`Scene.Preload` / `Scene.LoadSkybox`** in 
 | **`LEVEL.FINDENTITY(name)`** | Same as **`ENTITY.FIND`** — looks up **`ENTITY.SETNAME`** / loader-assigned names. |
 | **`LEVEL.GETMARKER(name)`** | 3-float array: **translation** from the named node’s world matrix (empties and mesh nodes). |
 | **`LEVEL.GETSPAWN(name)`** | **`MAT4`** handle: full **world** matrix for that node name. |
-| **`LEVEL.SHOWLAYER(layerName, visible?)** | Shows/hides entities registered to a **`layer`** extra on the primary loaded mesh node, or falls back to **`ENTITY.GROUPCREATE`** membership for the same **`layerName`**. |
+| **`LEVEL.SHOWLAYER(layerName, visible)** | Shows/hides entities registered to a **`layer`** extra on the primary loaded mesh node, or falls back to **`ENTITY.GROUPCREATE`** membership for the same **`layerName`**. |
 | **`ENTITY.GETMETADATA(entity, key)`** → **string** | Reads flattened **glTF extras** from the primary mesh node used by **`LEVEL.LOAD`** (nested keys use **`.`**, e.g. **`door.options.label`**). Blender custom properties are typically surfaced here. Empty string if missing. |
 
 Node **`extras`** may include JSON **`{"layer":"MyLayer"}`** (string or number) to associate the root loaded entity with a layer for **`SHOWLAYER`**. A string **`tag`** in extras is stored for **`MATERIAL.BULKASSIGN`** matching.

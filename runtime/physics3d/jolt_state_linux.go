@@ -124,6 +124,8 @@ type BuilderObj struct {
 	Friction    float32
 	Restitution float32
 	EnableCCD   bool
+	// AllowedDOFs: 0 = Jolt default (all DOFs). Non-zero = EAllowedDOFs bitmask (e.g. platformer = 0x17).
+	AllowedDOFs int
 }
 
 func (b *BuilderObj) TypeName() string { return "Body3DBuilder" }
@@ -166,11 +168,25 @@ func ApplyImpulseToIndex(idx int, x, y, z float32) {
 	if !ok || bi == nil {
 		return
 	}
-	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
-	// bbitechnologies/jolt-go v0.8.x BodyInterface has no AddImpulse C binding yet.
-	_ = x
-	_ = y
-	_ = z
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.AddImpulse(id, jolt.Vec3{X: x, Y: y, Z: z})
+	bi.ActivateBody(id)
+}
+
+func GetLinearVelocityToIndex(idx int) (x, y, z float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil {
+		return 0, 0, 0
+	}
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	v := bi.GetLinearVelocity(id)
+	return v.X, v.Y, v.Z
 }
 
 func SetVelocityToIndex(idx int, x, y, z float32) {
@@ -184,11 +200,26 @@ func SetVelocityToIndex(idx int, x, y, z float32) {
 	if !ok || bi == nil {
 		return
 	}
-	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
-	// No SetLinearVelocity on BodyInterface in vendored jolt-go.
-	_ = x
-	_ = y
-	_ = z
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetLinearVelocity(id, jolt.Vec3{X: x, Y: y, Z: z})
+	bi.ActivateBody(id)
+}
+
+// SetPositionToIndex teleports a body to world position and activates it (traffic-cop path for ENTITY.SETPOSITION).
+func SetPositionToIndex(idx int, x, y, z float32) {
+	joltMu.Lock()
+	bi := joltBi
+	joltBodyMu.Lock()
+	ptr, ok := bufferIndexToBody[idx]
+	joltBodyMu.Unlock()
+	joltMu.Unlock()
+
+	if !ok || bi == nil {
+		return
+	}
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetPosition(id, jolt.Vec3{X: x, Y: y, Z: z})
+	bi.ActivateBody(id)
 }
 
 func WakeIndex(idx int) {
@@ -232,9 +263,8 @@ func SetFrictionToIndex(idx int, val float32) {
 	if !ok || bi == nil {
 		return
 	}
-	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
-	// No SetFriction on BodyInterface in vendored jolt-go.
-	_ = val
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetFriction(id, val)
 }
 
 func SetRestitutionToIndex(idx int, val float32) {
@@ -248,9 +278,8 @@ func SetRestitutionToIndex(idx int, val float32) {
 	if !ok || bi == nil {
 		return
 	}
-	_ = (*jolt.BodyID)(unsafe.Pointer(ptr))
-	// No SetRestitution on BodyInterface in vendored jolt-go.
-	_ = val
+	id := (*jolt.BodyID)(unsafe.Pointer(ptr))
+	bi.SetRestitution(id, val)
 }
 
 func SetGravityFactorToIndex(idx int, val float32) {

@@ -67,7 +67,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("OPENFILE", "file", m.fileOpen)
 	flatForward := []struct{ flat, canon string }{
 		{"CLOSEFILE", "FILE.CLOSE"},
-		{"READFILE$", "FILE.READLINE"},
+		{"READFILE", "FILE.READLINE"},
 		{"WRITEFILE", "FILE.WRITE"},
 		{"EOF", "FILE.EOF"},
 		{"FILEPOS", "FILE.TELL"},
@@ -93,7 +93,7 @@ func (m *Module) Shutdown() {}
 
 func (m *Module) fileOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.OPEN expects (path$, mode$)")
+		return value.Nil, runtime.Errorf("FILE.OPEN expects (path, mode)")
 	}
 	mode, err := rt.ArgString(args, 1)
 	if err != nil {
@@ -141,7 +141,7 @@ func (m *Module) Run(rt *runtime.Runtime, name string, args ...value.Value) (val
 
 func (m *Module) fileOpenRead(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.OPENREAD expects 1 string argument (path$)")
+		return value.Nil, runtime.Errorf("FILE.OPENREAD expects 1 string argument (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -162,7 +162,7 @@ func (m *Module) fileOpenRead(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) fileOpenWrite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.OPENWRITE expects 1 string argument (path$)")
+		return value.Nil, runtime.Errorf("FILE.OPENWRITE expects 1 string argument (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {

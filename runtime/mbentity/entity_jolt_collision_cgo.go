@@ -32,7 +32,7 @@ func registerJoltEntityCollisionAPI(m *Module, r runtime.Registrar) {
 // entCollisionLayer stores a 0–31 layer id for future Jolt object-layer filtering (simulation filter not wired yet).
 func (m *Module) entCollisionLayer(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.COLLISIONLAYER expects (entity#, layer#)")
+		return value.Nil, fmt.Errorf("ENTITY.COLLISIONLAYER expects (entity, layer)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -53,7 +53,7 @@ func (m *Module) entCollisionLayer(args []value.Value) (value.Value, error) {
 // entEntityCollidedPair returns true if two entities had a Jolt-backed contact in the last PHYSICS3D.STEP (Linux+CGO).
 func (m *Module) entEntityCollidedPair(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("EntityCollided expects (entity#, entity#)")
+		return value.Nil, fmt.Errorf("EntityCollided expects (entity, entity)")
 	}
 	a, ok1 := m.entID(args[0])
 	b, ok2 := m.entID(args[1])
@@ -125,7 +125,7 @@ func (m *Module) entBridgeCollisionForce(args []value.Value) (value.Value, error
 
 func (m *Module) entCountPhysicsContacts(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("CountCollisions expects entity#")
+		return value.Nil, fmt.Errorf("CountCollisions expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {

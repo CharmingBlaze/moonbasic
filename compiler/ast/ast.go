@@ -43,10 +43,9 @@ type FunctionDef struct {
 	Col    int
 }
 
-// Param is a formal parameter with optional type suffix.
+// Param is a formal parameter.
 type Param struct {
 	Name   string
-	Suffix string // "", "#", "$", "?"
 }
 
 // TypeDef is a user-defined TYPE ... FIELD ... ENDTYPE.
@@ -61,7 +60,7 @@ type TypeDef struct {
 	Col          int
 }
 
-// AssignNode is name = expr (suffix embedded in Name e.g. "X#").
+// AssignNode is name = expr.
 // Global is set when the statement was parsed as GLOBAL name = expr.
 type AssignNode struct {
 	Name   string

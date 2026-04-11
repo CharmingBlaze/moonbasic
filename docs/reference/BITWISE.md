@@ -56,7 +56,7 @@ CONST FLAG_STEALTH = 4
 ; Start the player with jump and sprint abilities
 player_flags = BOR(FLAG_JUMP, FLAG_SPRINT)
 
-PRINT "Initial Flags: " + BIN$(player_flags)
+PRINT "Initial Flags: " + BIN(player_flags)
 
 ; Check if the player has the stealth ability
 IF BAND(player_flags, FLAG_STEALTH) THEN
@@ -67,7 +67,7 @@ ENDIF
 
 PRINT "\nGranting stealth..."
 player_flags = BOR(player_flags, FLAG_STEALTH)
-PRINT "New Flags: " + BIN$(player_flags)
+PRINT "New Flags: " + BIN(player_flags)
 
 ; Check for stealth again
 IF BAND(player_flags, FLAG_STEALTH) THEN
@@ -76,5 +76,5 @@ ENDIF
 
 PRINT "\nRemoving sprint..."
 player_flags = BXOR(player_flags, FLAG_SPRINT) ; Use XOR to toggle it off
-PRINT "Final Flags: " + BIN$(player_flags)
+PRINT "Final Flags: " + BIN(player_flags)
 ```

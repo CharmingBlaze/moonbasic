@@ -16,13 +16,13 @@ Frees the cloud handle.
 
 ---
 
-## `Cloud.Update(cloud, dt#)` / `Cloud.Draw(cloud)`
+## `Cloud.Update(cloud, dt)` / `Cloud.Draw(cloud)`
 
 Advance simulation time and draw (draw may be a no-op depending on build).
 
 ---
 
-## `Cloud.SetCoverage(cloud, coverage#)`
+## `Cloud.SetCoverage(cloud, coverage)`
 
 **`coverage`** in **0–1** range (clamped), affecting density/opacity where implemented.
 

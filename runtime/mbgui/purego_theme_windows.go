@@ -114,7 +114,7 @@ func registerPuregoTheme(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.THEMEAPPLY", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("GUI.THEMEAPPLY expects (name$)")
+			return value.Nil, fmt.Errorf("GUI.THEMEAPPLY expects (name)")
 		}
 		name, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -128,15 +128,15 @@ func registerPuregoTheme(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("GUI.THEMEAPPLY: unknown theme %q in purego GUI (use DEFAULT)", name)
 		}
 	})
-	reg.Register("GUI.THEMENAMES$", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg.Register("GUI.THEMENAMES", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("GUI.THEMENAMES$ expects 0 arguments")
+			return value.Nil, fmt.Errorf("GUI.THEMENAMES expects 0 arguments")
 		}
 		return rt.RetString("DEFAULT;LIGHT;BUILTIN_DARK"), nil
 	})
 	reg.Register("GUI.LOADSTYLE", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("GUI.LOADSTYLE expects (path$)")
+			return value.Nil, fmt.Errorf("GUI.LOADSTYLE expects (path)")
 		}
 		_, err := rt.ArgString(args, 0)
 		if err != nil {

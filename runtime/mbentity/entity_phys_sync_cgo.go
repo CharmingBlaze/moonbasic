@@ -8,6 +8,8 @@ import (
 	"moonbasic/runtime"
 	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // syncEntitiesFromPhysics copies world translation from the Jolt matrix buffer into linked entities
@@ -31,12 +33,17 @@ func (m *Module) syncEntitiesFromPhysics() {
 		ty := buf[idx+13]
 		tz := buf[idx+14]
 		m.setLocalFromWorld(e, tx, ty, tz)
+		if e.physicsDriven {
+			wp := m.worldPos(e)
+			_, _, _, hit := mbphysics3d.RaycastDownNormal(float64(wp.X), float64(wp.Y)+0.25, float64(wp.Z), 2.5)
+			e.onGround = hit
+		}
 	}
 }
 
 func (m *Module) entLinkPhysBuffer(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.LINKPHYSBUFFER expects 2 arguments (entity#, bufferIndex#)")
+		return value.Nil, fmt.Errorf("ENTITY.LINKPHYSBUFFER expects 2 arguments (entity, bufferIndex)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -51,13 +58,16 @@ func (m *Module) entLinkPhysBuffer(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.LINKPHYSBUFFER: bufferIndex must be int >= 0")
 	}
 	e.physBufIndex = int(bi)
+	e.physicsDriven = true
+	e.gravity = 0
+	e.vel = rl.Vector3{}
 	mbphysics3d.RegisterEntityBufferLink(id, int(bi))
 	return value.Nil, nil
 }
 
 func (m *Module) entClearPhysBuffer(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.CLEARPHYSBUFFER expects 1 argument (entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.CLEARPHYSBUFFER expects 1 argument (entity)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -68,6 +78,7 @@ func (m *Module) entClearPhysBuffer(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.CLEARPHYSBUFFER: unknown entity")
 	}
 	e.physBufIndex = -1
+	e.physicsDriven = false
 	mbphysics3d.UnregisterEntityCollision(id)
 	return value.Nil, nil
 }

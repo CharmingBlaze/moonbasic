@@ -30,6 +30,26 @@ type camObj struct {
 
 	lerpTarget    int64
 	lerpSmooth    float32
+
+	// Internal third-person orbit state (CAMERA.ORBIT cam, entity, distance).
+	orbitYaw    float32
+	orbitPitch  float32
+	orbitDist   float32
+	orbitInited bool
+
+	// Orbit-follow configuration (see CAMERA.USEMOUSEORBIT, SETORBITKEYS, SETORBITLIMITS, SETORBITSPEED).
+	orbitUseMouse          bool
+	orbitRightMouseForDrag bool // true: mouse orbit only while RMB held (Modern Blitz default).
+	orbitKeyLeft           int32 // 0 = disabled; default rl.KeyQ
+	orbitKeyRight          int32 // 0 = disabled; default rl.KeyE
+	orbitMouseSens         float32
+	orbitKeyRadPerSec      float32 // keyboard yaw rate (rad/s)
+	orbitWheelSens         float32
+	orbitMinPitch          float32
+	orbitMaxPitch          float32
+	orbitMinDist           float32
+	orbitMaxDist           float32
+	orbitTargetYOff        float32 // look-at height above entity base
 }
 
 func (c *camObj) TypeName() string { return "Camera3D" }
@@ -53,6 +73,29 @@ func argHandle(v value.Value) (heap.Handle, bool) {
 		return 0, false
 	}
 	return heap.Handle(v.IVal), true
+}
+
+func argKeyCode(v value.Value) (int32, bool) {
+	if i, ok := v.ToInt(); ok {
+		return int32(i), true
+	}
+	if f, ok := v.ToFloat(); ok {
+		return int32(f), true
+	}
+	return 0, false
+}
+
+func argBool(v value.Value) bool {
+	switch v.Kind {
+	case value.KindBool:
+		return v.IVal != 0
+	case value.KindInt:
+		return v.IVal != 0
+	case value.KindFloat:
+		return v.FVal != 0
+	default:
+		return false
+	}
 }
 
 // Register implements runtime.Module.
@@ -127,6 +170,18 @@ func (m *Module) camMake(args []value.Value) (value.Value, error) {
 			Fovy:       45,
 			Projection: rl.CameraPerspective,
 		},
+		orbitUseMouse:          true,
+		orbitRightMouseForDrag: true,
+		orbitKeyLeft:           int32(rl.KeyQ),
+		orbitKeyRight:          int32(rl.KeyE),
+		orbitMouseSens:         0.005,
+		orbitKeyRadPerSec:      1.5,
+		orbitWheelSens:         1.0,
+		orbitMinPitch:          -1.5,
+		orbitMaxPitch:          1.5,
+		orbitMinDist:           2.0,
+		orbitMaxDist:           50.0,
+		orbitTargetYOff:        0.5,
 	}
 	id, err := m.h.Alloc(o)
 	if err != nil {

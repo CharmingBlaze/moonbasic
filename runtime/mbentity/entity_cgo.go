@@ -13,6 +13,7 @@ import (
 	"moonbasic/runtime/mblight"
 	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/mbmodel3d"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	mbtime "moonbasic/runtime/time"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -161,12 +162,14 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("ENTITY.CLAMPTOTERRAIN", "entity", runtime.AdaptLegacy(m.entClampToTerrain))
 	r.Register("ENTITY.FREEENTITIES", "entity", runtime.AdaptLegacy(m.entFreeEntities))
 	r.Register("ENTITY.MOVE", "entity", runtime.AdaptLegacy(m.entMove))
+	r.Register("ENTITY.PUSH", "entity", runtime.AdaptLegacy(m.entPush))
 	r.Register("ENTITY.TRANSLATE", "entity", runtime.AdaptLegacy(m.entTranslate))
 	r.Register("ENTITY.ROTATE", "entity", runtime.AdaptLegacy(m.entRotate))
 	r.Register("ENTITY.TURN", "entity", runtime.AdaptLegacy(m.entRotate))
 	r.Register("ENTITY.SCALE", "entity", runtime.AdaptLegacy(m.entScale))
 	r.Register("ENTITY.COLOR", "entity", runtime.AdaptLegacy(m.entColor))
 	r.Register("ENTITY.RADIUS", "entity", runtime.AdaptLegacy(m.entRadius))
+	r.Register("ENTITY.JUMP", "entity", runtime.AdaptLegacy(m.entJump))
 	r.Register("ENTITY.BOX", "entity", runtime.AdaptLegacy(m.entBox))
 	r.Register("ENTITY.TYPE", "entity", runtime.AdaptLegacy(m.entType))
 	r.Register("ENTITYTYPE", "entity", runtime.AdaptLegacy(m.entType))
@@ -195,6 +198,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerEntityEnvQoLAPI(m, r)
 	registerEntityPhysicsMacroAPI(m, r)
 	registerBlitzEntityHandles(m, r)
+	registerModelEntityPrimitives(m, r)
 
 	// Wire registry utility callbacks
 	if rt, ok := r.(*runtime.Registry); ok {
@@ -327,20 +331,28 @@ func (m *Module) ForEachStatic(fn func(id int64, worldAABB rl.BoundingBox)) {
 }
 
 func (m *Module) camFollowEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("CAMERA.FOLLOWENTITY expects 5 arguments (camera, entity#, dist#, height#, smooth#)")
+	if len(args) != 5 && len(args) != 4 {
+		return value.Nil, fmt.Errorf("CAMERA.FOLLOWENTITY expects 4 or 5 arguments (camera, entity, dist#, [height#], smooth#)")
 	}
 	ch, ok := argHandle(args[0])
 	if !ok {
 		return value.Nil, fmt.Errorf("CAMERA.FOLLOWENTITY: invalid camera handle")
 	}
-	eid, ok := args[1].ToInt()
+	eid, ok := m.entID(args[1])
 	if !ok || eid < 1 {
-		return value.Nil, fmt.Errorf("CAMERA.FOLLOWENTITY: invalid entity id")
+		return value.Nil, fmt.Errorf("CAMERA.FOLLOWENTITY: invalid entity")
 	}
 	dist, ok1 := argF32(args[2])
-	height, ok2 := argF32(args[3])
-	smooth, ok3 := argF32(args[4])
+	var height, smooth float32
+	var ok2, ok3 bool
+	if len(args) == 5 {
+		height, ok2 = argF32(args[3])
+		smooth, ok3 = argF32(args[4])
+	} else {
+		height = 4
+		ok2 = true
+		smooth, ok3 = argF32(args[3])
+	}
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("CAMERA.FOLLOWENTITY: numeric arguments required")
 	}
@@ -449,6 +461,10 @@ func (m *Module) entSetPosition(args []value.Value) (value.Value, error) {
 	} else {
 		e.setPos(rl.Vector3{X: x, Y: y, Z: z})
 	}
+	if e.physicsDriven && e.physBufIndex >= 0 {
+		wp := m.worldPos(e)
+		mbphysics3d.SetPositionToIndex(e.physBufIndex, wp.X, wp.Y, wp.Z)
+	}
 	return value.Nil, nil
 }
 
@@ -539,9 +555,22 @@ func (m *Module) entMove(args []value.Value) (value.Value, error) {
 	}
 	ep, ew, _ := e.getRot()
 	fwd, right, up := localAxes(ew, ep)
-	delta := rl.Vector3Add(rl.Vector3Add(rl.Vector3Scale(fwd, f), rl.Vector3Scale(right, rg)), rl.Vector3Scale(up, u))
+	v := rl.Vector3Add(rl.Vector3Add(rl.Vector3Scale(fwd, f), rl.Vector3Scale(right, rg)), rl.Vector3Scale(up, u))
+	if e.physicsDriven && e.physBufIndex >= 0 {
+		// World-space linear velocity (units/s). forward/right/up scales are speeds, not per-frame deltas.
+		// Preserve Y so gravity/jumps are not overwritten (see scripted path below for dt scaling).
+		_, vy, _ := mbphysics3d.GetLinearVelocityToIndex(e.physBufIndex)
+		mbphysics3d.SetVelocityToIndex(e.physBufIndex, v.X, vy, v.Z)
+		return value.Nil, nil
+	}
+	// Scripted (no Jolt): same speed semantics as physics — scales are units per second; multiply by dt
+	// so holding W does not teleport 10 units every frame (which caused overlap ejection / “phantom bounce”).
+	dt := float32(mbtime.DeltaSeconds(nil))
+	if dt <= 0 {
+		dt = 1.0 / 60.0
+	}
 	wp := m.worldPos(e)
-	nw := rl.Vector3Add(wp, delta)
+	nw := rl.Vector3Add(wp, rl.Vector3Scale(v, dt))
 	m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
 	return value.Nil, nil
 }
@@ -836,11 +865,51 @@ func (m *Module) entJump(args []value.Value) (value.Value, error) {
 	if !ok1 {
 		return value.Nil, fmt.Errorf("ENTITY.JUMP: force must be numeric")
 	}
+	if e.physicsDriven && e.physBufIndex >= 0 {
+		if e.jumpGrounded {
+			imp := float32(f) * 0.05
+			if imp > 120 {
+				imp = 120
+			}
+			if imp < -120 {
+				imp = -120
+			}
+			mbphysics3d.ApplyImpulseToIndex(e.physBufIndex, 0, imp, 0)
+			e.onGround = false
+			e.groundCoyoteLeft = 0
+		}
+		return value.Nil, nil
+	}
 	if e.jumpGrounded {
 		e.vel.Y += f
 		e.onGround = false
 		e.groundCoyoteLeft = 0
 	}
+	return value.Nil, nil
+}
+
+func (m *Module) entPush(args []value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("ENTITY.PUSH expects 4 arguments (entity#, ix#, iy#, iz#)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.PUSH: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.PUSH: unknown entity %d", id)
+	}
+	if !e.physicsDriven || e.physBufIndex < 0 {
+		return value.Nil, fmt.Errorf("ENTITY.PUSH: entity has no physics (call ENTITY.ADDPHYSICS first)")
+	}
+	ix, ok1 := argF32(args[1])
+	iy, ok2 := argF32(args[2])
+	iz, ok3 := argF32(args[3])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("ENTITY.PUSH: impulse components must be numeric")
+	}
+	mbphysics3d.ApplyImpulseToIndex(e.physBufIndex, ix, iy, iz)
 	return value.Nil, nil
 }
 
@@ -906,6 +975,9 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	// 3. Update entity positions (gravity + velocity)
 	for _, e := range st.ents {
 		if e.static {
+			continue
+		}
+		if e.physicsDriven {
 			continue
 		}
 		e.vel.Y += e.gravity * dt
@@ -1030,7 +1102,7 @@ func (m *Module) aabbWorldMinMax(e *ent) (mn, mx rl.Vector3) {
 	hx, hy, hz := e.w*0.5, e.h*0.5, e.d*0.5
 	if e.kind == entKindSphere {
 		hx, hy, hz = e.radius, e.radius, e.radius
-	} else if e.kind == entKindCylinder || e.kind == entKindCone {
+	} else if e.kind == entKindCylinder || e.kind == entKindCone || e.kind == entKindCapsule {
 		hx, hy, hz = e.radius, e.cylH*0.5, e.radius
 	}
 
@@ -1237,6 +1309,26 @@ func (m *Module) drawOneEntity(e *ent) {
 	case entKindCylinder:
 		mProp := rl.MatrixScale(e.radius*2, e.cylH, e.radius*2)
 		rl.DrawMesh(st.unitCyl, st.unitMat, rl.MatrixMultiply(mProp, wm))
+	case entKindCapsule:
+		// Match Jolt BODY3D.ADDCAPSULE: halfHeight = height/2 - radius; segment between sphere centers is 2*hh.
+		hh := e.cylH*0.5 - e.radius
+		if hh < 1e-4 {
+			hh = 1e-4
+		}
+		start := rl.Vector3Transform(rl.Vector3{X: 0, Y: -hh, Z: 0}, wm)
+		end := rl.Vector3Transform(rl.Vector3{X: 0, Y: hh, Z: 0}, wm)
+		center := rl.Vector3Transform(rl.Vector3{X: 0, Y: 0, Z: 0}, wm)
+		rim := rl.Vector3Transform(rl.Vector3{X: e.radius, Y: 0, Z: 0}, wm)
+		radW := rl.Vector3Distance(center, rim)
+		sli := e.segV
+		if sli < 8 {
+			sli = 16
+		}
+		rng := e.segH / 2
+		if rng < 4 {
+			rng = 8
+		}
+		rl.DrawCapsule(start, end, radW, int32(sli), int32(rng), col)
 	case entKindCone:
 		mProp := rl.MatrixScale(e.radius*2, e.cylH, e.radius*2)
 		rl.DrawMesh(st.unitCone, st.unitMat, rl.MatrixMultiply(mProp, wm))
@@ -1294,7 +1386,7 @@ func (m *Module) entDrawAll(args []value.Value) (value.Value, error) {
 			continue
 		}
 		switch e.kind {
-		case entKindBox, entKindSphere, entKindCylinder, entKindCone, entKindPlane, entKindMesh, entKindModel:
+		case entKindBox, entKindSphere, entKindCylinder, entKindCapsule, entKindCone, entKindPlane, entKindMesh, entKindModel:
 			drawList = append(drawList, e)
 		}
 	}
@@ -1326,7 +1418,7 @@ func (m *Module) isVisible(e *ent) bool {
 			ms = e.scale.Z
 		}
 		return mbcamera.SphereVisibleActive(wp.X, wp.Y, wp.Z, e.radius*ms)
-	case entKindBox, entKindCone, entKindMesh, entKindModel:
+	case entKindBox, entKindCylinder, entKindCapsule, entKindCone, entKindMesh, entKindModel:
 		mn, mx := m.aabbWorldMinMax(e)
 		return mbcamera.AABBVisibleActive(mn.X, mn.Y, mn.Z, mx.X, mx.Y, mx.Z)
 	default:
@@ -1388,6 +1480,23 @@ func (m *Module) entID(v value.Value) (int64, bool) {
 		return id, true
 	}
 	return 0, false
+}
+
+// WorldPosFromEntityHandle resolves an EntityRef heap handle to world position (e.g. camera orbit).
+func (m *Module) WorldPosFromEntityHandle(handle heap.Handle) (rl.Vector3, bool) {
+	if m.h == nil {
+		return rl.Vector3{}, false
+	}
+	v := value.FromHandle(handle)
+	id, ok := m.entID(v)
+	if !ok {
+		return rl.Vector3{}, false
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return rl.Vector3{}, false
+	}
+	return m.worldPos(e), true
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {
@@ -1481,7 +1590,7 @@ func (m *Module) entCountCollisions(args []value.Value) (value.Value, error) {
 
 func (m *Module) entGetCollisionEntity(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("GETCOLLISIONENTITY expects (entity#, index)")
+		return value.Nil, fmt.Errorf("GETCOLLISIONENTITY expects (entity, index)")
 	}
 	id, _ := m.entID(args[0])
 	e := m.store().ents[id]

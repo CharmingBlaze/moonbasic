@@ -1,4 +1,4 @@
-﻿# Array Commands
+# Array Commands
 
 Commands for creating and manipulating arrays.
 
@@ -19,7 +19,7 @@ Commands for creating and manipulating arrays.
 ```basic
 DIM scores(10)
 DIM grid(20, 15)
-DIM names$(5)
+DIM names(5)
 ```
 
 ### Typed declaration (preferred)

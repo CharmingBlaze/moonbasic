@@ -11,7 +11,7 @@ import (
 func registerStringsInterp(r runtime.Registrar) {
 	interp := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) < 2 {
-			return value.Value{}, runtime.Errorf("INTERP$ expects (template$, value0, [value1, ...])")
+			return value.Value{}, runtime.Errorf("INTERP expects (template, value0, [value1, ...])")
 		}
 		tmpl, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -29,8 +29,8 @@ func registerStringsInterp(r runtime.Registrar) {
 		out := strings.NewReplacer(pairs...).Replace(tmpl)
 		return rt.RetString(out), nil
 	}
-	r.Register("INTERP$", "core", interp)
-	r.Register("STRING.INTERP$", "core", interp)
+	r.Register("INTERP", "core", interp)
+	r.Register("STRING.INTERP", "core", interp)
 }
 
 func valueStringForInterp(rt *runtime.Runtime, v value.Value) string {

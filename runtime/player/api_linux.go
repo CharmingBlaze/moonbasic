@@ -56,7 +56,7 @@ func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("PLAYER.CREATE: not available (requires Linux+Jolt fullruntime)")
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.CREATE expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -82,7 +82,7 @@ func (m *Module) playerMove(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, fmt.Errorf("PLAYER.MOVE: not available on this platform")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.MOVE expects (entity#, velocityX#, velocityZ#) world units/sec")
+		return value.Nil, fmt.Errorf("PLAYER.MOVE expects (entity, velocityX, velocityZ) world units/sec")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -131,7 +131,7 @@ func (m *Module) playerJump(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, fmt.Errorf("PLAYER.JUMP: not available on this platform")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.JUMP expects (entity#, impulseY#)")
+		return value.Nil, fmt.Errorf("PLAYER.JUMP expects (entity, impulseY)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -163,7 +163,7 @@ func (m *Module) playerIsGrounded(rt *runtime.Runtime, args ...value.Value) (val
 		return value.FromBool(false), nil
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -186,7 +186,7 @@ func (m *Module) playerGetLookTarget(rt *runtime.Runtime, args ...value.Value) (
 		return value.FromInt(0), nil
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET expects (entity#, maxDist#)")
+		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET expects (entity, maxDist)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -220,7 +220,7 @@ func (m *Module) playerGetNearby(rt *runtime.Runtime, args ...value.Value) (valu
 		return value.Nil, nil
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY expects (entity#, radius#, tag$)")
+		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY expects (entity, radius, tag)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -248,7 +248,7 @@ func (m *Module) playerGetNearby(rt *runtime.Runtime, args ...value.Value) (valu
 func (m *Module) playerOnTrigger(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.ONTRIGGER expects (entity#, callbackFunc$)")
+		return value.Nil, fmt.Errorf("PLAYER.ONTRIGGER expects (entity, callbackFunc)")
 	}
 	return value.Nil, fmt.Errorf("PLAYER.ONTRIGGER: VM callback from physics not wired — use LEVEL.BINDSCRIPT + collision checks or PHYSICS3D callbacks")
 }
@@ -256,7 +256,7 @@ func (m *Module) playerOnTrigger(rt *runtime.Runtime, args ...value.Value) (valu
 func (m *Module) playerSetState(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETSTATE expects (entity#, state#)")
+		return value.Nil, fmt.Errorf("PLAYER.SETSTATE expects (entity, state)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -276,7 +276,7 @@ func (m *Module) playerSyncAnim(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, fmt.Errorf("PLAYER.SYNCANIM: not available on this platform")
 	}
 	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SYNCANIM expects (entity# [, scale#])")
+		return value.Nil, fmt.Errorf("PLAYER.SYNCANIM expects (entity [, scale])")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -305,7 +305,7 @@ func (m *Module) playerSyncAnim(rt *runtime.Runtime, args ...value.Value) (value
 func (m *Module) playerSetStepHeight(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETSTEPHEIGHT expects (entity#, height#)")
+		return value.Nil, fmt.Errorf("PLAYER.SETSTEPHEIGHT expects (entity, height)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -328,7 +328,7 @@ func (m *Module) playerSetSlopeLimit(rt *runtime.Runtime, args ...value.Value) (
 		return value.Nil, fmt.Errorf("PLAYER.SETSLOPELIMIT: not available on this platform")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETSLOPELIMIT expects (entity#, maxSlopeDegrees#)")
+		return value.Nil, fmt.Errorf("PLAYER.SETSLOPELIMIT expects (entity, maxSlopeDegrees)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -356,7 +356,7 @@ func (m *Module) playerGetVelocity(rt *runtime.Runtime, args ...value.Value) (va
 		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY: heap not bound")
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -379,7 +379,7 @@ func (m *Module) playerTeleport(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, fmt.Errorf("PLAYER.TELEPORT: not available on this platform")
 	}
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("PLAYER.TELEPORT expects (entity#, x#, y#, z#)")
+		return value.Nil, fmt.Errorf("PLAYER.TELEPORT expects (entity, x, y, z)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -408,7 +408,7 @@ func (m *Module) playerSetGravityScale(rt *runtime.Runtime, args ...value.Value)
 		return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE: not available on this platform")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE expects (entity#, scale#)")
+		return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE expects (entity, scale)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -434,7 +434,7 @@ func (m *Module) playerGetCrouch(rt *runtime.Runtime, args ...value.Value) (valu
 		return value.FromBool(false), nil
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETCROUCH expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.GETCROUCH expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -453,7 +453,7 @@ func (m *Module) playerSetCrouch(rt *runtime.Runtime, args ...value.Value) (valu
 		return value.Nil, fmt.Errorf("PLAYER.SETCROUCH: not available on this platform")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETCROUCH expects (entity#, enabled)")
+		return value.Nil, fmt.Errorf("PLAYER.SETCROUCH expects (entity, enabled)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -486,7 +486,7 @@ func (m *Module) playerSwim(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, fmt.Errorf("PLAYER.SWIM: not available on this platform")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.SWIM expects (entity#, buoyancy#, drag#)")
+		return value.Nil, fmt.Errorf("PLAYER.SWIM expects (entity, buoyancy, drag)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -518,7 +518,7 @@ func (m *Module) playerGetStandNormal(rt *runtime.Runtime, args ...value.Value) 
 		return value.Nil, fmt.Errorf("PLAYER.GETSTANDNORMAL: not available")
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETSTANDNORMAL expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.GETSTANDNORMAL expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -549,7 +549,7 @@ func (m *Module) playerPush(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, fmt.Errorf("PLAYER.PUSH: not available")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.PUSH expects (playerEntity#, targetEntity#, force#)")
+		return value.Nil, fmt.Errorf("PLAYER.PUSH expects (playerEntity, targetEntity, force)")
 	}
 	pid, ok1 := args[0].ToInt()
 	tid, ok2 := args[1].ToInt()
@@ -579,7 +579,7 @@ func (m *Module) playerPush(rt *runtime.Runtime, args ...value.Value) (value.Val
 func (m *Module) playerGrab(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.GRAB expects (playerEntity#, targetEntity#) — use target 0 to release")
+		return value.Nil, fmt.Errorf("PLAYER.GRAB expects (playerEntity, targetEntity) — use target 0 to release")
 	}
 	pid, ok1 := args[0].ToInt()
 	tid, ok2 := args[1].ToInt()
@@ -603,7 +603,7 @@ func (m *Module) playerSetMass(rt *runtime.Runtime, args ...value.Value) (value.
 		return value.Nil, fmt.Errorf("PLAYER.SETMASS: not available on this platform")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETMASS expects (entity#, mass#)")
+		return value.Nil, fmt.Errorf("PLAYER.SETMASS expects (entity, mass)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -629,7 +629,7 @@ func (m *Module) playerGetSurfaceType(rt *runtime.Runtime, args ...value.Value) 
 		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE: heap not bound")
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -650,7 +650,7 @@ func (m *Module) playerGetSurfaceType(rt *runtime.Runtime, args ...value.Value) 
 func (m *Module) playerSetFovKick(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETFOVKICK expects (entity#, degrees#)")
+		return value.Nil, fmt.Errorf("PLAYER.SETFOVKICK expects (entity, degrees)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -667,7 +667,7 @@ func (m *Module) playerSetFovKick(rt *runtime.Runtime, args ...value.Value) (val
 func (m *Module) playerGetFovKick(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETFOVKICK expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.GETFOVKICK expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -682,7 +682,7 @@ func (m *Module) playerIsMoving(rt *runtime.Runtime, args ...value.Value) (value
 		return value.FromBool(false), nil
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.ISMOVING expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.ISMOVING expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {

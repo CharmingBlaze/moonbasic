@@ -3965,6 +3965,34 @@
       "phase": "rendering"
     },
     {
+      "key": "MODEL.CREATECAPSULE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "EntityRef capsule primitive (radius#, height#); draw matches Jolt capsule when using ENTITY.ADDPHYSICS capsule"
+    },
+    {
+      "key": "MODEL.CREATEBOX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.CREATEBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "bool"
+      ],
+      "returns": "handle"
+    },
+    {
       "key": "MODEL.LOADLOD",
       "args": [
         "string",
@@ -11919,6 +11947,81 @@
       "phase": "rendering"
     },
     {
+      "key": "CAMERA.YAW",
+      "args": [
+        "handle"
+      ],
+      "description": "Orbit yaw in radians (internal state) for aligning entities with cam.Orbit(entity, dist).",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.GETYAW",
+      "args": [
+        "handle"
+      ],
+      "description": "Alias of CAMERA.YAW.",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.USEMOUSEORBIT",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "description": "Enable/disable mouse contribution to CAMERA.ORBIT (entity) orbit-follow.",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.USEORBITRIGHTMOUSE",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "description": "If true (default), mouse orbit only while right button is held; if false, mouse moves orbit without RMB.",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETORBITKEYS",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Raylib key codes for orbit yaw (0 disables that side).",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETORBITLIMITS",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Clamp pitch (radians) and orbit distance for CAMERA.ORBIT (entity).",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETORBITSPEED",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Mouse drag sensitivity and mouse wheel zoom scale for orbit-follow.",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.SETORBITKEYSPEED",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Keyboard orbit yaw rate in radians per second.",
+      "phase": "rendering"
+    },
+    {
       "key": "CAMERA.ORBITAROUND",
       "args": [
         "handle",
@@ -17405,6 +17508,15 @@
       ]
     },
     {
+      "key": "WORLD.GRAVITY",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias: forwards to PHYSICS3D.SETGRAVITY (global Jolt gravity)"
+    },
+    {
       "key": "WORLD.UPDATE",
       "args": [
         "float"
@@ -17938,6 +18050,43 @@
         "float",
         "float"
       ]
+    },
+    {
+      "key": "ENTITY.PUSH",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Apply Jolt impulse (requires ENTITY.ADDPHYSICS)"
+    },
+    {
+      "key": "ENTITY.ADDPHYSICS",
+      "args": [
+        "int",
+        "string",
+        "string"
+      ],
+      "description": "One-line Jolt body: motion (static/dynamic), shape (box/capsule/sphere)"
+    },
+    {
+      "key": "ENTITY.ADDPHYSICS",
+      "args": [
+        "int",
+        "string",
+        "string",
+        "float"
+      ]
+    },
+    {
+      "key": "ENTITY.SQUASH",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "Juice: squash scale Y then tween back"
     },
     {
       "key": "ENTITY.TRANSLATE",
@@ -23013,6 +23162,15 @@
       ],
       "description": "Modular building: Sets bounciness (restitution) for a pending physics body.",
       "namespace": "physics3d"
+    },
+    {
+      "key": "ENTITY.SETBOUNCINESS",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Sets restitution (bounciness) on an entity's Jolt body; 0 = no bounce. Alias of PHYSICS.BOUNCE.",
+      "namespace": "entity"
     },
     {
       "key": "PHYSICS.BUILD",

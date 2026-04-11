@@ -17,7 +17,7 @@ func registerTextureBlitzCmds(m *Module, r runtime.Registrar) {
 	r.Register("LoadAnimTexture", "texture", m.texLoadAnimStrip)
 	r.Register("TextureWidth", "texture", runtime.AdaptLegacy(m.texWidth))
 	r.Register("TextureHeight", "texture", runtime.AdaptLegacy(m.texHeight))
-	r.Register("TextureName$", "texture", m.texNameStr)
+	r.Register("TextureName", "texture", m.texNameStr)
 	r.Register("SetCubeFace", "texture", runtime.AdaptLegacy(m.texSetCubeFace))
 	r.Register("SetCubeMode", "texture", runtime.AdaptLegacy(m.texSetCubeMode))
 	r.Register("TextureCoords", "texture", runtime.AdaptLegacy(m.texCoordsMode))
@@ -46,7 +46,7 @@ func (m *Module) texCreateBlank(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, runtime.Errorf("CreateTexture: heap not bound")
 	}
 	if len(args) < 2 || len(args) > 3 {
-		return value.Nil, fmt.Errorf("CreateTexture expects (width#, height# [, flags#])")
+		return value.Nil, fmt.Errorf("CreateTexture expects (width, height [, flags])")
 	}
 	w, ok1 := argDim(args[0])
 	h, ok2 := argDim(args[1])
@@ -83,13 +83,13 @@ func argDim(v value.Value) (int, bool) {
 	return 0, false
 }
 
-// LoadAnimTexture(path$, flags#, cellW#, cellH#, firstFrame#, frameCount#) — loads one cell from a horizontal strip as a standalone texture.
+// LoadAnimTexture(path, flags, cellW, cellH, firstFrame, frameCount) — loads one cell from a horizontal strip as a standalone texture.
 func (m *Module) texLoadAnimStrip(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, runtime.Errorf("LoadAnimTexture: heap not bound")
 	}
 	if len(args) != 6 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LoadAnimTexture expects (path$, flags#, cellW#, cellH#, firstFrame#, frameCount#)")
+		return value.Nil, fmt.Errorf("LoadAnimTexture expects (path, flags, cellW, cellH, firstFrame, frameCount)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -133,7 +133,7 @@ func (m *Module) texLoadAnimStrip(rt *runtime.Runtime, args ...value.Value) (val
 }
 
 func (m *Module) texNameStr(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	o, err := m.texObj1(args, "TextureName$")
+	o, err := m.texObj1(args, "TextureName")
 	if err != nil {
 		return value.Nil, err
 	}
@@ -148,7 +148,7 @@ func (m *Module) texNameStr(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) texSetCubeFace(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SetCubeFace expects (texture, face#)")
+		return value.Nil, fmt.Errorf("SetCubeFace expects (texture, face)")
 	}
 	o, err := m.texObj1([]value.Value{args[0]}, "SetCubeFace")
 	if err != nil {
@@ -166,7 +166,7 @@ func (m *Module) texSetCubeFace(args []value.Value) (value.Value, error) {
 
 func (m *Module) texSetCubeMode(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SetCubeMode expects (texture, mode#)")
+		return value.Nil, fmt.Errorf("SetCubeMode expects (texture, mode)")
 	}
 	o, err := m.texObj1([]value.Value{args[0]}, "SetCubeMode")
 	if err != nil {
@@ -184,7 +184,7 @@ func (m *Module) texSetCubeMode(args []value.Value) (value.Value, error) {
 
 func (m *Module) texCoordsMode(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("TextureCoords expects (texture, coords#)")
+		return value.Nil, fmt.Errorf("TextureCoords expects (texture, coords)")
 	}
 	o, err := m.texObj1([]value.Value{args[0]}, "TextureCoords")
 	if err != nil {
@@ -202,7 +202,7 @@ func (m *Module) texCoordsMode(args []value.Value) (value.Value, error) {
 
 func (m *Module) texScaleUV(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ScaleTexture expects (texture, uScale#, vScale#)")
+		return value.Nil, fmt.Errorf("ScaleTexture expects (texture, uScale, vScale)")
 	}
 	o, err := m.texObj1([]value.Value{args[0]}, "ScaleTexture")
 	if err != nil {
@@ -221,7 +221,7 @@ func (m *Module) texScaleUV(args []value.Value) (value.Value, error) {
 
 func (m *Module) texRotateUV(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("RotateTexture expects (texture, degrees#)")
+		return value.Nil, fmt.Errorf("RotateTexture expects (texture, degrees)")
 	}
 	o, err := m.texObj1([]value.Value{args[0]}, "RotateTexture")
 	if err != nil {
@@ -239,7 +239,7 @@ func (m *Module) texRotateUV(args []value.Value) (value.Value, error) {
 
 func (m *Module) texPositionUV(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PositionTexture expects (texture, uPos#, vPos#)")
+		return value.Nil, fmt.Errorf("PositionTexture expects (texture, uPos, vPos)")
 	}
 	o, err := m.texObj1([]value.Value{args[0]}, "PositionTexture")
 	if err != nil {

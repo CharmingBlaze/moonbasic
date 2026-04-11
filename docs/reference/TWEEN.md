@@ -12,7 +12,7 @@ Keyframe-style **tween chains** that read and write **global variables** by name
 
 Creates an empty tween (default: **one** loop, no yoyo).
 
-### `Tween.To(tween, varName$, target#, seconds#, easing$)`
+### `Tween.To(tween, varName, target, seconds, easing)`
 
 Appends a segment that animates the **global** named `varName` (folded uppercase) from its **current value at segment start** toward `target` over `seconds` (must be > 0).
 
@@ -35,7 +35,7 @@ Appends a segment that animates the **global** named `varName` (folded uppercase
 
 Alias of `Tween.To` — append another segment after the previous.
 
-### `Tween.OnComplete(tween, functionName$)`
+### `Tween.OnComplete(tween, functionName)`
 
 Registers a **parameterless user function** to run when the tween finishes all loops (not when stopped early). Cannot change while running.
 
@@ -55,7 +55,7 @@ When enabled, after the forward pass the tween runs **backward** through the sam
 
 Begins playback from the first step (requires at least one `TO`).
 
-### `Tween.Update(tween, dt#)`
+### `Tween.Update(tween, dt)`
 
 Advances time; `dt` is clamped if negative. May complete steps, invoke **OnComplete**, or loop.
 

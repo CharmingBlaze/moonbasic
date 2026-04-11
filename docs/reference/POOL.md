@@ -8,11 +8,11 @@ Typical use: bullets, particles, or UI rows where allocation churn should be avo
 
 ## Creation
 
-### `Pool.Make(name$, capacity)` → handle
+### `Pool.Make(name, capacity)` → handle
 
 `capacity` must be a positive integer — maximum **checked-out** objects (`GET` fails if `busy` count would exceed `max`).
 
-### `Pool.SetFactory(pool, factoryFunctionName$)` / `Pool.SetReset(pool, resetFunctionName$)`
+### `Pool.SetFactory(pool, factoryFunctionName)` / `Pool.SetReset(pool, resetFunctionName)`
 
 - **Factory** — user function invoked with **no arguments**; must return a **handle** to push into the pool or hand to the caller.
 - **Reset** — optional; called as `reset(handle)` when returning an object to the free list.

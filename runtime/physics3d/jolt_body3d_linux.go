@@ -120,11 +120,10 @@ func BDCommit(h *heap.Store, args []value.Value) (value.Value, error) {
 	bu.Shape = nil
 	
 	ccd := bu.EnableCCD && bu.Motion == jolt.MotionTypeDynamic
-	
-	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, bu.Motion, ccd)
+
+	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, bu.Motion, ccd,
+		bu.Friction, bu.Restitution, bu.AllowedDOFs)
 	sh.Destroy()
-	// Friction/restitution from the builder are not applied: jolt-go BodyInterface
-	// has no SetFriction/SetRestitution bindings in v0.8.x (defaults from Jolt).
 
 	var qshape *jolt.Shape
 	switch bu.QKind {
@@ -307,11 +306,15 @@ func bdSetFriction(m *Module, args []value.Value) (value.Value, error) {
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, nil }
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	if bi == nil {
+		return value.Nil, nil
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
 		return value.Nil, err
 	}
-	_, _ = args[1].ToFloat()
+	v, _ := args[1].ToFloat()
+	bi.SetFriction(bo.id, float32(v))
 	return value.Nil, nil
 }
 
@@ -322,11 +325,15 @@ func bdSetRestitution(m *Module, args []value.Value) (value.Value, error) {
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, nil }
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	if bi == nil {
+		return value.Nil, nil
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
 		return value.Nil, err
 	}
-	_, _ = args[1].ToFloat()
+	v, _ := args[1].ToFloat()
+	bi.SetRestitution(bo.id, float32(v))
 	return value.Nil, nil
 }
 
@@ -355,12 +362,15 @@ func bdApplyImpulse(m *Module, args []value.Value) (value.Value, error) {
 	bi := joltBi
 	joltMu.Unlock()
 	if bi == nil { return value.Nil, nil }
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
 		return value.Nil, err
 	}
-	_, _ = args[1].ToFloat()
-	_, _ = args[2].ToFloat()
-	_, _ = args[3].ToFloat()
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bi.AddImpulse(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	bi.ActivateBody(bo.id)
 	return value.Nil, nil
 }
 
@@ -372,12 +382,15 @@ func bdSetLinearVel(m *Module, args []value.Value) (value.Value, error) {
 	bi := joltBi
 	joltMu.Unlock()
 	if bi == nil { return value.Nil, nil }
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
 		return value.Nil, err
 	}
-	_, _ = args[1].ToFloat()
-	_, _ = args[2].ToFloat()
-	_, _ = args[3].ToFloat()
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bi.SetLinearVelocity(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	bi.ActivateBody(bo.id)
 	return value.Nil, nil
 }
 

@@ -108,7 +108,7 @@ func (m *Module) atlasLoad(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, runtime.Errorf("ATLAS.LOAD: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ATLAS.LOAD expects (imagePath$, jsonPath$)")
+		return value.Nil, fmt.Errorf("ATLAS.LOAD expects (imagePath, jsonPath)")
 	}
 	imgPath, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -149,7 +149,7 @@ func (m *Module) atlasGetSprite(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, runtime.Errorf("ATLAS.GETSPRITE: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ATLAS.GETSPRITE expects (atlas, name$)")
+		return value.Nil, fmt.Errorf("ATLAS.GETSPRITE expects (atlas, name)")
 	}
 	a, err := heap.Cast[*atlasObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {

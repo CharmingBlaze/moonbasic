@@ -21,7 +21,7 @@ func registerMeshComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("MESH.LOAD expects path$")
+			return value.Nil, fmt.Errorf("MESH.LOAD expects path")
 		}
 		path, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -54,7 +54,7 @@ func registerMeshComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("MESH.EXPORT expects (mesh, path$)")
+			return value.Nil, fmt.Errorf("MESH.EXPORT expects (mesh, path)")
 		}
 		o, err := m.getMesh(args, 0, "MESH.EXPORT")
 		if err != nil {
@@ -178,7 +178,7 @@ func registerMeshComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 5 {
-			return value.Nil, fmt.Errorf("MESH.DRAWAT expects (mesh, material, x#, y#, z#)")
+			return value.Nil, fmt.Errorf("MESH.DRAWAT expects (mesh, material, x, y, z)")
 		}
 		mo, err := m.getMesh(args, 0, "MESH.DRAWAT")
 		if err != nil {

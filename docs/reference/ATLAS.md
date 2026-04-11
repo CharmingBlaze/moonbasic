@@ -12,7 +12,7 @@ Commands for working with texture atlases, which are large images containing man
 
 ---
 
-### `Atlas.Load(imagePath$, jsonPath$)`
+### `Atlas.Load(imagePath, jsonPath)`
 
 Loads a texture atlas from an image and a JSON data file. Returns a handle to the atlas.
 
@@ -21,7 +21,7 @@ Loads a texture atlas from an image and a JSON data file. Returns a handle to th
 
 ---
 
-### `Atlas.GetSprite(atlasHandle, spriteName$)`
+### `Atlas.GetSprite(atlasHandle, spriteName)`
 
 Retrieves a handle to a single sprite within the atlas.
 

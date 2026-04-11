@@ -29,7 +29,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		"LEVEL.PRELOAD", "RENDER.CLEARCACHE",
 		"TEXTURE.GENWHITENOISE", "TEXTURE.GENCHECKED", "TEXTURE.GENGRADIENTV", "TEXTURE.GENGRADIENTH", "TEXTURE.GENCOLOR",
 		"RENDERTARGET.MAKE", "RENDERTARGET.FREE", "RENDERTARGET.BEGIN", "RENDERTARGET.END", "RENDERTARGET.TEXTURE",
-		"CreateTexture", "LoadAnimTexture", "TextureWidth", "TextureHeight", "TextureName$",
+		"CreateTexture", "LoadAnimTexture", "TextureWidth", "TextureHeight", "TextureName",
 		"SetCubeFace", "SetCubeMode", "TextureCoords", "ScaleTexture", "RotateTexture", "PositionTexture",
 	} {
 		r.Register(k, "texture", stub(k))

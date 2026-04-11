@@ -100,7 +100,7 @@ func argInt(v value.Value) (int, bool) {
 
 func (m *Module) animDefine(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 6 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ANIM.DEFINE expects (sprite, name$, first, last, fps, loop)")
+		return value.Nil, fmt.Errorf("ANIM.DEFINE expects (sprite, name, first, last, fps, loop)")
 	}
 	h, ok := argHandle(args[0])
 	if !ok {
@@ -141,7 +141,7 @@ func (m *Module) animDefine(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) animAddTransition(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 || args[1].Kind != value.KindString || args[2].Kind != value.KindString || args[3].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ANIM.ADDTRANSITION expects (sprite, from$, to$, condition$)")
+		return value.Nil, fmt.Errorf("ANIM.ADDTRANSITION expects (sprite, from, to, condition)")
 	}
 	h, ok := argHandle(args[0])
 	if !ok {
@@ -234,7 +234,7 @@ func (m *Module) animUpdate(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) animSetParam(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ANIM.SETPARAM expects (sprite, name$, value)")
+		return value.Nil, fmt.Errorf("ANIM.SETPARAM expects (sprite, name, value)")
 	}
 	h, ok := argHandle(args[0])
 	if !ok {

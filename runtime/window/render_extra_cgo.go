@@ -129,7 +129,7 @@ func (m *Module) rSetWireframe(args []value.Value) (value.Value, error) {
 
 func (m *Module) rScreenshot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("RENDER.SCREENSHOT expects 1 string argument (path$)")
+		return value.Nil, fmt.Errorf("RENDER.SCREENSHOT expects 1 string argument (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -189,7 +189,7 @@ func (m *Module) rSetShadowMapSize(args []value.Value) (value.Value, error) {
 // Optional fourth argument scales all three channels (0.0–1.0 or 0–255).
 func (m *Module) rSetAmbient(args []value.Value) (value.Value, error) {
 	if len(args) != 3 && len(args) != 4 {
-		return value.Nil, fmt.Errorf("RENDER.SETAMBIENT expects (r#, g#, b#) or (r#, g#, b#, a#) in 0.0–1.0 (or 0–255)")
+		return value.Nil, fmt.Errorf("RENDER.SETAMBIENT expects (r, g, b) or (r, g, b, a) in 0.0–1.0 (or 0–255)")
 	}
 	ch := func(v value.Value) (float32, error) {
 		var f float64
@@ -239,7 +239,7 @@ func (m *Module) rSetFog(rt *runtime.Runtime, args ...value.Value) (value.Value,
 		return value.Nil, fmt.Errorf("RENDER.SETFOG: no active registry")
 	}
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("RENDER.SETFOG expects (r#, g#, b#, start#, end#, density#)")
+		return value.Nil, fmt.Errorf("RENDER.SETFOG expects (r, g, b, start, end, density)")
 	}
 	if _, err := reg.Call("FOG.ENABLE", []value.Value{value.FromBool(true)}); err != nil {
 		return value.Nil, err
@@ -264,7 +264,7 @@ func (m *Module) rSetBloom(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, fmt.Errorf("RENDER.SETBLOOM: no active registry")
 	}
 	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("RENDER.SETBLOOM expects (threshold#) or (threshold#, intensity#)")
+		return value.Nil, fmt.Errorf("RENDER.SETBLOOM expects (threshold) or (threshold, intensity)")
 	}
 	intensity := value.FromFloat(1.0)
 	if len(args) == 2 {

@@ -32,7 +32,7 @@ func numToI32(v value.Value) (int32, bool) {
 func (m *Module) inMapKey(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.MAPKEY expects (action$, keyCode)")
+		return value.Nil, fmt.Errorf("INPUT.MAPKEY expects (action, keyCode)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -50,7 +50,7 @@ func (m *Module) inMapKey(rt *runtime.Runtime, args ...value.Value) (value.Value
 func (m *Module) inMapGamepadButton(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 3 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.MAPGAMEPADBUTTON expects (action$, gamepadIndex, buttonCode)")
+		return value.Nil, fmt.Errorf("INPUT.MAPGAMEPADBUTTON expects (action, gamepadIndex, buttonCode)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -68,7 +68,7 @@ func (m *Module) inMapGamepadButton(rt *runtime.Runtime, args ...value.Value) (v
 func (m *Module) inMapGamepadAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 3 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.MAPGAMEPADAXIS expects (action$, gamepadIndex, axisCode)")
+		return value.Nil, fmt.Errorf("INPUT.MAPGAMEPADAXIS expects (action, gamepadIndex, axisCode)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -86,7 +86,7 @@ func (m *Module) inMapGamepadAxis(rt *runtime.Runtime, args ...value.Value) (val
 func (m *Module) inActionPressed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.ACTIONPRESSED expects (action$)")
+		return value.Nil, fmt.Errorf("INPUT.ACTIONPRESSED expects (action)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -98,7 +98,7 @@ func (m *Module) inActionPressed(rt *runtime.Runtime, args ...value.Value) (valu
 func (m *Module) inActionDown(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.ACTIONDOWN expects (action$)")
+		return value.Nil, fmt.Errorf("INPUT.ACTIONDOWN expects (action)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -110,7 +110,7 @@ func (m *Module) inActionDown(rt *runtime.Runtime, args ...value.Value) (value.V
 func (m *Module) inActionReleased(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.ACTIONRELEASED expects (action$)")
+		return value.Nil, fmt.Errorf("INPUT.ACTIONRELEASED expects (action)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -122,7 +122,7 @@ func (m *Module) inActionReleased(rt *runtime.Runtime, args ...value.Value) (val
 func (m *Module) inActionAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.ACTIONAXIS expects (action$)")
+		return value.Nil, fmt.Errorf("INPUT.ACTIONAXIS expects (action)")
 	}
 	act, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -134,7 +134,7 @@ func (m *Module) inActionAxis(rt *runtime.Runtime, args ...value.Value) (value.V
 func (m *Module) inSaveMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.SAVEMAPPINGS expects (path$)")
+		return value.Nil, fmt.Errorf("INPUT.SAVEMAPPINGS expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -149,7 +149,7 @@ func (m *Module) inSaveMappings(rt *runtime.Runtime, args ...value.Value) (value
 func (m *Module) inLoadMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("INPUT.LOADMAPPINGS expects (path$)")
+		return value.Nil, fmt.Errorf("INPUT.LOADMAPPINGS expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {

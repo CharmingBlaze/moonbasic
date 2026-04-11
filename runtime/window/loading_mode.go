@@ -17,7 +17,7 @@ func (m *Module) wSetLoadingMode(rt *runtime.Runtime, args ...value.Value) (valu
 		return value.Nil, fmt.Errorf("WINDOW.SETLOADINGMODE: runtime not available")
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("WINDOW.SETLOADINGMODE expects 1 argument (enabled?)")
+		return value.Nil, fmt.Errorf("WINDOW.SETLOADINGMODE expects 1 argument (enabled)")
 	}
 	b, err := rt.ArgBool(args, 0)
 	if err != nil {

@@ -79,8 +79,8 @@ body.vel(0, 1, 0)      ' Set linear velocity
 ' Server
 server = Listen(1234)
 If ServiceNet(server, 10) Then
-    msg$ = NetMsg$()
-    Print "Received: " + msg$
+    msg = NetMsg()
+    Print "Received: " + msg
 End If
 
 ' Client

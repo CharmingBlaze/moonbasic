@@ -37,7 +37,7 @@ func groupKey(name string) string { return strings.ToUpper(strings.TrimSpace(nam
 
 func (m *Module) entGroupCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.GROUPCREATE expects (name$)")
+		return value.Nil, fmt.Errorf("ENTITY.GROUPCREATE expects (name)")
 	}
 	name, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -59,7 +59,7 @@ func (m *Module) entGroupCreate(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) entGroupAdd(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.GROUPADD expects (groupName$, entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.GROUPADD expects (groupName, entity)")
 	}
 	if args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("ENTITY.GROUPADD: group name must be string")
@@ -89,7 +89,7 @@ func (m *Module) entGroupAdd(rt *runtime.Runtime, args ...value.Value) (value.Va
 
 func (m *Module) entGroupRemove(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.GROUPREMOVE expects (groupName$, entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.GROUPREMOVE expects (groupName, entity)")
 	}
 	if args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("ENTITY.GROUPREMOVE: group name must be string")
@@ -135,7 +135,7 @@ func (m *Module) allocFloatArray(vals []float64) (value.Value, error) {
 
 func (m *Module) entEntitiesInGroup(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.ENTITIESINGROUP expects (groupName$)")
+		return value.Nil, fmt.Errorf("ENTITY.ENTITIESINGROUP expects (groupName)")
 	}
 	gname, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -157,7 +157,7 @@ func (m *Module) entEntitiesInGroup(rt *runtime.Runtime, args ...value.Value) (v
 
 func (m *Module) entEntitiesInRadius(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("ENTITY.ENTITIESINRADIUS expects (x#, y#, z#, radius#)")
+		return value.Nil, fmt.Errorf("ENTITY.ENTITIESINRADIUS expects (x, y, z, radius)")
 	}
 	cx, ok1 := argF32(args[0])
 	cy, ok2 := argF32(args[1])
@@ -185,7 +185,7 @@ func (m *Module) entEntitiesInRadius(args []value.Value) (value.Value, error) {
 
 func (m *Module) entEntitiesInBox(args []value.Value) (value.Value, error) {
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("ENTITY.ENTITIESINBOX expects (x1#, y1#, z1#, x2#, y2#, z2#)")
+		return value.Nil, fmt.Errorf("ENTITY.ENTITIESINBOX expects (x1, y1, z1, x2, y2, z2)")
 	}
 	x1, ok1 := argF32(args[0])
 	y1, ok2 := argF32(args[1])
@@ -281,7 +281,7 @@ type sceneEntRec struct {
 
 func (m *Module) entSaveScene(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.SAVESCENE expects (path$)")
+		return value.Nil, fmt.Errorf("ENTITY.SAVESCENE expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -322,7 +322,7 @@ func (m *Module) entSaveScene(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) entLoadScene(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.LOADSCENE expects (path$)")
+		return value.Nil, fmt.Errorf("ENTITY.LOADSCENE expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -406,7 +406,7 @@ func (m *Module) entLoadScene(rt *runtime.Runtime, args ...value.Value) (value.V
 func (m *Module) camSetTargetEntity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("CAMERA.SETTARGETENTITY expects (camera, entity#)")
+		return value.Nil, fmt.Errorf("CAMERA.SETTARGETENTITY expects (camera, entity)")
 	}
 	ch, ok := argHandle(args[0])
 	if !ok {

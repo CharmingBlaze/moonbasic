@@ -128,7 +128,7 @@ func (m *Module) debugPrint1(rt *runtime.Runtime, args ...value.Value) (value.Va
 
 func (m *Module) debugPrintLabeled(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.PRINTL expects (label$, value)")
+		return value.Nil, runtime.Errorf("DEBUG.PRINTL expects (label, value)")
 	}
 	label, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -140,7 +140,7 @@ func (m *Module) debugPrintLabeled(rt *runtime.Runtime, args ...value.Value) (va
 
 func (m *Module) debugWatch(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.WATCH expects (label$, value)")
+		return value.Nil, runtime.Errorf("DEBUG.WATCH expects (label, value)")
 	}
 	label, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -171,7 +171,7 @@ func (m *Module) debugWatchClear(args []value.Value) (value.Value, error) {
 
 func (m *Module) debugAssert(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("ASSERT expects (cond?, msg$)")
+		return value.Nil, runtime.Errorf("ASSERT expects (cond, msg)")
 	}
 	pool := strPool()
 	if !value.Truthy(args[0], pool, rt.Heap) {
@@ -200,7 +200,7 @@ func (m *Module) debugBreakpoint(args []value.Value) (value.Value, error) {
 
 func (m *Module) debugLog(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.LOG expects (msg$)")
+		return value.Nil, runtime.Errorf("DEBUG.LOG expects (msg)")
 	}
 	msg, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -212,7 +212,7 @@ func (m *Module) debugLog(rt *runtime.Runtime, args ...value.Value) (value.Value
 
 func (m *Module) debugLogFile(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.LOGFILE expects (path$, msg$)")
+		return value.Nil, runtime.Errorf("DEBUG.LOGFILE expects (path, msg)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -233,7 +233,7 @@ func (m *Module) debugLogFile(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) profileStart(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.PROFILESTART expects (label$)")
+		return value.Nil, runtime.Errorf("DEBUG.PROFILESTART expects (label)")
 	}
 	label, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -251,7 +251,7 @@ func (m *Module) profileStart(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) profileEnd(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DEBUG.PROFILEEND expects (label$)")
+		return value.Nil, runtime.Errorf("DEBUG.PROFILEEND expects (label)")
 	}
 	want, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -421,7 +421,7 @@ func (m *Module) srvMonitor(rt *runtime.Runtime, args ...value.Value) (value.Val
 }
 
 func (m *Module) conLog(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) < 1 { return value.Nil, fmt.Errorf("CONSOLE.LOG expects message$") }
+	if len(args) < 1 { return value.Nil, fmt.Errorf("CONSOLE.LOG expects message") }
 	msg, _ := rt.ArgString(args, 0)
 	col := rl.White
 	if len(args) >= 2 {
@@ -442,7 +442,7 @@ func (m *Module) conLog(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 func (m *Module) debugInspect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("DEBUG.INSPECT expects (entityID#)")
+		return value.Nil, fmt.Errorf("DEBUG.INSPECT expects (entityID)")
 	}
 	id, _ := args[0].ToInt()
 	m.mu.Lock()

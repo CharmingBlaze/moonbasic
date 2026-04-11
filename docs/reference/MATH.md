@@ -93,7 +93,7 @@ Together they match **forward = −Z** and **right = +X** when **`yaw = 0`**. Se
 
 ---
 
-## Inline conditional (`IIF` / `IIF$`)
+## Inline conditional (`IIF`)
 
 | Command | Returns |
 |---|---|

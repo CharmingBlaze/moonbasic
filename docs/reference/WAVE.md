@@ -8,7 +8,7 @@ Commands for loading and manipulating raw wave audio data in memory.
 
 ---
 
-### `Wave.Load(filePath$)`
+### `Wave.Load(filePath)`
 
 Loads a wave file (`.wav`) into memory. Returns a handle to the wave data.
 
@@ -28,7 +28,7 @@ Crops the wave data to a new length, from `startFrame` to `endFrame`.
 
 ---
 
-### `Wave.Export(waveHandle, filePath$)`
+### `Wave.Export(waveHandle, filePath)`
 
 Saves the wave data to a new `.wav` file.
 

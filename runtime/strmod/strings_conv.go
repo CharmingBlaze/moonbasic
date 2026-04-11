@@ -11,9 +11,9 @@ import (
 )
 
 func registerStringsConv(r runtime.Registrar) {
-	r.Register("STR$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("STR", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("STR$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("STR expects 1 argument")
 		}
 		if args[0].Kind == value.KindString {
 			return args[0], nil
@@ -68,9 +68,9 @@ func registerStringsConv(r runtime.Registrar) {
 		}
 		return value.FromFloat(f), nil
 	})
-	r.Register("UPPER$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("UPPER", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("UPPER$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("UPPER expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -78,9 +78,9 @@ func registerStringsConv(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.ToUpper(s)), nil
 	})
-	r.Register("LOWER$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("LOWER", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("LOWER$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("LOWER expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -101,9 +101,9 @@ func registerStringsConv(r runtime.Registrar) {
 		}
 		return value.FromInt(int64(utf8.RuneCountInString(s))), nil
 	})
-	r.Register("CHR$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("CHR", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("CHR$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("CHR expects 1 argument")
 		}
 		c, err := rt.ArgInt(args, 0)
 		if err != nil {

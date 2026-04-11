@@ -90,7 +90,7 @@ func truthy(reg *runtime.Runtime, v value.Value) bool {
 
 func (m *Module) sceneRegister(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SCENE.REGISTER expects (sceneId$, loadFunctionName$)")
+		return value.Nil, fmt.Errorf("SCENE.REGISTER expects (sceneId, loadFunctionName)")
 	}
 	id, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -112,7 +112,7 @@ func (m *Module) sceneRegister(rt *runtime.Runtime, args ...value.Value) (value.
 
 func (m *Module) sceneSetHandlers(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SCENE.SETHANDLERS expects (updateFunctionName$, drawFunctionName$)")
+		return value.Nil, fmt.Errorf("SCENE.SETHANDLERS expects (updateFunctionName, drawFunctionName)")
 	}
 	u, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -130,7 +130,7 @@ func (m *Module) sceneSetHandlers(rt *runtime.Runtime, args ...value.Value) (val
 
 func (m *Module) sceneLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SCENE.LOAD expects sceneId$")
+		return value.Nil, fmt.Errorf("SCENE.LOAD expects sceneId")
 	}
 	id, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -145,7 +145,7 @@ func (m *Module) sceneLoad(rt *runtime.Runtime, args ...value.Value) (value.Valu
 
 func (m *Module) sceneLoadAsync(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SCENE.LOADASYNC expects sceneId$")
+		return value.Nil, fmt.Errorf("SCENE.LOADASYNC expects sceneId")
 	}
 	id, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -163,7 +163,7 @@ func (m *Module) sceneLoadAsync(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) sceneLoadWithTransition(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SCENE.LOADWITHTRANSITION expects (sceneId$, kind$, duration)")
+		return value.Nil, fmt.Errorf("SCENE.LOADWITHTRANSITION expects (sceneId, kind, duration)")
 	}
 	id, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -377,7 +377,7 @@ func (m *Module) sceneCurrent(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) sceneSwitch(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SCENE.SWITCH expects (sceneId$, fadeDuration)")
+		return value.Nil, fmt.Errorf("SCENE.SWITCH expects (sceneId, fadeDuration)")
 	}
 	// Use default "fade" transition
 	return m.sceneLoadWithTransition(rt, args[0], value.FromStringIndex(rt.Heap.Intern("fade")), args[1])

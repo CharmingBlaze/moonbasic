@@ -10,7 +10,7 @@ Commands for loading and drawing with custom fonts.
 
 ---
 
-### `Font.Load(filePath$)`
+### `Font.Load(filePath)`
 
 Loads a font file from disk. It's best to load fonts once at the start of your program.
 
@@ -28,7 +28,7 @@ Unloads a font from memory. This is important to prevent memory leaks.
 
 ---
 
-### `Draw.TextFont(fontHandle, text$, x, y, size, spacing, r, g, b, a)`
+### `Draw.TextFont(fontHandle, text, x, y, size, spacing, r, g, b, a)`
 
 Draws text using a loaded font. This must be called within a **`Camera2D.Begin()`** / **`Camera2D.End()`** block (or between **`Camera2D.Begin(cam)`** / **`Camera2D.End()`** when using a 2D camera handle).
 

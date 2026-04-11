@@ -14,21 +14,21 @@ Terminates the program immediately. This is a hard exit; `Window.Close()` is pre
 
 ## Host Environment
 
-### `System.Version()` → string$
+### `System.Version()` → string
 
 Returns the MoonBasic **release label** for display and logging (for example **`1.0.0-GOLD`**). This is a fixed product string from the runtime, not a semver probe of the host binary.
 
-### `System.GetEnv(varName$)`
+### `System.GetEnv(varName)`
 
 Gets the value of an environment variable.
 
 - `varName`: The name of the environment variable (e.g., "PATH").
 
-### `System.OpenURL(url$)`
+### `System.OpenURL(url)`
 
 Opens a URL in the user's default web browser.
 
-### `System.GetClipboard()` / `System.SetClipboard(text$)`
+### `System.GetClipboard()` / `System.SetClipboard(text)`
 
 Gets or sets the content of the system clipboard.
 
@@ -42,7 +42,7 @@ These commands allow you to read arguments passed to your script when it was run
 
 Returns the number of command-line arguments. The script path itself is not counted.
 
-### `COMMAND$(index)`
+### `COMMAND(index)`
 
 Returns the command-line argument at the specified index.
 
@@ -60,14 +60,14 @@ PRINT "moonBASIC Argument Parser"
 PRINT "-------------------------"
 
 arg_count = ARGC()
-PRINT "Arguments received: " + STR$(arg_count)
+PRINT "Arguments received: " + STR(arg_count)
 
 IF arg_count > 0 THEN
     FOR i = 0 TO arg_count - 1
-        arg$ = COMMAND$(i)
-        PRINT "Arg " + STR$(i) + ": " + arg$
+        arg = COMMAND(i)
+        PRINT "Arg " + STR(i) + ": " + arg
 
-        IF arg$ = "--version" THEN
+        IF arg = "--version" THEN
             PRINT "Version flag detected!"
         ENDIF
     NEXT

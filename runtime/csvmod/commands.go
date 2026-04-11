@@ -34,7 +34,7 @@ func csvLoad(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		return value.Nil, runtime.Errorf("CSV.LOAD: heap not bound")
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("CSV.LOAD expects path$")
+		return value.Nil, runtime.Errorf("CSV.LOAD expects path")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -80,7 +80,7 @@ func csvSave(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		return value.Nil, runtime.Errorf("CSV.SAVE: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("CSV.SAVE expects (handle, path$)")
+		return value.Nil, runtime.Errorf("CSV.SAVE expects (handle, path)")
 	}
 	c, err := castCSV(m, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -220,7 +220,7 @@ func csvSet(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, runtime.Errorf("CSV.SET: heap not bound")
 	}
 	if len(args) != 4 || args[0].Kind != value.KindHandle || args[3].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("CSV.SET expects (handle, row, col, val$)")
+		return value.Nil, runtime.Errorf("CSV.SET expects (handle, row, col, val)")
 	}
 	c, err := castCSV(m, heap.Handle(args[0].IVal))
 	if err != nil {

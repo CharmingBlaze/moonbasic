@@ -166,7 +166,7 @@ func (m *Module) tmLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		return value.Nil, err
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("TILEMAP.LOAD expects path$")
+		return value.Nil, fmt.Errorf("TILEMAP.LOAD expects path")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {

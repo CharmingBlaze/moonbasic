@@ -18,9 +18,7 @@ type configStore struct {
 
 func (m *Module) registerConfig(r runtime.Registrar) {
 	r.Register("CONFIG.LOAD", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.LOAD expects path$")
-		}
+			return value.Nil, fmt.Errorf("CONFIG.LOAD expects path")
 		path, err := rt.ArgString(args, 0)
 		if err != nil {
 			return value.Nil, err
@@ -78,7 +76,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 			m.config = &configStore{kv: make(map[string]string)}
 		}
 		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.SETINT expects (key$, value)")
+			return value.Nil, fmt.Errorf("CONFIG.SETINT expects (key, value)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -96,7 +94,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 			m.config = &configStore{kv: make(map[string]string)}
 		}
 		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.SETFLOAT expects (key$, value)")
+			return value.Nil, fmt.Errorf("CONFIG.SETFLOAT expects (key, value)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -114,7 +112,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 			m.config = &configStore{kv: make(map[string]string)}
 		}
 		if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.SETSTRING expects (key$, value$)")
+			return value.Nil, fmt.Errorf("CONFIG.SETSTRING expects (key, value)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -132,7 +130,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 			m.config = &configStore{kv: make(map[string]string)}
 		}
 		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.SETBOOL expects (key$, value?)")
+			return value.Nil, fmt.Errorf("CONFIG.SETBOOL expects (key, value)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -154,7 +152,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 	})
 	r.Register("CONFIG.GETINT", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.GETINT expects (key$, default)")
+			return value.Nil, fmt.Errorf("CONFIG.GETINT expects (key, default)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -180,7 +178,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 	})
 	r.Register("CONFIG.GETFLOAT", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.GETFLOAT expects (key$, default)")
+			return value.Nil, fmt.Errorf("CONFIG.GETFLOAT expects (key, default)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -206,7 +204,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 	})
 	r.Register("CONFIG.GETSTRING", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.GETSTRING expects (key$, default$)")
+			return value.Nil, fmt.Errorf("CONFIG.GETSTRING expects (key, default)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -227,7 +225,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 	})
 	r.Register("CONFIG.GETBOOL", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.GETBOOL expects (key$, default?)")
+			return value.Nil, fmt.Errorf("CONFIG.GETBOOL expects (key, default)")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -246,7 +244,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 	})
 	r.Register("CONFIG.HAS", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.HAS expects key$")
+			return value.Nil, fmt.Errorf("CONFIG.HAS expects key")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -260,7 +258,7 @@ func (m *Module) registerConfig(r runtime.Registrar) {
 	})
 	r.Register("CONFIG.DELETE", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("CONFIG.DELETE expects key$")
+			return value.Nil, fmt.Errorf("CONFIG.DELETE expects key")
 		}
 		k, err := rt.ArgString(args, 0)
 		if err != nil {

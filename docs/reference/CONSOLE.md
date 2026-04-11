@@ -9,9 +9,9 @@ Commands for printing text to the console or terminal where `moonbasic` is runni
 Prints one or more values to the console, separated by spaces, followed by a newline character.
 
 ```basic
-name$ = "moonBASIC"
-version# = 0.1
-PRINT "Welcome to", name$, "version", version#
+name = "moonBASIC"
+version = 0.1
+PRINT "Welcome to", name, "version", version
 ; Output: Welcome to moonBASIC version 0.1
 ```
 
@@ -30,7 +30,7 @@ PRINT "Done!"
 
 ---
 
-### `INPUT(prompt$, [default$])`
+### `INPUT(prompt, [default])`
 
 Prompts the user for text input from the console.
 
@@ -40,8 +40,8 @@ Prompts the user for text input from the console.
 Returns the string entered by the user.
 
 ```basic
-name$ = INPUT("What is your name? ", "Player1")
-PRINT "Hello, " + name$
+name = INPUT("What is your name? ", "Player1")
+PRINT "Hello, " + name
 ```
 
 ---

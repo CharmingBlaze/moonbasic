@@ -43,7 +43,7 @@ func terrainMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, runtime.Errorf("TERRAIN.MAKE: heap not bound")
 	}
 	if len(args) < 2 || len(args) > 3 {
-		return value.Nil, fmt.Errorf("TERRAIN.MAKE expects worldW, worldH [, cellSize#]")
+		return value.Nil, fmt.Errorf("TERRAIN.MAKE expects worldW, worldH [, cellSize]")
 	}
 	ww, err := rt.ArgInt(args, 0)
 	if err != nil {
@@ -113,7 +113,7 @@ func terrainFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func terrainSetPos(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("TERRAIN.SETPOS expects terrain, x#, y#, z#")
+		return value.Nil, fmt.Errorf("TERRAIN.SETPOS expects terrain, x, y, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -174,7 +174,7 @@ func terrainSetChunkSize(m *Module, rt *runtime.Runtime, args ...value.Value) (v
 
 func terrainFillPerlin(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("TERRAIN.FILLPERLIN expects terrain, scale#, height#")
+		return value.Nil, fmt.Errorf("TERRAIN.FILLPERLIN expects terrain, scale, height")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -202,7 +202,7 @@ func terrainFillPerlin(m *Module, rt *runtime.Runtime, args ...value.Value) (val
 
 func terrainFillFlat(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("TERRAIN.FILLFLAT expects terrain, height#")
+		return value.Nil, fmt.Errorf("TERRAIN.FILLFLAT expects terrain, height")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -229,7 +229,7 @@ func terrainFillFlat(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 
 func terrainGetHeight(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("TERRAIN.GETHEIGHT expects terrain, x#, z#")
+		return value.Nil, fmt.Errorf("TERRAIN.GETHEIGHT expects terrain, x, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -252,7 +252,7 @@ func terrainGetHeight(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 
 func terrainGetSlope(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("TERRAIN.GETSLOPE expects terrain, x#, z#")
+		return value.Nil, fmt.Errorf("TERRAIN.GETSLOPE expects terrain, x, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -275,7 +275,7 @@ func terrainGetSlope(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 
 func terrainRaise(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("TERRAIN.RAISE expects terrain, x#, z#, radius#, amount#")
+		return value.Nil, fmt.Errorf("TERRAIN.RAISE expects terrain, x, z, radius, amount")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -307,7 +307,7 @@ func terrainRaise(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 
 func terrainLower(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("TERRAIN.LOWER expects terrain, x#, z#, radius#, amount#")
+		return value.Nil, fmt.Errorf("TERRAIN.LOWER expects terrain, x, z, radius, amount")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -503,7 +503,7 @@ func chunkCount(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Valu
 
 func chunkSetRange(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("CHUNK.SETRANGE expects terrain, loadDist#, unloadDist#")
+		return value.Nil, fmt.Errorf("CHUNK.SETRANGE expects terrain, loadDist, unloadDist")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -670,7 +670,7 @@ func terrainSetMeshBudget(m *Module, rt *runtime.Runtime, args ...value.Value) (
 
 func terrainSetAsync(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("TERRAIN.SETASYNCMESHBUILD expects terrain, enabled?")
+		return value.Nil, fmt.Errorf("TERRAIN.SETASYNCMESHBUILD expects terrain, enabled")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {

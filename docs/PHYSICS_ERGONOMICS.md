@@ -16,8 +16,8 @@ ENTITY.PHYSICS(ball, "SPHERE", 0.0)
 
 **Parameters:**
 - `id`: The entity handle.
-- `type$`: `"BOX"`, `"SPHERE"`, `"CAPSULE"`, or `"MESH"`.
-- `mass#`: `1.0` for dynamic, `0.0` for static.
+- `type`: `"BOX"`, `"SPHERE"`, `"CAPSULE"`, or `"MESH"`.
+- `mass`: `1.0` for dynamic, `0.0` for static.
 
 ---
 

@@ -608,8 +608,8 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 | `Net.Connect(clientHandle, address, port)` | Connects a client to a server. Returns a peer handle. |
 | `Net.Update(hostHandle)` | Processes network packets. **Call every frame.** |
 | `Net.Receive(hostHandle)` | Returns the next event handle, or `0` if none queued. |
-| `Net.Broadcast(serverHandle, channel, data, reliable?)` | Sends a message to all connected clients. |
-| `Peer.Send(peerHandle, channel, data, reliable?)` | Sends a message to a specific peer. |
+| `Net.Broadcast(serverHandle, channel, data, reliable)` | Sends a message to all connected clients. |
+| `Peer.Send(peerHandle, channel, data, reliable)` | Sends a message to a specific peer. |
 | `Event.Type(handle)` | Returns the event type (`EVENT_CONNECT`, `EVENT_DISCONNECT`, `EVENT_RECEIVE`). |
 | `Event.Peer(handle)` | Returns the peer associated with the event. |
 | `Event.Data(handle)` | Returns the string data of a `RECEIVE` event. |
@@ -679,7 +679,7 @@ Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 |---|---|
 | `Light.Make(type)` | Creates a light (`"directional"`, `"point"`, `"spot"`). Returns a handle. |
 | `Light.SetDir(handle, x, y, z)` | Sets the direction for directional/spot lights. |
-| `Light.SetShadow(handle, enabled?)` | Enables or disables shadow casting. |
+| `Light.SetShadow(handle, enabled)` | Enables or disables shadow casting. |
 
 ---
 

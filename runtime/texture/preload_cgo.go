@@ -26,7 +26,7 @@ func (m *Module) levelPreloadDir(rt *runtime.Runtime, args ...value.Value) (valu
 		return value.Nil, runtime.Errorf("LEVEL.PRELOAD: heap not bound")
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.PRELOAD expects (directoryPath$)")
+		return value.Nil, fmt.Errorf("LEVEL.PRELOAD expects (directoryPath)")
 	}
 	dir, err := rt.ArgString(args, 0)
 	if err != nil {

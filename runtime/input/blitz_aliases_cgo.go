@@ -112,7 +112,7 @@ func joyParseArgs(args []value.Value, defaultAxis int32) (gp int32, ax int32, er
 		}
 		return int32(i), int32(a), nil
 	default:
-		return 0, 0, fmt.Errorf("INPUT.JOYX/JOYY: expected 0–2 arguments (gamepad#, axis#)")
+		return 0, 0, fmt.Errorf("INPUT.JOYX/JOYY: expected 0–2 arguments (gamepad, axis)")
 	}
 }
 
@@ -129,11 +129,11 @@ func (m *Module) inJoyButton(args []value.Value) (value.Value, error) {
 		g, ok1 := args[0].ToInt()
 		b, ok2 := args[1].ToInt()
 		if !ok1 || g < 0 || !ok2 || b < 0 {
-			return value.Nil, fmt.Errorf("INPUT.JOYBUTTON: (gamepad#, button#) must be non-negative ints")
+			return value.Nil, fmt.Errorf("INPUT.JOYBUTTON: (gamepad, button) must be non-negative ints")
 		}
 		gp, btn = int32(g), int32(b)
 	default:
-		return value.Nil, fmt.Errorf("INPUT.JOYBUTTON expects 1 or 2 arguments (button#) or (gamepad#, button#)")
+		return value.Nil, fmt.Errorf("INPUT.JOYBUTTON expects 1 or 2 arguments (button) or (gamepad, button)")
 	}
 	if !rl.IsGamepadAvailable(gp) {
 		return value.FromBool(false), nil

@@ -20,7 +20,7 @@ Export your maps in `.tmx` format (XML), place the tileset image next to the
 
 ## Loading & Freeing
 
-### `Tilemap.Load(path$)`
+### `Tilemap.Load(path)`
 
 Loads a Tiled `.tmx` file and its associated tileset image. Returns a handle to
 the tilemap.
@@ -52,14 +52,14 @@ to implement scrolling.
 
 ```basic
 ; Scroll the map so the player is centered
-cam_x = INT(player_x# - 480)
-cam_y = INT(player_y# - 270)
+cam_x = INT(player_x - 480)
+cam_y = INT(player_y - 270)
 Tilemap.Draw(map, -cam_x, -cam_y)
 ```
 
 ---
 
-### `Tilemap.DrawLayer(handle, layerName$, offsetX, offsetY)`
+### `Tilemap.DrawLayer(handle, layerName, offsetX, offsetY)`
 
 Draws a single named layer. Use this when you need to draw some layers behind
 the player and others in front.
@@ -92,8 +92,8 @@ Any non-zero tile in that layer counts as solid.
 
 ```basic
 ; Convert world pixel position to tile grid coordinates
-tile_x = INT(player_x# / 16)
-tile_y = INT(player_y# / 16)
+tile_x = INT(player_x / 16)
+tile_y = INT(player_y / 16)
 
 IF Tilemap.IsSolid(map, tile_x, tile_y + 2) THEN
     ; Player is standing on solid ground
@@ -118,7 +118,7 @@ Sets the collision category of a tile at runtime. `0` = walkable.
 
 ## Tile Data
 
-### `Tilemap.GetTile(handle, layerName$, tileX, tileY)`
+### `Tilemap.GetTile(handle, layerName, tileX, tileY)`
 
 Returns the tile GID (global ID) at a specific grid position on a named layer.
 Returns `0` for empty tiles.
@@ -129,7 +129,7 @@ tile_id = Tilemap.GetTile(map, "ground", 5, 3)
 
 ---
 
-### `Tilemap.SetTile(handle, layerName$, tileX, tileY, gid)`
+### `Tilemap.SetTile(handle, layerName, tileX, tileY, gid)`
 
 Changes a tile in a layer at runtime. Set `gid = 0` to erase.
 
@@ -174,55 +174,55 @@ Window.SetFPS(60)
 
 map = Tilemap.Load("assets/maps/level1.tmx")
 
-px# = 100
-py# = 100
-pvx# = 0
-pvy# = 0
+px = 100
+py = 100
+pvx = 0
+pvy = 0
 on_ground = 0
 TILE_SIZE = 16
 
 WHILE NOT Window.ShouldClose()
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
     ; --- INPUT ---
-    IF Input.KeyDown(KEY_A) THEN pvx# = pvx# - 400 * dt#
-    IF Input.KeyDown(KEY_D) THEN pvx# = pvx# + 400 * dt#
-    pvx# = pvx# * 0.85
+    IF Input.KeyDown(KEY_A) THEN pvx = pvx - 400 * dt
+    IF Input.KeyDown(KEY_D) THEN pvx = pvx + 400 * dt
+    pvx = pvx * 0.85
 
-    IF on_ground AND Input.KeyPressed(KEY_SPACE) THEN pvy# = -500
+    IF on_ground AND Input.KeyPressed(KEY_SPACE) THEN pvy = -500
 
     ; --- PHYSICS ---
-    pvy# = pvy# + 900 * dt#
-    px# = px# + pvx# * dt#
-    py# = py# + pvy# * dt#
+    pvy = pvy + 900 * dt
+    px = px + pvx * dt
+    py = py + pvy * dt
 
     ; --- TILE COLLISION ---
     on_ground = 0
 
     ; Floor check (below feet)
-    tx = INT(px# / TILE_SIZE)
-    ty = INT((py# + 24) / TILE_SIZE)
+    tx = INT(px / TILE_SIZE)
+    ty = INT((py + 24) / TILE_SIZE)
     IF Tilemap.IsSolid(map, tx, ty) THEN
-        py# = ty * TILE_SIZE - 24
-        pvy# = 0
+        py = ty * TILE_SIZE - 24
+        pvy = 0
         on_ground = 1
     ENDIF
 
     ; Ceiling check (above head)
-    ty_top = INT((py# - 16) / TILE_SIZE)
+    ty_top = INT((py - 16) / TILE_SIZE)
     IF Tilemap.IsSolid(map, tx, ty_top) THEN
-        py# = (ty_top + 1) * TILE_SIZE + 16
-        pvy# = 0
+        py = (ty_top + 1) * TILE_SIZE + 16
+        pvy = 0
     ENDIF
 
     ; --- CAMERA ---
-    cam_x = INT(px#) - 480
-    cam_y = INT(py#) - 270
+    cam_x = INT(px) - 480
+    cam_y = INT(py) - 270
 
     ; --- DRAW ---
     Render.Clear(40, 60, 80)
     Tilemap.Draw(map, -cam_x, -cam_y)
-    Draw.Rectangle(INT(px#) - cam_x - 8, INT(py#) - cam_y - 16, 16, 28, 255, 200, 80, 255)
+    Draw.Rectangle(INT(px) - cam_x - 8, INT(py) - cam_y - 16, 16, 28, 255, 200, 80, 255)
     Render.Frame()
 WEND
 

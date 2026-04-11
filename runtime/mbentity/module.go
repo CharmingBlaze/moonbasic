@@ -31,6 +31,16 @@ func (m *Module) BindTextureModule(t *texture.Module) { m.tex = t }
 func (m *Module) BindCamera(c runtime.Module) {
 	if cam, ok := c.(*mbcamera.Module); ok {
 		m.cam = cam
+		cam.SetEntityWorldPosHook(func(hs *heap.Store, eh heap.Handle) (float32, float32, float32, bool) {
+			if m.h == nil || hs != m.h {
+				return 0, 0, 0, false
+			}
+			p, ok := m.WorldPosFromEntityHandle(eh)
+			if !ok {
+				return 0, 0, 0, false
+			}
+			return p.X, p.Y, p.Z, true
+		})
 	}
 }
 

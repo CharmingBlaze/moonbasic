@@ -278,14 +278,8 @@ func (b *Builder) collectLocalFromStmt(stmt ast.Stmt, funcName string) {
 	}
 }
 
-// inferType deduces the type from an expression or variable suffix.
+// inferType deduces the type from an expression. Suffixes are no longer checked.
 func (b *Builder) inferType(expr ast.Expr, varName string) types.Tag {
-	// First, check for explicit suffix in variable name
-	suffixType := types.FromSuffix(varName)
-	if suffixType != types.Int { // Has explicit suffix (# $ ?)
-		return suffixType
-	}
-
 	// Unsuffixed names: float-first inference for implicit declarations (IR v3 / value union).
 	return b.inferFromExprImplicit(expr)
 }

@@ -309,7 +309,7 @@ func (m *Module) rSetPostProcess(args []value.Value) (value.Value, error) {
 
 func (m *Module) postBloomShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("POST.BLOOM expects (enable, threshold#, intensity#)")
+		return value.Nil, fmt.Errorf("POST.BLOOM expects (enable, threshold, intensity)")
 	}
 	on := valueTruthy(args[0])
 	postMu.Lock()
@@ -332,7 +332,7 @@ func (m *Module) postBloomShorthand(rt *runtime.Runtime, args ...value.Value) (v
 
 func (m *Module) postVignetteShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("POST.VIGNETTE expects (enable, strength#)")
+		return value.Nil, fmt.Errorf("POST.VIGNETTE expects (enable, strength)")
 	}
 	on := valueTruthy(args[0])
 	postMu.Lock()
@@ -352,7 +352,7 @@ func (m *Module) postVignetteShorthand(rt *runtime.Runtime, args ...value.Value)
 
 func (m *Module) postChromaticShorthand(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("POST.CHROMATIC expects (enable, offset#, [unused])")
+		return value.Nil, fmt.Errorf("POST.CHROMATIC expects (enable, offset, [unused])")
 	}
 	on := valueTruthy(args[0])
 	postMu.Lock()
@@ -474,7 +474,7 @@ func (m *Module) postSetTonemap(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) postSetParam(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("POST.SETPARAM expects (pass$, key$, value)")
+		return value.Nil, fmt.Errorf("POST.SETPARAM expects (pass, key, value)")
 	}
 	pass, err := rt.ArgString(args, 0)
 	if err != nil {

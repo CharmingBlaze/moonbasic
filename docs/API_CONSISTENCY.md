@@ -467,6 +467,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.GETRAY`** - args: handle, float, float
 - **`CAMERA.GETTARGET`** - args: handle -> returns handle
 - **`CAMERA.GETVIEWRAY`** - args: float, float, handle, int, int
+- **`CAMERA.GETYAW`** - args: handle — Alias of CAMERA.YAW.
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float -> returns bool
 - **`CAMERA.ISONSCREEN`** - args: handle, float, float, float, float -> returns bool
 - **`CAMERA.LERPTO`** - args: handle, int, float — Smoothly interpolate camera target toward an entity.
@@ -489,6 +490,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.SETFPSMODE`** - args: handle, float
 - **`CAMERA.SETMODE`** - args: handle, any — 0/1 or perspective/orthographic â€” alias-friendly CAMERA.SETPROJECTION
 - **`CAMERA.SETORBIT`** - args: handle, float, float, float, float, float, float
+- **`CAMERA.SETORBITKEYS`** - args: handle, float, float — Raylib key codes for orbit yaw (0 disables that side).
+- **`CAMERA.SETORBITKEYSPEED`** - args: handle, float — Keyboard orbit yaw rate in radians per second.
+- **`CAMERA.SETORBITLIMITS`** - args: handle, float, float, float, float — Clamp pitch (radians) and orbit distance for CAMERA.ORBIT (entity).
+- **`CAMERA.SETORBITSPEED`** - args: handle, float, float — Mouse drag sensitivity and mouse wheel zoom scale for orbit-follow.
 - **`CAMERA.SETPOS`** - args: handle, float, float, float
 - **`CAMERA.SETPOSITION`** - args: handle, float, float, float
 - **`CAMERA.SETPROJECTION`** - args: handle, int
@@ -496,16 +501,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.SETTARGET`** - args: handle, float, float, float
 - **`CAMERA.SETTARGETENTITY`** - args: handle, int
 - **`CAMERA.SETUP`** - args: handle, float, float, float
-- **`CAMERA.SHAKE`** - args: handle, float, float
 - **`CAMERA.SHAKE`** - args: handle, float, float — Shakes camera
+- **`CAMERA.SHAKE`** - args: handle, float, float
 - **`CAMERA.SMOOTHEXP`** - args: float, float, float, float -> returns float — Exponential smoothing: current toward target using (1-exp(-smoothHz*dt)); for orbit angles
 - **`CAMERA.TURN`** - args: handle, float, float, float
 - **`CAMERA.TURNLEFT`** - args: handle, float -> returns float
 - **`CAMERA.TURNRIGHT`** - args: handle, float -> returns float
 - **`CAMERA.UNPROJECT`** - args: handle, float, float -> returns handle — Screen (x,y) to world ray â€” alias of CAMERA.GETRAY / PICK
 - **`CAMERA.UPDATEFPS`** - args: handle
+- **`CAMERA.USEMOUSEORBIT`** - args: handle, bool — Enable/disable mouse contribution to CAMERA.ORBIT (entity) orbit-follow.
+- **`CAMERA.USEORBITRIGHTMOUSE`** - args: handle, bool — If true (default), mouse orbit only while right button is held; if false, mouse moves orbit without RMB.
 - **`CAMERA.WORLDTOSCREEN`** - args: handle, float, float, float -> returns handle
 - **`CAMERA.WORLDTOSCREEN2D`** - args: handle, float, float, float -> returns handle
+- **`CAMERA.YAW`** - args: handle — Orbit yaw in radians (internal state) for aligning entities with cam.Orbit(entity, dist).
 - **`CAMERA.ZOOM`** - args: handle, float
 
 ### CAMERA2D
@@ -1183,11 +1191,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### ENTITY
 
 - **`ENTITY.ADDFORCE`** - args: int, float, float, float
+- **`ENTITY.ADDPHYSICS`** - args: int, string, string — One-line Jolt body: motion (static/dynamic), shape (box/capsule/sphere)
+- **`ENTITY.ADDPHYSICS`** - args: int, string, string, float
 - **`ENTITY.ADDTRIANGLE`** - args: handle, int, int, int
 - **`ENTITY.ADDVERTEX`** - args: handle, float, float, float -> returns int
 - **`ENTITY.ALIGNTOVECTOR`** - args: int, float, float, float, int
-- **`ENTITY.ALPHA`** - args: int, float — Easy Mode: Set entity transparency (0.0 to 1.0)
 - **`ENTITY.ALPHA`** - args: int, float
+- **`ENTITY.ALPHA`** - args: int, float — Easy Mode: Set entity transparency (0.0 to 1.0)
 - **`ENTITY.ANIMATE`** - args: int, any, any
 - **`ENTITY.ANIMATETOWARD`** - args: int, float, float, float, float — Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE
 - **`ENTITY.ANIMCOUNT`** - args: int -> returns int
@@ -1341,6 +1351,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.POS`** - args: int, float, float, float — Easy Mode shorthand for positioning an entity
 - **`ENTITY.POSITION`** - args: int, float, float, float, any — Alias of ENTITY.SETPOSITION â€” set world or local position
 - **`ENTITY.POSITIONENTITY`** - args: int, float, float, float, any
+- **`ENTITY.PUSH`** - args: int, float, float, float — Apply Jolt impulse (requires ENTITY.ADDPHYSICS)
 - **`ENTITY.PUSHOUTOFGEOMETRY`** - args: int — Best-effort depenetration: nudges entity world Y up slightly
 - **`ENTITY.R`** - args: int -> returns float — Easy Mode: Get Roll of entity
 - **`ENTITY.R`** - args: int, float — Easy Mode: Set Roll of entity
@@ -1357,8 +1368,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SCALE`** - args: int, float, float, float
 - **`ENTITY.SCROLLMATERIAL`** - args: int, float, float — Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)
 - **`ENTITY.SENDMESSAGE`** - args: int, string
-- **`ENTITY.SETANIMATION`** - args: int, int, float — Second arg 0 clears image-sequence animation
 - **`ENTITY.SETANIMATION`** - args: int, handle, float — Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps
+- **`ENTITY.SETANIMATION`** - args: int, int, float — Second arg 0 clears image-sequence animation
 - **`ENTITY.SETANIMATION`** - args: int, handle, float, bool
 - **`ENTITY.SETANIMFRAME`** - args: int, float
 - **`ENTITY.SETANIMINDEX`** - args: int, any
@@ -1366,6 +1377,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SETANIMSPEED`** - args: int, float
 - **`ENTITY.SETANIMTIME`** - args: int, float
 - **`ENTITY.SETBOUNCE`** - args: int, float
+- **`ENTITY.SETBOUNCINESS`** - args: int, float — Sets restitution (bounciness) on an entity's Jolt body; 0 = no bounce. Alias of PHYSICS.BOUNCE.
 - **`ENTITY.SETBUOYANCY`** - args: int, float — Alias of PHYSICS.SETBUOYANCY â€” per-entity density hint for buoyancy
 - **`ENTITY.SETCOLLISIONGROUP`** - args: int, int — Alias for ENTITY.COLLISIONLAYER (collision group / layer 0..31)
 - **`ENTITY.SETDETAILTEXTURE`** - args: int, handle — Bind secondary map as MATERIAL_MAP_NORMAL for blending/detail
@@ -1375,8 +1387,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SETNAME`** - args: int, any
 - **`ENTITY.SETPOSITION`** - args: int, float, float, float, any
 - **`ENTITY.SETROTATION`** - args: int, float, float, float, any — Absolute pitch/yaw/roll degrees â€” alias of ENTITY.ROTATEENTITY
-- **`ENTITY.SETSHADER`** - args: handle, int — Binds an active Shader Library component to the entity.
 - **`ENTITY.SETSHADER`** - args: int, handle
+- **`ENTITY.SETSHADER`** - args: handle, int — Binds an active Shader Library component to the entity.
 - **`ENTITY.SETSPRITEFRAME`** - args: int, int — Set atlas frame on billboard bound to a TEXTURE object
 - **`ENTITY.SETSTATIC`** - args: int
 - **`ENTITY.SETTEXTUREFLIP`** - args: handle, float, float — Modifies UV scaling for horizontal/vertical mirroring.
@@ -1390,6 +1402,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SLIDE`** - args: int, any
 - **`ENTITY.SNAPTO`** - args: int, int — Instantly align one entity to another's transform.
 - **`ENTITY.SPRITEVIEWMODE`** - args: int, int
+- **`ENTITY.SQUASH`** - args: int, float, float — Juice: squash scale Y then tween back
 - **`ENTITY.STOPANIM`** - args: int
 - **`ENTITY.TAG`** - args: handle, string — Sets spatial tag.
 - **`ENTITY.TEXTURE`** - args: int, any
@@ -2757,6 +2770,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MODEL.ATTACHTO`** - args: handle, handle
 - **`MODEL.CHILDCOUNT`** - args: handle -> returns int
 - **`MODEL.CLONE`** - args: handle
+- **`MODEL.CREATEBOX`** - args: float, float, float -> returns handle
+- **`MODEL.CREATEBOX`** - args: float, float, float, bool -> returns handle
+- **`MODEL.CREATECAPSULE`** - args: float, float -> returns handle — EntityRef cylinder primitive (capsule collision via ENTITY.ADDPHYSICS)
 - **`MODEL.DETACH`** - args: handle
 - **`MODEL.DRAW`** - args: handle
 - **`MODEL.DRAWAT`** - args: handle, float, float, float, float, float, float, float, float, float
@@ -4615,9 +4631,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WORLD.FOGCOLOR`** - args: int, int, int
 - **`WORLD.FOGDENSITY`** - args: float — Set the fog density (0.0 to 1.0).
 - **`WORLD.FOGDENSITY`** - args: float
-- **`WORLD.FOGMODE`** - args: int
 - **`WORLD.FOGMODE`** - args: int — Set the fog mode: 0=None, 1=Linear, 2=Exponential.
+- **`WORLD.FOGMODE`** - args: int
 - **`WORLD.GETRAY`** - args: float, float, handle -> returns handle — Returns Array [px,py,pz,dx,dy,dz]
+- **`WORLD.GRAVITY`** - args: float, float, float — Alias: forwards to PHYSICS3D.SETGRAVITY (global Jolt gravity)
 - **`WORLD.ISREADY`** - args: handle -> returns bool
 - **`WORLD.PRELOAD`** - args: handle, int
 - **`WORLD.SCREENSHAKE`** - args: float, float — Shakes the primary camera.
@@ -4633,8 +4650,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WORLD.TOSCREEN`** - args: float, float, float, handle -> returns handle — Returns 2D Screen coords given 3D World coords and Camera.
 - **`WORLD.TOWORLD`** - args: float, float, float -> returns handle — Unproject screen x,y with depth along view ray (active 3D camera); returns [wx,wy,wz]
 - **`WORLD.TOWORLD`** - args: float, float, float, handle -> returns handle — Returns 3D World coords from 2D.
-- **`WORLD.UPDATE`** - args: float
 - **`WORLD.UPDATE`** - args: float — Update physics and world state
+- **`WORLD.UPDATE`** - args: float
 
 ### WRAP
 

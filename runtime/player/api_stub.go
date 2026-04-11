@@ -61,9 +61,7 @@ func (m *Module) playerJump(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) playerIsGrounded(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity#)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity)")
 	return value.FromBool(false), nil
 }
 
@@ -74,9 +72,7 @@ func (m *Module) playerGetLookTarget(rt *runtime.Runtime, args ...value.Value) (
 	if m.ent == nil || m.h == nil {
 		return value.FromInt(0), nil
 	}
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET expects (entity#, maxDist#)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET expects (entity, maxDist)")
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET: invalid entity")
@@ -107,9 +103,7 @@ func (m *Module) playerGetNearby(rt *runtime.Runtime, args ...value.Value) (valu
 	if m.ent == nil || m.h == nil {
 		return value.Nil, nil
 	}
-	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY expects (entity#, radius#, tag$)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY expects (entity, radius, tag)")
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY: invalid entity")
@@ -135,17 +129,13 @@ func (m *Module) playerGetNearby(rt *runtime.Runtime, args ...value.Value) (valu
 
 func (m *Module) playerOnTrigger(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.ONTRIGGER expects (entity#, callbackFunc$)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.ONTRIGGER expects (entity, callbackFunc)")
 	return value.Nil, fmt.Errorf("PLAYER.ONTRIGGER: VM callback from physics not wired — use LEVEL.BINDSCRIPT + collision checks")
 }
 
 func (m *Module) playerSetState(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.SETSTATE expects (entity#, state#)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.SETSTATE expects (entity, state)")
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTATE: invalid entity")
@@ -196,9 +186,7 @@ func (m *Module) playerSetGravityScale(rt *runtime.Runtime, args ...value.Value)
 
 func (m *Module) playerGetCrouch(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETCROUCH expects (entity#)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.GETCROUCH expects (entity)")
 	return value.FromBool(false), nil
 }
 
@@ -249,9 +237,7 @@ func (m *Module) playerGetSurfaceType(rt *runtime.Runtime, args ...value.Value) 
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("heap not bound")
 	}
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE expects (entity#)")
-	}
+		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE expects (entity)")
 	_, ok := args[0].ToInt()
 	if !ok {
 		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE: invalid entity")

@@ -30,7 +30,7 @@ Shuts down the physics simulation and frees all associated resources.
 
 Advances the physics simulation by one step. This should be called once per frame, usually at the beginning of the main loop.
 
-### `Physics3D.SetGravity(x#, y#, z#)`
+### `Physics3D.SetGravity(x, y, z)`
 
 Sets the global gravity for the physics world.
 
@@ -47,7 +47,7 @@ Physics3D.SetGravity(0, -9.8, 0)
 
 Creating a physics body is a multi-step process.
 
-### 1. `Body3D.Make(type$)`
+### 1. `Body3D.Make(type)`
 
 Creates a body *definition*. This is a temporary object used to build the body's properties before adding it to the world.
 
@@ -66,7 +66,7 @@ Adds a collision shape to the body definition.
 - `Body3D.AddSphere(bodyDefHandle, radius)`
 - `Body3D.AddCapsule(bodyDefHandle, height, radius)`
 
-### 3. `Body3D.Commit(bodyDefHandle, x#, y#, z#)`
+### 3. `Body3D.Commit(bodyDefHandle, x, y, z)`
 
 Finalizes the body and adds it to the physics world at the specified position. This returns the permanent handle for the physics body.
 
@@ -74,7 +74,7 @@ Finalizes the body and adds it to the physics world at the specified position. T
 
 ## Body Interaction
 
-### `Body3D.SetPos(bodyHandle, x#, y#, z#)`
+### `Body3D.SetPos(bodyHandle, x, y, z)`
 
 Teleports a physics body to a new position.
 
@@ -87,19 +87,19 @@ Teleports a physics body to a new position.
 Body3D.Activate(crate_body)
 ```
 
-### `Body3D.SetMass(bodyHandle, mass#)`
+### `Body3D.SetMass(bodyHandle, mass)`
 
 Sets the mass of a dynamic body. A mass of 0 makes the body immovable.
 
-### `Body3D.ApplyForce(bodyHandle, x#, y#, z#)`
+### `Body3D.ApplyForce(bodyHandle, x, y, z)`
 
 Applies a continuous force (like a push) to the center of a body.
 
-### `Body3D.ApplyImpulse(bodyHandle, x#, y#, z#)`
+### `Body3D.ApplyImpulse(bodyHandle, x, y, z)`
 
 Applies an instant force impulse (like a jump or explosion) to the center of a body.
 
-### `Body3D.SetLinearVel(bodyHandle, vx#, vy#, vz#)`
+### `Body3D.SetLinearVel(bodyHandle, vx, vy, vz)`
 
 Directly sets the linear velocity of a body.
 
@@ -115,7 +115,7 @@ Removes a body from the physics simulation and frees its resources.
 
 ## Queries (Linux + CGO + Jolt)
 
-### `Physics3D.Raycast(ox#, oy#, oz#, dx#, dy#, dz#, maxDist#)`
+### `Physics3D.Raycast(ox, oy, oz, dx, dy, dz, maxDist)`
 
 Casts a ray from `(ox,oy,oz)` in direction `(dx,dy,dz)`. The direction is **scaled** so its length does not exceed `maxDist`.
 

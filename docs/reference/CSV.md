@@ -32,8 +32,8 @@ Use this with **`JSON.*`** for structured data (`CSV.TOJSON` → `JSON.TOCSV` fo
 ## Example
 
 ```basic
-nl$ = CHR$(10)
-h = CSV.FROMSTRING("name,hp" + nl$ + "hero,10")
+nl = CHR(10)
+h = CSV.FROMSTRING("name,hp" + nl + "hero,10")
 PRINT(CSV.GET(h, 2, 1))
 j = CSV.TOJSON(h)
 JSON.FREE(j)

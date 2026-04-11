@@ -96,6 +96,14 @@ func (m *Module) registerCameraExtras(reg runtime.Registrar) {
 	reg.Register("CAMERA.ORBITCAMERA", "camera", m.camOrbitCamera)
 	reg.Register("CAMERA.SMOOTHEXP", "camera", m.camSmoothExp)
 	reg.Register("CAMERA.FREE", "camera", runtime.AdaptLegacy(m.camFree))
+	reg.Register("CAMERA.YAW", "camera", runtime.AdaptLegacy(m.camGetYaw))
+	reg.Register("CAMERA.GETYAW", "camera", runtime.AdaptLegacy(m.camGetYaw))
+	reg.Register("CAMERA.USEMOUSEORBIT", "camera", runtime.AdaptLegacy(m.camUseMouseOrbit))
+	reg.Register("CAMERA.USEORBITRIGHTMOUSE", "camera", runtime.AdaptLegacy(m.camUseOrbitRightMouse))
+	reg.Register("CAMERA.SETORBITKEYS", "camera", runtime.AdaptLegacy(m.camSetOrbitKeys))
+	reg.Register("CAMERA.SETORBITLIMITS", "camera", runtime.AdaptLegacy(m.camSetOrbitLimits))
+	reg.Register("CAMERA.SETORBITSPEED", "camera", runtime.AdaptLegacy(m.camSetOrbitSpeed))
+	reg.Register("CAMERA.SETORBITKEYSPEED", "camera", runtime.AdaptLegacy(m.camSetOrbitKeySpeed))
 }
 
 func (m *Module) camGetPos(args []value.Value) (value.Value, error) {

@@ -161,7 +161,7 @@ func (m *Module) registerEaseNoiseRandBuiltins(r runtime.Registrar) {
 	}))
 	r.Register("EASELERP", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 4 || args[3].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("EASELERP expects (a, b, t, easing$)")
+			return value.Nil, fmt.Errorf("EASELERP expects (a, b, t, easing)")
 		}
 		a, ok1 := argF(args[0])
 		b, ok2 := argF(args[1])

@@ -44,7 +44,7 @@ func (m *Module) entSetSpriteFrame(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.SETSPRITEFRAME: heap not bound")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETSPRITEFRAME expects (entity#, frameIndex#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETSPRITEFRAME expects (entity, frameIndex)")
 	}
 	eid, ok := m.entID(args[0])
 	if !ok || eid < 1 {
@@ -73,7 +73,7 @@ func (m *Module) entSetAnimation(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.SETANIMATION: heap not bound")
 	}
 	if len(args) != 3 && len(args) != 4 {
-		return value.Nil, fmt.Errorf("ENTITY.SETANIMATION expects (entity#, imageSequenceHandle, fps# [, loop?])")
+		return value.Nil, fmt.Errorf("ENTITY.SETANIMATION expects (entity, imageSequenceHandle, fps [, loop])")
 	}
 	eid, ok := m.entID(args[0])
 	if !ok || eid < 1 {

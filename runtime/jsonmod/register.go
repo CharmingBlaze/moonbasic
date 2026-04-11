@@ -14,7 +14,7 @@ func registerJSONCommands(m *Module, r runtime.Registrar) {
 	r.Register("JSON.FREE", "json", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return jFree(m, a) }))
 
 	r.Register("JSON.HAS", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jHas(m, rt, args...) })
-	r.Register("JSON.TYPE$", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jTypeStr(m, rt, args...) })
+	r.Register("JSON.TYPE", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jTypeStr(m, rt, args...) })
 	r.Register("JSON.LEN", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jLen(m, rt, args...) })
 	r.Register("JSON.KEYS", "json", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return jKeys(m, rt, args...) })
 

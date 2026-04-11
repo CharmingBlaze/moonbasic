@@ -84,8 +84,8 @@ func (m *Module) getAutoList(args []value.Value, name string) (*automationListOb
 
 // EVENT.LISTMAKE — empty list (optional path reserved for default export target; use LISTEXPORT).
 func (m *Module) evListMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("EVENT.LISTMAKE expects 1 argument (path$; may be empty for new list)")
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("EVENT.LISTMAKE expects 1 argument (path; may be empty for new list)")
 	}
 	_, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -100,8 +100,8 @@ func (m *Module) evListMake(rt *runtime.Runtime, args ...value.Value) (value.Val
 }
 
 func (m *Module) evListLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("EVENT.LISTLOAD expects 1 argument (path$)")
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("EVENT.LISTLOAD expects 1 argument (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -116,8 +116,8 @@ func (m *Module) evListLoad(rt *runtime.Runtime, args ...value.Value) (value.Val
 }
 
 func (m *Module) evListExport(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("EVENT.LISTEXPORT expects (list, path$)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("EVENT.LISTEXPORT expects (list, path)")
 	}
 	o, err := m.getAutoList(args[:1], "EVENT.LISTEXPORT")
 	if err != nil {

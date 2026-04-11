@@ -18,7 +18,7 @@ Creates a nav grid handle with a default **64×64** cell layout. Call `NAV.SETGR
 
 Frees the nav object.
 
-### `Nav.SetGrid(nav, gw, gh, cellSize#, originX#, originZ#)`
+### `Nav.SetGrid(nav, gw, gh, cellSize, originX, originZ)`
 
 Resizes the grid: `gw`/`gh` are tile counts (1–4096), `cellSize` is world units per cell (> 0), `(originX, originZ)` is the world origin of cell `(0,0)`. Clears blocked flags and marks the nav **not built** until `NAV.BUILD`.
 
@@ -33,7 +33,7 @@ Uses the model’s **axis-aligned bounding box** in world space:
 
 Marks the nav data ready (sets the internal `built` flag). Call after editing terrain/obstacles and before path queries.
 
-### `Nav.FindPath(nav, sx#, sy#, sz#, tx#, ty#, tz#)`
+### `Nav.FindPath(nav, sx, sy, sz, tx, ty, tz)`
 
 Runs A* on the grid from start to target world position. Returns a **`Path`** handle (may be invalid if no path). Call `PATH.FREE` when done.
 
@@ -105,14 +105,14 @@ Allocates a tree whose root is a **sequence** node.
 
 Returns the same handle (reserved for fluent style; the runtime keeps a single root sequence).
 
-### `BTree.AddCondition(bt, functionName$)` / `BTree.AddAction(bt, functionName$)`
+### `BTree.AddCondition(bt, functionName)` / `BTree.AddAction(bt, functionName)`
 
 Appends a child to the root **sequence**. On `BTREE.RUN`, children run in order:
 
 - **Condition** / **action** — invokes the named **user function** with one argument: the **agent handle** passed to `RUN`.
 - The function must return a value interpreted as boolean success for conditions; sequence stops on first failure.
 
-### `BTree.Run(bt, agentHandle, dt#)`
+### `BTree.Run(bt, agentHandle, dt)`
 
 Walks the tree; `dt` is reserved. User functions are resolved via the VM’s user-function invoker (same mechanism as `SCENE.*` loaders).
 

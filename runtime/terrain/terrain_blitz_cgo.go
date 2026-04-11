@@ -26,7 +26,7 @@ func registerTerrainBlitzAliases(m *Module, r runtime.Registrar) {
 // terrainModifyHeight sets one height sample near (x,z) — (terrain, x#, z#, height#, realtime#); realtime reserved.
 func (m *Module) terrainModifyHeight(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) < 4 || len(args) > 5 {
-		return value.Nil, fmt.Errorf("ModifyTerrain expects (terrain, x#, z#, height# [, realtime#])")
+		return value.Nil, fmt.Errorf("ModifyTerrain expects (terrain, x, z, height [, realtime])")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -72,7 +72,7 @@ func maxFloatTerrain(a, b float32) float32 {
 
 func (m *Module) terrainWorldToGridX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("TerrainX expects (terrain, worldX#, worldY#, worldZ#)")
+		return value.Nil, fmt.Errorf("TerrainX expects (terrain, worldX, worldY, worldZ)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -98,7 +98,7 @@ func (m *Module) terrainWorldToGridX(rt *runtime.Runtime, args ...value.Value) (
 
 func (m *Module) terrainWorldToGridZ(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("TerrainZ expects (terrain, worldX#, worldY#, worldZ#)")
+		return value.Nil, fmt.Errorf("TerrainZ expects (terrain, worldX, worldY, worldZ)")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -156,7 +156,7 @@ func (m *Module) terrainLoadHeightmap(rt *runtime.Runtime, args ...value.Value) 
 		return value.Nil, runtime.Errorf("LoadTerrain: heap not bound")
 	}
 	if len(args) < 1 || len(args) > 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LoadTerrain expects (path$ [, parent#])")
+		return value.Nil, fmt.Errorf("LoadTerrain expects (path [, parent])")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -170,14 +170,14 @@ func (m *Module) terrainLoadHeightmap(rt *runtime.Runtime, args ...value.Value) 
 
 func (m *Module) terrainDetailStub(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) < 2 || len(args) > 3 {
-		return value.Nil, fmt.Errorf("TerrainDetail expects (terrain, detailLevel# [, morph#])")
+		return value.Nil, fmt.Errorf("TerrainDetail expects (terrain, detailLevel [, morph])")
 	}
 	return terrainSetDetail(m, rt, args[0], args[1])
 }
 
 func (m *Module) terrainShadingStub(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("TerrainShading expects (terrain, state#)")
+		return value.Nil, fmt.Errorf("TerrainShading expects (terrain, state)")
 	}
 	_, _ = rt, args
 	return value.Nil, nil

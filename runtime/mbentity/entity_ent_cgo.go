@@ -20,6 +20,7 @@ const (
 	entKindCone
 	entKindMesh
 	entKindModel
+	entKindCapsule // MODEL.CREATECAPSULE — visual capsule (physics already used Jolt capsule)
 )
 	
 type complexTween struct {
@@ -75,6 +76,8 @@ type ent struct {
 	rlModel    rl.Model
 	hasRLModel bool
 	physBufIndex int
+	// physicsDriven: Jolt-linked body owns motion; ENTITY.UPDATE must not apply scripted vel/gravity.
+	physicsDriven bool
 	collisionLayer uint8
 
 	ext *entExt // Modular extensions (AI, Tweens, Animation State, Collision Results)

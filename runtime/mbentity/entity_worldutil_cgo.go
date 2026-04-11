@@ -74,7 +74,7 @@ func matMulDir(m rl.Matrix, v rl.Vector3) rl.Vector3 {
 
 func (m *Module) entMatrixElement(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.MATRIXELEMENT expects (entity#, row, col) with row,col in 0..3 (column-major world matrix)")
+		return value.Nil, fmt.Errorf("ENTITY.MATRIXELEMENT expects (entity, row, col) with row,col in 0..3 (column-major world matrix)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -108,7 +108,7 @@ func (m *Module) entMatrixElement(args []value.Value) (value.Value, error) {
 
 func (m *Module) entDeltaAxis(args []value.Value, axis int) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.DELTA* expects (entityA#, entityB#)")
+		return value.Nil, fmt.Errorf("ENTITY.DELTA* expects (entityA, entityB)")
 	}
 	ia, ok1 := m.entID(args[0])
 	ib, ok2 := m.entID(args[1])
@@ -136,7 +136,7 @@ func (m *Module) entDeltaAxis(args []value.Value, axis int) (value.Value, error)
 
 func (m *Module) entTFormPoint(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.TFORMPOINT expects (x#, y#, z#, srcEntity#, dstEntity#)")
+		return value.Nil, fmt.Errorf("ENTITY.TFORMPOINT expects (x, y, z, srcEntity, dstEntity)")
 	}
 	x, ok1 := args[0].ToFloat()
 	y, ok2 := args[1].ToFloat()
@@ -175,7 +175,7 @@ func (m *Module) entTFormPoint(args []value.Value) (value.Value, error) {
 
 func (m *Module) entTFormVector(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.TFORMVECTOR expects (x#, y#, z#, srcEntity#, dstEntity#)")
+		return value.Nil, fmt.Errorf("ENTITY.TFORMVECTOR expects (x, y, z, srcEntity, dstEntity)")
 	}
 	x, ok1 := args[0].ToFloat()
 	y, ok2 := args[1].ToFloat()
@@ -218,7 +218,7 @@ func (m *Module) entInView(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.INVIEW: heap not bound")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.INVIEW expects (entity#, camera)")
+		return value.Nil, fmt.Errorf("ENTITY.INVIEW expects (entity, camera)")
 	}
 	eid, ok := m.entID(args[0])
 	if !ok || eid < 1 {
@@ -268,7 +268,7 @@ func entityInFrustum(m *Module, e *ent, f mbcamera.Frustum) bool {
 	case entKindBox, entKindMesh, entKindModel:
 		mn, mx := m.aabbWorldMinMax(e)
 		return f.AABBVisible(mn.X, mn.Y, mn.Z, mx.X, mx.Y, mx.Z)
-	case entKindCylinder:
+	case entKindCylinder, entKindCapsule:
 		h := e.cylH * e.scale.Y
 		rs := e.scale.X
 		if e.scale.Z > rs {

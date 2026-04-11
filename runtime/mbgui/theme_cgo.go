@@ -129,7 +129,7 @@ func registerThemeCommands(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.THEMEAPPLY", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("GUI.THEMEAPPLY expects (name$) — see docs/reference/GUI.md (built-in + raygui styles)")
+			return value.Nil, fmt.Errorf("GUI.THEMEAPPLY expects (name) — see docs/reference/GUI.md (built-in + raygui styles)")
 		}
 		name, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -156,9 +156,9 @@ func registerThemeCommands(m *Module, reg runtime.Registrar) {
 		}
 		return value.Nil, nil
 	})
-	reg.Register("GUI.THEMENAMES$", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg.Register("GUI.THEMENAMES", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("GUI.THEMENAMES$ expects 0 arguments")
+			return value.Nil, fmt.Errorf("GUI.THEMENAMES expects 0 arguments")
 		}
 		return rt.RetString(joinThemeNamesForDocs()), nil
 	})

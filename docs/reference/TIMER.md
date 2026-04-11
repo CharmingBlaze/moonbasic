@@ -20,7 +20,7 @@ Delta-time driven (game time), not tied to **`time.Now`**:
 | **`TIMER.START(timer)`** | Start from zero. |
 | **`TIMER.STOP(timer)`** | Pause advancement. |
 | **`TIMER.REWIND(timer)`** | Reset **`elapsed`** to zero. |
-| **`TIMER.SETLOOP(timer, loop?)`** | If **`TRUE`**, **`TIMER.UPDATE`** wraps and **`TIMER.DONE`** pulses each cycle. |
+| **`TIMER.SETLOOP(timer, loop)`** | If **`TRUE`**, **`TIMER.UPDATE`** wraps and **`TIMER.DONE`** pulses each cycle. |
 | **`TIMER.UPDATE(timer, dt)`** | Advance by **`dt`** (non-negative). |
 | **`TIMER.DONE(timer)`** | **`TRUE`** for **one** call when a cycle completes (edge-triggered). |
 | **`TIMER.FRACTION(timer)`** | **`elapsed/duration`**, clamped to **`0..1`**. |

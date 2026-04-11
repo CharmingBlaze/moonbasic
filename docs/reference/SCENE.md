@@ -10,11 +10,11 @@ The module must receive a **user-function invoker** from the host (same mechanis
 
 ## Registration
 
-### `Scene.Register(sceneId$, loadFunctionName$)`
+### `Scene.Register(sceneId, loadFunctionName)`
 
 Maps a string id (stored uppercase) to the **name of a parameterless user function** that runs when the scene is loaded. That function should create state, load assets, and wire subsystems.
 
-### `Scene.SetHandlers(updateFunctionName$, drawFunctionName$)`
+### `Scene.SetHandlers(updateFunctionName, drawFunctionName)`
 
 Sets global names for:
 
@@ -27,12 +27,12 @@ Names are folded to uppercase.
 
 ## Loading
 
-### `Scene.Load(sceneId$)` / `Scene.LoadAsync(sceneId$)`
+### `Scene.Load(sceneId)` / `Scene.LoadAsync(sceneId)`
 
 - **Load** — runs the loader **immediately** and clears any pending async load.
 - **LoadAsync** — queues the id; the load runs at the **start** of the next `SCENE.UPDATE` call.
 
-### `Scene.LoadWithTransition(sceneId$, kind$, duration#)`
+### `Scene.LoadWithTransition(sceneId, kind, duration)`
 
 Starts a transition **out**, then loads the scene when the transition completes, then optionally fades **in**:
 
@@ -45,7 +45,7 @@ Uses [TRANSITION](TRANSITION.md) (`TRANSITION.FADEOUT`, `TRANSITION.WIPE`, `TRAN
 
 ## Frame hooks
 
-### `Scene.Update(dt#)`
+### `Scene.Update(dt)`
 
 1. Runs a pending **async** load if any.
 2. Advances **transition** state (loads pending scene after fade-out when transition finishes).

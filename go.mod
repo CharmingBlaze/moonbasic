@@ -22,6 +22,8 @@ require (
 	modernc.org/sqlite v1.48.1
 )
 
+replace github.com/bbitechnologies/jolt-go => ./third_party/jolt-go
+
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect

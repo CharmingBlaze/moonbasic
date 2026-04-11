@@ -161,7 +161,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) < 2 {
-			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECT expects material handle, effectName$")
+			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECT expects material handle, effectName")
 		}
 		mo, err := m.getMaterial(args, 0, "MATERIAL.SETEFFECT")
 		if err != nil {
@@ -182,7 +182,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 3 {
-			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECTPARAM expects (matHandle, paramName$, value#)")
+			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECTPARAM expects (matHandle, paramName, value)")
 		}
 		mo, err := m.getMaterial(args, 0, "MATERIAL.SETEFFECTPARAM")
 		if err != nil {

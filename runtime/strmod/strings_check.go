@@ -106,7 +106,7 @@ func registerStringsCheck(r runtime.Registrar) {
 	})
 	r.Register("ISTYPE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("ISTYPE expects 2 arguments (value, typename$)")
+			return value.Value{}, runtime.Errorf("ISTYPE expects 2 arguments (value, typename)")
 		}
 		want, err := rt.ArgString(args, 1)
 		if err != nil {

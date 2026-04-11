@@ -23,7 +23,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 4 {
-			return value.Nil, fmt.Errorf("MODEL.MOVE expects (model, dx#, dy#, dz#)")
+			return value.Nil, fmt.Errorf("MODEL.MOVE expects (model, dx, dy, dz)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.MOVE")
 		if err != nil {
@@ -67,7 +67,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 4 {
-			return value.Nil, fmt.Errorf("MODEL.SETROT expects (model, rx#, ry#, rz#) radians")
+			return value.Nil, fmt.Errorf("MODEL.SETROT expects (model, rx, ry, rz) radians")
 		}
 		o, err := m.getModel(args, 0, "MODEL.SETROT")
 		if err != nil {
@@ -91,7 +91,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 4 {
-			return value.Nil, fmt.Errorf("MODEL.ROTATE expects (model, drx#, dry#, drz#) radians")
+			return value.Nil, fmt.Errorf("MODEL.ROTATE expects (model, drx, dry, drz) radians")
 		}
 		o, err := m.getModel(args, 0, "MODEL.ROTATE")
 		if err != nil {
@@ -139,7 +139,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 4 {
-			return value.Nil, fmt.Errorf("MODEL.SETSCALE expects (model, sx#, sy#, sz#)")
+			return value.Nil, fmt.Errorf("MODEL.SETSCALE expects (model, sx, sy, sz)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.SETSCALE")
 		if err != nil {
@@ -163,7 +163,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.SETSCALEUNIFORM expects (model, s#)")
+			return value.Nil, fmt.Errorf("MODEL.SETSCALEUNIFORM expects (model, s)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.SETSCALEUNIFORM")
 		if err != nil {
@@ -233,7 +233,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 10 {
-			return value.Nil, fmt.Errorf("MODEL.DRAWAT expects (model, x#,y#,z#, rx#,ry#,rz#, sx#,sy#,sz#)")
+			return value.Nil, fmt.Errorf("MODEL.DRAWAT expects (model, x,y,z, rx,ry,rz, sx,sy,sz)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.DRAWAT")
 		if err != nil {
@@ -268,7 +268,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 15 {
-			return value.Nil, fmt.Errorf("MODEL.DRAWEX expects (model, x,y,z, ax,ay,az, angle#, sx,sy,sz, r,g,b,a)")
+			return value.Nil, fmt.Errorf("MODEL.DRAWEX expects (model, x,y,z, ax,ay,az, angle, sx,sy,sz, r,g,b,a)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.DRAWEX")
 		if err != nil {
@@ -365,7 +365,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.SETMETAL expects (model, amount#)")
+			return value.Nil, fmt.Errorf("MODEL.SETMETAL expects (model, amount)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.SETMETAL")
 		if err != nil {
@@ -386,7 +386,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.SETROUGH expects (model, amount#)")
+			return value.Nil, fmt.Errorf("MODEL.SETROUGH expects (model, amount)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.SETROUGH")
 		if err != nil {
@@ -408,7 +408,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("MODEL.LOADANIMATIONS expects (model, path$)")
+			return value.Nil, fmt.Errorf("MODEL.LOADANIMATIONS expects (model, path)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.LOADANIMATIONS")
 		if err != nil {
@@ -437,7 +437,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.UPDATEANIM expects (model, dt#)")
+			return value.Nil, fmt.Errorf("MODEL.UPDATEANIM expects (model, dt)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.UPDATEANIM")
 		if err != nil {
@@ -498,7 +498,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 
 	reg.Register("MODEL.LOOP", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.LOOP expects (model, enable?)")
+			return value.Nil, fmt.Errorf("MODEL.LOOP expects (model, enable)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.LOOP")
 		if err != nil {
@@ -514,7 +514,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 
 	reg.Register("MODEL.SETSPEED", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.SETSPEED expects (model, fps#)")
+			return value.Nil, fmt.Errorf("MODEL.SETSPEED expects (model, fps)")
 		}
 		o, err := m.getModel(args, 0, "MODEL.SETSPEED")
 		if err != nil {
@@ -620,20 +620,20 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		}
 		return value.FromInt(int64(len(o.anims))), nil
 	}))
-	reg.Register("MODEL.ANIMNAME$", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg.Register("MODEL.ANIMNAME", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("MODEL.ANIMNAME$ expects (model, idx)")
+			return value.Nil, fmt.Errorf("MODEL.ANIMNAME expects (model, idx)")
 		}
-		o, err := m.getModel(args, 0, "MODEL.ANIMNAME$")
+		o, err := m.getModel(args, 0, "MODEL.ANIMNAME")
 		if err != nil {
 			return value.Nil, err
 		}
 		idx, ok := argInt(args[1])
 		if !ok || int(idx) < 0 || int(idx) >= len(o.anims) {
-			return value.Nil, fmt.Errorf("MODEL.ANIMNAME$: invalid index")
+			return value.Nil, fmt.Errorf("MODEL.ANIMNAME: invalid index")
 		}
 		return rt.RetString(o.anims[idx].GetName()), nil
 	})

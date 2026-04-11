@@ -119,7 +119,7 @@ func (m *Module) wSetTitle(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("WINDOW.SETTITLE expects title$")
+		return value.Nil, fmt.Errorf("WINDOW.SETTITLE expects title")
 	}
 	title, err := rt.ArgString(args, 0)
 	if err != nil {

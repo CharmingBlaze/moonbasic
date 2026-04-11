@@ -18,6 +18,7 @@ import (
 func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {
 	// One-line setup
 	r.Register("ENTITY.PHYSICS", "entity", runtime.AdaptLegacy(m.entPhysicsAuto))
+	r.Register("ENTITY.ADDPHYSICS", "entity", runtime.AdaptLegacy(m.entAddPhysics))
 	r.Register("PHYSICS.AUTO", "entity", runtime.AdaptLegacy(m.entPhysicsAuto))
 	r.Register("ENTITY.PHYSICSMOTION", "entity", runtime.AdaptLegacy(m.entPhysicsMotion))
 
@@ -26,6 +27,7 @@ func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {
 	r.Register("PHYSICS.SIZE", "entity", runtime.AdaptLegacy(m.physSetSize))
 	r.Register("PHYSICS.FRICTION", "entity", runtime.AdaptLegacy(m.physSetFriction))
 	r.Register("PHYSICS.BOUNCE", "entity", runtime.AdaptLegacy(m.physSetBounce))
+	r.Register("ENTITY.SETBOUNCINESS", "entity", runtime.AdaptLegacy(m.physSetBounce))
 	r.Register("PHYSICS.BUILD", "entity", runtime.AdaptLegacy(m.physBuild))
 
 	r.Register("PHYSICS.IMPULSE", "entity", runtime.AdaptLegacy(m.physImpulse))
@@ -38,10 +40,54 @@ func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {
 	r.Register("PHYSICS.CCD", "entity", runtime.AdaptLegacy(m.physSetCCD))
 }
 
+// entAddPhysics(entity, motion$, shape$ [, mass#]) — motion "static"|"dynamic", shape "box"|"capsule"|"sphere".
+func (m *Module) entAddPhysics(args []value.Value) (value.Value, error) {
+	if len(args) < 3 {
+		return value.Nil, fmt.Errorf("ENTITY.ADDPHYSICS expects (entity, motion$, shape$ [, mass#])")
+	}
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("ENTITY.ADDPHYSICS: heap not bound")
+	}
+	motion := ""
+	shape := "BOX"
+	if args[1].Kind == value.KindString {
+		if s, ok := m.h.GetString(int32(args[1].IVal)); ok {
+			motion = strings.ToUpper(strings.TrimSpace(s))
+		}
+	}
+	if len(args) >= 3 && args[2].Kind == value.KindString {
+		if s, ok := m.h.GetString(int32(args[2].IVal)); ok {
+			shape = strings.ToUpper(strings.TrimSpace(s))
+		}
+	}
+	mass := 1.0
+	if strings.Contains(motion, "STATIC") || motion == "STATIC" {
+		mass = 0
+	}
+	if len(args) >= 4 {
+		if v, ok := args[3].ToFloat(); ok {
+			mass = v
+		}
+	}
+	shapeKey := "BOX"
+	switch {
+	case strings.Contains(shape, "CAPSULE"):
+		shapeKey = "CAPSULE"
+	case strings.Contains(shape, "SPHERE"):
+		shapeKey = "SPHERE"
+	case strings.Contains(shape, "MESH"):
+		shapeKey = "MESH"
+	default:
+		shapeKey = "BOX"
+	}
+	idx := m.h.Intern(shapeKey)
+	return m.entPhysicsAuto([]value.Value{args[0], value.FromStringIndex(idx), value.FromFloat(mass)})
+}
+
 // entPhysicsAuto(id, type$, mass# [, friction#, bounce#])
 func (m *Module) entPhysicsAuto(args []value.Value) (value.Value, error) {
 	if len(args) < 1 {
-		return value.Nil, fmt.Errorf("ENTITY.PHYSICS expects (id [, type$, mass#, friction#, bounce#])")
+		return value.Nil, fmt.Errorf("ENTITY.PHYSICS expects (id [, type, mass, friction, bounce])")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -66,7 +112,7 @@ func (m *Module) entPhysicsAuto(args []value.Value) (value.Value, error) {
 	if len(args) >= 4 {
 		fric, _ = args[3].ToFloat()
 	}
-	bounce := 0.2
+	bounce := 0.0
 	if len(args) >= 5 {
 		bounce, _ = args[4].ToFloat()
 	}
@@ -104,12 +150,19 @@ func (m *Module) entPhysicsAuto(args []value.Value) (value.Value, error) {
 		motion = jolt.MotionTypeStatic
 	}
 
+	allowedDOFs := 0
+	if motion == jolt.MotionTypeDynamic && typ == "CAPSULE" {
+		// World-space translation + yaw only — stops capsule tipping like a bowling pin.
+		allowedDOFs = jolt.AllowedDOFsPlatformer
+	}
+
 	// 1. Create Builder
 	bh, err := m.h.Alloc(&mbphysics3d.BuilderObj{
-		Motion:      motion,
-		Friction:    float32(fric),
-		Restitution: float32(bounce),
-		EnableCCD:   enableCCD,
+		Motion:        motion,
+		Friction:      float32(fric),
+		Restitution:   float32(bounce),
+		EnableCCD:     enableCCD,
+		AllowedDOFs:   allowedDOFs,
 	})
 	if err != nil {
 		return value.Nil, err
@@ -190,7 +243,7 @@ var pendingBuilders = make(map[int64]heap.Handle)
 
 func (m *Module) physSetShape(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PHYSICS.SHAPE expects (id, type$)")
+		return value.Nil, fmt.Errorf("PHYSICS.SHAPE expects (id, type)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity") }
@@ -227,7 +280,7 @@ func (m *Module) physSetSize(args []value.Value) (value.Value, error) {
 
 func (m *Module) physSetFriction(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PHYSICS.FRICTION expects (id, friction#)")
+		return value.Nil, fmt.Errorf("PHYSICS.FRICTION expects (id, friction)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, nil }
@@ -253,7 +306,7 @@ func (m *Module) physSetFriction(args []value.Value) (value.Value, error) {
 
 func (m *Module) physSetBounce(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PHYSICS.BOUNCE expects (id, restitution#)")
+		return value.Nil, fmt.Errorf("PHYSICS.BOUNCE expects (id, restitution)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, nil }
@@ -276,7 +329,7 @@ func (m *Module) physSetBounce(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) physBuild(args []value.Value) (value.Value, error) {
-	if len(args) < 1 { return value.Nil, fmt.Errorf("PHYSICS.BUILD expects (id [, mass#])") }
+	if len(args) < 1 { return value.Nil, fmt.Errorf("PHYSICS.BUILD expects (id [, mass])") }
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, nil }
 	bh, ok := pendingBuilders[id]
@@ -388,7 +441,7 @@ func (m *Module) physSetRotation(args []value.Value) (value.Value, error) {
 
 func (m *Module) physSetGravityFactor(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PHYSICS.GRAVITY expects (id, factor#)")
+		return value.Nil, fmt.Errorf("PHYSICS.GRAVITY expects (id, factor)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, nil }

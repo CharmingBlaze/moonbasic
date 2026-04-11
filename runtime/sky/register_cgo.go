@@ -63,7 +63,7 @@ func skyFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 func skyUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SKY.UPDATE expects sky, dt#")
+		return value.Nil, fmt.Errorf("SKY.UPDATE expects sky, dt")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -109,7 +109,7 @@ func skyDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 func skySetTime(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SKY.SETTIME expects sky, t#")
+		return value.Nil, fmt.Errorf("SKY.SETTIME expects sky, t")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -129,7 +129,7 @@ func skySetTime(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Valu
 
 func skySetDayLength(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SKY.SETDAYLENGTH expects sky, seconds#")
+		return value.Nil, fmt.Errorf("SKY.SETDAYLENGTH expects sky, seconds")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {

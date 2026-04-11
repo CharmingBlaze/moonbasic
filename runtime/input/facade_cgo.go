@@ -208,7 +208,7 @@ func (m *Module) keyUp(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 func (m *Module) gpAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("GAMEPAD.AXIS expects (padHandle, gamepad#, axis#)")
+		return value.Nil, fmt.Errorf("GAMEPAD.AXIS expects (padHandle, gamepad, axis)")
 	}
 	gp, ok1 := args[1].ToInt()
 	ax, ok2 := args[2].ToInt()
@@ -225,7 +225,7 @@ func (m *Module) gpAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 func (m *Module) gpButton(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("GAMEPAD.BUTTON expects (padHandle, gamepad#, button#)")
+		return value.Nil, fmt.Errorf("GAMEPAD.BUTTON expects (padHandle, gamepad, button)")
 	}
 	gp, ok1 := args[1].ToInt()
 	btn, ok2 := args[2].ToInt()

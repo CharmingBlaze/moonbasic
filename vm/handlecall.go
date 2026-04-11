@@ -91,7 +91,8 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		case "END":
 			return "CAMERA.END", false, true
 		case "BEGIN", "SETPOS", "SETTARGET", "LOOKAT", "SETFOV", "SETPROJECTION", "MOVE", "GETRAY", "GETVIEWRAY", "GETMATRIX",
-			"GETPOS", "GETTARGET", "SETUP", "FREE", "WORLDTOSCREEN", "ISONSCREEN", "MOUSERAY", "ZOOM", "ORBIT", "SETORBIT":
+			"GETPOS", "GETTARGET", "SETUP", "FREE", "WORLDTOSCREEN", "ISONSCREEN", "MOUSERAY", "ZOOM", "ORBIT", "SETORBIT",
+			"YAW", "GETYAW", "USEMOUSEORBIT", "USEORBITRIGHTMOUSE", "SETORBITKEYS", "SETORBITLIMITS", "SETORBITSPEED", "SETORBITKEYSPEED":
 			return "CAMERA." + mn, true, true
 		case "SETROT":
 			return "CAMERA.ROTATE", true, true
@@ -106,8 +107,22 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		}
 	case heap.TagEntityRef:
 		switch mn {
-		case "SETPOS", "MOVE":
+		case "SETPOS":
 			return "ENTITY.SETPOSITION", true, true
+		case "MOVE":
+			return "ENTITY.MOVE", true, true
+		case "PUSH":
+			return "ENTITY.PUSH", true, true
+		case "JUMP":
+			return "ENTITY.JUMP", true, true
+		case "ISGROUNDED", "GROUNDED":
+			return "ENTITY.GROUNDED", true, true
+		case "SQUASH":
+			return "ENTITY.SQUASH", true, true
+		case "ADDPHYSICS":
+			return "ENTITY.ADDPHYSICS", true, true
+		case "SETBOUNCINESS", "BOUNCINESS":
+			return "ENTITY.SETBOUNCINESS", true, true
 		case "SETSCALE":
 			return "ENTITY.SCALE", true, true
 		case "SETROT":
@@ -540,10 +555,10 @@ func HandleCallSuggestions(tag uint16) []string {
 	var out []string
 	switch tag {
 	case heap.TagCamera:
-		out = []string{"Begin", "End", "FOV", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "IsOnScreen",
-			"Look", "LookAt", "MouseRay", "Move", "Orbit", "Pos", "SetFOV", "SetOrbit", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen", "Zoom"}
+		out = []string{"Begin", "End", "FOV", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "GetYaw", "IsOnScreen",
+			"Look", "LookAt", "MouseRay", "Move", "Orbit", "Pos", "SetFOV", "SetOrbit", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen", "Yaw", "Zoom"}
 	case heap.TagEntityRef:
-		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "Pos", "Rot", "Scale", "Show", "Turn"}
+		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "Pos", "Rot", "Scale", "SetBounciness", "Show", "Turn"}
 	case heap.TagCamera2D:
 		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
 	case heap.TagRenderTexture:

@@ -92,7 +92,7 @@ func (m *Module) physApplyTorque(args []value.Value) (value.Value, error) {
 
 func (m *Module) physOnHit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.ONHIT expects (entity, macroFuncName$)")
+		return value.Nil, fmt.Errorf("ENTITY.ONHIT expects (entity, macroFuncName)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }

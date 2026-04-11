@@ -14,7 +14,7 @@ import (
 func registerTextControls(m *Module, reg runtime.Registrar) {
 	reg.Register("GUI.TEXTBOX", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 7 {
-			return value.Nil, fmt.Errorf("GUI.TEXTBOX expects (x,y,w,h, text$, maxLen, editMode?)")
+			return value.Nil, fmt.Errorf("GUI.TEXTBOX expects (x,y,w,h, text, maxLen, editMode)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -34,7 +34,7 @@ func registerTextControls(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.SPINNER", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 9 {
-			return value.Nil, fmt.Errorf("GUI.SPINNER expects (x,y,w,h, text$, value, min, max, editMode?)")
+			return value.Nil, fmt.Errorf("GUI.SPINNER expects (x,y,w,h, text, value, min, max, editMode)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -63,7 +63,7 @@ func registerTextControls(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.VALUEBOX", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 9 {
-			return value.Nil, fmt.Errorf("GUI.VALUEBOX expects (x,y,w,h, text$, value, min, max, editMode?)")
+			return value.Nil, fmt.Errorf("GUI.VALUEBOX expects (x,y,w,h, text, value, min, max, editMode)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -92,7 +92,7 @@ func registerTextControls(m *Module, reg runtime.Registrar) {
 	})
 	reg.Register("GUI.VALUEBOXFLOAT", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 8 {
-			return value.Nil, fmt.Errorf("GUI.VALUEBOXFLOAT expects (x,y,w,h, label$, value#, textBuf$, editMode?)")
+			return value.Nil, fmt.Errorf("GUI.VALUEBOXFLOAT expects (x,y,w,h, label, value, textBuf, editMode)")
 		}
 		b, err := rectArgs(args, 0)
 		if err != nil {
@@ -117,9 +117,9 @@ func registerTextControls(m *Module, reg runtime.Registrar) {
 		lastValueBoxFloatS = buf
 		return rt.RetFloat(float64(v)), nil
 	})
-	reg.Register("GUI.VALUEBOXFLOATTEXT$", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	reg.Register("GUI.VALUEBOXFLOATTEXT", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("GUI.VALUEBOXFLOATTEXT$ expects 0 arguments (call after GUI.VALUEBOXFLOAT in the same frame)")
+			return value.Nil, fmt.Errorf("GUI.VALUEBOXFLOATTEXT expects 0 arguments (call after GUI.VALUEBOXFLOAT in the same frame)")
 		}
 		return rt.RetString(lastValueBoxFloatS), nil
 	})

@@ -58,7 +58,7 @@ func (m *Module) texLoad(rt *runtime.Runtime, args ...value.Value) (value.Value,
 		return value.Nil, runtime.Errorf("TEXTURE.LOAD: heap not bound")
 	}
 	if len(args) < 1 || len(args) > 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("TEXTURE.LOAD expects (path$ [, flags#])")
+		return value.Nil, fmt.Errorf("TEXTURE.LOAD expects (path [, flags])")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {

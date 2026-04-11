@@ -28,7 +28,7 @@ Closes the audio device and releases all audio resources.
 
 Sounds are loaded completely into memory, making them fast to play. Ideal for short, repeatable effects like jumps or explosions.
 
-### `Audio.LoadSound(filePath$)`
+### `Audio.LoadSound(filePath)`
 
 Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a handle.
 
@@ -45,7 +45,7 @@ Raylib does not expose a full OpenAL-style HRTF; this is a lightweight **pan + a
 
 Plays a loaded sound effect. Multiple instances of the same sound can overlap.
 
-### `Audio.PlayVarySound(sound, minPitch#, maxPitch#)`
+### `Audio.PlayVarySound(sound, minPitch, maxPitch)`
 
 Picks a **uniform random** pitch between **`minPitch`** and **`maxPitch`**, applies it with **`Audio.SetSoundPitch`**, then plays the sound. Pitch stays on the sound object until changed again.
 
@@ -63,7 +63,7 @@ Unloads a sound from memory.
 
 Music is streamed from the file on disk, which uses less memory. Ideal for long background tracks.
 
-### `Audio.LoadMusic(filePath$)`
+### `Audio.LoadMusic(filePath)`
 
 Loads a music file to be streamed (e.g., `.mp3`, `.ogg`). Returns a handle.
 

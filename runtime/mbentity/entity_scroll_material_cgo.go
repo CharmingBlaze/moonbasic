@@ -27,7 +27,7 @@ func (m *Module) entScrollMaterial(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.SCROLLMATERIAL: heap not bound")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.SCROLLMATERIAL expects (entity#, du#, dv#)")
+		return value.Nil, fmt.Errorf("ENTITY.SCROLLMATERIAL expects (entity, du, dv)")
 	}
 	eid, ok := m.entID(args[0])
 	if !ok || eid < 1 {
@@ -58,7 +58,7 @@ func (m *Module) entSetDetailTexture(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.SETDETAILTEXTURE: heap not bound")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETDETAILTEXTURE expects (entity#, textureHandle)")
+		return value.Nil, fmt.Errorf("ENTITY.SETDETAILTEXTURE expects (entity, textureHandle)")
 	}
 	eid, ok := m.entID(args[0])
 	if !ok || eid < 1 {

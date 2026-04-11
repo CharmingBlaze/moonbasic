@@ -62,7 +62,7 @@ func (m *Module) registerMathBuiltins(r runtime.Registrar) {
 	}))
 	r.Register("POINTDIR3D", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 7 || args[6].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("POINTDIR3D expects (x1,y1,z1,x2,y2,z2, axis$)")
+			return value.Nil, fmt.Errorf("POINTDIR3D expects (x1,y1,z1,x2,y2,z2, axis)")
 		}
 		axis, err := rt.ArgString(args, 6)
 		if err != nil {

@@ -24,7 +24,6 @@ func registerAll(m *Module, r runtime.Registrar) {
 	r.Register("ARRAYSPLICE", "array", m.arraySplice)
 	r.Register("ARRAYSLICE", "array", m.arraySlice)
 	r.Register("ARRAYJOINS", "array", m.arrayJoins)
-	r.Register("ARRAYJOINS$", "array", m.arrayJoins)
 	r.Register("ARRAYFREE", "array", m.arrayFree)
 	r.Register("ERASE", "array", m.arrayFree)
 	r.Register("FREE.ALL", "array", m.freeAll)
@@ -409,7 +408,7 @@ func (m *Module) arraySlice(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) arrayJoins(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ARRAYJOINS expects (array, delimiter$)")
+		return value.Nil, fmt.Errorf("ARRAYJOINS expects (array, delimiter)")
 	}
 	a, err := m.getArr(args[0], "ARRAYJOINS")
 	if err != nil {

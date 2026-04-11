@@ -50,7 +50,7 @@ func (m *Module) clearLevelState() {
 
 func (m *Module) levelSetRoot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.SETROOT expects (path$)")
+		return value.Nil, fmt.Errorf("LEVEL.SETROOT expects (path)")
 	}
 	p, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -140,7 +140,7 @@ func computeNodeWorlds(doc *gltf.Document) []rl.Matrix {
 
 func (m *Module) levelLoadGLTF(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.LOAD expects (path$)")
+		return value.Nil, fmt.Errorf("LEVEL.LOAD expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -300,7 +300,7 @@ func flattenExtras(ex any, prefix string, out map[string]string) {
 
 func (m *Module) levelLoadSkybox(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.LOADSKYBOX expects (hdrPath$)")
+		return value.Nil, fmt.Errorf("LEVEL.LOADSKYBOX expects (hdrPath)")
 	}
 	if m.tex == nil {
 		return value.Nil, fmt.Errorf("LEVEL.LOADSKYBOX: texture module not wired (internal error)")
@@ -323,7 +323,7 @@ func (m *Module) levelLoadSkybox(rt *runtime.Runtime, args ...value.Value) (valu
 
 func (m *Module) levelBindScript(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.BINDSCRIPT expects (entityNamePattern$, functionName$)")
+		return value.Nil, fmt.Errorf("LEVEL.BINDSCRIPT expects (entityNamePattern, functionName)")
 	}
 	pat, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -345,7 +345,7 @@ func (m *Module) levelBindScript(rt *runtime.Runtime, args ...value.Value) (valu
 
 func (m *Module) levelMatchScriptBind(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.MATCHSCRIPTBIND expects (objectName$)")
+		return value.Nil, fmt.Errorf("LEVEL.MATCHSCRIPTBIND expects (objectName)")
 	}
 	name, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -373,7 +373,7 @@ func matchLevelGlob(pat, s string) bool {
 
 func (m *Module) levelOptimizeStub(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("LEVEL.OPTIMIZE expects (entityOrScene#)")
+		return value.Nil, fmt.Errorf("LEVEL.OPTIMIZE expects (entityOrScene)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("LEVEL.OPTIMIZE: static mesh merging / batching not implemented yet — use MODEL.MAKEINSTANCED for draw batches")
@@ -381,7 +381,7 @@ func (m *Module) levelOptimizeStub(args []value.Value) (value.Value, error) {
 
 func (m *Module) triggerCreateFromEntityStub(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("TRIGGER.CREATEFROMENTITY expects (entity#)")
+		return value.Nil, fmt.Errorf("TRIGGER.CREATEFROMENTITY expects (entity)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("TRIGGER.CREATEFROMENTITY: Jolt sensor from mesh not exposed yet — use ENTITY.SETTRIGGER when available")
@@ -414,7 +414,7 @@ func (m *Module) levelGetMarker(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("LEVEL.GETMARKER: heap not bound")
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.GETMARKER expects (name$)")
+		return value.Nil, fmt.Errorf("LEVEL.GETMARKER expects (name)")
 	}
 	name, ok := m.h.GetString(int32(args[0].IVal))
 	if !ok {
@@ -444,7 +444,7 @@ func (m *Module) levelGetSpawn(rt *runtime.Runtime, args ...value.Value) (value.
 		return value.Nil, runtime.Errorf("LEVEL.GETSPAWN: heap not bound")
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LEVEL.GETSPAWN expects (name$)")
+		return value.Nil, fmt.Errorf("LEVEL.GETSPAWN expects (name)")
 	}
 	name, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -464,7 +464,7 @@ func (m *Module) levelGetSpawn(rt *runtime.Runtime, args ...value.Value) (value.
 
 func (m *Module) levelShowLayer(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("LEVEL.SHOWLAYER expects (layerName$, visible?)")
+		return value.Nil, fmt.Errorf("LEVEL.SHOWLAYER expects (layerName, visible)")
 	}
 	if args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("layer name must be string")
@@ -497,7 +497,7 @@ func (m *Module) levelShowLayer(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) levelApplyPhysics(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("LEVEL.APPLYPHYSICS expects (entity#)")
+		return value.Nil, fmt.Errorf("LEVEL.APPLYPHYSICS expects (entity)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("LEVEL.APPLYPHYSICS: not implemented (map Blender extras to BODY3D.* + COMMIT manually; see PHYSICS3D.md)")
@@ -505,7 +505,7 @@ func (m *Module) levelApplyPhysics(args []value.Value) (value.Value, error) {
 
 func (m *Module) levelSyncLights(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("LEVEL.SYNCLIGHTS expects (toggle?)")
+		return value.Nil, fmt.Errorf("LEVEL.SYNCLIGHTS expects (toggle)")
 	}
 	_, _ = argBool(args[0])
 	return value.Nil, fmt.Errorf("LEVEL.SYNCLIGHTS: KHR_lights_punctual → LIGHT.* not wired yet")
@@ -513,7 +513,7 @@ func (m *Module) levelSyncLights(args []value.Value) (value.Value, error) {
 
 func (m *Module) physicsAutoCreate(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PHYSICS.AUTOCREATE expects (entity#)")
+		return value.Nil, fmt.Errorf("PHYSICS.AUTOCREATE expects (entity)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("PHYSICS.AUTOCREATE: use BODY3D.ADDBOX/ADDMESH from ENTITY.GETBOUNDS; automation not wired yet")
@@ -521,7 +521,7 @@ func (m *Module) physicsAutoCreate(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetStatic(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.SETSTATIC expects (entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETSTATIC expects (entity)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("ENTITY.SETSTATIC: use BODY3D.MAKE(\"STATIC\") + mesh shapes; entity motion flags not exposed here yet")
@@ -529,7 +529,7 @@ func (m *Module) entSetStatic(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetTrigger(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.SETTRIGGER expects (entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETTRIGGER expects (entity)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("ENTITY.SETTRIGGER: Jolt sensor shapes not exposed in jolt-go binding yet")
@@ -537,7 +537,7 @@ func (m *Module) entSetTrigger(args []value.Value) (value.Value, error) {
 
 func (m *Module) entInstanceStub(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.INSTANCE expects (entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.INSTANCE expects (entity)")
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("ENTITY.INSTANCE: not implemented — use MODEL.MAKEINSTANCED for GPU instancing; ENTITY.COPY duplicates VRAM today")

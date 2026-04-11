@@ -19,5 +19,5 @@ func (m *Module) registerGamepad(r runtime.Registrar) {
 		}
 	}
 	r.Register("GAME.ISGAMEPADAVAILABLE", "game", stub("GAME.ISGAMEPADAVAILABLE"))
-	r.Register("GAME.GETGAMEPADNAME$", "game", stub("GAME.GETGAMEPADNAME$"))
+	r.Register("GAME.GETGAMEPADNAME", "game", stub("GAME.GETGAMEPADNAME"))
 }

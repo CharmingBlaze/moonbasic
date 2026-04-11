@@ -40,7 +40,7 @@ Color APIs use a color handle plus conversion/component helpers.
 ```basic
 ; Procedural palette (normalized hue)
 c = COLOR.FROMHSV(FLOAT(i) / FLOAT(N_ENEMY), 0.8, 1.0)
-h#, s#, v# = COLOR.TOHSV(c)   ; optional: read back HSV as a triple
+h, s, v = COLOR.TOHSV(c)   ; optional: read back HSV as a triple
 EntityColor(enemy(i), COLOR.R(c), COLOR.G(c), COLOR.B(c), 255)
 COLOR.FREE(c)
 

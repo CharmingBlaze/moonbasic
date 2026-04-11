@@ -45,7 +45,7 @@ func registerImageSequence(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("IMAGE.LOADSEQUENCE expects pathPrefix$ (e.g. assets/water_)")
+			return value.Nil, fmt.Errorf("IMAGE.LOADSEQUENCE expects pathPrefix (e.g. assets/water_)")
 		}
 		prefix, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -95,7 +95,7 @@ func registerImageSequence(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 1 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("IMAGE.LOADGIF expects path$")
+			return value.Nil, fmt.Errorf("IMAGE.LOADGIF expects path")
 		}
 		path, err := rt.ArgString(args, 0)
 		if err != nil {

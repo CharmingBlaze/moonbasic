@@ -14,7 +14,7 @@ Fullscreen **fade** and **wipe** overlays drawn at the end of the frame (Raylib)
 
 ## Commands
 
-### `Transition.FadeOut(seconds#)` / `Transition.FadeIn(seconds#)`
+### `Transition.FadeOut(seconds)` / `Transition.FadeIn(seconds)`
 
 Fades the overlay **in** (blocking the view) or **out** (revealing the scene). Duration must be positive.
 
@@ -22,7 +22,7 @@ Fades the overlay **in** (blocking the view) or **out** (revealing the scene). D
 
 `TRUE` when the current transition segment has finished.
 
-### `Transition.Wipe(direction$, seconds#)`
+### `Transition.Wipe(direction, seconds)`
 
 Wipe overlay using the current transition **color**. `direction` (case-insensitive):
 

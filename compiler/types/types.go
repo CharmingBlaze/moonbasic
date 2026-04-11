@@ -27,22 +27,9 @@ func (t Tag) String() string {
 	return "invalid"
 }
 
-// FromSuffix returns the type tag based on variable suffix.
-// moonBASIC uses: # = float, $ = string, ? = bool, no suffix = int.
+// FromSuffix is deprecated. Suffixes are no longer used in identifiers.
 func FromSuffix(name string) Tag {
-	if len(name) == 0 {
-		return Int // Default to int for untyped
-	}
-	switch name[len(name)-1] {
-	case '#':
-		return Float
-	case '$':
-		return String
-	case '?':
-		return Bool
-	default:
-		return Int
-	}
+	return Int // Default to int; inference handles promotional cases to Float
 }
 
 // Info holds detailed type information for a symbol.

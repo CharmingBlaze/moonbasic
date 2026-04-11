@@ -19,7 +19,7 @@ func registerBiome(m *Module, r runtime.Registrar) {
 
 func bMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil || len(args) != 1 {
-		return value.Nil, fmt.Errorf("BIOME.MAKE expects name$")
+		return value.Nil, fmt.Errorf("BIOME.MAKE expects name")
 	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -45,9 +45,7 @@ func bFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 }
 
 func bSetTemp(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("BIOME.SETTEMP expects biome, celsius#")
-	}
+		return value.Nil, fmt.Errorf("BIOME.SETTEMP expects biome, celsius")
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
 		return value.Nil, err
@@ -65,9 +63,7 @@ func bSetTemp(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 }
 
 func bSetHumidity(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("BIOME.SETHUMIDITY expects biome, amount#")
-	}
+		return value.Nil, fmt.Errorf("BIOME.SETHUMIDITY expects biome, amount")
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
 		return value.Nil, err

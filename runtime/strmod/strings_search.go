@@ -33,9 +33,9 @@ outer:
 }
 
 func registerStringsSearch(r runtime.Registrar) {
-	r.Register("TRIM$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("TRIM", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("TRIM$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("TRIM expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -43,9 +43,9 @@ func registerStringsSearch(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.TrimSpace(s)), nil
 	})
-	r.Register("LTRIM$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("LTRIM", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("LTRIM$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("LTRIM expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -53,9 +53,9 @@ func registerStringsSearch(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.TrimLeft(s, " \t\r\n")), nil
 	})
-	r.Register("RTRIM$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("RTRIM", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("RTRIM$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("RTRIM expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -63,9 +63,9 @@ func registerStringsSearch(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.TrimRight(s, " \t\r\n")), nil
 	})
-	r.Register("REPLACE$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("REPLACE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 3 {
-			return value.Value{}, runtime.Errorf("REPLACE$ expects 3 arguments")
+			return value.Value{}, runtime.Errorf("REPLACE expects 3 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -112,9 +112,9 @@ func registerStringsSearch(r runtime.Registrar) {
 	}
 	r.Register("INSTR", "core", instrImpl)
 	r.Register("Instr", "core", instrImpl)
-	r.Register("COUNT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("COUNT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("COUNT$ expects 2 arguments (src$, find$)")
+			return value.Value{}, runtime.Errorf("COUNT expects 2 arguments (src, find)")
 		}
 		s1, err := rt.ArgString(args, 0)
 		if err != nil {

@@ -17,7 +17,7 @@ func (m *Module) registerFileExtras(r runtime.Registrar) {
 
 func (m *Module) fileExists(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.EXISTS expects (path$)")
+		return value.Nil, runtime.Errorf("FILE.EXISTS expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -35,7 +35,7 @@ func (m *Module) fileExists(rt *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) fileReadAllText(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.READALLTEXT expects (path$)")
+		return value.Nil, runtime.Errorf("FILE.READALLTEXT expects (path)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -50,7 +50,7 @@ func (m *Module) fileReadAllText(rt *runtime.Runtime, args ...value.Value) (valu
 
 func (m *Module) fileWriteAllText(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("FILE.WRITEALLTEXT expects (path$, text$)")
+		return value.Nil, runtime.Errorf("FILE.WRITEALLTEXT expects (path, text)")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {

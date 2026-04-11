@@ -48,6 +48,7 @@ Shorthand **`ENTITY.X(id)`**, **`ENTITY.Y(id)`**, **`ENTITY.Z(id)`**, **`ENTITY.
 - **`CreatePivot()`** — empty transform node (invisible, for parenting).
 - **`CreateCube(...)`** — `CreateCube()` / `CreateCube(w,h,d)` / `CreateCube(parent)` / `CreateCube(parent, w,h,d)`; see [`entity_blitz_cgo.go`](../../runtime/mbentity/entity_blitz_cgo.go).
 - **Jolt (Linux+CGO):** **`ENTITY.LINKPHYSBUFFER(entity, bufferIndex)`** ties an entity to a **`BODY3D`** matrix slot (from **`BODY3D.BUFFERINDEX`**). After **`PHYSICS3D.STEP`**, translation from the shared buffer updates the entity pose. **`ENTITY.CLEARPHYSBUFFER(entity)`** removes the link.
+- **Traffic cop (Jolt-linked entities):** **`ENTITY.ADDPHYSICS`** / **`ENTITY.PHYSICS`** marks the entity **physics-driven** (scripted gravity/velocity integration in **`ENTITY.UPDATE`** is skipped). **`ENTITY.SETPOSITION`** / dot **`Pos`** also teleports the **Jolt** body so meshes do not rubber-band. **`ENTITY.MOVE`** sets **linear velocity** on the body; **`ENTITY.PUSH`** applies an **impulse**. Grounding for **`ENTITY.GROUNDED`** / **`IsGrounded`** uses a short downward ray after the physics sync. See **`examples/mario64/modern_blitz_hop.mb`**.
 
 ## Jolt collision groups, queries, and AI helpers (Linux + **`PHYSICS3D.START`**)
 
@@ -132,7 +133,7 @@ px, py, pz = Entity.GetPos(player)
 
 **`FREEENTITIES(arrayHandle)`** walks a **numeric** entity array (e.g. **`DIM badGuy AS HANDLE(n)`** / integer slots holding entity ids) and calls **`FreeEntity`** on each non-zero entry. Use at shutdown or level unload instead of hand-written **`FOR i = 1 TO n : FreeEntity(...) : NEXT`**.
 
-## Terrain vs entity#
+## Terrain vs entity
 
 Heightmap **terrain** is a separate **`TERRAIN.*`** heap object ([TERRAIN.md](TERRAIN.md)), not an entity. Use **`Terrain.GetHeight`** for height queries, **`Terrain.Place`** to position an entity on the surface in one call, or **`Terrain.SnapY`** to adjust **Y** only. **`Terrain.Raise`** / **`Terrain.Lower`** edit heights. **Jolt** heightfield shapes for terrain are **not** exposed in the current `jolt-go` binding; physics for terrain remains mesh/other shapes until extended.
 

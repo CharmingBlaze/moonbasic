@@ -83,7 +83,7 @@ func (m *Module) fontLoadBDF(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, runtime.Errorf("FONT.LOADBDF: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("FONT.LOADBDF expects (path$, size)")
+		return value.Nil, fmt.Errorf("FONT.LOADBDF expects (path, size)")
 	}
 	var sz int64
 	if i, ok := args[1].ToInt(); ok {

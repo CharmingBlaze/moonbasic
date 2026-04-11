@@ -176,7 +176,7 @@ func (m *Module) entDistanceTo(args []value.Value) (value.Value, error) {
 
 func (m *Module) entCheckRadius(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.CHECKRADIUS expects (entity, radius, tag$)")
+		return value.Nil, fmt.Errorf("ENTITY.CHECKRADIUS expects (entity, radius, tag)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }

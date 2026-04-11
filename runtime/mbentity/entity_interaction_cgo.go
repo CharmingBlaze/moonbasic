@@ -81,7 +81,7 @@ func (m *Module) entSetTextureFlip(args []value.Value) (value.Value, error) {
 
 func (m *Module) entHasTag(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.HASTAG expects (entity#, tag$)")
+		return value.Nil, fmt.Errorf("ENTITY.HASTAG expects (entity, tag)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -112,7 +112,7 @@ func (m *Module) entHasTag(rt *runtime.Runtime, args ...value.Value) (value.Valu
 
 func (m *Module) entIsType(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.ISTYPE expects (entity#, type$)")
+		return value.Nil, fmt.Errorf("ENTITY.ISTYPE expects (entity, type)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -184,7 +184,7 @@ func (m *Module) entSendMessage(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, runtime.Errorf("ENTITY.SENDMESSAGE: heap not bound")
 	}
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.SENDMESSAGE expects (targetEntity#, message$)")
+		return value.Nil, fmt.Errorf("ENTITY.SENDMESSAGE expects (targetEntity, message)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -211,7 +211,7 @@ func (m *Module) entSendMessage(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) entPollMessage(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.POLLMESSAGE expects (entity#)")
+		return value.Nil, fmt.Errorf("ENTITY.POLLMESSAGE expects (entity)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -236,7 +236,7 @@ func (m *Module) entFindByProperty(rt *runtime.Runtime, args ...value.Value) (va
 		return value.Nil, runtime.Errorf("ENTITY.FINDBYPROPERTY: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.FINDBYPROPERTY expects (key$, value$)")
+		return value.Nil, fmt.Errorf("ENTITY.FINDBYPROPERTY expects (key, value)")
 	}
 	keyWant, err := rt.ArgString(args, 0)
 	if err != nil {

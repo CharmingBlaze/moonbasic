@@ -47,12 +47,12 @@ mus.Play()
 
 WHILE NOT Input.KeyDown(KEY_ESCAPE)
 
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
-    IF Input.KeyDown(KEY_W) THEN cam.Move(0, 0,  5.0 * dt#)
-    IF Input.KeyDown(KEY_S) THEN cam.Move(0, 0, -5.0 * dt#)
-    IF Input.KeyDown(KEY_A) THEN cam.Move(-5.0 * dt#, 0, 0)
-    IF Input.KeyDown(KEY_D) THEN cam.Move( 5.0 * dt#, 0, 0)
+    IF Input.KeyDown(KEY_W) THEN cam.Move(0, 0,  5.0 * dt)
+    IF Input.KeyDown(KEY_S) THEN cam.Move(0, 0, -5.0 * dt)
+    IF Input.KeyDown(KEY_A) THEN cam.Move(-5.0 * dt, 0, 0)
+    IF Input.KeyDown(KEY_D) THEN cam.Move( 5.0 * dt, 0, 0)
 
     IF Input.KeyPressed(KEY_SPACE) THEN
         player.ApplyImpulse(0, 600, 0)
@@ -62,10 +62,10 @@ WHILE NOT Input.KeyDown(KEY_ESCAPE)
     mus.Update()
 
     robot.SetPos(player.X(), player.Y(), player.Z())
-    robot.Rotate(0, 45 * dt#, 0)
+    robot.Rotate(0, 45 * dt, 0)
 
-    y# = terrain.Height(cam.X(), cam.Z())
-    cam.SetY(y# + 1.8)
+    y = terrain.Height(cam.X(), cam.Z())
+    cam.SetY(y + 1.8)
 
     Render.Clear(10, 10, 20)
     terrain.Draw()

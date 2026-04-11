@@ -16,7 +16,7 @@ Frees the sky handle.
 
 ---
 
-## `Sky.Update(sky, dt#)`
+## `Sky.Update(sky, dt)`
 
 Advances internal time using **`dt`** and day length.
 
@@ -28,7 +28,7 @@ Draws the sky **before** terrain for typical frames (call order is user-defined)
 
 ---
 
-## `Sky.SetTime(sky, hours#)` / `Sky.SetDayLength(sky, seconds#)`
+## `Sky.SetTime(sky, hours)` / `Sky.SetDayLength(sky, seconds)`
 
 **`SetTime`**: 0–24 style hours. **`SetDayLength`**: real-time seconds for a full cycle.
 

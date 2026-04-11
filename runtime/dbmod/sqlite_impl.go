@@ -64,7 +64,7 @@ func dbOpen(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, runtime.Errorf("DB.OPEN: heap not bound")
 	}
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DB.OPEN expects path$")
+		return value.Nil, runtime.Errorf("DB.OPEN expects path")
 	}
 	path, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -147,7 +147,7 @@ func dbExec(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, runtime.Errorf("DB.EXEC: heap not bound")
 	}
 	if len(args) < 2 {
-		return value.Nil, runtime.Errorf("DB.EXEC expects (db, sql$, ...params)")
+		return value.Nil, runtime.Errorf("DB.EXEC expects (db, sql, ...params)")
 	}
 	if args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
 		return value.Nil, runtime.Errorf("DB.EXEC: bad arguments")
@@ -204,7 +204,7 @@ func dbQuery(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		return value.Nil, runtime.Errorf("DB.QUERY: heap not bound")
 	}
 	if len(args) < 2 {
-		return value.Nil, runtime.Errorf("DB.QUERY expects (db, sql$, ...params)")
+		return value.Nil, runtime.Errorf("DB.QUERY expects (db, sql, ...params)")
 	}
 	d, err := castDB(m, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -262,7 +262,7 @@ func dbQueryJSON(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, runtime.Errorf("DB.QUERYJSON: heap not bound")
 	}
 	if len(args) < 2 {
-		return value.Nil, runtime.Errorf("DB.QUERYJSON expects (db, sql$, ...params)")
+		return value.Nil, runtime.Errorf("DB.QUERYJSON expects (db, sql, ...params)")
 	}
 	d, err := castDB(m, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -502,7 +502,7 @@ func dbPrepare(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 		return value.Nil, runtime.Errorf("DB.PREPARE: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("DB.PREPARE expects (db, sql$)")
+		return value.Nil, runtime.Errorf("DB.PREPARE expects (db, sql)")
 	}
 	d, err := castDB(m, heap.Handle(args[0].IVal))
 	if err != nil {

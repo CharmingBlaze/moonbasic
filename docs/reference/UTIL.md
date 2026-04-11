@@ -23,11 +23,11 @@ Implemented in `runtime/mbutil`.
 
 ## Read / write text
 
-### `Util.LoadText(path$)` → string
+### `Util.LoadText(path)` → string
 
 Reads the entire file as UTF-8/text (same idea as `READALLTEXT`).
 
-### `Util.SaveText(path$, text$)`
+### `Util.SaveText(path, text)`
 
 Writes a file, replacing contents.
 
@@ -52,7 +52,7 @@ Current working directory and subdirectory listing use the global names **`GETDI
 
 ## Validation
 
-### `Util.IsFileNameValid(name$)` → bool
+### `Util.IsFileNameValid(name)` → bool
 
 Checks whether a file name is acceptable on the current OS (invalid characters, reserved names, etc., per Go `path/filepath` usage in the runtime).
 

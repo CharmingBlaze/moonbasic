@@ -14,19 +14,33 @@ const stubHint = "native Jolt is not linked on this build (need Linux/macOS amd6
 
 func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PHYSICS3D.GETSCRATCHFLOAT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetScratchFloat(m, a) }))
-	stub := func(name string) runtime.BuiltinFn {
+	// No-op success: lets fullruntime games run on Windows (same script as Linux); simulation is inert without Jolt.
+	noop := func(name string) runtime.BuiltinFn {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			_ = rt
+			_ = args
+			_ = name
+			return value.Nil, nil
+		}
+	}
+	errStub := func(name string) runtime.BuiltinFn {
 		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 			_ = rt
 			_ = args
 			return value.Nil, fmt.Errorf("%s: %s", name, stubHint)
 		}
 	}
-	keys := []string{
+	noopKeys := []string{
 		"PHYSICS3D.START", "PHYSICS3D.STOP", "PHYSICS3D.SETGRAVITY", "PHYSICS3D.STEP",
 		"PHYSICS3D.SETSUBSTEPS", "PHYSICS3D.DEBUGDRAW", "PHYSICS3D.SETTIMESTEP", "PHYSICS3D.GETMATRIXBUFFER",
 		"PHYSICS3D.ONCOLLISION", "PHYSICS3D.PROCESSCOLLISIONS", "PHYSICS3D.RAYCAST", "PHYSICS3D.SYNCWASMTOPHYSREGS",
 		"PHYSICS.START", "PHYSICS.STOP", "PHYSICS.SETGRAVITY", "PHYSICS.STEP", "PHYSICS.SETSUBSTEPS",
 		"PHYSICS.RAYCAST", "PHYSICS.SPHERECAST", "PHYSICS.BOXCAST", "PHYSICS.ENABLE", "PHYSICS.DISABLE",
+	}
+	for _, k := range noopKeys {
+		reg.Register(k, "physics3d", noop(k))
+	}
+	errKeys := []string{
 		"BODY3D.MAKE", "BODY3D.ADDBOX", "BODY3D.ADDSPHERE", "BODY3D.ADDCAPSULE", "BODY3D.ADDMESH",
 		"BODY3D.COMMIT", "BODY3D.SETPOS", "BODY3D.SETPOSITION", "BODY3D.GETPOS", "BODY3D.ACTIVATE", "BODY3D.DEACTIVATE",
 		"BODY3D.SETROT", "BODY3D.GETROT",
@@ -39,8 +53,8 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 		"PICK.CAST", "PICK.FROMCAMERA", "PICK.SCREENCAST",
 		"PICK.X", "PICK.Y", "PICK.Z", "PICK.NX", "PICK.NY", "PICK.NZ", "PICK.ENTITY", "PICK.DIST", "PICK.HIT",
 	}
-	for _, k := range keys {
-		reg.Register(k, "physics3d", stub(k))
+	for _, k := range errKeys {
+		reg.Register(k, "physics3d", errStub(k))
 	}
 }
 
@@ -83,7 +97,9 @@ func BDBufferIndex(h any, args []value.Value) (value.Value, error) {
 }
 
 func ApplyImpulseToIndex(idx int, x, y, z float32)     {}
+func GetLinearVelocityToIndex(idx int) (x, y, z float32) { return 0, 0, 0 }
 func SetVelocityToIndex(idx int, x, y, z float32)      {}
+func SetPositionToIndex(idx int, x, y, z float32)      {}
 func SetFrictionToIndex(idx int, x float32)            {}
 func SetRestitutionToIndex(idx int, x float32)         {}
 func WakeIndex(idx int)                                {}

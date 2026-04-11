@@ -63,7 +63,7 @@ func (m *Module) registerTimers(r runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("TIMER.NEW expects 1 argument (duration#)")
+			return value.Nil, fmt.Errorf("TIMER.NEW expects 1 argument (duration)")
 		}
 		sec, ok := argF(args[0])
 		if !ok || sec < 0 {
@@ -83,7 +83,7 @@ func (m *Module) registerTimers(r runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("TIMER.RESET expects (timer, duration#)")
+			return value.Nil, fmt.Errorf("TIMER.RESET expects (timer, duration)")
 		}
 		sec, ok := argF(args[1])
 		if !ok || sec < 0 {

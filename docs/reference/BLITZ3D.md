@@ -79,7 +79,8 @@ Handle methods are normal calls: **`receiver.Method(args)`** (parentheses requir
 | **`cam.Pos(x,y,z)`** | **`Camera.SetPos`** |
 | **`cam.FOV(deg)`** | **`Camera.SetFOV`** |
 | **`cam.Look(...)`** / **`cam.LookAt(...)`** | **`Camera.LookAt`** (same as **`SetTarget`**) |
-| **`cam.Orbit(...)`** / **`cam.SetOrbit(...)`** | **`Camera.SetOrbit`** |
+| **`cam.Orbit(entity, distance)`** | **`Camera.Orbit`** (3-arg **entity** orbit-follow — engine yaw/pitch/dist; see [CAMERA.md](CAMERA.md)) |
+| **`cam.Orbit(tx,ty,tz,yaw,pitch,dist)`** / **`cam.SetOrbit(...)`** | **`Camera.SetOrbit`** / 7-arg **`Orbit`** |
 | **`cam.Zoom(amount)`** | **`Camera.Zoom`** |
 
 See [CAMERA.md](CAMERA.md) for full **`CAMERA.*`** reference.
@@ -98,7 +99,8 @@ See [CAMERA.md](CAMERA.md) for full **`CAMERA.*`** reference.
 |--------|---------|
 | **`Camera.Turn(cam, dpitch, dyaw, droll)`** | Incremental rotation (**radians**): yaw around world **+Y**, pitch around camera right, roll around view. Keeps eye–target distance. |
 | **`Camera.Rotate(cam, pitch, yaw, roll)`** | Absolute orientation (**radians**): builds forward from pitch/yaw, applies roll to **up**, keeps distance from eye to target. |
-| **`Camera.Orbit(...)`** | Same arguments as **`Camera.SetOrbit`** — spherical orbit around a target (**alias**). |
+| **`Camera.Orbit(cam, entity, dist)`** | **Entity** orbit-follow: internal yaw/pitch/distance + input (see [CAMERA.md](CAMERA.md)). |
+| **`Camera.Orbit(cam, tx, ty, tz, yaw, pitch, dist)`** | Same arguments as **`Camera.SetOrbit`** — explicit spherical orbit (**7-arg** overload). |
 | **`Camera.Zoom(cam, amount)`** | Adds **amount** to vertical FOV (**degrees**), clamped **10–120**. |
 | **`Camera.Follow(cam, tx, ty, tz, yaw, dist, height, smooth)`** | Third-person follow: camera lerps behind **(tx,ty,tz)** on **XZ** at **yaw**, fixed world **height** for the eye, target lerps toward the subject. **`smooth`** is blended with frame time (~`smooth×8×dt` cap 1). Uses **`Time.Delta`** internally. |
 | **`Camera.FollowEntity(cam, entity, dist, height, smooth)`** | Same as **`Follow`**, but target position and **yaw** come from an **entity** id (see below). |

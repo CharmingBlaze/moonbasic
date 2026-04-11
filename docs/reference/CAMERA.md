@@ -70,6 +70,75 @@ Third-person **spherical** orbit: places the eye on a shell around the target `(
 
 **Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw` / `pitch` / `dist`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw`**.
 
+### `Camera.Orbit(camera, entity, distance)` — entity orbit-follow (3 arguments)
+
+**Registry:** **`CAMERA.ORBIT`** when called with **three** arguments (handle, entity handle, distance).
+
+Each frame, updates internal **yaw**, **pitch**, and **distance**, then places the camera on a sphere around the entity’s **world** position (same spherical math as **`Camera.SetOrbit`**, with the look target slightly above the entity base). You do **not** pass yaw/pitch in the loop; the engine owns that state.
+
+**Typical input (defaults):**
+
+- **Right mouse button held:** mouse delta adjusts yaw and pitch (sensitivity configurable).
+- **Q / E:** yaw the orbit (keyboard rate configurable). Set both key slots to **0** to disable keyboard orbit.
+- **Mouse wheel:** zoom (clamped distance).
+
+Requires the entity module to expose world positions to the camera (normal **`fullruntime`** builds). Align a character with the orbit using **`Camera.Yaw`** (below).
+
+**Worked example:** `examples/mario64/modern_blitz_hop.mb`. **Beginner tutorial (line-by-line):** [`examples/mario64/MODERN_BLITZ_HOP_BEGINNER.md`](../../examples/mario64/MODERN_BLITZ_HOP_BEGINNER.md).
+
+### `Camera.Orbit(camera, tx, ty, tz, yaw, pitch, distance)` — explicit spherical orbit (7 arguments)
+
+**Registry:** **`CAMERA.ORBIT`** with **seven** arguments — same behaviour as **`Camera.SetOrbit`** (manual yaw/pitch/distance each frame). See **`Camera.SetOrbit`** above.
+
+### `Camera.Yaw(camera)` / `Camera.GetYaw(camera)` → **float**
+
+**Registry:** **`CAMERA.YAW`** / **`CAMERA.GETYAW`** (alias). Returns the internal **orbit yaw** in **radians** maintained by **`Camera.Orbit(camera, entity, distance)`**. Use this to set player rotation (e.g. **`player.SetRot(0, Camera.Yaw(cam), 0)`**) so movement matches the third-person camera.
+
+### Orbit-follow configuration (optional)
+
+Call **once** after **`Camera.Make()`**, before the main loop. Dot-syntax on the camera handle maps to these **`CAMERA.*`** builtins (e.g. **`cam.UseMouseOrbit(FALSE)`** → **`Camera.UseMouseOrbit`**).
+
+**Quick reference**
+
+| Command | Arguments |
+|--------|-----------|
+| **`Camera.UseMouseOrbit`** | `(camera, useMouse)` |
+| **`Camera.UseOrbitRightMouse`** | `(camera, requireRightMouse)` |
+| **`Camera.SetOrbitKeys`** | `(camera, leftKey, rightKey)` |
+| **`Camera.SetOrbitLimits`** | `(camera, minPitch, maxPitch, minDist, maxDist)` |
+| **`Camera.SetOrbitSpeed`** | `(camera, mouseSens, wheelSens)` |
+| **`Camera.SetOrbitKeySpeed`** | `(camera, keyRadPerSec)` |
+
+**Defaults:** mouse orbit **on**; **RMB required** to apply mouse delta; keys **Q** / **E**; mouse **0.005**, wheel **1.0**, keyboard **1.5** rad/s; pitch **−1.5…1.5** rad; distance **2…50**; look-at offset **0.5** above entity base.
+
+**Worked examples and recipes:** `examples/mario64/README.md` (orbit configuration section).
+
+#### `Camera.UseMouseOrbit(camera, useMouse)`
+
+- **`TRUE`:** mouse (subject to **`UseOrbitRightMouse`**) adjusts yaw/pitch.
+- **`FALSE`:** mouse does **not** move the orbit — use when the cursor aims a weapon or UI; combine with **`SetOrbitKeys`** / wheel.
+
+#### `Camera.UseOrbitRightMouse(camera, requireRightMouse)`
+
+- **`TRUE` (default):** mouse delta applies **only while right mouse button is held** (common third-person feel).
+- **`FALSE`:** mouse delta applies **without** holding RMB (inspector-style orbit).
+
+#### `Camera.SetOrbitKeys(camera, leftKey, rightKey)`
+
+Raylib keyboard constants (e.g. **`KEY_Q`**, **`KEY_E`**, **`KEY_LEFT`**). **`0`** disables that side; **`(0, 0)`** disables keyboard orbit entirely.
+
+#### `Camera.SetOrbitLimits(camera, minPitch, maxPitch, minDist, maxDist)`
+
+**Pitch** in **radians** (vertical tilt of the orbit). **Distance** in **world units** (zoom in/out along the orbit radius). Prevents camera flipping and runaway zoom.
+
+#### `Camera.SetOrbitSpeed(camera, mouseSens, wheelSens)`
+
+Scales **mouse drag** (yaw and pitch) and **mouse wheel** zoom. Larger values feel faster.
+
+#### `Camera.SetOrbitKeySpeed(camera, keyRadPerSec)`
+
+Keyboard orbit yaw rate in **radians per second** (framerate-independent).
+
 ### `Camera.SmoothExp(current, target, smoothHz, dt)` → **float**
 
 **Registry:** **`CAMERA.SMOOTHEXP`**. One step of **exponential smoothing** toward a target (same idea as critically damped lag on an angle or scalar):
@@ -256,7 +325,7 @@ Frees the **`Camera2D`** heap object (symmetric with **`Camera.Free`** for 3D ca
 
 Smoothly moves the camera **target** toward the sprite’s world position (requires **`SPRITE.*`**).
 
-### `Camera2D.ZoomToMouse(camera, delta#)` / `Camera2D.ZoomIn` / `Camera2D.ZoomOut`
+### `Camera2D.ZoomToMouse(camera, delta)` / `Camera2D.ZoomIn` / `Camera2D.ZoomOut`
 
 **`ZoomToMouse`** adjusts zoom while keeping the world point under the cursor fixed; **`ZoomIn`** / **`ZoomOut`** add or subtract zoom amount.
 

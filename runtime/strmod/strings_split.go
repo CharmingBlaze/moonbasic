@@ -9,12 +9,12 @@ import (
 )
 
 func registerStringsSplitJoin(r runtime.Registrar) {
-	r.Register("SPLIT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("SPLIT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if rt.Heap == nil {
-			return value.Value{}, runtime.Errorf("SPLIT$: runtime heap not available")
+			return value.Value{}, runtime.Errorf("SPLIT: runtime heap not available")
 		}
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("SPLIT$ expects 2 arguments (s$, delim$)")
+			return value.Value{}, runtime.Errorf("SPLIT expects 2 arguments (s, delim)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -38,15 +38,15 @@ func registerStringsSplitJoin(r runtime.Registrar) {
 		}
 		return value.FromHandle(id), nil
 	})
-	r.Register("JOIN$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("JOIN", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if rt.Heap == nil {
-			return value.Value{}, runtime.Errorf("JOIN$: runtime heap not available")
+			return value.Value{}, runtime.Errorf("JOIN: runtime heap not available")
 		}
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("JOIN$ expects 2 arguments (list, delim$)")
+			return value.Value{}, runtime.Errorf("JOIN expects 2 arguments (list, delim)")
 		}
 		if args[0].Kind != value.KindHandle {
-			return value.Value{}, runtime.Errorf("JOIN$: first argument must be a handle (string list or string array)")
+			return value.Value{}, runtime.Errorf("JOIN: first argument must be a handle (string list or string array)")
 		}
 		delim, err := rt.ArgString(args, 1)
 		if err != nil {
@@ -58,10 +58,10 @@ func registerStringsSplitJoin(r runtime.Registrar) {
 		}
 		if arr, err := heap.Cast[*heap.Array](rt.Heap, h); err == nil {
 			if arr.Kind != heap.ArrayKindString {
-				return value.Value{}, runtime.Errorf("JOIN$: string array expected")
+				return value.Value{}, runtime.Errorf("JOIN: string array expected")
 			}
 			return rt.RetString(arr.JoinStrings(rt.Prog.StringTable, delim)), nil
 		}
-		return value.Value{}, runtime.Errorf("JOIN$: expected StringList or string Array handle")
+		return value.Value{}, runtime.Errorf("JOIN: expected StringList or string Array handle")
 	})
 }

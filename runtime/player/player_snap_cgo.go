@@ -21,7 +21,7 @@ func (m *Module) playerSnapToGround(rt *runtime.Runtime, args ...value.Value) (v
 		return value.Nil, fmt.Errorf("PLAYER.SNAPTOGROUND: heap/entity not bound")
 	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.SNAPTOGROUND expects (entity#, terrain#, offset#)")
+		return value.Nil, fmt.Errorf("PLAYER.SNAPTOGROUND expects (entity, terrain, offset)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
@@ -53,7 +53,7 @@ func (m *Module) playerIsSwimming(rt *runtime.Runtime, args ...value.Value) (val
 		return value.FromBool(false), nil
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("PLAYER.ISSWIMMING expects (entity#)")
+		return value.Nil, fmt.Errorf("PLAYER.ISSWIMMING expects (entity)")
 	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {

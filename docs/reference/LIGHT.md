@@ -68,7 +68,7 @@ Releases the light handle via the heap. Clears **shadow caster** registration if
 ### Light.SetDir
 
 ```basic
-LIGHT.SETDIR(light, x#, y#, z#)
+LIGHT.SETDIR(light, x, y, z)
 ```
 
 Sets the **light travel direction** (into the scene), normalized internally. Used for the directional sun and shadow frustum alignment.
@@ -85,7 +85,7 @@ Sets the **light travel direction** (into the scene), normalized internally. Use
 ### Light.SetShadow
 
 ```basic
-LIGHT.SETSHADOW(light, enabled?)
+LIGHT.SETSHADOW(light, enabled)
 ```
 
 Enables shadow mapping for this light. **Only one** light may cast shadows; the most recently enabled wins.
@@ -95,7 +95,7 @@ Enables shadow mapping for this light. **Only one** light may cast shadows; the 
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| enabled? | bool or int | Non-zero enables. |
+| enabled | bool or int | Non-zero enables. |
 
 ---
 
@@ -132,7 +132,7 @@ LIGHT.SETINTENSITY(sun, 1.2)
 ### Light.SetIntensity
 
 ```basic
-LIGHT.SETINTENSITY(light, amount#)
+LIGHT.SETINTENSITY(light, amount)
 ```
 
 Non-negative scale for diffuse RGB (applied together with **`LIGHT.SETCOLOR`**).
@@ -149,8 +149,8 @@ Non-negative scale for diffuse RGB (applied together with **`LIGHT.SETCOLOR`**).
 ### Light.SetPosition / Light.SetPos
 
 ```basic
-LIGHT.SETPOSITION(light, x#, y#, z#)
-LIGHT.SETPOS(light, x#, y#, z#)
+LIGHT.SETPOSITION(light, x, y, z)
+LIGHT.SETPOS(light, x, y, z)
 ```
 
 World position for **point** / **spot** workflows (stored for API completeness; extend custom shaders if you need full point-light shading in the default PBR path).
@@ -167,7 +167,7 @@ World position for **point** / **spot** workflows (stored for API completeness; 
 ### Light.SetTarget
 
 ```basic
-LIGHT.SETTARGET(light, x#, y#, z#)
+LIGHT.SETTARGET(light, x, y, z)
 ```
 
 World point the **orthographic shadow camera** looks at (default `0, 2, 0`). Adjust so your scene sits in the shadow frustum.
@@ -186,7 +186,7 @@ World point the **orthographic shadow camera** looks at (default `0, 2, 0`). Adj
 ### Light.SetShadowBias
 
 ```basic
-LIGHT.SETSHADOWBIAS(light, bias#)
+LIGHT.SETSHADOWBIAS(light, bias)
 ```
 
 Multiplier for **depth bias** in shadow sampling (typical **0.5–2.0**, clamped internally). Higher reduces **acne**; lower reduces **peter-panning**.
@@ -203,8 +203,8 @@ Multiplier for **depth bias** in shadow sampling (typical **0.5–2.0**, clamped
 ### Light.SetInnerCone / Light.SetOuterCone
 
 ```basic
-LIGHT.SETINNERCONE(light, angle#)
-LIGHT.SETOUTERCONE(light, angle#)
+LIGHT.SETINNERCONE(light, angle)
+LIGHT.SETOUTERCONE(light, angle)
 ```
 
 Spotlight cone angles in **degrees** (stored for API completeness).
@@ -221,7 +221,7 @@ Spotlight cone angles in **degrees** (stored for API completeness).
 ### Light.SetRange
 
 ```basic
-LIGHT.SETRANGE(light, range#)
+LIGHT.SETRANGE(light, range)
 ```
 
 Attenuation range for point/spot lights (stored).
@@ -238,7 +238,7 @@ Attenuation range for point/spot lights (stored).
 ### Light.Enable
 
 ```basic
-LIGHT.ENABLE(light, enabled?)
+LIGHT.ENABLE(light, enabled)
 ```
 
 Master on/off. When disabled, diffuse contribution is zero and shadow caster registration is cleared if this light was the caster.
@@ -248,7 +248,7 @@ Master on/off. When disabled, diffuse contribution is zero and shadow caster reg
 | Name | Type | Description |
 |---|---|---|
 | light | handle | Light handle. |
-| enabled? | bool or int | Non-zero enables. |
+| enabled | bool or int | Non-zero enables. |
 
 ---
 
@@ -267,8 +267,8 @@ Returns **1** if the light exists and is enabled, **0** otherwise.
 ### Render.SetAmbient
 
 ```basic
-RENDER.SETAMBIENT(r#, g#, b#)
-RENDER.SETAMBIENT(r#, g#, b#, a#)
+RENDER.SETAMBIENT(r, g, b)
+RENDER.SETAMBIENT(r, g, b, a)
 ```
 
 **3D PBR** hemispheric ambient tint (per-channel multiplier on albedo). Components may be **0.0–1.0** or **0–255** (values &gt; 1 are normalized as 8-bit). With **four** arguments, **`a`** scales **all three** RGB channels together (useful for global ambient strength).

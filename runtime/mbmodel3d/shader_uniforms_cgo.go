@@ -44,7 +44,7 @@ func (m *Module) shaderGetLoc(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SHADER.GETLOC expects (shader, uniformName$)")
+		return value.Nil, fmt.Errorf("SHADER.GETLOC expects (shader, uniformName)")
 	}
 	sh, err := m.getShader(args, 0, "SHADER.GETLOC")
 	if err != nil {
@@ -149,7 +149,7 @@ func (m *Module) shaderSetTexture(rt *runtime.Runtime, args ...value.Value) (val
 		return value.Nil, err
 	}
 	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString || args[2].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("SHADER.SETTEXTURE expects (shader, uniformName$, texture)")
+		return value.Nil, fmt.Errorf("SHADER.SETTEXTURE expects (shader, uniformName, texture)")
 	}
 	sh, err := m.getShader(args, 0, "SHADER.SETTEXTURE")
 	if err != nil {

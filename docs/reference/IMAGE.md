@@ -53,7 +53,7 @@ Same behaviour as **`IMAGE.MAKE`** (alias pair). Use either name.
 ### Image.Load
 
 ```basic
-h = IMAGE.LOAD(path$)
+h = IMAGE.LOAD(path)
 ```
 
 Loads **PNG, JPG, BMP, TGA, GIF, HDR**, etc. from disk (Raylib). File is read and closed; you receive a **new** image handle.
@@ -71,7 +71,7 @@ Loads **PNG, JPG, BMP, TGA, GIF, HDR**, etc. from disk (Raylib). File is read an
 ### Image.LoadRaw
 
 ```basic
-h = IMAGE.LOADRAW(path$, w, h, format, headerSize)
+h = IMAGE.LOADRAW(path, w, h, format, headerSize)
 ```
 
 Loads raw pixel data. **`format`** is a Raylib **`PixelFormat`** integer; **`headerSize`** skips bytes at the start of the file.
@@ -134,7 +134,7 @@ h = IMAGE.HEIGHT(h)
 ### Image.Export
 
 ```basic
-ok = IMAGE.EXPORT(h, path$)
+ok = IMAGE.EXPORT(h, path)
 ```
 
 Writes an image file; format from **extension** (e.g. `.png`, `.jpg`, `.bmp`, `.tga`). **Returns** boolean success.

@@ -38,12 +38,40 @@ void JoltSetBodyPosition(JoltBodyInterface bodyInterface,
                         JoltBodyID bodyID,
                         float x, float y, float z);
 
-// Create a body with specific motion type and sensor flag
+// Get linear velocity (world space, units/s)
+void JoltGetBodyLinearVelocity(const JoltBodyInterface bodyInterface,
+                               const JoltBodyID bodyID,
+                               float* x, float* y, float* z);
+
+// Set linear velocity (world space, units/s)
+void JoltSetBodyLinearVelocity(JoltBodyInterface bodyInterface,
+                               JoltBodyID bodyID,
+                               float x, float y, float z);
+
+// Apply impulse (world space, kg·m/s for dynamic bodies)
+void JoltAddBodyImpulse(JoltBodyInterface bodyInterface,
+                        JoltBodyID bodyID,
+                        float x, float y, float z);
+
+// Create a body with motion type, sensor flag, friction/restitution, and optional DOF lock.
+// allowedDOFsOrZero: 0 = all DOFs (Jolt default). Non-zero = EAllowedDOFs bitmask (see Jolt AllowedDOFs.h).
 JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
                           JoltShape shape,
                           float x, float y, float z,
                           JoltMotionType motionType,
-                          int isSensor);
+                          int isSensor,
+                          float friction,
+                          float restitution,
+                          int allowedDOFsOrZero);
+
+// Runtime material tweaks (BodyInterface)
+void JoltSetBodyFriction(JoltBodyInterface bodyInterface,
+                         JoltBodyID bodyID,
+                         float friction);
+
+void JoltSetBodyRestitution(JoltBodyInterface bodyInterface,
+                            JoltBodyID bodyID,
+                            float restitution);
 
 // Activate a body (makes it participate in simulation)
 void JoltActivateBody(JoltBodyInterface bodyInterface, JoltBodyID bodyID);

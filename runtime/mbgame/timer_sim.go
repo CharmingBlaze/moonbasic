@@ -87,7 +87,7 @@ func (m *Module) registerTimerSim(r runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("TIMER.MAKE expects 1 argument (duration#)")
+			return value.Nil, fmt.Errorf("TIMER.MAKE expects 1 argument (duration)")
 		}
 		sec, ok := argF(args[0])
 		if !ok || sec < 0 {
@@ -146,7 +146,7 @@ func (m *Module) registerTimerSim(r runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("TIMER.SETLOOP expects (timer, loop?)")
+			return value.Nil, fmt.Errorf("TIMER.SETLOOP expects (timer, loop)")
 		}
 		var pool []string
 		if rt.Prog != nil {
@@ -162,7 +162,7 @@ func (m *Module) registerTimerSim(r runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("TIMER.UPDATE expects (timer, dt#)")
+			return value.Nil, fmt.Errorf("TIMER.UPDATE expects (timer, dt)")
 		}
 		dt, ok := argF(args[1])
 		if !ok || dt < 0 {

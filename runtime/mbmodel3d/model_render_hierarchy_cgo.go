@@ -86,7 +86,7 @@ func (m *Module) modelSetWireframe(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("MODEL.SETWIREFRAME expects (model, enable?)")
+		return value.Nil, fmt.Errorf("MODEL.SETWIREFRAME expects (model, enable)")
 	}
 	en, ok := argBool(args[1])
 	if !ok {
@@ -105,7 +105,7 @@ func (m *Module) modelSetCull(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("MODEL.SETCULL expects (model, enable?)")
+		return value.Nil, fmt.Errorf("MODEL.SETCULL expects (model, enable)")
 	}
 	en, ok := argBool(args[1])
 	if !ok {
@@ -124,7 +124,7 @@ func (m *Module) modelSetLighting(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("MODEL.SETLIGHTING expects (model, enable?)")
+		return value.Nil, fmt.Errorf("MODEL.SETLIGHTING expects (model, enable)")
 	}
 	en, ok := argBool(args[1])
 	if !ok {
@@ -143,7 +143,7 @@ func (m *Module) modelSetFog(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("MODEL.SETFOG expects (model, enable?)")
+		return value.Nil, fmt.Errorf("MODEL.SETFOG expects (model, enable)")
 	}
 	en, ok := argBool(args[1])
 	if !ok {
@@ -406,7 +406,7 @@ func (m *Module) modelSetGPUSkinning(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("MODEL.SETGPUSKINNING expects (model, enable?)")
+		return value.Nil, fmt.Errorf("MODEL.SETGPUSKINNING expects (model, enable)")
 	}
 	_, err := m.getModel(args, 0, "MODEL.SETGPUSKINNING")
 	if err != nil {

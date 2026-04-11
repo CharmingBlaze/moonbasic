@@ -17,6 +17,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 	}
 	r.Register("WORLD.SETCENTER", "world", hint("WORLD.SETCENTER"))
 	r.Register("WORLD.SETCENTERENTITY", "world", hint("WORLD.SETCENTERENTITY"))
+	r.Register("WORLD.GRAVITY", "world", hint("WORLD.GRAVITY"))
 	r.Register("WORLD.UPDATE", "world", hint("WORLD.UPDATE"))
 	r.Register("WORLD.STREAMENABLE", "world", hint("WORLD.STREAMENABLE"))
 	r.Register("WORLD.PRELOAD", "world", hint("WORLD.PRELOAD"))

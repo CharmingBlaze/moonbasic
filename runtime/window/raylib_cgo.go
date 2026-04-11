@@ -50,7 +50,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 
 func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WINDOW.OPEN expects 3 arguments (width, height, title$)")
+		return value.Nil, fmt.Errorf("WINDOW.OPEN expects 3 arguments (width, height, title)")
 	}
 	w, okw := argInt(args[0])
 	h, okh := argInt(args[1])
@@ -159,7 +159,7 @@ func openWarmupBlankFrames(n int) {
 func (m *Module) wCanOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WINDOW.CANOPEN expects 3 arguments (width, height, title$)")
+		return value.Nil, fmt.Errorf("WINDOW.CANOPEN expects 3 arguments (width, height, title)")
 	}
 	w, okw := argInt(args[0])
 	h, okh := argInt(args[1])

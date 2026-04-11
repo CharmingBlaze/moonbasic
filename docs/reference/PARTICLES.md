@@ -43,8 +43,8 @@ PARTICLE.SETPOS p, 0, 0, 0
 PARTICLE.PLAY p
 
 WHILE NOT Window.ShouldClose()
-    dt# = Time.Delta()
-    PARTICLE.UPDATE p, dt#
+    dt = Time.Delta()
+    PARTICLE.UPDATE p, dt
     Render.Clear(20, 24, 32)
     cam.Begin()
         PARTICLE.DRAW p

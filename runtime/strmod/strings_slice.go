@@ -17,9 +17,9 @@ func blitzRuneStart(pos int64) int {
 }
 
 func registerStringsSlice(r runtime.Registrar) {
-	r.Register("LEFT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("LEFT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("LEFT$ expects 2 arguments")
+			return value.Value{}, runtime.Errorf("LEFT expects 2 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -38,9 +38,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(string(runes[:n])), nil
 	})
-	r.Register("RIGHT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("RIGHT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("RIGHT$ expects 2 arguments")
+			return value.Value{}, runtime.Errorf("RIGHT expects 2 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -59,9 +59,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(string(runes[len(runes)-int(n):])), nil
 	})
-	r.Register("MID$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("MID", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) < 2 || len(args) > 3 {
-			return value.Value{}, runtime.Errorf("MID$ expects 2 or 3 arguments")
+			return value.Value{}, runtime.Errorf("MID expects 2 or 3 arguments")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -96,9 +96,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(string(runes[i:end])), nil
 	})
-	r.Register("SPACE$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("SPACE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("SPACE$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("SPACE expects 1 argument")
 		}
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
@@ -112,9 +112,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.Repeat(" ", int(n))), nil
 	})
-	r.Register("STRING$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("STRING", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("STRING$ expects 2 arguments (n, c$) or (char$, n)")
+			return value.Value{}, runtime.Errorf("STRING expects 2 arguments (n, c) or (char, n)")
 		}
 		// MoonBasic / Blitz order: (char$, n). Legacy: (n, char$) when first arg is numeric.
 		var n int64
@@ -154,9 +154,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.Repeat(ch, int(n))), nil
 	})
-	r.Register("LSET$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("LSET", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("LSET$ expects 2 arguments (s$, width)")
+			return value.Value{}, runtime.Errorf("LSET expects 2 arguments (s, width)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -179,9 +179,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(s + strings.Repeat(" ", pad)), nil
 	})
-	r.Register("RSET$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("RSET", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("RSET$ expects 2 arguments (s$, width)")
+			return value.Value{}, runtime.Errorf("RSET expects 2 arguments (s, width)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -204,9 +204,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.Repeat(" ", pad) + s), nil
 	})
-	r.Register("REVERSE$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("REVERSE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
-			return value.Value{}, runtime.Errorf("REVERSE$ expects 1 argument")
+			return value.Value{}, runtime.Errorf("REVERSE expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -218,9 +218,9 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(string(runes)), nil
 	})
-	r.Register("REPEAT$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("REPEAT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
-			return value.Value{}, runtime.Errorf("REPEAT$ expects 2 arguments (s$, n)")
+			return value.Value{}, runtime.Errorf("REPEAT expects 2 arguments (s, n)")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {

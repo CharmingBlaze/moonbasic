@@ -6,9 +6,9 @@ import (
 )
 
 func TestExportSymbolTableJSON(t *testing.T) {
-	src := `x# = 1.0
+	src := `x = 1.0
 FUNCTION FOO()
-  y# = 2.0
+  y = 2.0
 ENDFUNCTION
 `
 	raw, err := ExportSymbolTableJSON("t.mb", src)
@@ -30,7 +30,7 @@ ENDFUNCTION
 func TestDocumentSymbols(t *testing.T) {
 	src := `CONST N = 10
 TYPE T
-  X#
+  X
 ENDTYPE
 `
 	syms, err := DocumentSymbols("t.mb", src)

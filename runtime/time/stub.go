@@ -19,7 +19,7 @@ func registerRaylibTiming(r runtime.Registrar) {
 			minF, ok1 := args[0].ToFloat()
 			maxF, ok2 := args[1].ToFloat()
 			if !ok1 || !ok2 {
-				return value.Nil, fmt.Errorf("TIME.DELTA(min#, max#): min and max must be numeric")
+				return value.Nil, fmt.Errorf("TIME.DELTA(min, max): min and max must be numeric")
 			}
 			if maxF < minF {
 				minF, maxF = maxF, minF

@@ -22,7 +22,7 @@ func (m *Module) registerFileBlitz(r runtime.Registrar) {
 	r.Register("WriteLine", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return m.Run(rt, "FILE.WRITELN", args...)
 	})
-	r.Register("ReadLine$", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	r.Register("ReadLine", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return m.Run(rt, "FILE.READLINE", args...)
 	})
 	r.Register("WriteInt", "file", m.fileWriteIntLE)
@@ -33,14 +33,14 @@ func (m *Module) registerFileBlitz(r runtime.Registrar) {
 
 func (m *Module) blitzOpenWrite(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("WriteFile expects (path$)")
+		return value.Nil, runtime.Errorf("WriteFile expects (path)")
 	}
 	return m.Run(rt, "FILE.OPENWRITE", args[0])
 }
 
 func (m *Module) blitzOpenRead(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("ReadFile expects (path$)")
+		return value.Nil, runtime.Errorf("ReadFile expects (path)")
 	}
 	return m.Run(rt, "FILE.OPENREAD", args[0])
 }

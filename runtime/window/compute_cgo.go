@@ -160,7 +160,7 @@ func (m *Module) csSetBuffer(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, fmt.Errorf("COMPUTESHADER.SETBUFFER: heap not available")
 	}
 	if len(args) != 3 || args[0].Kind != value.KindHandle || args[2].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("COMPUTESHADER.SETBUFFER expects (compute$, bindingIndex, bufferHandle)")
+		return value.Nil, fmt.Errorf("COMPUTESHADER.SETBUFFER expects (compute, bindingIndex, bufferHandle)")
 	}
 	var bind uint32
 	if i, ok := args[1].ToInt(); ok {
@@ -187,7 +187,7 @@ func (m *Module) csSetInt(rt *runtime.Runtime, args ...value.Value) (value.Value
 		return value.Nil, fmt.Errorf("COMPUTESHADER.SETINT: heap not available")
 	}
 	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("COMPUTESHADER.SETINT expects (compute$, uniformName$, value)")
+		return value.Nil, fmt.Errorf("COMPUTESHADER.SETINT expects (compute, uniformName, value)")
 	}
 	co, err := heap.Cast[*computeShaderObj](rt.Heap, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -221,7 +221,7 @@ func (m *Module) csSetFloat(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, fmt.Errorf("COMPUTESHADER.SETFLOAT: heap not available")
 	}
 	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("COMPUTESHADER.SETFLOAT expects (compute$, uniformName$, value)")
+		return value.Nil, fmt.Errorf("COMPUTESHADER.SETFLOAT expects (compute, uniformName, value)")
 	}
 	co, err := heap.Cast[*computeShaderObj](rt.Heap, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -255,7 +255,7 @@ func (m *Module) csDispatch(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, fmt.Errorf("COMPUTESHADER.DISPATCH: heap not available")
 	}
 	if len(args) != 4 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("COMPUTESHADER.DISPATCH expects (compute$, gx, gy, gz)")
+		return value.Nil, fmt.Errorf("COMPUTESHADER.DISPATCH expects (compute, gx, gy, gz)")
 	}
 	co, err := heap.Cast[*computeShaderObj](rt.Heap, heap.Handle(args[0].IVal))
 	if err != nil {

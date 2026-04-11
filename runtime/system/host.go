@@ -18,14 +18,14 @@ import (
 )
 
 func (m *Module) registerHost(reg runtime.Registrar) {
-	reg.Register("SystemProperty$", "system", m.sysSystemProperty)
+	reg.Register("SystemProperty", "system", m.sysSystemProperty)
 	reg.Register("SYSTEM.CPUNAME", "system", m.sysCpuName)
 	reg.Register("SYSTEM.GPUNAME", "system", m.sysGpuName)
-	reg.Register("GpuName$", "system", m.sysGpuName)
+	reg.Register("GpuName", "system", m.sysGpuName)
 	reg.Register("SYSTEM.TOTALMEMORY", "system", m.sysTotalMemory)
 	reg.Register("SYSTEM.FREEMEMORY", "system", m.sysFreeMemory)
 	reg.Register("SYSTEM.GETENV", "system", m.sysGetenv)
-	reg.Register("ENVIRON$", "system", m.sysGetenv)
+	reg.Register("ENVIRON", "system", m.sysGetenv)
 	reg.Register("SYSTEM.SETENV", "system", m.sysSetenv)
 	reg.Register("SYSTEM.EXECUTE", "system", m.sysExecute)
 	reg.Register("SYSTEM.OPENURL", "system", m.sysOpenURL)
@@ -40,7 +40,7 @@ func (m *Module) registerHost(reg runtime.Registrar) {
 func (m *Module) sysSystemProperty(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = m
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("SystemProperty$ expects (key$)")
+		return value.Nil, runtime.Errorf("SystemProperty expects (key)")
 	}
 	key, err := rt2.ArgString(args, 0)
 	if err != nil {
@@ -169,7 +169,7 @@ func (m *Module) sysFreeMemory(rt2 *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) sysGetenv(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("SYSTEM.GETENV / ENVIRON$ expects (key$)")
+		return value.Nil, runtime.Errorf("SYSTEM.GETENV / ENVIRON expects (key)")
 	}
 	key, err := rt2.ArgString(args, 0)
 	if err != nil {
@@ -180,7 +180,7 @@ func (m *Module) sysGetenv(rt2 *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) sysSetenv(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString || args[1].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("SYSTEM.SETENV expects (key$, val$)")
+		return value.Nil, runtime.Errorf("SYSTEM.SETENV expects (key, val)")
 	}
 	key, err := rt2.ArgString(args, 0)
 	if err != nil {
@@ -196,7 +196,7 @@ func (m *Module) sysSetenv(rt2 *runtime.Runtime, args ...value.Value) (value.Val
 
 func (m *Module) sysExecute(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("SYSTEM.EXECUTE expects (cmd$)")
+		return value.Nil, runtime.Errorf("SYSTEM.EXECUTE expects (cmd)")
 	}
 	cmdline, err := rt2.ArgString(args, 0)
 	if err != nil {
@@ -226,7 +226,7 @@ func shellExec(cmdline string) *exec.Cmd {
 
 func (m *Module) sysOpenURL(rt2 *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, runtime.Errorf("SYSTEM.OPENURL expects (url$)")
+		return value.Nil, runtime.Errorf("SYSTEM.OPENURL expects (url)")
 	}
 	url, err := rt2.ArgString(args, 0)
 	if err != nil {

@@ -16,7 +16,7 @@ Frees the handle.
 
 ---
 
-## `Biome.SetTemp(biome, t#)` / `Biome.SetHumidity(biome, h#)`
+## `Biome.SetTemp(biome, t)` / `Biome.SetHumidity(biome, h)`
 
 Sets normalized or arbitrary scales (see runtime) for **temperature** and **humidity**.
 

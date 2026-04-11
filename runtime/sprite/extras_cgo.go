@@ -227,7 +227,7 @@ func (m *Module) sgFree(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 func (m *Module) slMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("SPRITELAYER.MAKE expects (z#)")
+		return value.Nil, fmt.Errorf("SPRITELAYER.MAKE expects (z)")
 	}
 	z, ok := argF(args[0])
 	if !ok {
@@ -285,7 +285,7 @@ func (m *Module) slClear(rt *runtime.Runtime, args ...value.Value) (value.Value,
 func (m *Module) slSetZ(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SPRITELAYER.SETZ expects (layer, z#)")
+		return value.Nil, fmt.Errorf("SPRITELAYER.SETZ expects (layer, z)")
 	}
 	lh, ok := argHandle(args[0])
 	if !ok {
@@ -437,7 +437,7 @@ func (m *Module) sbFree(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 func (m *Module) suiMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("SPRITEUI.MAKE expects (sprite, anchorX#, anchorY#)")
+		return value.Nil, fmt.Errorf("SPRITEUI.MAKE expects (sprite, anchorX, anchorY)")
 	}
 	sh, ok := argHandle(args[0])
 	if !ok {
@@ -536,7 +536,7 @@ func (m *Module) p2Make(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 func (m *Module) p2Emit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("PARTICLE2D.EMIT expects (p, x, y, vx, vy, life#)")
+		return value.Nil, fmt.Errorf("PARTICLE2D.EMIT expects (p, x, y, vx, vy, life)")
 	}
 	ph, ok := argHandle(args[0])
 	if !ok {
@@ -564,7 +564,7 @@ func (m *Module) p2Emit(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 func (m *Module) p2Update(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("PARTICLE2D.UPDATE expects (p, dt#)")
+		return value.Nil, fmt.Errorf("PARTICLE2D.UPDATE expects (p, dt)")
 	}
 	ph, ok := argHandle(args[0])
 	if !ok {

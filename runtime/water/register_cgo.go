@@ -60,7 +60,7 @@ func castW(m *Module, h heap.Handle) (*WaterObject, error) {
 
 func wMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil || len(args) != 2 {
-		return value.Nil, fmt.Errorf("WATER.MAKE expects width#, depth#")
+		return value.Nil, fmt.Errorf("WATER.MAKE expects width, depth")
 	}
 	wf, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -98,7 +98,7 @@ func wMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 
 func wCreate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if m.h == nil || len(args) != 5 {
-		return value.Nil, fmt.Errorf("WATER.CREATE expects x#, z#, width#, depth#, level#")
+		return value.Nil, fmt.Errorf("WATER.CREATE expects x, z, width, depth, level")
 	}
 	x, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -152,7 +152,7 @@ func wCreate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 func wSetWave(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WATER.SETWAVE expects water, speed#, height#")
+		return value.Nil, fmt.Errorf("WATER.SETWAVE expects water, speed, height")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -196,7 +196,7 @@ func wFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 
 func wSetPos(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("WATER.SETPOS expects water, x#, y#, z#")
+		return value.Nil, fmt.Errorf("WATER.SETPOS expects water, x, y, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -245,7 +245,7 @@ func wDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 
 func wUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("WATER.UPDATE expects dt#")
+		return value.Nil, fmt.Errorf("WATER.UPDATE expects dt")
 	}
 	dt, err := rt.ArgFloat(args, 0)
 	if err != nil {
@@ -263,7 +263,7 @@ func wUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 
 func wSetWaveHeight(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("WATER.SETWAVEHEIGHT expects water, height#")
+		return value.Nil, fmt.Errorf("WATER.SETWAVEHEIGHT expects water, height")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -283,7 +283,7 @@ func wSetWaveHeight(m *Module, rt *runtime.Runtime, args ...value.Value) (value.
 
 func wGetWaveY(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WATER.GETWAVEY expects water, x#, z#")
+		return value.Nil, fmt.Errorf("WATER.GETWAVEY expects water, x, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -307,7 +307,7 @@ func wGetWaveY(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 
 func wGetDepth(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WATER.GETDEPTH expects water, x#, z#")
+		return value.Nil, fmt.Errorf("WATER.GETDEPTH expects water, x, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -330,7 +330,7 @@ func wGetDepth(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 
 func wIsUnder(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("WATER.ISUNDER expects water, x#, y#, z#")
+		return value.Nil, fmt.Errorf("WATER.ISUNDER expects water, x, y, z")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
@@ -400,7 +400,7 @@ func wSetDeep(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 // wSetColor sets shallow tint from packed RGB (bits 16..23, 8..15, 0..7) and scales both shallow/deep alpha from clarity (0..1 or 0..255).
 func wSetColor(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("WATER.SETCOLOR expects water, diffuse#, clarity#")
+		return value.Nil, fmt.Errorf("WATER.SETCOLOR expects water, diffuse, clarity")
 	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {

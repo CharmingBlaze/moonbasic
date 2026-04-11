@@ -79,9 +79,9 @@ Material.SetColor(cubeMat, MATERIAL_MAP_ALBEDO, 130, 200, 255, 255)
 cubeXform = Transform.Identity()
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
-    angle# = angle# + 1.1 * dt#
-    Transform.SetRotation(cubeXform, angle#, angle# * 0.65, angle# * 0.35)
+    dt = Time.Delta()
+    angle = angle + 1.1 * dt
+    Transform.SetRotation(cubeXform, angle, angle * 0.65, angle * 0.35)
     Render.Clear(12, 14, 22)
     cam.Begin()
         Mesh.Draw(cubeMesh, cubeMat, cubeXform)
@@ -140,7 +140,7 @@ Requires CGO. See [GUI.md](reference/GUI.md). Use `GUI.THEMEAPPLY("CYBER")` (and
 GUI.Enable()
 GUI.THEMEAPPLY("DARK")
 IF GUI.BUTTON(20, 100, 120, 28, "OK") THEN
-    status$ = "OK"
+    status = "OK"
 ENDIF
 ```
 
@@ -152,7 +152,7 @@ Quick text write/read without manual `FILE.*` handles:
 
 ```basic
 ok = WRITEALLTEXT("out.txt", "hello")
-data$ = READALLTEXT$("out.txt")
+data = READALLTEXT("out.txt")
 ```
 
 For streaming I/O use `FILE.OPENREAD` / `FILE.OPENWRITE` (see [FILE](reference/FILE.md)).

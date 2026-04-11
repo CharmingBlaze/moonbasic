@@ -28,14 +28,7 @@ func (p *Parser) parseFunctionDef() (*ast.FunctionDef, error) {
 			if err2 != nil {
 				return nil, err2
 			}
-			suf := ""
-			if len(pname) > 0 {
-				last := pname[len(pname)-1]
-				if last == '#' || last == '$' || last == '?' {
-					suf = string(last)
-				}
-			}
-			params = append(params, ast.Param{Name: pname, Suffix: suf})
+			params = append(params, ast.Param{Name: pname})
 			p.skipNewlines()
 			if p.cur().Type == token.COMMA {
 				p.advance()

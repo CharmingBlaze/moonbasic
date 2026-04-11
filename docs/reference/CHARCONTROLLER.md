@@ -13,7 +13,7 @@ For an **entity-based** wrapper (**`PLAYER.CREATE`**, **`PLAYER.MOVE`**, look ta
 
 ---
 
-### `CharController.Make(radius#, height#, x#, y#, z#)`
+### `CharController.Make(radius, height, x, y, z)`
 
 Creates a new virtual character controller with a capsule shape.
 
@@ -24,7 +24,7 @@ Returns a handle to the controller.
 
 ---
 
-### `CharController.Move(handle, dx#, dy#, dz#)`
+### `CharController.Move(handle, dx, dy, dz)`
 
 Updates the character's position based on a desired velocity or displacement vector. The controller will handle collisions with the physics world.
 
@@ -84,23 +84,23 @@ WHILE NOT Window.ShouldClose()
     Physics3D.Step()
 
     ; 3. Update controller from input
-    speed# = 5.0 * Time.Delta()
-    dx# = 0
-    dz# = 0
-    IF Input.KeyDown(KEY_W) THEN dz# = -speed#
-    IF Input.KeyDown(KEY_S) THEN dz# = speed#
-    IF Input.KeyDown(KEY_A) THEN dx# = -speed#
-    IF Input.KeyDown(KEY_D) THEN dx# = speed#
-    CharController.Move(player, dx#, 0, dz#)
+    speed = 5.0 * Time.Delta()
+    dx = 0
+    dz = 0
+    IF Input.KeyDown(KEY_W) THEN dz = -speed
+    IF Input.KeyDown(KEY_S) THEN dz = speed
+    IF Input.KeyDown(KEY_A) THEN dx = -speed
+    IF Input.KeyDown(KEY_D) THEN dx = speed
+    CharController.Move(player, dx, 0, dz)
 
     ; 4. Synchronize visuals
-    player_x# = CharController.X(player)
-    player_y# = CharController.Y(player)
-    player_z# = CharController.Z(player)
-    cam.SetPos(player_x#, player_y# + 10, player_z# + 15)
-    cam.SetTarget(player_x#, player_y#, player_z#)
+    player_x = CharController.X(player)
+    player_y = CharController.Y(player)
+    player_z = CharController.Z(player)
+    cam.SetPos(player_x, player_y + 10, player_z + 15)
+    cam.SetTarget(player_x, player_y, player_z)
 
-    player_transform = Transform.Translation(player_x#, player_y#, player_z#)
+    player_transform = Transform.Translation(player_x, player_y, player_z)
 
     Render.Clear(20, 30, 40)
     cam.Begin()

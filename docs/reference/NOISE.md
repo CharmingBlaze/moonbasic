@@ -26,7 +26,7 @@ Creates a generator with defaults: type `"perlin"`, seed `1337`, frequency `0.01
 ng = Noise.Make()
 Noise.SetSeed(ng, 99)
 Noise.SetFrequency(ng, 0.004)
-h# = Noise.Get(ng, 10, 20)
+h = Noise.Get(ng, 10, 20)
 Noise.Free(ng)
 ```
 
@@ -51,7 +51,7 @@ Releases generator state. Safe to call twice (second is a no-op on the handle ta
 ### Noise.SetType
 
 ```basic
-Noise.SetType(ng, type$)
+Noise.SetType(ng, type)
 ```
 
 Selects the algorithm **before the first sample**. `type` examples: `"perlin"`, `"simplex"`, `"simplex_smooth"`, `"value"`, `"cellular"`, `"fractal_fbm"`, `"fractal_ridged"`, `"fractal_pingpong"`, `"domain_warp"`.
@@ -85,7 +85,7 @@ Integer seed for deterministic worlds (multiplayer / replay).
 ### Noise.SetFrequency
 
 ```basic
-Noise.SetFrequency(ng, freq#)
+Noise.SetFrequency(ng, freq)
 ```
 
 Feature size: lower = smoother/larger hills; typical terrain `0.001`–`0.05`.
@@ -96,8 +96,8 @@ Feature size: lower = smoother/larger hills; typical terrain `0.001`–`0.05`.
 
 ```basic
 Noise.SetOctaves(ng, count)
-Noise.SetLacunarity(ng, lac#)
-Noise.SetGain(ng, gain#)
+Noise.SetLacunarity(ng, lac)
+Noise.SetGain(ng, gain)
 ```
 
 Fractal controls (used by `fractal_*` types). Defaults: octaves `3`, lacunarity `2`, gain `0.5`.
@@ -107,7 +107,7 @@ Fractal controls (used by `fractal_*` types). Defaults: octaves `3`, lacunarity 
 ### Noise.SetWeightedStrength
 
 ```basic
-Noise.SetWeightedStrength(ng, strength#)
+Noise.SetWeightedStrength(ng, strength)
 ```
 
 Emphasises higher octaves when using **`fractal_fbm`** (`0` = off, `1` = strong).
@@ -117,7 +117,7 @@ Emphasises higher octaves when using **`fractal_fbm`** (`0` = off, `1` = strong)
 ### Noise.SetPingPongStrength
 
 ```basic
-Noise.SetPingPongStrength(ng, strength#)
+Noise.SetPingPongStrength(ng, strength)
 ```
 
 Shapes **`fractal_pingpong`** output (default internal `2` if unset).
@@ -127,9 +127,9 @@ Shapes **`fractal_pingpong`** output (default internal `2` if unset).
 ### Noise.SetCellularType / SetCellularDistance / SetCellularJitter
 
 ```basic
-Noise.SetCellularType(ng, type$)
-Noise.SetCellularDistance(ng, func$)
-Noise.SetCellularJitter(ng, jitter#)
+Noise.SetCellularType(ng, type)
+Noise.SetCellularDistance(ng, func)
+Noise.SetCellularJitter(ng, jitter)
 ```
 
 Cellular / Voronoi flavour. `type` examples: `"distance"`, `"cell_value"`. Distance `"manhattan"` selects a different metric (approximate). Jitter is reserved for future fine-tuning.
@@ -139,8 +139,8 @@ Cellular / Voronoi flavour. `type` examples: `"distance"`, `"cell_value"`. Dista
 ### Noise.SetDomainWarpType / Noise.SetDomainWarpAmplitude
 
 ```basic
-Noise.SetDomainWarpType(ng, type$)
-Noise.SetDomainWarpAmplitude(ng, amp#)
+Noise.SetDomainWarpType(ng, type)
+Noise.SetDomainWarpAmplitude(ng, amp)
 ```
 
 `type` is stored for compatibility; warp uses internal low-frequency **`Simplex2`** offsets. **`amp`** scales warp strength (default `1`).
@@ -150,7 +150,7 @@ Noise.SetDomainWarpAmplitude(ng, amp#)
 ### Noise.Get
 
 ```basic
-h# = Noise.Get(ng, x#, y#)
+h = Noise.Get(ng, x, y)
 ```
 
 Samples **2D** noise ~`[-1,1]`. Locks configuration (no further **`Set*`**).
@@ -167,7 +167,7 @@ Samples **2D** noise ~`[-1,1]`. Locks configuration (no further **`Set*`**).
 ### Noise.Get3D
 
 ```basic
-h# = Noise.Get3D(ng, x#, y#, z#)
+h = Noise.Get3D(ng, x, y, z)
 ```
 
 Cheap 3D field (blended planes / cellular blend). ~`[-1,1]`.
@@ -177,7 +177,7 @@ Cheap 3D field (blended planes / cellular blend). ~`[-1,1]`.
 ### Noise.GetDomainWarped
 
 ```basic
-h# = Noise.GetDomainWarped(ng, x#, y#)
+h = Noise.GetDomainWarped(ng, x, y)
 ```
 
 Applies domain warp, then evaluates the active type (turbulent coastlines, etc.).
@@ -187,7 +187,7 @@ Applies domain warp, then evaluates the active type (turbulent coastlines, etc.)
 ### Noise.GetNorm
 
 ```basic
-h# = Noise.GetNorm(ng, x#, y#)
+h = Noise.GetNorm(ng, x, y)
 ```
 
 Returns **`0..1`**: `(Get + 1) * 0.5` clamped.
@@ -197,7 +197,7 @@ Returns **`0..1`**: `(Get + 1) * 0.5` clamped.
 ### Noise.GetTileable
 
 ```basic
-h# = Noise.GetTileable(ng, x#, y#, w#, h#)
+h = Noise.GetTileable(ng, x, y, w, h)
 ```
 
 Approximate **seamless** tiling using a torus parameterisation; `w`, `h` are tile size in the same units as `x`, `y`.
@@ -207,7 +207,7 @@ Approximate **seamless** tiling using a torus parameterisation; `w`, `h` are til
 ### Noise.FillArray
 
 ```basic
-Noise.FillArray(ng, arr, width, height, offsetX#, offsetY#)
+Noise.FillArray(ng, arr, width, height, offsetX, offsetY)
 ```
 
 Writes **`width*height`** floats into **`arr`** (numeric array), row-major. Values ~`[-1,1]`.
@@ -225,7 +225,7 @@ Same as **`FillArray`**, but writes **`0..1`**.
 ### Noise.FillImage
 
 ```basic
-Noise.FillImage(ng, img, offsetX#, offsetY#)
+Noise.FillImage(ng, img, offsetX, offsetY)
 ```
 
 Fills a greyscale **`Image`** (CPU) for debugging / textures. **Requires CGO** (Raylib). On `!cgo` builds, returns an error.
@@ -235,11 +235,11 @@ Fills a greyscale **`Image`** (CPU) for debugging / textures. **Requires CGO** (
 ### Noise.MakePerlin / MakeSimplex / MakeFractal / MakeCellular / MakeDomainWarp
 
 ```basic
-ng = Noise.MakePerlin(seed, freq#)
-ng = Noise.MakeSimplex(seed, freq#)
-ng = Noise.MakeFractal(seed, freq#, octaves, type$)
-ng = Noise.MakeCellular(seed, freq#, celltype$)
-ng = Noise.MakeDomainWarp(seed, freq#, amp#)
+ng = Noise.MakePerlin(seed, freq)
+ng = Noise.MakeSimplex(seed, freq)
+ng = Noise.MakeFractal(seed, freq, octaves, type)
+ng = Noise.MakeCellular(seed, freq, celltype)
+ng = Noise.MakeDomainWarp(seed, freq, amp)
 ```
 
 Convenience constructors (pre-configured, no separate **`SetType`** needed).  
@@ -249,7 +249,7 @@ Convenience constructors (pre-configured, no separate **`SetType`** needed).
 
 ```basic
 ng = Noise.MakeFractal(42, 0.005, 6, "ridged")
-h# = Noise.GetNorm(ng, x#, z#)
+h = Noise.GetNorm(ng, x, z)
 Noise.Free(ng)
 ```
 

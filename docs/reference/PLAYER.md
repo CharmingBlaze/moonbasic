@@ -70,15 +70,15 @@ hero = Entity.Load("hero.iqm")
 Player.Create(hero)
 
 WHILE Window.Open()
-    dt# = Time.Delta()
+    dt = Time.Delta()
     Player.Move(hero, Input.AxisX() * 5.0, Input.AxisY() * 5.0)
     IF Player.IsGrounded(hero) AND Input.KeyPressed(KEY_SPACE) THEN
         Player.Jump(hero, 6.0)
     ENDIF
     target = Player.GetLookTarget(hero, 3.0)
     IF target <> 0 AND Input.KeyPressed(KEY_E) THEN
-        fn$ = LEVEL.MATCHSCRIPTBIND(EntityName(target))
-        REM dispatch fn$ in your script...
+        fn = LEVEL.MATCHSCRIPTBIND(EntityName(target))
+        REM dispatch fn in your script...
     ENDIF
     Player.SyncAnim(hero, 0.12)
     Begin3D()

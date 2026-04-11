@@ -38,13 +38,13 @@ func registerEntityUnifiedModelAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.GETBOUNDS", "entity", runtime.AdaptLegacy(m.entGetModelBounds))
 	r.Register("ENTITY.RAYHIT", "entity", runtime.AdaptLegacy(m.entRayHit))
 	r.Register("ENTITY.POINTAT", "entity", runtime.AdaptLegacy(m.entPointEntity))
-	r.Register("ENTITY.ANIMNAME$", "entity", m.entAnimNameAt)
-	r.Register("ENTITY.CURRENTANIM$", "entity", m.entCurrentAnimName)
+	r.Register("ENTITY.ANIMNAME", "entity", m.entAnimNameAt)
+	r.Register("ENTITY.CURRENTANIM", "entity", m.entCurrentAnimName)
 }
 
 func (m *Module) entLoadAnimationsExternal(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.LOADANIMATIONS expects (entity#, path$)")
+		return value.Nil, fmt.Errorf("ENTITY.LOADANIMATIONS expects (entity, path)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -80,7 +80,7 @@ func (m *Module) entLoadAnimationsExternal(rt *runtime.Runtime, args ...value.Va
 
 func (m *Module) entPlay(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.PLAY expects (entity#, animIndex)")
+		return value.Nil, fmt.Errorf("ENTITY.PLAY expects (entity, animIndex)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -103,7 +103,7 @@ func (m *Module) entPlay(args []value.Value) (value.Value, error) {
 
 func (m *Module) entPlayName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.PLAYNAME expects (entity#, name$)")
+		return value.Nil, fmt.Errorf("ENTITY.PLAYNAME expects (entity, name)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -135,7 +135,7 @@ func (m *Module) entPlayName(rt *runtime.Runtime, args ...value.Value) (value.Va
 
 func (m *Module) entStopAnim(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.STOPANIM expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.STOPANIM expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -151,7 +151,7 @@ func (m *Module) entStopAnim(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetAnimFrame(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETANIMFRAME expects (entity#, frame#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETANIMFRAME expects (entity, frame)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -189,7 +189,7 @@ func (m *Module) entSetAnimFrame(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetAnimSpeedOnly(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETANIMSPEED expects (entity#, speed#)")
+		return value.Nil, fmt.Errorf("ENTITY.SETANIMSPEED expects (entity, speed)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -209,7 +209,7 @@ func (m *Module) entSetAnimSpeedOnly(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetAnimLoop(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETANIMLOOP expects (entity#, loop?)")
+		return value.Nil, fmt.Errorf("ENTITY.SETANIMLOOP expects (entity, loop)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -244,7 +244,7 @@ func argBool(v value.Value) (bool, bool) {
 
 func (m *Module) entIsPlayingAnim(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.ISPLAYING expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.ISPLAYING expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -261,7 +261,7 @@ func (m *Module) entIsPlayingAnim(args []value.Value) (value.Value, error) {
 
 func (m *Module) entCrossfade(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.CROSSFADE expects (entity#, nextIndex, duration#)")
+		return value.Nil, fmt.Errorf("ENTITY.CROSSFADE expects (entity, nextIndex, duration)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -284,7 +284,7 @@ func (m *Module) entCrossfade(args []value.Value) (value.Value, error) {
 
 func (m *Module) entTransition(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.TRANSITION expects (entity#, name$, duration#): duration reserved; same as PLAYNAME")
+		return value.Nil, fmt.Errorf("ENTITY.TRANSITION expects (entity, name, duration): duration reserved; same as PLAYNAME")
 	}
 	_, err := rt.ArgString(args, 1)
 	if err != nil {
@@ -330,7 +330,7 @@ func (m *Module) entGetBonePos(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.GETBONEPOS: heap not bound")
 	}
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.GETBONEPOS expects (entity#, boneName$)")
+		return value.Nil, fmt.Errorf("ENTITY.GETBONEPOS expects (entity, boneName)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -371,7 +371,7 @@ func (m *Module) entGetBoneRot(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.GETBONEROT: heap not bound")
 	}
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.GETBONEROT expects (entity#, boneName$)")
+		return value.Nil, fmt.Errorf("ENTITY.GETBONEROT expects (entity, boneName)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -412,7 +412,7 @@ func (m *Module) entGetBoneRot(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetTextureMap(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.SETTEXTUREMAP expects (entity#, materialIndex, textureHandle)")
+		return value.Nil, fmt.Errorf("ENTITY.SETTEXTUREMAP expects (entity, materialIndex, textureHandle)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -454,7 +454,7 @@ func matchMaterialGlob(pat, s string) bool {
 
 func (m *Module) materialBulkAssign(args []value.Value) (value.Value, error) {
 	if len(args) != 2 && len(args) != 3 {
-		return value.Nil, fmt.Errorf("MATERIAL.BULKASSIGN expects (pattern$, textureHandle [, materialIndex#])")
+		return value.Nil, fmt.Errorf("MATERIAL.BULKASSIGN expects (pattern, textureHandle [, materialIndex])")
 	}
 	if args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("pattern must be string")
@@ -501,7 +501,7 @@ func (m *Module) materialBulkAssign(args []value.Value) (value.Value, error) {
 
 func (m *Module) entGetMetadata(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("ENTITY.GETMETADATA expects (entity#, key$)")
+		return value.Nil, fmt.Errorf("ENTITY.GETMETADATA expects (entity, key)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -536,7 +536,7 @@ func (m *Module) entSetShaderModel(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.SETSHADER: heap not bound")
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.SETSHADER expects (entity#, shaderHandle)")
+		return value.Nil, fmt.Errorf("ENTITY.SETSHADER expects (entity, shaderHandle)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -608,7 +608,7 @@ func (m *Module) entGetModelBounds(args []value.Value) (value.Value, error) {
 		return value.Nil, runtime.Errorf("ENTITY.GETBOUNDS: heap not bound")
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.GETBOUNDS expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.GETBOUNDS expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -640,7 +640,7 @@ func (m *Module) entGetModelBounds(args []value.Value) (value.Value, error) {
 
 func (m *Module) entRayHit(args []value.Value) (value.Value, error) {
 	if len(args) != 7 {
-		return value.Nil, fmt.Errorf("ENTITY.RAYHIT expects (entity#, ox#, oy#, oz#, dx#, dy#, dz#)")
+		return value.Nil, fmt.Errorf("ENTITY.RAYHIT expects (entity, ox, oy, oz, dx, dy, dz)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -675,7 +675,7 @@ func (m *Module) entRayHit(args []value.Value) (value.Value, error) {
 
 func (m *Module) entAnimNameAt(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("ENTITY.ANIMNAME$ expects (entity#, idx)")
+		return value.Nil, fmt.Errorf("ENTITY.ANIMNAME expects (entity, idx)")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
@@ -688,14 +688,14 @@ func (m *Module) entAnimNameAt(rt *runtime.Runtime, args ...value.Value) (value.
 	ext := e.getExt()
 	idx, ok := args[1].ToInt()
 	if !ok || idx < 0 || int(idx) >= len(ext.modelAnims) {
-		return value.Nil, fmt.Errorf("ENTITY.ANIMNAME$: invalid index")
+		return value.Nil, fmt.Errorf("ENTITY.ANIMNAME: invalid index")
 	}
 	return rt.RetString(ext.modelAnims[idx].GetName()), nil
 }
 
 func (m *Module) entCurrentAnimName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.CURRENTANIM$ expects entity#")
+		return value.Nil, fmt.Errorf("ENTITY.CURRENTANIM expects entity")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {

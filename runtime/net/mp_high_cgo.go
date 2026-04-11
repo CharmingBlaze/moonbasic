@@ -225,9 +225,7 @@ func (m *Module) srvStop(rt *runtime.Runtime, args ...value.Value) (value.Value,
 }
 
 func (m *Module) srvOnConnect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SERVER.ONCONNECT expects functionName$")
-	}
+		return value.Nil, fmt.Errorf("SERVER.ONCONNECT expects functionName")
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
 		return value.Nil, err
@@ -240,7 +238,7 @@ func (m *Module) srvOnConnect(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) srvOnDisconnect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SERVER.ONDISCONNECT expects functionName$")
+		return value.Nil, fmt.Errorf("SERVER.ONDISCONNECT expects functionName")
 	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -254,7 +252,7 @@ func (m *Module) srvOnDisconnect(rt *runtime.Runtime, args ...value.Value) (valu
 
 func (m *Module) srvOnMessage(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("SERVER.ONMESSAGE expects functionName$")
+		return value.Nil, fmt.Errorf("SERVER.ONMESSAGE expects functionName")
 	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -500,7 +498,7 @@ func (m *Module) cliConnect(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, runtime.Errorf("CLIENT.CONNECT: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("CLIENT.CONNECT expects (host$, port)")
+		return value.Nil, fmt.Errorf("CLIENT.CONNECT expects (host, port)")
 	}
 	host, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -568,7 +566,7 @@ func (m *Module) cliStop(rt *runtime.Runtime, args ...value.Value) (value.Value,
 
 func (m *Module) cliOnConnect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("CLIENT.ONCONNECT expects functionName$")
+		return value.Nil, fmt.Errorf("CLIENT.ONCONNECT expects functionName")
 	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -582,7 +580,7 @@ func (m *Module) cliOnConnect(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) cliOnMessage(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("CLIENT.ONMESSAGE expects functionName$")
+		return value.Nil, fmt.Errorf("CLIENT.ONMESSAGE expects functionName")
 	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -596,7 +594,7 @@ func (m *Module) cliOnMessage(rt *runtime.Runtime, args ...value.Value) (value.V
 
 func (m *Module) cliOnSync(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("CLIENT.ONSYNC expects functionName$")
+		return value.Nil, fmt.Errorf("CLIENT.ONSYNC expects functionName")
 	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -630,7 +628,7 @@ func (m *Module) cliTick(rt *runtime.Runtime, args ...value.Value) (value.Value,
 
 func (m *Module) rpcCall(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) < 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("RPC.CALL expects (functionName$, ...)")
+		return value.Nil, fmt.Errorf("RPC.CALL expects (functionName, ...)")
 	}
 	fn, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -658,7 +656,7 @@ func (m *Module) rpcCall(rt *runtime.Runtime, args ...value.Value) (value.Value,
 
 func (m *Module) rpcCallTo(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) < 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("RPC.CALLTO expects (peer, functionName$, ...)")
+		return value.Nil, fmt.Errorf("RPC.CALLTO expects (peer, functionName, ...)")
 	}
 	fn, err := rt.ArgString(args, 1)
 	if err != nil {
@@ -683,7 +681,7 @@ func (m *Module) rpcCallTo(rt *runtime.Runtime, args ...value.Value) (value.Valu
 
 func (m *Module) rpcCallServer(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) < 1 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("RPC.CALLSERVER expects (functionName$, ...)")
+		return value.Nil, fmt.Errorf("RPC.CALLSERVER expects (functionName, ...)")
 	}
 	fn, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -719,7 +717,7 @@ func (m *Module) lobbyCreate(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, runtime.Errorf("LOBBY.CREATE: heap not bound")
 	}
 	if len(args) != 2 || args[0].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LOBBY.CREATE expects (name$, maxPlayers)")
+		return value.Nil, fmt.Errorf("LOBBY.CREATE expects (name, maxPlayers)")
 	}
 	name, err := rt.ArgString(args, 0)
 	if err != nil {
@@ -771,7 +769,7 @@ func (m *Module) lobbySetProperty(rt *runtime.Runtime, args ...value.Value) (val
 		return value.Nil, runtime.Errorf("LOBBY.SETPROPERTY: heap not bound")
 	}
 	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString || args[2].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LOBBY.SETPROPERTY expects (lobby, key$, value$)")
+		return value.Nil, fmt.Errorf("LOBBY.SETPROPERTY expects (lobby, key, value)")
 	}
 	o, err := heap.Cast[*lobbyObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -791,7 +789,7 @@ func (m *Module) lobbySetHost(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, runtime.Errorf("LOBBY.SETHOST: heap not bound")
 	}
 	if len(args) != 3 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindString {
-		return value.Nil, fmt.Errorf("LOBBY.SETHOST expects (lobby, host$, port)")
+		return value.Nil, fmt.Errorf("LOBBY.SETHOST expects (lobby, host, port)")
 	}
 	o, err := heap.Cast[*lobbyObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
