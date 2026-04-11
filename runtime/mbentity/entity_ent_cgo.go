@@ -22,7 +22,7 @@ const (
 	entKindModel
 	entKindCapsule // MODEL.CREATECAPSULE — visual capsule (physics already used Jolt capsule)
 )
-	
+
 type complexTween struct {
 	prop     string
 	start    float32
@@ -31,7 +31,6 @@ type complexTween struct {
 	duration float32
 	ease     string
 }
-
 
 // ent is a lightweight Blitz-style object (Essentails: ID, Transform, Appearance, Physics).
 type ent struct {
@@ -43,15 +42,15 @@ type ent struct {
 	scale   rl.Vector3
 
 	// Appearance & Rendering
-	r, g, b          uint8
-	alpha            float32
-	hidden           bool
-	shininess        float32
-	texHandle        heap.Handle
-	fxFlags          int32
-	blendMode        int32 // -1 = default; else rl.BlendMode when drawing
-	drawOrder        int32
-	cullMode         int32 // 0=Auto (Frustum), 1=Force Visible, 2=Force Hidden
+	r, g, b   uint8
+	alpha     float32
+	hidden    bool
+	shininess float32
+	texHandle heap.Handle
+	fxFlags   int32
+	blendMode int32 // -1 = default; else rl.BlendMode when drawing
+	drawOrder int32
+	cullMode  int32 // 0=Auto (Frustum), 1=Force Visible, 2=Force Hidden
 
 	// Geometry Bounds (Used for fast culling/picking)
 	w, h, d    float32
@@ -60,24 +59,25 @@ type ent struct {
 	cylH       float32
 
 	// Legacy Physics & State
-	useSphere bool
-	static    bool
-	vel       rl.Vector3
-	gravity   float32
-	onGround  bool
+	useSphere        bool
+	static           bool
+	vel              rl.Vector3
+	gravity          float32
+	gravScale        float32 // ENTITY.SETGRAVITYSCALE multiplier (default 1)
+	onGround         bool
 	groundCoyoteLeft int32
-	jumpGrounded bool
-	mass      float32
-	friction  float32
-	bounce    float32
-	pickMode  int32
+	jumpGrounded     bool
+	mass             float32
+	friction         float32
+	bounce           float32
+	pickMode         int32
 
 	// Core Handles
-	rlModel    rl.Model
-	hasRLModel bool
+	rlModel      rl.Model
+	hasRLModel   bool
 	physBufIndex int
 	// physicsDriven: Jolt-linked body owns motion; ENTITY.UPDATE must not apply scripted vel/gravity.
-	physicsDriven bool
+	physicsDriven  bool
 	collisionLayer uint8
 
 	ext *entExt // Modular extensions (AI, Tweens, Animation State, Collision Results)
@@ -88,7 +88,7 @@ type entExt struct {
 	name       string
 	blenderTag string
 	parentID   int64
-	brushH     heap.Handle 
+	brushH     heap.Handle
 	procMeshH  heap.Handle
 
 	// Animation State (Moved from core)
@@ -97,23 +97,23 @@ type entExt struct {
 	animIndex  int32
 	animTime   float32
 	animSpeed  float32
-	animMode   int32 
+	animMode   int32
 	animLen    float32
 	animClip0  int32
 	animClip1  int32
 
 	// Bone / Attachment Data
-	boneHostID      int64
-	boneIndex       int32
-	boneWorld       rl.Matrix
-	boneWorldValid  bool
+	boneHostID     int64
+	boneIndex      int32
+	boneWorld      rl.Matrix
+	boneWorldValid bool
 
 	// Collision Results (Bookkeeping)
 	collided            bool
 	otherID             int64
 	hits                []int64
-	hitPos              []rl.Vector3 
-	hitN                []rl.Vector3 
+	hitPos              []rl.Vector3
+	hitN                []rl.Vector3
 	collType            int32
 	hasHit              bool
 	hitX, hitY, hitZ    float32
@@ -121,42 +121,76 @@ type entExt struct {
 	slide               bool
 
 	// Tweens
-	tweenActive              bool
-	tweenSX, tweenSY, tweenSZ float32
-	tweenTX, tweenTY, tweenTZ float32
+	tweenActive                 bool
+	tweenSX, tweenSY, tweenSZ   float32
+	tweenTX, tweenTY, tweenTZ   float32
 	tweenElapsed, tweenDuration float32
-	tweenFading              bool
-	tweenAlphaStart          float32
-	tweenAlphaEnd            float32
-	tweenTurning             bool
-	turnTargetX, turnTargetZ float32
-	turnSpeed                float32
-	tweenPulsing             bool
-	pulseR1, pulseG1, pulseB1 uint8
-	pulseR2, pulseG2, pulseB2 uint8
-	pulseSpeed               float32
-	pulseT                   float32
-	complexTweens            []complexTween
+	tweenFading                 bool
+	tweenAlphaStart             float32
+	tweenAlphaEnd               float32
+	tweenTurning                bool
+	turnTargetX, turnTargetZ    float32
+	turnSpeed                   float32
+	tweenPulsing                bool
+	pulseR1, pulseG1, pulseB1   uint8
+	pulseR2, pulseG2, pulseB2   uint8
+	pulseSpeed                  float32
+	pulseT                      float32
+	complexTweens               []complexTween
 
 	// Image Sequence / Sprite
 	isSprite   bool
-	spriteMode int32 
+	spriteMode int32
 	seqH       heap.Handle
 	seqFPS     float32
 	seqTime    float32
 	seqLoop    bool
 
 	// AI State
-	aiMode       string
-	aiTarget     int64
-	aiWaypoints  []rl.Vector3
-	aiSpeed      float32
-	aiIndex      int
+	aiMode         string
+	aiTarget       int64
+	aiWaypoints    []rl.Vector3
+	aiSpeed        float32
+	aiIndex        int
 	aiWanderCenter rl.Vector3
 	aiWanderRadius float32
-	onHitAction  string
-	ghostMode    bool
-	ghostTimer   float32
+	onHitAction    string
+	ghostMode      bool
+	ghostTimer     float32
+
+	// Scripted movement / combat helpers (NAVTO, PATROL ping-pong, MAGNETTO)
+	navActive  bool
+	navTX      float32
+	navTZ      float32
+	navSpeed   float32
+	navArrival float32
+
+	patrolActive       bool
+	patrolAX, patrolAZ float32
+	patrolBX, patrolBZ float32
+	patrolSpeed        float32
+	patrolToB          bool
+
+	magnetActive bool
+	magnetTarget int64
+	magnetRadius float32
+	magnetSpeed  float32
+
+	hpCur           float32
+	hpMax           float32
+	deathDropPrefab int64
+	deathDropChance float32
+
+	wobbleAmp     float32
+	wobbleSpeed   float32
+	wobblePhase   float32
+	wobbleLastOff float32
+
+	trailCap               int
+	trailSeg               []rl.Vector3
+	trailHead              int
+	trailCount             int
+	trailR, trailG, trailB uint8
 
 	// Polish
 	outlineThickness float32
@@ -187,24 +221,32 @@ func (e *ent) boneWorldValid() bool {
 }
 
 func (e *ent) getPos() rl.Vector3 {
-	if e.spatial == nil { return rl.Vector3{} }
+	if e.spatial == nil {
+		return rl.Vector3{}
+	}
 	return rl.Vector3{X: e.spatial.X[e.id], Y: e.spatial.Y[e.id], Z: e.spatial.Z[e.id]}
 }
 
 func (e *ent) setPos(v rl.Vector3) {
-	if e.spatial == nil { return }
+	if e.spatial == nil {
+		return
+	}
 	e.spatial.X[e.id] = v.X
 	e.spatial.Y[e.id] = v.Y
 	e.spatial.Z[e.id] = v.Z
 }
 
 func (e *ent) getRot() (p, w, r float32) {
-	if e.spatial == nil { return 0, 0, 0 }
+	if e.spatial == nil {
+		return 0, 0, 0
+	}
 	return e.spatial.P[e.id], e.spatial.W[e.id], e.spatial.R[e.id]
 }
 
 func (e *ent) setRot(p, w, r float32) {
-	if e.spatial == nil { return }
+	if e.spatial == nil {
+		return
+	}
 	e.spatial.P[e.id] = p
 	e.spatial.W[e.id] = w
 	e.spatial.R[e.id] = r
@@ -223,6 +265,7 @@ func newDefaultEnt(id int64, s *runtime.SpatialBuffer) *ent {
 		mass:         1,
 		friction:     0.9,
 		bounce:       0,
+		gravScale:    1,
 		physBufIndex: -1,
 	}
 	// Default transform in SoA

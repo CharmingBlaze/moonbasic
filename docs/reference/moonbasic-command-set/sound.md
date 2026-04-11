@@ -1,8 +1,15 @@
 # Sound
 
-| Designed | Implementation | Memory / notes |
-|----------|----------------|----------------|
-| **LoadSound (file)** | **`AUDIO.LOADSOUND`** | **Sound/music handle** — stop then unload per [AUDIO.md](../AUDIO.md). |
-| **PlaySound / LoopSound** | **`AUDIO.PLAY`** | |
-| **StopSound** | **`AUDIO.STOP`** | |
-| **SoundVolume / Pan / Pitch** | **`AUDIO.SETSOUNDVOLUME`**, **`SETSOUNDPAN`**, **`SETSOUNDPITCH`** | |
+| Designed | moonBASIC | Memory / notes |
+|----------|------------|----------------|
+| **LoadSound(file)** | **`Audio.LoadSound()`** | Returns a **sound handle**. |
+| **PlaySound(id)** | **`Audio.Play()`** | Plays sound or music. |
+| **StopSound(id)** | **`Audio.Stop()`** | |
+| **SoundVolume(id, v)** | **`Audio.SetVolume()`** | |
+| **SoundPan(id, p)** | **`Audio.SetPan()`** | |
+| **SoundPitch(id, p)** | **`Audio.SetPitch()`** | |
+| **FreeSound(id)** | **`Sound.Free()`** | Unloads from memory. |
+| **LoadMusic(file)** | **`Audio.LoadMusic()`** | Streaming from disk. |
+| **PlayMusic(id)** | **`Audio.Play()`** | |
+| **StopMusic(id)** | **`Audio.Stop()`** | |
+| **FreeMusic(id)** | **`Music.Free()`** | |

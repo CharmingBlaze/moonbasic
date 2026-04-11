@@ -31,69 +31,27 @@ These builtins are **aliases** of the matching **`DRAW3D.*`** command (same argu
 
 ## Primitives
 
-### `Draw3D.Grid(slices, spacing)`
-
-Reference grid in the XZ plane. `slices`: number of divisions; `spacing`: world units between lines.
-
-### `Draw3D.Line(x1, y1, z1, x2, y2, z2, r, g, b, a)`
-
-Line segment in world space; `r,g,b,a` are 0–255.
-
-### `Draw3D.Point(x, y, z, r, g, b, a)`
-
-Single point (pixel) in 3D.
+### `Draw3D.Cube(x, y, z, w, h, d, r, g, b, a)`
+Draws an axis-aligned solid box centered at `(x, y, z)`.
 
 ### `Draw3D.Sphere(x, y, z, radius, r, g, b, a)`
+Draws a solid sphere.
 
-Solid sphere.
+---
 
-### `Draw3D.SphereWires(x, y, z, radius, rings, slices, r, g, b, a)`
+### `Draw3D.Line(x1, y1, z1, x2, y2, z2, r, g, b, a)`
+Draws a line segment in world space.
 
-Wireframe sphere; `rings` and `slices` are integer segment counts.
+### `Draw3D.Grid(slices, spacing)`
+Draws a reference grid in the XZ plane. `slices`: number of divisions; `spacing`: world units between lines.
 
-### `Draw3D.Cube(x, y, z, w, h, d, r, g, b, a)`
-
-Axis-aligned solid cube centered at `(x,y,z)` with size `(w,h,d)`.
-
-### `Draw3D.CubeWires(...)`
-
-Same arguments as `Draw3D.Cube`; wireframe box.
-
-### `Draw3D.Cylinder(x, y, z, rTop, rBot, h, slices, r, g, b, a)`
-
-Solid cylinder; `rTop` / `rBot` are top and bottom radii.
-
-### `Draw3D.CylinderWires(...)`
-
-Same arity as `Draw3D.Cylinder`.
-
-### `Draw3D.Capsule(sx, sy, sz, ex, ey, ez, radius, slices, rings, r, g, b, a)`
-
-Solid capsule between start `(sx,sy,sz)` and end `(ex,ey,ez)`.
-
-### `Draw3D.CapsuleWires(...)`
-
-Same arity as `Draw3D.Capsule`.
-
-### `Draw3D.Plane(x, y, z, width, depth, r, g, b, a)`
-
-Horizontal plane through `(x,y,z)` with size `(width, depth)`.
-
-### `Draw3D.BBox(minx, miny, minz, maxx, maxy, maxz, r, g, b, a)`
-
-Axis-aligned bounding box wireframe.
-
-### `Draw3D.Ray(rayArray, r, g, b, a)`
-
-`rayArray` is a **6-element float array handle**: origin `(x,y,z)` then direction `(dx,dy,dz)`. Use with `Camera.GetRay` / `Camera.GetViewRay` or your own array.
+---
 
 ### `Draw3D.Billboard(tex, x, y, z, size, r, g, b, a)`
+Draws a textured billboard facing the **active 3D camera**. **Must** be called inside `Camera.Begin()` / `Camera.End()`.
 
-Textured billboard facing the **active 3D camera**. **Must** be called inside `Camera.Begin` / `Camera.End` (the runtime needs the current camera).
-
-### `Draw3D.BillboardRec(tex, srcX, srcY, srcW, srcH, x, y, z, w, h, r, g, b, a)`
-
-Billboard with a source rectangle on the texture and destination size `(w, h)` in world units. Same active-camera requirement as `Draw3D.Billboard`.
+### `Draw3D.Ray(handle, r, g, b, a)`
+Draws a debug ray from a **6-element float array handle**: origin `(x, y, z)` then direction `(dx, dy, dz)`.
 
 ---
 

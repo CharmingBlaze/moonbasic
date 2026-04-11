@@ -12,126 +12,55 @@ Registry keys use **dots and uppercase** (e.g. `SPRITE.LOAD`). This document use
 
 ---
 
-### Sprite.Load
+### `Sprite.Load(path)`
+Loads an image and returns a **sprite handle**.
 
-```basic
-spr = SPRITE.LOAD(path)
-```
-
-Loads an image file from disk (**PNG**, **JPG**, etc.). Returns a **sprite handle** covering the full texture as a single frame until you **`SPRITE.DEFANIM`** or use an **atlas** sub-rectangle.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| path | string | Path to image file. |
-
-**Returns** — handle.
-
-> **Common mistake:** Expecting **Aseprite JSON** animation import — use a **horizontal strip** with **`SPRITE.DEFANIM`** or **`ATLAS.LOAD`** + **`ATLAS.GETSPRITE`**.
-
-**See also:** `ATLAS.LOAD`, `SPRITE.DEFANIM`
+### `Sprite.Free(handle)`
+Unloads the sprite and frees memory.
 
 ---
 
-### Sprite.Free
+### `Sprite.Draw(handle, x, y)`
+Draws the current frame at pixel coordinates.
 
-```basic
-SPRITE.FREE(spr)
-```
-
-Unloads the sprite’s **texture** (unless the sprite came from an **atlas** shared texture) and releases the heap slot. Call when the sprite is no longer needed.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| spr | handle | Sprite from **`SPRITE.LOAD`** or **`ATLAS.GETSPRITE`**. |
-
-> **Common mistake:** Freeing a sprite that is still listed in a **`SPRITEGROUP`** / **`SPRITELAYER`** / **`SPRITEBATCH`** — remove it first or clear the container, or you may hold **stale handles**.
-
-**See also:** `SPRITEGROUP.REMOVE`, `ATLAS.FREE`
+### `Sprite.SetPos(handle, x, y)`
+Sets a floating-point draw offset.
 
 ---
 
-### Sprite.Draw
+### `Sprite.DefAnim(handle, count)`
+Defines a grid animation (count is a string).
 
-```basic
-SPRITE.DRAW(spr, x, y)
-```
-
-Draws the **current frame** at **integer** screen **`(x, y)`**, plus **`SPRITE.SETPOS`** offsets (float).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| spr | handle | Sprite handle. |
-| x, y | int | Screen position (pixels). |
-
-**Notes** — Use **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** when your game uses a 2D camera, or **`RENDER.BEGINMODE2D`** when that command is implemented.
+### `Sprite.UpdateAnim(handle, dt)`
+Advances animation frame by time.
 
 ---
 
-### Sprite.SetPos / Sprite.SetPosition
+### `Sprite.Hit(a, b)`
+Returns `TRUE` if two sprites overlap.
 
-```basic
-SPRITE.SETPOS(spr, x, y)
-SPRITE.SETPOSITION(spr, x, y)
-```
-
-**Alias pair.** Adds a **float** offset applied on top of **`SPRITE.DRAW`** / group draw positions. Used for smooth movement and hit tests.
+### `Sprite.PointHit(handle, x, y)`
+Returns `TRUE` if a pixel is inside the sprite.
 
 ---
 
-### Sprite.DefAnim / Sprite.PlayAnim / Sprite.UpdateAnim
+## Sprite Groups
 
-```basic
-SPRITE.DEFANIM(spr, frameCount)
-SPRITE.PLAYANIM(spr, name)
-SPRITE.UPDATEANIM(spr, dt)
-```
+### `SpriteGroup.Make()`
 
-**Strip mode:** **`frameCount`** is a **decimal string** (e.g. `"4"`) = equal-width frames in **one row** inside the texture. Frame width = region width ÷ frame count.
+Creates a new empty sprite group. Returns a handle.
 
-**`SPRITE.PLAYANIM`** accepts **`name`** for API symmetry; the strip player does not use distinct names yet.
+### `SpriteGroup.Add(group, sprite)`
 
-**`SPRITE.UPDATEANIM`** advances time using internal FPS (default **8**). Pass **`TIME.DELTA()`** each frame.
+Adds a sprite to the group.
 
-**Note:** If **`ANIM.UPDATE`** drives the same sprite, **`SPRITE.UPDATEANIM`** does not advance strip frames for that object — use **one** animation system per sprite.
+### `SpriteGroup.Draw(group, x, y)`
 
----
+Draws all sprites in the group relative to a base position.
 
-### Sprite.Hit / Sprite.PointHit / SPRITECOLLIDE
+### `SpriteGroup.Free(group)`
 
-```basic
-hit = SPRITE.HIT(a, b)
-hit = SPRITECOLLIDE(a, b)
-hit = SPRITE.POINTHIT(spr, x, y)
-```
-
-**`SPRITE.HIT`** / **`SPRITECOLLIDE`** — axis-aligned box overlap using **`SETPOS`** and current frame size.
-
-**`SPRITE.POINTHIT`** — point-in-rect for **screen** coordinates.
-
-**Returns** — boolean.
-
----
-
-## SpriteGroup.* (handle-based group)
-
-Groups are **named by handle**, not by string. **`SPRITEGROUP.MAKE`** takes **no arguments** and returns a **group handle**.
-
-| Command | Signature | Notes |
-|---|---|---|
-| `SPRITEGROUP.MAKE` | `()` → handle | New empty group. |
-| `SPRITEGROUP.ADD` | `(group, spr)` | Append sprite. |
-| `SPRITEGROUP.REMOVE` | `(group, spr)` | Remove first occurrence of **spr**; no error if absent. |
-| `SPRITEGROUP.CLEAR` | `(group)` | Remove all members. |
-| `SPRITEGROUP.DRAW` | `(group, x, y)` | Draw each member at base **`(x,y)`** + **`SETPOS`**. |
-| `SPRITEGROUP.FREE` | `(group)` | Frees **only** the group object (not member sprites). |
-
-> **Spec note:** Some docs describe **`SpriteGroup.Make(name)`** — in moonBASIC the group is a **handle**; use your own string table if you need names.
+Frees the group object (members remain).
 
 ---
 

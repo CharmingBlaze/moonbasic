@@ -8,57 +8,36 @@ GPU **texture** handles: images uploaded for fast `Draw.Texture*` calls. For **C
 
 ---
 
-## Loading and lifetime
+### `Texture.Load(path)`
+Loads a GPU texture from disk. Returns a **texture handle**.
 
-| Command | Arguments | Returns | Notes |
-|--------|-----------|---------|--------|
-| **`TEXTURE.LOAD`** | `path` | handle | `LoadTexture` from disk. |
-| **`TEXTURE.FROMIMAGE`** | `image` | handle | From a heap **Image** (see [IMAGE.md](IMAGE.md)). |
-| **`TEXTURE.FREE`** | `texture` | — | Unloads GPU data (`UnloadTexture`) unless the handle is **borrowed** (see render targets below). |
+### `Texture.FromImage(id)`
+Creates a GPU texture from an in-memory `Image` handle.
 
----
-
-## Size, sampling, CPU upload
-
-| Command | Arguments | Returns | Notes |
-|--------|-----------|---------|--------|
-| **`TEXTURE.WIDTH`** / **`TEXTURE.HEIGHT`** | `texture` | int | Pixel dimensions. |
-| **`TEXTURE.SETFILTER`** | `texture`, `filter` | — | Use globals **`FILTER_POINT`**, **`FILTER_BILINEAR`**, … (see below). |
-| **`TEXTURE.SETWRAP`** | `texture`, `wrap` | — | Use **`WRAP_REPEAT`**, **`WRAP_CLAMP`**, … |
-| **`TEXTURE.UPDATE`** | `texture`, `image` | — | `UpdateTexture` from CPU **Image** pixels (format/size must match usage). |
-
-Filter/wrap enum values are installed as globals by the runtime (same numeric values as Raylib):
-
-- **Filter:** `FILTER_POINT`, `FILTER_BILINEAR`, `FILTER_TRILINEAR`, `FILTER_ANISOTROPIC_4X`, `FILTER_ANISOTROPIC_8X`, `FILTER_ANISOTROPIC_16X`
-- **Wrap:** `WRAP_REPEAT`, `WRAP_CLAMP`, `WRAP_MIRROR_REPEAT`, `WRAP_MIRROR_CLAMP`
+### `Texture.Free(handle)`
+Unloads GPU data and releases the handle from memory and its heap slot.
 
 ---
 
-## Procedural textures
+### `Texture.Width(handle)` / `Texture.Height(handle)`
+Returns the integer pixel dimensions of the texture.
 
-| Command | Arguments | Returns | Notes |
-|--------|-----------|---------|--------|
-| **`TEXTURE.GENWHITENOISE`** | `w`, `h` **or** `w`, `h`, `factor` | handle | `GenImageWhiteNoise` → GPU texture. Default **factor** = **1**. |
-| **`TEXTURE.GENCHECKED`** | `w`, `h`, `tileW`, `tileH`, `color1`, `color2` | handle | **Colors** are **COLOR** handles. |
-| **`TEXTURE.GENGRADIENTV`** | `w`, `h`, `topColor`, `bottomColor` | handle | Vertical gradient. |
-| **`TEXTURE.GENGRADIENTH`** | `w`, `h`, `leftColor`, `rightColor` | handle | Horizontal gradient (90° linear). |
-| **`TEXTURE.GENCOLOR`** | `w`, `h`, `r`, `g`, `b`, `a` | handle | Flat RGBA fill. |
+### `Texture.SetFilter(handle, filter)`
+Sets the sampling filter (e.g., `FILTER_POINT`, `FILTER_BILINEAR`, `FILTER_TRILINEAR`).
 
 ---
 
-## Render targets (`RENDERTARGET.*`)
+### `RenderTarget.Make(w, h)`
+Creates an off-screen render target (FBO). Returns a **handle** (`RenderTexture`).
 
-Off-screen rendering into a texture (FBO). Use for post-processing, minimaps, or multi-pass effects.
+### `RenderTarget.Begin(handle)`
+Starts drawing into the specified render target. Subsequent `Draw.*` calls will target this FBO.
 
-| Command | Arguments | Returns | Notes |
-|--------|-----------|---------|--------|
-| **`RENDERTARGET.MAKE`** | `width`, `height` | handle | `LoadRenderTexture`. Type name on handles: **`RenderTexture`**. |
-| **`RENDERTARGET.FREE`** | `rt` | — | `UnloadRenderTexture`. |
-| **`RENDERTARGET.BEGIN`** | `rt` | — | `BeginTextureMode` — draw and **`Render.Clear`** target this FBO. |
-| **`RENDERTARGET.END`** | — | — | `EndTextureMode` — return to default framebuffer. |
-| **`RENDERTARGET.TEXTURE`** | `rt` | handle | **Borrowed** **Texture** view of the **color** attachment. **`TEXTURE.FREE`** on this handle does **not** unload GPU memory; free the render target with **`RENDERTARGET.FREE`** (after dropping uses of the borrowed texture). |
+### `RenderTarget.End()`
+Ends drawing into the current target and returns to the default framebuffer.
 
-Handle methods (on a **RenderTexture** handle): **`Begin`**, **`End`**, **`Free`**, **`Texture`** — same behaviour as the `RENDERTARGET.*` commands.
+### `RenderTarget.Free(handle)`
+Frees the render target and its associated color texture from memory.
 
 The color attachment is often **Y-flipped** vs screen space; use **`Draw.TexturePro`** / **`Draw.TextureRec`** with a negative source height, or draw helpers that account for UV orientation, when compositing to the screen.
 

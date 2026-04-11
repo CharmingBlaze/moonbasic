@@ -10,6 +10,7 @@ import (
 	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime/mbmatrix"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	texmod "moonbasic/runtime/texture"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -178,6 +179,7 @@ func registerEntityBlitzAPI(m *Module, r runtime.Registrar) {
 	r.Register("EntityGrounded", "entity", runtime.AdaptLegacy(m.entGrounded))
 	r.Register("ENTITY.MOVECAMERARELATIVE", "entity", runtime.AdaptLegacy(m.entMoveCameraRelative))
 	r.Register("EntityMoveCameraRelative", "entity", runtime.AdaptLegacy(m.entMoveCameraRelative))
+	r.Register("ENTITY.MOVEWITHCAMERA", "entity", runtime.AdaptLegacy(m.entMoveWithCamera))
 	r.Register("ENTITY.SETMASS", "entity", runtime.AdaptLegacy(m.entSetMass))
 	r.Register("ENTITY.SETFRICTION", "entity", runtime.AdaptLegacy(m.entSetFriction))
 	r.Register("ENTITY.SETBOUNCE", "entity", runtime.AdaptLegacy(m.entSetBounce))
@@ -1534,7 +1536,7 @@ func (m *Module) entMoveCameraRelative(args []value.Value) (value.Value, error) 
 		return value.Nil, fmt.Errorf("camera handle required")
 	}
 	ch := heap.Handle(args[3].IVal)
-	fwd, right, err := mbcamera.CameraXZStrafeBasis(m.h, ch)
+	fwd, right, err := mbcamera.CameraXZWalkBasis(m.h, ch)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -1548,6 +1550,54 @@ func (m *Module) entMoveCameraRelative(args []value.Value) (value.Value, error) 
 	// of view when combined with penetration resolution. Vertical velocity (gravity, jump) is kept.
 	e.vel.X = 0
 	e.vel.Z = 0
+	return value.Nil, nil
+}
+
+// entMoveWithCamera sets horizontal walk velocity (world units/s) from the camera’s XZ walk basis
+// (orbit yaw when using CAMERA.ORBIT entity follow; see mbcamera.CameraXZWalkBasis).
+// Preserves vertical velocity (gravity / jumps). Works for scripted entities and Jolt-driven bodies.
+func (m *Module) entMoveWithCamera(args []value.Value) (value.Value, error) {
+	if len(args) != 5 {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA expects (entity, camera, forwardAxis#, strafeAxis#, speed#)")
+	}
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA: heap not bound")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA: unknown entity")
+	}
+	if args[1].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA: camera handle required")
+	}
+	ch := heap.Handle(args[1].IVal)
+	f, ok1 := argF32(args[2])
+	s, ok2 := argF32(args[3])
+	spd, ok3 := argF32(args[4])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA: forward/strafe/speed must be numeric")
+	}
+	if spd < 0 {
+		return value.Nil, fmt.Errorf("ENTITY.MOVEWITHCAMERA: speed must be non-negative")
+	}
+	fwd, right, err := mbcamera.CameraXZWalkBasis(m.h, ch)
+	if err != nil {
+		return value.Nil, err
+	}
+	vx := (fwd.X*f+right.X*s)*spd
+	vz := (fwd.Z*f+right.Z*s)*spd
+	if e.physicsDriven && e.physBufIndex >= 0 {
+		// Jolt body must move via velocity (never teleport e.pos each frame) or sync fights the solver.
+		_, vy, _ := mbphysics3d.GetLinearVelocityToIndex(e.physBufIndex)
+		mbphysics3d.SetVelocityToIndex(e.physBufIndex, vx, vy, vz)
+	} else {
+		e.vel.X = vx
+		e.vel.Z = vz
+	}
 	return value.Nil, nil
 }
 
@@ -1576,6 +1626,9 @@ func (m *Module) entSetFriction(args []value.Value) (value.Value, error) {
 	}
 	f, _ := argF32(args[1])
 	e.friction = f
+	if e.physBufIndex >= 0 {
+		mbphysics3d.SetFrictionToIndex(e.physBufIndex, f)
+	}
 	return value.Nil, nil
 }
 
@@ -1590,6 +1643,9 @@ func (m *Module) entSetBounce(args []value.Value) (value.Value, error) {
 	}
 	b, _ := argF32(args[1])
 	e.bounce = b
+	if e.physBufIndex >= 0 {
+		mbphysics3d.SetRestitutionToIndex(e.physBufIndex, b)
+	}
 	return value.Nil, nil
 }
 

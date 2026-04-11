@@ -2,9 +2,9 @@
 
 | Designed | Implementation | Memory / notes |
 |----------|----------------|----------------|
-| **CreateLight (type, parent)** | **`LIGHT.MAKE`** + **`LIGHT.SET*`** for kind | **Heap handle** — **`LIGHT.FREE`**. |
-| **LightColor** | **`LIGHT.SETCOLOR`** | |
-| **LightRange** | **`LIGHT.SETRANGE`**, **`SETINTENSITY`** | |
-| **LightCone** | **`LIGHT.SETINNERCONE`**, **`SETOUTERCONE`** | [LIGHT.md](../LIGHT.md) |
-| **LightPosition** | **`LIGHT.SETPOSITION`** | |
-| **LightPointAt** | **`LIGHT.SETTARGET`**, **`SETDIR`** | |
+| **CreateLight (type, parent)** | **`Light.Make()`** | **Heap handle** — **`Light.Free()`**. |
+| **LightColor(id, r, g, b)** | **`Light.SetColor()`** | |
+| **LightRange(id, dist)** | **`Light.SetRange()`** | |
+| **LightCone(id, inner, outer)** | **`Light.SetInnerCone()`**, **`Light.SetOuterCone()`** | [LIGHT.md](../LIGHT.md) |
+| **LightPosition(id, x, y, z)** | **`Light.SetPos()`** | |
+| **LightPointAt(id, x, y, z)** | **`Light.SetDir()`** | |

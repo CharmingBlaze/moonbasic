@@ -8,218 +8,33 @@ Registry keys use **dots and uppercase** (e.g. `IMAGE.MAKE`). PascalCase names b
 
 ---
 
-### Image.Make
+### `Image.Load(path)`
+Loads an image from disk (PNG, JPG, BMP, etc.). Returns a **handle**.
 
-```basic
-h = IMAGE.MAKE(w, h)
-h = IMAGE.MAKE(w, h, r, g, b, a)
-```
+### `Image.Make(w, h [, r, g, b, a])`
+Creates a new CPU image. If RGBA components are provided, fills the image with that color (0-255).
 
-**Two-argument** form creates an **RGBA image filled with transparent black** `(0,0,0,0)`. **Six-argument** form fills with the given **RGBA** (each channel **0–255**).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| w, h | int | Width and height in pixels. |
-| r, g, b, a | int | Optional. Fill colour; required together with six-arg form. |
-
-**Returns** — handle.
-
-> **Common mistake:** Expecting **`IMAGE.MAKE(w,h)`** to be opaque black — it is **fully transparent** until you **`IMAGE.CLEAR`** or draw.
-
-**Example**
-
-```basic
-img = IMAGE.MAKE(128, 128)
-IMAGE.CLEAR(img, 40, 44, 52, 255)
-```
-
-**See also:** `IMAGE.MAKEBLANK`, `IMAGE.CLEAR`, `TEXTURE.FROMIMAGE`
+### `Image.Free(handle)`
+Releases the heap slot and unloads the image memory.
 
 ---
 
-### Image.MakeBlank
+### `Image.Width(handle)` / `Image.Height(handle)`
+Returns the integer pixel dimensions of the image.
 
-```basic
-h = IMAGE.MAKEBLANK(w, h)
-h = IMAGE.MAKEBLANK(w, h, r, g, b, a)
-```
+### `Image.Resize(handle, w, h)`
+Resizes the image in memory using bilinear scaling.
 
-Same behaviour as **`IMAGE.MAKE`** (alias pair). Use either name.
-
----
-
-### Image.Load
-
-```basic
-h = IMAGE.LOAD(path)
-```
-
-Loads **PNG, JPG, BMP, TGA, GIF, HDR**, etc. from disk (Raylib). File is read and closed; you receive a **new** image handle.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| path | string | File path. |
-
-**Returns** — handle.
+### `Image.Export(handle, path)`
+Saves the image to a file. The format is determined by the file extension.
 
 ---
 
-### Image.LoadRaw
+### `Image.DrawPixel(handle, x, y, r, g, b, a)`
+Draws a single pixel on the image at `(x, y)`.
 
-```basic
-h = IMAGE.LOADRAW(path, w, h, format, headerSize)
-```
-
-Loads raw pixel data. **`format`** is a Raylib **`PixelFormat`** integer; **`headerSize`** skips bytes at the start of the file.
-
-**See also:** Raylib `PixelFormat` constants.
-
----
-
-### Image.Copy / Image.MakeCopy
-
-```basic
-h2 = IMAGE.COPY(h)
-h2 = IMAGE.MAKECOPY(h)
-```
-
-**Deep copy** — new handle, duplicated pixels. **`IMAGE.COPY`** and **`IMAGE.MAKECOPY`** are equivalent.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| h | handle | Source image. |
-
-**Returns** — handle.
-
----
-
-### Image.Free
-
-```basic
-IMAGE.FREE(h)
-```
-
-Releases the heap slot and Raylib image. A **second** **`IMAGE.FREE`** with the same handle value fails (stale handle), same as other heap objects.
-
----
-
-### Image.Clear / Image.ClearBackground
-
-```basic
-IMAGE.CLEAR(h, r, g, b, a)
-IMAGE.CLEARBACKGROUND(h, r, g, b, a)
-```
-
-Fills **every pixel** with **RGBA** (0–255 per channel). **`IMAGE.CLEAR`** and **`IMAGE.CLEARBACKGROUND`** are equivalent.
-
----
-
-### Image.Width / Image.Height
-
-```basic
-w = IMAGE.WIDTH(h)
-h = IMAGE.HEIGHT(h)
-```
-
-**Returns** — integer dimensions.
-
----
-
-### Image.Export
-
-```basic
-ok = IMAGE.EXPORT(h, path)
-```
-
-Writes an image file; format from **extension** (e.g. `.png`, `.jpg`, `.bmp`, `.tga`). **Returns** boolean success.
-
----
-
-## Pixel reads (components)
-
-Use separate channel queries (no array value in core **`IMAGE.*`**):
-
-| Registry | Arguments | Returns |
-|---|---|---|
-| `IMAGE.GETCOLORR` / `G` / `B` / `A` | `(h, x, y)` | int 0–255 |
-
-**Coordinates** are **integer** pixel indices.
-
----
-
-## Drawing on an image
-
-| Command | Purpose |
-|---|---|
-| `IMAGE.DRAWPIXEL` | Single pixel |
-| `IMAGE.DRAWRECT` | Filled rectangle |
-| `IMAGE.DRAWLINE` | Line |
-| `IMAGE.DRAWCIRCLE` | Filled circle |
-| `IMAGE.DRAWRECTLINES` | Rectangle outline (`float` geometry + thickness) |
-| `IMAGE.DRAWTEXT` | Default font text: `(h, x, y, text, fontSize, r, g, b, a)` |
-| `IMAGE.DRAWIMAGE` | Blit: source rect → dest rect + tint |
-
----
-
-## Crop, resize, flip, rotate
-
-All **mutate** in place.
-
-| Command | Notes |
-|---|---|
-| `IMAGE.CROP` | Rectangle crop |
-| `IMAGE.RESIZE` | Bilinear |
-| `IMAGE.RESIZENN` | Nearest-neighbour |
-| `IMAGE.FLIPH` / `IMAGE.FLIPV` | |
-| `IMAGE.ROTATE` | Arbitrary degrees |
-| `IMAGE.ROTATECW` / `IMAGE.ROTATECCW` | 90° steps |
-
----
-
-## Colour adjustments
-
-| Command | Notes |
-|---|---|
-| `IMAGE.COLORTINT` | Multiply tint RGBA |
-| `IMAGE.COLORINVERT` | |
-| `IMAGE.COLORGRAYSCALE` | |
-| `IMAGE.COLORCONTRAST` | Numeric contrast |
-| `IMAGE.COLORBRIGHTNESS` | Offset brightness |
-| `IMAGE.COLORREPLACE` | Eight ints: from RGBA → to RGBA |
-
----
-
-## Blit, mipmaps, format, alpha tools
-
-| Command | Notes |
-|---|---|
-| `IMAGE.DITHER` | Floyd–Steinberg; four bpp values |
-| `IMAGE.MIPMAPS` | CPU mipmap chain |
-| `IMAGE.FORMAT` | Convert pixel format (Raylib enum int) |
-| `IMAGE.ALPHACROP` | Crop to non-transparent bounds |
-| `IMAGE.ALPHACLEAR` | Below alpha threshold → solid colour |
-
----
-
-## Alpha bounding box
-
-| Command | Returns |
-|---|---|
-| `IMAGE.GETBBOXX`, `GETBBOXY`, `GETBBOXW`, `GETBBOXH` | `(h, alphaThreshold)` → int |
-
----
-
-## Clipboard
-
-| Command | Returns |
-|---|---|
-| `CLIPBOARD.GETIMAGE` | New image handle from OS clipboard (if available) |
+### `Image.DrawRect(handle, x, y, w, h, r, g, b, a)`
+Draws a filled rectangle on the image.
 
 ---
 

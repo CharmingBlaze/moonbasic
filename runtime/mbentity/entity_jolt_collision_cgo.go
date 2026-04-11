@@ -1,5 +1,8 @@
 //go:build cgo || (windows && !cgo)
-
+//
+// Same mbentity registration on Windows and Linux; Jolt contact data is populated only on Linux+CGO.
+// See AGENTS.md “Physics sync & Jolt”.
+//
 package mbentity
 
 import (

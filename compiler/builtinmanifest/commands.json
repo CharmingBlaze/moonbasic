@@ -12179,6 +12179,81 @@
       "phase": "rendering"
     },
     {
+      "key": "WORLD.MOUSE2D",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Mouse position through Camera2D; float array [wx,wy]",
+      "namespace": "world",
+      "phase": "rendering"
+    },
+    {
+      "key": "WORLD.MOUSEFLOOR3D",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Mouse ray vs plane y=floorY; float array [wx,wz] or NIL",
+      "namespace": "world",
+      "phase": "rendering"
+    },
+    {
+      "key": "WORLD.MOUSETOFLOOR",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Alias of WORLD.MOUSEFLOOR3D",
+      "namespace": "world",
+      "phase": "rendering"
+    },
+    {
+      "key": "WORLD.MOUSETOENTITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Jolt ray pick at cursor (Linux+CGO); entity# or 0. Same as CAMERA.RAYCASTMOUSE",
+      "namespace": "world",
+      "phase": "rendering"
+    },
+    {
+      "key": "WORLD.SETGRAVITY",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PHYSICS3D.SETGRAVITY",
+      "namespace": "world",
+      "phase": "physics"
+    },
+    {
+      "key": "WORLD.SETTIMESCALE",
+      "args": [
+        "float"
+      ],
+      "description": "Alias of GAME.SETTIMESCALE",
+      "namespace": "world",
+      "phase": "game"
+    },
+    {
+      "key": "WORLD.EXPLOSION",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Alias of PHYSICS.EXPLOSION",
+      "namespace": "world",
+      "phase": "entity"
+    },
+    {
       "key": "CAMERA.LOOKATENTITY",
       "args": [
         "handle",
@@ -21653,6 +21728,17 @@
         "handle"
       ],
       "description": "Same as ENTITY.MOVECAMERARELATIVE."
+    },
+    {
+      "key": "ENTITY.MOVEWITHCAMERA",
+      "args": [
+        "int",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Horizontal walk velocity (units/s) from camera XZ strafe basis (eye→target on ground). forwardAxis/strafeAxis are typically Input.Axis −1..1; preserves vertical velocity. Dot: player.MoveWithCamera(cam, …)."
     },
     {
       "key": "ENTITY.SETMASS",

@@ -13,254 +13,39 @@ For **2D** lighting, use **`LIGHT2D.*`** and **`RENDER.SET2DAMBIENT`** — see [
 
 ---
 
-### Light.Make
+### `Light.Make(type)`
+Creates a new light source of the specified type. Returns a **handle** to the light.
+- `type`: The type of light: `"directional"`, `"point"`, or `"spot"`.
 
-```basic
-sun = Light.Make()
-sun = Light.Make("directional")
-```
-
-Creates a light handle. Optional `kind`: `"directional"`, `"point"`, or `"spot"` (stored for your logic; the stock PBR path is built around a **directional** sun).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| kind | string | Optional. Light kind label. |
-
-**Returns** — handle (integer).
-
-**Notes** — Default colour is white, intensity `1`, direction roughly toward the origin, shadow target `(0, 2, 0)`.
-
-> **Common mistake:** Expecting multiple shadow casters. Only **one** light should have **`LIGHT.SETSHADOW`** enabled at a time; the last one wins.
-
-**Example**
-
-```basic
-sun = Light.Make("directional")
-LIGHT.SETDIR(sun, -0.4, -0.8, -0.4)
-```
-
-**See also:** `LIGHT.SETSHADOW`, `RENDER.SETSHADOWMAPSIZE`
+### `Light.Free(handle)`
+Unloads the light and frees its resources.
 
 ---
 
-### Light.Free
+### `Light.SetPos(handle, x, y, z)`
+Sets the world position of a point or spot light.
 
-```basic
-Light.Free(sun)
-```
-
-Releases the light handle via the heap. Clears **shadow caster** registration if this light was casting shadows.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light returned from `Light.Make`. |
-
-> **Common mistake:** Calling **`LIGHT.FREE`** twice with the same handle value after the first successful free — the heap reports a stale handle error.
-
-**See also:** `LIGHT.SETSHADOW`
+### `Light.SetDir(handle, x, y, z)`
+Sets the direction vector for a directional or spot light.
 
 ---
 
-### Light.SetDir
+### `Light.SetColor(handle, r, g, b [, a])`
+Sets the color and intensity of the light (0-255). The optional alpha component multiplies the overall light strength.
 
-```basic
-LIGHT.SETDIR(light, x, y, z)
-```
-
-Sets the **light travel direction** (into the scene), normalized internally. Used for the directional sun and shadow frustum alignment.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| x, y, z | float | Direction components (need not be pre-normalized). |
+### `Light.SetRange(handle, range)`
+Sets the maximum distance at which the light has an effect (for point and spot lights).
 
 ---
 
-### Light.SetShadow
+### `Light.SetShadow(handle, toggle)`
+Enables or disables shadow casting for the light. Only **one** shadow-casting light is supported at a time.
 
-```basic
-LIGHT.SETSHADOW(light, enabled)
-```
+### `Light.SetInnerCone(handle, degrees)` / `Light.SetOuterCone(handle, degrees)`
+Sets the inner and outer half-cone angles for spotlights in degrees.
 
-Enables shadow mapping for this light. **Only one** light may cast shadows; the most recently enabled wins.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| enabled | bool or int | Non-zero enables. |
-
----
-
-### Light.SetColor
-
-```basic
-LIGHT.SETCOLOR(light, r, g, b)
-LIGHT.SETCOLOR(light, r, g, b, a)
-```
-
-Sets RGB **and optional alpha**. RGB may be **0.0–1.0** or **0–255** (any channel &gt; 1 scales all three channels as 8-bit). The **fourth** argument `a` multiplies the diffuse contribution (after intensity); use **0.0–1.0** or **0–255**.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| r, g, b | float / int | Red, green, blue. |
-| a | float / int | Optional. Overall colour scale (default `1`). |
-
-> **Common mistake:** Forgetting that **`a`** applies on top of **`LIGHT.SETINTENSITY`** — both scale the final diffuse RGB.
-
-**Example**
-
-```basic
-LIGHT.SETCOLOR(sun, 255, 240, 220, 255)
-LIGHT.SETINTENSITY(sun, 1.2)
-```
-
-**See also:** `LIGHT.SETINTENSITY`
-
----
-
-### Light.SetIntensity
-
-```basic
-LIGHT.SETINTENSITY(light, amount)
-```
-
-Non-negative scale for diffuse RGB (applied together with **`LIGHT.SETCOLOR`**).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| amount | float | Intensity; negative values are clamped to `0`. |
-
----
-
-### Light.SetPosition / Light.SetPos
-
-```basic
-LIGHT.SETPOSITION(light, x, y, z)
-LIGHT.SETPOS(light, x, y, z)
-```
-
-World position for **point** / **spot** workflows (stored for API completeness; extend custom shaders if you need full point-light shading in the default PBR path).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| x, y, z | float | World position. |
-
----
-
-### Light.SetTarget
-
-```basic
-LIGHT.SETTARGET(light, x, y, z)
-```
-
-World point the **orthographic shadow camera** looks at (default `0, 2, 0`). Adjust so your scene sits in the shadow frustum.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| x, y, z | float | Look-at point in world space. |
-
-> **Common mistake:** Moving only **`LIGHT.SETDIR`** and wondering why shadows slide — pair direction with a sensible **`LIGHT.SETTARGET`** for the shadow volume.
-
----
-
-### Light.SetShadowBias
-
-```basic
-LIGHT.SETSHADOWBIAS(light, bias)
-```
-
-Multiplier for **depth bias** in shadow sampling (typical **0.5–2.0**, clamped internally). Higher reduces **acne**; lower reduces **peter-panning**.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| bias | float | Bias multiplier (default `1`). |
-
----
-
-### Light.SetInnerCone / Light.SetOuterCone
-
-```basic
-LIGHT.SETINNERCONE(light, angle)
-LIGHT.SETOUTERCONE(light, angle)
-```
-
-Spotlight cone angles in **degrees** (stored for API completeness).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| angle | float | Half-cone style angle in degrees (engine defaults: inner 25°, outer 35° at creation). |
-
----
-
-### Light.SetRange
-
-```basic
-LIGHT.SETRANGE(light, range)
-```
-
-Attenuation range for point/spot lights (stored).
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| range | float | Range distance. |
-
----
-
-### Light.Enable
-
-```basic
-LIGHT.ENABLE(light, enabled)
-```
-
-Master on/off. When disabled, diffuse contribution is zero and shadow caster registration is cleared if this light was the caster.
-
-**Parameters**
-
-| Name | Type | Description |
-|---|---|---|
-| light | handle | Light handle. |
-| enabled | bool or int | Non-zero enables. |
-
----
-
-### Light.IsEnabled
-
-```basic
-ok = LIGHT.ISENABLED(light)
-```
-
-Returns **1** if the light exists and is enabled, **0** otherwise.
-
-**Returns** — integer (`0` or `1`).
+### `Light.SetTarget(handle, x, y, z)`
+Sets the world point the **orthographic shadow camera** looks at. Correctly framing your scene in this volume is required for shadows.
 
 ---
 

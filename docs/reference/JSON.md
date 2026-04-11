@@ -6,63 +6,33 @@ The **`JSON`** namespace decodes and mutates JSON values using Go’s [`encoding
 
 Earlier builds only supported flat objects. The current implementation keeps **one decoded `interface{}` tree** per handle so you can work with **real-world files** (levels, configs, save data) without flattening.
 
-## Parsing and construction
+### `JSON.Parse(path)`
+Reads a UTF-8 file from disk and decodes it as JSON. Returns a **handle**.
 
-| Command | Purpose |
-|--------|---------|
-| `JSON.PARSE(path)` | **Read a UTF-8 file** from disk and decode JSON. |
-| `JSON.PARSESTRING(s)` | Decode JSON **from a string** (use this for inline text or loaded buffers). |
-| `JSON.MAKE()` | New empty **object** `{}`. |
-| `JSON.MAKEARRAY()` | New empty **array** `[]`. |
-| `JSON.FREE(handle)` | Release the heap object (`Free` is idempotent). |
+### `JSON.ParseString(jsonString)`
+Decodes JSON from a string. Returns a **handle**.
 
-**Breaking change (by design):** `JSON.PARSE` is now **file-oriented**. Existing scripts that passed a JSON **string** to `JSON.PARSE` should switch to **`JSON.PARSESTRING`** (see [`examples/rpg/main.mb`](../../examples/rpg/main.mb)).
+### `JSON.Free(handle)`
+Releases the JSON heap object and unloads it from memory.
 
-## Path syntax
+---
 
-Paths are strings composed of:
+### `JSON.GetString(handle, path [, default])`
+Returns the string value at the specified dot-path. Supports an optional default value if the path is missing.
 
-- **`.`** — separates object keys (`spawn.x`).
-- **`[index]`** — array index, 0-based (`items[0].id`).
+### `JSON.GetInt(handle, path [, default])`
+Returns the integer value at the specified dot-path.
 
-Examples:
+### `JSON.GetBool(handle, path [, default])`
+Returns the boolean value at the specified dot-path.
 
-- `spawn.x`
-- `items[1].qty`
-- `[0]` when the **root** is an array
+---
 
-Empty path `""` refers to the **root** value (for **`LEN`**, **`TOCSV`**, etc.).
+### `JSON.SetString(handle, path, value)`
+Sets a string value at the specified path, creating intermediate objects or arrays as needed.
 
-## Reading
-
-| Command | Purpose |
-|--------|---------|
-| `JSON.HAS(handle, path)` | Whether a value exists at the path (map key present or array index in range). |
-| `JSON.TYPE(handle, path)` | Rough type string: `object`, `array`, `string`, `number`, `bool`, `null`, or `missing`. |
-| `JSON.LEN(handle, path)` | Length of object (key count), array, or string; `0` if not applicable. |
-| `JSON.KEYS(handle, path)` | Object keys as a **`StringList`** handle (sorted lexicographically for stable output). |
-| `JSON.GETSTRING` / `GETINT` / `GETFLOAT` / `GETBOOL` | Read scalars; optional **3-argument** overloads supply a **default** when missing. |
-| `JSON.GETARRAY` / `JSON.GETOBJECT` | Return a **new** `JSON` handle aliasing the nested value (free separately). |
-
-Numbers decode as `float64` internally; **`GETINT`** coerces.
-
-## Writing
-
-| Command | Purpose |
-|--------|---------|
-| `JSON.SETSTRING` / `SETINT` / `SETFLOAT` / `SETBOOL` | Create intermediate objects/arrays as needed. |
-| `JSON.SETNULL` | Store JSON `null`. |
-| `JSON.DELETE` | Remove an object key or splice an array index. |
-| `JSON.CLEAR` | Empty an object or array at a path. |
-| `JSON.APPEND` | Append a value to an array at `path` (creates the array if missing). |
-
-## Serialization and files
-
-| Command | Purpose |
-|--------|---------|
-| `JSON.TOSTRING` / `JSON.MINIFY` | Compact JSON text. |
-| `JSON.PRETTY` | Indented JSON (two spaces). |
-| `JSON.TOFILE` / `JSON.TOFILEPRETTY` | Write to disk. |
+### `JSON.ToFile(handle, path)`
+Writes the JSON object to a file on disk in a compact format.
 
 ## `JSON.QUERY` (minimal)
 

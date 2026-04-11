@@ -91,23 +91,56 @@ func (m *Module) processAITasks(dt float32) {
 }
 
 func (m *Module) entPatrol(args []value.Value) (value.Value, error) {
+	if len(args) == 6 {
+		id, ok := m.entID(args[0])
+		if !ok || id < 1 {
+			return value.Nil, fmt.Errorf("ENTITY.PATROL: invalid entity")
+		}
+		e := m.store().ents[id]
+		if e == nil {
+			return value.Nil, fmt.Errorf("ENTITY.PATROL: unknown entity")
+		}
+		if e.static || e.physicsDriven {
+			return value.Nil, fmt.Errorf("ENTITY.PATROL: use non-static, non-Jolt entity")
+		}
+		ax, _ := args[1].ToFloat()
+		az, _ := args[2].ToFloat()
+		bx, _ := args[3].ToFloat()
+		bz, _ := args[4].ToFloat()
+		spd, _ := args[5].ToFloat()
+		if spd < 0 {
+			return value.Nil, fmt.Errorf("ENTITY.PATROL: speed must be non-negative")
+		}
+		ext := e.getExt()
+		ext.aiMode = ""
+		ext.navActive = false
+		ext.magnetActive = false
+		ext.patrolActive = true
+		ext.patrolAX, ext.patrolAZ = float32(ax), float32(az)
+		ext.patrolBX, ext.patrolBZ = float32(bx), float32(bz)
+		ext.patrolSpeed = float32(spd)
+		ext.patrolToB = true
+		return m.chainEntityRef(args[0])
+	}
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("ENTITY.PATROL expects (entity, waypointsArrayHandle, speed)")
+		return value.Nil, fmt.Errorf("ENTITY.PATROL expects (entity, ax#, az#, bx#, bz#, speed#) or legacy (entity, waypointsArrayHandle, speed)")
 	}
 	id, ok := m.entID(args[0])
-	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity handle")
+	}
 	e := m.store().ents[id]
-	if e == nil { return value.Nil, fmt.Errorf("unknown entity") }
-	
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
 	ext := e.getExt()
-	ext.aiWaypoints = []rl.Vector3{{X:10, Y:0, Z:10}, {X:20, Y:0, Z:10}, {X:20, Y:0, Z:-10}}
-	
+	ext.patrolActive = false
+	ext.aiWaypoints = []rl.Vector3{{X: 10, Y: 0, Z: 10}, {X: 20, Y: 0, Z: 10}, {X: 20, Y: 0, Z: -10}}
 	spd, _ := args[2].ToFloat()
 	ext.aiSpeed = float32(spd)
 	ext.aiMode = "PATROL"
 	ext.aiIndex = 0
-
-	return value.Nil, nil
+	return m.chainEntityRef(args[0])
 }
 
 func (m *Module) entFlee(args []value.Value) (value.Value, error) {

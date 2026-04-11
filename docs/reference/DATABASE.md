@@ -17,30 +17,38 @@ SQLite gives you **durable**, **queryable** storage (saves, inventories, analyti
 
 `Free()` on heap objects is **idempotent**. Closing a **`DB`** rolls back an open transaction and closes all cached statements.
 
-## Core commands
+### `DB.Open(path)`
+Opens a SQLite database file. Use `":memory:"` for an in-memory database. Returns a **database handle**.
 
-| Command | Purpose |
-|--------|---------|
-| `DB.OPEN(path)` | `sql.Open("sqlite3", path)`. Use `":memory:"` for RAM-only tests. |
-| `DB.CLOSE(handle)` | Close the DB and free resources. |
-| `DB.ISOPEN(handle)` | Returns whether the handle is still valid. |
-| `DB.EXEC(db, sql, ...params)` | `Exec` with optional bound parameters. |
-| `DB.QUERY(db, sql, ...params)` | Returns a **`ROWS`** handle. |
-| `DB.QUERYJSON(db, sql, ...params)` | Runs a query and returns a **JSON array of objects** as a string (each column name → value). Handy when you do not need row-by-row iteration. |
-| `DB.LASTINSERTID(db)` | `SELECT last_insert_rowid()`. |
-| `DB.CHANGES(db)` | `SELECT changes()`. |
+### `DB.Close(db)`
+Closes the database and releases all associated resources.
 
-## Row cursors (`ROWS.*`)
+---
 
-After **`DB.QUERY`**, call **`ROWS.NEXT(rows)`** until it returns **`FALSE`**. Column values for the current row are read with **`ROWS.GETSTRING`**, **`ROWS.GETINT`**, **`ROWS.GETFLOAT`** using **1-based** column indices. **`ROWS.CLOSE`** frees the result set.
+### `DB.Query(db, sql [, ...params])`
+Executes a `SELECT` query and returns a **Rows** handle. Supports bound parameters for safe queries.
 
-## Transactions
+### `DB.Exec(db, sql [, ...params])`
+Executes a SQL statement (e.g., `CREATE`, `INSERT`, `UPDATE`) with optional bound parameters.
 
-| Command | Purpose |
-|--------|---------|
-| `DB.BEGIN(db)` | Returns a **`TX`** handle; subsequent **`DB.EXEC`** / **`DB.QUERY`** on the same DB run on the active transaction. |
-| `DB.COMMIT(tx)` | Commit and free the handle. |
-| `DB.ROLLBACK(tx)` | Roll back and free the handle. |
+---
+
+### `Rows.Next(rows)`
+Advances to the next row in the result set. Returns `FALSE` when no more rows are available.
+
+### `Rows.GetString(rows, column)` / `Rows.GetInt(...)`
+Returns the value of the specified column (**1-based** index) for the current row.
+
+### `Rows.Close(rows)`
+Closes the result set and frees associated memory.
+
+---
+
+### `DB.Begin(db)`
+Starts a SQL transaction and returns a **TX** handle.
+
+### `DB.Commit(tx)` / `DB.Rollback(tx)`
+Finalizes the transaction by committing changes or rolling them back, then frees the handle.
 
 Freed **`TX`** handles roll back if not yet committed.
 

@@ -30,7 +30,7 @@ PRINT "Done!"
 
 ---
 
-### `INPUT(prompt, [default])`
+### `Console.Input(prompt, [default])`
 
 Prompts the user for text input from the console.
 
@@ -40,24 +40,45 @@ Prompts the user for text input from the console.
 Returns the string entered by the user.
 
 ```basic
-name = INPUT("What is your name? ", "Player1")
-PRINT "Hello, " + name
+name = Console.Input("What is your name? ", "Player1")
+Console.Print("Hello, " + name)
 ```
 
 ---
 
-### `CLS()`
+### `Console.Log(message)`
 
-Clears the console screen. This uses an ANSI escape code and may not work in all terminal emulators.
+Writes a message to the internal console.
 
 ---
 
-### `LOCATE(row, column)`
+### `Console.Clear()`
 
-Moves the console cursor to the specified row and column. Like `CLS`, this uses ANSI escape codes.
+Clears the console buffer.
+
+---
+
+### `Console.Show()` / `Console.Hide()`
+
+Toggles the console overlay.
+
+---
+
+### `Console.SetColor(r, g, b, a)`
+
+Sets console text color.
+
+### `Console.SetBackground(r, g, b, a)`
+
+Sets console background color.
+
+---
+
+### `Console.Locate(row, column)`
+
+Moves the console cursor to the specified row and column. Like `Console.Clear`, this uses ANSI escape codes.
 
 ```basic
-CLS()
-LOCATE 10, 5
-PRINT "This text is on row 10, column 5."
-```
+Console.Clear()
+Console.Locate(10, 5)
+Console.Print("This text is on row 10, column 5.")

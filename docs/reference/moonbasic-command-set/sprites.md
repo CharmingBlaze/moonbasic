@@ -1,10 +1,11 @@
 # Sprites (2D)
 
-| Designed | Implementation | Memory / notes |
-|----------|----------------|----------------|
-| **CreateSprite (img)** | **`SPRITE.LOAD`** (texture/path) | **Sprite handle** — **`SPRITE.FREE`**. |
-| **Sprite (id, x, y)** | **`SPRITE.SETPOS`** + **`SPRITE.DRAW`** in loop | |
-| **MoveSprite** | **`SPRITE.SETPOS`** | |
-| **SpriteImage** | Reload / swap underlying texture | New texture may need **`TEXTURE.FREE`**. |
-| **SpriteColor / Alpha** | Tint in draw path or sprite state | |
-| **SpriteHit** | **`SPRITE.HIT`**, **`POINTHIT`** | |
+| Designed | moonBASIC | Notes |
+|----------|------------|-------|
+| **LoadSprite(file)** | **`Sprite.Load()`** | Returns a **sprite handle**. |
+| **DrawSprite(id, x, y)** | **`Sprite.Draw()`** | Renders at pixel coordinates. |
+| **MoveSprite(id, x, y)** | **`Sprite.SetPos()`** | Sets float draw offset. |
+| **SpriteHit(a, b)** | **`Sprite.Hit()`** | AABB overlap check. |
+| **PointHit(id, x, y)** | **`Sprite.PointHit()`** | |
+| **ScaleSprite(id, s)** | **`Sprite.Scale()`** | |
+| **RotateSprite(id, a)** | **`Sprite.Rotate()`** | |

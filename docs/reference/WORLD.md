@@ -10,45 +10,27 @@ The **world manager** ties into the active [`terrain`](TERRAIN.md) module: it up
 
 ---
 
-## `World.SetCenter(x, z)`
+### `World.Update(dt)`
+Updates world streaming and entity spatial SoA.
 
-Sets the streaming focal point (usually the camera or player XZ). The bound terrain uses this to decide which chunks to load.
-
----
-
-## `World.SetCenterEntity(entity)`
-
-Same as **`World.SetCenter`** but takes an **entity id** and uses that entity’s world **X** and **Z**. Prefer this when the player (or camera rig) is already positioned each frame — avoids duplicating **`EntityX` / `EntityZ`** calls. See [LESS_MATH.md](LESS_MATH.md).
+### `World.SetCenter(x, z)` / `World.SetCenterEntity(id)`
+Sets the streaming focal point for chunks.
 
 ---
 
-## `World.Update(dt)`
+### `World.Preload(terrain, radius)`
+Forces initial chunk loading around the center.
 
-Advances streaming for one frame. Call **once per frame** after moving the center. **`dt`** is accepted for API symmetry; the current implementation uses the terrain’s tick path.
-
----
-
-## `World.StreamEnable(enabled)`
-
-Enables or disables chunk streaming on the bound terrain.
+### `World.StreamEnable(toggle)`
+Enables or disables automatic chunk paging.
 
 ---
 
-## `World.Preload(terrain, radius)`
+### `World.IsReady(terrain)`
+Returns `TRUE` if initial chunk work is complete.
 
-Loads chunks in a **Manhattan** or radius-based neighborhood around the current center (implementation: terrain `PreloadTerrain`). Use after **`World.SetCenter`** to avoid pop-in at start.
-
----
-
-## `World.Status()` → string
-
-Human-readable status for debugging (implementation-defined).
-
----
-
-## `World.IsReady(terrain)` → bool
-
-Returns whether the given terrain handle has finished **initial** chunk work relevant to the current stream state (implementation-defined readiness).
+### `World.Status()`
+Returns a status string for debugging.
 
 ---
 

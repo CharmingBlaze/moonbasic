@@ -1,130 +1,81 @@
 # Render Commands
 
-Frame lifecycle and render-state helpers. Drawing itself uses **`Draw.*`**, **`Draw3D.*`**, **`Camera.Begin` / `Camera.End`**, and **`Camera2D.Begin` / `Camera2D.End`**. There are **no** `Render.BeginMode2D` APIs; for 3D mode, **`Render.Begin3D`** / **`Render.End3D`** are thin aliases for **`Camera.Begin`** / **`Camera.End`** (same camera handle and depth state).
+Frame lifecycle and render-state helpers.
 
-## Frame loop
+## Core Workflow
 
-Each frame:
-
-1. **`Render.Clear(...)`** — clear color / depth as configured.
-2. **Optional modes:** `Camera2D.Begin` / `End` for transformed 2D; `Camera.Begin` / `Camera.End` for 3D (or **`Render.Begin3D(cam)`** / **`Render.End3D()`** — equivalent).
-3. **Draw** — `Draw.*`, `Draw3D.*`, models, etc.
-4. **`Render.Frame()`** — present (swap buffers).
+1. **Clear**: Call `Render.Clear()` at the start of each frame.
+2. **Draw**: Issue drawing commands (`Draw.*`, `Draw3D.*`, etc.).
+3. **Present**: Call `Render.Frame()` to display the result.
 
 ```basic
 WHILE NOT Window.ShouldClose()
     Render.Clear(10, 20, 30)
-
-    Camera2D.Begin()
-        Draw.Rectangle(100, 100, 50, 50, 255, 255, 255, 255)
-    Camera2D.End()
-
+    
+    ; Drawing goes here
+    Draw.Rectangle(100, 100, 50, 50, 255, 255, 255, 255)
+    
     Render.Frame()
 WEND
 ```
 
 ---
 
-## Core
+## Frame Lifecycle
 
-### `Render.Clear([...])`
+### `Render.Clear(r, g, b [, a])`
 
-Overloads (see runtime):
-
-- **0 args** — default clear.
-- **1 arg** — color **handle**.
-- **3 args** — `r, g, b` (0–255).
-- **4 args** — `r, g, b, a`.
-
-Requires an open window (`Window.Open`).
+Clears the color and depth buffers. RGBA components may be **0.0–1.0** or **0–255** (normalized internally).
 
 ### `Render.Frame()`
 
-Presents the frame. Must follow a `Render.Clear` for that frame (runtime enforces an active frame).
-
-### `Render.Begin3D(cameraHandle)` / `Render.End3D()`
-
-Aliases for **`Camera.Begin(cameraHandle)`** and **`Camera.End()`**. Use one camera handle from **`Camera.Make`** / **`CreateCamera`**; nesting rules match the camera module.
+Ends the current frame, flushes any pending draw commands, and presents the result to the screen (swap buffers). Call exactly once at the end of your main loop.
 
 ---
 
-## Overlay / capture
+## Screen Metrics & FPS
+
+### `Render.Width()` / `Render.Height()`
+
+Returns physical framebuffer dimensions in pixels (float64).
 
 ### `Render.DrawFPS(x, y)`
 
-Draws the FPS counter at integer pixel coordinates (registered with the render module).
-
-### `Render.Screenshot(path)`
-
-Writes a PNG screenshot to `path` (`TakeScreenshot`).
+Draws the current frame rate overlay at the specified pixel coordinates.
 
 ---
 
-## Blending and depth
+## Lighting & Shadow Mapping
 
-### `Render.SetBlend(mode)` / `Render.SetBlendMode(mode)`
+### `Render.SetAmbient(r, g, b [, a])`
 
-Alias pair. `mode` is a numeric **Raylib blend mode** (e.g. `BLEND_ALPHA`, `BLEND_ADDITIVE` from key globals).
-
-### `Render.SetDepthWrite(on)` / `Render.SetDepthMask(on)`
-
-Alias pair. Enables or disables depth **mask** (writing to the depth buffer).
-
-### `Render.SetDepthTest(on)`
-
-Enables or disables depth **testing**.
-
----
-
-## Raster state
-
-### `Render.SetScissor(x, y, w, h)`
-
-Enables scissor test and sets the rectangle (**integer** components).
-
-### `Render.ClearScissor()`
-
-Disables scissor test.
-
-### `Render.SetWireframe(on)`
-
-Enables or disables wireframe mode (Raylib wire mode).
-
----
-
-## Window / pipeline hints
-
-### `Render.SetMSAA(on)`
-
-Toggles the **4× MSAA window hint** (affects setup; may require appropriate window flags).
-
-### `Render.SetMode(mode)`
-
-`"forward"` or `"deferred"` — switches internal 3D render pipeline mode where supported.
+**3D PBR** hemispheric ambient tint (per-channel multiplier on albedo). Components may be **0.0–1.0** or **0–255**. With four arguments, **`a`** scales all three RGB channels together for global ambient strength.
 
 ### `Render.SetShadowMapSize(size)`
 
-Sets shadow map resolution used by the 3D runtime (numeric size in pixels).
+Sets the resolution of the depth texture used for shadows. Typical values: 512, 1024, 2048, 4096.
 
 ---
 
-## 2D lighting ambient
+## Blending & Depth State
 
-When the light2d module is enabled (CGO build), ambient tint for the 2D lighting path:
+### `Render.SetBlend(mode)`
 
-### `Render.Set2DAmbient(r, g, b, a)`
+Sets the Raylib blend mode (integer constant). Use globals **`BLEND_ALPHA`**, **`BLEND_ADDITIVE`**, etc.
 
-**Four** integer components 0–255.
+### `Render.SetDepthWrite(on)`
+
+Toggles whether drawing writes to the depth buffer.
+
+### `Render.SetDepthTest(on)`
+
+Toggles whether drawing performs depth testing.
 
 ---
 
-## Shader note
+## Capture
 
-Global **`Render.BeginShader` / `Render.EndShader`** are **not** registered in the current runtime. Use **material/shader** APIs under **`Model.*`** / **`Shader.*`** (see [SHADER.md](SHADER.md)) or post-process paths where implemented.
+### `Render.Screenshot(path)`
 
----
+Writes the current framebuffer to a PNG file at the specified path.
 
-## See also
-
-- [CAMERA.md](CAMERA.md) — 2D/3D camera begin/end.
-- [DRAW2D.md](DRAW2D.md), [DRAW3D.md](DRAW3D.md) — drawing commands.

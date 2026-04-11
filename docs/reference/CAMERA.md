@@ -12,102 +12,46 @@ Blitz3D-style **`Camera.Turn`**, **`Rotate`**, **`Orbit`**, **`Zoom`**, **`Follo
 
 ## 3D camera (`Camera.*`)
 
-### `Camera.Make()` / `Cam()` / `CAM()`
+### `Camera.Make()`
+Creates a default perspective camera. Returns a **handle** (`Camera3D`).
 
-Creates a default perspective camera. Returns a **handle** (`Camera3D`). **`Cam`** and **`CAM`** are aliases of **`Camera.Make`** (short Blitz-style names). Dot-syntax on the handle uses normal call syntax, for example **`cam.Pos(x,y,z)`**, **`cam.FOV(55)`**, **`cam.Orbit(tx,ty,tz,yaw,pitch,dist)`**, **`cam.LookAt(x,y,z)`**, **`cam.Zoom(amount)`** — see [BLITZ3D.md](BLITZ3D.md).
+### `Cam()` / `CAM()`
+Aliases of **`Camera.Make()`**. Short Blitz-style names.
 
-### `Camera.SetPos(camera, x, y, z)` / `Camera.SetPosition(...)`
+### `Camera.SetPos(handle, x, y, z)`
+Sets the camera **eye** position in world space.
 
-Alias pair; sets the camera **eye** position in world space.
-
-### `Camera.SetTarget(camera, x, y, z)`
-
+### `Camera.SetTarget(handle, x, y, z)`
 Sets the **look-at** point in world space.
 
-### `Camera.LookAt(camera, x, y, z)`
-
-Alias of **`Camera.SetTarget`** (same arguments and behaviour).
-
-### `Camera.SetProjection(camera, mode)`
-
-Sets the Raylib projection mode: **`0`** = perspective (**`CameraPerspective`**), **`1`** = orthographic (**`CameraOrthographic`**). In orthographic mode, **`fovy`** is interpreted as the **near-plane height** in world units (Raylib convention).
-
-### `Camera.SetRange(camera, near, far)`
-
-Calls **`rl.SetClipPlanes`** before **`Camera.Begin`** for that camera (when **near** &lt; **far** and both positive). This is separate from software **`Cull.*`** distance tests.
-
-### `Camera.SetActive(camera)` / `Camera.GetActive()`
-
-**`SetActive`** records the handle for tooling; **`GetActive`** returns the last handle passed to **`Camera.Begin`** (or **`SetActive`**), or **0** if none.
-
-### `Camera.WorldToScreen2D(camera, wx, wy, wz)`
-
-Alias of **`Camera.WorldToScreen`** — returns a **2-element** float array **\[sx, sy\]**.
-
-### `Camera.SetFPSMode(camera, sensitivity)` / `Camera.ClearFPSMode(camera)` / `Camera.UpdateFPS(camera)`
-
-**`SetFPSMode`** disables the OS cursor; each frame call **`Camera.UpdateFPS`** to run Raylib **`UpdateCamera`** in **first-person** mode. **`ClearFPSMode`** shows the cursor again.
-
-### `Camera.SetFOV(camera, fovy)`
-
-Vertical field of view in **degrees**.
-
-### `Camera.Begin(camera)`
-
-Starts 3D mode with this camera (sets projection, depth buffer usage, and the active camera for billboards / deferred paths). Pair with `Camera.End`.
-
-### `Camera.End()`
-
-Ends 3D mode (flushes deferred 3D work, then `EndMode3D`).
-
-### `Camera.Move(camera, dx, dy, dz)`
-
+### `Camera.Move(handle, dx, dy, dz)`
 Translates **both** position and target by the delta (pan/strafe/fly without changing orientation).
 
-### `Camera.SetOrbit(camera, tx, ty, tz, yaw, pitch, distance)`
+### `Camera.Begin(handle)`
+Starts 3D mode with this camera. Pair with `Camera.End()`.
 
-Third-person **spherical** orbit: places the eye on a shell around the target `(tx,ty,tz)` using **yaw** and **pitch** (radians) and **distance** (world units). Yaw follows the usual XZ orbit (sine on X, cosine on Z); pitch raises/lowers the camera.
+### `Camera.End()`
+Ends 3D mode.
 
-**Worked example:** `examples/mario64/main_orbit_simple.mb` builds **`yaw` / `pitch` / `dist`** with **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** (see [GAMEHELPERS.md](GAMEHELPERS.md)), then calls **`Camera.SetOrbit`** each frame after **`MOVESTEPX`/`MOVESTEPZ`** with the same **`camYaw`**.
+### `Camera.Orbit(handle, entity, distance)`
+Third-person orbit-follow around an entity. Each frame, updates internal yaw, pitch, and distance based on mouse/keyboard input.
 
-### `Camera.Orbit(camera, entity, distance)` — entity orbit-follow (3 arguments)
+### `Camera.Yaw(handle)`
+Returns the internal orbit yaw in **radians** maintained by `Camera.Orbit()`. Use this to set player rotation so movement matches the camera.
 
-**Registry:** **`CAMERA.ORBIT`** when called with **three** arguments (handle, entity handle, distance).
+### `Camera.Project(handle, wx, wy, wz)`
+Projects a **world-space** point through the camera to **screen** coordinates. Returns a **handle** to a **2-float array**: `(screenX, screenY)`.
 
-Each frame, updates internal **yaw**, **pitch**, and **distance**, then places the camera on a sphere around the entity’s **world** position (same spherical math as **`Camera.SetOrbit`**, with the look target slightly above the entity base). You do **not** pass yaw/pitch in the loop; the engine owns that state.
+### `Camera.GetRay(handle, screenX, screenY)`
+Returns a screen-space to world **ray** for the current render size. Returns a **handle** to a **6-float array**: origin `(x,y,z)` then direction `(dx,dy,dz)`.
 
-**Typical input (defaults):**
+### `Camera.Free(handle)`
+Frees the camera heap object.
 
-- **Right mouse button held:** mouse delta adjusts yaw and pitch (sensitivity configurable).
-- **Q / E:** yaw the orbit (keyboard rate configurable). Set both key slots to **0** to disable keyboard orbit.
-- **Mouse wheel:** zoom (clamped distance).
+### `Camera.GetMatrix(handle)`
+Returns a **matrix handle** for the camera (view × projection).
 
-Requires the entity module to expose world positions to the camera (normal **`fullruntime`** builds). Align a character with the orbit using **`Camera.Yaw`** (below).
-
-**Worked example:** `examples/mario64/modern_blitz_hop.mb`. **Beginner tutorial (line-by-line):** [`examples/mario64/MODERN_BLITZ_HOP_BEGINNER.md`](../../examples/mario64/MODERN_BLITZ_HOP_BEGINNER.md).
-
-### `Camera.Orbit(camera, tx, ty, tz, yaw, pitch, distance)` — explicit spherical orbit (7 arguments)
-
-**Registry:** **`CAMERA.ORBIT`** with **seven** arguments — same behaviour as **`Camera.SetOrbit`** (manual yaw/pitch/distance each frame). See **`Camera.SetOrbit`** above.
-
-### `Camera.Yaw(camera)` / `Camera.GetYaw(camera)` → **float**
-
-**Registry:** **`CAMERA.YAW`** / **`CAMERA.GETYAW`** (alias). Returns the internal **orbit yaw** in **radians** maintained by **`Camera.Orbit(camera, entity, distance)`**. Use this to set player rotation (e.g. **`player.SetRot(0, Camera.Yaw(cam), 0)`**) so movement matches the third-person camera.
-
-### Orbit-follow configuration (optional)
-
-Call **once** after **`Camera.Make()`**, before the main loop. Dot-syntax on the camera handle maps to these **`CAMERA.*`** builtins (e.g. **`cam.UseMouseOrbit(FALSE)`** → **`Camera.UseMouseOrbit`**).
-
-**Quick reference**
-
-| Command | Arguments |
-|--------|-----------|
-| **`Camera.UseMouseOrbit`** | `(camera, useMouse)` |
-| **`Camera.UseOrbitRightMouse`** | `(camera, requireRightMouse)` |
-| **`Camera.SetOrbitKeys`** | `(camera, leftKey, rightKey)` |
-| **`Camera.SetOrbitLimits`** | `(camera, minPitch, maxPitch, minDist, maxDist)` |
-| **`Camera.SetOrbitSpeed`** | `(camera, mouseSens, wheelSens)` |
-| **`Camera.SetOrbitKeySpeed`** | `(camera, keyRadPerSec)` |
+### `Camera.GetPos(handle)` / `Camera.GetTarget(handle)`
 
 **Defaults:** mouse orbit **on**; **RMB required** to apply mouse delta; keys **Q** / **E**; mouse **0.005**, wheel **1.0**, keyboard **1.5** rad/s; pitch **−1.5…1.5** rad; distance **2…50**; look-at offset **0.5** above entity base.
 

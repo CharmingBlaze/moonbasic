@@ -4,7 +4,7 @@
 ; Beginner walkthrough: examples/mario64/MODERN_BLITZ_HOP_BEGINNER.md
 ;
 ; cam.Orbit(entity, distance) — R-drag + Q/E + wheel; cam.Yaw() for player facing.
-; Move(forward,right,up) is units per second (dt applied internally on scripted builds).
+; ENTITY.MOVEWITHCAMERA — walk velocity follows the camera view on XZ (after cam.Orbit), including mouse orbit.
 ;
 ;   go run . --check examples/mario64/modern_blitz_hop.mb
 ;   CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/mario64/modern_blitz_hop.mb
@@ -30,22 +30,25 @@ floor.Color(60, 200, 90)
 floor.AddPhysics("static", "box")
 floor.SetBounciness(0.0)
 
+; Prime orbit so the first rendered frame already looks at the player (Orbit runs after physics each frame).
+cam.Orbit(player, 12.0)
+player.SetRot(0, cam.Yaw(), 0)
+
 WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
-
-    cam.Orbit(player, 12.0)
-
-    player.SetRot(0, cam.Yaw(), 0)
 
     fwd = Input.Axis(KEY_S, KEY_W)
     side = Input.Axis(KEY_A, KEY_D)
-    player.Move(10.0 * fwd, 10.0 * side, 0)
+    ENTITY.MOVEWITHCAMERA(player, cam, fwd, side, 10.0)
 
     IF KEYPRESSED(KEY_SPACE) AND player.IsGrounded() THEN
         player.Jump(12.0)
         player.Squash(0.5, 0.3)
     ENDIF
 
+    ; Physics first, then orbit camera to the new player pose (otherwise the rig lags a frame and feels like WASD moves the view).
     UPDATEPHYSICS()
+    cam.Orbit(player, 12.0)
+    player.SetRot(0, cam.Yaw(), 0)
 
     RENDER.Clear(100, 150, 250)
 
@@ -53,7 +56,7 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
         ENTITY.DRAWALL()
     cam.End()
 
-    DRAW.TEXT("WASD move · R-drag orbit · Q/E yaw · wheel zoom · Space jump · ESC", 20, 20, 14, 255, 255, 255, 255)
+    DRAW.TEXT("WASD = camera-relative · R-drag orbit · Q/E yaw · wheel · Space jump · ESC", 20, 20, 14, 255, 255, 255, 255)
 
     RENDER.FRAME()
 WEND

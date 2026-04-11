@@ -4,34 +4,87 @@ moonBASIC **entities** are lightweight **integer ids** (handles to rows in the h
 
 **Scene vs level:** **`SCENE.*`** is for **game scene** switching (**mbscene**). Loading glTF levels uses **`LEVEL.LOAD`** / **`LEVEL.FINDENTITY`** (or **`ENTITY.FIND`** by name)—not **`Scene.FindEntity`**.
 
-## “Entity.*” API (engine-style names)
+### `Entity.Load(path)`
+Loads a 3D model from a file path. Returns an **entity id**. 
+- `path`: String path to model file (glTF, OBJ, etc.).
 
-PascalCase names in other engines map to **`ENTITY.*`** as follows. **Rotation naming:** **`ENTITY.ROTATE`** / **`ENTITY.TURN`** add Euler deltas (degrees); **`ENTITY.SETROTATION`** / **`ENTITY.ROTATEENTITY`** set absolute pitch/yaw/roll.
+### `Entity.CreateCube(size)`
+Creates a cube primitive entity.
+- `size`: Uniform size of the cube.
 
-| Concept | moonBASIC |
-|--------|-----------|
-| Load model from path | **`ENTITY.LOAD(path)`** or **`ENTITY.LOADMESH`** — formats supported by Raylib (e.g. glTF/OBJ/… per build). Optional 2nd arg: parent entity. |
-| Cube / sphere primitives | **`ENTITY.CREATECUBE(size)`** / **`ENTITY.CREATEBOX(w, h, d)`** — box; **`ENTITY.CREATESPHERE(radius)`** (default 16 segments) or **`ENTITY.CREATESPHERE(radius, segments)`**. |
-| World position | **`ENTITY.POSITION(id, x, y, z)`** or **`ENTITY.SETPOSITION`** — optional 5th arg local vs global (see runtime). |
-| Move along local axes | **`ENTITY.MOVE(id, forward, right, up)`** — same as **`MOVEENTITY`**; uses yaw/pitch for forward/right/up. |
-| Absolute rotation | **`ENTITY.SETROTATION(id, pitch, yaw, roll)`** — alias of **`ENTITY.ROTATEENTITY`**. |
-| Turn (add rotation) | **`ENTITY.TURN`** / **`ENTITY.ROTATE`** / **`TURNENTITY`** — delta pitch/yaw/roll. |
-| Scale | **`ENTITY.SCALE(id, sx, sy, sz)`**. |
-| Parent / unparent | **`ENTITY.PARENT(child, parent)`**; **`ENTITY.UNPARENT(id)`** — alias of **`ENTITY.PARENTCLEAR`** (keeps world position). |
-| Look at world point | **`ENTITY.LOOKAT(id, targetX, targetY, targetZ)`** — sets pitch/yaw toward the point. (**`ENTITY.POINTENTITY`** aims at another **entity** on XZ.) |
-| Distance | **`ENTITY.DISTANCE(id1, id2)`** or **`ENTITY.GETDISTANCE`** (alias) — world-space distance between pivots. **`Entity.GetDistance`** / **`EntityDistance`** (Blitz). |
-| Type / role (Blender extras) | **`ENTITY.ISTYPE(id, pattern)`** — **`true`** if **`ENTITY`** name, Blender **`tag`**, or metadata keys **`type`**, **`entity_type`**, **`kind`**, **`category`** (case-insensitive) match **`pattern`** (glob: **`*`**, **`?`**). |
-| Find by custom property | **`ENTITY.FINDBYPROPERTY(key, value)`** — returns a **numeric array** of entity ids whose **`ENTITY.GETMETADATA`** row matches **`value`** for **`key`** (exact or glob on value). |
-| In-world messages | **`ENTITY.SENDMESSAGE(targetId, msg)`** queues a string; **`ENTITY.POLLMESSAGE(id)`** pops one message (FIFO) or **`""`**. Use in your game loop (not automatic networking). |
-| Visibility | **`ENTITY.SETVISIBLE(id, toggle)`** — alias of **`ENTITY.VISIBLE`**. |
+---
 
-## Spatial macros (`ENTITY.X`, `ENTITY.Y`, …) and bounds safety
+### `Entity.Position(id, x, y, z)`
+Sets the world position of an entity.
+- `id`: Entity id.
+- `x, y, z`: World coordinates.
 
-Shorthand **`ENTITY.X(id)`**, **`ENTITY.Y(id)`**, **`ENTITY.Z(id)`**, **`ENTITY.P` / `W` / `YAW` / `R`** compile to fast bytecode that reads/writes the host **SoA spatial buffer** when the full entity runtime is linked.
+### `Entity.Move(id, forward, right, up)`
+Moves the entity along its local axes (from its current pitch and yaw).
+- `forward, right, up`: Distances to move along local vectors.
 
-- **Literal ids**: If **`id`** is a **numeric literal**, the **compiler** rejects negative values and indices **≥ 2²⁴** (`runtime.MaxEntitySpatialIndex`).
-- **Dynamic ids**: Non-constant indices are checked **at run time** by the VM (same bounds). In-bounds SoA slots that are **not** active entities produce a clear **`ENTITY:`** error (no silent stale reads/writes).
-- **Details**: [COMPILER_SPEC.md](../COMPILER_SPEC.md) · [ARCHITECTURE.md](../../ARCHITECTURE.md) §8.3.
+### `Entity.SetRotation(id, pitch, yaw, roll)`
+Sets the absolute rotation of an entity in degrees.
+
+### `Entity.Turn(id, pitch, yaw, roll)`
+Adds to the current rotation of an entity (delta rotation in degrees).
+
+### `Entity.Scale(id, sx, sy, sz)`
+Sets the non-uniform scale of an entity.
+
+---
+
+### `Entity.Parent(child, parent)`
+Parents one entity to another. The child inherits the parent's transforms.
+
+### `Entity.Unparent(id)`
+Removes the parent from an entity while maintaining its world position.
+
+---
+
+### `Entity.Visible(id, toggle)`
+Sets whether the entity is visible.
+- `toggle`: Boolean (`TRUE` or `FALSE`).
+
+### `Entity.Free(id)`
+Frees the entity and its resources from memory.
+
+---
+
+## Spatial Macros (`ENTITY.X`, `ENTITY.Y`, ...)
+
+Shorthand for reading/writing coordinates directly from the entity store. These compile to fast bytecode.
+
+- `ENTITY.X(id)` / `ENTITY.Y(id)` / `ENTITY.Z(id)` — Position.
+- `ENTITY.P(id)` / `ENTITY.YAW(id)` / `ENTITY.R(id)` — Rotation (Pitch, Yaw, Roll).
+
+---
+
+## Examples
+
+### Creating and Moving an Entity
+```basic
+Window.Open(1280, 720, "Entity Example")
+Physics3D.Start()
+
+; Create a cube
+cube = Entity.CreateCube(2.0)
+Entity.Position(cube, 0, 5, 0)
+
+WHILE NOT Window.ShouldClose()
+    ; Spin the cube
+    Entity.Turn(cube, 0, 1.0, 0)
+    
+    Render.Clear(0, 0, 0)
+    Camera.Begin(cam)
+        DrawEntities()
+    Camera.End()
+    Render.Frame()
+WEND
+
+Entity.Free(cube)
+Window.Close()
+```
 
 ## Quick links
 
@@ -106,7 +159,7 @@ px, py, pz = Entity.GetPos(player)
 - **Relation to `ENTITYCOLLIDED`:** Same test as **`ENTITYCOLLIDED(entity, type) <> 0`**; **`ENTITYCOLLIDED`** returns the **other entity’s id** or **`0`** if you need the handle.
 - **Prerequisites:** Register pairs with **`COLLISIONS(srcType, dstType, method, response)`** (e.g. sphere-vs-box **`method`** **`2`**) and run **`ENTITY.UPDATE`** each frame. **Not** the same as **`EntityCollided(a, b)`**, which is the **two-entity Jolt** contact query (Linux + linked buffers).
 
-### `TFormVector(x, y, z, srcEntity, dstEntity)` → **handle**
+### `Entity.TFormVector(x, y, z, srcEntity, dstEntity)` → **handle**
 
 - **Arguments:** Direction or vector components **`x`**, **`y`**, **`z`** in **`srcEntity`**’s **local** space; **`srcEntity`** and **`dstEntity`** are entity ids.
 - **Returns:** **Heap handle** to a **3-element float array** (same convention as **`ENTITY.GETPOSITION`**): read components via array access or helpers your script style supports.
@@ -115,23 +168,23 @@ px, py, pz = Entity.GetPos(player)
 
 ## Scene hierarchy & world utilities (Blitz-style)
 
-- **`ENTITY.VISIBLE(entity, visible)`** / **`EntityVisible`** — sets the same flag as **`ENTITY.HIDE`** / **`ENTITY.SHOW`** (`visible` = false hides the entity).
-- **`ENTITY.COUNTCHILDREN(parent)`** — number of **direct** children (stable order = reparent / create order).
-- **`ENTITY.GETCHILD(parent, index)`** — direct child entity at `index` (0-based).
-- **`ENTITY.FINDCHILD(rootEntity, name)`** — breadth-first search **under** `root` (not global; use **`ENTITY.FIND`** for global name lookup). Names come from **`ENTITY.SETNAME`**.
-- **`ENTITY.TFORMPOINT(x, y, z, srcEntity, dstEntity)`** / **`ENTITY.TFORMVECTOR(...)`** — same semantics as **`TFormVector`** / **`ENTITY.TFORMVECTOR`** above; **`TFORMPOINT`** includes translation (full matrix); **`TFORMVECTOR`** is direction-only. Returns a **3-float numeric array handle** (same pattern as **`ENTITY.GETPOSITION`**).
-- **`ENTITY.DELTAX` / `DELTAY` / `DELTAZ(entityA, entityB)`** — world-space axis delta **B − A** between origins.
-- **`ENTITY.MATRIXELEMENT(entity, row, col)`** — one element of the **world** matrix; **row/col 0..3**, **column-major** (same as **`MAT4.GETELEMENT`** / Raylib `rl.Matrix`).
-- **`ENTITY.INVIEW(entity, camera)`** — conservative frustum test for the entity bounds vs the given **`CAMERA.MAKE`** handle (aspect from current framebuffer). **`ENTITY.SETCULLMODE`** force visible/hidden still applies first.
+- **`Entity.Visible(entity, visible)`** / **`EntityVisible`** — sets the same flag as **`ENTITY.HIDE`** / **`ENTITY.SHOW`** (`visible` = false hides the entity).
+- **`Entity.CountChildren(parent)`** — number of **direct** children (stable order = reparent / create order).
+- **`Entity.GetChild(parent, index)`** — direct child entity at `index` (0-based).
+- **`Entity.FindChild(rootEntity, name)`** — breadth-first search **under** `root` (not global; use **`ENTITY.FIND`** for global name lookup). Names come from **`ENTITY.SETNAME`**.
+- **`Entity.TFormPoint(x, y, z, srcEntity, dstEntity)`** / **`Entity.TFormVector(...)`** — same semantics as **`TFormVector`** / **`ENTITY.TFORMVECTOR`** above; **`TFORMPOINT`** includes translation (full matrix); **`TFORMVECTOR`** is direction-only. Returns a **3-float numeric array handle** (same pattern as **`ENTITY.GETPOSITION`**).
+- **`Entity.DeltaX`** / **`DeltaY`** / **`DeltaZ(entityA, entityB)`** — world-space axis delta **B − A** between origins.
+- **`Entity.MatrixElement(entity, row, col)`** — one element of the **world** matrix; **row/col 0..3**, **column-major** (same as **`MAT4.GETELEMENT`** / Raylib `rl.Matrix`).
+- **`Entity.InView(entity, camera)`** — conservative frustum test for the entity bounds vs the given **`CAMERA.MAKE`** handle (aspect from current framebuffer). **`Entity.SetCullMode`** force visible/hidden still applies first.
 
 ## 3D sprites (billboards)
 
-- **`LOADSPRITE(path)`** / **`LOADSPRITE(path, parent)`** — **`ENTITY.LOADSPRITE`** / **`ENTITY.CREATESPRITE`** are aliases; optional **parent** parents the new sprite like **`ENTITY.PARENT`** (child starts at local origin).
-- **`SPRITEMODE`** / **`ENTITY.SPRITEVIEWMODE`** / **`SPRITEVIEWMODE`** — **`1`** = Y-axis billboard, **`2`** = full camera-facing billboard, **`3`** = static quad (see implementation in [`entity_cgo.go`](../../runtime/mbentity/entity_cgo.go)).
+- **`LoadSprite(path)`** / **`LoadSprite(path, parent)`** — **`ENTITY.LOADSPRITE`** / **`ENTITY.CREATESPRITE`** are aliases; optional **parent** parents the new sprite like **`Entity.Parent`** (child starts at local origin).
+- **`SpriteMode`** / **`Entity.SpriteViewMode`** / **`SpriteViewMode`** — **`1`** = Y-axis billboard, **`2`** = full camera-facing billboard, **`3`** = static quad (see implementation in [`entity_cgo.go`](../../runtime/mbentity/entity_cgo.go)).
 
-## Bulk free (`FREEENTITIES` / `ENTITY.FREEENTITIES`)
+## Bulk free (`FreeEntities` / `Entity.FreeEntities`)
 
-**`FREEENTITIES(arrayHandle)`** walks a **numeric** entity array (e.g. **`DIM badGuy AS HANDLE(n)`** / integer slots holding entity ids) and calls **`FreeEntity`** on each non-zero entry. Use at shutdown or level unload instead of hand-written **`FOR i = 1 TO n : FreeEntity(...) : NEXT`**.
+**`FreeEntities(arrayHandle)`** walks a **numeric** entity array (e.g. **`DIM badGuy AS HANDLE(n)`** / integer slots holding entity ids) and calls **`FreeEntity`** on each non-zero entry. Use at shutdown or level unload instead of hand-written **`FOR i = 1 TO n : FreeEntity(...) : NEXT`**.
 
 ## Terrain vs entity
 

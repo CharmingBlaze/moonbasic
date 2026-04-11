@@ -82,3 +82,29 @@ For multidimensional arrays, `.length` returns dimension 1 size.
 - `ERASE ALL` / `FREE.ALL` frees all heap objects and nulls handle globals/stack values.
 
 See [MEMORY.md](../MEMORY.md).
+
+### `Array.Make(size)`
+Creates a new 1D numeric array on the heap. Returns an **array handle**.
+
+### `Array.Len(handle)`
+Returns the number of elements in the array.
+
+### `Array.Get(handle, index)` / `Array.Set(handle, index, value)`
+Reads or writes a value at a specific **0-indexed** position.
+
+---
+
+### `Array.Free(handle)`
+Releases the heap array and frees its memory.
+
+### `Array.Fill(handle, value)`
+Fills all elements of the array with a single numeric value.
+
+### `Array.Sort(handle)`
+Sorts the elements of a 1D array in ascending order.
+
+---
+
+## 2D and 3D Arrays
+
+Use `Array.Make2D(rows, cols)` and `Array.Make3D(d, h, w)` for multi-dimensional numeric data. Indexing is **0-based**.

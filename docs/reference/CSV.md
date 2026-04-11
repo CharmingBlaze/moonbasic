@@ -6,26 +6,30 @@ The **`CSV`** namespace loads, saves, and inspects **tabular text** using Go’s
 
 Games and tools often exchange **spreadsheets** (loot tables, localisation, balance). CSV is a simple, diff-friendly interchange format. moonBASIC keeps **everything as strings** at the cell level so round-trips do not silently change types; convert to numbers in script when needed.
 
-## Lifecycle
+### `CSV.Load(path)`
+Reads a CSV file from disk and returns a new **handle**.
 
-| Command | Purpose |
-|--------|---------|
-| `CSV.LOAD(path)` | Read a file from disk; returns a new **`CSV`** handle. |
-| `CSV.SAVE(handle, path)` | Write the table back to disk (UTF-8 text). |
-| `CSV.FROMSTRING(s)` | Parse CSV text already in memory (no file). |
-| `CSV.TOSTRING(handle)` | Serialize the table to a single string (newline-terminated rows). |
-| `CSV.FREE(handle)` | Release the heap object. |
+### `CSV.Save(handle, path)`
+Writes the CSV table to disk as UTF-8 text.
 
-## Shape and indexing
+### `CSV.Free(handle)`
+Releases the heap object and frees memory.
 
-- **`CSV.ROWCOUNT`** / **`CSV.COLCOUNT`**: row and column counts. If the table is empty, column count is **0**; otherwise column count follows the **first** row’s width.
-- **`CSV.GET(handle, row, col)`** / **`CSV.SET(handle, row, col, val)`**: **1-based** row and column indices (first row is **1**, first column is **1**), matching typical BASIC-style grids.
+---
 
-## JSON bridge
+### `CSV.RowCount(handle)` / `CSV.ColCount(handle)`
+Returns the number of rows or columns. If the table is empty, column count is 0; otherwise it follows the first row's width. Note that indexing is **1-based**.
 
-| Command | Purpose |
-|--------|---------|
-| `CSV.TOJSON(handle)` | Builds a **`JSON`** handle whose root is an **array of objects**: row **1** is treated as **header names**; each following row becomes one object (`header → cell string`). |
+### `CSV.Get(handle, row, col)`
+Returns the cell string at the specified **1-based** index (matching typical BASIC grids).
+
+### `CSV.Set(handle, row, col, value)`
+Sets the cell string at the specified **1-based** index.
+
+---
+
+### `CSV.ToJSON(handle)`
+Converts the CSV table to a JSON array handle. The first row is treated as header names; each following row becomes one object (`header -> cell string`).
 
 Use this with **`JSON.*`** for structured data (`CSV.TOJSON` → `JSON.TOCSV` for uniform arrays of objects).
 

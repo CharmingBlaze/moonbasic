@@ -19,97 +19,43 @@ Commands for creating and controlling a 3D physics simulation using Jolt Physics
 ## World Management
 
 ### `Physics3D.Start()`
-
-Initializes the 3D physics world. This must be called once before any other physics commands.
+Initializes the 3D physics world. This must be called before any other physics commands.
 
 ### `Physics3D.Stop()`
-
 Shuts down the physics simulation and frees all associated resources.
 
-### `Physics3D.Step()`
+---
 
-Advances the physics simulation by one step. This should be called once per frame, usually at the beginning of the main loop.
+### `Physics3D.Step()`
+Advances the physics simulation by one step. Call once per frame.
 
 ### `Physics3D.SetGravity(x, y, z)`
-
-Sets the global gravity for the physics world.
-
-- `x`, `y`, `z`: The gravity vector.
-
-```basic
-; Standard earth-like gravity
-Physics3D.SetGravity(0, -9.8, 0)
-```
+Sets the global gravity vector for the physics world.
 
 ---
 
-## Body Creation
+### `Body3D.Make(type)`
+Creates a body *definition*. `type`: `"static"`, `"dynamic"`, or `"kinematic"`.
 
-Creating a physics body is a multi-step process.
+### `Body3D.AddBox(def, w, h, d)`
+Adds a box collision shape to the body definition.
 
-### 1. `Body3D.Make(type)`
-
-Creates a body *definition*. This is a temporary object used to build the body's properties before adding it to the world.
-
-- `type`: The type of body:
-    - `"static"`: Immovable, unaffected by forces (e.g., floors, walls).
-    - `"dynamic"`: Movable, affected by forces and collisions (e.g., players, boxes).
-    - `"kinematic"`: Movable by code (`SetPos`), but not by forces.
-
-Returns a handle to the body definition.
-
-### 2. `Body3D.AddShape(...)`
-
-Adds a collision shape to the body definition.
-
-- `Body3D.AddBox(bodyDefHandle, width, height, depth)`
-- `Body3D.AddSphere(bodyDefHandle, radius)`
-- `Body3D.AddCapsule(bodyDefHandle, height, radius)`
-
-### 3. `Body3D.Commit(bodyDefHandle, x, y, z)`
-
-Finalizes the body and adds it to the physics world at the specified position. This returns the permanent handle for the physics body.
+### `Body3D.Commit(def, x, y, z)`
+Finalizes the body and adds it to the world at the specified position. Returns a **body handle**.
 
 ---
 
-## Body Interaction
+### `Body3D.SetPos(handle, x, y, z)`
+Teleports a physics body to a new world position.
 
-### `Body3D.SetPos(bodyHandle, x, y, z)`
+### `Body3D.SetLinearVel(handle, vx, vy, vz)`
+Directly sets the linear velocity of a dynamic body.
 
-Teleports a physics body to a new position.
+### `Body3D.GetMatrix(handle)`
+Returns a handle to the body's transformation matrix for visual synchronization.
 
-### `Body3D.Activate(bodyHandle)` / `Body3D.Deactivate(bodyHandle)`
-
-**Linux + CGO + Jolt only.** Wakes a sleeping dynamic body into the active simulation set, or forces it inactive (velocity-driven sleep). Static bodies are unaffected.
-
-```basic
-; Wake a crate that was put to sleep far from the player
-Body3D.Activate(crate_body)
-```
-
-### `Body3D.SetMass(bodyHandle, mass)`
-
-Sets the mass of a dynamic body. A mass of 0 makes the body immovable.
-
-### `Body3D.ApplyForce(bodyHandle, x, y, z)`
-
-Applies a continuous force (like a push) to the center of a body.
-
-### `Body3D.ApplyImpulse(bodyHandle, x, y, z)`
-
-Applies an instant force impulse (like a jump or explosion) to the center of a body.
-
-### `Body3D.SetLinearVel(bodyHandle, vx, vy, vz)`
-
-Directly sets the linear velocity of a body.
-
-### `Body3D.GetMatrix(bodyHandle)`
-
-Returns a handle to the body's transformation matrix. This is the key to synchronizing your visual objects with the physics simulation. Pass this matrix to `Mesh.Draw` or `Model.Draw`.
-
-### `Body3D.Free(bodyHandle)`
-
-Removes a body from the physics simulation and frees its resources.
+### `Body3D.Free(handle)`
+Removes a body from the simulation and frees its memory.
 
 ---
 

@@ -139,6 +139,8 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "ENTITY.HIDE", true, true
 		case "SHOW":
 			return "ENTITY.SHOW", true, true
+		case "MOVEWITHCAMERA":
+			return "ENTITY.MOVEWITHCAMERA", true, true
 		}
 	case heap.TagCamera2D:
 		switch mn {
@@ -558,7 +560,7 @@ func HandleCallSuggestions(tag uint16) []string {
 		out = []string{"Begin", "End", "FOV", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "GetYaw", "IsOnScreen",
 			"Look", "LookAt", "MouseRay", "Move", "Orbit", "Pos", "SetFOV", "SetOrbit", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen", "Yaw", "Zoom"}
 	case heap.TagEntityRef:
-		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "Pos", "Rot", "Scale", "SetBounciness", "Show", "Turn"}
+		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "MoveWithCamera", "Pos", "Rot", "Scale", "SetBounciness", "Show", "Turn"}
 	case heap.TagCamera2D:
 		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
 	case heap.TagRenderTexture:

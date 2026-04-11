@@ -6,22 +6,39 @@
 
 ## `SCATTER.*`
 
-| Command | Role |
-|--------|------|
-| `Scatter.Create(name)` | New scatter set (`TagScatterSet`); **`name`** is a label for debugging. |
-| `Scatter.Free(scatter)` | Frees the set. |
-| `Scatter.Apply(scatter, terrain, density, scale, seed)` | Populates instances over terrain (algorithm is implementation-defined). |
-| `Scatter.DrawAll(scatter)` | Draws all instances. |
+### `Scatter.Make()`
+Creates a new scatter system for distributing decorative objects over terrain. Returns a **handle**.
+
+### `Scatter.Free(handle)`
+Frees the scatter system and its associated resources.
+
+### `Scatter.Apply(handle, terrain)`
+Snaps all scatter items to the surface of the specified terrain.
+
+### `Scatter.Update(handle, dt)`
+Updates scatter item animations or internal logic based on elapsed time.
+
+### `Scatter.Draw(handle)`
+Renders all scatter items. This must be called within a **`Camera.Begin()`** / **`Camera.End()`** block.
+
+### `Scatter.SetDensity(handle, density)`
+Sets the item density for the scatter system.
+
+### `Scatter.SetArea(handle, x, z, w, d)`
+Sets the world-space bounding area for scattering.
 
 ---
 
 ## `PROP.*`
 
-| Command | Role |
-|--------|------|
-| `Prop.Place(model, x, y, z)` | Records a prop at a point (model handle reserved for future use). |
-| `Prop.Free(prop)` | Frees one prop handle. |
-| `Prop.DrawAll()` | Draws all registered props. |
+### `Prop.Place(model, x, y, z)`
+Records a prop at a world position.
+
+### `Prop.Free(handle)`
+Frees a specific prop handle.
+
+### `Prop.DrawAll()`
+Draws all registered props.
 
 ---
 

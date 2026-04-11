@@ -1,0 +1,56 @@
+; BEGINNER FULL STACK — patterns only; adapt to your game's init / loop.
+; See docs/reference/BEGINNER_FULL_STACK.md for registry names and platform notes.
+
+; --- Input ---
+; mx = INPUT.MOUSEX()
+; my = INPUT.MOUSEY()
+; mdx = INPUT.MOUSEDELTAX()
+; INPUT.LOCKMOUSE(TRUE)   ; FPS-style lock
+
+; --- 2D / 3D mouse → world (after CAMERA.BEGIN / CAMERA2D.BEGIN) ---
+; w2 = WORLD.MOUSE2D(cam2d)           ; [wx, wy] float array handle
+; g3 = WORLD.MOUSEFLOOR3D(cam3d, 0.0) ; [wx, wz] or NIL (ray parallel / behind)
+; same as WORLD.MOUSETOFLOOR(cam3d, 0.0)
+
+; --- Jolt pick (Linux + CGO): entity# under cursor ---
+; hitEnt = WORLD.MOUSETOENTITY(cam3d)
+; pt = PHYSICS3D.MOUSEHIT(cam3d)      ; [x,y,z] hit point or NIL
+
+; --- Scripted movement (non-physics entity) ---
+; ENTITY.NAVTO(player, tx, tz, 6.0)
+; ENTITY.WALKTO(player, tx, tz, 6.0, 0.2)   ; optional arrival radius
+; ENTITY.PATROL(guard, ax, az, bx, bz, 3.0)
+; ENTITY.STOP(player)
+
+; --- Thrust (Linux Jolt bodies) ---
+; ENTITY.THRUSTFORWARD(ship, 12.0)
+
+; --- RPG ---
+; player.SetHealth(100, 100).SetTag("Player")
+; ENTITY.DAMAGE(enemy, 10.0)
+; alive = ENTITY.ISALIVE(enemy)
+; nearest = ENTITY.FINDNEARESTWITHTAG(player, "Pickup")
+; ENTITY.ONDEATHDROP(enemy, coinPrefab, 40.0)
+
+; --- World juice ---
+; WORLD.SETGRAVITY(0.0, -9.81, 0.0)   ; alias of PHYSICS3D.SETGRAVITY
+; WORLD.SETTIMESCALE(0.5)               ; alias of GAME.SETTIMESCALE
+; WORLD.EXPLOSION(x, y, z, 80.0, 12.0) ; alias of PHYSICS.EXPLOSION
+; CAMERA.SHAKE(cam, 0.15, 0.4)
+
+; --- Math ---
+; IF MATH.CHANCE(25.0) THEN ENDIF
+; r = MATH.RANGE(10.0, 20.0)
+; s = MATH.SNAP(3.37, 0.5)
+; w = MATH.WRAP(angle, 0.0, 360.0)
+; smooth = MATH.SMOOTH(hpDisplay, hpTarget, 8.0)
+
+; --- Screen ---
+; sx = ENTITY.TOSCREENX(actor)
+; onscr = ENTITY.ISONSCREEN(actor)
+; ENTITY.DRAWHEALTHBAR(actor, 48.0)
+
+; --- Lifecycle ---
+; bullet.SetLifeTimer(2.0)   ; alias ENTITY.DESTROYAFTER
+; child.Detach()             ; alias PARENTCLEAR
+; SPAWNER.MAKE(prefab, 1.5)    ; or SPAWNER.MAKE(prefab, 1.5, x, z)

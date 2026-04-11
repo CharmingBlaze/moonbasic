@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"moonbasic/runtime"
+	mbtime "moonbasic/runtime/time"
 	"moonbasic/vm/value"
 )
 
@@ -60,6 +61,26 @@ func (m *Module) registerAngleInterp(r runtime.Registrar) {
 
 	regFlat("LERP", "MATH.LERP", threeFloat(lerpRL55))
 	regFlat("SMOOTHSTEP", "MATH.SMOOTHSTEP", threeFloat(smoothstep))
+	regFlat("SMOOTH", "MATH.SMOOTH", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 3 {
+			return value.Nil, errNArgs(3, len(args))
+		}
+		cur, _ := args[0].ToFloat()
+		target, _ := args[1].ToFloat()
+		speed, _ := args[2].ToFloat()
+		if speed < 0 {
+			speed = -speed
+		}
+		dt := mbtime.DeltaSeconds(nil)
+		if dt <= 0 {
+			dt = 1.0 / 60.0
+		}
+		t := speed * dt
+		if t > 1 {
+			t = 1
+		}
+		return value.FromFloat(cur + (target-cur)*t), nil
+	})
 	regFlat("CLAMP", "MATH.CLAMP", threeFloat(func(v, lo, hi float64) float64 {
 		if lo > hi {
 			lo, hi = hi, lo

@@ -4,37 +4,25 @@ Commands for loading and using custom shaders.
 
 ---
 
-### `Shader.Load(vertexPath, fragmentPath)`
+### `Shader.Load(vs, fs)`
+Loads GLSL vertex and fragment shaders from file paths. Returns a **shader handle**.
 
-Loads a GLSL vertex and fragment shader from files. Returns a handle to the shader program.
-
-- `vertexPath`: Path to the vertex shader file (`.vs`).
-- `fragmentPath`: Path to the fragment shader file (`.fs`).
-
----
-
-**Note:** The runtime does **not** currently expose global `Render.BeginShader` / `Render.EndShader`. Apply shaders via **`Model.SetMaterialShader`** / material APIs and **`Shader.Set*`** uniforms (below), or other module-specific paths.
+### `Shader.Free(handle)`
+Unloads the shader from GPU memory and releases its heap slot.
 
 ---
 
-### `Model.SetMaterialShader(model, materialIndex, shaderHandle)`
+### `Shader.GetLoc(handle, name)`
+Returns the location index of a uniform variable by its string name.
 
-Assigns a shader to a **material slot** on a model (`MODEL.SETMATERIALSHADER`).
+### `Shader.SetFloat(handle, name, value)`
+Sets a float uniform value in the shader.
 
----
+### `Shader.SetVec3(handle, name, x, y, z)`
+Sets a 3-component vector uniform value in the shader.
 
-## Uniforms and lifecycle
-
-Uniform names are **string** arguments (bytecode string table).
-
-| Command | Purpose |
-|--------|---------|
-| `Shader.Free(shader)` | Unloads shader GPU program (heap handle). |
-| `Shader.GetLoc(shader, name)` | Raylib location index (`int`). |
-| `Shader.SetFloat(shader, name, value)` | |
-| `Shader.SetVec2` / `SetVec3` / `SetVec4` | Name + float components. |
-| `Shader.SetInt(shader, name, value)` | |
-| `Shader.SetTexture(shader, name, textureHandle)` | Binds a `TEXTURE` heap handle. |
+### `Shader.SetTexture(handle, name, tex)`
+Binds a texture handle to a shader uniform sampler.
 
 ```basic
 sh = Shader.Load("custom.vs", "custom.fs")

@@ -1,10 +1,13 @@
 # Files
 
-| Designed | Implementation | Memory / notes |
-|----------|----------------|----------------|
-| **ReadFile (file)** | **Flat:** **`READFILE`** → **`FILE.READALLTEXT`**; also **`READALLTEXT`**, **`FILE.READALLTEXT`** | Whole file as string — no path handle. |
-| **WriteFile (path, text)** | **Flat:** **`WRITEFILE`** → **`FILE.WRITEALLTEXT`**; **`WRITEALLTEXT`**, **`FILE.WRITEALLTEXT`** | **Note:** flat **`WRITEFILE`** is whole-file write. Legacy stream **`WRITEFILE`** was **`FILE.WRITE`** — use **`FILE.WRITE`** for open-handle streaming. |
-| **CloseFile (handle)** | **`CLOSEFILE`**, **`FILE.CLOSE`** | Close handles from **`OPENFILE`**. |
-| **ReadLine / WriteLine** | **Flat:** **`READLINE`**, **`WRITELINE`** → **`FILE.READLINE`**, **`FILE.WRITELN`**; also **`READFILE`**, **`WRITEFILELN`** | |
-| **FileExists** | **Flat:** **`FILEEXISTS`** → **`FILE.EXISTS`** | |
-| **DeleteFile / CopyFile** | **Flat:** **`DELETEFILE`** → **`UTIL.DELETEFILE`**; **`COPYFILE`** → **`UTIL.COPYFILE`** | Same as existing globals (re-registered by facade). |
+| Designed | moonBASIC | Memory / notes |
+|----------|------------|----------------|
+| **ReadFile(file)** | **`File.ReadAllText()`** | Whole file as string. |
+| **WriteFile(path, text)** | **`File.WriteAllText()`** | Whole-file write. |
+| **CloseFile(handle)** | **`File.Close()`** | Close handles from `File.Open()`. |
+| **ReadLine()** | **`File.ReadLine()`** | |
+| **WriteLine(h, s)** | **`File.WriteLine()`** | |
+| **FileExists(path)** | **`File.Exists()`** | |
+| **DeleteFile(path)** | **`File.Delete()`** | |
+| **CopyFile(src, dst)** | **`File.Copy()`** | |
+| **OpenFile(path, mode)** | **`File.Open()`** | returns handle. |

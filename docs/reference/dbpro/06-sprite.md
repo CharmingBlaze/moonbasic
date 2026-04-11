@@ -1,14 +1,20 @@
 # DBPro — Sprite (2D)
 
-moonBASIC **`SPRITE.*`** is **handle-based** (load texture/atlas, then draw), not always the same as DBPro’s integer **id** + **SPRITE (id, x, y, img)**. See [SPRITE.md](../SPRITE.md).
+moonBASIC **`Sprite.*`** is **handle-based** (load texture/atlas, then draw), not always the same as DBPro’s integer **id** + **Sprite(id, x, y, img)**. See [SPRITE.md](../SPRITE.md).
 
 | DBPro | moonBASIC | Notes |
 |-------|-----------|--------|
-| **SPRITE (id, x, y, img)** | ≈ **`SPRITE.LOAD`** + **`SPRITE.SETPOS`** + **`SPRITE.DRAW`** | Typical frame: update position, draw. |
-| **DELETE SPRITE** | ✓ **`SPRITE.FREE`** | |
-| **MOVE SPRITE** | ✓ **`SPRITE.SETPOS`** / **`SETPOSITION`** | |
-| **SIZE SPRITE** | ≈ scale via draw / texture | Check **`SPRITE.*`** for size helpers in manifest. |
-| **SET SPRITE ALPHA** / **COLOR** | ≈ **`SPRITE`** + tint in draw pipeline | Often **`DRAW`** + texture; see examples. |
+| **LOAD SPRITE** | ✓ **`Sprite.Load()`** | Returns **handle**. |
+| **DELETE SPRITE** | ✓ **`Sprite.Free()`** | |
+| **PASTE SPRITE** | ✓ **`Sprite.Draw()`** | |
+| **POSITION SPRITE** | ✓ **`Sprite.SetPos()`** | |
+| **MIRROR SPRITE** | ✓ **`Sprite.FlipH()`** | |
+| **FLIP SPRITE** | ✓ **`Sprite.FlipV()`** | |
+| **ROTATE SPRITE** | ✓ **`Sprite.Rotate()`** | |
+| **SCALE SPRITE** | ✓ **`Sprite.Scale()`** | |
+| **SET SPRITE FRAME** | ✓ **`Sprite.SetFrame()`** | |
+| **SPRITE HIT** | ✓ **`Sprite.Hit()`** | |
+| **SPRITE COLLISION** | ✓ **`Sprite.Hit()`** | |
 | **SET SPRITE PRIORITY** | ≈ draw order / **Z** / **layer** | Engine uses **order** in your loop or **sprite batch** features if present. |
 | **SET SPRITE IMAGE** | ≈ reload / swap texture handle | |
-| **SPRITE HIT** | ✓ **`SPRITE.HIT`**, **`SPRITE.POINTHIT`** | |
+| **SPRITE HIT** | ✓ **`Sprite.Hit()`**, **`Sprite.PointHit()`** | |

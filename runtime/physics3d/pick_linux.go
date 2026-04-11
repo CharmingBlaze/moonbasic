@@ -1,5 +1,8 @@
 //go:build linux && cgo
-
+//
+// Jolt raycast implementation (Linux+CGO). Windows and linux-nocgo builds use pick_stub.go with the
+// same function names so mbentity/physics3d compile everywhere. See AGENTS.md “Physics sync & Jolt”.
+//
 package mbphysics3d
 
 import (
@@ -13,6 +16,8 @@ import (
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // Pick layer lookup: entity id -> collision layer 0–31. Registered from mbentity.
@@ -76,6 +81,9 @@ func registerPickCommands(m *Module, reg mbruntime.Registrar) {
 	reg.Register("PICK.ENTITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return pickEntityGet(m, a) }))
 	reg.Register("PICK.DIST", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return pickGet(m, a, func() float64 { return pickDist }) }))
 	reg.Register("PICK.HIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return pickHitGet(m, a) }))
+	reg.Register("PHYSICS3D.MOUSEHIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phMouseHit(m, a) }))
+	reg.Register("WORLD.MOUSETOENTITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return camRaycastMouseEntity(m, a) }))
+	reg.Register("CAMERA.RAYCASTMOUSE", "camera", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return camRaycastMouseEntity(m, a) }))
 }
 
 func pickOrigin(m *Module, args []value.Value) (value.Value, error) {
@@ -176,21 +184,76 @@ func pickScreenCast(m *Module, args []value.Value) (value.Value, error) {
 	return pickCast(m, nil)
 }
 
-// RaycastDownNormal casts a short ray along -Y and returns the hit surface normal (Jolt CastRay), or ok=false.
-func RaycastDownNormal(ox, oy, oz, maxDown float64) (nx, ny, nz float64, ok bool) {
+func camRaycastMouseEntity(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, mbruntime.Errorf("CAMERA.RAYCASTMOUSE: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA.RAYCASTMOUSE expects (camera)")
+	}
+	mp := rl.GetMousePosition()
+	if _, err := pickFromCamera(m, []value.Value{args[0], value.FromFloat(float64(mp.X)), value.FromFloat(float64(mp.Y))}); err != nil {
+		return value.Nil, err
+	}
+	return pickCast(m, nil)
+}
+
+func phMouseHit(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, mbruntime.Errorf("PHYSICS3D.MOUSEHIT: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("PHYSICS3D.MOUSEHIT expects (camera)")
+	}
+	mp := rl.GetMousePosition()
+	if _, err := pickFromCamera(m, []value.Value{args[0], value.FromFloat(float64(mp.X)), value.FromFloat(float64(mp.Y))}); err != nil {
+		return value.Nil, err
+	}
+	if _, err := pickCast(m, nil); err != nil {
+		return value.Nil, err
+	}
+	pickMu.Lock()
+	hit := pickHit
+	px, py, pz := pickPX, pickPY, pickPZ
+	pickMu.Unlock()
+	if !hit {
+		return value.Nil, nil
+	}
+	arr, err := heap.NewArray([]int64{3})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, px)
+	_ = arr.Set([]int64{1}, py)
+	_ = arr.Set([]int64{2}, pz)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+// RaycastDownGroundProbe casts along -Y (length maxDown), returns surface normal and hit point Y (world).
+func RaycastDownGroundProbe(ox, oy, oz, maxDown float64) (nx, ny, nz, hitY float64, ok bool) {
 	joltMu.Lock()
 	ps := joltSys
 	joltMu.Unlock()
 	if ps == nil || maxDown <= 1e-9 {
-		return 0, 1, 0, false
+		return 0, 1, 0, 0, false
 	}
 	origin := jolt.Vec3{X: float32(ox), Y: float32(oy), Z: float32(oz)}
 	dir := jolt.Vec3{X: 0, Y: float32(-maxDown), Z: 0}
 	hit, hitOK := ps.CastRay(origin, dir)
 	if !hitOK {
-		return 0, 1, 0, false
+		return 0, 1, 0, 0, false
 	}
-	return float64(hit.Normal.X), float64(hit.Normal.Y), float64(hit.Normal.Z), true
+	return float64(hit.Normal.X), float64(hit.Normal.Y), float64(hit.Normal.Z), float64(hit.HitPoint.Y), true
+}
+
+// RaycastDownNormal casts a short ray along -Y and returns the hit surface normal (Jolt CastRay), or ok=false.
+func RaycastDownNormal(ox, oy, oz, maxDown float64) (nx, ny, nz float64, ok bool) {
+	nx, ny, nz, _, ok = RaycastDownGroundProbe(ox, oy, oz, maxDown)
+	return nx, ny, nz, ok
 }
 
 // PickCastEntityID casts a ray in the Jolt world and returns the first entity id (via body→entity mapping), or 0.

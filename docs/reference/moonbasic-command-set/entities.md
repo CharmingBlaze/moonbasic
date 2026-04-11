@@ -6,35 +6,34 @@
 
 | Designed | Implementation | Memory / notes |
 |----------|----------------|----------------|
-| **CreateCube (parent)** | **`ENTITY.CREATECUBE`**, **`CUBE()`** | **FREE** via **`ENTITY.FREE`** or **`ENTITY.CLEARSCENE`**. |
-| **CreateSphere** | **`ENTITY.CREATESPHERE`**, **`SPHERE()`** | |
-| **CreatePlane** | **`ENTITY.CREATEPLANE`** | |
-| **CreateMesh** | **`ENTITY.CREATEMESH`**, **`ENTITY.LOADMESH`** | **Raylib model/mesh** — must **`FREE`** — [MEMORY.md](../../MEMORY.md). |
-| **CreateSprite3D** | ≈ **`SPRITE`** / billboard / model — project-specific | |
-| **CopyEntity** | **`ENTITY.COPY`** | New id — both need lifecycle rules. |
-| **FreeEntity** | **`ENTITY.FREE`** | Unloads model/animations in safe order. |
+| **Entity.Load(path)** | **`Entity.Load()`** | Returns entity ID. |
+| **Entity.CreateCube(size)** | **`Entity.CreateCube()`** | |
+| **Entity.CreateSphere(radius)** | **`Entity.CreateSphere()`**, **`SPHERE()`** | |
+| **Entity.CreatePlane(width, height)** | **`Entity.CreatePlane()`** | |
+| **Entity.CreateMesh(path)** | **`Entity.CreateMesh()`**, **`Entity.LoadMesh()`** | **Raylib model/mesh** — must **`FREE`** — [MEMORY.md](../../MEMORY.md). |
+| **Entity.Copy(id)** | **`Entity.Copy()`** | New id — both need lifecycle rules. |
+| **Entity.Free(id)** | **`Entity.Free()`** | Unloads model/animations in safe order. |
 
 ## Transform
 
 | Designed | Implementation | Arguments (typical) |
 |----------|----------------|---------------------|
-| **PositionEntity** | **`ENTITY.POSITIONENTITY`**, **`SETPOSITION`** | **`(entity, x, y, z [, global])`** |
-| **RotateEntity** | **`ENTITY.ROTATEENTITY`** | **`(entity, pitch, yaw, roll)`** |
-| **ScaleEntity** | **`ENTITY.SCALE`** | **`(entity, sx, sy, sz)`** |
-| **MoveEntity** | **`ENTITY.MOVE`**, **`MOVEENTITY`** | **`(entity, forward, right, up)`** — **local** move along facing |
-| **TranslateEntity** | **`ENTITY.TRANSLATE`**, **`ENTITY.TRANSLATEENTITY`** | **`(entity, dx, dy, dz)`** — **world** delta |
-| **TFormVector** | **`ENTITY.TFORMVECTOR`** | **`(x, y, z, srcEntity, dstEntity)`** → **3-float array handle** |
-| **TurnEntity** | **`ENTITY.TURNENTITY`** | Delta angles |
-| **PointEntity** | **`ENTITY.POINTENTITY`** | |
-| **AlignToVector** | **`ENTITY.ALIGNTOVECTOR`** | |
+| **Entity.Position(id, x, y, z)** | **`Entity.Position()`**, **`Entity.SetPosition()`** | **`(entity, x, y, z [, global])`** |
+| **Entity.Move(id, f, r, u)** | **`Entity.Move()`**, **`MoveEntity()`** | **`(entity, forward, right, up)`** — **local** move along facing |
+| **Entity.Turn(id, p, y, r)** | **`Entity.Turn()`** | Delta angles |
+| **Entity.Scale(id, x, y, z)** | **`Entity.Scale()`** | **`(entity, sx, sy, sz)`** |
+| **Entity.Translate(id, dx, dy, dz)** | **`Entity.Translate()`**, **`TranslateEntity()`** | **`(entity, dx, dy, dz)`** — **world** delta |
+| **Entity.TFormVector(x, y, z, srcEntity, dstEntity)** | **`Entity.TFormVector()`** | **`(x, y, z, srcEntity, dstEntity)`** → **3-float array handle** |
+| **Entity.LookAt(id, x, y, z)** | **`Entity.LookAt()`** | |
+| **Entity.AlignToVector(id, x, y, z)** | **`Entity.AlignToVector()`** | |
 
-## Rule-based collision types (with `ENTITY.UPDATE`)
+## Rule-based collision types (with `Entity.Update`)
 
 | Designed | Implementation | Arguments / returns |
 |----------|------------------|---------------------|
-| **EntityType** | **`ENTITY.TYPE`** | **`(entity, typeId)`** — used as **`src`/`dst`** in **`COLLISIONS`** |
-| **EntityHitsType** | (bool wrapper) | **`(entity, type)`** → **`TRUE`/`FALSE`** if any hit matches **`type`** |
-| **ENTITYCOLLIDED** | **`ENTITYCOLLIDED`** | **`(entity, type)`** → **other entity id** or **0** |
+| **Entity.Type(id, typeId)** | **`Entity.Type()`** | **`(entity, typeId)`** — used as **`src`/`dst`** in **`COLLISIONS`** |
+| **EntityHitsType(id, type)** | **`EntityHitsType()`** | **`(entity, type)`** → **`TRUE`/`FALSE`** if any hit matches **`type`** |
+| **EntityCollided(id, type)** | **`EntityCollided()`** | **`(entity, type)`** → **other entity id** or **0** |
 
 ## Getters
 
@@ -42,4 +41,4 @@
 
 ## Visibility / state
 
-**SHOW/HIDE**, **ALPHA**, **COLOR**, **FX**, **ORDER**, **PARENT** — **`ENTITY.SHOW`**, **`HIDE`**, **`ALPHA`**, **`COLOR`**, **`FX`**, **`ORDER`**, **`PARENT`**.
+**SHOW/HIDE**, **ALPHA**, **COLOR**, **FX**, **ORDER**, **PARENT** — **`Entity.Show()`**, **`Entity.Hide()`**, **`Entity.Alpha()`**, **`Entity.Color()`**, **`Entity.FX()`**, **`Entity.Order()`**, **`Entity.Parent()`**.

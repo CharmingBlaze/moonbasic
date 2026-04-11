@@ -1,17 +1,16 @@
 # Camera
 
-| Designed | Implementation | Memory / notes |
-|----------|----------------|----------------|
-| **CreateCamera (parent)** | **`CAMERA.MAKE`** — parenting via **`ENTITY`** / your own transform graph | Returns **VM heap handle** — **`CAMERA.FREE`**. |
-| **PositionCamera** | **`CAMERA.SETPOS`**, **`SETPOSITION`** | |
-| **RotateCamera** | **`CAMERA.ROTATE`**, **`TURN`**, **`SETORBIT`** | Radians vs degrees: see [CAMERA.md](../CAMERA.md). |
-| **TurnCameraLeft / TurnCameraRight** (yaw delta) | **`CAMERA.TURNLEFT`**, **`CAMERA.TURNRIGHT`** `(cam, amount)` → **float** radians | Add return value to your **`camYaw`**; validates **`cam`** handle. See [game-english.md](game-english.md). |
-| **OrbitCamera** (mouse + Q/E yaw delta) | **`CAMERA.ORBITCAMERA`** `(cam, mouseSens, keyDegPerSec, dt)` → **float** | Same idea as mouse delta × sens **`+`** **`Input.Orbit`** for **Q/E**. |
-| **MoveCamera** | **`CAMERA.MOVE`** | |
-| **CameraRange** | **`CAMERA.SETRANGE`** | Near/far. |
-| **CameraZoom** | **`CAMERA.ZOOM`** | Adjusts FOV. |
-| **CameraViewport** | **`RENDER.SETSCISSOR`**, **`RENDERTARGET.*`** | |
-| **CameraProject** | **`CAMERA.WORLDTOSCREEN`**, **`WORLDTOSCREEN*`** | |
-| **CameraPick** | **`CAMERA.GETRAY`**, **`CAMERA.PICK`** alias | |
+| Designed | moonBASIC | Notes |
+|----------|------------|-------|
+| **CreateCamera(parent)** | **`Camera.Make()`** | Returns **camera handle**. Parenting via `Entity.Parent()`. |
+| **PositionCamera(x, y, z)** | **`Camera.SetPos()`** | Sets eye position. |
+| **PointCamera(x, y, z)** | **`Camera.SetTarget()`** | Sets look-at point. |
+| **RotateCamera(p, y, r)** | **`Camera.SetRot()`** | |
+| **MoveCamera(d)** | **`Camera.Move()`** | |
+| **CameraRange(n, f)** | **`Camera.SetRange()`** | Near/Far clipping planes. |
+| **CameraZoom(f)** | **`Camera.SetFOV()`** | moonBASIC uses degrees FOV. |
+| **CameraProject(x, y, z)** | **`Camera.Project()`** | World to Screen. |
+| **CameraPick(sx, sy)** | **`Camera.GetRay()`** | Screen to World ray. |
+| **Viewport(x, y, w, h)** | **`Render.SetScissor()`** | |
 
 **Cleanup:** **`CAMERA.FREE(cam)`** when the camera handle is no longer needed.

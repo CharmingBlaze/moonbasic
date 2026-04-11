@@ -34,12 +34,12 @@ Dotted commands are grouped by their first segment (e.g. `WINDOW.OPEN` → names
 
 ## Output / Input
 
-- `PRINT` **[DONE]**: Print values to stdout, space-separated, with a newline.
-- `PRINTLN` **[DONE]**: Same as `PRINT`.
-- `WRITE` **[DONE]**: Prints values without a trailing newline.
-- `INPUT` **[DONE]**: Prompts the user for console input.
-- `CLS` **[DONE]**: Clears the console screen.
-- `LOCATE` **[DONE]**: Moves the console cursor to a specific row and column.
+- `PRINT(args...)` **[DONE]**: Prints values to the console, separated by spaces, with a newline.
+- `PRINTLN(args...)` **[DONE]**: Same as `PRINT()`.
+- `WRITE(args...)` **[DONE]**: Prints values without a trailing newline.
+- `INPUT(prompt)` **[DONE]**: Prompts the user for console input.
+- `CLS()` **[DONE]**: Clears the console screen.
+- `LOCATE(row, column)` **[DONE]**: Moves the console cursor to a specific row and column.
 - `TAB` **[PARTIAL]**: Coming soon.
 - `SPC` **[PARTIAL]**: Coming soon.
 
@@ -47,63 +47,39 @@ Dotted commands are grouped by their first segment (e.g. `WINDOW.OPEN` → names
 
 ## Type Conversion
 
-- `INT` **[DONE]**: Converts a value to an integer.
-- `FLOAT` **[DONE]**: Converts a value to a float.
-- `STR` **[DONE]**: Converts a value to a string.
-- `VAL` **[DONE]**: Parses a string to a float number.
-- `ASC` **[DONE]**: Returns the ASCII code for the first character of a string.
-- `CHR` **[DONE]**: Returns a string from an ASCII code.
-- `BOOL` **[PARTIAL]**: Coming soon.
-- `FIX` **[DONE]**: Truncates a float toward zero (e.g. `FIX(-3.7)` → `-3`).
-- `TYPEOF` **[DONE]**: Returns the type of a variable as a string.
-- `ISNULL` **[DONE]**: Checks if a value is null.
-- `ISHANDLE` **[DONE]**: Checks if a value is a handle.
-- `ISTYPE` **[DONE]**: Checks if a variable is of a certain type.
+- `INT(value)` **[DONE]**: Converts a value to an integer.
+- `FLOAT(value)` **[DONE]**: Converts a value to a float.
+- `STR(value)` **[DONE]**: Converts a value to a string.
+- `VAL(string)` **[DONE]**: Parses a string to a float number.
+- `ASC(string)` **[DONE]**: Returns the ASCII code for the first character of a string.
+- `CHR(code)` **[DONE]**: Returns a string from an ASCII code.
+- `BOOL(value)` **[PARTIAL]**: Coming soon.
+- `FIX(value)` **[DONE]**: Truncates a float toward zero (e.g. `FIX(-3.7)` → `-3`).
+- `TYPEOF(variable)` **[DONE]**: Returns the type of a variable as a string.
+- `ISNULL(value)` **[DONE]**: Checks if a value is null.
+- `ISHANDLE(value)` **[DONE]**: Checks if a value is a handle.
+- `ISTYPE(variable, type)` **[DONE]**: Checks if a variable is of a certain type.
 
 ---
 
 ## String Manipulation
 
-- `LEN` **[DONE]**: Returns the length of a string.
-- `LEFT` **[DONE]**: Returns a specified number of characters from the left side of a string.
-- `RIGHT` **[DONE]**: Returns a specified number of characters from the right side of a string.
-- `MID` **[DONE]**: Extracts a substring from a string.
-- `UPPER` **[DONE]**: Converts a string to uppercase.
-- `LOWER` **[DONE]**: Converts a string to lowercase.
-- `INSTR` **[DONE]**: Finds the position of the first occurrence of a substring in a string.
-- `TRIM` **[DONE]**: Removes whitespace from both ends of a string.
-- `LTRIM` **[DONE]**: Removes whitespace from the left side of a string.
-- `RTRIM` **[DONE]**: Removes whitespace from the right side of a string.
-- `REPLACE` **[DONE]**: Replaces all occurrences of a substring with another substring.
-- `CONTAINS` **[DONE]**: Checks if a string contains a specific substring.
-- `STARTSWITH` **[DONE]**: Checks if a string starts with a specific substring.
-- `ENDSWITH` **[DONE]**: Checks if a string ends with a specific substring.
-- `SPLIT` **[DONE]**: Splits a string into an array of substrings.
-- `JOIN` **[DONE]**: Joins the elements of a string array into a single string.
-- `SPACE` **[DONE]**: Returns a string consisting of a specified number of spaces.
-- `STRING` **[DONE]**: Returns a string of a specified length, consisting of a repeated character.
-- `REVERSE` **[DONE]**: Reverses a string.
-- `REPEAT` **[DONE]**: Repeats a string a specified number of times.
-- `COUNT` **[DONE]**: Counts the number of occurrences of a substring.
-- `LSET` **[DONE]**: Left-aligns a string within a specified length.
-- `RSET` **[DONE]**: Right-aligns a string within a specified length.
-- `ISALPHA` **[DONE]**: Checks if a string contains only alphabetic characters.
-- `ISNUMERIC` **[PARTIAL]**: Coming soon.
-- `ISALPHANUM` **[DONE]**: Checks if a string contains only alphanumeric characters.
-- `FORMAT` **[DONE]**: Formats a number into a string.
-- `BIN` **[DONE]**: Converts an integer to a binary string.
-- `HEX` **[DONE]**: Converts an integer to a hexadecimal string.
-- `OCT` **[DONE]**: Converts an integer to an octal string.
-- `MKSHORT` **[DONE]**: Converts a short integer to a 2-byte string.
-- `MKINT` **[DONE]**: Converts an integer to a 4-byte string.
-- `MKLONG` **[DONE]**: Converts a long integer to an 8-byte string.
-- `MKFLOAT` **[DONE]**: Converts a float to a 4-byte string.
-- `MKDOUBLE` **[DONE]**: Converts a double to an 8-byte string.
-- `CVSHORT` **[DONE]**: Converts a 2-byte string to a short integer.
-- `CVINT` **[DONE]**: Converts a 4-byte string to an integer.
-- `CVLONG` **[DONE]**: Converts an 8-byte string to a long integer.
-- `CVFLOAT` **[DONE]**: Converts a 4-byte string to a float.
-- `CVDOUBLE` **[DONE]**: Converts an 8-byte string to a double.
+- `LEN(string)` **[DONE]**: Returns the length of a string.
+- `LEFT(string, count)` **[DONE]**: Returns characters from the left side.
+- `RIGHT(string, count)` **[DONE]**: Returns characters from the right side.
+- `MID(string, start, [count])` **[DONE]**: Extracts a substring.
+- `UPPER(string)` **[DONE]**: Converts to uppercase.
+- `LOWER(string)` **[DONE]**: Converts to lowercase.
+- `INSTR(string, sub, [start])` **[DONE]**: Finds substring position.
+- `TRIM(string)` **[DONE]**: Removes whitespace.
+- `REPLACE(string, old, new)` **[DONE]**: Replaces occurrences.
+- `CONTAINS(string, sub)` **[DONE]**: Checks for substring.
+- `STARTSWITH(string, sub)` **[DONE]**: Checks prefix.
+- `ENDSWITH(string, sub)` **[DONE]**: Checks suffix.
+- `SPLIT(string, sep)` **[DONE]**: Splits into array.
+- `JOIN(array, sep)` **[DONE]**: Joins array into string.
+- `BIN(value)` **[DONE]**: Integer to binary string.
+- `HEX(value)` **[DONE]**: Integer to hex string.
 
 ---
 
@@ -333,33 +309,11 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Window.Open(w, h, title)` | Opens the window (no return value). On failure, prints to stderr and exits. Must be the first window command. |
-| `Window.CanOpen(w, h, title)` | Returns `TRUE` if size/title are valid for opening; use to branch without calling `Open`. |
+| `Window.Open(w, h, title)` | Opens the window. |
 | `Window.Close()` | Closes the window and exits. |
-| `Window.ShouldClose()` | Returns `TRUE` when the user requests close (use in main loop). |
+| `Window.ShouldClose()` | Returns `TRUE` when user requests close. |
 | `Window.SetFPS(fps)` | Sets the target frame rate. |
-| `Window.SetMSAA(samples)` | Sets hardware Multi-Sample Anti-Aliasing (0, 4, 8). Pre-hint; use before `OPEN`. |
-| `Window.SetTitle(title)` | Updates the window title at runtime. |
-| `Window.SetPosition(x, y)` | Moves the window on screen. |
-| `Window.SetSize(w, h)` | Resizes the window. |
-| `Window.SetMinSize(w, h)` | Sets the minimum resizable size. |
-| `Window.SetMaxSize(w, h)` | Sets the maximum resizable size. |
-| `Window.SetIcon(path)` | Sets the window icon from an image file. |
-| `Window.SetOpacity(alpha)` | Sets window transparency (0.0–1.0). |
-| `Window.SetMonitor(idx)` | Moves the window to a specific monitor. |
-| `Window.GetMonitorCount()` | Returns the number of connected monitors. |
-| `Window.GetMonitorWidth(idx)` | Returns a monitor's width in pixels. |
-| `Window.GetMonitorHeight(idx)` | Returns a monitor's height in pixels. |
-| `Window.GetMonitorRefreshRate(idx)` | Returns a monitor's refresh rate in Hz. |
-| `Window.GetMonitorName(idx)` | Returns a monitor's name string. |
-| `Window.GetPositionX()` | Returns the window's X position on screen. |
-| `Window.GetPositionY()` | Returns the window's Y position on screen. |
-| `Window.GetScaleDPIX()` | Returns the DPI X scale factor. |
-| `Window.GetScaleDPIY()` | Returns the DPI Y scale factor. |
-| `Window.DPISCALE()` | Returns the global DPI scale factor (float64). |
-| `Window.SetFlag(flag)` | Sets a window state flag (e.g., `FLAG_RESIZABLE`). |
-| `Window.ClearFlag(flag)` | Clears a window state flag. |
-| `Window.CheckFlag(flag)` | Returns `TRUE` if the window flag is set. |
+| `Window.SetTitle(title)` | Updates the window title. |
 
 ---
 
@@ -367,20 +321,10 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Render.Clear(r, g, b, [a])` | Clears the screen (also 0-arg and color-handle overloads). Call at the start of each frame. |
-| `Render.Frame()` | Presents the rendered frame. Call at the end of each frame. |
-| `Render.DrawFPS(x, y)` | Draws the current FPS on screen. |
-| `Render.Screenshot(path)` | Saves a screenshot to a PNG file. |
-| `Render.Width()` | Returns physical framebuffer width (**float64**). |
-| `Render.Height()` | Returns physical framebuffer height (**float64**). |
-| `Render.SetBlend(mode)` / `Render.SetBlendMode(mode)` | Sets the Raylib blend mode (e.g. `BLEND_ALPHA`). |
-| `Render.SetDepthWrite(on)` / `Render.SetDepthTest(on)` | Depth mask / depth test toggles. |
-| `Render.SetScissor(x, y, w, h)` / `Render.ClearScissor()` | Scissor rectangle. |
-| `Render.SetWireframe(on)` | Wireframe drawing mode. |
-| `Render.SetMSAA(on)` | Toggles 4× MSAA window hint. |
-| `Render.SetMode(mode)` | `"forward"` or `"deferred"` 3D pipeline where supported. |
-| `Render.SetShadowMapSize(size)` | Shadow map resolution (pixels). |
-| `Render.Set2DAmbient(r, g, b, a)` | 2D lighting ambient tint (0–255; light2d / CGO). |
+| `Render.Clear(r, g, b, [a])` | Clears the screen. |
+| `Render.Frame()` | Presents the rendered frame. |
+| `Render.DrawFPS(x, y)` | Draws the current FPS. |
+| `Render.Width()` / `Render.Height()` | Returns framebuffer dimensions. |
 
 ---
 
@@ -388,28 +332,23 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Camera.Make()` | Creates a new 3D camera, returns a handle. |
-| `cam.SetPos(x, y, z)` | Sets the camera's world position. |
-| `cam.SetTarget(x, y, z)` | Sets the point the camera looks at. |
-| `cam.SetFOV(fov)` | Sets the vertical field of view in degrees. |
-| `cam.Begin()` | Enters 3D rendering mode with this camera. |
-| `cam.End()` | Exits 3D rendering mode. |
-| `cam.Move(dx, dy, dz)` | Moves position and target together. |
-| `cam.GetRay(screenX, screenY)` | Screen → world ray (6-float array handle). |
-| `Camera.GetViewRay(sx, sy, cam, w, h)` | Ray with explicit viewport size. |
-| `cam.GetMatrix()` | Returns matrix handle (`Matrix.Free` to release). |
-| `Camera.GetPos(cam)` / `Camera.GetTarget(cam)` | Vec3 handles for position / target. |
-| `Camera.SetUp(cam, ux, uy, uz)` | Sets the up vector. |
-| `Camera.Free(cam)` | Frees the camera object. |
-| `Camera2D.Make()` | Creates a 2D scrolling camera, returns a handle. |
-| `Camera2D.Begin()` / `Camera2D.Begin(cam2d)` | Identity 2D mode or use a camera handle. |
-| `cam2d.End()` | Exits 2D camera rendering mode. |
-| `cam2d.SetTarget(x, y)` | Sets the 2D camera's world target. |
-| `cam2d.SetOffset(x, y)` | Sets the screen-space offset (for centering). |
-| `cam2d.SetZoom(zoom)` | Sets the zoom level (1.0 = normal). |
-| `cam2d.SetRotation(angle)` | Sets the camera rotation in degrees (Raylib). |
-| `Camera2D.GetMatrix(cam2d)` | 2D camera matrix handle. |
-| `Camera2D.WorldToScreen` / `Camera2D.ScreenToWorld` | Convert points; returns 2-float array handles. |
+| `Camera.Make()` | Creates a 3D camera handle. |
+| `Camera.Begin(cam)` | Enters 3D mode. |
+| `Camera.End()` | Exits 3D mode. |
+| `Camera.SetPos(cam, x, y, z)` | Sets camera position. |
+| `Camera.SetTarget(cam, x, y, z)` | Sets look-at point. |
+
+---
+
+### Entity — [Reference](reference/ENTITY.md)
+
+| Command | Description |
+|---|---|
+| `Entity.Load(path)` | Loads a 3D model. |
+| `Entity.CreateCube(size)` | Creates a cube entity. |
+| `Entity.Position(id, x, y, z)` | Sets world position. |
+| `Entity.Turn(id, p, y, r)` | Adds rotation delta. |
+| `Entity.Free(id)` | Frees the entity. |
 
 ---
 
@@ -443,16 +382,20 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Texture.Load(path)` | Loads a PNG/JPG from disk into GPU memory. Returns a handle. |
-| `Texture.Free(handle)` | Unloads a texture from GPU memory. |
-| `Texture.FromImage(imgHandle)` | Creates a GPU texture from an in-memory image. |
-| `Texture.GenWhiteNoise(w, h)` | Generates a white noise texture procedurally. |
+| `Texture.Load(path)` | Loads a texture handle from disk. |
+| `Texture.Free(id)` | Unloads a texture from memory. |
+| `Texture.FromImage(id)` | Creates a texture from an Image handle. |
 
 ---
 
 ### Image (CPU) — [Reference](reference/IMAGE.md)
 
-CPU pixel buffers (`Image.*`): load, draw into, resize, color ops, `DrawImage`, alpha bbox, `Clipboard.GetImage`. Upload to the GPU with **`Texture.FromImage`**. Full table in [IMAGE.md](reference/IMAGE.md).
+| Command | Description |
+|---|---|
+| `Image.Load(path)` | Loads a CPU pixel buffer from disk. |
+| `Image.Make(w, h)` | Creates a new blank Image handle. |
+| `Image.Free(id)` | Frees Image memory. |
+| `Image.Export(id, path)` | Saves an Image to a file. |
 
 ---
 
@@ -460,19 +403,19 @@ CPU pixel buffers (`Image.*`): load, draw into, resize, color ops, `DrawImage`, 
 
 | Command | Description |
 |---|---|
-| `Font.Load(path)` | Loads a `.ttf` or `.otf` font file. Returns a handle. |
-| `Font.Free(handle)` | Unloads a font from memory. |
+| `Font.Load(path)` | Loads a `.ttf` or `.otf` font file. |
+| `Font.Free(id)` | Unloads a font from memory. |
 
 ---
 
 ### GUI (raygui) — [Reference](reference/GUI.md)
 
-Immediate-mode widgets from raygui (`GUI.*`). Requires a **CGO** build like `DRAW.*` / `WINDOW.*`.
-
 | Command | Description |
 |---|---|
-| `GUI.ENABLE` / `GUI.DISABLE` | Toggle global GUI input. |
-| `GUI.BUTTON` / `GUI.LABEL` / `GUI.SLIDER` / … | See [GUI.md](reference/GUI.md) for the full list (layout, lists, color pickers, dialogs, tooltips). |
+| `Gui.Button(label, x, y, w, h)` | Draws a clickable button. |
+| `Gui.Label(text, x, y)` | Draws a text label. |
+| `Gui.Slider(label, x, y, val, min, max)` | Draws a slider. |
+| `Gui.SetFont(id)` | Sets the active GUI font. |
 
 Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
@@ -482,15 +425,25 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Sprite.Load(path)` | `LoadTexture` — PNG/JPG strip or atlas texture. Returns a handle. |
-| `Sprite.DefAnim(handle, count)` | **`count`** = decimal string, e.g. `"4"` = equal frames in one horizontal row. |
-| `Sprite.PlayAnim(handle, name)` | Starts strip playback; `name` is currently unused. |
-| `Sprite.UpdateAnim(handle, dt)` | Advance strip frames (use **`Time.Delta()`**). No-op if using **`Anim.Update`** FSM. |
-| `Sprite.SetPos` / `Sprite.SetPosition` | Float draw offset; used by **`Sprite.Draw`** and **`Sprite.Hit`**. |
-| `Sprite.Draw(handle, x, y)` | Current frame + offset (use inside **`Camera2D.Begin`** / **`Camera2D.End`** when you need 2D camera space). |
-| `Sprite.Hit(a, b)` | Axis-aligned overlap using positions + frame sizes. |
-| `Atlas.Load` / `GetSprite` / `Free` | See [ATLAS.md](reference/ATLAS.md). |
-| `Anim.Define` / `AddTransition` / `Update` / `SetParam` | Optional state machine; see [SPRITE.md](reference/SPRITE.md). |
+| `Sprite.Load(path)` | Loads a sprite from disk. |
+| `Sprite.Draw(id, x, y)` | Draws a sprite at pixel coordinates. |
+| `Sprite.SetPos(id, x, y)` | Sets a float draw offset. |
+| `Sprite.Free(id)` | Frees a sprite handle. |
+| `Atlas.Load(path)` | Loads a texture atlas JSON. |
+| `Atlas.GetSprite(id, name)` | Retrieves a sprite from an atlas. |
+
+---
+
+### JSON, CSV & DB — [JSON](reference/JSON.md) · [CSV](reference/CSV.md) · [DB](reference/DATABASE.md)
+
+| Command | Description |
+|---|---|
+| `JSON.Parse(path)` | Loads a JSON file. |
+| `JSON.GetString(id, path)` | Reads a value from JSON. |
+| `CSV.Load(path)` | Loads a CSV file. |
+| `CSV.Get(id, row, col)` | Reads a cell from a CSV. |
+| `DB.Open(path)` | Opens a SQLite database. |
+| `DB.Query(id, sql)` | Runs a SQL query. |
 
 ---
 
@@ -498,67 +451,41 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Model.Load(path)` | Loads a 3D model file (`.gltf`, `.glb`, `.obj`). |
-| `Model.Draw(handle, matrixHandle)` | Draws a model with a transform matrix. |
-| `Model.SetMaterial(handle, idx, matHandle)` | Replaces one of a model's materials. |
+| `Model.Load(path)` | Loads a 3D model file. |
+| `Model.Draw(handle)` | Draws a model using its root transform. |
+| `Model.SetPos(id, x, y, z)` | Sets model position. |
 | `Model.Free(handle)` | Unloads a model from memory. |
 | `Mesh.MakeCube(w, h, d)` | Creates a procedural box mesh. |
-| `Mesh.MakeSphere(radius, rings, slices)` | Creates a procedural sphere mesh. |
-| `Mesh.MakePlane(w, len, resX, resZ)` | Creates a procedural flat plane mesh. |
-| `Mesh.MakeHeightmap(imgHandle, w, h, len)` | Creates a terrain mesh from a heightmap image. |
-| `Mesh.Draw(meshHandle, matHandle, matrixHandle)` | Draws a single mesh with a material and transform. |
+| `Mesh.Upload(id, dynamic)` | Uploads mesh data to GPU. |
+| `Mesh.Draw(id, mat, matrix)` | Draws a single mesh. |
 | `Mesh.Free(handle)` | Unloads a mesh from memory. |
 | `Material.MakeDefault()` | Creates a default PBR material. |
-| `Material.MakePBR()` | Creates a full PBR material with shadow support. |
-| `Material.SetTexture(handle, slot, texHandle)` | Assigns a texture to a material map slot. |
-| `Material.SetColor(handle, slot, r, g, b, a)` | Sets a material map slot's tint color. |
-| `Material.SetFloat(handle, slot, value)` | Sets a material map slot's float value. |
-| `Material.SetShader(handle, shaderHandle)` | Applies a custom shader to a material. |
+| `Material.SetTexture(id, slot, tex)` | Assigns a texture to a map slot. |
 | `Material.Free(handle)` | Frees a material. |
 
 ---
 
-### Physics 3D (Jolt) — [Reference](reference/PHYSICS3D.md) · [Command set](reference/moonbasic-command-set/physics-3d.md)
+### Physics 3D (Jolt) — [Reference](reference/PHYSICS3D.md)
 
 | Command | Description |
 |---|---|
 | `Physics3D.Start()` | Initializes the 3D physics world. |
 | `Physics3D.Stop()` | Shuts down the 3D physics world. |
-| `Physics3D.Step()` | Advances the simulation one step. Call once per frame. |
-| `Physics3D.SetGravity(x, y, z)` | Sets global gravity. |
-| `Body3D.Make(type)` | Creates a body definition (`"static"`, `"dynamic"`, `"kinematic"`). |
-| `Body3D.AddBox(defHandle, w, h, d)` | Adds a box collision shape. |
-| `Body3D.AddSphere(defHandle, radius)` | Adds a sphere collision shape. |
-| `Body3D.AddCapsule(defHandle, height, radius)` | Adds a capsule collision shape. |
-| `Body3D.Commit(defHandle, x, y, z)` | Finalizes the body and adds it to the world. |
-| `Body3D.SetPos(handle, x, y, z)` | Teleports a body to a new position. |
-| `Body3D.SetMass(handle, mass)` | Sets the mass of a dynamic body. |
-| `Body3D.ApplyForce(handle, x, y, z)` | Applies a continuous force. |
-| `Body3D.ApplyImpulse(handle, x, y, z)` | Applies an instant impulse. |
-| `Body3D.SetLinearVel(handle, vx, vy, vz)` | Sets linear velocity directly. |
-| `Body3D.GetMatrix(handle)` | Returns the body's transform matrix (for rendering). |
-| `Body3D.Free(handle)` | Removes a body from the simulation. |
+| `Physics3D.Step()` | Advances simulation one step. |
+| `Body3D.Make(type)` | Creates a body definition. |
+| `Body3D.Commit(def, x, y, z)` | Finalizes body into the world. |
 
 ---
 
-### Physics 2D (Box2D) — [Reference](reference/PHYSICS2D.md) · [Command set](reference/moonbasic-command-set/physics-2d.md)
+### Physics 2D (Box2D) — [Reference](reference/PHYSICS2D.md)
 
 | Command | Description |
 |---|---|
 | `Physics2D.Start()` | Initializes the 2D physics world. |
 | `Physics2D.Stop()` | Shuts down the 2D physics world. |
-| `Physics2D.Step()` | Advances the simulation. Call once per frame. |
-| `Physics2D.SetGravity(x, y)` | Sets global 2D gravity (positive Y = down). |
+| `Physics2D.Step()` | Advances the simulation. |
 | `Body2D.Make(type)` | Creates a 2D body definition. |
-| `Body2D.AddRect(defHandle, w, h)` | Adds a rectangle collision shape. |
-| `Body2D.AddCircle(defHandle, radius)` | Adds a circle collision shape. |
-| `Body2D.Commit(defHandle, x, y)` | Adds the body to the world at a position. |
-| `Body2D.SetPos(handle, x, y)` | Teleports a 2D body. |
-| `Body2D.X(handle)` / `Body2D.Y(handle)` | Returns the body's X or Y position. |
-| `Body2D.Rot(handle)` | Returns the body's rotation in degrees. |
-| `Body2D.ApplyForce(handle, x, y)` | Applies a continuous 2D force. |
-| `Body2D.ApplyImpulse(handle, x, y)` | Applies an instant 2D impulse. |
-| `Body2D.Free(handle)` | Removes a body from the simulation. |
+| `Body2D.Commit(def, x, y)` | Finalizes body into the world. |
 
 ---
 
@@ -566,11 +493,10 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `CharController.Make(radius, height, x, y, z)` | Creates a capsule character controller. |
-| `CharController.Move(handle, dx, dy, dz)` | Moves the controller with collision detection. |
-| `CharController.IsGrounded(handle)` | Returns `TRUE` if standing on a surface. |
-| `CharController.X(handle)` / `.Y()` / `.Z()` | Returns the controller's position component. |
-| `CharController.Free(handle)` | Frees the controller. |
+| `CharController.Make(r, h, x, y, z)` | Creates a capsule controller. |
+| `CharController.Move(id, dx, dy, dz)` | Moves with collision detection. |
+| `CharController.IsGrounded(id)` | Returns `TRUE` if on a surface. |
+| `CharController.Free(id)` | Frees the controller. |
 
 ---
 
@@ -579,17 +505,10 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 | Command | Description |
 |---|---|
 | `Audio.Init()` | Initializes the audio device. |
-| `Audio.Close()` | Closes the audio device. |
-| `Audio.LoadSound(path)` | Loads a sound effect into memory. Returns a handle. |
-| `Audio.LoadMusic(path)` | Loads a music file for streaming. Returns a handle. |
+| `Audio.LoadSound(path)` | Loads a sound effect. |
+| `Audio.LoadMusic(path)` | Loads streaming music. |
 | `Audio.Play(handle)` | Plays a sound or music track. |
-| `Audio.Stop(handle)` | Stops playback. |
-| `Audio.Pause(handle)` | Pauses playback. |
-| `Audio.Resume(handle)` | Resumes paused playback. |
-| `Audio.UpdateMusic(handle)` | Updates the music stream buffer. **Call every frame** for music. |
-| `Sound.Free(handle)` | Unloads a sound effect. |
-| `Music.Free(handle)` | Unloads a music stream. |
-| `AudioStream.Make(sampleRate, bitDepth, channels)` | Creates a raw PCM audio stream. |
+| `Audio.UpdateMusic(handle)` | Updates music buffer (call per frame). |
 | `AudioStream.Update(handle, pcmArray)` | Pushes PCM data to the stream. |
 | `AudioStream.Play(handle)` | Starts the audio stream. |
 | `AudioStream.IsPlaying(handle)` | Returns `TRUE` if the stream is playing. |
@@ -621,47 +540,31 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Time.Delta()` | Returns seconds elapsed since last frame. Use this for frame-rate-independent movement. |
-| `Time.Get()` | Returns total seconds elapsed since the program started. |
+| `Time.Delta()` | Returns seconds elapsed since last frame. |
+| `Time.Get()` | Returns total seconds elapsed since start. |
 
 ---
 
 ### Input — [Reference](reference/INPUT.md)
 
-Keyboard, mouse, gamepad, and **action mapping**. Short names such as **`KEYDOWN`** mirror **`Input.KeyDown`**.
-
 | Command | Description |
 |---|---|
-| `Input.KeyDown` / `KEYDOWN` | True while a key is held. |
-| `Input.MouseX()` / `MOUSEX()` | Current mouse X position (**float64**). |
-| `Input.MouseY()` / `MOUSEY()` | Current mouse Y position (**float64**). |
-| `Input.KeyPressed` / `KEYPRESSED` | True only on the first frame a key is pressed. |
-| `Input.Axis(negKey, posKey)` | Float in `{-1, 0, 1}` from two keys — ideal with **`MOVEX` / `MOVEZ`** or **`MOVESTEPX` / `MOVESTEPZ`**. |
-| `Input.AxisDeg(negKey, posKey, degPerSec, dt)` | **`Input.Axis` × `DEGPERSEC`** — radians to add this frame (e.g. camera yaw). |
-| `Input.Orbit(...)` | Alias of **`Input.AxisDeg`**. |
-| `Input.Movement2D(...)` | 2-float array **`[forward, strafe]`**; **ERASE** when done — [INPUT.md](reference/INPUT.md). |
-
-Full list: [INPUT.md](reference/INPUT.md).
+| `Input.KeyDown(key)` | True while a key is held. |
+| `Input.KeyPressed(key)` | True on the first frame of a press. |
+| `Input.MouseX()` / `Input.MouseY()` | Current mouse pixel coordinates. |
+| `Input.Axis(neg, pos)` | Returns -1, 0, or 1 based on keys. |
 
 ---
 
-### Transform (4×4 object/world matrices) — [Reference](reference/TRANSFORM.md)
+### Transform — [Reference](reference/TRANSFORM.md)
 
 | Command | Description |
 |---|---|
-| `Transform.Identity()` | New identity transform. Returns a handle. |
-| `Transform.Translation(x, y, z)` | World position. |
-| `Transform.Rotation(rx, ry, rz)` | Euler rotation (radians); returns new handle. |
-| `Transform.Scale(sx, sy, sz)` | Scale matrix. |
-| `Transform.SetRotation(handle, rx, ry, rz)` | Updates rotation in place (good in loops). |
-| `Transform.Multiply(a, b)` | Matrix multiply; returns new handle. |
-| `Transform.Inverse(handle)` / `Transform.Transpose(handle)` | Standard matrix ops. |
-| `Transform.LookAt(...)` / `Perspective` / `Ortho` | View / projection helpers. |
-| `Transform.GetElement(handle, row, col)` | One entry (rows/cols 0–3). |
-| `Transform.ApplyX/Y/Z(handle, x, y, z)` | Matrix × point; returns one world component. |
-| `Transform.Free(handle)` | Release the handle. |
-
-Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
+| `Transform.Identity()` | New identity matrix handle. |
+| `Transform.Translate(x, y, z)` | Translation matrix. |
+| `Transform.Rotate(p, y, r)` | Euler rotation matrix (radians). |
+| `Transform.Multiply(a, b)` | Combines two matrices. |
+| `Transform.Free(id)` | Frees matrix handle. |
 
 ---
 
@@ -669,7 +572,8 @@ Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 
 | Command | Description |
 |---|---|
-| `Shader.Load(vsPath, fsPath)` | Loads GLSL vertex and fragment shaders. Returns a handle. |
+| `Shader.Load(vs, fs)` | Loads GLSL vertex/fragment shaders. |
+| `Shader.Free(id)` | Unloads shader from GPU. |
 
 ---
 
@@ -677,9 +581,9 @@ Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 
 | Command | Description |
 |---|---|
-| `Light.Make(type)` | Creates a light (`"directional"`, `"point"`, `"spot"`). Returns a handle. |
-| `Light.SetDir(handle, x, y, z)` | Sets the direction for directional/spot lights. |
-| `Light.SetShadow(handle, enabled)` | Enables or disables shadow casting. |
+| `Light.Make(type)` | Creates a light handle. |
+| `Light.SetDir(id, x, y, z)` | Sets directional light vector. |
+| `Light.Free(id)` | Frees light resource. |
 
 ---
 
@@ -687,18 +591,10 @@ Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 
 | Command | Description |
 |---|---|
-| `Tilemap.Load(path)` | Loads a Tiled `.tmx` file. Returns a handle. |
-| `Tilemap.Draw(handle, offsetX, offsetY)` | Draws all layers of the tilemap. |
-| `Tilemap.DrawLayer(handle, layer, offsetX, offsetY)` | Draws a single named or indexed layer. |
-| `Tilemap.GetTile(handle, layer, x, y)` | Returns the tile GID at a grid position. |
-| `Tilemap.SetTile(handle, layer, x, y, gid)` | Sets a tile at a grid position at runtime. |
-| `Tilemap.IsSolid(handle, x, y)` | Returns `TRUE` if the tile at (x,y) has collision. |
-| `Tilemap.SetTileSize(handle, w, h)` | Overrides the display size of each tile. |
-| `Tilemap.Width(handle)` | Returns the tilemap width in tiles. |
-| `Tilemap.Height(handle)` | Returns the tilemap height in tiles. |
-| `Tilemap.LayerCount(handle)` | Returns the number of layers. |
-| `Tilemap.LayerName(handle, idx)` | Returns the name of a layer by index. |
-| `Tilemap.Free(handle)` | Frees the tilemap from memory. |
+| `Tilemap.Load(path)` | Loads a Tiled map handle. |
+| `Tilemap.Draw(id, x, y)` | Draws all map layers. |
+| `Tilemap.IsSolid(id, x, y)` | Collision check for tile. |
+| `Tilemap.Free(id)` | Frees tilemap. |
 
 ---
 
@@ -706,8 +602,9 @@ Legacy: **`Mat4.*`** — [MAT4.md](reference/MAT4.md).
 
 | Command | Description |
 |---|---|
-| `Particle.Make(maxCount)` | Creates a particle emitter. Returns a handle. |
-| `Particle.SetTexture(handle, texHandle)` | Sets the particle texture. |
+| `Particles.Make(max)` | Creates particle emitter. |
+| `Particles.Emit(id, x, y, z, n)` | Emits a burst of particles. |
+| `Particles.Free(id)` | Frees emitter. |
 | `Particle.SetEmitRate(handle, rate)` | Sets particles emitted per second. |
 | `Particle.SetLifetime(handle, min, max)` | Sets the particle lifetime range in seconds. |
 | `Particle.SetVelocity(handle, vx, vy, vz, spread)` | Sets the emission velocity and spread. |

@@ -2,16 +2,6 @@
 
 Commands for loading and playing sound and music.
 
-## Core Workflow
-
-1.  **Initialize**: Call `Audio.Init()` once at the start of your program.
-2.  **Load Assets**: Use `Audio.LoadSound()` for short effects and `Audio.LoadMusic()` for background tracks.
-3.  **Control Playback**: Use `Audio.Play()`, `Audio.Stop()`, etc., to control the audio in your game logic.
-4.  **Update Music**: For streaming music, you must call `Audio.UpdateMusic()` each frame.
-5.  **Cleanup**: Unload sounds with `Sound.Free()` and `Music.Free()`, then call `Audio.Close()` before the program exits.
-
----
-
 ## Device Management
 
 ### `Audio.Init()`
@@ -28,34 +18,38 @@ Closes the audio device and releases all audio resources.
 
 Sounds are loaded completely into memory, making them fast to play. Ideal for short, repeatable effects like jumps or explosions.
 
-### `Audio.LoadSound(filePath)`
+### `Audio.LoadSound(path)`
 
-Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a handle.
+Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a **sound handle**.
 
 ### Spatial / Blitz-style 3D helpers
 
-- **`Listener(cameraHandle)`** / **`AUDIO.LISTENERCAMERA`** — sets the virtual listener from a **`CAMERA.MAKE`** handle (position + horizontal forward). Call **each frame** before **`EmitSound`** so pan and falloff stay correct.
-- **`Load3DSound(path)`** — same buffers as **`AUDIO.LOADSOUND`**; the “3D” path is for scripts that pair it with **`Listener`** + **`EmitSound`**.
-- **`EmitSound(sound, entity)`** (registered on **`ENTITY.*`**) — plays once with **quadratic distance falloff** (max distance ≈ 80 world units) and **stereo pan** from the horizontal angle to the source. Restores each sound’s last **`AUDIO.SETSOUNDVOLUME`** / **`AUDIO.SETSOUNDPAN`** after the play call.
-- **`SoundVolume`** / **`SoundPitch`** — aliases of **`AUDIO.SETSOUNDVOLUME`** / **`AUDIO.SETSOUNDPITCH`**.
+- **`Listener(cameraHandle)`** / **`Audio.ListenerCamera()`** — sets the virtual listener from a **`Camera.Make()`** handle (position + horizontal forward). Call **each frame** before **`Entity.EmitSound()`** so pan and falloff stay correct.
+- **`Load3DSound(path)`** — same buffers as **`Audio.LoadSound()`**; the “3D” path is for scripts that pair it with **`Listener`** + **`Entity.EmitSound()`**.
+- **`Entity.EmitSound(sound, entity)`** — plays once with **quadratic distance falloff** (max distance ≈ 80 world units) and **stereo pan** from the horizontal angle to the source. Restores each sound’s last **`Audio.SetSoundVolume()`** / **`Audio.SetSoundPan()`** after the play call.
+- **`Audio.SoundVolume()`** / **`Audio.SoundPitch()`** — aliases of **`Audio.SetSoundVolume()`** / **`Audio.SetSoundPitch()`**.
 
 Raylib does not expose a full OpenAL-style HRTF; this is a lightweight **pan + attenuation** model.
 
-### `Audio.Play(soundHandle)`
+### `Audio.Play(handle)`
 
 Plays a loaded sound effect. Multiple instances of the same sound can overlap.
 
+### `Audio.Stop(handle)`
+
+Stops playback of a sound or music handle.
+
 ### `Audio.PlayVarySound(sound, minPitch, maxPitch)`
 
-Picks a **uniform random** pitch between **`minPitch`** and **`maxPitch`**, applies it with **`Audio.SetSoundPitch`**, then plays the sound. Pitch stays on the sound object until changed again.
+Picks a **uniform random** pitch between **`minPitch`** and **`maxPitch`**, applies it with **`Audio.SetSoundPitch()`**, then plays the sound. Pitch stays on the sound object until changed again.
 
 ### `Audio.PlayRndSound(sound1, sound2, ...)`
 
 Plays **one** of the given sound handles, chosen uniformly at random (two to four overloads are listed in the manifest). All arguments must be **sound** handles.
 
-### `Sound.Free(soundHandle)`
+### `Sound.Free(handle)`
 
-Unloads a sound from memory.
+Unloads a sound effect from memory and releases its heap slot.
 
 ---
 
@@ -63,25 +57,25 @@ Unloads a sound from memory.
 
 Music is streamed from the file on disk, which uses less memory. Ideal for long background tracks.
 
-### `Audio.LoadMusic(filePath)`
+### `Audio.LoadMusic(path)`
 
-Loads a music file to be streamed (e.g., `.mp3`, `.ogg`). Returns a handle.
+Loads a music file for streaming (e.g., `.mp3`, `.ogg`). Returns a **music handle**.
 
-### `Audio.UpdateMusic(musicHandle)`
+### `Audio.UpdateMusic(handle)`
 
-Updates the buffer for a streaming music track. This **must** be called every frame for music to play correctly.
+Updates the music stream buffer. **Must be called every frame** for music to play correctly.
 
-### `Audio.Play(musicHandle)`
+### `Audio.Play(handle)`
 
 Starts playing a music track.
 
-### `Audio.Stop(musicHandle)` / `Audio.Pause(musicHandle)` / `Audio.Resume(musicHandle)`
+### `Audio.Stop(handle)` / `Audio.Pause(handle)` / `Audio.Resume(handle)`
 
 Controls music playback.
 
-### `Music.Free(musicHandle)`
+### `Music.Free(handle)`
 
-Unloads a music stream.
+Unloads a music stream and releases its resources.
 
 ---
 

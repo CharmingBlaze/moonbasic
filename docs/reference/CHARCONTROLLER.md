@@ -14,46 +14,26 @@ For an **entity-based** wrapper (**`PLAYER.CREATE`**, **`PLAYER.MOVE`**, look ta
 ---
 
 ### `CharController.Make(radius, height, x, y, z)`
+Creates a new virtual character controller with a capsule shape at the specified world position. Returns a **controller handle**.
 
-Creates a new virtual character controller with a capsule shape.
-
-- `radius`, `height`: The dimensions of the capsule.
-- `x`, `y`, `z`: The initial position of the controller.
-
-Returns a handle to the controller.
+### `CharController.Free(handle)`
+Frees the character controller resource and releases its heap slot.
 
 ---
 
 ### `CharController.Move(handle, dx, dy, dz)`
-
-Updates the character's position based on a desired velocity or displacement vector. The controller will handle collisions with the physics world.
-
-- `handle`: The handle of the character controller.
-- `dx`, `dy`, `dz`: The desired change in position for this frame.
-
----
+Updates the character's position based on a desired displacement vector. The controller automatically handles collisions with the physics world.
 
 ### `CharController.IsGrounded(handle)`
-
-Returns `TRUE` if the character controller is currently standing on a surface.
+Returns `TRUE` if the character controller is currently standing on a surface (floor).
 
 ---
 
 ### `CharController.GetPos(handle)`
-
-Returns an array handle containing the controller's `[x, y, z]` position.
-
----
+Returns a 3-float array handle `[x, y, z]` representing the controller's current world position.
 
 ### `CharController.X(handle)` / `CharController.Y(handle)` / `CharController.Z(handle)`
-
-Returns the X, Y, or Z coordinate of the controller's position.
-
----
-
-### `CharController.Free(handle)`
-
-Frees the character controller resource.
+Returns the individual world coordinate component of the controller's position.
 
 ---
 

@@ -13,6 +13,7 @@ import (
 
 func registerEntityPhysicsQoLAPI(m *Module, r runtime.Registrar) {
 	r.Register("PHYSICS.EXPLOSION", "entity", runtime.AdaptLegacy(m.physExplosion))
+	r.Register("WORLD.EXPLOSION", "entity", runtime.AdaptLegacy(m.physExplosion))
 	r.Register("ENTITY.SETWEIGHT", "entity", runtime.AdaptLegacy(m.physSetWeight))
 	r.Register("ENTITY.APPLYTORQUE", "entity", runtime.AdaptLegacy(m.physApplyTorque))
 	r.Register("ENTITY.ONHIT", "entity", m.physOnHit)

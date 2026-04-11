@@ -10,60 +10,66 @@ Entities use **integer ids** (`entity`) or **`CUBE()`** / **`SPHERE()`** handles
 
 | Concept | moonBASIC |
 |--------|-----------|
-| **Position** (absolute world) | **`ENTITY.POSITIONENTITY`** / **`PositionEntity`** — also **`ENTITY.SETPOSITION`**. Dot: **`obj.Pos(x,y,z)`**. |
-| **Move** (along entity **local** forward/right/up from pitch/yaw) | **`ENTITY.MOVEENTITY`** / **`MoveEntity`** / **`ENTITY.MOVE`** — **not** a world delta; use **`ENTITY.TRANSLATEENTITY`** / **`TranslateEntity`** for world **`dx,dy,dz`**. |
-| **Rotate** (absolute euler **radians**) | **`ENTITY.ROTATEENTITY`** / **`RotateEntity`**. |
-| **Turn** (relative euler) | **`ENTITY.TURNENTITY`** / **`TurnEntity`**. |
-| **Scale** | **`ENTITY.SCALE`** / **`ScaleEntity`**. |
-| **Parent** | **`ENTITY.PARENT`** / **`EntityParent`** — child inherits transforms. **`ENTITY.PARENTCLEAR`**, **`GetParent`**. |
-| **Color / tint** | **`ENTITY.COLOR`** / **`EntityColor`** — RGB **0–255**; alpha via **`ENTITY.ALPHA`** / **`EntityAlpha`**. |
-| **Distance** | **`ENTITY.DISTANCE`** / **`EntityDistance`** (two entity ids). |
+| **Position** | **`Entity.Position()`** / **`Entity.SetPosition()`** |
+| **Move** | **`Entity.Move()`** / **`Entity.Translate()`** |
+| **Rotate** | **`Entity.SetRotation()`** / **`Entity.Rotate()`** |
+| **Turn** | **`Entity.Turn()`** |
+| **Scale** | **`Entity.Scale()`** |
+| **Parent** | **`Entity.Parent()`** / **`Entity.Unparent()`** |
+| **Color** | **`Entity.Color()`** / **`Entity.Alpha()`** |
+| **Distance** | **`Entity.Distance()`** |
 
 ---
 
-## 2. Meshes & primitives (persistent handles)
+## 2. Meshes & primitives
 
-**CPU mesh** handles (**`MESH.*`**) — upload with **`MESH.UPLOAD`**, draw with **`MESH.DRAW`** inside **`CAMERA.Begin`/`End`**. See [MESH.md](MESH.md).
+### `Mesh.MakeCube(w, h, d)`
+Creates a procedural box mesh.
 
-| Desired name | moonBASIC |
-|-------------|-----------|
-| **Mesh.CreateCube** | **`MESH.CREATECUBE`** — alias of **`MESH.MAKECUBE`**. |
-| **Mesh.CreateSphere** | **`MESH.CREATESPHERE`** — alias of **`MESH.MAKESPHERE`**. |
-| **Mesh.CreatePlane** | **`MESH.CREATEPLANE`** — alias of **`MESH.MAKEPLANE`**. |
-| **Mesh.Load** | **`MESH.LOAD(path)`** — format support follows **Raylib** (e.g. **`.obj`**, **`.gltf`** / **`.glb`**, etc.; see Raylib docs for your build). |
+### `Mesh.MakeSphere(r, rings, slices)`
+Creates a procedural sphere mesh.
 
-For **scene entities** (persistent like Blitz **CreateCube**), use **`ENTITY.CREATECUBE`** / **`CreateCube`** or **`CUBE()`** — [ENTITY.md](ENTITY.md).
+### `Mesh.Load(path)`
+Loads a mesh from a file.
 
 ---
 
 ## 3. Camera & picking
 
-| Desired | moonBASIC |
-|--------|-----------|
-| **Pick / ray from screen `(x,y)`** | **`CAMERA.GETRAY(cam, sx, sy)`** or **`CAMERA.PICK`** (alias of **`GETRAY`** in CGO builds) — returns **6-float** origin+dir. Use **`RAY.HIT*_*`**, **`ENTITY.PICK`**, or physics queries — [CAMERA.md](CAMERA.md), [RAYCAST.md](RAYCAST.md). There is **no** single **`PickEntity(x,y)`** that returns an entity id; combine **ray + hit test**. |
-| **Project 3D → 2D** | **`CAMERA.WORLDTOSCREEN`** or **`CAMERA.PROJECT`** (alias) — returns **`[sx, sy]`** handle. Blitz-style: **`CameraProject`**. |
-| **Camera points at entity** | **`CAMERA.LOOKATENTITY`** / **`CAMERA.POINTATENTITY`** — sets target to entity position. Or **`Camera.LookAt(x,y,z)`** / **`CAMERA.SETTARGET`**. |
+### `Camera.GetRay(cam, sx, sy)`
+Returns a screen-to-world ray handle.
+
+### `Camera.Project(cam, wx, wy, wz)`
+Projects 3D point to screen coordinates.
+
+### `Camera.LookAt(cam, x, y, z)`
+Aims camera at a world point.
 
 ---
 
-## 4. 2D / screen space (`CAMERA2D.Begin`/`End` or raw screen)
+## 4. 2D / screen space
 
-| Desired | moonBASIC |
-|--------|-----------|
-| **Sprite.Load** | **`SPRITE.LOAD(path)`** — [SPRITE.md](SPRITE.md). |
-| **Sprite.Draw** | **`SPRITE.DRAW`** — frame from **`SPRITE.DEFANIM`** / atlas. |
-| **Sprite collision** | **`SPRITE.HIT`** / **`SPRITE.POINTHIT`** — bounding tests; not pixel-perfect by default — [SPRITE.md](SPRITE.md). |
-| **Viewport / clip rect** | **`RENDER.SETSCISSOR(x, y, w, h)`** — restricts drawing (minimaps, split screen) — [RENDER.md](RENDER.md). |
+### `Sprite.Load(path)`
+Loads a sprite handle.
+
+### `Sprite.Draw(id, x, y)`
+Draws sprite at pixel position.
+
+### `Sprite.Hit(a, b)`
+Checks for sprite collision.
 
 ---
 
-## 5. Logic & “game juice”
+## 5. Logic & game juice
 
-| Desired | moonBASIC |
-|--------|-----------|
-| **CurveValue** | **`CURVEVALUE(dest, current, speed)`** — DBPro-style approach each call — [GAMEHELPERS.md](GAMEHELPERS.md), [mbgame `register_math.go`](../../runtime/mbgame/register_math.go). |
-| **CurveAngle** | **`CURVEANGLE(destDeg, srcDeg, speed)`** — degrees, shortest path — same doc. |
-| **Rand(min, max)** | **`RAND(min, max)`** or **`RND(min, max)`** — **inclusive integers**. **`RND(n)`** is still **0..n−1**; **`RNDF(lo, hi)`** is float range — [MATH.md](MATH.md). |
+### `CurveValue(dest, cur, speed)`
+Interpolates value toward target.
+
+### `CurveAngle(dest, cur, speed)`
+Interpolates angle toward target.
+
+### `Rnd(min, max)`
+Returns inclusive random integer.
 
 ---
 

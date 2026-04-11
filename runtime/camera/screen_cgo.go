@@ -4,6 +4,7 @@ package mbcamera
 
 import (
 	"fmt"
+	"math"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
@@ -19,6 +20,9 @@ func (m *Module) registerScreenHelpers(reg runtime.Registrar) {
 	reg.Register("CAMERA.MOUSERAY", "camera", runtime.AdaptLegacy(m.camMouseRay))
 	reg.Register("WORLD.TOSCREEN", "world", runtime.AdaptLegacy(m.worldToScreenActive))
 	reg.Register("WORLD.TOWORLD", "world", runtime.AdaptLegacy(m.worldFromScreenActive))
+	reg.Register("WORLD.MOUSE2D", "world", runtime.AdaptLegacy(m.worldMouse2D))
+	reg.Register("WORLD.MOUSEFLOOR3D", "world", runtime.AdaptLegacy(m.worldMouseFloor3D))
+	reg.Register("WORLD.MOUSETOFLOOR", "world", runtime.AdaptLegacy(m.worldMouseFloor3D))
 }
 
 func (m *Module) camWorldToScreen(args []value.Value) (value.Value, error) {
@@ -159,6 +163,78 @@ func (m *Module) worldFromScreenActive(args []value.Value) (value.Value, error) 
 	_ = arr.Set([]int64{0}, float64(p.X))
 	_ = arr.Set([]int64{1}, float64(p.Y))
 	_ = arr.Set([]int64{2}, float64(p.Z))
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+// worldMouse2D transforms the current mouse position through a Camera2D (same idea as CAMERA2D.SCREENTOWORLD at the mouse).
+func (m *Module) worldMouse2D(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("WORLD.MOUSE2D: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("WORLD.MOUSE2D expects (camera2D)")
+	}
+	o, err := m.getCam2D(args, 0, "WORLD.MOUSE2D")
+	if err != nil {
+		return value.Nil, err
+	}
+	mp := rl.GetMousePosition()
+	w := rl.GetScreenToWorld2D(mp, o.cam)
+	arr, err := heap.NewArray([]int64{2})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, float64(w.X))
+	_ = arr.Set([]int64{1}, float64(w.Y))
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+// worldMouseFloor3D intersects the mouse ray from a Camera3D with the horizontal plane y=floorY.
+func (m *Module) worldMouseFloor3D(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("WORLD.MOUSEFLOOR3D: heap not bound")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("WORLD.MOUSEFLOOR3D expects (camera3D, floorY#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("WORLD.MOUSEFLOOR3D: invalid camera handle")
+	}
+	co, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	floorY, ok1 := argF(args[1])
+	if !ok1 {
+		return value.Nil, fmt.Errorf("WORLD.MOUSEFLOOR3D: floorY must be numeric")
+	}
+	mp := rl.GetMousePosition()
+	ray := rl.GetScreenToWorldRayEx(mp, co.cam, int32(rl.GetRenderWidth()), int32(rl.GetRenderHeight()))
+	dy := float64(ray.Direction.Y)
+	if math.Abs(dy) < 1e-8 {
+		return value.Nil, nil
+	}
+	t := (float64(floorY) - float64(ray.Position.Y)) / dy
+	if t < 0 {
+		return value.Nil, nil
+	}
+	x := float64(ray.Position.X) + t*float64(ray.Direction.X)
+	z := float64(ray.Position.Z) + t*float64(ray.Direction.Z)
+	arr, err := heap.NewArray([]int64{2})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, x)
+	_ = arr.Set([]int64{1}, z)
 	id, err := m.h.Alloc(arr)
 	if err != nil {
 		return value.Nil, err

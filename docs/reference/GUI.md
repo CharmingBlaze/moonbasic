@@ -6,9 +6,9 @@ Bindings follow [raylib-go raygui](https://github.com/gen2brain/raylib-go/tree/m
 
 **Requirements (full raygui):** **CGO** enabled (same as `DRAW.*`, `WINDOW.*`, `FONT.*`).
 
-**Windows without CGO** (`CGO_ENABLED=0`, Raylib purego / `raylib.dll`): a **minimal** `GUI.*` implementation is built in—labels, buttons, basic toggles/checkboxes/combos, simple sliders, window/panel/group/line, theme defaults, and draw helpers. It is **not** pixel-identical to raygui. Commands that still need the C raygui stack (**`GUI.TEXTBOX`**, color-picker suite, **`GUI.MESSAGEBOX`**, **`GUI.LISTVIEW`**, **`GUI.TABBAR`**, `.rgs` **`GUI.LOADSTYLE`**, **`GUI.SETFONT`** with custom fonts, etc.) return an error asking you to rebuild with **CGO**. See [BUILDING.md](../BUILDING.md).
+**Windows without CGO** (`CGO_ENABLED=0`, Raylib purego / `raylib.dll`): a **minimal** `GUI.*` implementation is built in—labels, buttons, basic toggles/checkboxes/combos, simple sliders, window/panel/group/line, theme defaults, and draw helpers. It is **not** pixel-identical to raygui. Commands that still need the C raygui stack (**`GUI.Textbox`**, color-picker suite, **`GUI.MessageBox`**, **`GUI.ListView`**, **`GUI.Tabbar`**, `.rgs` **`GUI.LoadStyle`**, **`GUI.SetFont`** with custom fonts, etc.) return an error asking you to rebuild with **CGO**. See [BUILDING.md](../BUILDING.md).
 
-**Performance (purego GUI):** Internal widget state keys use **rounded pixel rects**. For stateful controls such as **`GUI.TOGGLEGROUP`**, use **stable** `x, y, width, height` (avoid coordinates that drift every frame). If an unusual number of distinct rectangles are used, the runtime may reset cached widget state to bound memory.
+**Performance (purego GUI):** Internal widget state keys use **rounded pixel rects**. For stateful controls such as **`GUI.Togglegroup`**, use **stable** `x, y, width, height` (avoid coordinates that drift every frame). If an unusual number of distinct rectangles are used, the runtime may reset cached widget state to bound memory.
 
 ---
 
@@ -27,8 +27,8 @@ Call `GUI.Enable()` after `Window.Open` if you used `GUI.Disable()`.
 
 - Most widgets: **`x, y, width, height`** as numeric rectangle (float-friendly).
 - **Byte colors** `r,g,b,a` (0–255) where noted.
-- **RGBA out** (`GUI.GETCOLOR`, `GUI.COLORPICKER`, `GUI.FADE`, …): **4-float heap array** `[r,g,b,a]` — use `arr(0)`…`arr(3)`.
-- **Rectangle out** (`GUI.GETTEXTBOUNDS`): **4-float array** `[x, y, width, height]`.
+- **RGBA out** (`GUI.Getcolor`, `GUI.Colorpicker`, `GUI.Fade`, …): **4-float heap array** `[r,g,b,a]` — use `arr(0)`…`arr(3)`.
+- **Rectangle out** (`GUI.GetTextbounds`): **4-float array** `[x, y, width, height]`.
 - **Stateful widgets** use **`DIM`** numeric arrays passed **by handle**; sizes are documented below.
 
 List separators in strings use **`;`**, matching raygui (tabs, combos, list rows).
@@ -118,7 +118,7 @@ Examples: `GPROP_TOGGLE_GROUP_PADDING`, `GPROP_SLIDER_WIDTH`, `GPROP_SCROLLBAR_*
 
 ---
 
-## Command reference — all `GUI.*`
+## Command reference — all `Gui.*`
 
 Notation: **float**, **string**, **optional bool** where shown. **`→`** return type.
 
@@ -126,111 +126,137 @@ Notation: **float**, **string**, **optional bool** where shown. **`→`** return
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
-| `GUI.ENABLE` / `GUI.DISABLE` | — | — |
-| `GUI.LOCK` / `GUI.UNLOCK` | — | — |
-| `GUI.ISLOCKED` | — | bool |
-| `GUI.SETALPHA` | `alpha` | — |
-| `GUI.SETSTATE` | `state` (use `GUI_STATE_*`) | — |
-| `GUI.GETSTATE` | — | int |
-| `GUI.SETFONT` | `fontHandle` | — |
-| `GUI.SETSTYLE` | `control, property, value` | — |
-| `GUI.GETSTYLE` | `control, property` | int |
-| `GUI.GETCOLOR` | `control, property` | RGBA handle |
-| `GUI.SETCOLOR` | `control, property, r,g,b,a` | — |
-| `GUI.SETTEXTSIZE` | `n` | — |
-| `GUI.SETTEXTSPACING` | `n` | — |
-| `GUI.SETTEXTLINEHEIGHT` | `n` | — |
-| `GUI.SETTEXTWRAP` | `mode` (`GUI_TEXT_WRAP_*`) | — |
-| `GUI.SETTEXTALIGN` | `mode` (`GUI_TEXT_ALIGN_LEFT`/`CENTER`/`RIGHT`) | — |
-| `GUI.SETTEXTALIGNVERT` | `mode` (`GUI_TEXT_ALIGN_TOP`/`MIDDLE`/`BOTTOM`) | — |
-| `GUI.GETTEXTSIZE` | — | int |
-| `GUI.THEMEAPPLY` | `name` | — |
-| `GUI.THEMENAMES` | — | string (`;`-separated theme names) |
-| `GUI.LOADSTYLE` | `path` | — |
-| `GUI.LOADDEFAULTSTYLE` | — | — |
-| `GUI.LOADSTYLEMEM` | `path` (binary `.rgs` read on host) | — |
-| `GUI.LOADICONS` | `path, loadNames` | — |
-| `GUI.LOADICONSMEM` | `path, loadNames` | — |
+| `Gui.Enable()` / `Gui.Disable()` | — | — |
+| `Gui.Lock()` / `Gui.Unlock()` | — | — |
+| `Gui.IsLocked()` | — | bool |
+| `Gui.SetAlpha(alpha)` | `alpha` | — |
+| `Gui.SetState(state)` | `state` (use `GUI_STATE_*`) | — |
+| `Gui.GetState()` | — | int |
+| `Gui.SetFont(font)` | `fontHandle` | — |
+| `Gui.SetStyle(control, property, value)` | `control, property, value` | — |
+| `Gui.GetStyle(control, property)` | `control, property` | int |
+| `Gui.GetColor(control, property)` | `control, property` | RGBA handle |
+| `Gui.SetColor(control, property, r, g, b, a)` | `control, property, r, g, b, a` | — |
+| `Gui.SetTextSize(n)` | `n` | — |
+| `Gui.SetTextSpacing(n)` | `n` | — |
+| `Gui.SetTextLineHeight(n)` | `n` | — |
+| `Gui.SetTextWrap(mode)` | `mode` (`GUI_TEXT_WRAP_*`) | — |
+| `Gui.SetTextAlign(mode)` | `mode` (`GUI_TEXT_ALIGN_LEFT`/`CENTER`/`RIGHT`) | — |
+| `Gui.SetTextAlignVert(mode)` | `mode` (`GUI_TEXT_ALIGN_TOP`/`MIDDLE`/`BOTTOM`) | — |
+| `Gui.GetTextSize()` | — | int |
+| `Gui.ThemeApply(name)` | `name` | — |
+| `Gui.ThemeNames()` | — | string (`;`-separated theme names) |
+| `Gui.LoadStyle(path)` | `path` | — |
+| `Gui.LoadDefaultStyle()` | — | — |
+| `Gui.LoadStyleMem(path)` | `path` (binary `.rgs` read on host) | — |
+| `Gui.LoadIcons(path, loadNames)` | `path, loadNames` | — |
 
 ### Layout
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
-| `GUI.WINDOWBOX` | `x,y,w,h, title` | bool (close pressed) |
-| `GUI.GROUPBOX` / `GUI.LINE` / `GUI.PANEL` | `x,y,w,h, text` | — |
-| `GUI.TABBAR` | `x,y,w,h, tabs, stateHandle` | int (close tab or -1) |
-| `GUI.SCROLLPANEL` | `px,py,pw,ph, title, cx,cy,cw,ch, stateHandle` | — |
+| `Gui.WindowBox(x, y, w, h, title)` | `x, y, w, h, title` | bool (close pressed) |
+| `Gui.GroupBox(x, y, w, h, text)` / `Gui.Line(x, y, w, h, text)` / `Gui.Panel(x, y, w, h, text)` | `x, y, w, h, text` | — |
+| `Gui.TabBar(x, y, w, h, tabs, stateHandle)` | `x, y, w, h, tabs, stateHandle` | int (close tab or -1) |
+| `Gui.ScrollPanel(px, py, pw, ph, title, cx, cy, cw, ch, stateHandle)` | `px, py, pw, ph, title, cx, cy, cw, ch, stateHandle` | — |
 
 ### Basic controls
 
-| Command | Arguments | Returns |
-|---------|-----------|---------|
-| `GUI.LABEL` | `x,y,w,h, text` | — |
-| `GUI.BUTTON` / `GUI.LABELBUTTON` | `x,y,w,h, text` | bool |
-| `GUI.TOGGLE` | `x,y,w,h, text, active` | bool |
-| `GUI.TOGGLEGROUP` | `x,y,w,h, items` (`;` separated) | int (active index; starts at 0) |
-| `GUI.TOGGLEGROUPAT` | `x,y,w,h, items, active` | int |
-| `GUI.TOGGLESLIDER` | `x,y,w,h, text, active` | int |
-| `GUI.CHECKBOX` | `x,y,w,h, text, checked` | bool |
-| `GUI.COMBOBOX` | `x,y,w,h, items, active` | int |
-| `GUI.DROPDOWNBOX` | `x,y,w,h, items, stateHandle` | bool |
+### `Gui.Button(label, x, y, w, h)`
+Draws a clickable button. Returns `TRUE` if the button was clicked this frame.
+
+### `Gui.Label(label, x, y, w, h)`
+Draws a static text label.
+
+### `Gui.Toggle(label, x, y, w, h, active)`
+Draws a toggle button. Returns the new active state.
+
+### `Gui.ToggleGroup(label, x, y, w, h, items)`
+Draws a toggle group. Returns the active index.
+
+### `Gui.ToggleSlider(label, x, y, w, h, active)`
+Draws a toggle slider. Returns the new active state.
+
+### `Gui.Checkbox(label, x, y, w, h, checked)`
+Draws a checkbox. Returns the new checked state.
+
+### `Gui.Combo(label, x, y, w, h, items, active)`
+Draws a combo box. Returns the active index.
+
+### `Gui.Dropdown(label, x, y, w, h, items, stateHandle)`
+Draws a dropdown box. Returns whether the dropdown is open.
 
 ### Text & numbers
 
-| Command | Arguments | Returns |
-|---------|-----------|---------|
-| `GUI.TEXTBOX` | `x,y,w,h, text, maxLen, editMode` | string |
-| `GUI.SPINNER` / `GUI.VALUEBOX` | `x,y,w,h, text, value, min, max, editMode` | int |
-| `GUI.VALUEBOXFLOAT` | `x,y,w,h, label, value, textBuf, editMode` | float |
-| `GUI.VALUEBOXFLOATTEXT` | — (after `VALUEBOXFLOAT` same frame) | string |
+### `Gui.Textbox(label, x, y, w, h, text, maxLen, editMode)`
+Draws a text box. Returns the new text.
+
+### `Gui.Spinner(label, x, y, w, h, text, value, min, max, editMode)`
+Draws a spinner. Returns the new value.
+
+### `Gui.Valuebox(label, x, y, w, h, text, value, min, max, editMode)`
+Draws a value box. Returns the new value.
+
+### `Gui.ValueboxFloat(label, x, y, w, h, label, value, textBuf, editMode)`
+Draws a float value box. Returns the new value.
+
+### `Gui.ValueboxFloatText()`
+Gets the text of a float value box.
 
 ### Sliders, scroll, lists
 
-| Command | Arguments | Returns |
-|---------|-----------|---------|
-| `GUI.SLIDER` / `GUI.SLIDERBAR` / `GUI.PROGRESSBAR` | `x,y,w,h, left, right, value, min, max` | float |
-| `GUI.SCROLLBAR` | `x,y,w,h, value, min, max` | int |
-| `GUI.STATUSBAR` / `GUI.DUMMYREC` | `x,y,w,h, text` | — |
-| `GUI.LISTVIEW` | `x,y,w,h, items, stateHandle` | int |
-| `GUI.LISTVIEWEX` | `x,y,w,h, items, stateHandle` | int |
+### `Gui.Slider(label, x, y, value, min, max, w, h)`
+Draws a horizontal slider. Returns the updated value.
+
+### `Gui.Scrollbar(x, y, w, h, value, min, max)`
+Draws a scrollbar. Returns the updated value.
+
+### `Gui.Statusbar(label, x, y, w, h, text)`
+Draws a status bar.
+
+### `Gui.ListView(label, x, y, w, h, items, stateHandle)`
+Draws a list view. Returns the selected index.
+
+### `Gui.ListViewEx(label, x, y, w, h, items, stateHandle)`
+Draws an extended list view. Returns the selected index.
 
 ### Color pickers & dialogs
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
-| `GUI.COLORPANEL` / `GUI.COLORPICKER` | `x,y,w,h, text, r,g,b,a` | RGBA handle |
-| `GUI.COLORBARALPHA` / `GUI.COLORBARHUE` | `x,y,w,h, text, value` | float |
-| `GUI.COLORPICKERHSV` / `GUI.COLORPANELHSV` | `x,y,w,h, text, hsvHandle` | int |
-| `GUI.MESSAGEBOX` | `x,y,w,h, title, message, buttons` | int |
-| `GUI.TEXTINPUTBOX` | `x,y,w,h, title, message, buttons, text, maxLen, secretHandle` | int |
-| `GUI.TEXTINPUTLAST` | — (after `TEXTINPUTBOX`) | string |
-| `GUI.GRID` | `x,y,w,h, text, spacing, subdivs, cellHandle` | int |
+| `Gui.ColorPanel(x, y, w, h, text, r, g, b, a)` / `Gui.ColorPicker(x, y, w, h, text, r, g, b, a)` | `x, y, w, h, text, r, g, b, a` | RGBA handle |
+| `Gui.ColorBarAlpha(x, y, w, h, text, value)` / `Gui.ColorBarHue(x, y, w, h, text, value)` | `x, y, w, h, text, value` | float |
+| `Gui.ColorPickerHSV(x, y, w, h, text, hsvHandle)` / `Gui.ColorPanelHSV(x, y, w, h, text, hsvHandle)` | `x, y, w, h, text, hsvHandle` | int |
+| `Gui.MessageBox(x, y, w, h, title, message, buttons)` | `x, y, w, h, title, message, buttons` | int |
+| `Gui.TextInputBox(x, y, w, h, title, message, buttons, text, maxLen, secretHandle)` | `x, y, w, h, title, message, buttons, text, maxLen, secretHandle` | int |
+| `Gui.TextInputLast()` | — (after `TextInputBox`) | string |
+| `Gui.Grid(x, y, w, h, text, spacing, subdivs, cellHandle)` | `x, y, w, h, text, spacing, subdivs, cellHandle` | int |
 
 ### Tooltips & icons
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
-| `GUI.ENABLETOOLTIP` / `GUI.DISABLETOOLTIP` | — | — |
-| `GUI.SETTOOLTIP` | `text` | — |
-| `GUI.ICONTEXT` | `iconId, text` | string |
-| `GUI.DRAWICON` | `iconId, x, y, pixelSize, r,g,b,a` | — |
-| `GUI.SETICONSCALE` | `scale` | — |
-| `GUI.GETTEXTWIDTH` | `text` | int |
+| `Gui.EnableTooltip()` / `Gui.DisableTooltip()` | — | — |
+| `Gui.SetTooltip(text)` | `text` | — |
+| `Gui.IconText(iconId, text)` | `iconId, text` | string |
+| `Gui.DrawIcon(iconId, x, y, pixelSize, r, g, b, a)` | `iconId, x, y, pixelSize, r, g, b, a` | — |
+| `Gui.SetIconScale(scale)` | `scale` | — |
+| `Gui.GetTextWidth(text)` | `text` | int |
 
 ### Styled drawing helpers
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
-| `GUI.FADE` | `r,g,b,a, alpha` | RGBA handle |
-| `GUI.DRAWRECTANGLE` | `x,y,w,h, borderW, br,bg,bb,ba, fr,fg,fb,fa` | — |
-| `GUI.DRAWTEXT` | `text, x,y,w,h, align, r,g,b,a` | — |
-| `GUI.GETTEXTBOUNDS` | `control, x,y,w,h` | rect handle |
+| `Gui.Fade(r, g, b, a, alpha)` | `r, g, b, a, alpha` | RGBA handle |
+| `Gui.DrawRectangle(x, y, w, h, borderW, br, bg, bb, ba, fr, fg, fb, fa)` | `x, y, w, h, borderW, br, bg, bb, ba, fr, fg, fb, fa` | — |
+| `Gui.DrawText(text, x, y, w, h, align, r, g, b, a)` | `text, x, y, w, h, align, r, g, b, a` | — |
+| `Gui.GetTextBounds(control, x, y, w, h)` | `control, x, y, w, h` | rect handle |
 
 ---
 
-## `GUI.THEMEAPPLY` names
+## `Gui.ThemeApply` names
 
-- **`DEFAULT`** / **`RESET`** — `GUI.LOADDEFAULTSTYLE`
+- **`DEFAULT`** / **`RESET`** — `Gui.LoadDefaultStyle`
 - **`LIGHT`** — built-in light palette (no `.rgs`)
 - **`BUILTIN_DARK`** — small built-in dark palette (no `.rgs`)
 - **Bundled raygui `.rgs`:** `AMBER`, `ASHES`, `BLUISH`, `CANDY`, `CHERRY`, `CYBER`, `DARK`, `ENEFETE`, `GENESIS`, `JUNGLE`, `LAVANDA`, `RLTECH`, `SUNNY`, `TERMINAL` (case-insensitive)

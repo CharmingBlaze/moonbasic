@@ -1329,6 +1329,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.MOVERELATIVE`** - args: int, float, float, float, float
 - **`ENTITY.MOVETOWARD`** - args: handle, handle, float — Moves an entity toward another entity at constant speed (XZ toward target, Y preserved).
 - **`ENTITY.MOVETOWARD`** - args: handle, float, float, float — Moves an entity toward a coordinate.
+- **`ENTITY.MOVEWITHCAMERA`** - args: int, handle, float, float, float — Horizontal walk velocity (units/s) from camera XZ strafe basis (eye→target on ground). forwardAxis/strafeAxis are typically Input.Axis −1..1; preserves vertical velocity. Dot: player.MoveWithCamera(cam, …).
 - **`ENTITY.ONHIT`** - args: handle, string — Fires MB callback on collision.
 - **`ENTITY.ORDER`** - args: int, int
 - **`ENTITY.OUTLINE`** - args: int, float, handle — Apply a highlighted outline effect to a model.
@@ -2772,7 +2773,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MODEL.CLONE`** - args: handle
 - **`MODEL.CREATEBOX`** - args: float, float, float -> returns handle
 - **`MODEL.CREATEBOX`** - args: float, float, float, bool -> returns handle
-- **`MODEL.CREATECAPSULE`** - args: float, float -> returns handle — EntityRef cylinder primitive (capsule collision via ENTITY.ADDPHYSICS)
+- **`MODEL.CREATECAPSULE`** - args: float, float -> returns handle — EntityRef capsule primitive (radius#, height#); draw matches Jolt capsule when using ENTITY.ADDPHYSICS capsule
 - **`MODEL.DETACH`** - args: handle
 - **`MODEL.DRAW`** - args: handle
 - **`MODEL.DRAWAT`** - args: handle, float, float, float, float, float, float, float, float, float
@@ -4627,22 +4628,29 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### WORLD
 
 - **`WORLD.DAYNIGHTCYCLE`** - args: float — Rotates global sunlight over duration (seconds).
+- **`WORLD.EXPLOSION`** - args: float, float, float, float, float — Alias of PHYSICS.EXPLOSION
 - **`WORLD.FOGCOLOR`** - args: int, int, int — Set the fog color: (r, g, b).
 - **`WORLD.FOGCOLOR`** - args: int, int, int
-- **`WORLD.FOGDENSITY`** - args: float — Set the fog density (0.0 to 1.0).
 - **`WORLD.FOGDENSITY`** - args: float
+- **`WORLD.FOGDENSITY`** - args: float — Set the fog density (0.0 to 1.0).
 - **`WORLD.FOGMODE`** - args: int — Set the fog mode: 0=None, 1=Linear, 2=Exponential.
 - **`WORLD.FOGMODE`** - args: int
 - **`WORLD.GETRAY`** - args: float, float, handle -> returns handle — Returns Array [px,py,pz,dx,dy,dz]
 - **`WORLD.GRAVITY`** - args: float, float, float — Alias: forwards to PHYSICS3D.SETGRAVITY (global Jolt gravity)
 - **`WORLD.ISREADY`** - args: handle -> returns bool
+- **`WORLD.MOUSE2D`** - args: handle -> returns handle — Mouse position through Camera2D; float array [wx,wy]
+- **`WORLD.MOUSEFLOOR3D`** - args: handle, float -> returns handle — Mouse ray vs plane y=floorY; float array [wx,wz] or NIL
+- **`WORLD.MOUSETOENTITY`** - args: handle -> returns int — Jolt ray pick at cursor (Linux+CGO); entity# or 0. Same as CAMERA.RAYCASTMOUSE
+- **`WORLD.MOUSETOFLOOR`** - args: handle, float -> returns handle — Alias of WORLD.MOUSEFLOOR3D
 - **`WORLD.PRELOAD`** - args: handle, int
 - **`WORLD.SCREENSHAKE`** - args: float, float — Shakes the primary camera.
 - **`WORLD.SETAMBIENCE`** - args: handle, float — Plays a looping background track.
 - **`WORLD.SETCENTER`** - args: float, float
 - **`WORLD.SETCENTERENTITY`** - args: int
+- **`WORLD.SETGRAVITY`** - args: float, float, float — Alias of PHYSICS3D.SETGRAVITY
 - **`WORLD.SETREFLECTION`** - args: int
 - **`WORLD.SETREVERB`** - args: int — Changes echo.
+- **`WORLD.SETTIMESCALE`** - args: float — Alias of GAME.SETTIMESCALE
 - **`WORLD.SETVEGETATION`** - args: handle, handle, float — Scatter helper: terrain + billboard entity reserved + density; uses internal SCATTER set
 - **`WORLD.STATUS`** - args: (none) -> returns string
 - **`WORLD.STREAMENABLE`** - args: bool

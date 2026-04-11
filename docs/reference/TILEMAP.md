@@ -18,151 +18,35 @@ Export your maps in `.tmx` format (XML), place the tileset image next to the
 
 ---
 
-## Loading & Freeing
-
 ### `Tilemap.Load(path)`
-
-Loads a Tiled `.tmx` file and its associated tileset image. Returns a handle to
-the tilemap.
-
-- `path`: Path to the `.tmx` file. The tileset image must be in the same
-  directory (or the path specified inside the `.tmx`).
-
-```basic
-map = Tilemap.Load("assets/maps/level1.tmx")
-```
-
----
+Loads a Tiled `.tmx` file and its associated tileset image. Returns a **tilemap handle**.
 
 ### `Tilemap.Free(handle)`
-
-Unloads the tilemap texture and frees all associated data.
+Unloads the tilemap texture and frees all associated data from memory.
 
 ---
-
-## Drawing
 
 ### `Tilemap.Draw(handle, offsetX, offsetY)`
-
-Draws all tile layers of the map, shifted by a pixel offset. Use the offset
-to implement scrolling.
-
-- `offsetX`, `offsetY`: Pixel offset applied to the entire map (can be negative
-  to scroll right/down).
-
-```basic
-; Scroll the map so the player is centered
-cam_x = INT(player_x - 480)
-cam_y = INT(player_y - 270)
-Tilemap.Draw(map, -cam_x, -cam_y)
-```
-
----
-
-### `Tilemap.DrawLayer(handle, layerName, offsetX, offsetY)`
-
-Draws a single named layer. Use this when you need to draw some layers behind
-the player and others in front.
-
-- `layerName`: The layer name exactly as it appears in Tiled (e.g. `"ground"`,
-  `"decoration"`).
-
-```basic
-; Draw background layers first
-Tilemap.DrawLayer(map, "ground", -cam_x, -cam_y)
-Tilemap.DrawLayer(map, "decoration", -cam_x, -cam_y)
-
-; Draw the player here
-
-; Draw foreground layer on top of the player
-Tilemap.DrawLayer(map, "foreground", -cam_x, -cam_y)
-```
-
----
-
-## Collision
+Draws all tile layers of the map, shifted by a pixel offset. Use the offset to implement scrolling.
 
 ### `Tilemap.IsSolid(handle, tileX, tileY)`
-
-Returns `TRUE` if the tile at grid position `(tileX, tileY)` has collision.
-Collision data is loaded from a layer named `"collision"` in the Tiled map.
-Any non-zero tile in that layer counts as solid.
-
-- `tileX`, `tileY`: Zero-based tile grid coordinates.
-
-```basic
-; Convert world pixel position to tile grid coordinates
-tile_x = INT(player_x / 16)
-tile_y = INT(player_y / 16)
-
-IF Tilemap.IsSolid(map, tile_x, tile_y + 2) THEN
-    ; Player is standing on solid ground
-    on_ground = TRUE
-ENDIF
-```
+Returns `TRUE` if the tile at grid position `(tileX, tileY)` has collision. Collision data is loaded from a layer named `"collision"` in the Tiled map.
 
 ---
-
-### `Tilemap.CollisionAt(handle, tileX, tileY)`
-
-Returns the raw collision category value at the specified tile position (0 if
-walkable). Use this for more complex collision filtering with bit masking.
-
----
-
-### `Tilemap.SetCollision(handle, tileX, tileY, category)`
-
-Sets the collision category of a tile at runtime. `0` = walkable.
-
----
-
-## Tile Data
 
 ### `Tilemap.GetTile(handle, layerName, tileX, tileY)`
+Returns the tile GID (global ID) at a specific grid position on a named layer. Returns `0` for empty tiles.
 
-Returns the tile GID (global ID) at a specific grid position on a named layer.
-Returns `0` for empty tiles.
-
-```basic
-tile_id = Tilemap.GetTile(map, "ground", 5, 3)
-```
+### `Tilemap.SetTile(handle, layerName, x, y, id)`
+Changes a tile in a layer at runtime. Set `id = 0` to erase.
 
 ---
-
-### `Tilemap.SetTile(handle, layerName, tileX, tileY, gid)`
-
-Changes a tile in a layer at runtime. Set `gid = 0` to erase.
-
-```basic
-; Destroy a block when the player hits it
-Tilemap.SetTile(map, "ground", tile_x, tile_y, 0)
-```
-
----
-
-## Map Information
 
 ### `Tilemap.Width(handle)` / `Tilemap.Height(handle)`
+Returns map dimensions in tiles.
 
-Returns the map dimensions in tiles.
-
-### `Tilemap.LayerCount(handle)`
-
-Returns the number of tile layers.
-
-### `Tilemap.LayerName(handle, index)`
-
-Returns the name of the layer at `index` (0-based).
-
-### `Tilemap.SetTileSize(handle, width, height)`
-
-Overrides the display pixel size of each tile. Useful for scaling up pixel-art
-tiles without changing the `.tmx` file.
-
-```basic
-; Display 16×16 tiles as 32×32 on screen
-Tilemap.SetTileSize(map, 32, 32)
-```
+### `Tilemap.TileWidth(handle)` / `Tilemap.TileHeight(handle)`
+Returns tile dimensions in pixels.
 
 ---
 

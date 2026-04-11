@@ -4,27 +4,25 @@ Blitz-like names for **third-person** movement on **XZ** and **orbit yaw** delta
 
 ## 2D mover handle (`PLAYER2D`)
 
-| Designed | Implementation | Memory |
-|----------|----------------|--------|
-| **Create mover** | **`PLAYER2D.MAKE`** | Heap handle — **`PLAYER2D.FREE`** or **`ERASE ALL`**. |
-| **Set position** | **`PLAYER2D.SETPOS`** `(p, x, z)` | |
-| **MoveEntity2D / MovePlayer** | **`MOVEENTITY2D`**, **`MOVEPLAYER`**, **`PLAYER2D.MOVE`** `(p, camYaw, f, s, speed, dt)` | Same math as **`MOVESTEPX`/`MOVESTEPZ`** in place. |
-| **ClampEntity2D** | **`CLAMPENTITY2D`**, **`PLAYER2D.CLAMP`** `(p, minX, maxX, minZ, maxZ)` | Stores bounds and clamps **now**. |
-| **KeepPlayerInBounds** | **`KEEPPLAYERINBOUNDS`**, **`PLAYER2D.KEEPINBOUNDS`** `(p)` | Re-clamps to **last** **`CLAMPENTITY2D`** bounds. |
-| **Read X/Z** | **`PLAYER2D.GETX`**, **`PLAYER2D.GETZ`** | Use with **`py`** for **`BOXTOPLAND`**, drawing, etc. |
+| Designed | moonBASIC | Memory / notes |
+|----------|------------|----------------|
+| **Create mover** | **`PLAYER2D.Make()`** | Heap handle — **`PLAYER2D.Free()`** or **`ERASE ALL`**. |
+| **Set position** | **`PLAYER2D.SetPos(p, x, z)`** | |
+| **MoveEntity2D / MovePlayer** | **`PLAYER2D.Move(p, camYaw, f, s, speed, dt)`** | Same math as **`MOVESTEPX`/`MOVESTEPZ`** in place. |
+| **ClampEntity2D** | **`PLAYER2D.Clamp(p, minX, maxX, minZ, maxZ)`** | Stores bounds and clamps **now**. |
+| **KeepPlayerInBounds** | **`PLAYER2D.KeepInBounds(p)`** | Re-clamps to **last** **`CLAMPENTITY2D`** bounds. |
 
 ## Camera yaw helpers (radians)
 
 The **camera** argument validates the handle; **yaw** still lives in your **`camYaw`** variable.
 
-| Designed | Implementation | Returns |
-|----------|----------------|---------|
-| **TurnCameraLeft** | **`CAMERA.TURNLEFT`** `(cam, amount)` | **float** — add to **`camYaw`** (negative **`abs(amount)`**). |
-| **TurnCameraRight** | **`CAMERA.TURNRIGHT`** `(cam, amount)` | **float** — add to **`camYaw`** (**`+abs(amount)`**). |
-| **OrbitCamera** | **`CAMERA.ORBITCAMERA`** `(cam, mouseSens, keyDegPerSec, dt)` | **float** — mouse **X** delta × sens **+** **`Input.Orbit(KEY_Q, KEY_E, …)`**-style Q/E yaw. |
+| Designed | moonBASIC | Returns |
+|----------|------------|---------|
+| **TurnCameraLeft** | **`Camera.TurnLeft(cam, n)`** | **float** — add to `camYaw`. |
+| **TurnCameraRight** | **`Camera.TurnRight(cam, n)`** | **float** — add to `camYaw`. |
+| **OrbitCamera** | **`Camera.Orbit(cam, s, d, dt)`** | **float** — mouse + keys delta. |
 
 Example:
 
 ```basic
-camYaw = camYaw + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS, 77.0, dt)
-```
+camYaw = camYaw + Camera.Orbit(cam, MOUSE_ORBIT_SENS, 77.0, dt)

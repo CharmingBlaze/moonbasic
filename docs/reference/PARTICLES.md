@@ -6,17 +6,35 @@ Emitter-based **3D** particles (**`PARTICLE.*`** and alias **`PARTICLE3D.*`**) a
 
 ## 3D workflow
 
-1. **`p = PARTICLE.MAKE`** (or **`PARTICLE3D.MAKE`**) — returns a **`Particle`** handle (no arguments; up to **16000** live particles per emitter).
-2. Configure: **`SETTEXTURE`**, **`SETEMITRATE`** / **`SETRATE`**, **`SETLIFETIME`**, direction (**`SETDIRECTION`** + **`SETSPREAD`**, or **`SETVELOCITY`** for combined), **`SETSPEED`**, sizes (**`SETSTARTSIZE`** / **`SETENDSIZE`** or legacy **`SETSIZE`**), colors (**`SETCOLOR`** / **`SETCOLOREND`**), **`SETGRAVITY`**, **`SETPOS`**.
-3. **`PLAY`** to emit; **`STOP`** stops new spawns (existing particles age out).
-4. Each frame: **`UPDATE(p, dt)`** with **`Time.Delta()`**.
-5. Inside **`CAMERA.BEGIN` … `CAMERA.END`**: **`DRAW(p)`**, or **`DRAW(p, camHandle)`** to use a specific camera.
-6. Query: **`COUNT(p)`**, **`ISALIVE(p)`** (returns **1** while playing or particles remain).
-7. **`FREE(p)`** when done.
+### `Particles.Make(maxCount)`
+Creates a new particle system with a fixed maximum number of particles. Returns an **emitter handle**.
 
-**Burst:** **`SETBURST(p, n)`** spawns **n** particles immediately.
+### `Particles.Free(handle)`
+Frees the particle system and all associated resources from memory.
 
-**Billboard:** default **`DrawBillboard`**. **`SETBILLBOARD(p, FALSE)`** draws small **cubes** instead (non–camera-facing).
+### `Particles.Emit(handle, x, y, z, count)`
+Emits a burst of particles at the specified world position.
+
+### `Particles.Update(handle, dt)`
+Updates the positions and lifetimes of all active particles based on elapsed time.
+
+### `Particles.Draw(handle)`
+Renders all active particles. This must be called within a **`Camera.Begin()`** / **`Camera.End()`** block.
+
+### `Particle.SetEmitRate(handle, rate)`
+Sets the number of particles emitted per second.
+
+### `Particle.SetLifetime(handle, min, max)`
+Sets the minimum and maximum lifetime (in seconds) for newly emitted particles.
+
+### `Particle.SetVelocity(handle, vx, vy, vz, spread)`
+Sets the initial emission velocity vector and randomness spread.
+
+### `Particle.SetColor(handle, r, g, b, a)`
+Sets the starting color for newly emitted particles.
+
+### `Particle.SetSize(handle, start, end)`
+Sets the starting and ending sizes for particles over their lifetime.
 
 ---
 
@@ -31,7 +49,7 @@ p = PARTICLE.MAKE
 PARTICLE.SETTEXTURE p, myTex
 PARTICLE.SETEMITRATE p, 40
 PARTICLE.SETLIFETIME p, 0.5, 1.5
-PARTICLE.SETDIRECTION p, 0, 1, 0
+PARTICLE.SETVELOCITY p, 0, 1, 0, 0.4
 PARTICLE.SETSPREAD p, 0.4
 PARTICLE.SETSPEED p, 0.8, 1.2
 PARTICLE.SETSTARTSIZE p, 0.15, 0.35

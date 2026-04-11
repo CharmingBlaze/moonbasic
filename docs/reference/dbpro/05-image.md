@@ -4,10 +4,14 @@ moonBASIC: **`IMAGE.*`** (Raylib **Image** on CPU) — [IMAGE.md](../IMAGE.md).
 
 | DBPro | moonBASIC | Notes |
 |-------|-----------|--------|
-| **LOAD IMAGE (file, img)** | ✓ **`IMAGE.LOAD`**, **`IMAGE.LOADRAW`** | Returns **handle**. |
-| **DELETE IMAGE** | ✓ **`IMAGE.FREE`** | |
-| **SAVE IMAGE** | ✓ **`IMAGE.EXPORT`** | |
-| **PASTE IMAGE** | ≈ **`IMAGE.DRAWIMAGE`**, blit to another image | |
-| **GET IMAGE** | ≈ **`IMAGE` crop / copy** helpers | See manifest. |
-| **SET IMAGE COLORKEY** / **TRANSPARENCY** | ≈ **`IMAGE.COLORREPLACE`**, **`ALPHACLEAR`**, etc. | |
-| **IMAGE WIDTH** / **HEIGHT** | ✓ **`IMAGE.WIDTH`**, **`IMAGE.HEIGHT`** | |
+| **LOAD IMAGE** | ✓ **`Image.Load()`** | Returns **handle**. |
+| **DELETE IMAGE** | ✓ **`Image.Free()`** | |
+| **SAVE IMAGE** | ✓ **`Image.Export()`** | |
+| **PASTE IMAGE** | ≈ **`Draw.Texture()`** | |
+| **IMAGE WIDTH** | ✓ **`Image.Width()`** | |
+| **IMAGE HEIGHT** | ✓ **`Image.Height()`** | |
+| **ROTATE IMAGE** | ✓ **`Image.Rotate()`** | |
+| **MIRROR IMAGE** | ✓ **`Image.FlipH()`** | |
+| **FLIP IMAGE** | ✓ **`Image.FlipV()`** | |
+| **GET IMAGE** | ≈ **`Image.Copy()`** / **`Image.Crop()`** | |
+| **SET IMAGE COLORKEY** | ≈ **`Image.ColorReplace()`** / **`AlphaClear()`** | |

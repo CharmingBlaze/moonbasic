@@ -1,13 +1,12 @@
 # 3D world
 
-| Designed | Implementation | Memory / notes |
-|----------|----------------|----------------|
-| **CreateWorld ()** | Implicit: **`WINDOW.OPEN`** + **`CAMERA.MAKE`** + loop; or **`ENTITY.CLEARSCENE`** for entity layer | No single “world object” handle in core API. |
-| **UpdateWorld** *(Blitz name; not a moonBASIC builtin)* | **`ENTITY.UPDATE(dt)`** with **`dt = TIME.DELTA()`** | Same coordinator Blitz called **UpdateWorld** — explicit API only. |
-| **RenderWorld** *(Blitz name; not a moonBASIC builtin)* | **`RENDER.CLEAR`**, **`CAMERA.BEGIN`/`END`** or **`RENDER.Begin3D`/`End3D`**, **`ENTITY.DRAWALL`**, **`RENDER.FRAME`** | Use **`CAMERA2D.Begin`/`End`** for HUD overlays. |
-| **ClearWorld ()** | **`ENTITY.CLEARSCENE`**, **`SCENE.CLEARSCENE`** | Frees **all** entities’ native resources — [MEMORY.md](../../MEMORY.md). |
-| **SetAmbient (r,g,b)** | **`RENDER.SETAMBIENT`**, **`FOG.SETCOLOR`** context, 2D ambient **`RENDER.SET2DAMBIENT`** | Global render state. |
-| **SetFog (r,g,b, near, far)** | **`FOG.SETCOLOR`**, **`FOG.SETRANGE`** / **`SETNEAR`+`SETFAR`** | |
-| **SetWireframe (mode)** | **`RENDER.SETWIREFRAME`** | |
+| Designed | moonBASIC | Memory / notes |
+|----------|------------|----------------|
+| **CreateWorld()** | **`Entity.ClearScene()`** | Resets the 3D entity layer. |
+| **ClearWorld()** | **`Entity.ClearScene()`** | Alias for resetting the scene. |
+| **SetAmbient(r, g, b)** | **`Render.SetAmbient()`** | Sets global 3D ambient tint. |
+| **SetFog(color, range)** | **`Render.SetFog()`** | Configures global distance fog. |
+| **SetClearColor(r, g, b)** | **`Render.SetClearColor()`** | Sets the background clear color. |
+| **SetWireframe(on)** | **`Render.SetWireframe()`** | Toggles global wireframe mode. |
 
 See [WORLD.md](../WORLD.md), [BLITZ2025.md](../BLITZ2025.md).

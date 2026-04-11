@@ -6,20 +6,33 @@ These commands support both classic heap-handle vector math and scalar convenien
 
 ---
 
-## Vec3
+### `Vec3.Make(x, y, z)`
+Creates a new 3D vector handle.
 
-| Command | Notes |
-|--------|--------|
-| `Vec3.Make(x, y, z)` | New vec3 handle. |
-| `Vec3.Free(h)` | |
-| `Vec3.X(h)` / `Y` / `Z` | Components. |
-| `Vec3.Set(h, x, y, z)` | Mutate in place. |
-| `Vec3.Add` / `Sub` / `Mul` / `Div` / `Dot` / `Cross` / `Length` / `Normalize` / `Lerp` / `Distance` / `Reflect` / `Negate` / `Equals` | Handle-based overloads. |
-| `Vec3.TransformMat4(v, mat)` | Returns new vec3: `Vector3Transform`. |
-| `Vec3.Angle(a, b)` | Returns float, radians between vectors. |
-| `Vec3.Project(v, onto)` | Returns new vec3 projection of `v` onto `onto`. |
-| `Vec3.OrthoNormalize(v1, v2)` | **Mutates both** handles (Gram–Schmidt). |
-| `Vec3.RotateByQuat(v, q)` | Returns new vec3. |
+### `Vec3.X(handle)` / `Y` / `Z`
+Returns the individual red, green, blue, or alpha component (0-255).
+
+### `Vec3.Set(handle, x, y, z)`
+Updates the components of an existing vector handle in place.
+
+---
+
+### `Vec3.Add(a, b)` / `Sub` / `Mul` / `Div`
+Arithmetic on vector handles. Returns a new handle.
+
+### `Vec3.Dot(a, b)` / `Cross(a, b)`
+Vector products. `Dot` returns a float; `Cross` returns a new handle.
+
+### `Vec3.Length(handle)` / `Normalize(handle)`
+Returns the length of a vector or a new normalized vector handle.
+
+### `Vec3.Distance(a, b)`
+Returns the distance between two 3D points.
+
+---
+
+### `Vec3.Free(handle)`
+Releases the vector handle from the heap and frees its memory.
 
 ```basic
 v = Vec3.Make(0, 1, 0)
@@ -47,13 +60,25 @@ ENDIF
 
 ---
 
-## Vec2
+### `Vec2.Make(x, y)`
+Creates a new 2D vector handle.
 
-| Command | Notes |
-|--------|--------|
-| `Vec2.Make(x, y)` / `Vec2.Free(h)` / `Vec2.X(h)` / `Vec2.Y(h)` / `Vec2.Set(h, x, y)` | Handle-based vec2 API. |
-| `Vec2.Add` / `Sub` / `Mul` / `Length` / `Normalize` / `Lerp` / `Distance` / `Angle` / `Rotate` | Handle-based overloads. |
-| `Vec2.TransformMat4(v, mat)` | Returns new vec2 (homogeneous transform). |
+### `Vec2.X(handle)` / `Y`
+Returns the individual red, green, blue, or alpha component (0-255).
+
+### `Vec2.Set(handle, x, y)`
+Updates the components of an existing vector handle in place.
+
+---
+
+### `Vec2.Add(a, b)` / `Sub` / `Mul`
+Arithmetic on vector handles. Returns a new handle.
+
+### `Vec2.Length(handle)` / `Normalize(handle)`
+Returns the length of a vector or a new normalized vector handle.
+
+### `Vec2.Free(handle)`
+Releases the vector handle from the heap and frees its memory.
 
 Scalar convenience overloads:
 
@@ -71,20 +96,25 @@ dist = VEC2.LENGTH(ex - px, ez - pz)
 
 ## Quat
 
-| Command | Notes |
-|--------|--------|
-| `Quat.Identity()` | |
-| `Quat.FromEuler(pitch, yaw, roll)` | Radians (Raylib `QuaternionFromEuler`). |
-| `Quat.FromAxisAngle(ax, ay, az, angle)` | Axis need not be normalized; Raylib normalizes internally. |
-| `Quat.Multiply(a, b)` | Returns new quaternion. |
-| `Quat.Slerp(a, b, t)` | Spherical interpolation, `t` in 0..1. |
-| `Quat.ToMat4(q)` | Returns new transform matrix handle (same type as `Transform.*`). |
-| `Quat.ToEuler(q)` | Returns new **Vec3** handle: **X=roll, Y=pitch, Z=yaw** (radians), per Raylib `QuaternionToEuler`. |
-| `Quat.FromVec3ToVec3(from, to)` | Shortest rotation from direction `from` to `to` (new quaternion). |
-| `Quat.FromMat4(mat)` | Rotation part of matrix → quaternion. |
-| `Quat.Transform(q, mat)` | `QuaternionTransform` — applies 4×4 matrix to quaternion. |
-| `Quat.Normalize` / `Quat.Invert` | Return new quaternions. |
-| `Quat.Free(q)` | |
+### `Quat.Identity()`
+Returns an identity quaternion handle.
+
+### `Quat.Make(x, y, z, w)`
+Creates a new quaternion handle with explicit components.
+
+### `Quat.FromEuler(p, y, r)`
+Creates a quaternion from Euler angles in **radians**.
+
+---
+
+### `Quat.ToEuler(q)`
+Returns a 3-float array handle `[p, y, r]` from a quaternion.
+
+### `Quat.Lerp(a, b, t)` / `Quat.Slerp(a, b, t)`
+Linear and spherical interpolation between quaternions `a` and `b` by factor `t` (0–1). Returns a new handle.
+
+### `Quat.Free(handle)`
+Releases the quaternion handle from the heap and frees its memory.
 
 ```basic
 q = Quat.FromEuler(0, PI() / 4, 0)

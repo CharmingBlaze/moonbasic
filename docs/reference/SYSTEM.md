@@ -8,29 +8,39 @@ Commands for interacting with the operating system and environment.
 
 ### `System.Exit()`
 
-Terminates the program immediately. This is a hard exit; `Window.Close()` is preferred for a clean shutdown.
+Terminates the program immediately with the specified exit code. This is a hard exit; `Window.Close()` is preferred for a clean shutdown.
 
 ---
 
 ## Host Environment
 
-### `System.Version()` → string
+### `System.Version()`
 
-Returns the MoonBasic **release label** for display and logging (for example **`1.0.0-GOLD`**). This is a fixed product string from the runtime, not a semver probe of the host binary.
+Returns the MoonBasic release label (e.g., `"1.0.0-GOLD"`). This value is useful for logging and debugging purposes.
 
-### `System.GetEnv(varName)`
+### `System.OS()`
 
-Gets the value of an environment variable.
+Returns a string identifying the operating system (`"windows"`, `"linux"`, `"darwin"`, etc.). This can be used to implement platform-specific behavior or optimizations.
 
-- `varName`: The name of the environment variable (e.g., "PATH").
+### `System.Arch()`
+
+Returns the CPU architecture (`"amd64"`, `"arm64"`, etc.). This can be used to implement architecture-specific optimizations or workarounds.
+
+### `System.Env(name)`
+
+Returns the value of an environment variable as a string, or `""` if not set. This allows scripts to interact with the environment and access external configuration.
 
 ### `System.OpenURL(url)`
 
-Opens a URL in the user's default web browser.
+Opens a URL in the user's default web browser. This can be used to provide links to documentation, tutorials, or other online resources.
 
-### `System.GetClipboard()` / `System.SetClipboard(text)`
+### `System.ClipboardSetText(text)`
 
-Gets or sets the content of the system clipboard.
+Sets the OS clipboard text. This can be used to provide a simple way to copy text to the clipboard.
+
+### `System.ClipboardGetText()`
+
+Returns the current OS clipboard text. This can be used to retrieve text from the clipboard and process it in the script.
 
 ---
 
@@ -38,15 +48,13 @@ Gets or sets the content of the system clipboard.
 
 These commands allow you to read arguments passed to your script when it was run from the terminal.
 
-### `ARGC()`
+### `System.Args()`
 
-Returns the number of command-line arguments. The script path itself is not counted.
+Returns a string array handle containing command-line arguments. This allows scripts to parse and process command-line arguments.
 
-### `COMMAND(index)`
+### `System.IsCGO()`
 
-Returns the command-line argument at the specified index.
-
-- `index`: The 0-based index of the argument.
+Returns `TRUE` if the current build has CGO enabled (required for most 3D/GPU features). If `FALSE`, most 3D and physics commands will be unavailable or return errors.
 
 ---
 

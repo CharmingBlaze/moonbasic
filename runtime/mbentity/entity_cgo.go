@@ -51,11 +51,14 @@ type entityStore struct {
 	// msgQueues: ENTITY.SENDMESSAGE / ENTITY.POLLMESSAGE (FIFO strings per receiver entity).
 	msgQueues map[int64][]string
 
+	// SPAWNER.MAKE — periodic prefab copies (see entity_gameplay_helpers_cgo.go)
+	spawners []spawnerRec
+
 	// LEVEL.* glTF scene graph (see entity_level_cgo.go)
-	levelRoot     string
-	levelMarkers  map[string]rl.Vector3
-	levelSpawn    map[string]rl.Matrix
-	levelLayers   map[string][]int64
+	levelRoot      string
+	levelMarkers   map[string]rl.Vector3
+	levelSpawn     map[string]rl.Matrix
+	levelLayers    map[string][]int64
 	levelColliders []levelColliderRec
 
 	// DOD / SoA Spatial Buffers
@@ -77,6 +80,13 @@ type entityStore struct {
 type levelColliderRec struct {
 	Name  string
 	World rl.Matrix
+}
+
+type spawnerRec struct {
+	prefabID int64
+	interval float64
+	remain   float64
+	x, z     float32
 }
 
 func (m *Module) store() *entityStore {
@@ -109,15 +119,15 @@ func (m *Module) store() *entityStore {
 		s.unitCone = rl.GenMeshCone(1, 1, 16)
 		s.unitPlane = rl.GenMeshPlane(1, 1, 1, 1)
 		s.unitMat = rl.LoadMaterialDefault()
-		
+
 		entityStores[m.h] = s
 	}
-	
+
 	// Link master registry spatial pointer for VM fast-path
 	if rt, ok := m.reg.(*runtime.Registry); ok {
 		rt.Spatial = &s.spatial
 	}
-	
+
 	return s
 }
 
@@ -193,6 +203,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerEntityGameplayIntelAPI(m, r)
 	registerEntityTweenAPI(m, r)
 	registerEntityQoLAPI(m, r)
+	registerEntityGameplayHelpersAPI(m, r)
 	registerEntityAIAPI(m, r)
 	registerEntityPhysicsQoLAPI(m, r)
 	registerEntityEnvQoLAPI(m, r)
@@ -222,18 +233,30 @@ func (m *Module) Register(r runtime.Registrar) {
 			ep, ew, er := e.getRot()
 			pos := e.getPos()
 			switch propID {
-			case 0: return value.FromFloat(float64(pos.X)), nil
-			case 1: return value.FromFloat(float64(pos.Y)), nil
-			case 2: return value.FromFloat(float64(pos.Z)), nil
-			case 3: return value.FromFloat(float64(ep)), nil
-			case 4: return value.FromFloat(float64(ew)), nil
-			case 5: return value.FromFloat(float64(er)), nil
-			case 6: return value.FromFloat(float64(e.scale.X)), nil
-			case 7: return value.FromFloat(float64(e.scale.Y)), nil
-			case 8: return value.FromFloat(float64(e.scale.Z)), nil
-			case 9: return value.FromFloat(float64(e.alpha)), nil
-			case 10: return value.FromBool(e.hidden), nil
-			default: return value.Nil, fmt.Errorf("ENTITY.PROP_GET: invalid prop id %d", propID)
+			case 0:
+				return value.FromFloat(float64(pos.X)), nil
+			case 1:
+				return value.FromFloat(float64(pos.Y)), nil
+			case 2:
+				return value.FromFloat(float64(pos.Z)), nil
+			case 3:
+				return value.FromFloat(float64(ep)), nil
+			case 4:
+				return value.FromFloat(float64(ew)), nil
+			case 5:
+				return value.FromFloat(float64(er)), nil
+			case 6:
+				return value.FromFloat(float64(e.scale.X)), nil
+			case 7:
+				return value.FromFloat(float64(e.scale.Y)), nil
+			case 8:
+				return value.FromFloat(float64(e.scale.Z)), nil
+			case 9:
+				return value.FromFloat(float64(e.alpha)), nil
+			case 10:
+				return value.FromBool(e.hidden), nil
+			default:
+				return value.Nil, fmt.Errorf("ENTITY.PROP_GET: invalid prop id %d", propID)
 			}
 		}
 
@@ -244,7 +267,7 @@ func (m *Module) Register(r runtime.Registrar) {
 			}
 			f, _ := val.ToFloat()
 			switch propID {
-			case 0: 
+			case 0:
 				vpos := e.getPos()
 				vpos.X = float32(f)
 				e.setPos(vpos)
@@ -265,12 +288,18 @@ func (m *Module) Register(r runtime.Registrar) {
 			case 5:
 				ep, ew, _ := e.getRot()
 				e.setRot(ep, ew, float32(f))
-			case 6: e.scale.X = float32(f)
-			case 7: e.scale.Y = float32(f)
-			case 8: e.scale.Z = float32(f)
-			case 9: e.alpha = float32(f)
-			case 10: e.hidden = val.IVal != 0
-			default: return fmt.Errorf("ENTITY.PROP_SET: invalid prop id %d", propID)
+			case 6:
+				e.scale.X = float32(f)
+			case 7:
+				e.scale.Y = float32(f)
+			case 8:
+				e.scale.Z = float32(f)
+			case 9:
+				e.alpha = float32(f)
+			case 10:
+				e.hidden = val.IVal != 0
+			default:
+				return fmt.Errorf("ENTITY.PROP_SET: invalid prop id %d", propID)
 			}
 			return nil
 		}
@@ -930,11 +959,14 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 
 	m.processEntityTweens(dt)
 	m.processAITasks(dt)
+	m.processSpawners(dt)
 
 	st := m.store()
 
 	for _, e := range st.ents {
-		if e == nil || e.ext == nil { continue }
+		if e == nil || e.ext == nil {
+			continue
+		}
 		ext := e.ext
 		if ext.ghostMode && ext.ghostTimer > 0 {
 			ext.ghostTimer -= dt
@@ -945,7 +977,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 			}
 		}
 	}
-	
+
 	// 1. Clear frame collision state
 	for _, e := range st.ents {
 		if e == nil || e.ext == nil {
@@ -973,6 +1005,9 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	}
 
 	// 3. Update entity positions (gravity + velocity)
+	// Jolt-linked bodies (physicsDriven): skip this entire block — no scripted gravity and no
+	// BoxTopLandSnap (see entity_phys_sync_cgo.go sync after PHYSICS3D.STEP). Mixing snap + solver
+	// causes split-brain jitter; ENTITY.ADDPHYSICS links via entLinkPhysBuffer which zeros e.gravity.
 	for _, e := range st.ents {
 		if e.static {
 			continue
@@ -980,7 +1015,33 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		if e.physicsDriven {
 			continue
 		}
-		e.vel.Y += e.gravity * dt
+		// Scripted spheres: avoid gravity-vs-snap jitter — when feet are already in the landing band
+		// on a static and vertical speed is small, skip gravity for this frame (resting contact).
+		if e.useSphere {
+			wp0 := m.worldPos(e)
+			px, py, pz := float64(wp0.X), float64(wp0.Y), float64(wp0.Z)
+			pr := float64(e.radius)
+			supported := false
+			for _, s := range st.ents {
+				if s == nil || !s.static {
+					continue
+				}
+				sp := s.getPos()
+				bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
+				bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
+				if mbgame.SphereFeetInBoxTopSupport(px, py, pz, pr, bx, by, bz, bw, bh, bd) {
+					supported = true
+					break
+				}
+			}
+			if supported && e.vel.Y <= 0.05 && e.vel.Y >= -0.85 {
+				e.vel.Y = 0
+			} else {
+				e.vel.Y += e.gravity * e.gravScale * dt
+			}
+		} else {
+			e.vel.Y += e.gravity * e.gravScale * dt
+		}
 		wp := m.worldPos(e)
 		nw := rl.Vector3Add(wp, rl.Vector3Scale(e.vel, dt))
 		m.setLocalFromWorld(e, nw.X, nw.Y, nw.Z)
@@ -1010,15 +1071,16 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 				wp := m.worldPos(e)
 				wp.Y = float32(bestSnap)
 				m.setLocalFromWorld(e, wp.X, wp.Y, wp.Z)
-				if e.vel.Y < 0 {
-					e.vel.Y = 0
-				}
+				e.vel.Y = 0
 				e.onGround = true
 			} else {
 				e.onGround = false
 			}
 		}
 	}
+
+	m.processGameplayMotion(dt)
+	m.processWobble(dt)
 
 	// 4. Resolve Global Collision Rules
 	m.resolveRules()
@@ -1064,6 +1126,8 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		}
 		finalizeJumpGrounded(e, e.onGround)
 	}
+
+	m.recordEntityTrails()
 	return value.Nil, nil
 }
 
@@ -1118,12 +1182,24 @@ func (m *Module) aabbWorldMinMax(e *ent) (mn, mx rl.Vector3) {
 
 	for i := 0; i < 8; i++ {
 		p := rl.Vector3Transform(corners[i], wm)
-		if p.X < mn.X { mn.X = p.X }
-		if p.Y < mn.Y { mn.Y = p.Y }
-		if p.Z < mn.Z { mn.Z = p.Z }
-		if p.X > mx.X { mx.X = p.X }
-		if p.Y > mx.Y { mx.Y = p.Y }
-		if p.Z > mx.Z { mx.Z = p.Z }
+		if p.X < mn.X {
+			mn.X = p.X
+		}
+		if p.Y < mn.Y {
+			mn.Y = p.Y
+		}
+		if p.Z < mn.Z {
+			mn.Z = p.Z
+		}
+		if p.X > mx.X {
+			mx.X = p.X
+		}
+		if p.Y > mx.Y {
+			mx.Y = p.Y
+		}
+		if p.Z > mx.Z {
+			mx.Z = p.Z
+		}
 	}
 	return mn, mx
 }
@@ -1354,7 +1430,7 @@ func (m *Module) drawOneEntity(e *ent) {
 			outlineWM := rl.MatrixMultiply(rl.MatrixScale(1+thick, 1+thick, 1+thick), wm)
 			e.rlModel.Transform = outlineWM
 			mbmodel3d.DrawEntityModel(e.rlModel, ext.outlineColor)
-			
+
 			e.rlModel.Transform = wm
 		}
 
@@ -1366,6 +1442,7 @@ func (m *Module) drawOneEntity(e *ent) {
 		}
 		return
 	}
+	m.drawEntityTrail(e)
 	if useBlend {
 		rl.EndBlendMode()
 	}
@@ -1444,6 +1521,10 @@ func (m *Module) entSetCullMode(args []value.Value) (value.Value, error) {
 	}
 	e.cullMode = int32(mode)
 	return value.Nil, nil
+}
+
+func (m *Module) chainEntityRef(v value.Value) (value.Value, error) {
+	return v, nil
 }
 
 func (m *Module) entID(v value.Value) (int64, bool) {
@@ -1620,7 +1701,9 @@ func (m *Module) applyRule(rule collRule) {
 	var srcs []*ent
 	var dsts []*ent
 	for _, e := range st.ents {
-		if e == nil { continue }
+		if e == nil {
+			continue
+		}
 		ext := e.getExt()
 		if ext.collType == rule.src {
 			srcs = append(srcs, e)

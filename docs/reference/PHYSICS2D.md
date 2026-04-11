@@ -16,76 +16,44 @@ Commands for creating and controlling a 2D physics simulation using Box2D.
 
 ## World Management
 
-### `Physics2D.Start()`
-
-Initializes the 2D physics world.
+### `Physics2D.Start([gx, gy])`
+Initializes the 2D physics world. Default gravity is `(0, 500)` if omitted.
 
 ### `Physics2D.Stop()`
+Shuts down the 2D physics simulation and frees internal buffers.
 
-Shuts down the 2D physics simulation.
+---
 
 ### `Physics2D.Step()`
-
-Advances the simulation. Call this once per frame.
+Advances the 2D simulation (call once per frame).
 
 ### `Physics2D.SetGravity(x, y)`
-
-Sets the global gravity for the 2D world.
-
-### `Physics2D.SetStep(dt)`
-
-Sets the simulation timestep in **seconds** passed to Box2D each `Physics2D.Step()` (default `1/60`). `dt` must be greater than 0 and at most 1. Match this to your frame time when you call `Step` once per frame (e.g. use `1/60` for a 60 FPS loop).
-
-### `Physics2D.SetIterations(velocity, position)`
-
-Sets Box2D solver iterations (defaults **8** velocity, **3** position). Lower values are faster but less stable for stacks and joints; allowed ranges are velocity **1–64** and position **1–32**.
+Sets the global gravity vector for the 2D world.
 
 ---
 
-## Body Creation
+### `Body2D.Make(type)`
+Creates a body definition (`"static"`, `"dynamic"`, `"kinematic"`).
 
-### 1. `Body2D.Make(type)`
+### `Body2D.AddRect(def, w, h)`
+Adds a rectangle collision shape to the definition.
 
-Creates a body definition. `type` can be `"static"`, `"dynamic"`, or `"kinematic"`.
-
-### 2. `Body2D.AddShape(...)`
-
-Adds a collision shape to the definition.
-
-- `Body2D.AddRect(bodyDefHandle, width, height)`
-- `Body2D.AddCircle(bodyDefHandle, radius)`
-
-### 3. `Body2D.Commit(bodyDefHandle, x, y)`
-
-Adds the body to the physics world at the specified position. Returns a handle to the final body. The **definition** handle is consumed and must not be used again (do not `Free` it yourself).
+### `Body2D.Commit(def, x, y)`
+Finalizes the body and adds it to the world at the specified position. Returns a **body handle**.
 
 ---
 
-## Body Interaction
-
-### `Body2D.SetPos(bodyHandle, x, y)`
-
+### `Body2D.SetPos(handle, x, y)`
 Teleports a 2D body to a new position.
 
-### `Body2D.X(bodyHandle)` / `Body2D.Y(bodyHandle)`
+### `Body2D.X(handle)` / `Body2D.Y(handle)`
+Returns the current X or Y coordinate of the body's center.
 
-Returns the X or Y coordinate of a body's center.
+### `Body2D.Rot(handle)`
+Returns the body rotation in radians.
 
-### `Body2D.Rot(bodyHandle)`
-
-Returns the rotation of a body in degrees.
-
-### `Body2D.ApplyForce(bodyHandle, x, y)`
-
-Applies a continuous force to the center of a body.
-
-### `Body2D.ApplyImpulse(bodyHandle, x, y)`
-
-Applies an instant force impulse.
-
-### `Body2D.Free(bodyHandle)`
-
-Removes a body from the 2D physics simulation.
+### `Body2D.Free(handle)`
+Removes a body from the simulation and frees its memory.
 
 ---
 

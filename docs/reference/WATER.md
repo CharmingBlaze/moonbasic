@@ -6,65 +6,30 @@ A **horizontal water plane** with simple wave motion, color gradients, and queri
 
 ---
 
-## `Water.Make(width, length)` → handle
+### `Water.Make(width, length)`
+Creates a subdivided water plane. Returns a **handle**.
 
-Creates a subdivided plane mesh for rendering. Size is in world units.
-
----
-
-## `Water.Create(x, z, width, depth, level)` → handle
-
-Convenience constructor: **`Water.Make(width, depth)`** at origin, then positions the plane at **`(x, level, z)`** ( **`level`** is the nominal surface **Y**). Same rendering/query behavior as **`Water.Make`** + **`Water.SetPos`**.
+### `Water.Free(handle)`
+Frees the water resource.
 
 ---
 
-## `Water.SetWave(water, speed, height)`
+### `Water.SetPos(handle, x, y, z)`
+Sets the water surface world position.
 
-Sets **wave frequency** (**`speed`**, used as **`WaveFreq`**) and **amplitude** (**`height`**, same as **`Water.SetWaveHeight`**). Use with **`Water.Update`**.
-
-**Physics note:** Buoyancy forces from Jolt **trigger** volumes are not wired yet; **`Physics.SetBuoyancy`** stores a per-entity hint for a future WASM/Jolt fluid pass.
-
----
-
-## `Water.Free(water)`
-
-Frees the water object.
+### `Water.Draw(handle)`
+Renders the water surface. Must be inside `Camera.Begin()`.
 
 ---
 
-## `Water.SetPos(water, x, y, z)`
+### `Water.GetWaveY(handle, x, z)`
+Returns surface Y including wave offset at XZ.
 
-Places the water plane ( **`y`** is the nominal surface **`BedY`** reference for depth queries).
+### `Water.GetDepth(handle, x, z)`
+Returns depth from surface to bed at XZ.
 
----
-
-## `Water.Draw(water)` / `Water.Update(dt)`
-
-**Draw** renders the plane with animated normals/colors. **`Water.Update`** advances wave phase for **all** active water instances (module-level tick).
-
----
-
-## `Water.SetWaveHeight(water, amp)`
-
-Sets vertical wave amplitude for rendering and **`GetWaveY`**.
-
----
-
-## `Water.GetWaveY(water, x, z)` → float
-
-Surface Y including wave offset at XZ (approximate).
-
----
-
-## `Water.GetDepth(water, x, z)` → float
-
-Returns a **column depth** metric from the animated surface to the bed plane at **XZ** (see runtime — not a ray through arbitrary **Y**). For point-in-water tests use **`Water.IsUnder`**.
-
----
-
-## `Water.IsUnder(water, x, y, z)` → bool
-
-**True** if the point is below the animated surface.
+### `Water.IsUnder(handle, x, y, z)`
+Returns `TRUE` if the point is below the animated surface.
 
 ---
 

@@ -14,6 +14,7 @@ func registerPhysics3DCommands(m *Module, reg mbruntime.Registrar) {
 	reg.Register("PHYSICS3D.START", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStart(m, a) }))
 	reg.Register("PHYSICS3D.STOP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStop(m, a) }))
 	reg.Register("PHYSICS3D.SETGRAVITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetGravity(m, a) }))
+	reg.Register("WORLD.SETGRAVITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetGravity(m, a) }))
 	reg.Register("PHYSICS3D.STEP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStep(m, a) }))
 	reg.Register("PHYSICS3D.SETTIMESTEP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetTimeStep(m, a) }))
 	reg.Register("PHYSICS3D.GETMATRIXBUFFER", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetMatrixBuffer(m, a) }))

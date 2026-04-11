@@ -50,7 +50,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		"ENTITY.SETGRAVITY", "ENTITY.JUMP", "ENTITY.VELOCITY", "ENTITY.ADDFORCE",
 		"ENTITY.SLIDE", "ENTITY.PICK", "ENTITY.PICKMODE",
 		"ENTITY.FLOOR", "ENTITY.UPDATE", "ENTITY.DRAWALL", "ENTITY.DRAW",
-		"DrawEntities", "DrawEntity", "MoveEntity", "TranslateEntity", "TFormVector", "EntityHitsType", "EntityGrounded", "EntityMoveCameraRelative", "ENTITY.MOVECAMERARELATIVE", "CreatePivot", "CreateCube", "CreateSphere", "CreateCylinder", "CreateCamera",
+		"DrawEntities", "DrawEntity", "MoveEntity", "TranslateEntity", "TFormVector", "EntityHitsType", "EntityGrounded", "EntityMoveCameraRelative", "ENTITY.MOVECAMERARELATIVE", "ENTITY.MOVEWITHCAMERA", "CreatePivot", "CreateCube", "CreateSphere", "CreateCylinder", "CreateCamera",
 		"EntityPBR", "EntityNormalMap", "EntityEmission",
 		"EntityMass", "EntityFriction", "EntityRestitution", "ApplyEntityImpulse",
 		"CameraSmoothFollow", "CreateVehicle", "AddWheel",

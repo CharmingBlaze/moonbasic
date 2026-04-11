@@ -12,74 +12,33 @@ Commands for manipulating and querying strings.
 
 ## Slicing & Substrings
 
-### `LEN(text)`
-
+### `String.Len(s)`
 Returns the number of characters in a string.
 
-### `LEFT(text, count)` / `RIGHT(text, count)`
+### `String.Upper(s)` / `String.Lower(s)`
+Converts a string to all uppercase or all lowercase letters.
 
-Returns the leftmost or rightmost `count` characters of a string.
-
-### `MID(text, start, [count])`
-
-Extracts a substring. `start` is a 1-based index. If `count` is omitted, it returns the rest of the string.
+### `String.Trim(s)`
+Removes whitespace from both ends of a string.
 
 ---
 
-## Formatting & Case
+### `String.Mid(s, start [, count])`
+Extracts a substring from `s`, starting at the 1-based index `start`. If `count` is omitted, returns the rest of the string.
 
-### `UPPER(text)` / `LOWER(text)`
+### `String.Replace(s, old, new)`
+Returns a new string with all occurrences of the `old` substring replaced by `new`.
 
-Converts a string to uppercase or lowercase.
-
-### `TRIM(text)`
-
-Removes leading and trailing whitespace.
-
-### `REPLACE(text, find, replace)`
-
-Replaces all occurrences of `find` with `replace`.
+### `String.Split(s, separator)`
+Splits `s` into an array of substrings based on `separator`. Returns a handle to a string list.
 
 ---
 
-## Templated interpolation (`INTERP` / `STRING.INTERP`)
+### `String.Contains(s, find)`
+Returns `TRUE` if the substring `find` is found within `s`.
 
-`INTERP(template, value0, [value1, ...])` substitutes placeholders **`{0}`** … **`{9}`** in `template`, using up to **10** values. **`STRING.INTERP`** is the same function (namespace-style name).
-
-Values are turned into text the same way as typical `PRINT` / `STR` display rules (numbers, booleans, handles show a readable form). This **builds a new string** — ideal for **HUD and debug**, not for **tight physics inner loops**; see [STRING_HEAP.md](STRING_HEAP.md).
-
-```basic
-msg = INTERP("Score {0} / {1}  hp {2}", score, maxScore, INT(hp))
-label = STRING.INTERP("pos {0}, {1}", px, pz)
-```
-
----
-
-## Searching & Querying
-
-### `INSTR(text, find, [start])`
-
-Returns the 1-based index of the first occurrence of `find`. Returns `0` if not found.
-
-### `CONTAINS(text, find)`
-
-Returns `TRUE` if `text` contains `find`.
-
-### `STARTSWITH(text, find)` / `ENDSWITH(text, find)`
-
-Returns `TRUE` if `text` starts or ends with `find`.
-
----
-
-## Splitting & Joining
-
-### `SPLIT(text, separator)`
-
-Splits a string into an array of strings using the `separator`. Returns a handle to the new array.
-
-### `JOIN(arrayHandle, separator)`
-
-Joins an array of strings into a single string, separated by `separator`.
+### `String.Join(handle, separator)`
+Joins the elements of a string list array into a single string, separated by `separator`.
 
 ---
 

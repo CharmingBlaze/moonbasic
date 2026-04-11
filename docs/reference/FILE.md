@@ -4,60 +4,59 @@ Commands for reading from and writing to files, and for managing the file system
 
 ## Core Concepts
 
--   **Simple I/O**: For basic needs, `READALLTEXT` and `WRITEALLTEXT` are the easiest way to read or write entire files at once.
--   **Advanced I/O**: For more control (e.g., reading a large file line-by-line), you must `OPENFILE`, perform your read/write operations, and then `CLOSEFILE`.
+-   **Simple I/O**: For basic needs, `ReadAllText` and `WriteAllText` are the easiest way to read or write entire files at once.
 
 ---
 
-## Simple File Operations
+### `File.Exists(path)`
+Returns `TRUE` if the specified file exists on disk.
 
-### `READALLTEXT(filePath)`
-
+### `File.ReadAllText(path)`
 Reads the entire content of a text file into a single string.
 
-### `WRITEALLTEXT(filePath, content)`
-
-Writes an entire string to a file, creating it if it doesn't exist and overwriting it if it does.
+### `File.WriteAllText(path, content)`
+Writes an entire string to a file, overwriting it if it already exists.
 
 ---
 
 ## Advanced File Operations
 
-### `OPENFILE(filePath, mode)`
+### `File.Open(path, mode)`
+Opens a file and returns a **file handle**. `mode` can be `"r"` (read), `"w"` (write), or `"a"` (append).
 
-**[PARTIAL]** Opens a file and returns a handle. `mode` can be `"r"` (read), `"w"` (write), or `"a"` (append).
+### `File.Close(handle)`
+Closes an open file handle and releases its resources.
 
-### `CLOSEFILE(fileHandle)`
+### `File.WriteLine(handle, content)`
+Writes a string to an open file followed by a newline character.
 
-**[PARTIAL]** Closes a file handle that was opened with `OPENFILE`.
-
-### `FILE.WRITELN(fileHandle, content)`
-
-Writes a string to an open file, followed by a newline character.
+### `File.Write(handle, content)`
+Writes a string to an open file without a newline.
 
 ---
 
 ## File System Management
 
-### `FILEEXISTS(filePath)` / `DIREXISTS(dirPath)`
+### `File.IsDir(path)`
+Returns `TRUE` if the specified path points to a directory.
 
-Returns `TRUE` if the specified file or directory exists.
+### `File.Delete(path)`
+Deletes a file or an empty directory from the system.
 
-### `DELETEFILE(filePath)` / `DELETEDIR(dirPath)`
+### `File.Copy(source, dest)`
+Copies a file from the source path to the destination path.
 
-Deletes a file or an empty directory.
+### `File.Move(source, dest)`
+Moves or renames a file or directory.
 
-### `COPYFILE(source, dest)` / `MOVEFILE(source, dest)`
-
-Copies or moves a file.
-
-### `MAKEDIR(dirPath)`
-
+### `File.MakeDir(path)`
 Creates a new directory.
 
-### `GETDIR()` / `SETDIR(dirPath)`
+### `File.GetDir()`
+Returns the current working directory.
 
-Gets or sets the current working directory.
+### `File.SetDir(path)`
+Sets the current working directory.
 
 ---
 

@@ -11,35 +11,43 @@ For example, you can define flags for player abilities:
 ```basic
 GLOBAL FLAG_JUMP = 1  ; Binary 0001
 GLOBAL FLAG_SPRINT = 2 ; Binary 0010
-GLOBAL FLAG_CROUCH = 4 ; Binary 0100
-GLOBAL FLAG_INVIS = 8  ; Binary 1000
 ```
 
 ---
 
-### `BAND(a, b)` / `BOR(a, b)` / `BXOR(a, b)`
+### `Bit.And(a, b)`
+Returns the bitwise **AND** of two 32-bit integers.
 
--   `BAND` (AND): Returns bits that are set in *both* `a` and `b`.
--   `BOR` (OR): Returns bits that are set in *either* `a` or `b`.
--   `BXOR` (XOR): Returns bits that are set in one but not both.
+### `Bit.Or(a, b)`
+Returns the bitwise **OR** of two 32-bit integers.
+
+### `Bit.Xor(a, b)`
+Returns the bitwise **XOR** of two 32-bit integers.
+
+### `Bit.Not(a)`
+Returns the bitwise **NOT** (one's complement) of an integer.
 
 ---
 
-### `BTEST(value, bit)`
+### `Bit.Shl(v, n)`
+Returns `v` shifted left by `n` bits.
 
-Returns `TRUE` if the specified `bit` (0-indexed) is set (is 1) in `value`.
+### `Bit.Shr(v, n)`
+Returns `v` shifted right by `n` bits.
 
-### `BSET(value, bit)`
+---
 
-Returns a new value with the specified `bit` set to 1.
+### `Bit.Get(v, bitIndex)`
+Returns `TRUE` if the bit at `bitIndex` (0–31) is set, `FALSE` otherwise.
 
-### `BCLEAR(value, bit)`
+### `Bit.Set(v, bitIndex)`
+Returns a new integer with the bit at `bitIndex` set to 1.
 
-Returns a new value with the specified `bit` cleared to 0.
+### `Bit.Clear(v, bitIndex)`
+Returns a new integer with the bit at `bitIndex` set to 0.
 
-### `BTOGGLE(value, bit)`
-
-Returns a new value with the specified `bit` flipped (0 to 1, or 1 to 0).
+### `Bit.Toggle(v, bitIndex)`
+Returns a new value with the specified bit flipped (0 to 1, or 1 to 0).
 
 ---
 

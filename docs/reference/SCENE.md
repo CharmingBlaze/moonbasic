@@ -10,54 +10,33 @@ The module must receive a **user-function invoker** from the host (same mechanis
 
 ## Registration
 
-### `Scene.Register(sceneId, loadFunctionName)`
+### `Scene.Load(id)`
+Loads a scene from a file and runs its loader function immediately. Returns a **scene handle**.
 
-Maps a string id (stored uppercase) to the **name of a parameterless user function** that runs when the scene is loaded. That function should create state, load assets, and wire subsystems.
+### `Scene.LoadAsync(id)`
+Queues a scene to load at the start of the next update cycle.
 
-### `Scene.SetHandlers(updateFunctionName, drawFunctionName)`
-
-Sets global names for:
-
-- **Update** — called as `update(dt)` with delta time in seconds.
-- **Draw** — called with **no arguments** once per frame after transition polling.
-
-Names are folded to uppercase.
+### `Scene.Free(handle)`
+Unloads the scene and frees all associated entities and native resources.
 
 ---
 
-## Loading
+### `Scene.Register(id, funcName)`
+Maps a scene string ID to a parameterless user function name that acts as the loader.
 
-### `Scene.Load(sceneId)` / `Scene.LoadAsync(sceneId)`
-
-- **Load** — runs the loader **immediately** and clears any pending async load.
-- **LoadAsync** — queues the id; the load runs at the **start** of the next `SCENE.UPDATE` call.
-
-### `Scene.LoadWithTransition(sceneId, kind, duration)`
-
-Starts a transition **out**, then loads the scene when the transition completes, then optionally fades **in**:
-
-- `kind` — `"fade"` or `"wipe"` (case-insensitive).
-- `duration` — seconds, must be positive.
-
-Uses [TRANSITION](TRANSITION.md) (`TRANSITION.FADEOUT`, `TRANSITION.WIPE`, `TRANSITION.FADEIN`, `TRANSITION.ISDONE`). Requires an active runtime registry so `TRANSITION.*` can be invoked.
+### `Scene.SetHandlers(updateFunc, drawFunc)`
+Sets global names for the per-frame update and draw functions.
 
 ---
-
-## Frame hooks
 
 ### `Scene.Update(dt)`
-
-1. Runs a pending **async** load if any.
-2. Advances **transition** state (loads pending scene after fade-out when transition finishes).
-3. Invokes the registered **update** function with `dt`.
+Advances transitions, runs async loads, and invokes the registered update function.
 
 ### `Scene.Draw()`
+Polls active transitions and invokes the registered draw function.
 
-Polls transitions again, then invokes the **draw** function.
-
-### `Scene.Current()` → string
-
-Returns the current scene id (uppercase), or empty if none.
+### `Scene.Current()`
+Returns the ID string of the currently active scene.
 
 ---
 

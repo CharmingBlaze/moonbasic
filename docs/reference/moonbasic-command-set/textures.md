@@ -1,10 +1,11 @@
 # Textures
 
-| Designed | Implementation | Memory / notes |
-|----------|----------------|----------------|
-| **LoadTexture (file)** | **`LOADTEXTURE`**, **`TEXTURE.LOAD`** | **Heap handle** — **`FREETEXTURE`** / **`TEXTURE.FREE`**. |
-| **CreateTexture (w, h)** | **`IMAGE.MAKE`** + **`TEXTURE.FROMIMAGE`** | **Image** + **texture** handles — free both when done. |
-| **FreeTexture** | **`FREETEXTURE`**, **`TEXTURE.FREE`** | |
-| **TextureWidth / Height** | **`TEXTUREWIDTH`**, **`TEXTUREHEIGHT`**, **`TEXTURE.WIDTH`**, **`HEIGHT`** | Read-only — no free. |
-| **ScaleTexture / RotateTexture / TextureCoords** | **`TEXTURE.SETWRAP`**, **`SETFILTER`**, **`DRAW.TEXTUREPRO`** | |
-| **EntityTexture** | **`ENTITY.TEXTURE`** | |
+| Designed | moonBASIC | Notes |
+|----------|------------|-------|
+| **LoadTexture(file)** | **`Texture.Load()`** | Returns a **texture handle**. |
+| **CreateTexture(w, h)** | **`Texture.Load()`** | Or use **`Image.Make()`** + **`Texture.FromImage()`**. |
+| **FreeTexture(id)** | **`Texture.Free()`** | Unloads GPU data. |
+| **TextureWidth(id)** | **`Texture.Width()`** | |
+| **TextureHeight(id)** | **`Texture.Height()`** | |
+| **TextureFilter(id, mode)** | **`Texture.SetFilter()`** | |
+| **EntityTexture(entity, id)** | **`Entity.Texture()`** | |

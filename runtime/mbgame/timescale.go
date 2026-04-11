@@ -26,6 +26,24 @@ func (m *Module) registerTimeScale(r runtime.Registrar) {
 		rt.TimeScale = s
 		return value.Nil, nil
 	})
+	r.Register("WORLD.SETTIMESCALE", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("WORLD.SETTIMESCALE expects scale#")
+		}
+		var s float64
+		if f, ok := args[0].ToFloat(); ok {
+			s = f
+		} else if i, ok := args[0].ToInt(); ok {
+			s = float64(i)
+		} else {
+			return value.Nil, fmt.Errorf("WORLD.SETTIMESCALE: scale must be numeric")
+		}
+		if rt == nil {
+			return value.Nil, fmt.Errorf("WORLD.SETTIMESCALE: runtime not available")
+		}
+		rt.TimeScale = s
+		return value.Nil, nil
+	})
 	r.Register("GAME.GETTIMESCALE", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("GAME.GETTIMESCALE expects 0 arguments")

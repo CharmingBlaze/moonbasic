@@ -1,9 +1,14 @@
 //go:build cgo || (windows && !cgo)
-
+//
+// Platform: builds on Windows and Linux fullruntime (not linux-only). Jolt-backed raycasts and
+// matrix sync run only where physics3d links Jolt (Linux+CGO). On Windows, stubs return no ray hits;
+// ENTITY.ADDPHYSICS is a no-op there—see AGENTS.md “Physics sync & Jolt”.
+//
 package mbentity
 
 import (
 	"fmt"
+	"math"
 
 	"moonbasic/runtime"
 	mbphysics3d "moonbasic/runtime/physics3d"
@@ -11,6 +16,64 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+// Ground probe for Jolt-linked bodies: ray length scales with collider half-height plus a small
+// skin past the feet (industry-style buffer). Fixed-length rays mis-size tall/short characters and
+// worsen grounded flicker next to solver slop. CharacterVirtual (PLAYER.*) uses Jolt ground state
+// instead; this path is for dynamic rigid bodies + ENTITY.MOVEWITHCAMERA linear velocity.
+const (
+	joltGroundRayStartLift = 0.2  // origin above pivot (same order as prior +0.25; avoids odd self-hits)
+	joltGroundPastFeetSkin = 0.12 // ~10–15% past feet: ray length uses startLift + halfExtent + this
+	joltGroundRayMin       = 0.45
+	joltGroundRayMax       = 5.0
+	// Visual Y snap: grounded + near analytic stand height + not jumping → pin display ty to hitY+half
+	// (masks solver micro-bounce; does not move the Jolt body).
+	joltGroundVisualSnapBand = 0.14
+	joltGroundSnapVyMax      = 0.35 // above this upward vy → skip visual snap (jump)
+	// Jolt contact/solver slop (~2cm): allow snap when ty is within band+slop of analytic stand height.
+	joltSolverContactSlop = 0.02
+	// Grounded vertical sleep: only micro ±vy (solver slop); do not clamp real jumps (vy ≫ this).
+	joltGroundVySleepMax = 0.25
+)
+
+// joltColliderHalfExtentDown estimates pivot→lowest point along +Y for upright primitives.
+// Physics shapes use the same dimensions (see ENTITY.PHYSICS / BDAddCapsule).
+func joltColliderHalfExtentDown(e *ent) float64 {
+	if e == nil {
+		return 0.5
+	}
+	switch e.kind {
+	case entKindCapsule:
+		if e.cylH > 1e-4 {
+			return float64(e.cylH) * 0.5
+		}
+	case entKindSphere:
+		if e.radius > 1e-4 {
+			return float64(e.radius)
+		}
+	case entKindBox, entKindPlane:
+		if e.h > 1e-4 {
+			return float64(e.h) * 0.5
+		}
+	case entKindCylinder, entKindCone:
+		if e.cylH > 1e-4 {
+			return float64(e.cylH) * 0.5
+		}
+		if e.h > 1e-4 {
+			return float64(e.h) * 0.5
+		}
+	}
+	if e.cylH > 1e-4 {
+		return float64(e.cylH) * 0.5
+	}
+	if e.h > 1e-4 {
+		return float64(e.h) * 0.5
+	}
+	if e.radius > 1e-4 {
+		return float64(e.radius)
+	}
+	return 0.5
+}
 
 // syncEntitiesFromPhysics copies world translation from the Jolt matrix buffer into linked entities
 // (parent-aware local pose via setLocalFromWorld). Rotation in the buffer is not applied (jolt-go
@@ -32,12 +95,41 @@ func (m *Module) syncEntitiesFromPhysics() {
 		tx := buf[idx+12]
 		ty := buf[idx+13]
 		tz := buf[idx+14]
-		m.setLocalFromWorld(e, tx, ty, tz)
+
 		if e.physicsDriven {
-			wp := m.worldPos(e)
-			_, _, _, hit := mbphysics3d.RaycastDownNormal(float64(wp.X), float64(wp.Y)+0.25, float64(wp.Z), 2.5)
-			e.onGround = hit
+			half := joltColliderHalfExtentDown(e)
+			maxDown := joltGroundRayStartLift + half + joltGroundPastFeetSkin
+			if maxDown < joltGroundRayMin {
+				maxDown = joltGroundRayMin
+			}
+			if maxDown > joltGroundRayMax {
+				maxDown = joltGroundRayMax
+			}
+			// Probe from Jolt world translation (buffer), not stale entity pose — matches final ty/tz we apply.
+			rayOx := float64(tx)
+			rayOy := float64(ty) + joltGroundRayStartLift
+			rayOz := float64(tz)
+			nx, ny, nz, hitY, hit := mbphysics3d.RaycastDownGroundProbe(rayOx, rayOy, rayOz, maxDown)
+			// Count only floor-like contacts (normal mostly +Y). A bare ray hit can be a wall
+			// or edge and would flutter ENTITY.GROUNDED / jump coyote every frame ("bunny hop").
+			groundNormal := hit && ny >= 0.28 && math.Abs(nx) < 0.95 && math.Abs(nz) < 0.95
+			e.onGround = groundNormal
+			if groundNormal {
+				vx, vy, vz := mbphysics3d.GetLinearVelocityToIndex(e.physBufIndex)
+				// Standing contact: zero tiny vertical velocity from solver ping-pong (XZ unchanged).
+				if math.Abs(float64(vy)) < joltGroundVySleepMax {
+					mbphysics3d.SetVelocityToIndex(e.physBufIndex, vx, 0, vz)
+				}
+				idealY := hitY + half
+				verticalDiff := math.Abs(float64(ty) - idealY)
+				if verticalDiff < joltGroundVisualSnapBand+joltSolverContactSlop {
+					if vy < joltGroundSnapVyMax {
+						ty = float32(idealY)
+					}
+				}
+			}
 		}
+		m.setLocalFromWorld(e, tx, ty, tz)
 	}
 }
 
@@ -59,6 +151,7 @@ func (m *Module) entLinkPhysBuffer(args []value.Value) (value.Value, error) {
 	}
 	e.physBufIndex = int(bi)
 	e.physicsDriven = true
+	// Scripted gravity + Jolt world gravity causes depenetration “bunny hop” on stacked integration.
 	e.gravity = 0
 	e.vel = rl.Vector3{}
 	mbphysics3d.RegisterEntityBufferLink(id, int(bi))

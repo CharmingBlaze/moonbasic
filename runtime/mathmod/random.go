@@ -72,6 +72,22 @@ func (m *Module) registerRandom(r runtime.Registrar) {
 	}
 	r.Register("RNDF", "math", rndfFn)
 	r.Register("MATH.RNDF", "math", rndfFn)
+	r.Register("MATH.RANGE", "math", rndfFn)
+
+	chanceFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("MATH.CHANCE expects (percent#)")
+		}
+		p, _ := args[0].ToFloat()
+		if p <= 0 {
+			return value.FromBool(false), nil
+		}
+		if p >= 100 {
+			return value.FromBool(true), nil
+		}
+		return value.FromBool(m.rng.Float64()*100 < p), nil
+	}
+	r.Register("MATH.CHANCE", "math", chanceFn)
 
 	seedFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
