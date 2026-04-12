@@ -118,7 +118,7 @@ func (m *Module) store() *entityStore {
 		s.unitCyl = rl.GenMeshCylinder(1, 1, 16)
 		s.unitCone = rl.GenMeshCone(1, 1, 16)
 		s.unitPlane = rl.GenMeshPlane(1, 1, 1, 1)
-		s.unitMat = rl.LoadMaterialDefault()
+		s.unitMat = mbmodel3d.MakeEntityPrimitiveMaterial()
 
 		entityStores[m.h] = s
 	}
@@ -1399,13 +1399,13 @@ func (m *Module) drawOneEntity(e *ent) {
 	switch e.kind {
 	case entKindBox:
 		mProp := rl.MatrixScale(e.w, e.h, e.d)
-		rl.DrawMesh(st.unitCube, st.unitMat, rl.MatrixMultiply(mProp, wm))
+		mbmodel3d.DrawPrimitiveEntityMesh(st.unitCube, &st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindSphere:
 		mProp := rl.MatrixScale(e.radius*2, e.radius*2, e.radius*2)
-		rl.DrawMesh(st.unitSphere, st.unitMat, rl.MatrixMultiply(mProp, wm))
+		mbmodel3d.DrawPrimitiveEntityMesh(st.unitSphere, &st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindCylinder:
 		mProp := rl.MatrixScale(e.radius*2, e.cylH, e.radius*2)
-		rl.DrawMesh(st.unitCyl, st.unitMat, rl.MatrixMultiply(mProp, wm))
+		mbmodel3d.DrawPrimitiveEntityMesh(st.unitCyl, &st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindCapsule:
 		// Match Jolt BODY3D.ADDCAPSULE: halfHeight = height/2 - radius; segment between sphere centers is 2*hh.
 		hh := e.cylH*0.5 - e.radius
@@ -1428,10 +1428,10 @@ func (m *Module) drawOneEntity(e *ent) {
 		rl.DrawCapsule(start, end, radW, int32(sli), int32(rng), col)
 	case entKindCone:
 		mProp := rl.MatrixScale(e.radius*2, e.cylH, e.radius*2)
-		rl.DrawMesh(st.unitCone, st.unitMat, rl.MatrixMultiply(mProp, wm))
+		mbmodel3d.DrawPrimitiveEntityMesh(st.unitCone, &st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindPlane:
 		mProp := rl.MatrixScale(e.w, 1.0, e.d)
-		rl.DrawMesh(st.unitPlane, st.unitMat, rl.MatrixMultiply(mProp, wm))
+		mbmodel3d.DrawPrimitiveEntityMesh(st.unitPlane, &st.unitMat, rl.MatrixMultiply(mProp, wm))
 	case entKindMesh, entKindModel:
 		if !e.hasRLModel {
 			if useBlend {

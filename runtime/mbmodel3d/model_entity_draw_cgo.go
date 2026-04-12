@@ -89,3 +89,17 @@ func DrawEntityModel(mod rl.Model, tint rl.Color) {
 		alb.Color = orig
 	}
 }
+
+// DrawPrimitiveEntityMesh draws one mesh with the same PBR + fog path as DrawEntityModel.
+func DrawPrimitiveEntityMesh(mesh rl.Mesh, mat *rl.Material, transform rl.Matrix) {
+	shadowOn := shadowDeferActive()
+	mmat := *mat
+	if shadowOn && shaderHasUniform(mmat.Shader, "shadowEnabled") {
+		rl.SetMaterialTexture(&mmat, rl.MapBrdf, shadowRT.Depth)
+	}
+	applyPBRUniformsIfAny(&mmat, shadowOn, nil)
+	rl.DrawMesh(mesh, mmat, transform)
+	if shadowOn && shaderHasUniform(mmat.Shader, "shadowEnabled") {
+		rl.SetMaterialTexture(&mmat, rl.MapBrdf, rl.Texture2D{})
+	}
+}

@@ -194,6 +194,12 @@ func (o *particleObj) spawnOne() {
 	})
 }
 
+// Update steps simulation; exported so ENTITY.UPDATE can discover TagParticle via
+// interface { Update(float32) } (unexported update() was never called).
+func (o *particleObj) Update(dt float32) {
+	o.update(dt)
+}
+
 func (o *particleObj) update(dt float32) {
 	dst := o.parts[:0]
 	for i := range o.parts {

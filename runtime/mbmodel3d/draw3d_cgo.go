@@ -473,7 +473,12 @@ func applyPBRUniformsIfAny(mat *rl.Material, shadowOn bool, extraParams map[stri
 	setVec3("lightDir", lx, ly, lz)
 	setVec3("lightColor", lr, lg, lb)
 	setVec3("ambientColor", ar, ag, ab)
-	setFloat("fogDensity", 0.05) // Default studio fog
+	fm, ffr, ffg, ffb, fnear, ffar, fdens := sceneFogParams()
+	setInt("fogMode", int32(fm))
+	setVec3("fogColor", ffr, ffg, ffb)
+	setFloat("fogNear", fnear)
+	setFloat("fogFar", ffar)
+	setFloat("fogDensity", fdens)
 
 	// Apply extra params (Studio Effects)
 	for k, v := range extraParams {

@@ -300,9 +300,10 @@ func (m *Module) charRefSetVel(rt *runtime.Runtime, args ...value.Value) (value.
 		return value.Nil, fmt.Errorf("Character: host KCC state missing")
 	}
 	vx, _ := args[1].ToFloat()
-	vy, _ := args[2].ToFloat()
+	_, _ = args[2].ToFloat() // vy ignored: scripts pass 0 every frame; vertical v is gravity/jump/solver
 	vz, _ := args[3].ToFloat()
-	st.vx, st.vy, st.vz = vx, vy, vz
+	st.vx = vx
+	st.vz = vz
 	return value.Nil, nil
 }
 

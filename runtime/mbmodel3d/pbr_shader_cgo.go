@@ -71,6 +71,12 @@ uniform vec3 ambientColor;
 uniform float shadowBiasK;
 uniform float emissionPower;
 
+uniform int fogMode;
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+uniform float fogDensity;
+
 float shadowFactor(vec3 N, vec3 L) {
     if (shadowEnabled == 0) return 1.0;
     vec4 lv = lightVP * vec4(fragPos, 1.0);
@@ -131,6 +137,15 @@ void main() {
     vec3 color = ambient + Lo + emitTerm;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
+    if (fogMode == 1) {
+        float dist = length(camPos - fragPos);
+        float vis = clamp((fogFar - dist) / (fogFar - fogNear), 0.0, 1.0);
+        color = mix(fogColor, color, vis);
+    } else if (fogMode == 2) {
+        float dist = length(camPos - fragPos);
+        float vis = exp(-fogDensity * dist);
+        color = mix(fogColor, color, vis);
+    }
     finalColor = vec4(color, colDiffuse.a * fragCol.a);
 }
 `
@@ -163,6 +178,12 @@ func makePBRMaterial() rl.Material {
 	mat.GetMap(rl.MapMetalness).Value = 1
 	mat.GetMap(rl.MapEmission).Value = 0
 	return mat
+}
+
+// MakeEntityPrimitiveMaterial returns a PBR material for ENTITY primitive draws (cube/sphere/…)
+// so linear fog, lights, and shadows match MODEL/DrawEntityModel.
+func MakeEntityPrimitiveMaterial() rl.Material {
+	return makePBRMaterial()
 }
 
 func patchStandardMapTextureLocs(sh *rl.Shader) {

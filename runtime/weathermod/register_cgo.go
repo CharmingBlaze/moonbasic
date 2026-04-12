@@ -7,9 +7,14 @@ import (
 	"math"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
+
+func syncFogGPU(m *Module) {
+	mbmodel3d.SyncSceneFogWeather(m.FogOn, m.FogNear, m.FogFar, m.FogR, m.FogG, m.FogB)
+}
 
 func registerWeather(m *Module, r runtime.Registrar) {
 	r.Register("WEATHER.MAKE", "weather", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return wMake(m, rt, args...) })
@@ -143,6 +148,7 @@ func fogEnable(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 		return value.Nil, err
 	}
 	m.FogOn = b
+	syncFogGPU(m)
 	return value.Nil, nil
 }
 
@@ -155,6 +161,7 @@ func fogSetNear(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	m.FogNear = float32(v)
+	syncFogGPU(m)
 	return value.Nil, nil
 }
 
@@ -167,6 +174,7 @@ func fogSetFar(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 		return value.Nil, err
 	}
 	m.FogFar = float32(v)
+	syncFogGPU(m)
 	return value.Nil, nil
 }
 
@@ -184,6 +192,7 @@ func fogSetRange(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 	}
 	m.FogNear = float32(near)
 	m.FogFar = float32(far)
+	syncFogGPU(m)
 	return value.Nil, nil
 }
 
@@ -196,7 +205,7 @@ func fogSetColor(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 	b_, _ := rt.ArgInt(args, 2)
 	a_, _ := rt.ArgInt(args, 3)
 	m.FogR, m.FogG, m.FogB, m.FogA = int(r_), int(g_), int(b_), int(a_)
-	_ = m.FogOn
+	syncFogGPU(m)
 	return value.Nil, nil
 }
 

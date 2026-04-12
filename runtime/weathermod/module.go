@@ -21,7 +21,8 @@ type Module struct {
 }
 
 func NewModule() *Module {
-	return &Module{FogNear: 100, FogFar: 500}
+	// Defaults tuned for typical character-scale scenes; override with FOG.SETRANGE / SETFOG.
+	return &Module{FogNear: 8, FogFar: 72}
 }
 
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }

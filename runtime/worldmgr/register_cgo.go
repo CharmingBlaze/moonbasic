@@ -7,10 +7,15 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbentity"
+	"moonbasic/runtime/mbmodel3d"
 	scat "moonbasic/runtime/scatter"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
+
+func syncWorldFogGPU(m *Module) {
+	mbmodel3d.SyncSceneFogWorld(m.FogMode, m.FogColor[0], m.FogColor[1], m.FogColor[2], m.FogDensity)
+}
 
 func registerWorld(m *Module, r runtime.Registrar) {
 	r.Register("WORLD.GRAVITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -45,6 +50,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		}
 		mode, _ := rt.ArgInt(args, 0)
 		m.FogMode = int(mode)
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("FOGMODE", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -53,6 +59,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		}
 		mode, _ := rt.ArgInt(args, 0)
 		m.FogMode = int(mode)
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("FOGCOLOR", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -63,6 +70,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		g, _ := rt.ArgInt(args, 1)
 		b, _ := rt.ArgInt(args, 2)
 		m.FogColor = [4]uint8{uint8(r), uint8(g), uint8(b), 255}
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("WORLD.FOGCOLOR", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -73,6 +81,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		g, _ := rt.ArgInt(args, 1)
 		b, _ := rt.ArgInt(args, 2)
 		m.FogColor = [4]uint8{uint8(r), uint8(g), uint8(b), 255}
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("FOGCOLOR", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -83,6 +92,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		g, _ := rt.ArgInt(args, 1)
 		b, _ := rt.ArgInt(args, 2)
 		m.FogColor = [4]uint8{uint8(r), uint8(g), uint8(b), 255}
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("WORLD.FOGDENSITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -91,6 +101,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		}
 		d, _ := rt.ArgFloat(args, 0)
 		m.FogDensity = float32(d)
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("FOGDENSITY", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -99,6 +110,7 @@ func registerWorld(m *Module, r runtime.Registrar) {
 		}
 		d, _ := rt.ArgFloat(args, 0)
 		m.FogDensity = float32(d)
+		syncWorldFogGPU(m)
 		return value.Nil, nil
 	})
 	r.Register("SKYCOLOR", "world", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

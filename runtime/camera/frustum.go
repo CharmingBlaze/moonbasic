@@ -141,11 +141,18 @@ func (f Frustum) SphereVisible(cx, cy, cz, r float32) bool {
 	return false
 }
 
-// AABBVisible tests an axis-aligned box against the frustum (8 clip-space corners).
+// AABBVisible tests an axis-aligned box against the frustum using the same clip matrix as
+// clipPointInsideNDC (avoids mismatch with plane extraction — see ExtractFrustum comment).
+// Sampling a 3×3×3 grid (min/mid/max per axis) fixes large thin slabs (e.g. ground): the eight
+// corners alone can all lie outside NDC while the interior still intersects the view pyramid,
+// which made whole floors disappear when orbiting toward the horizon.
 func (f Frustum) AABBVisible(minX, minY, minZ, maxX, maxY, maxZ float32) bool {
-	for _, x := range []float32{minX, maxX} {
-		for _, y := range []float32{minY, maxY} {
-			for _, z := range []float32{minZ, maxZ} {
+	mx := (minX + maxX) * 0.5
+	my := (minY + maxY) * 0.5
+	mz := (minZ + maxZ) * 0.5
+	for _, x := range []float32{minX, mx, maxX} {
+		for _, y := range []float32{minY, my, maxY} {
+			for _, z := range []float32{minZ, mz, maxZ} {
 				if clipPointInsideNDC(f.clipM, x, y, z) {
 					return true
 				}
