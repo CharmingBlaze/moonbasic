@@ -61,6 +61,16 @@ func (m *Module) worldEuler(e *ent) (pitch, yaw, roll float32) {
 	return v.Y, v.Z, v.X
 }
 
+// WorldEulerForEntityID returns world-space pitch, yaw, roll in degrees (same convention as ENTITY.ENTITYPITCH/YAW/ROLL).
+func (m *Module) WorldEulerForEntityID(id int64) (pitch, yaw, roll float32, ok bool) {
+	e := m.store().ents[id]
+	if e == nil {
+		return 0, 0, 0, false
+	}
+	p, y, r := m.worldEuler(e)
+	return p, y, r, true
+}
+
 func (m *Module) setLocalFromWorld(e *ent, wx, wy, wz float32) {
 	if e.parentID() == 0 {
 		e.setPos(rl.Vector3{X: wx, Y: wy, Z: wz})

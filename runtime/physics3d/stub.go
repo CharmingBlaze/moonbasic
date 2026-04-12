@@ -3,111 +3,217 @@
 package mbphysics3d
 
 import (
-	"fmt"
-
 	"moonbasic/runtime"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
 // stubHint explains why native Jolt is unavailable on this build (see jolt-go cgo_* files: Linux/Darwin only today).
 const stubHint = "native Jolt is not linked on this build (need Linux/macOS amd64/arm64 + CGO; github.com/bbitechnologies/jolt-go has no Windows CGO libs yet). Use Linux CI, WSL2 for dev parity, or contribute Windows static libs to jolt-go."
 
+type Vec3 struct {
+	X, Y, Z float32
+}
+
+type ShapeObj struct {
+	Kind int
+	F1, F2, F3 float32
+}
+type body3dObj struct {
+	ID          int
+	Pos, Rot    Vec3
+	Shape       *ShapeObj
+	Layer       int
+	Collision   bool
+}
+
+var (
+	staticBodies = make(map[heap.Handle]*body3dObj)
+	nextBodyID   = 1
+)
+
 func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PHYSICS3D.GETSCRATCHFLOAT", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetScratchFloat(m, a) }))
-	// No-op success: lets fullruntime games run on Windows (same script as Linux); simulation is inert without Jolt.
-	noop := func(name string) runtime.BuiltinFn {
-		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-			_ = rt
-			_ = args
-			_ = name
-			return value.Nil, nil
+	
+	noop := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return value.Nil, nil }
+	
+	// Shape API
+	reg.Register("SHAPE.CREATEBOX", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		hx, _ := args[0].ToFloat(); hy, _ := args[1].ToFloat(); hz, _ := args[2].ToFloat()
+		id, _ := m.h.Alloc(&ShapeObj{1, float32(hx), float32(hy), float32(hz)})
+		return value.FromHandle(id), nil
+	})
+	reg.Register("SHAPE.CREATESPHERE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		r, _ := args[0].ToFloat()
+		id, _ := m.h.Alloc(&ShapeObj{2, float32(r), 0, 0})
+		return value.FromHandle(id), nil
+	})
+	reg.Register("SHAPE.CREATECAPSULE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		r, _ := args[0].ToFloat(); h, _ := args[1].ToFloat()
+		id, _ := m.h.Alloc(&ShapeObj{3, float32(r), float32(h), 0})
+		return value.FromHandle(id), nil
+	})
+	reg.Register("SHAPE.CREATECYLINDER", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		r, _ := args[0].ToFloat(); h, _ := args[1].ToFloat()
+		id, _ := m.h.Alloc(&ShapeObj{4, float32(r), float32(h), 0})
+		return value.FromHandle(id), nil
+	})
+	reg.Register("SHAPEREF.FREE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		m.h.Free(heap.Handle(args[0].IVal))
+		return value.Nil, nil
+	})
+
+	// Body API
+	reg.Register("STATIC.CREATE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, _ := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true}
+		nextBodyID++
+		id, _ := m.h.Alloc(body)
+		staticBodies[id] = body
+		return value.FromHandle(id), nil
+	})
+	reg.Register("KINEMATIC.CREATE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, _ := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true}
+		nextBodyID++
+		id, _ := m.h.Alloc(body)
+		return value.FromHandle(id), nil
+	})
+	reg.Register("BODYREF.SETPOSITION", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		bo, _ := hGetBody(m, args[0])
+		x, _ := args[1].ToFloat(); y, _ := args[2].ToFloat(); z, _ := args[3].ToFloat()
+		bo.Pos = Vec3{X: float32(x), Y: float32(y), Z: float32(z)}
+		return value.Nil, nil
+	})
+	reg.Register("BODYREF.SETROTATION", "physics3d", noop)
+	reg.Register("BODYREF.FREE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		bh := heap.Handle(args[0].IVal)
+		delete(staticBodies, bh)
+		m.h.Free(bh)
+		return value.Nil, nil
+	})
+
+	reg.Register("PHYSICS3D.GETGRAVITYX", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		_ = args
+		return value.FromFloat(0), nil
+	})
+	reg.Register("PHYSICS3D.GETGRAVITYY", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		_ = args
+		return value.FromFloat(-9.81), nil
+	})
+	reg.Register("PHYSICS3D.GETGRAVITYZ", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		_ = args
+		return value.FromFloat(0), nil
+	})
+	reg.Register("PHYSICS.GETGRAVITYX", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromFloat(0), nil
+	})
+	reg.Register("PHYSICS.GETGRAVITYY", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromFloat(-9.81), nil
+	})
+	reg.Register("PHYSICS.GETGRAVITYZ", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromFloat(0), nil
+	})
+
+	reg.Register("SHAPE.GETTYPE", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
 		}
-	}
-	errStub := func(name string) runtime.BuiltinFn {
-		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-			_ = rt
-			_ = args
-			return value.Nil, fmt.Errorf("%s: %s", name, stubHint)
+		return value.FromInt(int64(sh.Kind)), nil
+	})
+	reg.Register("SHAPE.GETWIDTH", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
 		}
-	}
+		return value.FromFloat(float64(sh.F1)), nil
+	})
+	reg.Register("SHAPE.GETHEIGHT", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(sh.F2)), nil
+	})
+	reg.Register("SHAPE.GETDEPTH", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(sh.F3)), nil
+	})
+	reg.Register("SHAPE.GETRADIUS", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(sh.F1)), nil
+	})
+	reg.Register("SHAPE.GETSIZEX", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(sh.F1)), nil
+	})
+	reg.Register("SHAPE.GETSIZEY", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(sh.F2)), nil
+	})
+	reg.Register("SHAPE.GETSIZEZ", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(sh.F3)), nil
+	})
+
+	// Legacy / Other
 	noopKeys := []string{
-		"WORLD.SETGRAVITY",
-		"PHYSICS3D.START", "PHYSICS3D.STOP", "PHYSICS3D.SETGRAVITY", "PHYSICS3D.STEP",
-		"PHYSICS3D.SETSUBSTEPS", "PHYSICS3D.DEBUGDRAW", "PHYSICS3D.SETTIMESTEP", "PHYSICS3D.GETMATRIXBUFFER",
-		"PHYSICS3D.ONCOLLISION", "PHYSICS3D.PROCESSCOLLISIONS", "PHYSICS3D.RAYCAST", "PHYSICS3D.SYNCWASMTOPHYSREGS",
+		"WORLD.SETGRAVITY", "PHYSICS3D.START", "PHYSICS3D.STOP", "PHYSICS3D.STEP", "PHYSICS3D.SETSUBSTEPS",
+		"PHYSICS3D.SETTIMESTEP", "PHYSICS3D.SETGRAVITY",
 		"PHYSICS.START", "PHYSICS.STOP", "PHYSICS.SETGRAVITY", "PHYSICS.STEP", "PHYSICS.SETSUBSTEPS",
-		"PHYSICS.RAYCAST", "PHYSICS.SPHERECAST", "PHYSICS.BOXCAST", "PHYSICS.ENABLE", "PHYSICS.DISABLE",
+		"KINEMATICREF.SETVELOCITY", "KINEMATICREF.UPDATE", "BODYREF.SETLAYER", "BODYREF.ENABLECOLLISION",
 	}
 	for _, k := range noopKeys {
-		reg.Register(k, "physics3d", noop(k))
-	}
-	errKeys := []string{
-		"BODY3D.MAKE", "BODY3D.ADDBOX", "BODY3D.ADDSPHERE", "BODY3D.ADDCAPSULE", "BODY3D.ADDMESH",
-		"BODY3D.COMMIT", "BODY3D.SETPOS", "BODY3D.SETPOSITION", "BODY3D.GETPOS", "BODY3D.ACTIVATE", "BODY3D.DEACTIVATE",
-		"BODY3D.SETROT", "BODY3D.GETROT",
-		"BODY3D.SETMASS", "BODY3D.SETFRICTION", "BODY3D.SETRESTITUTION",
-		"BODY3D.APPLYFORCE", "BODY3D.APPLYIMPULSE", "BODY3D.SETLINEARVEL", "BODY3D.SETANGULARVEL",
-		"BODY3D.X", "BODY3D.Y", "BODY3D.Z", "BODY3D.FREE", "BODY3D.BUFFERINDEX",
-		"BODY3D.COLLIDED", "BODY3D.COLLISIONOTHER", "BODY3D.COLLISIONPOINT", "BODY3D.COLLISIONNORMAL",
-		"JOINT3D.FIXED", "JOINT3D.HINGE", "JOINT3D.SLIDER", "JOINT3D.CONE", "JOINT3D.DELETE",
-		"PICK.ORIGIN", "PICK.DIRECTION", "PICK.MAXDIST", "PICK.LAYERMASK", "PICK.RADIUS",
-		"PICK.CAST", "PICK.FROMCAMERA", "PICK.SCREENCAST",
-		"PICK.X", "PICK.Y", "PICK.Z", "PICK.NX", "PICK.NY", "PICK.NZ", "PICK.ENTITY", "PICK.DIST", "PICK.HIT",
-		"PHYSICS3D.MOUSEHIT",
-		"WORLD.MOUSETOENTITY",
-		"WORLD.MOUSEPICK",
-		"CAMERA.RAYCASTMOUSE",
-	}
-	for _, k := range errKeys {
-		reg.Register(k, "physics3d", errStub(k))
+		reg.Register(k, "physics3d", noop)
 	}
 }
+
+func hGetBody(m *Module, v value.Value) (*body3dObj, error) {
+	return heap.Cast[*body3dObj](m.h, heap.Handle(v.IVal))
+}
+
+func (s *ShapeObj) TypeName() string { return "Shape" }
+func (s *ShapeObj) TypeTag() uint16  { return heap.TagShape }
+func (s *ShapeObj) Free()            {}
+
+func (b *body3dObj) TypeName() string { return "Body3D" }
+func (b *body3dObj) TypeTag() uint16 {
+	return heap.TagPhysicsBody // Fallback sharing
+}
+func (b *body3dObj) Free() {}
 
 func shutdownPhysics3D(m *Module) { _ = m }
 
-// ErrPhysicsUnavailable is returned by stub physics builtins when native Jolt is not linked.
-func ErrPhysicsUnavailable() error {
-	return fmt.Errorf("%s", stubHint)
-}
+// Exported for charcontroller/stub.go
+func GetStaticBodyRegistry() map[heap.Handle]*body3dObj { return staticBodies }
 
-// Exported stubs for mbentity
-type BuilderObj struct {
-	Friction    float32
-	Restitution float32
-}
-
-func (b *BuilderObj) TypeName() string { return "Body3DBuilder" }
-func (b *BuilderObj) TypeTag() uint16  { return 0 }
-func (b *BuilderObj) Free()            {}
-
-func BDAddBox(h any, args []value.Value) (value.Value, error) {
-	_, _ = h, args
-	return value.Nil, fmt.Errorf("BDAddBox: %s", stubHint)
-}
-func BDAddSphere(h any, args []value.Value) (value.Value, error) {
-	_, _ = h, args
-	return value.Nil, fmt.Errorf("BDAddSphere: %s", stubHint)
-}
-func BDAddCapsule(h any, args []value.Value) (value.Value, error) {
-	_, _ = h, args
-	return value.Nil, fmt.Errorf("BDAddCapsule: %s", stubHint)
-}
-func BDCommit(h any, args []value.Value) (value.Value, error) {
-	_, _ = h, args
-	return value.Nil, fmt.Errorf("BDCommit: %s", stubHint)
-}
-func BDBufferIndex(h any, args []value.Value) (value.Value, error) {
-	_, _ = h, args
-	return value.Nil, fmt.Errorf("BDBufferIndex: %s", stubHint)
+type body3dObjExport struct {
+	Pos   Vec3
+	Shape *ShapeObj
 }
 
 func ApplyImpulseToIndex(idx int, x, y, z float32)     {}
 func GetLinearVelocityToIndex(idx int) (x, y, z float32) { return 0, 0, 0 }
-
-func GetBodyQuaternionForBufferIndex(idx int) (x, y, z, w float32, ok bool) {
-	_ = idx
-	return 0, 0, 0, 1, false
-}
+func GetBodyQuaternionForBufferIndex(idx int) (x, y, z, w float32, ok bool) { return 0, 0, 0, 1, false }
 func SetVelocityToIndex(idx int, x, y, z float32)      {}
 func SetPositionToIndex(idx int, x, y, z float32)      {}
 func SetFrictionToIndex(idx int, x float32)            {}

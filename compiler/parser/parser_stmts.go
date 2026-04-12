@@ -18,6 +18,15 @@ func containsStop(stop []token.TokenType, t token.TokenType) bool {
 
 func (p *Parser) parseStmt() (ast.Stmt, error) {
 	p.skipNewlines()
+
+	// Soft keyword support for namespaced calls: Static.Create(), End.Exit(), etc.
+	if isKeywordUsableAsIdent(p.cur().Type) && p.i+1 < len(p.toks) && p.toks[p.i+1].Type == token.DOT {
+		name := p.cur().Lit
+		line, col := p.cur().Line, p.cur().Col
+		p.advance()
+		return p.parseStmtAfterIdent(name, line, col)
+	}
+
 	switch p.cur().Type {
 	case token.NEWLINE:
 		p.advance()

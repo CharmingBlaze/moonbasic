@@ -7,6 +7,10 @@ Thank you for helping improve the compiler, VM, runtime, or docs.
 - **Go** — version in [`go.mod`](go.mod) (currently 1.25.3+).
 - **C toolchain** — required for the default **CGO** build (raylib, physics, networking). See [docs/BUILDING.md](docs/BUILDING.md) for Windows (MinGW) and Linux packages.
 
+## Platform priority (Windows, then Linux)
+
+**Windows first, Linux second:** The project assumes most contributors run **Windows** for the default **fullruntime** + **CGO** + **Raylib** loop (`moonrun`, `--check`). **Linux** is the follow-on target for **full Jolt** (KCC, rigid-body **`PHYSICS3D`**) and for running **`bash scripts/check_builds.sh`** in CI. When you document OS-specific behavior, list **Windows** before **Linux** in tables and prose. Details: [docs/DEVELOPER.md](docs/DEVELOPER.md#platform-priority-windows-then-linux).
+
 ## Clone and verify
 
 From the repository root:

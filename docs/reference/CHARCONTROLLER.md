@@ -2,6 +2,8 @@
 
 Commands for creating and managing a kinematic character controller for 3D worlds. This provides a way to handle player movement that is driven by input rather than physics forces, while still respecting the collision geometry of the world.
 
+For the **`CHARACTER.CREATE` / `Character.Create`** facade (**standalone** **`(x, y, z)`** vs **entity-bound** **`(entity, radius, height)`**), **virtual ids**, and **`CHARACTERREF.*`**, see [CHARACTER.md](CHARACTER.md).
+
 For an **entity-based** wrapper (**`PLAYER.CREATE`**, **`PLAYER.MOVE`**, look targets, tag queries), see [PLAYER.md](PLAYER.md).
 
 ## Core Workflow

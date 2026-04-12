@@ -72,5 +72,11 @@ Performs a specific action.
 
 ---
 
+## Platform ordering (project policy)
+
+When a reference page compares **Windows** and **Linux**, list **Windows** first and **Linux** second (tables, columns, and sentences). Exception: a page that is **only** about Linux-only internals (e.g. Jolt wiring) may omit Windows or mention it second. Rationale: [DEVELOPER.md](DEVELOPER.md#platform-priority-windows-then-linux).
+
+---
+
 ## Final Consistency Check
 Always verify signatures against `compiler/builtinmanifest/commands.json` before finalizing documentation.

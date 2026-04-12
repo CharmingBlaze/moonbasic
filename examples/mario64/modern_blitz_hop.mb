@@ -23,38 +23,38 @@ WORLD.Gravity(0, -40, 0)
 cam = Camera.Make()
 cam.SetFOV(60)
 
-player = Model.CreateCapsule(0.4, 1.0)
-player.Pos(0, 5, 0)
-player.Color(255, 60, 60)
+hero = Model.CreateCapsule(0.4, 1.0)
+hero.Pos(0, 5, 0)
+hero.Color(255, 60, 60)
 
-CHAR.MAKE(player, 0.4, 1.0)
-CHAR.SETSTEP(player, 0.3)
-CHAR.SETSLOPE(player, 45.0)
-CHAR.STICK(player, 0.5)
+CHAR.MAKE(hero, 0.4, 1.0)
+CHAR.SETSTEP(hero, 0.3)
+CHAR.SETSLOPE(hero, 45.0)
+CHAR.STICK(hero, 0.5)
 
 floor = Model.CreateBox(100, 2, 100)
 floor.Pos(0, -1, 0)
 floor.Color(60, 200, 90)
 ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
 
-cam.Orbit(player, 12.0)
-player.SetRot(0, cam.Yaw(), 0)
+cam.Orbit(hero, 12.0)
+hero.SetRot(0, cam.Yaw(), 0)
 
 WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
 
     fwd = Input.Axis(KEY_S, KEY_W)
     side = Input.Axis(KEY_A, KEY_D)
-    CHAR.MOVEWITHCAMERA(player, cam, fwd, side, 10.0)
-    PLAYER.NAVUPDATE(player)
+    CHAR.MOVEWITHCAMERA(hero, cam, fwd, side, 10.0)
+    NAV.UPDATE(hero)
 
-    IF KEYPRESSED(KEY_SPACE) AND CHAR.ISGROUNDED(player, 0.12) THEN
-        CHAR.JUMP(player, 12.0)
-        player.Squash(0.5, 0.3)
+    IF KEYPRESSED(KEY_SPACE) AND Player.GetGrounded() THEN
+        CHAR.JUMP(hero, 12.0)
+        hero.Squash(0.5, 0.3)
     ENDIF
 
     UPDATEPHYSICS()
-    cam.Orbit(player, 12.0)
-    player.SetRot(0, cam.Yaw(), 0)
+    cam.Orbit(hero, 12.0)
+    hero.SetRot(0, cam.Yaw(), 0)
 
     RENDER.Clear(100, 150, 250)
 

@@ -25,6 +25,9 @@ type Module struct {
 
 	// hostKCC: non-Jolt KCC backing (Windows/macOS CGO). Linux+Jolt uses entToChar + mbcharcontroller.
 	hostKCC map[int64]*hostKCCState
+	// nextStandaloneID: counter for negative IDs assigned to standalone characters (no entity).
+	nextStandaloneID int64
+	lastHero         int64
 
 	// kccNav: click-to-move / NAV targets for PLAYER.CREATE entities (see CHAR.NAVTO / CHAR.NAVUPDATE).
 	kccNav map[int64]*kccNavState
@@ -60,6 +63,7 @@ type kccNavState struct {
 // rad: horizontal capsule radius (same as CHAR.MAKE / MODEL.CREATECAPSULE radius).
 // hei: total capsule height; pivot is the capsule center, so feet are hei/2 below the pivot (matches primitive draw).
 type hostKCCState struct {
+	x, y, z         float64
 	rad, hei        float64
 	stepH, slopeDeg float64
 	stickDown, pad  float64
@@ -102,6 +106,9 @@ func (m *Module) BindHeap(h *heap.Store) {
 	}
 	if m.hostKCC == nil {
 		m.hostKCC = make(map[int64]*hostKCCState)
+	}
+	if m.nextStandaloneID == 0 {
+		m.nextStandaloneID = -1000 // Start from -1000 to avoid small negative confusion
 	}
 }
 

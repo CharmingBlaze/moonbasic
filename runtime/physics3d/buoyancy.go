@@ -22,7 +22,9 @@ func registerBuoyancyCommands(m *Module, reg runtime.Registrar) {
 }
 
 func phSetBuoyancy(args []value.Value) (value.Value, error) {
+	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PHYSICS.SETBUOYANCY expects (entity, density)")
+	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PHYSICS.SETBUOYANCY: invalid entity")
@@ -41,7 +43,9 @@ func phSetBuoyancy(args []value.Value) (value.Value, error) {
 }
 
 func phGetBuoyancy(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PHYSICS.GETBUOYANCY expects (entity)")
+	}
 	id, ok := args[0].ToInt()
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PHYSICS.GETBUOYANCY: invalid entity")

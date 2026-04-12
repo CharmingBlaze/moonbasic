@@ -2,17 +2,21 @@
 
 This page is the **gameplay-first** guide to MoonBASIC’s **Kinematic Character Controller (KCC)** — Jolt **`CharacterVirtual`** behind **`PLAYER.CREATE`**, **`CHAR.MAKE`**, and related commands. It bridges **“what I want the hero to do”** and **stable 3D navigation** (wall slide, stairs, floor stick) without you hand-writing collision response.
 
-For the **low-level capsule API** (`CharController.*` handles), see [CHARCONTROLLER.md](CHARCONTROLLER.md). For the full **`PLAYER.*`** surface (swim, push, surface type, …), see [PLAYER.md](PLAYER.md).
+For the **low-level capsule API** (`CharController.*` handles), see [CHARCONTROLLER.md](CHARCONTROLLER.md). For the full **`PLAYER.*`** surface (swim, push, surface type, …), see [PLAYER.md](PLAYER.md). For **heap `Character` handles** — including **polymorphic** **`CHARACTER.CREATE`** (**`Character.Create(x, y, z)`** vs **`Character.Create(entity, r, h)`**) and **virtual ids** on the host solver — see [CHARACTER.md](CHARACTER.md).
 
 ## Platform
 
-| | Linux + CGO + Jolt (`fullruntime`) | Windows (`fullruntime`, CGO + Raylib) |
-|--|-------------------------------------|----------------------------------------|
-| **`CHAR.*` / `NAV.*` / `PLAYER.NAV*` (KCC)** | Full **Jolt CharacterVirtual** | **Host KCC** (analytic floor + static AABB; no Jolt). Same commands; stairs/slope parity is approximate. |
-| **`ENT.*`**, **`WORLD.TOSCREEN`**, **`WORLD.HITSTOP`**, **`ENT.SHOOT`**, **`ENT.FADE`** | Yes | Yes — **entity** and **time** helpers work wherever **`mbentity`** + Raylib run. |
-| **`WORLD.MOUSEFLOOR` / `WORLD.MOUSEPICK`** | Needs Jolt picks | **Stub** returns errors without native Jolt (see [PHYSICS3D.md](PHYSICS3D.md)). |
+Project policy: document **Windows** first, **Linux** second ([DEVELOPER.md](../DEVELOPER.md#platform-priority-windows-then-linux)).
+
+| | Windows (`fullruntime`, CGO + Raylib) | Linux + CGO + Jolt (`fullruntime`) |
+|--|----------------------------------------|-------------------------------------|
+| **`CHAR.*` / `NAV.*` / `PLAYER.NAV*` (KCC)** | **Host KCC** (analytic floor + static AABB; no Jolt). Same commands; stairs/slope parity is approximate. | Full **Jolt CharacterVirtual** |
+| **`ENT.*`**, **`WORLD.TOSCREEN`**, **`WORLD.HITSTOP`**, **`ENT.SHOOT`**, **`ENT.FADE`** | Yes — **entity** and **time** helpers work wherever **`mbentity`** + Raylib run. | Yes |
+| **`WORLD.MOUSEFLOOR` / `WORLD.MOUSEPICK`** | **Stub** returns errors without native Jolt (see [PHYSICS3D.md](PHYSICS3D.md)). | Needs Jolt picks |
 
 Start the world with **`PHYSICS3D.START()`** (and set gravity) **before** **`CHAR.MAKE` / `PLAYER.CREATE`**.
+
+**Entity handles:** Pass the **EntityRef** from **`MODEL.CREATECAPSULE`** (or **`CUBE`** / **`SPHERE`**) into **`CHAR.MAKE`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.JUMP`**, etc. The runtime resolves the handle to an internal entity id; using a wrong integer (e.g. the heap slot) breaks KCC lookup.
 
 ---
 

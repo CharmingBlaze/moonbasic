@@ -105,4 +105,8 @@ const (
 	TagMeshBuilder // CPU vertex/index buffer for procedural ENTITY.CREATEMESH / UpdateMesh
 	TagTacticalGrid // GRID.* logical cell data + optional terrain projection
 	TagImageSequence // IMAGE.LOADSEQUENCE — packed list of IMAGE handles for ENTITY.SETANIMATION
+	TagShape
+	TagKinematicBody
+	TagStaticBody
+	TagTriggerBody
 )

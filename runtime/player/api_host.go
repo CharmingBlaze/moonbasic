@@ -4,6 +4,7 @@ package player
 
 import (
 	"fmt"
+	"math"
 
 	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
@@ -13,71 +14,97 @@ import (
 )
 
 func registerPlayerCommands(m *Module, reg runtime.Registrar) {
-	reg.Register("PLAYER.CREATE", "player", m.playerCreate)
-	reg.Register("PLAYER.MOVE", "player", m.playerMove)
-	reg.Register("PLAYER.JUMP", "player", m.playerJump)
-	reg.Register("PLAYER.ISGROUNDED", "player", m.playerIsGrounded)
-	reg.Register("PLAYER.GETLOOKTARGET", "player", m.playerGetLookTarget)
-	reg.Register("PLAYER.GETNEARBY", "player", m.playerGetNearby)
-	reg.Register("ENT.GET_NEAREST", "player", m.playerGetNearby)
-	reg.Register("ENT.GETNEAREST", "player", m.playerGetNearby)
-	reg.Register("PLAYER.ONTRIGGER", "player", m.playerOnTrigger)
-	reg.Register("PLAYER.SETSTATE", "player", m.playerSetState)
-	reg.Register("PLAYER.SYNCANIM", "player", m.playerSyncAnim)
-	reg.Register("PLAYER.SETSTEPHEIGHT", "player", m.playerSetStepHeight)
-	reg.Register("PLAYER.SETSLOPELIMIT", "player", m.playerSetSlopeLimit)
-	reg.Register("PLAYER.GETVELOCITY", "player", m.playerGetVelocity)
-	reg.Register("PLAYER.TELEPORT", "player", m.playerTeleport)
-	reg.Register("PLAYER.SETGRAVITYSCALE", "player", m.playerSetGravityScale)
-	reg.Register("PLAYER.GETCROUCH", "player", m.playerGetCrouch)
-	reg.Register("PLAYER.SETCROUCH", "player", m.playerSetCrouch)
-	reg.Register("PLAYER.SWIM", "player", m.playerSwim)
-	reg.Register("PLAYER.SETSTEPOFFSET", "player", m.playerSetStepOffset)
-	reg.Register("PLAYER.SETSTICKFLOOR", "player", m.playerSetStickFloor)
-	reg.Register("PLAYER.NAVTO", "player", m.playerNavTo)
-	reg.Register("PLAYER.NAVUPDATE", "player", m.playerNavUpdate)
-	reg.Register("PLAYER.SETPADDING", "player", m.playerSetPadding)
-	reg.Register("PLAYER.MOVEWITHCAMERA", "player", m.playerMoveWithCamera)
-	reg.Register("NAV.GOTO", "player", m.playerNavTo)
-	reg.Register("NAV.UPDATE", "player", m.playerNavUpdate)
-	reg.Register("NAV.CHASE", "player", m.playerNavChase)
-	reg.Register("NAV.PATROL", "player", m.playerNavPatrol)
-	reg.Register("CHAR.MAKE", "player", m.playerCreate)
-	reg.Register("CHAR.SETSTEP", "player", m.playerSetStepOffset)
-	reg.Register("CHAR.SETSLOPE", "player", m.playerSetSlopeLimit)
-	reg.Register("CHAR.SETPADDING", "player", m.playerSetPadding)
-	reg.Register("CHAR.MOVE", "player", m.playerCharMoveDir)
-	reg.Register("CHAR.MOVEWITHCAMERA", "player", m.playerMoveWithCamera)
-	reg.Register("CHAR.MOVEWITHCAM", "player", m.playerMoveWithCamera)
-	reg.Register("CHAR.NAVTO", "player", m.playerNavTo)
-	reg.Register("CHAR.NAVUPDATE", "player", m.playerNavUpdate)
-	reg.Register("CHAR.STICK", "player", m.playerSetStickFloor)
-	reg.Register("CHAR.ISGROUNDED", "player", m.playerIsGrounded)
-	reg.Register("CHAR.JUMP", "player", m.playerJump)
-	reg.Register("PLAYER.GETSTANDNORMAL", "player", m.playerGetStandNormal)
-	reg.Register("PLAYER.PUSH", "player", m.playerPush)
-	reg.Register("PLAYER.GRAB", "player", m.playerGrab)
-	reg.Register("PLAYER.SETMASS", "player", m.playerSetMass)
-	reg.Register("PLAYER.GETSURFACETYPE", "player", m.playerGetSurfaceType)
-	reg.Register("PLAYER.SETFOVKICK", "player", m.playerSetFovKick)
-	reg.Register("PLAYER.GETFOVKICK", "player", m.playerGetFovKick)
-	reg.Register("PLAYER.ISMOVING", "player", m.playerIsMoving)
+	reg.Register("CHARACTER.CREATE", "player", m.playerCharacterCreate)
+	reg.Register("CHARACTERREF.ADDVELOCITY", "player", m.charRefAddVel)
+	reg.Register("CHARACTERREF.SETLINEARVELOCITY", "player", m.charRefSetVel)
+	reg.Register("CHARACTERREF.SETVELOCITY", "player", m.charRefSetVel)
+	reg.Register("CHARACTERREF.SETSNAPDISTANCE", "player", m.charRefSetSnapDist)
+	reg.Register("CHARACTERREF.SETSTICKDOWN", "player", m.charRefSetSnapDist) // Alias
+	reg.Register("CHARACTERREF.UPDATE", "player", m.charRefUpdate)
+	reg.Register("CHARACTERREF.UPDATEMOVE", "player", m.charRefUpdate)
+	reg.Register("CHARACTERREF.JUMP", "player", m.charRefJump)
+	reg.Register("CHARACTERREF.MOVEWITHCAMERA", "player", m.charRefMoveWithCam)
+	reg.Register("CHARACTERREF.SETMAXSLOPE", "player", m.charRefSetMaxSlope)
+	reg.Register("CHARACTERREF.SETSTEPHEIGHT", "player", m.charRefSetStepHeight)
+	reg.Register("CHARACTERREF.ISGROUNDED", "player", m.charRefIsGrounded)
+	reg.Register("CHARACTERREF.SETPOSITION", "player", m.charRefSetPos)
+	reg.Register("CHARACTERREF.GETPOSITION", "player", m.charRefGetPos)
+	reg.Register("CHARACTERREF.FREE", "player", m.charRefFree)
+	reg.Register("CHARACTERREF.GETGROUNDSTATE", "player", m.charRefGetGroundState)
+	reg.Register("PLAYER.GETGROUNDSTATE", "player", m.playerGetGroundState)
+	reg.Register("PLAYER.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
+	reg.Register("CHAR.GETGROUNDSTATE", "player", m.playerGetGroundState)
+	reg.Register("CHAR.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
+
+	reg.Register("CHARACTERREF.SETGRAVITY", "player", m.charRefSetGravityScale)
+	reg.Register("CHARACTERREF.SETGRAVITYSCALE", "player", m.charRefSetGravityScale)
+	reg.Register("CHARACTERREF.SETFRICTION", "player", m.charRefSetFriction)
+	reg.Register("CHARACTERREF.SETPADDING", "player", m.charRefSetPadding)
+	reg.Register("CHARACTERREF.SETBOUNCE", "player", m.charRefSetBounce)
+	reg.Register("CHARACTERREF.GETSPEED", "player", m.charRefGetSpeed)
+	reg.Register("CHARACTERREF.ISMOVING", "player", m.charRefIsMoving)
+
+	registerPlayerCharGetAPI(m, reg)
 	registerPlayerTerrainCommands(m, reg)
 }
 
-// hostEntID maps VM entity values (int or EntityRef handle from MODEL.*) to the internal entity store id.
-func (m *Module) hostEntID(v value.Value) (int64, bool) {
-	if m.ent == nil {
-		return 0, false
+func (m *Module) playerCharacterCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	// Polymorphism: Character.Create(x, y, z) vs Character.Create(entity, radius, height)
+	if len(args) == 3 && args[0].Kind != value.KindHandle {
+		_, isEnt := m.playerEntID(args[0])
+		if !isEnt {
+			// Standalone (pos X, Y, Z)
+			return m.playerStandaloneCreate(args)
+		}
 	}
-	return m.ent.ResolveEntityID(v)
+
+	v, err := m.playerCreate(rt, args...)
+	if err != nil {
+		return v, err
+	}
+	id := v.IVal
+	m.lastHero = id
+	obj := &charRefHeapObj{id: id, m: m}
+	h, err := m.h.Alloc(obj)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
+}
+
+func (m *Module) playerStandaloneCreate(args []value.Value) (value.Value, error) {
+	x, _ := args[0].ToFloat(); y, _ := args[1].ToFloat(); z, _ := args[2].ToFloat()
+	id := m.nextStandaloneID
+	m.nextStandaloneID--
+
+	m.hostKCC[id] = &hostKCCState{
+		x:            x,
+		y:            y,
+		z:            z,
+		rad:          0.5,
+		hei:          2.0,
+		stepH:        0.3,
+		slopeDeg:     45.0,
+		gravityScale: 1.0,
+		pad:          0.02,
+		vx: 0, vy: 0, vz: 0,
+		grounded: false,
+	}
+	m.lastHero = id
+	
+	obj := &charRefHeapObj{id: id, m: m}
+	h, err := m.h.Alloc(obj)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("CHAR.MAKE expects (entity, radius#, height#)")
+		return value.Nil, fmt.Errorf("CHARACTER.CREATE/CHAR.MAKE expects (entity, radius#, height#) or (x, y, z)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("CHAR.MAKE: invalid entity")
 	}
@@ -90,11 +117,12 @@ func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.V
 	m.hostKCC[id] = &hostKCCState{
 		rad:          rad,
 		hei:          hei,
-		stepH:        0.3, // default
+		stepH:        0.3,
 		slopeDeg:     45.0,
 		gravityScale: 1.0,
 		pad:          0.02,
 	}
+	m.lastHero = id
 
 	// Disable standard physics/gravity for the entity so the KCC can take over
 	if m.ent != nil {
@@ -105,16 +133,29 @@ func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.V
 }
 
 func (m *Module) playerMove(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
-	_ = args
-	return value.Nil, fmt.Errorf("PLAYER.MOVE: Jolt kinematic character requires Linux+CGO")
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("PLAYER.MOVE expects (entity, velocityX, velocityZ) world units/sec")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.MOVE: invalid entity")
+	}
+	st, ok := m.hostKCC[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.MOVE: call PLAYER.CREATE / CHAR.MAKE first")
+	}
+	vx, _ := args[1].ToFloat()
+	vz, _ := args[2].ToFloat()
+	st.vx = vx
+	st.vz = vz
+	return value.Nil, nil
 }
 
 func (m *Module) playerCharMoveDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("CHAR.MOVE expects (entity, dx#, dz#, speed#)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("CHAR.MOVE: invalid entity")
 	}
@@ -137,7 +178,7 @@ func (m *Module) playerMoveWithCamera(rt *runtime.Runtime, args ...value.Value) 
 	if len(args) != 5 {
 		return value.Nil, fmt.Errorf("CHAR.MOVEWITHCAM expects (entity, camera, fwd#, side#, speed#)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("CHAR.MOVEWITHCAMERA: invalid entity")
 	}
@@ -178,7 +219,7 @@ func (m *Module) playerNavTo(rt *runtime.Runtime, args ...value.Value) (value.Va
 	if len(args) < 4 {
 		return value.Nil, fmt.Errorf("NAV.GOTO expects (entity, tx#, tz#, speed# [, arrival#])")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("NAV.GOTO: invalid entity")
 	}
@@ -207,12 +248,275 @@ func (m *Module) playerNavUpdate(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.NAVUPDATE expects (entity)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.NAVUPDATE: invalid entity")
 	}
 	// NAV intent is applied in Module.Process (UPDATEPHYSICS) via processNav + updateHostKCC (host_solver.go).
 	return value.Nil, nil
+}
+
+func (m *Module) playerUpdate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CHAR.UPDATE expects (dt#)")
+	}
+	dt, _ := args[0].ToFloat()
+	m.Process(dt)
+	return value.Nil, nil
+}
+
+
+func (m *Module) charRefAddVel(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("Character.AddVelocity expects (vx, vy, vz)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	st, ok := m.hostKCC[obj.id]
+	if !ok {
+		return value.Nil, fmt.Errorf("Character: host KCC state missing")
+	}
+	vx, _ := args[1].ToFloat()
+	vy, _ := args[2].ToFloat()
+	vz, _ := args[3].ToFloat()
+	st.vx += vx
+	st.vy += vy
+	st.vz += vz
+	return value.Nil, nil
+}
+
+func (m *Module) charRefSetVel(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("Character.SetLinearVelocity expects (vx, vy, vz)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	st, ok := m.hostKCC[obj.id]
+	if !ok {
+		return value.Nil, fmt.Errorf("Character: host KCC state missing")
+	}
+	vx, _ := args[1].ToFloat()
+	vy, _ := args[2].ToFloat()
+	vz, _ := args[3].ToFloat()
+	st.vx, st.vy, st.vz = vx, vy, vz
+	return value.Nil, nil
+}
+
+func (m *Module) charRefSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("Character.SetPos expects (x, y, z)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	
+	if obj.id < 0 {
+		if st, ok := m.hostKCC[obj.id]; ok {
+			st.x, st.y, st.z = x, y, z
+			st.vx, st.vy, st.vz = 0, 0, 0
+		}
+	} else {
+		if m.ent != nil {
+			m.ent.PlayerBridgeSetWorldPos(obj.id, float32(x), float32(y), float32(z))
+		}
+		if st, ok := m.hostKCC[obj.id]; ok {
+			st.vx, st.vy, st.vz = 0, 0, 0
+		}
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) charRefFree(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("Character.Free expects no args (handle receiver)")
+	}
+	h := heap.Handle(args[0].IVal)
+	if err := m.h.Free(h); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) charRefJump(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("Character.Jump expects (force#)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	f, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok {
+		st.vy = f
+		st.grounded = false
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) charRefUpdate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("Character.Update expects (dt)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	dt, _ := args[1].ToFloat()
+	st, ok := m.hostKCC[obj.id]
+	if ok {
+		m.updateHostKCC(obj.id, st, dt)
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) charRefMoveWithCam(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 5 {
+		return value.Nil, fmt.Errorf("Character.MoveWithCamera expects (cam_handle, fwd#, side#, speed#)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	st, ok := m.hostKCC[obj.id]
+	if !ok {
+		return value.Nil, fmt.Errorf("Character: host KCC state missing")
+	}
+	
+	camH := heap.Handle(args[1].IVal)
+	fwd, _ := args[2].ToFloat()
+	side, _ := args[3].ToFloat()
+	spd, _ := args[4].ToFloat()
+	
+	fwdVec, sideVec, err := mbcamera.CameraXZWalkBasis(m.h, camH)
+	if err != nil {
+		return value.Nil, err
+	}
+	
+	st.vx = (float64(fwdVec.X)*fwd + float64(sideVec.X)*side) * spd
+	st.vz = (float64(fwdVec.Z)*fwd + float64(sideVec.Z)*side) * spd
+	
+	return value.Nil, nil
+}
+
+func (m *Module) charRefSetMaxSlope(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	deg, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok {
+		st.slopeDeg = deg
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) charRefSetStepHeight(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	h, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok {
+		st.stepH = h
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) charRefIsGrounded(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if st, ok := m.hostKCC[obj.id]; ok {
+		return value.FromBool(st.grounded), nil
+	}
+	return value.FromBool(false), nil
+}
+
+func (m *Module) charRefGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, _ := heap.NewArray([]int64{3})
+	x, _ := m.hostGetPosAxis(obj.id, 0)
+	y, _ := m.hostGetPosAxis(obj.id, 1)
+	z, _ := m.hostGetPosAxis(obj.id, 2)
+	_ = arr.Set([]int64{0}, x.FVal)
+	_ = arr.Set([]int64{1}, y.FVal)
+	_ = arr.Set([]int64{2}, z.FVal)
+	h, _ := m.h.Alloc(arr)
+	return value.FromHandle(h), nil
+}
+
+func (m *Module) charRefSetSnapDist(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 { return value.Nil, fmt.Errorf("Character.SetSnapDistance expects (dist#)") }
+	obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	v, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok { st.stickDown = v }
+	return value.Nil, nil
+}
+
+func (m *Module) playerGetGroundState(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("PLAYER.GETGROUNDSTATE expects () or (entity)")
+	}
+	id, ok := m.kccSubjectID(args)
+	if !ok {
+		if len(args) < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.GETGROUNDSTATE: %s", kccErrNoSubject)
+		}
+		return value.FromInt(3), nil
+	}
+	st, ok := m.hostKCC[id]
+	if !ok {
+		return value.FromInt(3), nil
+	}
+	if st.grounded {
+		return value.FromInt(0), nil
+	}
+	return value.FromInt(3), nil
+}
+
+func (m *Module) playerIsOnSteepSlope(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("PLAYER.ISONSTEEPSLOPE expects () or (entity)")
+	}
+	if _, ok := m.kccSubjectID(args); !ok {
+		if len(args) < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.ISONSTEEPSLOPE: %s", kccErrNoSubject)
+		}
+	}
+	return value.FromBool(false), nil
+}
+
+func (m *Module) charRefGetGroundState(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETGROUNDSTATE expects (handle)")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	st, ok := m.hostKCC[obj.id]
+	if !ok {
+		return value.FromInt(3), nil
+	}
+	if st.grounded {
+		return value.FromInt(0), nil
+	}
+	return value.FromInt(3), nil
 }
 
 func (m *Module) playerSetPadding(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -223,35 +527,45 @@ func (m *Module) playerSetPadding(rt *runtime.Runtime, args ...value.Value) (val
 
 func (m *Module) playerJump(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("CHAR.JUMP expects (entity, force#)")
+		return value.Nil, fmt.Errorf("PLAYER.JUMP expects (entity, force#)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
-		return value.Nil, fmt.Errorf("CHAR.JUMP: invalid entity")
+		return value.Nil, fmt.Errorf("PLAYER.JUMP: invalid entity")
 	}
 	st, ok := m.hostKCC[id]
 	if !ok {
-		return value.Nil, fmt.Errorf("CHAR.JUMP: call CHAR.MAKE first")
+		return value.Nil, fmt.Errorf("PLAYER.JUMP: call CHAR.MAKE first")
 	}
 	force, _ := args[1].ToFloat()
-	if st.grounded {
-		st.vy = force
-		st.grounded = false
-	}
+	// Bug Fix: Remove strict grounding check for script-triggered jumps or double-jumps if needed.
+	// But mostly: zero out grounded immediately so solver doesn't snap us back.
+	st.vy = force
+	st.grounded = false
 	return value.Nil, nil
 }
 
 func (m *Module) playerIsGrounded(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
-	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity) or (entity, coyoteTimeSec#)")
+	if len(args) > 2 {
+		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (), (entity), (entity, coyoteTimeSec#)")
 	}
-	id, ok := m.hostEntID(args[0])
-	if !ok || id < 1 {
-		return value.FromBool(false), nil
+	var id int64
+	var ok bool
+	switch len(args) {
+	case 0:
+		id, ok = m.kccSubjectID(args)
+		if !ok {
+			return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED: %s", kccErrNoSubject)
+		}
+	case 1, 2:
+		id, ok = m.kccSubjectID(args[:1])
+		if !ok {
+			return value.FromBool(false), nil
+		}
 	}
-	st, ok := m.hostKCC[id]
-	if !ok {
+	st, ok2 := m.hostKCC[id]
+	if !ok2 {
 		return value.FromBool(false), nil
 	}
 	return value.FromBool(st.grounded), nil
@@ -267,7 +581,7 @@ func (m *Module) playerGetLookTarget(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET expects (entity, maxDist)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET: invalid entity")
 	}
@@ -300,7 +614,7 @@ func (m *Module) playerGetNearby(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY expects (entity, radius, tag)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY: invalid entity")
 	}
@@ -334,7 +648,7 @@ func (m *Module) playerSetState(rt *runtime.Runtime, args ...value.Value) (value
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTATE expects (entity, state)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTATE: invalid entity")
 	}
@@ -362,7 +676,7 @@ func (m *Module) playerSetSlopeLimit(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("CHAR.SETSLOPE expects (entity, deg#)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if ok {
 		d, _ := args[1].ToFloat()
 		if st, ok2 := m.hostKCC[id]; ok2 {
@@ -379,15 +693,38 @@ func (m *Module) playerGetVelocity(rt *runtime.Runtime, args ...value.Value) (va
 }
 
 func (m *Module) playerTeleport(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
-	_ = args
-	return value.Nil, fmt.Errorf("PLAYER.TELEPORT: requires PLAYER.CREATE (Linux+Jolt)")
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("PLAYER.TELEPORT expects (entity, x, y, z)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.TELEPORT: invalid entity")
+	}
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	
+	if m.ent != nil {
+		m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
+	}
+	if st, ok := m.hostKCC[id]; ok {
+		st.vx, st.vy, st.vz = 0, 0, 0
+	}
+	return value.Nil, nil
 }
 
 func (m *Module) playerSetGravityScale(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
-	_ = args
-	return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE: requires PLAYER.CREATE (Linux+Jolt)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE expects (entity, scale#)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if ok {
+		s, _ := args[1].ToFloat()
+		if st, ok2 := m.hostKCC[id]; ok2 {
+			st.gravityScale = s
+		}
+	}
+	return value.Nil, nil
 }
 
 func (m *Module) playerGetCrouch(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -414,7 +751,7 @@ func (m *Module) playerSetStepOffset(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("CHAR.SETSTEP expects (entity, height#)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if ok {
 		h, _ := args[1].ToFloat()
 		if st, ok2 := m.hostKCC[id]; ok2 {
@@ -428,7 +765,7 @@ func (m *Module) playerSetStickFloor(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("CHAR.STICK expects (entity, dist#)")
 	}
-	id, ok := m.hostEntID(args[0])
+	id, ok := m.playerEntID(args[0])
 	if ok {
 		d, _ := args[1].ToFloat()
 		if st, ok2 := m.hostKCC[id]; ok2 {
@@ -469,7 +806,7 @@ func (m *Module) playerGetSurfaceType(rt *runtime.Runtime, args ...value.Value) 
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE expects (entity)")
 	}
-	_, ok := m.hostEntID(args[0])
+	_, ok := m.playerEntID(args[0])
 	if !ok {
 		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE: invalid entity")
 	}
@@ -511,4 +848,51 @@ func allocFloatArrayStub(m *Module, ids []int64) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromHandle(h), nil
+}
+func (m *Module) charRefSetGravityScale(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 { return value.Nil, fmt.Errorf("Character.SetGravity expects (handle, scale#); got %d args", len(args)) }
+	obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	v, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok { st.gravityScale = v }
+	return value.Nil, nil
+}
+func (m *Module) charRefSetFriction(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil // Host KCC friction not yet analytic
+}
+func (m *Module) charRefSetPadding(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	var id int64
+	var v float64
+	if len(args) == 2 {
+		obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+		id = obj.id
+		v, _ = args[1].ToFloat()
+	} else if len(args) == 1 {
+		id = m.lastHero
+		v, _ = args[0].ToFloat()
+	} else {
+		return value.Nil, fmt.Errorf("Character.SetPadding expects (handle, pad#) or (pad#)")
+	}
+	if st, ok := m.hostKCC[id]; ok { st.pad = v }
+	return value.Nil, nil
+}
+func (m *Module) charRefSetBounce(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+func (m *Module) charRefGetSpeed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 { return value.Nil, fmt.Errorf("Character.GetSpeed expects receiver only") }
+	obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if st, ok := m.hostKCC[obj.id]; ok {
+		sp := math.Sqrt(st.vx*st.vx + st.vy*st.vy + st.vz*st.vz)
+		return value.FromFloat(sp), nil
+	}
+	return value.FromFloat(0), nil
+}
+func (m *Module) charRefIsMoving(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 { return value.Nil, fmt.Errorf("Character.IsMoving expects receiver only") }
+	obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if st, ok := m.hostKCC[obj.id]; ok {
+		sp := math.Sqrt(st.vx*st.vx + st.vz*st.vz)
+		return value.FromBool(sp > 0.01), nil
+	}
+	return value.FromBool(false), nil
 }

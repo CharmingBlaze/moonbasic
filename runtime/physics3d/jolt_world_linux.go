@@ -89,6 +89,33 @@ func phSetGravity(m *Module, args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
+func phGetGravityX(m *Module, args []value.Value) (value.Value, error) {
+	_ = m
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("PHYSICS3D.GETGRAVITYX expects 0 arguments")
+	}
+	g := GravityVec()
+	return value.FromFloat(float64(g.X)), nil
+}
+
+func phGetGravityY(m *Module, args []value.Value) (value.Value, error) {
+	_ = m
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("PHYSICS3D.GETGRAVITYY expects 0 arguments")
+	}
+	g := GravityVec()
+	return value.FromFloat(float64(g.Y)), nil
+}
+
+func phGetGravityZ(m *Module, args []value.Value) (value.Value, error) {
+	_ = m
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("PHYSICS3D.GETGRAVITYZ expects 0 arguments")
+	}
+	g := GravityVec()
+	return value.FromFloat(float64(g.Z)), nil
+}
+
 func phSetTimeStep(m *Module, args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PHYSICS3D.SETTIMESTEP expects 1 Hz argument (e.g. 60)")

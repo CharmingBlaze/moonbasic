@@ -1,5 +1,8 @@
 //go:build !cgo && !windows
 
+// Raylib-less ENTITY.* stubs (Unix, no CGO). Not in the build on Windows with CGO — if the IDE
+// shows “No packages found”, that is expected for this tag set; use docs/DEVELOPER.md (gopls_stub / fullruntime).
+
 package mbentity
 
 import (
@@ -128,6 +131,12 @@ func (m *Module) Register(r runtime.Registrar) {
 	for _, n := range names {
 		r.Register(n, "entity", stub(n))
 	}
+}
+
+// WorldEulerForEntityID is unavailable without CGO/Raylib entity store.
+func (m *Module) WorldEulerForEntityID(id int64) (pitch, yaw, roll float32, ok bool) {
+	_ = id
+	return 0, 0, 0, false
 }
 
 // Shutdown implements runtime.Module.

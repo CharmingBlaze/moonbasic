@@ -15,6 +15,13 @@ Quick orientation for people and tools working on the **moonBASIC** repository (
 Design overview: [ARCHITECTURE.md](../ARCHITECTURE.md).
 Entity system refactor: [ARCHITECTURE_MODULAR_ENTITIES.md](ARCHITECTURE_MODULAR_ENTITIES.md).
 
+## Platform priority (Windows, then Linux)
+
+**Policy:** Treat **Windows** as the **first** platform for **day-to-day development**, **default tooling**, and **how reference docs are ordered**. Treat **Linux** as the **second** platform for **full Jolt** behavior (native **`PHYSICS3D`** / **`CharacterVirtual`**, rigid bodies, picks) and for **Unix-style CI** (`bash scripts/check_builds.sh`).
+
+- **Docs:** In tables and bullet lists that compare OSes, put **Windows** before **Linux** unless the page is explicitly Linux-only (e.g. Jolt implementation notes).
+- **Code:** Still maintain **both** paths (`*_cgo.go` / `*_stub.go`, same manifest keys); see [CONTRIBUTING.md](../CONTRIBUTING.md) and [AGENTS.md](../AGENTS.md).
+
 ## Build tags: `fullruntime` vs default
 
 - **Default** (`go build .`, `go run .`): builds [`main.go`](../main.go) — **compiler only** (no linked game runtime). Running `go run . game.mb` **writes `game.mbc`** next to the source; it does **not** open a window.

@@ -313,6 +313,12 @@ func (p *Parser) parsePrimary() (ast.Expr, error) {
 		p.advance()
 		return arena.Make(p.ar, ast.IdentNode{Name: t.Lit, Line: t.Line, Col: t.Col}), nil
 	default:
+		// Accept soft keywords (STATIC, END, etc.) as the start of an expression
+		// if followed by a dot or used in a namespace context.
+		if isKeywordUsableAsIdent(t.Type) {
+			p.advance()
+			return arena.Make(p.ar, ast.IdentNode{Name: t.Lit, Line: t.Line, Col: t.Col}), nil
+		}
 		return nil, p.failf("unexpected token in expression: %s", t.Type.String())
 	}
 }

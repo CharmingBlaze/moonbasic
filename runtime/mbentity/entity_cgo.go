@@ -1184,9 +1184,10 @@ func (m *Module) refreshGroundFromRules(e *ent) {
 func (m *Module) aabbWorldMinMax(e *ent) (mn, mx rl.Vector3) {
 	wm := m.worldMatrix(e)
 	hx, hy, hz := e.w*0.5, e.h*0.5, e.d*0.5
-	if e.kind == entKindSphere {
+	switch e.kind {
+	case entKindSphere:
 		hx, hy, hz = e.radius, e.radius, e.radius
-	} else if e.kind == entKindCylinder || e.kind == entKindCone || e.kind == entKindCapsule {
+	case entKindCylinder, entKindCone, entKindCapsule:
 		hx, hy, hz = e.radius, e.cylH*0.5, e.radius
 	}
 
@@ -1640,6 +1641,7 @@ func (m *Module) DisablePhysicsByID(id int) {
 	if e == nil { return }
 	e.physicsDriven = false
 	e.gravity = 0
+	mbphysics3d.UnregisterEntityCollision(int64(id))
 }
 
 func argHandle(v value.Value) (heap.Handle, bool) {

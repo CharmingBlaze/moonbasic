@@ -10,7 +10,6 @@ import (
 	"moonbasic/internal/driver"
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
-	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -106,7 +105,6 @@ func (m *Module) wOpen(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	m.opened = true
 	m.inFrame = false
 	m.fpsTick = 0
-	mbphysics3d.LogJoltPhysicsBackendHint()
 	if minimalOpenHandshake() {
 		rl.PollInputEvents()
 	} else {

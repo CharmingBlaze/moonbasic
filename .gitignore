@@ -9,6 +9,9 @@ testdata/sprite_test_texture.png
 /site-ci/
 examples/rpg/save.json
 
+# Scratch Go files in module root (would duplicate package main with main_fullruntime.go)
+tmp_*.go
+
 # Build artifacts
 *.exe
 /dist/

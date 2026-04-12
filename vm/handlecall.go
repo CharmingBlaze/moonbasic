@@ -73,7 +73,15 @@ func handleCallRegistryPrefix(tag uint16) string {
 	case heap.TagAtlas:
 		return "ATLAS."
 	case heap.TagCharController:
-		return "CHARCONTROLLER."
+		return "CHARACTERREF."
+	case heap.TagShape:
+		return "SHAPEREF."
+	case heap.TagKinematicBody:
+		return "KINEMATICREF."
+	case heap.TagStaticBody:
+		return "STATICREF."
+	case heap.TagTriggerBody:
+		return "TRIGGERREF."
 	case heap.TagModel, heap.TagLODModel:
 		return "MODEL."
 	default:
@@ -219,12 +227,66 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		}
 	case heap.TagCharController:
 		switch mn {
-		case "SETPOS":
-			return "CHARCONTROLLER.SETPOS", true, true
+		case "SETPOS", "POSITION":
+			return "CHARACTERREF.SETPOSITION", true, true
 		case "MOVE":
-			return "CHARCONTROLLER.MOVE", true, true
+			return "CHARACTERREF.MOVE", true, true
+		case "UPDATE":
+			return "CHARACTERREF.UPDATE", true, true
+		case "SETVELOCITY", "SETVEL":
+			return "CHARACTERREF.SETVELOCITY", true, true
+		case "ADDVELOCITY", "ADDVEL":
+			return "CHARACTERREF.ADDVELOCITY", true, true
+		case "SETMAXSLOPE", "SETSLOPE":
+			return "CHARACTERREF.SETMAXSLOPE", true, true
+		case "SETSTEPHEIGHT", "SETSTEP":
+			return "CHARACTERREF.SETSTEPHEIGHT", true, true
+		case "SETSNAPDISTANCE", "SNAP":
+			return "CHARACTERREF.SETSNAPDISTANCE", true, true
+		case "ISGROUNDED", "GROUNDED":
+			return "CHARACTERREF.ISGROUNDED", true, true
+		case "ONSLOPE":
+			return "CHARACTERREF.ONSLOPE", true, true
+		case "ONWALL":
+			return "CHARACTERREF.ONWALL", true, true
+		case "GETSLOPEANGLE", "SLOPEANGLE":
+			return "CHARACTERREF.GETSLOPEANGLE", true, true
+		case "JUMP":
+			return "CHARACTERREF.JUMP", true, true
+		case "GETPOSITION", "GETPOS":
+			return "CHARACTERREF.GETPOSITION", true, true
+		case "GETSPEED", "SPEED":
+			return "CHARACTERREF.GETSPEED", true, true
 		case "FREE":
-			return "CHARCONTROLLER.FREE", true, true
+			return "CHARACTERREF.FREE", true, true
+		case "MOVEWITHCAMERA", "MOVEWITHCAM":
+			return "CHARACTERREF.MOVEWITHCAMERA", true, true
+		}
+	case heap.TagShape:
+		switch mn {
+		case "FREE":
+			return "SHAPEREF.FREE", true, true
+		}
+	case heap.TagKinematicBody, heap.TagStaticBody, heap.TagTriggerBody:
+		switch mn {
+		case "SETPOS":
+			return "BODYREF.SETPOSITION", true, true
+		case "SETROT":
+			return "BODYREF.SETROTATION", true, true
+		case "SETLAYER":
+			return "BODYREF.SETLAYER", true, true
+		case "ENABLECOLLISION":
+			return "BODYREF.ENABLECOLLISION", true, true
+		case "SETVELOCITY", "SETVEL":
+			if tag == heap.TagKinematicBody {
+				return "KINEMATICREF.SETVELOCITY", true, true
+			}
+		case "UPDATE":
+			if tag == heap.TagKinematicBody {
+				return "KINEMATICREF.UPDATE", true, true
+			}
+		case "FREE":
+			return "BODYREF.FREE", true, true
 		}
 	case heap.TagSprite:
 		switch mn {
@@ -583,7 +645,13 @@ func HandleCallSuggestions(tag uint16) []string {
 	case heap.TagMusic:
 		out = []string{"Free", "Pause", "Play", "Resume", "SetVolume", "Stop", "Volume"}
 	case heap.TagCharController:
-		out = []string{"SetPos", "SetPosition"}
+		out = []string{"AddVel", "AddVelocity", "Free", "GetPos", "GetPosition", "GetSlopeAngle", "GetSpeed", "Grounded", "IsGrounded", "Jump", "Move", "MoveWithCamera", "OnSlope", "OnWall", "Pos", "SetFriction", "SetGravity", "SetMaxSlope", "SetPos", "SetPosition", "SetSnapDistance", "SetStepHeight", "SetVelocity", "SlopeAngle", "Snap", "Speed", "Update"}
+	case heap.TagShape:
+		out = []string{"Free"}
+	case heap.TagKinematicBody:
+		out = []string{"EnableCollision", "Free", "Pos", "Rot", "SetLayer", "SetPos", "SetPosition", "SetRot", "SetRotation", "SetVel", "SetVelocity", "Update"}
+	case heap.TagStaticBody, heap.TagTriggerBody:
+		out = []string{"EnableCollision", "Free", "Pos", "Rot", "SetLayer", "SetPos", "SetPosition", "SetRot", "SetRotation"}
 	case heap.TagSprite:
 		out = []string{"Draw", "Free", "SetPos", "SetPosition", "DefAnim", "PlayAnim", "UpdateAnim", "Hit"}
 	case heap.TagModel, heap.TagLODModel:

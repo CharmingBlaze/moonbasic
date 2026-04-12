@@ -23,6 +23,14 @@ func registerEntityEasyAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.W", "entity", runtime.AdaptLegacy(m.entYaw))
 	r.Register("ENTITY.R", "entity", runtime.AdaptLegacy(m.entR))
 	
+	// Professional Shorthand Aliases
+	r.Register("ENTX", "entity", runtime.AdaptLegacy(m.entX))
+	r.Register("ENTY", "entity", runtime.AdaptLegacy(m.entY))
+	r.Register("ENTZ", "entity", runtime.AdaptLegacy(m.entZ))
+	r.Register("ENTP", "entity", runtime.AdaptLegacy(m.entP))
+	r.Register("ENTW", "entity", runtime.AdaptLegacy(m.entYaw))
+	r.Register("ENTR", "entity", runtime.AdaptLegacy(m.entR))
+	
 	// Aesthetic shorthands
 	r.Register("ENTITY.RGB", "entity", runtime.AdaptLegacy(m.entRGB))
 	r.Register("ENTITY.ALPHA", "entity", runtime.AdaptLegacy(m.entAlpha))

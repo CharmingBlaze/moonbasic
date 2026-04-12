@@ -2,7 +2,7 @@
 
 ## What you need
 
-- Windows x64 or Linux x64
+- **Windows x64** or **Linux x64** — project docs and contributor workflows assume **Windows first**, **Linux** second for parity checks ([DEVELOPER.md](DEVELOPER.md#platform-priority-windows-then-linux)).
 - **Either** a pre-built binary from [GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) **or** Go + a C toolchain to build from source (below).
 
 ---

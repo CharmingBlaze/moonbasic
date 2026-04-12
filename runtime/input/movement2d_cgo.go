@@ -36,8 +36,8 @@ func (m *Module) movement2D(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if err != nil {
 		return value.Nil, err
 	}
-	_ = arr.Set([]int64{0}, f)
-	_ = arr.Set([]int64{1}, s)
+	_ = arr.Set([]int64{1}, f)
+	_ = arr.Set([]int64{2}, s)
 	id, err := m.h.Alloc(arr)
 	if err != nil {
 		return value.Nil, err

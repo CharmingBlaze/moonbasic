@@ -67,6 +67,11 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHAR.STICK", "player", m.playerSetStickFloor)
 	reg.Register("CHAR.ISGROUNDED", "player", m.playerIsGrounded)
 	reg.Register("CHAR.JUMP", "player", m.playerJump)
+	
+	// ENTITYREF methods (allows hero.NavUpdate() etc.)
+	reg.Register("ENTITYREF.NAVUPDATE", "entity", m.playerNavUpdate)
+	reg.Register("ENTITYREF.ISGROUNDED", "entity", m.playerIsGrounded)
+	reg.Register("ENTITYREF.JUMP", "entity", m.playerJump)
 	reg.Register("PLAYER.GETSTANDNORMAL", "player", m.playerGetStandNormal)
 	reg.Register("PLAYER.PUSH", "player", m.playerPush)
 	reg.Register("PLAYER.GRAB", "player", m.playerGrab)
@@ -75,43 +80,58 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PLAYER.SETFOVKICK", "player", m.playerSetFovKick)
 	reg.Register("PLAYER.GETFOVKICK", "player", m.playerGetFovKick)
 	reg.Register("PLAYER.ISMOVING", "player", m.playerIsMoving)
+	reg.Register("PLAYER.GETGROUNDSTATE", "player", m.playerGetGroundState)
+	reg.Register("PLAYER.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
+	reg.Register("CHAR.GETGROUNDSTATE", "player", m.playerGetGroundState)
+	reg.Register("CHAR.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
+	registerCharacterRefCommands(m, reg)
+	registerPlayerCharGetAPI(m, reg)
 	registerPlayerTerrainCommands(m, reg)
 }
 
-func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+// playerCreateInternal allocates Jolt KCC for an entity; used by PLAYER.CREATE and CHARACTER.CREATE.
+func (m *Module) playerCreateInternal(args []value.Value) (int64, error) {
 	if m.h == nil || m.char == nil || m.ent == nil {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE: not available (requires Linux+Jolt fullruntime)")
+		return 0, fmt.Errorf("PLAYER.CREATE: not available (requires Linux+Jolt fullruntime)")
 	}
 	if len(args) != 1 && len(args) != 3 {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE / CHAR.MAKE expects (entity) or (entity, radius#, height#)")
+		return 0, fmt.Errorf("PLAYER.CREATE / CHAR.MAKE expects (entity) or (entity, radius#, height#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE: invalid entity")
+		return 0, fmt.Errorf("PLAYER.CREATE: invalid entity")
 	}
 	if _, dup := m.entToChar[id]; dup {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE: entity already has a character controller")
+		return 0, fmt.Errorf("PLAYER.CREATE: entity already has a character controller")
 	}
-	rad, hei := playerCapsuleRadius, playerCapsuleHeight
+	rad, hei := float64(playerCapsuleRadius), float64(playerCapsuleHeight)
 	if len(args) == 3 {
 		r, ok1 := args[1].ToFloat()
 		h, ok2 := args[2].ToFloat()
 		if !ok1 || !ok2 || r <= 0 || h <= 0 {
-			return value.Nil, fmt.Errorf("CHAR.MAKE: radius and height must be positive numbers")
+			return 0, fmt.Errorf("CHAR.MAKE: radius and height must be positive numbers")
 		}
 		rad, hei = r, h
 	}
 	px, py, pz, ok := m.ent.PlayerBridgeWorldPos(id)
 	if !ok {
-		return value.Nil, fmt.Errorf("PLAYER.CREATE: unknown entity")
+		return 0, fmt.Errorf("PLAYER.CREATE: unknown entity")
 	}
 	h, err := m.char.AllocCharacter(rad, hei, px, py, pz, 0, -1)
 	if err != nil {
-		return value.Nil, err
+		return 0, err
 	}
 	m.entToChar[id] = h
 	_ = m.ent.PlayerBridgeClearScriptedMotion(id)
+	m.lastHero = id
+	return id, nil
+}
+
+func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if _, err := m.playerCreateInternal(args); err != nil {
+		return value.Nil, err
+	}
 	return value.Nil, nil
 }
 
@@ -122,7 +142,7 @@ func (m *Module) playerMove(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("PLAYER.MOVE expects (entity, velocityX, velocityZ) world units/sec")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.MOVE: invalid entity")
 	}
@@ -171,7 +191,7 @@ func (m *Module) playerCharMoveDir(rt *runtime.Runtime, args ...value.Value) (va
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("CHAR.MOVE expects (entity, dirX#, dirZ#, speed#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("CHAR.MOVE: invalid entity")
 	}
@@ -212,7 +232,7 @@ func (m *Module) playerMoveWithCamera(rt *runtime.Runtime, args ...value.Value) 
 	if len(args) != 5 {
 		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA expects (entity, camera, forwardAxis#, strafeAxis#, speed#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.MOVEWITHCAMERA: invalid entity")
 	}
@@ -261,7 +281,7 @@ func (m *Module) playerNavTo(rt *runtime.Runtime, args ...value.Value) (value.Va
 	if len(args) < 4 || len(args) > 6 {
 		return value.Nil, fmt.Errorf("PLAYER.NAVTO expects (entity, targetX#, targetZ#, speed# [, arrivalXZ# [, brakeDist#]])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.NAVTO: invalid entity")
 	}
@@ -298,14 +318,14 @@ func (m *Module) playerNavChase(rt *runtime.Runtime, args ...value.Value) (value
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("NAV.CHASE expects (entity, targetEntity#, standoffGap#, speed#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("NAV.CHASE: invalid entity")
 	}
 	if _, ok := m.entToChar[id]; !ok {
 		return value.Nil, fmt.Errorf("NAV.CHASE: call PLAYER.CREATE / CHAR.MAKE first")
 	}
-	tid, ok := args[1].ToInt()
+	tid, ok := m.playerEntID(args[1])
 	if !ok || tid < 1 {
 		return value.Nil, fmt.Errorf("NAV.CHASE: invalid target entity")
 	}
@@ -332,7 +352,7 @@ func (m *Module) playerNavPatrol(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 6 {
 		return value.Nil, fmt.Errorf("NAV.PATROL expects (entity, ax#, az#, bx#, bz#, speed#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("NAV.PATROL: invalid entity")
 	}
@@ -363,7 +383,7 @@ func (m *Module) playerNavUpdate(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.NAVUPDATE expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.NAVUPDATE: invalid entity")
 	}
@@ -475,7 +495,7 @@ func (m *Module) playerSetPadding(rt *runtime.Runtime, args ...value.Value) (val
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETPADDING expects (entity, padding#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETPADDING: invalid entity")
 	}
@@ -503,7 +523,7 @@ func (m *Module) playerJump(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.JUMP expects (entity, impulseY)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.JUMP: invalid entity")
 	}
@@ -532,12 +552,22 @@ func (m *Module) playerIsGrounded(rt *runtime.Runtime, args ...value.Value) (val
 	if m.char == nil {
 		return value.FromBool(false), nil
 	}
-	if len(args) != 1 && len(args) != 2 {
-		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (entity) or (entity, coyoteTimeSec#)")
+	if len(args) > 2 {
+		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED expects (), (entity), (entity, coyoteTimeSec#)")
 	}
-	id, ok := args[0].ToInt()
-	if !ok || id < 1 {
-		return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED: invalid entity")
+	var id int64
+	var ok bool
+	switch len(args) {
+	case 0:
+		id, ok = m.kccSubjectID(args)
+		if !ok {
+			return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED: %s", kccErrNoSubject)
+		}
+	case 1, 2:
+		id, ok = m.kccSubjectID(args[:1])
+		if !ok || id < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.ISGROUNDED: invalid entity")
+		}
 	}
 	ch, ok := m.entToChar[id]
 	if !ok {
@@ -574,7 +604,7 @@ func (m *Module) playerGetLookTarget(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET expects (entity, maxDist)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETLOOKTARGET: invalid entity")
 	}
@@ -608,7 +638,7 @@ func (m *Module) playerGetNearby(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY expects (entity, radius, tag)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETNEARBY: invalid entity")
 	}
@@ -644,7 +674,7 @@ func (m *Module) playerSetState(rt *runtime.Runtime, args ...value.Value) (value
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTATE expects (entity, state)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTATE: invalid entity")
 	}
@@ -664,7 +694,7 @@ func (m *Module) playerSyncAnim(rt *runtime.Runtime, args ...value.Value) (value
 	if len(args) != 1 && len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SYNCANIM expects (entity [, scale])")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SYNCANIM: invalid entity")
 	}
@@ -693,7 +723,7 @@ func (m *Module) playerSetStepHeight(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTEPHEIGHT expects (entity, height)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTEPHEIGHT: invalid entity")
 	}
@@ -720,7 +750,7 @@ func (m *Module) playerSetSlopeLimit(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSLOPELIMIT expects (entity, maxSlopeDegrees)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSLOPELIMIT: invalid entity")
 	}
@@ -732,12 +762,69 @@ func (m *Module) playerSetSlopeLimit(rt *runtime.Runtime, args ...value.Value) (
 	if !ok {
 		return value.Nil, fmt.Errorf("PLAYER.SETSLOPELIMIT: call PLAYER.CREATE first")
 	}
-	newH, err := m.char.RecreateCharacterWithSlope(ch, playerCapsuleRadius, playerCapsuleHeight, deg)
+	rad, fh := float64(playerCapsuleRadius), float64(playerCapsuleHeight)
+	if cr, chh, ok := m.char.CharacterCapsuleDims(ch); ok {
+		rad, fh = cr, chh
+	}
+	newH, err := m.char.RecreateCharacterWithSlope(ch, rad, fh, deg)
 	if err != nil {
 		return value.Nil, err
 	}
 	m.entToChar[id] = newH
 	return value.Nil, nil
+}
+
+func (m *Module) playerGetGroundState(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("PLAYER.GETGROUNDSTATE expects () or (entity)")
+	}
+	id, ok := m.kccSubjectID(args)
+	if !ok {
+		if len(args) < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.GETGROUNDSTATE: %s", kccErrNoSubject)
+		}
+		return value.FromInt(3), nil
+	}
+	if id < 1 {
+		return value.FromInt(3), nil
+	}
+	ch, ok := m.entToChar[id]
+	if !ok || m.char == nil {
+		return value.FromInt(3), nil
+	}
+	gi, ok := m.char.CharacterGroundStateInt(ch)
+	if !ok {
+		return value.FromInt(3), nil
+	}
+	return value.FromInt(int64(gi)), nil
+}
+
+func (m *Module) playerIsOnSteepSlope(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) > 1 {
+		return value.Nil, fmt.Errorf("PLAYER.ISONSTEEPSLOPE expects () or (entity)")
+	}
+	id, ok := m.kccSubjectID(args)
+	if !ok {
+		if len(args) < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.ISONSTEEPSLOPE: %s", kccErrNoSubject)
+		}
+		return value.FromBool(false), nil
+	}
+	if id < 1 {
+		return value.FromBool(false), nil
+	}
+	ch, ok := m.entToChar[id]
+	if !ok || m.char == nil {
+		return value.FromBool(false), nil
+	}
+	gi, ok := m.char.CharacterGroundStateInt(ch)
+	if !ok {
+		return value.FromBool(false), nil
+	}
+	// 1 = Jolt GroundStateOnSteepGround
+	return value.FromBool(gi == 1), nil
 }
 
 func (m *Module) playerGetVelocity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -748,7 +835,7 @@ func (m *Module) playerGetVelocity(rt *runtime.Runtime, args ...value.Value) (va
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY: invalid entity")
 	}
@@ -771,7 +858,7 @@ func (m *Module) playerTeleport(rt *runtime.Runtime, args ...value.Value) (value
 	if len(args) != 4 {
 		return value.Nil, fmt.Errorf("PLAYER.TELEPORT expects (entity, x, y, z)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.TELEPORT: invalid entity")
 	}
@@ -800,7 +887,7 @@ func (m *Module) playerSetGravityScale(rt *runtime.Runtime, args ...value.Value)
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE expects (entity, scale)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETGRAVITYSCALE: invalid entity")
 	}
@@ -826,7 +913,7 @@ func (m *Module) playerGetCrouch(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETCROUCH expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETCROUCH: invalid entity")
 	}
@@ -845,7 +932,7 @@ func (m *Module) playerSetCrouch(rt *runtime.Runtime, args ...value.Value) (valu
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETCROUCH expects (entity, enabled)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETCROUCH: invalid entity")
 	}
@@ -878,7 +965,7 @@ func (m *Module) playerSwim(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("PLAYER.SWIM expects (entity, buoyancy, drag)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SWIM: invalid entity")
 	}
@@ -910,7 +997,7 @@ func (m *Module) playerSetStickFloor(rt *runtime.Runtime, args ...value.Value) (
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR expects (entity, downDistance#)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTICKFLOOR: invalid entity")
 	}
@@ -936,7 +1023,7 @@ func (m *Module) playerGetStandNormal(rt *runtime.Runtime, args ...value.Value) 
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETSTANDNORMAL expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETSTANDNORMAL: invalid entity")
 	}
@@ -967,8 +1054,8 @@ func (m *Module) playerPush(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("PLAYER.PUSH expects (playerEntity, targetEntity, force)")
 	}
-	pid, ok1 := args[0].ToInt()
-	tid, ok2 := args[1].ToInt()
+	pid, ok1 := m.playerEntID(args[0])
+	tid, ok2 := m.playerEntID(args[1])
 	force, ok3 := args[2].ToFloat()
 	if !ok1 || !ok2 || !ok3 || pid < 1 || tid < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.PUSH: invalid arguments")
@@ -997,8 +1084,8 @@ func (m *Module) playerGrab(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.GRAB expects (playerEntity, targetEntity) — use target 0 to release")
 	}
-	pid, ok1 := args[0].ToInt()
-	tid, ok2 := args[1].ToInt()
+	pid, ok1 := m.playerEntID(args[0])
+	tid, ok2 := m.playerEntID(args[1])
 	if !ok1 || !ok2 || pid < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GRAB: invalid player entity")
 	}
@@ -1021,7 +1108,7 @@ func (m *Module) playerSetMass(rt *runtime.Runtime, args ...value.Value) (value.
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETMASS expects (entity, mass)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETMASS: invalid entity")
 	}
@@ -1047,7 +1134,7 @@ func (m *Module) playerGetSurfaceType(rt *runtime.Runtime, args ...value.Value) 
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETSURFACETYPE: invalid entity")
 	}
@@ -1068,7 +1155,7 @@ func (m *Module) playerSetFovKick(rt *runtime.Runtime, args ...value.Value) (val
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PLAYER.SETFOVKICK expects (entity, degrees)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.SETFOVKICK: invalid entity")
 	}
@@ -1085,7 +1172,7 @@ func (m *Module) playerGetFovKick(rt *runtime.Runtime, args ...value.Value) (val
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETFOVKICK expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETFOVKICK: invalid entity")
 	}
@@ -1100,7 +1187,7 @@ func (m *Module) playerIsMoving(rt *runtime.Runtime, args ...value.Value) (value
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.ISMOVING expects (entity)")
 	}
-	id, ok := args[0].ToInt()
+	id, ok := m.playerEntID(args[0])
 	if !ok || id < 1 {
 		return value.Nil, fmt.Errorf("PLAYER.ISMOVING: invalid entity")
 	}

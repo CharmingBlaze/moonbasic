@@ -4,18 +4,48 @@ High-level helpers for **kinematic character control** (KCC) and **spatial queri
 
 ## Platform
 
-| Feature | Linux + CGO + Jolt | Windows / no physics |
-|--------|---------------------|----------------------|
-| **`PLAYER.CREATE` / `MOVE` / `JUMP` / `ISGROUNDED` / `SYNCANIM`** | Supported | Error (use **`CHARCONTROLLER.*`** manually if you add Windows Jolt later) |
-| **`PLAYER.GETLOOKTARGET` / `GETNEARBY` / `SETSTATE`** | Full | Works (look uses physics ray when **`PHYSICS3D.START`**; otherwise mesh AABB fallback) |
+Order: **Windows** first, **Linux** second ([DEVELOPER.md](../DEVELOPER.md#platform-priority-windows-then-linux)).
+
+| Feature | Windows / no physics | Linux + CGO + Jolt |
+|--------|----------------------|---------------------|
+| **`PLAYER.CREATE` / `MOVE` / `JUMP` / `ISGROUNDED` / `SYNCANIM`** | Error (use **`CHARCONTROLLER.*`** manually if you add Windows Jolt later) | Supported |
+| **`PLAYER.GETLOOKTARGET` / `GETNEARBY` / `SETSTATE`** | Works (look uses physics ray when **`PHYSICS3D.START`**; otherwise mesh AABB fallback) | Full |
 
 Start the world with **`PHYSICS3D.START()`** before **`PLAYER.CREATE`**.
 
 **Gameplay-oriented KCC guide (beginner → advanced):** **[KCC.md](KCC.md)** — **`CHAR.MOVE`**, **`CHAR.MOVEWITHCAMERA`**, **`NAVTO` / `NAVUPDATE`**, **`WORLD.MOUSEFLOOR`**, **`WORLD.MOUSEPICK`**, and RPG helpers.
 
+**Entity argument:** Commands that take **`entity`** accept either a **numeric entity id** (`1`, `2`, …) or an **EntityRef handle** from **`MODEL.CREATECAPSULE`**, **`CUBE`**, **`SPHERE`**, etc. Do not pass the raw heap slot as a plain integer; use the handle returned by the constructor.
+
 ---
 
-## Kinematic character (Linux + Jolt)
+## Player-centric KCC getters (implicit subject)
+
+After **`Player.Create(...)`** / **`Character.Create(...)`** / **`Char.Make(...)`**, the runtime remembers the **last KCC subject** (**implicit hero**). Most **`Player.Get*`** queries accept **either**:
+
+- **`()`** — use the implicit subject (the capsule you created last in this session), or  
+- **`(entity)`** — query a specific entity or **standalone virtual id** (negative integer on **Windows** host KCC for **`Character.Create(x, y, z)`**).
+
+If you call **`Player.GetPositionX()`** (or any zero-arg getter) **before** any KCC exists, the runtime reports an error (no implicit subject).
+
+**Short names** (same handlers as the long forms; see [API_CONSISTENCY.md](../API_CONSISTENCY.md)):
+
+| Short | Equivalent |
+|-------|------------|
+| **`Player.GetX()`** / **`GetY()`** / **`GetZ()`** | **`Player.GetPositionX()`** / **`GetPositionY()`** / **`GetPositionZ()`** |
+| **`Player.GetPitch()`** / **`GetYaw()`** / **`GetRoll()`** | **`Player.GetRotationPitch()`** / **`GetRotationYaw()`** / **`GetRotationRoll()`** |
+| **`Player.GetGrounded()`** | **`Player.IsGrounded()`** |
+| **`Player.GetGravity()`** | **`Player.GetGravityScale()`** (per-character scale, not world gravity) |
+| **`Player.GetCapsuleRadius()`** / **`GetCapsuleHeight()`** | **`Player.GetRadius()`** / **`Player.GetHeight()`** |
+| **`Player.GetShapeType()`** | Returns **`"capsule"`** (CharacterVirtual / host KCC) |
+
+**World gravity** (global, not per-player): **`Physics.GetGravityX()`** / **`Physics.GetGravityY()`** / **`Physics.GetGravityZ()`** (and **`Physics3D.GetGravity*`** aliases) — see [PHYSICS3D.md](PHYSICS3D.md).
+
+**Not exposed** as **`Ray.*`** / **`Sweep.*`** / **`Debug.*`** getters today — use **`PICK.*`**, **`PHYSICS3D`**, and host logging as documented in [PHYSICS3D.md](PHYSICS3D.md). Physics-wide **body counts** / **collision counts** are not surfaced as **`Physics.GetBodyCount`**-style builtins yet.
+
+---
+
+## Kinematic character (Linux + Jolt; Windows host KCC — see [KCC.md](KCC.md))
 
 | Command | Purpose |
 |--------|---------|
@@ -50,7 +80,7 @@ Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** 
 | **`PLAYER.ONTRIGGER(entity, callbackFunc)`** | **Not implemented** — the VM cannot be entered from Jolt sensors yet. Use **`LEVEL.BINDSCRIPT`** + **`LEVEL.MATCHSCRIPTBIND`**, **`EntityCollided`**, or **`PHYSICS3D`** collision hooks instead. A future **physics → BASIC** callback path would need a strict **main-thread / post-step** queue (no VM reentrancy inside Jolt) and is separate from the **wazero** WASM story. |
 | **`PLAYER.SETSTATE(entity, state)`** | Stores an integer **state id** for gameplay logic (e.g. **0 = idle**, **1 = walk**, **2 = jump**). Constants **`STATE_*`** are not built-ins yet—use literals or your own **`CONST`**. |
 | **`PLAYER.SYNCANIM(entity [, scale])`** | Sets **`ENTITY`** animation speed from **horizontal** linear velocity (× optional **scale**, default **1**). Requires **`PLAYER.CREATE`**. |
-| **`PLAYER.SETSTEPHEIGHT(entity, height)`** | Records a desired max **step/stair** height for tooling and future Jolt tuning (runtime step height is not exposed in the current **`jolt-go`** character wrapper). |
+| **`PLAYER.SETSTEPHEIGHT(entity, height)`** | Sets Jolt **ExtendedUpdate** **WalkStairsStepUp** (max stair/curb height) on **Linux+Jolt**; stored for tooling on host KCC. |
 | **`PLAYER.SETSLOPELIMIT(entity, maxSlopeDegrees)`** | **Rebuilds** the **`CharacterVirtual`** with **`MaxSlopeAngle`** = **maxSlopeDegrees** (must be between **0** and **90**). Preserves linear velocity. |
 | **`PLAYER.GETVELOCITY(entity)`** → **vec3 handle** | **`CharacterVirtual`** linear velocity (**vx, vy, vz**). |
 | **`PLAYER.TELEPORT(entity, x, y, z)`** | **`SetPosition`** + clears velocity + **`ExtendedUpdate`** + syncs the **entity** transform (snap teleport without smoothing). |
@@ -65,6 +95,12 @@ Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** 
 | **`PLAYER.GETSURFACETYPE(entity)`** → **string** | Downward **Jolt** ray → hit entity → **`SurfaceMaterialHint`** from glTF **`material` / `footstep`** metadata or **Blender tag**; else **`Default`**. |
 | **`PLAYER.SETFOVKICK` / `PLAYER.GETFOVKICK`** | Stores **extra FOV degrees** per entity; each frame do **`Camera.SetFOV(cam, base + Player.GetFovKick(hero))`** (or your own base). |
 | **`PLAYER.ISMOVING(entity)`** → **bool** | **True** if horizontal **linear speed** is above ~**0.05** (for footsteps / sprint FX). |
+| **`PLAYER.GETPOSITIONX` / `Y` / `Z`**, **`GETROTATIONPITCH` / `YAW` / `ROLL`**, **`GETVELOCITYX` / `Y` / `Z`**, **`GETSPEED`** | **float** — world pose / velocity from the KCC (Linux+Jolt) or host KCC + entity bridge (Windows). |
+| **`PLAYER.GETONSLOPE`**, **`GETONWALL`**, **`GETSLOPEANGLE`**, **`GETISJUMPING`**, **`GETISFALLING`** | **bool** / **float** — ground and motion hints (**`GETONSLOPE`** mirrors **`ISONSTEEPSLOPE`**; **`GETONWALL`** uses Jolt **NotSupported**; host KCC returns simplified values). |
+| **`PLAYER.GETMAXSLOPE`**, **`GETSTEPHEIGHT`**, **`GETGRAVITYSCALE`**, **`GETFRICTION`**, **`GETSNAPDISTANCE`**, **`GETHEIGHT`**, **`GETRADIUS`** | **float** — tuned capsule / stair / gravity / stick-down (**`GETFRICTION`** on host KCC is a stub). |
+| **`PLAYER.GETLAYER`**, **`GETMASK`** | **int** — reserved (**0**). |
+| **`PLAYER.GETCOLLISIONENABLED`** | **bool** — reserved (**true**). |
+| **`CHAR.GET*`** | Same signatures as **`PLAYER.GET*`** (aliases). |
 | **`PLAYER.SnapToGround(entity, terrain, offset)`** | Sets **Y** from **`Terrain.GetHeight`** at the entity’s **XZ** plus **offset** (feet vs pivot). On **Linux + Jolt** after **`PLAYER.CREATE`**, also syncs the **CharacterVirtual** capsule. |
 | **`PLAYER.ISSWIMMING(entity)`** → **bool** | **True** when the entity’s position lies inside a **`WATER`** volume column (between **bed** and the wavy surface). Use with **`PLAYER.SETGRAVITYSCALE`** for floatier movement. |
 
@@ -80,6 +116,8 @@ Player.Create(hero)
 WHILE Window.Open()
     dt = Time.Delta()
     Player.Move(hero, Input.AxisX() * 5.0, Input.AxisY() * 5.0)
+    REM Player-centric getters (implicit subject = last Player.Create):
+    REM   IF Player.GetGrounded() THEN ...
     IF Player.IsGrounded(hero) AND Input.KeyPressed(KEY_SPACE) THEN
         Player.Jump(hero, 6.0)
     ENDIF
@@ -101,7 +139,9 @@ Naming: use **`LEVEL.LOAD`** / **`Entity.Draw`** (or your project’s draw path)
 
 ## See also
 
+- [CHARACTER.md](CHARACTER.md) — **`CHARACTER.CREATE`** / **`Character.*`**, polymorphic spawn, **`CHARACTERREF.*`**, virtual ids (host)  
 - [KCC.md](KCC.md) — **`CHAR.*`** tutorial, mouse floor/pick, RPG helpers  
 - [CHARCONTROLLER.md](CHARCONTROLLER.md) — capsule API and full sample  
 - [LEVEL.md](LEVEL.md) — glTF, tags, **`LEVEL.BINDSCRIPT`**  
 - [PHYSICS3D.md](PHYSICS3D.md) — Jolt world, **`PICK.*`**, rays  
+- [API_CONSISTENCY.md](../API_CONSISTENCY.md) — machine-generated list of every **`PLAYER.*`** / **`CHAR.*`** name and arity (from `commands.json`; use after manifest changes)  

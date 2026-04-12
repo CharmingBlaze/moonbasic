@@ -99,6 +99,7 @@ const (
 
 	// Host physics: WASM/Jolt SoA floats are copied into [VM.PhysicsScratch] by the engine (see joltwasm.UpdateVMPhysics).
 	// Operand: number of floats to copy; Dst: first destination register (fills R[Dst..Dst+count-1]).
+	// CharacterVirtual / KCC use OpCallBuiltin (PLAYER.*, CHARACTERREF.*), not dedicated char opcodes.
 	OpSyncPhysics
 
 	// OpArrayLen: Dst = size of first dimension (float); SrcA = array handle register.

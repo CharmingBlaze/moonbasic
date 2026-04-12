@@ -58,6 +58,13 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 		return value.FromInt(time.Since(m.start).Milliseconds()), nil
 	})
+	reg.Register("TIME.MILLIS", "time", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		if len(args) != 0 {
+			return value.Nil, errArgs(0, len(args))
+		}
+		return value.FromInt(time.Since(m.start).Milliseconds()), nil
+	})
 
 	delayFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		_ = rt

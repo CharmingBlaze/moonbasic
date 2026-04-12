@@ -43,13 +43,14 @@ CONST MOUSE_SENSITIVITY = 0.005
 cam = CreateCamera()
 cam.fov(60)
 
-; Initialize Player
-player = CreateSphere()
-PRINT("MB_PLAYER_VAL:", player)
-ENTRAD(player, 0.5)
-ENTTYPE(player, 1)
-POSENT(player, 0, 1.5, 0)
-SetGravity(player, -25.0)
+; Initialize Player (standalone Character.Create → implicit KCC subject for Player.Get* with no args)
+playerEnt = MODEL.CREATECAPSULE(0.5, 2.0)
+hero = Character.Create(0, 5, 0)
+hero.SetStepHeight(0.4)
+hero.SetMaxSlope(45.0)
+hero.SetSnapDistance(0.5)
+CHARACTERREF.SETGRAVITY(hero, 1.0)
+; Visual capsule follows hero; position queries use Player.GetX/Y/Z() (same KCC as hero)
 
 ; Initialize Particles
 starEmit = CREATEEMITTER()
@@ -57,8 +58,8 @@ PARTICLECOLOR(starEmit, 255, 255, 0, 255)
 PARTICLESPEED(starEmit, 5.0, 15.0)
 PARTICLELIFE(starEmit, 0.4, 0.8)
 
-; Initialize World Collision Rules
-COLLISIONS(1, 2, 2, 2) ; Player vs Platforms (Slide)
+; 4. Physics Geometry Setup
+; We'll replace manual ENTTYPE with professional Jolt bodies in the loop
 
 ; World Objects (Static Platforms)
 TYPE Platform
@@ -67,32 +68,39 @@ TYPE Platform
 ENDTYPE
 
 DIM plats AS Platform(5)
-plats(0) = Platform(CreateCube(), 100, 200, 100) ; Floor
-SCALENT(plats(0).ent, 30, 1, 30)
-POSENT(plats(0).ent, 0, 0, 0)
-ENTTYPE(plats(0).ent, 2)
+plats(1) = Platform(CreateCube(), 100, 200, 100) ; Floor
+SCALENT(plats(1).ent, 30, 1, 30)
+POSENT(plats(1).ent, 0, 0, 0)
+floorShape = Shape.CreateBox(15, 0.5, 15)
+floorBody = Static.Create(floorShape)
+BODYREF.SETPOSITION(floorBody, 0, 0, 0)
 
-plats(1) = Platform(CreateCube(), 150, 150, 255) ; Step 1
-SCALENT(plats(1).ent, 4, 1, 4)
-POSENT(plats(1).ent, 8, 2, 8)
-ENTTYPE(plats(1).ent, 2)
-
-plats(2) = Platform(CreateCube(), 255, 150, 150) ; Step 2
+plats(2) = Platform(CreateCube(), 150, 150, 255) ; Step 1
 SCALENT(plats(2).ent, 4, 1, 4)
-POSENT(plats(2).ent, 12, 4, 12)
-ENTTYPE(plats(2).ent, 2)
+POSENT(plats(2).ent, 8, 2, 8)
+stepShape = Shape.CreateBox(2, 0.5, 2)
+step1Body = Static.Create(stepShape)
+BODYREF.SETPOSITION(step1Body, 8, 2, 8)
 
-plats(3) = Platform(CreateCube(), 255, 255, 100) ; Goal
-SCALENT(plats(3).ent, 6, 1, 6)
-POSENT(plats(3).ent, 16, 6, 16)
-ENTTYPE(plats(3).ent, 2)
+plats(3) = Platform(CreateCube(), 255, 150, 150) ; Step 2
+SCALENT(plats(3).ent, 4, 1, 4)
+POSENT(plats(3).ent, 12, 4, 12)
+step2Body = Static.Create(stepShape)
+BODYREF.SETPOSITION(step2Body, 12, 4, 12)
+
+plats(4) = Platform(CreateCube(), 255, 255, 100) ; Goal
+SCALENT(plats(4).ent, 6, 1, 6)
+POSENT(plats(4).ent, 16, 6, 16)
+goalShape = Shape.CreateBox(3, 0.5, 3)
+goalBody = Static.Create(goalShape)
+BODYREF.SETPOSITION(goalBody, 16, 6, 16)
 ; Batch 6: Set Goal to be semi-transparent
-ENTITYALPHA(plats(3).ent, 0.6)
+ENTITYALPHA(plats(4).ent, 0.6)
 
 ; Stars (Collection Goal)
-DIM starEnts(5)
+DIM starEnts AS HANDLE(5)
 DIM starActive(5)
-FOR i = 0 TO 4
+FOR i = 1 TO 5
     starEnts(i) = CreateSphere()
     SCALENT(starEnts(i), 0.4, 0.4, 0.4)
     POSENT(starEnts(i), RAND(-15, 15), 1.5 + RND(0, 4), RAND(-15, 15))
@@ -109,6 +117,8 @@ COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 
 ; Main Game Loop
 WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR()
+    SKYCOLOR(0, 0, 15) ; Deep night sky
     dt = TIME.DELTA()
 
     ; 1. Input: Camera Orbiting
@@ -121,9 +131,12 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     moveF = AXIS(KEY_S, KEY_W)
     moveS = AXIS(KEY_A, KEY_D)
     
-    vx = MOVESTEPX(camYaw, moveF, moveS, MOVE_SPEED, dt)
-    vz = MOVESTEPZ(camYaw, moveF, moveS, MOVE_SPEED, dt)
-    MOVEENTITY(player, vx, 0, vz)
+    ; Planar velocity calculation (float array is 1-based)
+    camBasis = CAMERA.XZBASIS(cam)
+    vx = (camBasis(1) * moveF + camBasis(3) * moveS) * MOVE_SPEED
+    vz = (camBasis(2) * moveF + camBasis(4) * moveS) * MOVE_SPEED
+    
+    CHARACTERREF.SETVELOCITY(hero, vx, 0, vz)
 
     ; 2b. Debug Inspector Hooks
     IF INPUT.KEYHIT(KEY_F1) THEN DEBUG.DUMPHEAP()
@@ -156,17 +169,19 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ENDIF
 
     ; 3. Automatic World Simulation
-    WORLD.UPDATE(dt)
+    ENTITY.UPDATE(dt)
+    hero.Update(dt)
+    POSENT(playerEnt, hero.X(), hero.Y(), hero.Z())
 
-    ; 4. Jumping
-    IF ENTITYFLOOR(player) AND INPUT.KEYHIT(KEY_SPACE) THEN ENTITYJUMP(player, JUMP_FORCE)
+    ; 4. Jumping — after hero.Update so GetGrounded reflects this frame's contact
+    IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN hero.Jump(JUMP_FORCE)
 
-    ; 5. Collectible Check
-    px = ENTX(player)
-    py = ENTY(player)
-    pz = ENTZ(player)
+    ; 5. Collectible Check (Player-centric world position)
+    px = Player.GetX()
+    py = Player.GetY()
+    pz = Player.GetZ()
     
-    FOR i = 0 TO 4
+    FOR i = 1 TO 5
         IF starActive(i) = 1 THEN
             dist = DIST3D(px, py, pz, ENTX(starEnts(i)), ENTY(starEnts(i)), ENTZ(starEnts(i)))
             IF dist < 1.1 THEN
@@ -182,9 +197,8 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     cam.orbit(px, py + 0.5, pz, camYaw, camPitch, CAM_DIST)
 
     ; 7. Rendering
-    SKYCOLOR(0, 0, 15) ; Deep night sky
     CAMERA.BEGIN(cam)
-        FOR i = 0 TO 3
+        FOR i = 1 TO 4
             ENTITY.COLOR(plats(i).ent, plats(i).r, plats(i).g, plats(i).b, 255)
         NEXT
         ENTITY.DRAWALL()
@@ -194,15 +208,16 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         DRAW.LINE3D(px, py, pz, px, py + 2.0, pz, 0, 255, 0, 255) ; Green Up-Vector
         
         IF navDebug = 1 THEN NAV.DEBUGDRAW(nav)
-    CAMERA.END(cam)
+    CAMERA.END()
 
     ; 8. HUD & UI Overlay
-    DRAW.TEXT("STARS: " + STR$(score) + " / 5", 20, 20, 24, 255, 255, 100, 255)
-    DRAW.TEXT("MOUSE to Orbit  |  WASD to Move  |  SPACE to Jump", 20, 540, 18, 255, 255, 255, 255)
+    DRAW.TEXT("STARS: " + STR(score) + " / 5", 20, 20, 24, 255, 255, 100, 255)
+    DRAW.TEXT("MOUSE to Orbit  |  WASD to Move  |  SPACE to Jump  |  Player.Get* KCC", 20, 540, 18, 255, 255, 255, 255)
+    DRAW.TEXT("SPEED: " + STR(Player.GetSpeed()), 20, 510, 16, 200, 255, 200, 255)
 
     rh = SCREENWIDTH() - 250
-    DRAW.TEXT("FPS: " + STR$(FPS()), rh, 20, 20, 0, 255, 0, 255)
-    DRAW.TEXT("TIME: " + STR$(MILLISECS()), rh, 45, 20, 200, 200, 255, 255)
+    DRAW.TEXT("FPS: " + STR(FPS()), rh, 20, 20, 0, 255, 0, 255)
+    DRAW.TEXT("TIME: " + STR(MILLISECS()), rh, 45, 20, 200, 200, 255, 255)
     DRAW.TEXT("MIST ACTIVE: YES", rh, 70, 20, 150, 150, 255, 255)
     IF cinematicMode = 1 THEN
         DRAW.TEXT("CINEMATIC: ON (ACES)", rh, 95, 20, 255, 100, 100, 255)

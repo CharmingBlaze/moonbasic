@@ -13,6 +13,7 @@ import (
 
 	"moonbasic/compiler/pipeline"
 	"moonbasic/internal/driver"
+	mbphysics3d "moonbasic/runtime/physics3d"
 )
 
 const version = "1.2.8"
@@ -65,6 +66,8 @@ func main() {
 		sel := driver.GetDefaultDriver()
 		fmt.Fprintf(os.Stderr, "driver: %s\n", sel.String())
 	}
+
+	mbphysics3d.LogJoltPhysicsBackendHint()
 
 	if strings.EqualFold(filepath.Ext(path), ".mbc") {
 		prog, err := pipeline.DecodeMOONFromFile(path)

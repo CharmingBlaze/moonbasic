@@ -15,6 +15,12 @@ func registerPhysics3DCommands(m *Module, reg mbruntime.Registrar) {
 	reg.Register("PHYSICS3D.STOP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStop(m, a) }))
 	reg.Register("PHYSICS3D.SETGRAVITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetGravity(m, a) }))
 	reg.Register("WORLD.SETGRAVITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetGravity(m, a) }))
+	reg.Register("PHYSICS3D.GETGRAVITYX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetGravityX(m, a) }))
+	reg.Register("PHYSICS3D.GETGRAVITYY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetGravityY(m, a) }))
+	reg.Register("PHYSICS3D.GETGRAVITYZ", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetGravityZ(m, a) }))
+	reg.Register("PHYSICS.GETGRAVITYX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetGravityX(m, a) }))
+	reg.Register("PHYSICS.GETGRAVITYY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetGravityY(m, a) }))
+	reg.Register("PHYSICS.GETGRAVITYZ", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetGravityZ(m, a) }))
 	reg.Register("PHYSICS3D.STEP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phStep(m, a) }))
 	reg.Register("PHYSICS3D.SETTIMESTEP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phSetTimeStep(m, a) }))
 	reg.Register("PHYSICS3D.GETMATRIXBUFFER", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return phGetMatrixBuffer(m, a) }))
@@ -126,6 +132,41 @@ func registerPhysics3DCommands(m *Module, reg mbruntime.Registrar) {
 		return value.Nil, fmt.Errorf("JOINT3D.DELETE: no joint handles in this runtime")
 	}))
 	registerPickCommands(m, reg)
+
+	// Modern Shape API
+	reg.Register("SHAPE.CREATEBOX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shCreateBox(m.h, a) }))
+	reg.Register("SHAPE.CREATESPHERE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shCreateSphere(m.h, a) }))
+	reg.Register("SHAPE.CREATECAPSULE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shCreateCapsule(m.h, a) }))
+	reg.Register("SHAPE.CREATECYLINDER", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shCreateCylinder(m.h, a) }))
+	reg.Register("SHAPE.GETTYPE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetType(m.h, a) }))
+	reg.Register("SHAPE.GETWIDTH", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim1(m.h, a) }))
+	reg.Register("SHAPE.GETHEIGHT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim2(m.h, a) }))
+	reg.Register("SHAPE.GETDEPTH", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim3(m.h, a) }))
+	reg.Register("SHAPE.GETRADIUS", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim1(m.h, a) }))
+	reg.Register("SHAPE.GETSIZEX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim1(m.h, a) }))
+	reg.Register("SHAPE.GETSIZEY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim2(m.h, a) }))
+	reg.Register("SHAPE.GETSIZEZ", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shGetDim3(m.h, a) }))
+	reg.Register("SHAPEREF.FREE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return shFree(m.h, a) }))
+
+	// Modern Body API
+	reg.Register("KINEMATIC.CREATE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return knCreate(m.h, a) }))
+	reg.Register("STATIC.CREATE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return stCreate(m.h, a) }))
+	reg.Register("TRIGGER.CREATE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return trCreate(m.h, a) }))
+
+	// Shared BODYREF API (Dotted syntax)
+	reg.Register("BODYREF.SETPOSITION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return brSetPos(m.h, a) }))
+	reg.Register("BODYREF.SETROTATION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetRotation(m, a) }))
+	reg.Register("BODYREF.SETLAYER", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+	reg.Register("BODYREF.ENABLECOLLISION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+	reg.Register("BODYREF.FREE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return brFree(m.h, a) }))
+
+	// Kinematic Specific
+	reg.Register("KINEMATICREF.SETVELOCITY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetLinearVel(m, a) }))
+	reg.Register("KINEMATICREF.UPDATE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+
+	// Debug API
+	reg.Register("DEBUG.DRAWCHARACTER", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+	reg.Register("DEBUG.DRAWBODY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
 }
 
 func shutdownPhysics3D(m *Module) {

@@ -333,3 +333,10 @@ func RotateToIndex(idx int, p, y, r float32) {
 	_ = y
 	_ = r
 }
+
+// GetStaticBodyRegistry exists on the heap static-body stub (see stub.go). Linux+Jolt uses real
+// bodies without that Pos/Shape layout; mbentity host kinematic helpers only need this symbol to
+// compile — iterating nil is a no-op (entity AABBs + Jolt paths cover collision).
+func GetStaticBodyRegistry() map[heap.Handle]*body3dObj {
+	return nil
+}

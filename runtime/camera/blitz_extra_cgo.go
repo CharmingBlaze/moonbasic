@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"moonbasic/runtime"
+	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
@@ -18,6 +19,26 @@ func registerBlitzCameraExtras(m *Module, r runtime.Registrar) {
 	r.Register("CameraFogMode", "camera", m.cameraFogModeBlitz)
 	r.Register("CameraFogRange", "camera", m.cameraFogRangeBlitz)
 	r.Register("CameraFogColor", "camera", m.cameraFogColorBlitz)
+	r.Register("CAMERA.XZBASIS", "camera", m.camXZBasis)
+}
+
+func (m *Module) camXZBasis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CAMERA.XZBASIS expects (camera_handle)")
+	}
+	fwd, side, err := CameraXZWalkBasis(m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, _ := heap.NewArray([]int64{4})
+	// Heap arrays use 1-based indices for Set (same as MoonBASIC); [1..4] = fwdX, fwdZ, sideX, sideZ.
+	_ = arr.Set([]int64{1}, float64(fwd.X))
+	_ = arr.Set([]int64{2}, float64(fwd.Z))
+	_ = arr.Set([]int64{3}, float64(side.X))
+	_ = arr.Set([]int64{4}, float64(side.Z))
+	h, _ := m.h.Alloc(arr)
+	_ = rt
+	return value.FromHandle(h), nil
 }
 
 // CameraFogMode(camera, mode#) — mode 0 = disable fog, non-zero = enable (linear fog via FOG.* pipeline).

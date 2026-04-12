@@ -13800,6 +13800,12 @@
       "description": "Optional coyote time (seconds): true shortly after leaving ground"
     },
     {
+      "key": "PLAYER.ISGROUNDED",
+      "args": [],
+      "returns": "bool",
+      "description": "Implicit KCC subject: the last PLAYER.CREATE / Character.Create capsule (standalone virtual id on host)"
+    },
+    {
       "key": "PLAYER.GETLOOKTARGET",
       "args": [
         "int",
@@ -13860,6 +13866,410 @@
       ],
       "returns": "handle",
       "description": "Heap vec3 of linear velocity (CharacterVirtual); requires PLAYER.CREATE"
+    },
+    {
+      "key": "PLAYER.GETGROUNDSTATE",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir (host KCC approximates 0 or 3)"
+    },
+    {
+      "key": "PLAYER.GETGROUNDSTATE",
+      "args": [],
+      "returns": "int",
+      "description": "Implicit KCC subject (see PLAYER.ISGROUNDED ())"
+    },
+    {
+      "key": "PLAYER.ISONSTEEPSLOPE",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True if GetGroundState is OnSteepGround (Linux+Jolt); always false on host KCC"
+    },
+    {
+      "key": "PLAYER.ISONSTEEPSLOPE",
+      "args": [],
+      "returns": "bool",
+      "description": "Implicit KCC subject (see PLAYER.ISGROUNDED ())"
+    },
+    {
+      "key": "PLAYER.GETPOSITIONX",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "KCC / entity world X; (entity) or () using implicit subject after PLAYER.CREATE / Character.Create"
+    },
+    {
+      "key": "PLAYER.GETPOSITIONX",
+      "args": [],
+      "returns": "float",
+      "description": "Implicit KCC subject — same as Player.GetPositionX() with no args"
+    },
+    {
+      "key": "PLAYER.GETPOSITIONY",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "(entity) or () implicit KCC subject"
+    },
+    {
+      "key": "PLAYER.GETPOSITIONY",
+      "args": [],
+      "returns": "float",
+      "description": "Implicit KCC subject"
+    },
+    {
+      "key": "PLAYER.GETPOSITIONZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "(entity) or () implicit KCC subject"
+    },
+    {
+      "key": "PLAYER.GETPOSITIONZ",
+      "args": [],
+      "returns": "float",
+      "description": "Implicit KCC subject"
+    },
+    {
+      "key": "PLAYER.GETROTATIONPITCH",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Entity world pitch (degrees), same basis as ENTITY.ENTITYPITCH"
+    },
+    {
+      "key": "PLAYER.GETROTATIONYAW",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETROTATIONROLL",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETVELOCITYX",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Linear velocity X (m/s); requires PLAYER.CREATE / CHAR.MAKE"
+    },
+    {
+      "key": "PLAYER.GETVELOCITYY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETVELOCITYZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETSPEED",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Scalar speed (m/s)"
+    },
+    {
+      "key": "PLAYER.GETSPEED",
+      "args": [],
+      "returns": "float",
+      "description": "Implicit KCC subject — same as Player.GetSpeed(entity)"
+    },
+    {
+      "key": "PLAYER.GETONSLOPE",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Alias of PLAYER.ISONSTEEPSLOPE"
+    },
+    {
+      "key": "PLAYER.GETONSLOPE",
+      "args": [],
+      "returns": "bool",
+      "description": "Implicit KCC subject — steep slope (Jolt OnSteepGround)"
+    },
+    {
+      "key": "PLAYER.GETONWALL",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Jolt ground state NotSupported (vertical contact); false on host KCC"
+    },
+    {
+      "key": "PLAYER.GETSLOPEANGLE",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Ground tilt from vertical (degrees) on walkable floor; 0 on host KCC"
+    },
+    {
+      "key": "PLAYER.GETISJUMPING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "PLAYER.GETISFALLING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "PLAYER.GETMAXSLOPE",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Configured max walk slope (degrees)"
+    },
+    {
+      "key": "PLAYER.GETSTEPHEIGHT",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Stair step-up height (WalkStairsStepUp Y on Jolt)"
+    },
+    {
+      "key": "PLAYER.GETGRAVITYSCALE",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETFRICTION",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Gameplay friction (CHARACTERREF.SETFRICTION); host KCC returns 0.5 stub"
+    },
+    {
+      "key": "PLAYER.GETSNAPDISTANCE",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Stick-to-floor max step down (positive); host uses CHAR.STICK or stepH+0.2"
+    },
+    {
+      "key": "PLAYER.GETHEIGHT",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Capsule total height"
+    },
+    {
+      "key": "PLAYER.GETRADIUS",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Capsule radius"
+    },
+    {
+      "key": "PLAYER.GETLAYER",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "Reserved; returns 0"
+    },
+    {
+      "key": "PLAYER.GETMASK",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "Reserved; returns 0"
+    },
+    {
+      "key": "PLAYER.GETCOLLISIONENABLED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Reserved; returns true"
+    },
+    {
+      "key": "PLAYER.GETX",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETPOSITIONX () — implicit KCC subject"
+    },
+    {
+      "key": "PLAYER.GETX",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETPOSITIONX (entity)"
+    },
+    {
+      "key": "PLAYER.GETY",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETPOSITIONY ()"
+    },
+    {
+      "key": "PLAYER.GETY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETZ",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETPOSITIONZ ()"
+    },
+    {
+      "key": "PLAYER.GETZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETPITCH",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETROTATIONPITCH ()"
+    },
+    {
+      "key": "PLAYER.GETPITCH",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETYAW",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETROTATIONYAW ()"
+    },
+    {
+      "key": "PLAYER.GETYAW",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETROLL",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETROTATIONROLL ()"
+    },
+    {
+      "key": "PLAYER.GETROLL",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETGROUNDED",
+      "args": [],
+      "returns": "bool",
+      "description": "Alias of PLAYER.ISGROUNDED ()"
+    },
+    {
+      "key": "PLAYER.GETGROUNDED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "PLAYER.GETGROUNDED",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "bool",
+      "description": "Coyote time variant (Linux+Jolt)"
+    },
+    {
+      "key": "PLAYER.GETGRAVITY",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETGRAVITYSCALE (per-entity gravity scale, not world gravity)"
+    },
+    {
+      "key": "PLAYER.GETGRAVITY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETCAPSULERADIUS",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETRADIUS ()"
+    },
+    {
+      "key": "PLAYER.GETCAPSULERADIUS",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETCAPSULEHEIGHT",
+      "args": [],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETHEIGHT ()"
+    },
+    {
+      "key": "PLAYER.GETCAPSULEHEIGHT",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "PLAYER.GETSHAPETYPE",
+      "args": [],
+      "returns": "string",
+      "description": "Returns \"capsule\" for CharacterVirtual / host KCC"
+    },
+    {
+      "key": "PLAYER.GETSHAPETYPE",
+      "args": [
+        "int"
+      ],
+      "returns": "string"
     },
     {
       "key": "PLAYER.TELEPORT",
@@ -13995,6 +14405,198 @@
       ],
       "returns": "bool",
       "description": "KCC ground test with optional coyote grace (seconds)"
+    },
+    {
+      "key": "CHAR.GETGROUNDSTATE",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "Alias of PLAYER.GETGROUNDSTATE"
+    },
+    {
+      "key": "CHAR.ISONSTEEPSLOPE",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Alias of PLAYER.ISONSTEEPSLOPE"
+    },
+    {
+      "key": "CHAR.GETPOSITIONX",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Alias of PLAYER.GETPOSITIONX"
+    },
+    {
+      "key": "CHAR.GETPOSITIONY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETPOSITIONZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETROTATIONPITCH",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETROTATIONYAW",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETROTATIONROLL",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETVELOCITYX",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETVELOCITYY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETVELOCITYZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETSPEED",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETONSLOPE",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "CHAR.GETONWALL",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "CHAR.GETSLOPEANGLE",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETISJUMPING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "CHAR.GETISFALLING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
+    },
+    {
+      "key": "CHAR.GETMAXSLOPE",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETSTEPHEIGHT",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETGRAVITYSCALE",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETFRICTION",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETSNAPDISTANCE",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETHEIGHT",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETRADIUS",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETLAYER",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "CHAR.GETMASK",
+      "args": [
+        "int"
+      ],
+      "returns": "int"
+    },
+    {
+      "key": "CHAR.GETCOLLISIONENABLED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool"
     },
     {
       "key": "CHAR.JUMP",
@@ -14143,6 +14745,375 @@
         "float"
       ],
       "description": "Alias of PLAYER.MOVEWITHCAMERA"
+    },
+    {
+      "key": "PLAYER.UPDATE",
+      "args": [
+        "float"
+      ],
+      "description": "Update kinematic character solver with delta time (Host-falling logic)"
+    },
+    {
+      "key": "CHARACTER.CREATE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Standalone kinematic character at (x, y, z): host KCC (e.g. Windows fullruntime) assigns a virtual id (negative int). Linux+CGO: use (entity, radius, height) or position an entity first — three floats are not standalone there.",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTER.CREATE",
+      "args": [
+        "any",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Entity-bound capsule: (visualEntity, radius, height). Linux+CGO: Jolt CharacterVirtual. Host: iterative KCC bound to the entity.",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTERREF.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Teleports the character capsule to a new world position.",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTERREF.SETSETTING",
+      "args": [
+        "handle",
+        "string",
+        "float"
+      ],
+      "description": "Generic float setting for character physics (Gravity, Friction, StepHeight, MaxSlope, SnapDist).",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTERREF.SETGRAVITY",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Gravity multiplier for this character (default 1.0).",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTERREF.SETFRICTION",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Kinematic sliding friction (0..1).",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTERREF.SETMAXSLOPE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Maximum walkable slope angle in degrees."
+    },
+    {
+      "key": "CHARACTERREF.SETSTEPHEIGHT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Maximum height character can step up onto (m)."
+    },
+    {
+      "key": "CHARACTERREF.SETSNAPDISTANCE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Stick-to-ground snap distance (m)."
+    },
+    {
+      "key": "CHARACTERREF.ISGROUNDED",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool",
+      "description": "True if supported by floor geometry."
+    },
+    {
+      "key": "CHARACTERREF.ONSLOPE",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool",
+      "description": "True if standing on a floor steeper than epsilon."
+    },
+    {
+      "key": "CHARACTERREF.ONWALL",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool",
+      "description": "True if colliding with vertical or steep geometry."
+    },
+    {
+      "key": "CHARACTERREF.GETSLOPEANGLE",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Current surface normal slope angle in degrees."
+    },
+    {
+      "key": "CHARACTERREF.MOVE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Translate character position by (dx, dy, dz); bypasses velocity integration."
+    },
+    {
+      "key": "CHARACTERREF.SETVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Sets the integrated world-space velocity (m/s)."
+    },
+    {
+      "key": "CHARACTERREF.ADDVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Accumulates world-space velocity (m/s)."
+    },
+    {
+      "key": "CHARACTERREF.JUMP",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Applies an upward vertical impulse."
+    },
+    {
+      "key": "CHARACTERREF.UPDATE",
+      "args": [
+        "handle"
+      ],
+      "description": "Updates character simulation for one physics frame. Handles sweeps and snapping."
+    },
+    {
+      "key": "CHARACTERREF.GETSPEED",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "description": "Current scalar speed (m/s)."
+    },
+    {
+      "key": "SHAPE.CREATEBOX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Creates a Jolt Box shape for collision geometry."
+    },
+    {
+      "key": "SHAPE.CREATESPHERE",
+      "args": [
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Creates a Jolt Sphere shape."
+    },
+    {
+      "key": "SHAPE.CREATECAPSULE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Creates a Jolt Capsule shape: (radius, height)."
+    },
+    {
+      "key": "SHAPE.CREATECYLINDER",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Creates a Jolt Cylinder shape: (radius, height)."
+    },
+    {
+      "key": "KINEMATIC.CREATE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Creates a Kinematic Body from a shape handle."
+    },
+    {
+      "key": "STATIC.CREATE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Creates a Static Body (environment) from a shape handle."
+    },
+    {
+      "key": "TRIGGER.CREATE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Creates a Trigger Body (non-solid sensor) from a shape handle."
+    },
+    {
+      "key": "BODYREF.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Moves a Kinematic/Static/Trigger body."
+    },
+    {
+      "key": "BODYREF.SETROTATION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Sets body orientation (Euler degrees)."
+    },
+    {
+      "key": "BODYREF.SETLAYER",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Sets the Jolt collision layer."
+    },
+    {
+      "key": "BODYREF.ENABLECOLLISION",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "description": "Enables/Disables body participation in physics."
+    },
+    {
+      "key": "KINEMATICREF.SETVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Sets velocity for moving kinematic bodies."
+    },
+    {
+      "key": "KINEMATICREF.UPDATE",
+      "args": [
+        "handle"
+      ],
+      "description": "Resolves kinematic movement and collisions."
+    },
+    {
+      "key": "DEBUG.DRAWCHARACTER",
+      "args": [
+        "handle"
+      ],
+      "description": "Renders capsule wireframe and ground probes for character Controller."
+    },
+    {
+      "key": "DEBUG.DRAWBODY",
+      "args": [
+        "handle"
+      ],
+      "description": "Renders body collision shape."
+    },
+    {
+      "key": "CAMERA.XZBASIS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Returns planar [fwdX, fwdZ, rightX, rightZ] vectors for camera-relative movement."
+    },
+    {
+      "key": "CHARACTERREF.GETPOSITION",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Returns [x, y, z] position of the character capsule."
+    },
+    {
+      "key": "CHAR.UPDATE",
+      "args": [
+        "float"
+      ],
+      "description": "Update kinematic character solver with delta time (Host-falling logic)"
+    },
+    {
+      "key": "CHAR.GETVX",
+      "args": [
+        "int"
+      ],
+      "description": "Returns horizontal velocity X for kinematic controller"
+    },
+    {
+      "key": "CHAR.GETVY",
+      "args": [
+        "int"
+      ],
+      "description": "Returns vertical velocity Y for kinematic controller"
+    },
+    {
+      "key": "CHAR.GETVZ",
+      "args": [
+        "int"
+      ],
+      "description": "Returns horizontal velocity Z for kinematic controller"
+    },
+    {
+      "key": "PLAYER.GETVX",
+      "args": [
+        "int"
+      ],
+      "description": "Returns horizontal velocity X for kinematic controller"
+    },
+    {
+      "key": "PLAYER.GETVY",
+      "args": [
+        "int"
+      ],
+      "description": "Returns vertical velocity Y for kinematic controller"
+    },
+    {
+      "key": "PLAYER.GETVZ",
+      "args": [
+        "int"
+      ],
+      "description": "Returns horizontal velocity Z for kinematic controller"
     },
     {
       "key": "CHAR.MOVEWITHCAM",

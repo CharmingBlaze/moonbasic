@@ -108,7 +108,7 @@ func (m *Module) entPhysicsAuto(args []value.Value) (value.Value, error) {
 	if len(args) >= 3 {
 		mass, _ = args[2].ToFloat()
 	}
-	fric := 0.5
+	fric := 1.0
 	if len(args) >= 4 {
 		fric, _ = args[3].ToFloat()
 	}

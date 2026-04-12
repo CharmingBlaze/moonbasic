@@ -53,7 +53,8 @@ While Not (KEYDOWN(KEY_ESCAPE) Or Window.ShouldClose())
     CHAR.MOVEWITHCAMERA(player, cam, mz, mx, 10.0)
     NAV.UPDATE(player)
 
-    If KEYPRESSED(KEY_SPACE) And CHAR.ISGROUNDED(player) Then
+    ; Player.GetGrounded() — implicit KCC subject after CHAR.MAKE
+    If KEYPRESSED(KEY_SPACE) And Player.GetGrounded() Then
         CHAR.JUMP(player, 15.0)
         ENTITY.SQUASH(player, 0.7, 0.2)
     EndIf
@@ -76,10 +77,10 @@ While Not (KEYDOWN(KEY_ESCAPE) Or Window.ShouldClose())
 
     DRAW.TEXT("WASD: Move · R-drag orbit · Q/E yaw · wheel zoom · SPACE: Jump · G: Nav to yellow", 10, 10, 20, 255, 255, 255, 255)
 
-    If CHAR.ISGROUNDED(player) Then
-        DRAW.TEXT("GROUNDED", 10, 40, 20, 0, 255, 0, 255)
+    If Player.GetGrounded() Then
+        DRAW.TEXT("GROUNDED (Player.GetGrounded)", 10, 40, 18, 0, 255, 0, 255)
     Else
-        DRAW.TEXT("AIRBORNE", 10, 40, 20, 255, 0, 0, 255)
+        DRAW.TEXT("AIRBORNE", 10, 40, 18, 255, 0, 0, 255)
     EndIf
 
     RENDER.FRAME()
