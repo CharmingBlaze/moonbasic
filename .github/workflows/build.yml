@@ -1,3 +1,6 @@
+# Optional “zero-DLL” branding: builds the standard compiler binary per OS (same toolchain as CI).
+# Note: true static raylib bundles live under libs/* only when added locally; CI uses system Raylib / MinGW.
+
 name: Build Zero-DLL Release
 
 on: [push, pull_request]
@@ -6,6 +9,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -20,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.25.3'
 
@@ -28,15 +32,43 @@ jobs:
         if: matrix.target == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+          sudo apt-get install -y \
+            gcc \
+            libenet-dev \
+            libasound2-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxcursor-dev \
+            libxinerama-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
-      - name: Build Static moonBASIC (Linux)
-        if: matrix.target == 'linux'
-        run: go build -v -ldflags="-s -w" -o ${{ matrix.output }} .
-
-      - name: Build Static moonBASIC (Windows)
+      - uses: msys2/setup-msys2@v2
         if: matrix.target == 'windows'
-        run: go build -v -ldflags="-H windowsgui -s -w" -tags static -o ${{ matrix.output }} .
+        id: msys2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-raylib
+
+      - name: Build moonBASIC (Linux)
+        if: matrix.target == 'linux'
+        run: go build -trimpath -ldflags="-s -w" -o ${{ matrix.output }} .
+        env:
+          CGO_ENABLED: '1'
+
+      - name: Build moonBASIC (Windows)
+        if: matrix.target == 'windows'
+        run: go build -trimpath -ldflags="-s -w" -o ${{ matrix.output }} .
+        env:
+          CGO_ENABLED: '1'
+          CC: ${{ steps.msys2.outputs.msys2-location }}\mingw64\bin\gcc.exe
+          CGO_LDFLAGS: '-lraylib -lgdi32 -lwinmm -lws2_32'
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
