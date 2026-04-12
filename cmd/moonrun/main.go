@@ -16,7 +16,7 @@ import (
 	mbphysics3d "moonbasic/runtime/physics3d"
 )
 
-const version = "1.2.8"
+const version = "1.2.9"
 
 func init() {
 	// Pin the main goroutine before any work. OpenGL/GLFW contexts (Raylib) must stay on the OS

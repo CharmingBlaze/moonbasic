@@ -13,7 +13,7 @@ import (
 	"moonbasic/lsp"
 )
 
-const version = "1.2.8"
+const version = "1.2.9"
 
 func main() {
 	var (
