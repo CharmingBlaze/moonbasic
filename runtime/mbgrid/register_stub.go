@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"moonbasic/runtime"
-	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 

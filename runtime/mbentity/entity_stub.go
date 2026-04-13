@@ -12,8 +12,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-func registerEntityEasyAPI(m *Module, r runtime.Registrar)         {}
-func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {}
+func registerEntityEasyAPI(m *Module, r runtime.Registrar) {}
 
 // Register implements runtime.Module — stubs when Raylib is unavailable.
 func (m *Module) Register(r runtime.Registrar) {
@@ -131,6 +130,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	for _, n := range names {
 		r.Register(n, "entity", stub(n))
 	}
+	registerEntityPhysicsMacroAPI(m, r)
 }
 
 // WorldEulerForEntityID is unavailable without CGO/Raylib entity store.
@@ -141,3 +141,6 @@ func (m *Module) WorldEulerForEntityID(id int64) (pitch, yaw, roll float32, ok b
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {}
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {}

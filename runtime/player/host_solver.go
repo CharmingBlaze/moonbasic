@@ -1,3 +1,5 @@
+//go:build cgo || (windows && !cgo)
+
 package player
 
 import (

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"moonbasic/compiler/ast"
-	"moonbasic/runtime"
 )
 
 // ConstEntitySlotID returns (id, true) for integer or whole-float literals.
@@ -55,13 +54,13 @@ func ValidateLiteralSlot(id int64) error {
 	if id < 0 {
 		return fmt.Errorf("entity id %d is invalid (negative)", id)
 	}
-	if id >= runtime.MaxEntitySpatialIndex {
-		return fmt.Errorf("entity id %d exceeds compile-time limit %d", id, runtime.MaxEntitySpatialIndex-1)
+	if id >= MaxEntitySpatialIndex {
+		return fmt.Errorf("entity id %d exceeds compile-time limit %d", id, MaxEntitySpatialIndex-1)
 	}
 	return nil
 }
 
 // LiteralSlotHint is appended as a semantic/codegen hint for out-of-range literals.
 func LiteralSlotHint() string {
-	return fmt.Sprintf("Use an entity id in [0, %d], or a variable (bounds-checked at runtime).", runtime.MaxEntitySpatialIndex-1)
+	return fmt.Sprintf("Use an entity id in [0, %d], or a variable (bounds-checked at runtime).", MaxEntitySpatialIndex-1)
 }

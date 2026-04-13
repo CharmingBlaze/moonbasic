@@ -6,8 +6,6 @@ import (
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime/texture"
 	"moonbasic/vm/heap"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // ModulesByStore maps VM heaps to their entity module (for cross-package helpers).
@@ -49,14 +47,4 @@ func (m *Module) BindHeap(h *heap.Store) {
 	m.h = h
 	ModulesByStore[h] = m
 }
-
-// GetWorldPosByID resolves the world position of an entity handle securely for cross-module helpers.
-func (m *Module) GetWorldPosByID(id int) (rl.Vector3, bool) {
-	st := m.store() // Ensure we have a store() helper or access ents.
-	if id < 1 || id >= len(st.ents) { return rl.Vector3{}, false }
-	e := st.ents[int64(id)]
-	if e == nil { return rl.Vector3{}, false }
-	return m.worldPos(e), true
-}
-
 

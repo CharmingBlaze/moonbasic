@@ -1,4 +1,7 @@
-//go:build cgo || (windows && !cgo)
+//go:build cgo
+
+// UI.BUTTON / UI.PROGRESSBAR / UI.LABEL3D use raygui; raygui-go has no Windows purego build, so these
+// register only when CGO_ENABLED=1 (see purego_register_windows.go for the minimal GUI path).
 
 package mbgui
 

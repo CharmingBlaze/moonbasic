@@ -41,6 +41,19 @@ func (m *Module) worldPos(e *ent) rl.Vector3 {
 	return rl.Vector3Add(pw, off)
 }
 
+// GetWorldPosByID resolves the world position of an entity id for cross-module helpers (host KCC, etc.).
+func (m *Module) GetWorldPosByID(id int) (rl.Vector3, bool) {
+	st := m.store()
+	if id < 1 || id >= len(st.ents) {
+		return rl.Vector3{}, false
+	}
+	e := st.ents[int64(id)]
+	if e == nil {
+		return rl.Vector3{}, false
+	}
+	return m.worldPos(e), true
+}
+
 func (m *Module) entityUsesBoneMatrixChain(e *ent) bool {
 	for e != nil {
 		if e.boneWorldValid() {

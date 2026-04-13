@@ -403,6 +403,7 @@ func (r *Registry) LastScriptErrorLine() int {
 // MaxEntitySpatialIndex is the exclusive upper bound for numeric entity indices used with
 // ENTITY.X/Y/Z/... macros (compile-time literal check + VM guard). Keeps script mistakes
 // from indexing absurd offsets; the engine still grows SoA as needed below this cap.
+// Must match compiler/entityspatial.MaxEntitySpatialIndex (do not fork values).
 const MaxEntitySpatialIndex int64 = 1 << 24 // 16_777_216
 
 // SpatialBuffer is a Data-Oriented structure for fast entity transform access.
