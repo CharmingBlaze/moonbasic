@@ -28,7 +28,7 @@ map(11, 1, 1).value = 0
 	}
 	prog.SourcePath = "bounds.mb"
 	h := heap.New()
-	reg := runtime.NewRegistry(h)
+	reg := runtime.NewRegistryHeadless(h)
 	reg.InitCore()
 	v := vm.New(reg, h)
 	err = v.Execute(prog)

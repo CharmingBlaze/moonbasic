@@ -58,11 +58,11 @@ func (m *Module) mat4Identity(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("MAT4.IDENTITY expects 0 arguments")
 	}
-	id, err := AllocMatrix(m.h, rl.MatrixIdentity())
+	v, err := m.allocMat(fromM(rl.MatrixIdentity()))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4FromRotation(args []value.Value) (value.Value, error) {
@@ -79,11 +79,11 @@ func (m *Module) mat4FromRotation(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MAT4.FROMROTATION: angles must be numeric")
 	}
 	mat := rl.MatrixRotateXYZ(rl.Vector3{X: x, Y: y, Z: z})
-	id, err := AllocMatrix(m.h, mat)
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4SetRotation(args []value.Value) (value.Value, error) {
@@ -106,7 +106,7 @@ func (m *Module) mat4SetRotation(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("MAT4.SETROTATION: angles must be numeric")
 	}
-	o.m = rl.MatrixRotateXYZ(rl.Vector3{X: x, Y: y, Z: z})
+	o.m = fromM(rl.MatrixRotateXYZ(rl.Vector3{X: x, Y: y, Z: z}))
 	return value.Nil, nil
 }
 
@@ -124,11 +124,11 @@ func (m *Module) mat4FromScale(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MAT4.FROMSCALE: scale must be numeric")
 	}
 	mat := rl.MatrixScale(sx, sy, sz)
-	id, err := AllocMatrix(m.h, mat)
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4FromTranslation(args []value.Value) (value.Value, error) {
@@ -145,11 +145,11 @@ func (m *Module) mat4FromTranslation(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MAT4.FROMTRANSLATION: translation must be numeric")
 	}
 	mat := rl.MatrixTranslate(x, y, z)
-	id, err := AllocMatrix(m.h, mat)
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4LookAt(args []value.Value) (value.Value, error) {
@@ -171,11 +171,11 @@ func (m *Module) mat4LookAt(args []value.Value) (value.Value, error) {
 		tgt.X, tgt.Y, tgt.Z = x, y, z
 	}
 	mat := rl.MatrixLookAt(eye, target, up)
-	id, err := AllocMatrix(m.h, mat)
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4Perspective(args []value.Value) (value.Value, error) {
@@ -193,11 +193,11 @@ func (m *Module) mat4Perspective(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MAT4.PERSPECTIVE: arguments must be numeric")
 	}
 	mat := rl.MatrixPerspective(fov, aspect, near, far)
-	id, err := AllocMatrix(m.h, mat)
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4Ortho(args []value.Value) (value.Value, error) {
@@ -216,11 +216,11 @@ func (m *Module) mat4Ortho(args []value.Value) (value.Value, error) {
 		}
 	}
 	mat := rl.MatrixOrtho(f[0], f[1], f[2], f[3], f[4], f[5])
-	id, err := AllocMatrix(m.h, mat)
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4Multiply(args []value.Value) (value.Value, error) {
@@ -238,12 +238,12 @@ func (m *Module) mat4Multiply(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	mat := rl.MatrixMultiply(a, b)
-	id, err := AllocMatrix(m.h, mat)
+	mat := rl.MatrixMultiply(toM(a), toM(b))
+	v, err := m.allocMat(fromM(mat))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4Inverse(args []value.Value) (value.Value, error) {
@@ -257,12 +257,12 @@ func (m *Module) mat4Inverse(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	out := rl.MatrixInvert(mat)
-	id, err := AllocMatrix(m.h, out)
+	out := rl.MatrixInvert(toM(mat))
+	v, err := m.allocMat(fromM(out))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4Transpose(args []value.Value) (value.Value, error) {
@@ -276,12 +276,12 @@ func (m *Module) mat4Transpose(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	out := rl.MatrixTranspose(mat)
-	id, err := AllocMatrix(m.h, out)
+	out := rl.MatrixTranspose(toM(mat))
+	v, err := m.allocMat(fromM(out))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return v, nil
 }
 
 func (m *Module) mat4GetElement(args []value.Value) (value.Value, error) {
@@ -333,7 +333,7 @@ func (m *Module) mat4TransformComponent(args []value.Value, op string, axis int)
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("%s: position must be numeric", op)
 	}
-	out := rl.Vector3Transform(rl.Vector3{X: x, Y: y, Z: z}, mat)
+	out := rl.Vector3Transform(rl.Vector3{X: x, Y: y, Z: z}, toM(mat))
 	var comp float32
 	switch axis {
 	case 0:

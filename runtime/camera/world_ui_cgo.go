@@ -43,7 +43,7 @@ func (m *Module) worldToScreen(args []value.Value) (value.Value, error) {
 				// Try numeric lookup if handle fails
 				if reg := runtime.ActiveRegistry(); reg != nil && reg.ResolveEntityWorldPos != nil {
 					if wp, ok2 := reg.ResolveEntityWorldPos(id); ok2 {
-						pos = wp
+						pos = rl.Vector3{X: wp.X, Y: wp.Y, Z: wp.Z}
 					}
 				}
 			}

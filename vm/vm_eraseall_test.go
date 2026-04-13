@@ -22,7 +22,7 @@ func (eraseAllTestObj) TypeTag() uint16  { return heap.TagInstance }
 
 func TestEraseAllHandlesFreesAndClearsSlots(t *testing.T) {
 	h := heap.New()
-	reg := runtime.NewRegistry(h)
+	reg := runtime.NewRegistryHeadless(h)
 	reg.InitCore()
 	v := New(reg, h)
 	reg.EraseAllHandlesFn = v.EraseAllHandles

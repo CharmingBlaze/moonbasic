@@ -1,5 +1,7 @@
 # Zero-CGO Raylib strategy (purego + sidecar shared library)
 
+**See also:** [HAL_AND_RENDERING.md](HAL_AND_RENDERING.md) for how **`hal`**, **`drivers/video/*`**, registry injection, and deferred DLL load fit into the wider engine layout.
+
 ## Goal
 
 Ship **`raylib.dll` / `libraylib.so` / `libraylib.dylib`** next to the binary and load symbols with **[ebitengine/purego](https://github.com/ebitengine/purego)** so **`CGO_ENABLED=0`** builds do not require a C compiler.

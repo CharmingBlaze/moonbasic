@@ -25,9 +25,10 @@ func RunProgram(prog *opcode.Program, opts Options) error {
 
 	goruntime.LockOSThread()
 
-	// 1. Initialize Runtime
+	// 1. Initialize Runtime with compile-time default driver
 	h := heap.New()
-	reg := runtime.NewRegistry(h)
+	d := DefaultDriver()
+	reg := runtime.NewRegistry(h, d)
 	setupRegistry(reg, h, opts)
 
 	// 2. Setup VM

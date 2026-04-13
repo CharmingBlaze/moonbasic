@@ -35,7 +35,7 @@ func (m *Module) vec3TransformMat4(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Transform(v, mat))
+	return m.allocVec3(fromV3(rl.Vector3Transform(toV3(v), toM(mat))))
 }
 
 func (m *Module) vec3Angle(args []value.Value) (value.Value, error) {
@@ -53,7 +53,7 @@ func (m *Module) vec3Angle(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromFloat(float64(rl.Vector3Angle(a, b))), nil
+	return value.FromFloat(float64(rl.Vector3Angle(toV3(a), toV3(b)))), nil
 }
 
 func (m *Module) vec3Project(args []value.Value) (value.Value, error) {
@@ -71,7 +71,7 @@ func (m *Module) vec3Project(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Project(v1, v2))
+	return m.allocVec3(fromV3(rl.Vector3Project(toV3(v1), toV3(v2))))
 }
 
 func (m *Module) vec3OrthoNormalize(args []value.Value) (value.Value, error) {
@@ -89,9 +89,9 @@ func (m *Module) vec3OrthoNormalize(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, fmt.Errorf("VEC3.ORTHONORMALIZE: %w", err)
 	}
-	v1, v2 := o1.v, o2.v
-	rl.Vector3OrthoNormalize(&v1, &v2)
-	o1.v, o2.v = v1, v2
+	rv1, rv2 := toV3(o1.v), toV3(o2.v)
+	rl.Vector3OrthoNormalize(&rv1, &rv2)
+	o1.v, o2.v = fromV3(rv1), fromV3(rv2)
 	return value.Nil, nil
 }
 
@@ -110,5 +110,5 @@ func (m *Module) vec3RotateByQuat(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3RotateByQuaternion(v, q))
+	return m.allocVec3(fromV3(rl.Vector3RotateByQuaternion(toV3(v), toQ(q))))
 }

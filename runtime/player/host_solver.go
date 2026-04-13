@@ -69,15 +69,23 @@ func (m *Module) updateHostKCC(id int64, st *hostKCCState, dt float64) {
 		}
 	}
 
-	// 4. Iterative Collision Resolution (Slide)
+	// 4. Iterative Collision Resolution (Slide with Friction)
 	for i := 0; i < 4; i++ {
 		nwp, hit, normal := m.ent.ResolveKinematicCollisionAt(wp, id, st.rad, true)
 		if !hit { break }
 		wp = nwp
 		dot := float32(st.vx)*normal.X + float32(st.vz)*normal.Z
 		if dot < 0 {
+			// Slide
 			st.vx -= float64(normal.X * dot)
 			st.vz -= float64(normal.Z * dot)
+			
+			// Apply Friction (attenuation of horizontal velocity)
+			fric := st.friction
+			if fric > 0 {
+				st.vx *= math.Max(0, 1.0 - fric)
+				st.vz *= math.Max(0, 1.0 - fric)
+			}
 		}
 	}
 
@@ -93,9 +101,15 @@ func (m *Module) updateHostKCC(id int64, st *hostKCCState, dt float64) {
 	snapDist := float32(st.stepH + 0.2)
 
 	if hit && feetY <= floorY+snapDist && (st.vy <= 0 || st.grounded) {
-		st.grounded = true
-		st.vy = 0
-		wp.Y = floorY + float32(halfH)
+		// Bounce vs Zero
+		if math.Abs(st.vy) > 2.0 && st.bounce > 0 {
+			st.vy = -st.vy * st.bounce
+			st.grounded = false
+		} else {
+			st.grounded = true
+			st.vy = 0
+			wp.Y = floorY + float32(halfH)
+		}
 	} else {
 		st.grounded = false
 	}

@@ -13,7 +13,7 @@ import (
 func TestTraceOpcodeSequence(t *testing.T) {
 	var buf bytes.Buffer
 	h := heap.New()
-	reg := runtime.NewRegistry(h)
+	reg := runtime.NewRegistryHeadless(h)
 	reg.InitCore()
 	v := New(reg, h)
 	v.Trace = true

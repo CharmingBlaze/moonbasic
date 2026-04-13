@@ -24,14 +24,6 @@ func (m *Module) registerQuat(reg runtime.Registrar) {
 	reg.Register("QUAT.FREE", "quat", runtime.AdaptLegacy(m.quatFree))
 }
 
-func (m *Module) allocQuat(q rl.Quaternion) (value.Value, error) {
-	id, err := m.h.Alloc(&quatObj{q: q})
-	if err != nil {
-		return value.Nil, err
-	}
-	return value.FromHandle(id), nil
-}
-
 func (m *Module) quatIdentity(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
@@ -39,7 +31,7 @@ func (m *Module) quatIdentity(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("QUAT.IDENTITY expects 0 arguments")
 	}
-	return m.allocQuat(rl.QuaternionIdentity())
+	return m.allocQuat(fromQ(rl.QuaternionIdentity()))
 }
 
 func (m *Module) quatFromEuler(args []value.Value) (value.Value, error) {
@@ -55,7 +47,7 @@ func (m *Module) quatFromEuler(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("QUAT.FROMEULER: angles must be numeric")
 	}
-	return m.allocQuat(rl.QuaternionFromEuler(px, py, pz))
+	return m.allocQuat(fromQ(rl.QuaternionFromEuler(px, py, pz)))
 }
 
 func (m *Module) quatFromAxisAngle(args []value.Value) (value.Value, error) {
@@ -73,7 +65,7 @@ func (m *Module) quatFromAxisAngle(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("QUAT.FROMAXISANGLE: arguments must be numeric")
 	}
 	axis := rl.Vector3{X: ax, Y: ay, Z: az}
-	return m.allocQuat(rl.QuaternionFromAxisAngle(axis, ang))
+	return m.allocQuat(fromQ(rl.QuaternionFromAxisAngle(axis, ang)))
 }
 
 func (m *Module) quatMultiply(args []value.Value) (value.Value, error) {
@@ -91,7 +83,7 @@ func (m *Module) quatMultiply(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocQuat(rl.QuaternionMultiply(a, b))
+	return m.allocQuat(fromQ(rl.QuaternionMultiply(toQ(a), toQ(b))))
 }
 
 func (m *Module) quatSlerp(args []value.Value) (value.Value, error) {
@@ -113,7 +105,7 @@ func (m *Module) quatSlerp(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("QUAT.SLERP: t must be numeric")
 	}
-	return m.allocQuat(rl.QuaternionSlerp(a, b, t))
+	return m.allocQuat(fromQ(rl.QuaternionSlerp(toQ(a), toQ(b), t)))
 }
 
 func (m *Module) quatToMat4(args []value.Value) (value.Value, error) {
@@ -127,11 +119,11 @@ func (m *Module) quatToMat4(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	id, err := AllocMatrix(m.h, rl.QuaternionToMatrix(q))
+	id, err := m.allocMat(fromM(rl.QuaternionToMatrix(toQ(q))))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	return id, nil
 }
 
 func (m *Module) quatNormalize(args []value.Value) (value.Value, error) {
@@ -145,7 +137,7 @@ func (m *Module) quatNormalize(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocQuat(rl.QuaternionNormalize(q))
+	return m.allocQuat(fromQ(rl.QuaternionNormalize(toQ(q))))
 }
 
 func (m *Module) quatInvert(args []value.Value) (value.Value, error) {
@@ -159,7 +151,7 @@ func (m *Module) quatInvert(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocQuat(rl.QuaternionInvert(q))
+	return m.allocQuat(fromQ(rl.QuaternionInvert(toQ(q))))
 }
 
 func (m *Module) quatFree(args []value.Value) (value.Value, error) {

@@ -13,8 +13,10 @@ Naming note: workflows described as **`Scene.Preload` / `Scene.LoadSkybox`** in 
 | Command | Purpose |
 |--------|---------|
 | **`LEVEL.SETROOT(path)`** | Base directory for relative paths passed to **`LEVEL.LOAD`**, **`LEVEL.PRELOAD`**, **`LEVEL.LOADSKYBOX`**. |
-| **`LEVEL.LOAD(path)`** → **entity** | Opens glTF with [`github.com/qmuntal/gltf`](https://github.com/qmuntal/gltf), walks the default scene’s node hierarchy, fills **marker/spawn** maps, then loads the file **once** with **`ENTITY.LOAD`** (Raylib). The first **non-`Col_`** mesh node picks the visual; its world TRS is applied to the entity. |
-| **`LEVEL.PRELOAD(dir)`** → **count** | Recursively loads common image files (`.png`, `.jpg`, `.hdr`, …) under **`dir`** into GPU textures using the same rules as **`TEXTURE.LOAD`**. Tracks handles for **`RENDER.CLEARCACHE`**. Does **not** preload `.glb` models (load those with **`LEVEL.LOAD`** / **`ENTITY.LOAD`**). |
+| **`LEVEL.LOAD(path)`** → **entity** | Opens glTF, walks the node hierarchy, fills **marker/spawn** maps, then loads graphics. |
+| **`LEVEL.STATIC(entity)`** | **Easy Mode** — automatically generates high-performance static collision from entity meshes. |
+| **`LEVEL.SETUP(gravity#)`** | Initializes physics for the level. Alias of **`WORLD.SETUP`**. |
+| **`LEVEL.PRELOAD(dir)`** → **count** | Recursively loads image files under **`dir`** into GPU textures. |
 
 **Limits (current):**
 
@@ -118,3 +120,5 @@ Resource **deduplication** on **`LEVEL.LOAD`**, optional **texture arrays / atla
 - [SCENE_ENGINE_BRIEF.md](SCENE_ENGINE_BRIEF.md) — architecture roadmap and WASM/Jolt notes  
 - [ENTITY.md](ENTITY.md) — entity ids, groups, drawing  
 - [ANIMATION_3D.md](ANIMATION_3D.md) — skinned models  
+- [WORLD.md](WORLD.md) — global setup and streaming
+- [VEHICLE.md](VEHICLE.md) — cars and aircraft

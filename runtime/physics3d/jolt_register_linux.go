@@ -68,7 +68,7 @@ func registerPhysics3DCommands(m *Module, reg mbruntime.Registrar) {
 	reg.Register("BODY3D.ADDBOX", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddBox(m.h, a) }))
 	reg.Register("BODY3D.ADDSPHERE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddSphere(m.h, a) }))
 	reg.Register("BODY3D.ADDCAPSULE", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddCapsule(m.h, a) }))
-	reg.Register("BODY3D.ADDMESH", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdAddMesh(m, a) }))
+	reg.Register("BODY3D.ADDMESH", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDAddMesh(m.h, a) }))
 	reg.Register("BODY3D.COMMIT", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return BDCommit(m.h, a) }))
 	reg.Register("BODY3D.SETPOS", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
 	reg.Register("BODY3D.SETPOSITION", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdSetPos(m, a) }))
@@ -167,6 +167,9 @@ func registerPhysics3DCommands(m *Module, reg mbruntime.Registrar) {
 	// Debug API
 	reg.Register("DEBUG.DRAWCHARACTER", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
 	reg.Register("DEBUG.DRAWBODY", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return bdNoOp(m, a) }))
+
+	// World API (Easy Mode)
+	reg.Register("WORLD.SETUP", "physics3d", mbruntime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return PHWorldSetup(m, a) }))
 }
 
 func shutdownPhysics3D(m *Module) {

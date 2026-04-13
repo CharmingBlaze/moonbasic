@@ -154,14 +154,17 @@ Unmapped **`TypeName.METHOD`** combinations should fail at runtime with an unkno
 
 ---
 
-### 9. Phase B: Raylib window (CGO)
+### 9. Phase B: Graphics stack (HAL + Raylib)
 
-- **Packages** [`runtime/window`](c:\Users\rain\Documents\GO\moonbasic\runtime\window) (**`WINDOW.*`**, **`RENDER.CLEAR` / `FRAME`**) and [`runtime/input`](c:\Users\rain\Documents\GO\moonbasic\runtime\input) (**`INPUT.KEYDOWN` / `KEYPRESSED` / `KEYUP`** when CGO is on). Stubs when **`CGO_ENABLED=0`** (input keys never down).
-- **`runtime.SeedInputKeyGlobals`**: preloads **`KEY_ESCAPE`**, **`KEY_W`**, **`KEY_A`**, **`KEY_S`**, **`KEY_D`**, **`KEY_SPACE`** on the VM global map so scripts can use **`Input.KeyDown(KEY_ESCAPE)`** (values match raylib `KeyboardKey`).
-- **Build tags**: `raylib_cgo.go` uses `//go:build cgo`; `stub.go` uses `//go:build !cgo`. With **`CGO_ENABLED=0`**, builtins return a clear error directing users to enable CGO and install a C compiler (e.g. MinGW on Windows, gcc on Linux).
-- **`pipeline.RunProgram`** calls **`runtime.LockOSThread()`** before init (Raylib requires the main OS thread), then **`RegisterModule(window.NewModule())`** **before** **`RegisterFromManifest`** so real handlers win over manifest stubs.
-- **Dependency**: [`github.com/gen2brain/raylib-go/raylib`](https://github.com/gen2brain/raylib-go) in `go.mod` — pinned to the **raylib 5.5** line (`v0.56.0-dev` family; see exact pseudo-version in `go.mod`).
-- **Tests**: `go test ./runtime/window/ -v` with **`CGO_ENABLED=0`** runs stub registration tests; full Raylib link is verified with **`CGO_ENABLED=1 go build`** on a machine with Raylib dev libraries available to the C linker.
+- **Canonical doc**: **[`docs/architecture/HAL_AND_RENDERING.md`](docs/architecture/HAL_AND_RENDERING.md)** — HAL package, null vs Raylib drivers, injection points, Windows purego deferred DLL load, and how this differs from static linking.
+- **Tests**: `go test ./runtime/window/ -v` with **`CGO_ENABLED=0`** exercises registration paths on Windows without requiring **`raylib.dll`** in typical configurations (vendored purego **`init()`** defers DLL load for **`*.test`** binaries; see **`MOONBASIC_SKIP_RAYLIB_DLL`** in the HAL doc). Full Raylib behavior is still verified with **`CGO_ENABLED=1`** builds (linked Raylib on Linux/macOS; Windows per **`internal/driver`** and CI matrix).
+- **Hardware Abstraction Layer (HAL)**: Windowing and the **HAL-backed** draw slice use **`hal.VideoDevice`**, **`hal.InputDevice`**, and **`hal.SystemDevice`** via **`Registry.Driver`**. The **`compiler/pipeline`** package injects either the **Raylib** driver (**`fullruntime`**) or the **null** driver (**`!fullruntime`**) through **`DefaultDriver()`**; tests may use **`runtime.NewRegistryHeadless`**.
+
+#### 9.1 The Driver Architecture (`drivers/` + `hal/`)
+- **`hal/`**: Pure Go interfaces and math types — **no** Raylib import.
+- **`drivers/video/raylib`**: Implements HAL by delegating to **`raylib-go`** (CGO **or** purego sidecar **`raylib.dll`** on Windows, depending on build flags — not “CGO-only”).
+- **`drivers/video/null`**: No-op implementation for headless CLI, **`ListBuiltins`**, and VM/compiler tests that should not touch the GPU.
+- **Registry injection**: **`runtime.NewRegistry(h, hal.Driver{...})`** requires an explicit **`hal.Driver`**; **`runtime.NewRegistryHeadless`** supplies the null driver for all three facets.
 
 #### `WINDOW.OPEN`, `WINDOW.CLOSE`, and heap lifecycle
 - **`WINDOW.OPEN`**: Manifest has **no return type** (void). After **`InitWindow`**, the native checks **`rl.IsWindowReady()`**; on failure it prints a one-line message to **stderr** and **`os.Exit(1)`**. On success it returns **`value.Nil`**. Scripts that must **probe** without terminating use **`WINDOW.CANOPEN(w,h,title)`** → **`bool`** before calling **`WINDOW.OPEN`**. Use bare **`END`** (**`EndProgramStmt` → `OpHalt`**) to stop cleanly when **`QUIT`** is unavailable.
@@ -196,6 +199,7 @@ New runtime modules follow the same pattern as `runtime/window` and `runtime/inp
 - CGO packages split into **`raylib_cgo.go`** and **`stub.go`**
 - Pure packages need no build-tag split
 - **File split convention:** one file per concern, soft limit **~400** lines, split before **~500**
+- **HAL compliance (direction of travel)**: Prefer `hal` types (`V3`, `V2`, `RGBA`, `Matrix`) and **`rt.Driver`** for window/video/input surfaces that already sit behind the HAL. Many existing packages still import Raylib directly for meshes, textures, audio, and legacy paths — migrate incrementally; see **[`docs/architecture/HAL_AND_RENDERING.md`](docs/architecture/HAL_AND_RENDERING.md)** §7.
 - **Registration order** in `compiler/pipeline/pipeline.go`: all **`RegisterModule`** calls **before** **`RegisterFromManifest`**
 - **`runtime/mbgame`**: instant-game / QOL utilities (shortcuts such as **`SCREENW`**, **`DT`**, collision and movement math, easing, noise, **`CONFIG.*`**, wall-clock and sim timers, **`GAME.*` audio helpers, screen flash, etc.). Do **not** register the same dotted keys again from another “QOL” package — the registry maps **one** handler per uppercase key (**§4**).
 - **Data modules** (**`runtime/jsonmod`**, **`runtime/csvmod`**, **`runtime/dbmod`**, **`runtime/tablemod`**): add every new dotted name to **`compiler/builtinmanifest/commands.json`** first (overload rows where arity differs). **`jsonmod`** / **`csvmod`** / **`tablemod`** are pure Go; **`dbmod`** is **SQLite via CGO** (`mattn/go-sqlite3`) with **`//go:build !cgo`** stubs that return clear errors when CGO is off. Register **`jsonmod` → `csvmod` → `dbmod` → `tablemod`** before **`RegisterFromManifest`** so integration commands and bridges resolve in order.

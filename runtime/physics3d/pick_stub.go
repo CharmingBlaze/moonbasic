@@ -16,9 +16,17 @@ func PickCastEntityID(ox, oy, oz, dx, dy, dz, maxDist float64) int64 {
 	return 0
 }
 
-// RaycastDownGroundProbe is unavailable without Jolt.
+var groundRaycastHook func(ox, oy, oz, maxDown float64) (nx, ny, nz, hitY float64, ok bool)
+
+func SetRaycastHook(fn func(ox, oy, oz, maxDown float64) (nx, ny, nz, hitY float64, ok bool)) {
+	groundRaycastHook = fn
+}
+
+// RaycastDownGroundProbe is unavailable without Jolt (unless hook is wired).
 func RaycastDownGroundProbe(ox, oy, oz, maxDown float64) (nx, ny, nz, hitY float64, ok bool) {
-	_, _, _, _ = ox, oy, oz, maxDown
+	if groundRaycastHook != nil {
+		return groundRaycastHook(ox, oy, oz, maxDown)
+	}
 	return 0, 1, 0, 0, false
 }
 

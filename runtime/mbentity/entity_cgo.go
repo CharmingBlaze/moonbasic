@@ -7,6 +7,7 @@ import (
 	"math"
 	"sort"
 
+	"moonbasic/hal"
 	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/runtime/mbgame"
@@ -217,12 +218,13 @@ func (m *Module) Register(r runtime.Registrar) {
 			_, ok := m.store().ents[id]
 			return ok
 		}
-		rt.ResolveEntityWorldPos = func(id int64) (rl.Vector3, bool) {
+		rt.ResolveEntityWorldPos = func(id int64) (hal.V3, bool) {
 			e := m.store().ents[id]
 			if e == nil {
-				return rl.Vector3{}, false
+				return hal.V3{}, false
 			}
-			return m.worldPos(e), true
+			p := m.worldPos(e)
+			return hal.V3{X: p.X, Y: p.Y, Z: p.Z}, true
 		}
 
 		rt.FastEntityPropGet = func(id int64, propID int) (value.Value, error) {
@@ -817,6 +819,35 @@ func (m *Module) entFloor(args []value.Value) (value.Value, error) {
 	}
 	y := m.queryFloorY(e)
 	return value.FromFloat(y), nil
+}
+
+func (m *Module) queryFloorYAt(px, py, pz float32) float64 {
+	var best float64
+	found := false
+	for _, s := range m.store().ents {
+		if !s.static || s.hidden {
+			continue
+		}
+		sp := s.getPos()
+		bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
+		bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
+		top := by + bh*0.5
+		halfW := bw*0.5
+		halfD := bd*0.5
+		if math.Abs(float64(px)-bx) > halfW || math.Abs(float64(pz)-bz) > halfD {
+			continue
+		}
+		if float64(py) >= top-0.5 && float64(py) <= top+4.0 {
+			if !found || top > best {
+				best = top
+				found = true
+			}
+		}
+	}
+	if !found {
+		return -1e6 // default "infinity" down
+	}
+	return best
 }
 
 func (m *Module) queryFloorY(e *ent) float64 {

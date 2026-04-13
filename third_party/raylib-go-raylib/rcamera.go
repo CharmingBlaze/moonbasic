@@ -180,16 +180,16 @@ func GetCameraViewMatrix(camera *Camera) Matrix {
 
 // GetCameraProjectionMatrix - Returns the camera projection matrix
 func GetCameraProjectionMatrix(camera *Camera, aspect float32) Matrix {
-	if camera.Projection == CameraPerspective {
+	switch camera.Projection {
+	case CameraPerspective:
 		return MatrixPerspective(camera.Fovy*(Pi/180.0), aspect, 0.01, 1000.0)
-	} else if camera.Projection == CameraOrthographic {
+	case CameraOrthographic:
 		top := camera.Fovy / 2.0
 		right := top * aspect
-
 		return MatrixOrtho(-right, right, -top, top, 0.01, 1000.0)
+	default:
+		return MatrixIdentity()
 	}
-
-	return MatrixIdentity()
 }
 
 // UpdateCamera - Update camera position for selected mode

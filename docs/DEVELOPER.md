@@ -22,12 +22,12 @@ Entity system refactor: [ARCHITECTURE_MODULAR_ENTITIES.md](ARCHITECTURE_MODULAR_
 - **Docs:** In tables and bullet lists that compare OSes, put **Windows** before **Linux** unless the page is explicitly Linux-only (e.g. Jolt implementation notes).
 - **Code:** Still maintain **both** paths (`*_cgo.go` / `*_stub.go`, same manifest keys); see [CONTRIBUTING.md](../CONTRIBUTING.md) and [AGENTS.md](../AGENTS.md).
 
-## Build tags: `fullruntime` vs default
+## Build tags: `fullruntime` vs default (Headless)
 
-- **Default** (`go build .`, `go run .`): builds [`main.go`](../main.go) — **compiler only** (no linked game runtime). Running `go run . game.mb` **writes `game.mbc`** next to the source; it does **not** open a window.
-- **`-tags fullruntime`**: includes [`main_fullruntime.go`](../main_fullruntime.go) instead, links the full runtime. Use **`moonrun`**, or **`go run -tags fullruntime . --run file.mb`**, to execute graphical programs.
+- **Default** (`go build .`, `go run .`): builds [`main.go`](../main.go) — **headless compiler** with a **Null** hardware driver. Running `go run . game.mb` **writes `game.mbc`** and validates semantics without needing `raylib.dll` or a GPU. Suitable for CI/CD and servers.
+- **`-tags fullruntime`**: includes [`main_fullruntime.go`](../main_fullruntime.go), links the **Raylib** hardware driver. Use **`moonrun`**, or **`go run -tags fullruntime . --run file.mb`**, to execute graphical programs.
 
-Details: [BUILDING.md](BUILDING.md).
+Details: [BUILDING.md](BUILDING.md). **HAL / drivers / Windows purego vs CGO:** [architecture/HAL_AND_RENDERING.md](architecture/HAL_AND_RENDERING.md).
 
 ## Developer environment: VS Code, gopls, and “split brain”
 
@@ -44,6 +44,8 @@ The repo uses **mutually exclusive** `//go:build` lines at the roots of the main
 
 For day-to-day work on **physics, rendering, VM + runtime modules, and `cmd/moonrun`**, the workspace [`.vscode/settings.json`](../.vscode/settings.json) sets **`go.buildTags`** / **`gopls.buildFlags`** to **`fullruntime,gopls_stub`**, plus **`CGO_ENABLED=1`** (**`gopls.build.env`** + **`go.toolsEnvVars`**). The **`gopls_stub`** tag is **for gopls only** on **Windows**: it includes **`runtime/terrain/*_stub.go`** (e.g. **`heap_objects_stub.go`**) in the analysis build so you do not get **“No packages found”** when opening them. **`go build -tags fullruntime`** (no **`gopls_stub`**) is unchanged and still uses the real CGO terrain sources.
 
+**`third_party/raylib-go-raylib` purego files** (e.g. **`raylib_purego.go`**, **`frustum_cull_purego_windows.go`**) use **`//go:build !cgo && windows`**. With the default **`CGO_ENABLED=1`**, gopls builds the CGO variant of **`raylib`** and those files are **out of the build**, so the editor may show **“No packages found”** when they are focused. To get IntelliSense while editing them, temporarily set **`gopls.build.env.CGO_ENABLED`** (and **`go.toolsEnvVars`**) to **`0`**, run **Go: Restart Language Server**, then switch back to **`1`** when returning to CGO-heavy work.
+
 ### Switching to “compiler CLI” mode
 
 To edit [`main.go`](../main.go) or [`cmd/moonbasic/`](../cmd/moonbasic/) with full IntelliSense:
@@ -56,8 +58,8 @@ Switch back when you return to runtime-heavy code.
 
 ### Why this exists
 
-- The **default** toolchain stays **small** (compiler, LSP, `--check`): suitable for “zero extra DLL” compiler builds and fast iteration.
-- **`fullruntime`** pulls in the **heavy** game stack (Raylib, optional Jolt on Linux, etc.) for **`moonrun`** and `--run`.
+- **Default (Headless)**: The toolchain stays **small** and **dependency-free** (compiler, LSP, `--check`). It uses a `Null` hardware backend, making it suitable for servers and fast unit testing.
+- **`fullruntime`**: Pulls in the **heavy** hardware stack (Raylib, Jolt) via the `hal` package for **interactive** use.
 
 ### Pre-push: validate both build paths
 
@@ -90,10 +92,11 @@ Replace paths as needed. On Windows, set `CGO_ENABLED=1` and `CC` per BUILDING.m
 
 | Action | Command |
 |--------|---------|
-| Type-check | `go run . --check path/to/script.mb` |
-| Compile to `.mbc` | `go run . path/to/script.mb` |
+| Type-check (Headless) | `go run . --check path/to/script.mb` |
+| Compile to `.mbc` (Headless) | `go run . path/to/script.mb` |
 | Run game (source) | `CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun path/to/script.mb` |
 | Run game (alternate) | `CGO_ENABLED=1 go run -tags fullruntime . --run path/to/script.mb` |
+| Static Build (Windows) | `powershell -File scripts/build_static.ps1` |
 | Disassemble bytecode | `go run . --disasm path/to/script.mbc` |
 | All Go tests | `go test ./...` |
 | Regenerate API consistency doc | `go run ./tools/apidoc` |

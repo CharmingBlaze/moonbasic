@@ -241,7 +241,7 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "CHARACTERREF.SETMAXSLOPE", true, true
 		case "SETSTEPHEIGHT", "SETSTEP":
 			return "CHARACTERREF.SETSTEPHEIGHT", true, true
-		case "SETSNAPDISTANCE", "SNAP":
+		case "SETSNAPDISTANCE", "SNAP", "SETSTICKDOWN":
 			return "CHARACTERREF.SETSNAPDISTANCE", true, true
 		case "ISGROUNDED", "GROUNDED":
 			return "CHARACTERREF.ISGROUNDED", true, true
@@ -257,6 +257,16 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "CHARACTERREF.GETPOSITION", true, true
 		case "GETSPEED", "SPEED":
 			return "CHARACTERREF.GETSPEED", true, true
+		case "SETGRAVITY", "SETGRAVITYSCALE":
+			return "CHARACTERREF.SETGRAVITY", true, true
+		case "SETFRICTION":
+			return "CHARACTERREF.SETFRICTION", true, true
+		case "SETBOUNCE", "SETBOUNCINESS":
+			return "CHARACTERREF.SETBOUNCE", true, true
+		case "SETPADDING":
+			return "CHARACTERREF.SETPADDING", true, true
+		case "GETGROUNDSTATE":
+			return "CHARACTERREF.GETGROUNDSTATE", true, true
 		case "FREE":
 			return "CHARACTERREF.FREE", true, true
 		case "MOVEWITHCAMERA", "MOVEWITHCAM":

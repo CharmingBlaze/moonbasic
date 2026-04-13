@@ -8,7 +8,9 @@ import (
 	"image"
 	"image/color"
 	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"unsafe"
 
 	"github.com/ebitengine/purego"
@@ -535,9 +537,32 @@ var detachAudioStreamProcessor func(stream uintptr, processor uintptr)
 var attachAudioMixedProcessor func(processor uintptr)
 var detachAudioMixedProcessor func(processor uintptr)
 
+// shouldDeferRaylibPuregoLoad skips loading raylib.dll when:
+//   - the process is a Go test binary (executable basename contains ".test"), or
+//   - MOONBASIC_SKIP_RAYLIB_DLL is 1, true, or yes.
+//
+// That lets packages import raylib-go on Windows with CGO_ENABLED=0 and still run `go test`
+// without raylib.dll on PATH. Production game binaries must not match these conditions.
+// See docs/architecture/HAL_AND_RENDERING.md.
+func shouldDeferRaylibPuregoLoad() bool {
+	if v := strings.TrimSpace(strings.ToLower(os.Getenv("MOONBASIC_SKIP_RAYLIB_DLL"))); v == "1" || v == "true" || v == "yes" {
+		return true
+	}
+	if len(os.Args) > 0 {
+		base := strings.ToLower(filepath.Base(os.Args[0]))
+		if strings.Contains(base, ".test") {
+			return true
+		}
+	}
+	return false
+}
+
 func init() {
-	raylibDll = loadLibrary()
 	audioCallbacks = make(map[uintptr]uintptr)
+	if shouldDeferRaylibPuregoLoad() {
+		return
+	}
+	raylibDll = loadLibrary()
 
 	initRlglPurego()
 

@@ -30,8 +30,8 @@ func (m *Module) quatToEuler(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	v := rl.QuaternionToEuler(q)
-	return m.allocVec3(v)
+	v := rl.QuaternionToEuler(toQ(q))
+	return m.allocVec3(fromV3(v))
 }
 
 func (m *Module) quatFromVec3ToVec3(args []value.Value) (value.Value, error) {
@@ -49,7 +49,7 @@ func (m *Module) quatFromVec3ToVec3(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocQuat(rl.QuaternionFromVector3ToVector3(from, to))
+	return m.allocQuat(fromQ(rl.QuaternionFromVector3ToVector3(toV3(from), toV3(to))))
 }
 
 func (m *Module) quatFromMat4(args []value.Value) (value.Value, error) {
@@ -63,7 +63,7 @@ func (m *Module) quatFromMat4(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocQuat(rl.QuaternionFromMatrix(mat))
+	return m.allocQuat(fromQ(rl.QuaternionFromMatrix(toM(mat))))
 }
 
 // QUAT.TRANSFORM applies a 4×4 matrix to a quaternion (rotation composition helper).
@@ -82,5 +82,5 @@ func (m *Module) quatTransform(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocQuat(rl.QuaternionTransform(q, mat))
+	return m.allocQuat(fromQ(rl.QuaternionTransform(toQ(q), toM(mat))))
 }

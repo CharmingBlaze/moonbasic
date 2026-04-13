@@ -4,8 +4,12 @@ package mbentity
 import (
 	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/runtime/texture"
 	"moonbasic/vm/heap"
+	"unsafe"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // ModulesByStore maps VM heaps to their entity module (for cross-package helpers).
@@ -46,5 +50,46 @@ func (m *Module) BindCamera(c runtime.Module) {
 func (m *Module) BindHeap(h *heap.Store) {
 	m.h = h
 	ModulesByStore[h] = m
+	// Wire physics3d mesh lookup for LEVEL.STATIC
+	mbphysics3d.GetModule(h).SetMeshLookup(m.GetEntityMeshes)
+	mbphysics3d.GetModule(h).SetVehicleHooks(func(id int64) (rl.Vector3, float32, bool) {
+		e := m.store().ents[id]
+		if e == nil {
+			return rl.Vector3{}, 0, false
+		}
+		p := m.worldPos(e)
+		_, ew, _ := e.getRot()
+		return p, ew, true
+	}, func(id int64, pos rl.Vector3) {
+		e := m.store().ents[id]
+		if e == nil {
+			return
+		}
+		m.setLocalFromWorld(e, pos.X, pos.Y, pos.Z)
+	})
+	mbphysics3d.SetRaycastHook(func(ox, oy, oz, maxDown float64) (nx, ny, nz, hitY float64, ok bool) {
+		// Bridge to entity floor query
+		y := m.queryFloorYAt(float32(ox), float32(oy), float32(oz))
+		if y > float64(oy)-maxDown && y < float64(oy)+1.0 {
+			return 0, 1, 0, y, true
+		}
+		return 0, 1, 0, 0, false
+	})
+}
+
+// GetEntityMeshes retrieves all meshes associated with an entity (via rlModel if CGO).
+func (m *Module) GetEntityMeshes(id int64) []rl.Mesh {
+	e := m.store().ents[id]
+	if e == nil || !e.hasRLModel {
+		return nil
+	}
+	// Models can have multiple meshes
+	mCount := int(e.rlModel.MeshCount)
+	if mCount <= 0 {
+		return nil
+	}
+	// Return a slice of meshes
+	meshes := (*[1 << 30]rl.Mesh)(unsafe.Pointer(e.rlModel.Meshes))[:mCount:mCount]
+	return meshes
 }
 

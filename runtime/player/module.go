@@ -68,6 +68,7 @@ type hostKCCState struct {
 	stepH, slopeDeg float64
 	stickDown, pad  float64
 	gravityScale    float64
+	friction, bounce float64
 	mass            float64
 	vx, vy, vz      float64
 	crouch          bool

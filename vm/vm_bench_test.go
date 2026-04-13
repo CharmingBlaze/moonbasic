@@ -23,7 +23,7 @@ func BenchmarkVM_RegisterArithmetic(b *testing.B) {
 	c.Emit(opcode.OpHalt, 0, 0, 0, 0, 1)
 
 	h := heap.New()
-	reg := runtime.NewRegistry(h)
+	reg := runtime.NewRegistryHeadless(h)
 	reg.InitCore()
 	v := New(reg, h)
 	b.ResetTimer()

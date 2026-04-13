@@ -31,11 +31,6 @@ func (v *Vector3) cptr() *C.Vector3 {
 	return (*C.Vector3)(unsafe.Pointer(v))
 }
 
-// newVector4FromPointer - Returns new Vector4 from pointer
-func newVector4FromPointer(ptr unsafe.Pointer) Vector4 {
-	return *(*Vector4)(ptr)
-}
-
 // cptr returns C pointer
 func (v *Vector4) cptr() *C.Vector4 {
 	return (*C.Vector4)(unsafe.Pointer(v))
@@ -71,19 +66,9 @@ func (r *Rectangle) cptr() *C.Rectangle {
 	return (*C.Rectangle)(unsafe.Pointer(r))
 }
 
-// newCamera3DFromPointer - Returns new Camera3D from pointer
-func newCamera3DFromPointer(ptr unsafe.Pointer) Camera3D {
-	return *(*Camera3D)(ptr)
-}
-
 // cptr returns C pointer
 func (c *Camera) cptr() *C.Camera {
 	return (*C.Camera)(unsafe.Pointer(c))
-}
-
-// newCamera2DFromPointer - Returns new Camera2D from pointer
-func newCamera2DFromPointer(ptr unsafe.Pointer) Camera2D {
-	return *(*Camera2D)(ptr)
 }
 
 // cptr returns C pointer
@@ -109,11 +94,6 @@ func newShaderFromPointer(ptr unsafe.Pointer) Shader {
 // cptr returns C pointer
 func (s *Shader) cptr() *C.Shader {
 	return (*C.Shader)(unsafe.Pointer(s))
-}
-
-// newAutomationEventFromPointer - Returns new AutomationEvent from pointer
-func newAutomationEventFromPointer(ptr unsafe.Pointer) AutomationEvent {
-	return *(*AutomationEvent)(ptr)
 }
 
 // cptr returns C pointer

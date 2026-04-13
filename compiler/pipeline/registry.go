@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"moonbasic/compiler/builtinmanifest"
+	"moonbasic/drivers/video/null"
+	"moonbasic/hal"
 	"moonbasic/internal/driver"
 	"moonbasic/runtime"
 	mbaudio "moonbasic/runtime/audio"
@@ -70,7 +72,9 @@ import (
 // ListBuiltins returns all registered native command keys.
 func ListBuiltins() []string {
 	h := heap.New()
-	reg := runtime.NewRegistry(h)
+	// Headless: avoid loading Raylib just to enumerate registered keys.
+	nd := null.NewDriver()
+	reg := runtime.NewRegistry(h, hal.Driver{Video: nd, Input: nd, System: nd})
 	// Use empty options for listing; doesn't matter for registration
 	setupRegistry(reg, h, Options{})
 	return reg.CommandKeys()

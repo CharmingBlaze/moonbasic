@@ -13,6 +13,7 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbmatrix"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -26,6 +27,8 @@ func registerLevelGLTFAPI(m *Module, r runtime.Registrar) {
 	r.Register("LEVEL.GETMARKER", "entity", runtime.AdaptLegacy(m.levelGetMarker))
 	r.Register("LEVEL.GETSPAWN", "entity", m.levelGetSpawn)
 	r.Register("LEVEL.SHOWLAYER", "entity", m.levelShowLayer)
+	r.Register("LEVEL.STATIC", "entity", runtime.AdaptLegacy(m.levelStatic))
+	r.Register("LEVEL.SETUP", "entity", m.levelSetup)
 	r.Register("LEVEL.APPLYPHYSICS", "entity", runtime.AdaptLegacy(m.levelApplyPhysics))
 	r.Register("LEVEL.SYNCLIGHTS", "entity", runtime.AdaptLegacy(m.levelSyncLights))
 	r.Register("PHYSICS.AUTOCREATE", "entity", runtime.AdaptLegacy(m.physicsAutoCreate))
@@ -541,4 +544,58 @@ func (m *Module) entInstanceStub(args []value.Value) (value.Value, error) {
 	}
 	_, _ = m.entID(args[0])
 	return value.Nil, fmt.Errorf("ENTITY.INSTANCE: not implemented — use MODEL.MAKEINSTANCED for GPU instancing; ENTITY.COPY duplicates VRAM today")
+}
+
+func (m *Module) levelSetup(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return mbphysics3d.PHWorldSetup(mbphysics3d.GetModule(m.h), args)
+}
+
+func (m *Module) levelStatic(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("LEVEL.STATIC expects (entity)")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("LEVEL.STATIC: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("LEVEL.STATIC: unknown entity")
+	}
+	e.static = true
+
+	// If CGO and model exists, also create Jolt static mesh
+	if e.hasRLModel && m.h != nil {
+		wp := m.worldPos(e)
+		// 1. Create Builder
+		bh, err := m.h.Alloc(&mbphysics3d.BuilderObj{
+			Motion:   0, // Static
+			Friction: 0.8,
+		})
+		if err != nil {
+			return value.Nil, err
+		}
+		bHandle := value.FromHandle(bh)
+		// 2. Add Mesh
+		_, err = mbphysics3d.BDAddMesh(m.h, []value.Value{bHandle, value.FromInt(id)})
+		if err != nil {
+			m.h.Free(bh)
+			fmt.Printf("LEVEL.STATIC: warning: Jolt mesh creation failed for entity %d: %v\n", id, err)
+			return value.Nil, nil
+		}
+		// 3. Commit
+		bodyHandleVal, err := mbphysics3d.BDCommit(m.h, []value.Value{
+			bHandle,
+			value.FromFloat(float64(wp.X)),
+			value.FromFloat(float64(wp.Y)),
+			value.FromFloat(float64(wp.Z)),
+		})
+		if err != nil {
+			return value.Nil, err
+		}
+		// 4. Link
+		bidxVal, _ := mbphysics3d.BDBufferIndex(m.h, []value.Value{bodyHandleVal})
+		m.entLinkPhysBuffer([]value.Value{args[0], bidxVal})
+	}
+	return value.Nil, nil
 }

@@ -185,6 +185,14 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	for _, k := range noopKeys {
 		reg.Register(k, "physics3d", noop)
 	}
+
+	// World API (Easy Mode)
+	reg.Register("WORLD.SETUP", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return PHWorldSetup(m, args)
+	})
+	reg.Register("LEVEL.STATIC", "physics3d", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return phLevelStatic(m, args)
+	})
 }
 
 func hGetBody(m *Module, v value.Value) (*body3dObj, error) {
@@ -222,3 +230,33 @@ func WakeIndex(idx int)                                {}
 func ApplyForceToIndex(idx int, x, y, z float32)       {}
 func RotateToIndex(idx int, p, y, r float32)           {}
 func SetGravityFactorToIndex(idx int, x float32)      {}
+
+func PHWorldSetup(m *Module, args []value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+
+func BDAddMesh(h *heap.Store, args []value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+
+func BDCommit(h *heap.Store, args []value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+
+func BDBufferIndex(h *heap.Store, args []value.Value) (value.Value, error) {
+	return value.FromInt(0), nil
+}
+
+func phLevelStatic(m *Module, args []value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+
+type BuilderObj struct {
+	Motion   int
+	Friction float32
+	Shape    *ShapeObj
+}
+
+func (b *BuilderObj) TypeName() string { return "Body3DBuilder" }
+func (b *BuilderObj) TypeTag() uint16  { return heap.TagPhysicsBuilder }
+func (b *BuilderObj) Free()            {}

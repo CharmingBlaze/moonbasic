@@ -12,11 +12,10 @@ import (
 	"sync/atomic"
 
 	"moonbasic/compiler/builtinmanifest"
+	"moonbasic/hal"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/opcode"
 	"moonbasic/vm/value"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 // Errorf formats a runtime error with the moonBASIC prefix (for use from subpackages).
@@ -119,7 +118,10 @@ type Registry struct {
 	loadingMode atomic.Bool
 
 	// ResolveEntityWorldPos is set by mbentity; used by mbdebug and mbcamera.
-	ResolveEntityWorldPos func(entID int64) (rl.Vector3, bool)
+	ResolveEntityWorldPos func(entID int64) (hal.V3, bool)
+
+	// Driver aggregates hardware-dependent subsystems (Video, Input, etc).
+	Driver hal.Driver
 
 	// Spatial is the Data-Oriented shared buffer for entity positions/rotations.
 	// Set by mbentity to enable zero-copy spatial macros in the VM.
@@ -158,10 +160,11 @@ func (r *Registry) LoadingMode() bool {
 }
 
 // NewRegistry initializes the runtime environment.
-func NewRegistry(h *heap.Store) *Registry {
+func NewRegistry(h *heap.Store, d hal.Driver) *Registry {
 	return &Registry{
 		Commands: make(map[string]BuiltinFn),
 		Heap:     h,
+		Driver:   d,
 		Modules:  []Module{},
 	}
 }

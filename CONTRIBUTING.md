@@ -26,10 +26,10 @@ The [`--check`](.github/workflows/ci.yml) samples mirror a subset of CI; fixing 
 
 | Build | Command | What you get |
 |--------|---------|----------------|
-| **Compiler only** (default) | `go build -o moonbasic .` | `.mb` → `.mbc`, `--check`, `--lsp`, `--disasm`. No game window. |
-| **Full runtime** | `go build -tags fullruntime -o moonrun ./cmd/moonrun` | Run graphical programs from `.mb` / `.mbc`. |
+| **Headless Compiler** (default) | `go build -o moonbasic .` | `.mb` → `.mbc`, `--check`, `--lsp`, `--disasm`. Uses **Null Driver** (dependency-free). |
+| **Full Interactive Runtime** | `go build -tags fullruntime -o moonrun ./cmd/moonrun` | Run graphical programs from `.mb` / `.mbc`. Uses **Raylib Driver**. |
 
-Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** (see [docs/DEVELOPER.md](docs/DEVELOPER.md)).
+Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** locally. To produce a **standalone static exe** on Windows, use [`scripts/build_static.ps1`](scripts/build_static.ps1).
 
 ### IDE: gopls and build tags (“split brain”)
 
@@ -55,9 +55,11 @@ Before pushing Go changes, run **`bash scripts/check_builds.sh`** (or **`make ch
 ## Changing builtins / commands
 
 1. Add or update the declaration in [`compiler/builtinmanifest/commands.json`](compiler/builtinmanifest/commands.json).
-2. Implement registration and behavior under [`runtime/`](runtime/) (and related packages).
-3. Run `go run . --check` on a sample that exercises the change.
-4. Regenerate API docs when the public surface changes: `go run ./tools/apidoc` (updates [`docs/API_CONSISTENCY.md`](docs/API_CONSISTENCY.md)).
+2. Implement behavior in a `runtime/` package using **`hal` types** (`hal.V3`, etc.).
+3. If the feature interacts with hardware, call via `rt.Driver`.
+4. Ensure the feature satisfies the **Null Driver** (even as a no-op) so compiler tests remain headless.
+5. Run `go run . --check` on a sample that exercises the change.
+6. Regenerate API docs: `go run ./tools/apidoc` (**[`docs/API_CONSISTENCY.md`](docs/API_CONSISTENCY.md)**).
 
 **Ease-of-use helpers:** New pattern commands (movement, snapping, camera-relative input, etc.) should complement—not replace—existing `MATH.*` / vector primitives. Naming, tuples, and documentation expectations are summarized in [`docs/EASY_LANGUAGE.md`](docs/EASY_LANGUAGE.md).
 
@@ -71,7 +73,8 @@ High-level pipeline and layout: [ARCHITECTURE.md](ARCHITECTURE.md). Deeper contr
 
 ## First-Time Contributor's Checklist
 When contributing to MoonBASIC, remember our Static-First philosophy to ensure single-binary Zero-DLL purity across releases!
-- [ ] No `C` headers bridging shared dll calls natively (unless encapsulated via CGO `#cgo LDFLAGS` specifying static archives).
-- [ ] Only utilize Pure-Go parsers (e.g. `qmuntal/gltf`) targeting GPU buffers statically.
-- [ ] Make sure resources utilize `//go:embed` targeting payload bundles rather than enforcing loose paths avoiding runtime disk crashes natively.
-- [ ] Remember to update the `commands.json` API manifest exactly aligning new methods directly with handle models.
+- [ ] **HAL Compliance**: All hardware access must go through `rt.Driver`. Direct imports of Raylib in `runtime/` are forbidden.
+- [ ] **Static Linking**: Specify static archives in CGO LDFLAGS (already configured in `drivers/video/raylib`).
+- [ ] **Headless Parity**: Ensure the `Null` driver is updated so `--check` and tests stay dependency-free.
+- [ ] **Embed Resources**: Utilize `//go:embed` targeting payload bundles rather than enforcing loose paths.
+- [ ] **Manifest Alignment**: Update `commands.json` API manifest exactly aligning new methods directly with handle types.

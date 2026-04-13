@@ -14,6 +14,7 @@ import (
 )
 
 func registerPlayerCommands(m *Module, reg runtime.Registrar) {
+	// Standard CHARACTER.* and CHARACTERREF.* (Host Core)
 	reg.Register("CHARACTER.CREATE", "player", m.playerCharacterCreate)
 	reg.Register("CHARACTERREF.ADDVELOCITY", "player", m.charRefAddVel)
 	reg.Register("CHARACTERREF.SETLINEARVELOCITY", "player", m.charRefSetVel)
@@ -31,11 +32,6 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.GETPOSITION", "player", m.charRefGetPos)
 	reg.Register("CHARACTERREF.FREE", "player", m.charRefFree)
 	reg.Register("CHARACTERREF.GETGROUNDSTATE", "player", m.charRefGetGroundState)
-	reg.Register("PLAYER.GETGROUNDSTATE", "player", m.playerGetGroundState)
-	reg.Register("PLAYER.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
-	reg.Register("CHAR.GETGROUNDSTATE", "player", m.playerGetGroundState)
-	reg.Register("CHAR.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
-
 	reg.Register("CHARACTERREF.SETGRAVITY", "player", m.charRefSetGravityScale)
 	reg.Register("CHARACTERREF.SETGRAVITYSCALE", "player", m.charRefSetGravityScale)
 	reg.Register("CHARACTERREF.SETFRICTION", "player", m.charRefSetFriction)
@@ -43,6 +39,49 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.SETBOUNCE", "player", m.charRefSetBounce)
 	reg.Register("CHARACTERREF.GETSPEED", "player", m.charRefGetSpeed)
 	reg.Register("CHARACTERREF.ISMOVING", "player", m.charRefIsMoving)
+
+	// PLAYER.* Aliases (Easy Mode)
+	reg.Register("PLAYER.CREATE", "player", m.playerCharacterCreate)
+	reg.Register("PLAYER.MOVE", "player", m.playerMove)
+	reg.Register("PLAYER.JUMP", "player", m.playerJump)
+	reg.Register("PLAYER.ISGROUNDED", "player", m.playerIsGrounded)
+	reg.Register("PLAYER.GETGROUNDSTATE", "player", m.playerGetGroundState)
+	reg.Register("PLAYER.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
+	reg.Register("PLAYER.SETSTEPHEIGHT", "player", m.playerSetStepOffset)
+	reg.Register("PLAYER.SETSLOPELIMIT", "player", m.playerSetSlopeLimit)
+	reg.Register("PLAYER.SETSTEPOFFSET", "player", m.playerSetStepOffset)
+	reg.Register("PLAYER.SETSTICKFLOOR", "player", m.playerSetStickFloor)
+	reg.Register("PLAYER.NAVTO", "player", m.playerNavTo)
+	reg.Register("PLAYER.NAVUPDATE", "player", m.playerNavUpdate)
+	reg.Register("PLAYER.TELEPORT", "player", m.playerTeleport)
+	reg.Register("PLAYER.SETGRAVITYSCALE", "player", m.playerSetGravityScale)
+	reg.Register("PLAYER.SETPADDING", "player", m.charRefSetPadding)
+	reg.Register("PLAYER.MOVEWITHCAMERA", "player", m.charRefMoveWithCam)
+
+	// CHAR.* Aliases (Easy Mode)
+	reg.Register("CHAR.MAKE", "player", m.playerCharacterCreate)
+	reg.Register("CHAR.SETSTEP", "player", m.playerSetStepOffset)
+	reg.Register("CHAR.SETSLOPE", "player", m.playerSetSlopeLimit)
+	reg.Register("CHAR.SETPADDING", "player", m.charRefSetPadding)
+	reg.Register("CHAR.MOVE", "player", m.playerCharMoveDir)
+	reg.Register("CHAR.MOVEWITHCAMERA", "player", m.charRefMoveWithCam)
+	reg.Register("CHAR.MOVEWITHCAM", "player", m.charRefMoveWithCam)
+	reg.Register("CHAR.NAVTO", "player", m.playerNavTo)
+	reg.Register("CHAR.NAVUPDATE", "player", m.playerNavUpdate)
+	reg.Register("CHAR.STICK", "player", m.playerSetStickFloor)
+	reg.Register("CHAR.ISGROUNDED", "player", m.playerIsGrounded)
+	reg.Register("CHAR.JUMP", "player", m.playerJump)
+	reg.Register("CHAR.GETGROUNDSTATE", "player", m.playerGetGroundState)
+	reg.Register("CHAR.ISONSTEEPSLOPE", "player", m.playerIsOnSteepSlope)
+
+	// NAV.* intent layer
+	reg.Register("NAV.GOTO", "player", m.playerNavTo)
+	reg.Register("NAV.UPDATE", "player", m.playerNavUpdate)
+
+	// ENTITYREF methods (for handle-bound calls)
+	reg.Register("ENTITYREF.NAVUPDATE", "entity", m.playerNavUpdate)
+	reg.Register("ENTITYREF.ISGROUNDED", "entity", m.playerIsGrounded)
+	reg.Register("ENTITYREF.JUMP", "entity", m.playerJump)
 
 	registerPlayerCharGetAPI(m, reg)
 	registerPlayerTerrainCommands(m, reg)
@@ -86,6 +125,8 @@ func (m *Module) playerStandaloneCreate(args []value.Value) (value.Value, error)
 		stepH:        0.3,
 		slopeDeg:     45.0,
 		gravityScale: 1.0,
+		friction:     0.1,
+		bounce:       0.0,
 		pad:          0.02,
 		vx: 0, vy: 0, vz: 0,
 		grounded: false,
@@ -120,6 +161,8 @@ func (m *Module) playerCreate(rt *runtime.Runtime, args ...value.Value) (value.V
 		stepH:        0.3,
 		slopeDeg:     45.0,
 		gravityScale: 1.0,
+		friction:     0.1,
+		bounce:       0.0,
 		pad:          0.02,
 	}
 	m.lastHero = id
@@ -858,7 +901,11 @@ func (m *Module) charRefSetGravityScale(rt *runtime.Runtime, args ...value.Value
 	return value.Nil, nil
 }
 func (m *Module) charRefSetFriction(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return value.Nil, nil // Host KCC friction not yet analytic
+	if len(args) != 2 { return value.Nil, fmt.Errorf("Character.SetFriction expects (handle, friction#)") }
+	obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	v, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok { st.friction = v }
+	return value.Nil, nil
 }
 func (m *Module) charRefSetPadding(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	var id int64
@@ -877,6 +924,10 @@ func (m *Module) charRefSetPadding(rt *runtime.Runtime, args ...value.Value) (va
 	return value.Nil, nil
 }
 func (m *Module) charRefSetBounce(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 { return value.Nil, fmt.Errorf("Character.SetBounce expects (handle, bounce#)") }
+	obj, _ := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	v, _ := args[1].ToFloat()
+	if st, ok := m.hostKCC[obj.id]; ok { st.bounce = v }
 	return value.Nil, nil
 }
 func (m *Module) charRefGetSpeed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

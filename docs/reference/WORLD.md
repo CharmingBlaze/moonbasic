@@ -10,6 +10,11 @@ The **world manager** ties into the active [`terrain`](TERRAIN.md) module: it up
 
 ---
 
+### `World.Setup([gravity#])`
+**Easy Mode** physics entry point. Starts Jolt (Linux) or Host solvers and initializes global gravity. Replaces manual start/gravity calls. Default is `-9.81`.
+
+---
+
 ### `World.Update(dt)`
 Updates world streaming and entity spatial SoA.
 

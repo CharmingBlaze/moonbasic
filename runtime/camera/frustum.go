@@ -30,9 +30,11 @@ type Frustum struct {
 // projectionMatrixForFrustum matches rl.BeginMode3D + GetCameraProjectionMatrix math but uses
 // rlGetCullDistanceNear/Far (see RL_CULL_DISTANCE_*) — not the hardcoded 0.01/1000 in
 // GetCameraProjectionMatrix. Mismatched near/far made CPU culling reject geometry the GPU still drew.
+//
+// Uses [rl.FrustumCullDistances] so headless Windows purego test binaries (deferred DLL load)
+// still get consistent defaults without calling DLL-backed rlgl entry points.
 func projectionMatrixForFrustum(cam rl.Camera3D, aspectRatio float32) rl.Matrix {
-	near := float32(rl.GetCullDistanceNear())
-	far := float32(rl.GetCullDistanceFar())
+	near, far := rl.FrustumCullDistances()
 	if cam.Projection == rl.CameraOrthographic {
 		top := cam.Fovy / 2.0
 		right := top * aspectRatio
@@ -50,7 +52,9 @@ func projectionMatrixForFrustum(cam rl.Camera3D, aspectRatio float32) rl.Matrix 
 // Use projectionMatrixForFrustum (RL cull near/far) — not rl.GetCameraProjectionMatrix, which is
 // hardcoded 0.01/1000 in raylib-go and does not match rlgl when clip planes differ.
 func ExtractFrustum(cam rl.Camera3D, aspectRatio float32) Frustum {
-	view := rl.GetCameraMatrix(cam)
+	// MatrixLookAt matches the view matrix used for CUSTOM cameras and avoids GetCameraMatrix,
+	// which on Windows purego calls into raylib.dll (unavailable when DLL load is deferred).
+	view := rl.MatrixLookAt(cam.Position, cam.Target, cam.Up)
 	proj := projectionMatrixForFrustum(cam, aspectRatio)
 	pv := rl.MatrixMultiply(view, proj)
 

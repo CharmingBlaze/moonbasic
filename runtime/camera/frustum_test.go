@@ -28,11 +28,10 @@ func TestExtractFrustumPlanesNormalized(t *testing.T) {
 	}
 }
 
-func TestProjectionMatrixUsesRLCullDistances(t *testing.T) {
-	near := float32(rl.GetCullDistanceNear())
-	far := float32(rl.GetCullDistanceFar())
+func TestProjectionMatrixUsesFrustumCullDistances(t *testing.T) {
+	near, far := rl.FrustumCullDistances()
 	if near <= 0 || far <= near {
-		t.Fatalf("unexpected RL clip range near=%g far=%g", near, far)
+		t.Fatalf("unexpected cull clip range near=%g far=%g", near, far)
 	}
 	cam := rl.Camera3D{
 		Position:   rl.Vector3{X: 0, Y: 2, Z: 8},
@@ -56,7 +55,7 @@ func TestDebugNDCClipTarget(t *testing.T) {
 		Fovy:       55,
 		Projection: rl.CameraPerspective,
 	}
-	view := rl.GetCameraMatrix(cam)
+	view := rl.MatrixLookAt(cam.Position, cam.Target, cam.Up)
 	proj := projectionMatrixForFrustum(cam, float32(16.0/9.0))
 	// Raylib column-vector multiply: world→clip uses MatrixMultiply(view, proj), same as proj·V·p in math.
 	pv := rl.MatrixMultiply(view, proj)

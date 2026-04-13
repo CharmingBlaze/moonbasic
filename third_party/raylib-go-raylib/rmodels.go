@@ -51,11 +51,6 @@ func (r *Ray) cptr() *C.Ray {
 	return (*C.Ray)(unsafe.Pointer(r))
 }
 
-// newModelAnimationFromPointer - Returns new ModelAnimation from pointer
-func newModelAnimationFromPointer(ptr unsafe.Pointer) ModelAnimation {
-	return *(*ModelAnimation)(ptr)
-}
-
 // cptr returns C pointer
 func (r *ModelAnimation) cptr() *C.ModelAnimation {
 	return (*C.ModelAnimation)(unsafe.Pointer(r))

@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"math"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
-
 	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	"moonbasic/hal"
 )
 
 func (m *Module) registerVec3(reg runtime.Registrar) {
@@ -46,14 +46,6 @@ func (m *Module) registerVec3(reg runtime.Registrar) {
 	reg.Register("VEC3.VECLENGTH", "vec3", runtime.AdaptLegacy(m.vec3Length))
 }
 
-func (m *Module) allocVec3(v rl.Vector3) (value.Value, error) {
-	id, err := m.h.Alloc(&vec3Obj{v: v})
-	if err != nil {
-		return value.Nil, err
-	}
-	return value.FromHandle(id), nil
-}
-
 func (m *Module) vec3Make(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
@@ -67,7 +59,7 @@ func (m *Module) vec3Make(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("VEC3.MAKE: components must be numeric")
 	}
-	return m.allocVec3(rl.Vector3{X: x, Y: y, Z: z})
+	return m.allocVec3(hal.V3{X: float32(x), Y: float32(y), Z: float32(z)})
 }
 
 func (m *Module) vec3Free(args []value.Value) (value.Value, error) {
@@ -142,7 +134,7 @@ func (m *Module) vec3Set(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 {
 		return value.Nil, fmt.Errorf("VEC3.SET: components must be numeric")
 	}
-	o.v = rl.Vector3{X: x, Y: y, Z: z}
+	o.v = hal.V3{X: float32(x), Y: float32(y), Z: float32(z)}
 	return value.Nil, nil
 }
 
@@ -161,7 +153,7 @@ func (m *Module) vec3Add(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Add(a, b))
+	return m.allocVec3(hal.V3{X: a.X + b.X, Y: a.Y + b.Y, Z: a.Z + b.Z})
 }
 
 func (m *Module) vec3Sub(args []value.Value) (value.Value, error) {
@@ -179,7 +171,7 @@ func (m *Module) vec3Sub(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Subtract(a, b))
+	return m.allocVec3(hal.V3{X: a.X - b.X, Y: a.Y - b.Y, Z: a.Z - b.Z})
 }
 
 func (m *Module) vec3Mul(args []value.Value) (value.Value, error) {
@@ -197,7 +189,7 @@ func (m *Module) vec3Mul(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("VEC3.MUL: scalar must be numeric")
 	}
-	return m.allocVec3(rl.Vector3Scale(v, s))
+	return m.allocVec3(hal.V3{X: v.X * float32(s), Y: v.Y * float32(s), Z: v.Z * float32(s)})
 }
 
 func (m *Module) vec3Div(args []value.Value) (value.Value, error) {
@@ -215,7 +207,8 @@ func (m *Module) vec3Div(args []value.Value) (value.Value, error) {
 	if !ok || float64(s) == 0 {
 		return value.Nil, fmt.Errorf("VEC3.DIV: non-zero scalar required")
 	}
-	return m.allocVec3(rl.Vector3Scale(v, 1/s))
+	inv := float32(1.0 / s)
+	return m.allocVec3(hal.V3{X: v.X * inv, Y: v.Y * inv, Z: v.Z * inv})
 }
 
 func (m *Module) vec3Dot(args []value.Value) (value.Value, error) {
@@ -233,7 +226,7 @@ func (m *Module) vec3Dot(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromFloat(float64(rl.Vector3DotProduct(a, b))), nil
+	return value.FromFloat(float64(a.X*b.X + a.Y*b.Y + a.Z*b.Z)), nil
 }
 
 func (m *Module) vec3Cross(args []value.Value) (value.Value, error) {
@@ -251,7 +244,11 @@ func (m *Module) vec3Cross(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3CrossProduct(a, b))
+	return m.allocVec3(hal.V3{
+		X: a.Y*b.Z - a.Z*b.Y,
+		Y: a.Z*b.X - a.X*b.Z,
+		Z: a.X*b.Y - a.Y*b.X,
+	})
 }
 
 func (m *Module) vec3Length(args []value.Value) (value.Value, error) {
@@ -274,7 +271,7 @@ func (m *Module) vec3Length(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromFloat(float64(rl.Vector3Length(v))), nil
+	return value.FromFloat(math.Sqrt(float64(v.X*v.X + v.Y*v.Y + v.Z*v.Z))), nil
 }
 
 func (m *Module) vec3Normalize(args []value.Value) (value.Value, error) {
@@ -291,7 +288,7 @@ func (m *Module) vec3Normalize(args []value.Value) (value.Value, error) {
 			y /= mag
 			z /= mag
 		}
-		return m.allocTuple3(x, y, z)
+		return m.allocTuple3(float32(x), float32(y), float32(z))
 	}
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
@@ -303,7 +300,11 @@ func (m *Module) vec3Normalize(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Normalize(v))
+	mag := float32(math.Sqrt(float64(v.X*v.X + v.Y*v.Y + v.Z*v.Z)))
+	if mag > 0 {
+		return m.allocVec3(hal.V3{X: v.X / mag, Y: v.Y / mag, Z: v.Z / mag})
+	}
+	return m.allocVec3(hal.V3{X: 0, Y: 0, Z: 0})
 }
 
 func (m *Module) allocTuple3(x, y, z float32) (value.Value, error) {
@@ -343,7 +344,12 @@ func (m *Module) vec3Lerp(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("VEC3.LERP: t must be numeric")
 	}
-	return m.allocVec3(rl.Vector3Lerp(a, b, t))
+	tf := float32(t)
+	return m.allocVec3(hal.V3{
+		X: a.X + tf*(b.X-a.X),
+		Y: a.Y + tf*(b.Y-a.Y),
+		Z: a.Z + tf*(b.Z-a.Z),
+	})
 }
 
 func (m *Module) vec3Dist(args []value.Value) (value.Value, error) {
@@ -357,10 +363,10 @@ func (m *Module) vec3Dist(args []value.Value) (value.Value, error) {
 		if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 {
 			return value.Nil, fmt.Errorf("VEC3.DIST: components must be numeric")
 		}
-		dx := float64(x2 - x1)
-		dy := float64(y2 - y1)
-		dz := float64(z2 - z1)
-		return value.FromFloat(math.Sqrt(dx*dx + dy*dy + dz*dz)), nil
+		dx := x2 - x1
+		dy := y2 - y1
+		dz := z2 - z1
+		return value.FromFloat(math.Sqrt(float64(dx*dx + dy*dy + dz*dz))), nil
 	}
 	return m.vec3Distance(args)
 }
@@ -378,10 +384,10 @@ func (m *Module) vec3DistSq(args []value.Value) (value.Value, error) {
 	if !ok1 || !ok2 || !ok3 || !ok4 || !ok5 || !ok6 {
 		return value.Nil, fmt.Errorf("VEC3.DISTSQ: components must be numeric")
 	}
-	dx := float64(x2 - x1)
-	dy := float64(y2 - y1)
-	dz := float64(z2 - z1)
-	return value.FromFloat(dx*dx + dy*dy + dz*dz), nil
+	dx := x2 - x1
+	dy := y2 - y1
+	dz := z2 - z1
+	return value.FromFloat(float64(dx*dx + dy*dy + dz*dz)), nil
 }
 
 func (m *Module) vec3Distance(args []value.Value) (value.Value, error) {
@@ -399,7 +405,10 @@ func (m *Module) vec3Distance(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromFloat(float64(rl.Vector3Distance(a, b))), nil
+	dx := float64(a.X - b.X)
+	dy := float64(a.Y - b.Y)
+	dz := float64(a.Z - b.Z)
+	return value.FromFloat(math.Sqrt(dx*dx + dy*dy + dz*dz)), nil
 }
 
 func (m *Module) vec3Reflect(args []value.Value) (value.Value, error) {
@@ -417,7 +426,12 @@ func (m *Module) vec3Reflect(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Reflect(v, n))
+	dot := v.X*n.X + v.Y*n.Y + v.Z*n.Z
+	return m.allocVec3(hal.V3{
+		X: v.X - 2*dot*n.X,
+		Y: v.Y - 2*dot*n.Y,
+		Z: v.Z - 2*dot*n.Z,
+	})
 }
 
 func (m *Module) vec3Negate(args []value.Value) (value.Value, error) {
@@ -431,7 +445,7 @@ func (m *Module) vec3Negate(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec3(rl.Vector3Negate(v))
+	return m.allocVec3(hal.V3{X: -v.X, Y: -v.Y, Z: -v.Z})
 }
 
 func (m *Module) vec3Equals(args []value.Value) (value.Value, error) {
@@ -449,5 +463,5 @@ func (m *Module) vec3Equals(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromBool(rl.Vector3Equals(a, b)), nil
+	return value.FromBool(a.X == b.X && a.Y == b.Y && a.Z == b.Z), nil
 }

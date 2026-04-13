@@ -90,8 +90,52 @@ func BDAddCapsule(h *heap.Store, args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func bdAddMesh(m *Module, args []value.Value) (value.Value, error) {
-	return value.Nil, fmt.Errorf("BODY3D.ADDMESH: requires Phase D model handle (not implemented)")
+func BDAddMesh(h *heap.Store, args []value.Value) (value.Value, error) {
+	m := GetModule(h)
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.ADDMESH expects (builder, entityID)")
+	}
+	bu, err := heap.Cast[*BuilderObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	eid, _ := args[1].ToInt()
+
+	if m.meshLookup == nil {
+		return value.Nil, fmt.Errorf("BODY3D.ADDMESH: mesh lookup not wired (engine bridge missing)")
+	}
+	meshes := m.meshLookup(eid)
+	if len(meshes) == 0 {
+		return value.Nil, fmt.Errorf("BODY3D.ADDMESH: entity %d has no meshes", eid)
+	}
+
+	var allVerts []jolt.Vec3
+	var allIndices []int32
+
+	for _, mesh := range meshes {
+		off := int32(len(allVerts))
+		vCount := int(mesh.VertexCount)
+		iCount := int(mesh.TriangleCount) * 3
+
+		// vertices are X,Y,Z floats
+		vPtr := (*[1 << 30]float32)(unsafe.Pointer(mesh.Vertices))[: vCount*3 : vCount*3]
+		for i := 0; i < vCount; i++ {
+			allVerts = append(allVerts, jolt.Vec3{X: vPtr[i*3], Y: vPtr[i*3+1], Z: vPtr[i*3+2]})
+		}
+
+		// indices are uint16
+		iPtr := (*[1 << 30]uint16)(unsafe.Pointer(mesh.Indices))[:iCount:iCount]
+		for i := 0; i < iCount; i++ {
+			allIndices = append(allIndices, int32(iPtr[i])+off)
+		}
+	}
+
+	if bu.Shape != nil {
+		bu.Shape.Destroy()
+	}
+	bu.Shape = jolt.CreateMesh(allVerts, allIndices)
+	bu.QKind = 0
+	return value.Nil, nil
 }
 
 func BDCommit(h *heap.Store, args []value.Value) (value.Value, error) {

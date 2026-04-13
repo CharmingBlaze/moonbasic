@@ -36,16 +36,25 @@ Both forms return a **handle** to a heap **`Character`** object; use **`CHARACTE
 
 ## Core workflow (host / standalone-friendly)
 
-1. **`PHYSICS3D.START()`** and set gravity (**`WORLD.GRAVITY`** / **`PHYSICS3D.SETGRAVITY`**).
+1. **`World.Setup()`** (Recommended) or **`PHYSICS3D.START()`** and set gravity.
 2. **`hero = Character.Create(0, 5, 0)`** *or* **`hero = Character.Create(playerEnt, 0.4, 1.0)`**.
-3. Each frame: **`CHARACTERREF.UPDATE(hero, dt)`** (or your game loop’s **`UPDATEPHYSICS`** bundle), input → **`CHARACTERREF.MOVEWITHCAMERA`**, **`CHARACTERREF.JUMP`**, etc.
+3. (Optional) Tune physics: **`CharacterRef.SetPadding(hero, 0.02)`**, **`CharacterRef.SetFriction(hero, 0.9)`**.
+4. Each frame: **`CHARACTERREF.UPDATE(hero, dt)`** (or your game loop’s **`UPDATEPHYSICS`** bundle), input → **`CHARACTERREF.MOVEWITHCAMERA`**, **`CHARACTERREF.JUMP`**, etc.
 4. **Standalone:** sync any **visual** (e.g. separate **`MODEL`**) by reading **`CHARACTERREF.GETPOSITION`** and moving the mesh, or attach gameplay to the virtual id where the engine exposes it.
 
 ---
 
 ## `CHARACTERREF.*` (handle receiver)
 
-See manifest entries under **`CHARACTERREF.*`** in [API_CONSISTENCY.md](../API_CONSISTENCY.md). Typical calls: **`SETLINEARVELOCITY`**, **`UPDATE`**, **`JUMP`**, **`MOVEWITHCAMERA`**, **`SETPOSITION`**, **`GETPOSITION`**, **`ISGROUNDED`**, **`FREE`**.
+See manifest entries under **`CHARACTERREF.*`** in [API_CONSISTENCY.md](../API_CONSISTENCY.md). Typical calls:
+
+* **`CHARACTERREF.UPDATE(handle, dt#)`**: Advances simulation.
+* **`CHARACTERREF.SETFRICTION(handle, friction#)`**: Sets sliding resistance (0..1).
+* **`CHARACTERREF.SETBOUNCE(handle, bounciness#)`**: Sets restitution (0..1).
+* **`CHARACTERREF.SETPADDING(handle, padding#)`**: Sets collision margin (default 0.02).
+* **`CHARACTERREF.JUMP(handle, force#)`**: Applies upward impulse.
+* **`CHARACTERREF.MOVEWITHCAMERA(handle, forward, right, ...)`**: Smart movement relative to view.
+* **`CHARACTERREF.FREE(handle)`**: Releases resources (Jolt/Host).
 
 ---
 

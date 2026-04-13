@@ -30,5 +30,5 @@ func (m *Module) vec2TransformMat4(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	return m.allocVec2(rl.Vector2Transform(v, mat))
+	return m.allocVec2(fromV2(rl.Vector2Transform(toV2(v), toM(mat))))
 }

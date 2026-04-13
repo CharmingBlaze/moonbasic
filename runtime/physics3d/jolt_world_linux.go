@@ -340,3 +340,21 @@ func phRaycast(m *Module, args []value.Value) (value.Value, error) {
 	}
 	return value.FromHandle(id), nil
 }
+
+func PHWorldSetup(m *Module, args []value.Value) (value.Value, error) {
+	grav := -9.81
+	if len(args) > 0 {
+		if v, ok := args[0].ToFloat(); ok {
+			grav = v
+		}
+	}
+	joltMu.Lock()
+	started := joltSys != nil
+	joltMu.Unlock()
+	if !started {
+		if _, err := phStart(m, nil); err != nil {
+			return value.Nil, err
+		}
+	}
+	return phSetGravity(m, []value.Value{value.FromFloat(0), value.FromFloat(grav), value.FromFloat(0)})
+}

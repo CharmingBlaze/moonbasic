@@ -10,11 +10,12 @@ We are currently in **Phase 2: High-Fidelity Refinement**. Our primary objective
 - [x] **Jolt Integration**: Full high-performance rigid body and KCC support on Linux.
 - [x] **Visual Snap Band**: Eliminated solver jitter for a "Nintendo-smooth" feel.
 - [x] **Easy Mode API**: `Character.Create`, `Character.Update`, and `hero.Jump` abstractions.
-- [x] **Cross-Platform Parity**: Unified `commands.json` keys across Windows and Linux.
+- [x] **Decoupled Raylib & HAL**: Isolated engine core from GPU drivers; enabled headless compiler unit tests.
+- [x] **Static Linking**: Supported standalone "Zero-DLL" builds using CGO + Zig CC.
 
 ### Active Priorities
 - **Method Standardization**: Migrating all showcase scripts to use handle methods (`hero.SetGravity`) rather than namespaced calls (`CHARACTERREF.SETGRAVITY`).
-- **Documentation Parity**: Ensuring `API_CONSISTENCY.md` is automatically refreshed and matches the manifest source of truth.
+- **Driver Parity**: Ensuring the `Null` driver implements all new rendering features for robust headless testing.
 
 ## The "Same Path" Philosophy
 
