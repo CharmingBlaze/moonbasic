@@ -26,7 +26,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            cmake \
             gcc \
+            g++ \
             libenet-dev \
             libgl1-mesa-dev \
             libxi-dev \
@@ -35,6 +37,47 @@ jobs:
             libxinerama-dev \
             libwayland-dev \
             libxkbcommon-dev
+
+      # Rebuild Jolt + wrapper so moonrun links against symbols expected by vendored jolt-go (committed .a may lag).
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v4
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (Linux)
+        run: |
+          set -e
+          JOLT_SRC="${GITHUB_WORKSPACE}/JoltPhysics"
+          mkdir -p "$JOLT_SRC/Build/linux_amd64_release"
+          cd "$JOLT_SRC/Build/linux_amd64_release"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS="-fno-lto" \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+            -DDISABLE_CUSTOM_ALLOCATOR=ON \
+            -DTARGET_UNIT_TESTS=OFF \
+            -DTARGET_HELLO_WORLD=OFF \
+            -DTARGET_PERFORMANCE_TEST=OFF \
+            -DTARGET_SAMPLES=OFF \
+            -DTARGET_VIEWER=OFF
+          cmake --build . -j"$(nproc)"
+          WRAPPER="${GITHUB_WORKSPACE}/third_party/jolt-go/jolt/wrapper"
+          OUT="${GITHUB_WORKSPACE}/third_party/jolt-go/jolt/lib/linux_amd64"
+          mkdir -p "$OUT"
+          cd "$WRAPPER"
+          for src in *.cpp; do
+            g++ -std=c++17 -I"$JOLT_SRC" -DNDEBUG -DJPH_DISABLE_CUSTOM_ALLOCATOR \
+              -DJPH_PROFILE_ENABLED -DJPH_DEBUG_RENDERER -DJPH_OBJECT_STREAM \
+              -fPIC -fno-lto -c "$src" -o "${src%.cpp}.o"
+          done
+          ar rcs libjolt_wrapper.a *.o
+          rm -f *.o
+          cp libjolt_wrapper.a "$OUT/"
+          cp "$JOLT_SRC/Build/linux_amd64_release/libJolt.a" "$OUT/"
+          ls -lh "$OUT/"
 
       - name: Build moonbasic + moonrun
         env:
@@ -75,8 +118,7 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-raylib
 
-      # moonrun (-tags fullruntime) links Jolt; Linux CI ships prebuilt .a under jolt/lib/linux_*,
-      # but Windows archives are built here from source (see third_party/jolt-go/README.md, v5.4.0).
+      # moonrun (-tags fullruntime) links Jolt; build Windows .a from JoltPhysics v5.4.0 (CMake under Build/).
       - name: Checkout Jolt Physics
         uses: actions/checkout@v4
         with:

@@ -29,7 +29,8 @@ $BUILD_DIR = Join-Path $JPH_SRC "Build\windows_amd64_release"
 if (-not (Test-Path $BUILD_DIR)) { New-Item -ItemType Directory $BUILD_DIR }
 
 Push-Location $BUILD_DIR
-cmake ../.. `
+# Jolt v5.x: CMakeLists.txt lives under Build/ — configure from Build/<profile> with source ..
+cmake .. `
     -DCMAKE_BUILD_TYPE=Release `
     -DDISABLE_CUSTOM_ALLOCATOR=ON `
     -DTARGET_UNIT_TESTS=OFF `
