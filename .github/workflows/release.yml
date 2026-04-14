@@ -72,7 +72,28 @@ jobs:
           update: true
           install: >-
             mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
             mingw-w64-x86_64-raylib
+
+      # moonrun (-tags fullruntime) links Jolt; Linux CI ships prebuilt .a under jolt/lib/linux_*,
+      # but Windows archives are built here from source (see third_party/jolt-go/README.md, v5.4.0).
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v4
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (Windows)
+        shell: pwsh
+        env:
+          JPH_SRC: ${{ github.workspace }}/JoltPhysics
+        run: |
+          $msys = "${{ steps.msys2.outputs.msys2-location }}"
+          $mingwBin = Join-Path $msys "mingw64\bin"
+          $env:Path = "$mingwBin;$env:Path"
+          Set-Location "${{ github.workspace }}"
+          powershell -ExecutionPolicy Bypass -File "third_party/jolt-go/scripts/build-libs-windows.ps1"
 
       - name: Build moonbasic + moonrun
         shell: bash
