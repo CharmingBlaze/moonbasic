@@ -12,30 +12,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerStreamWaveSound(r runtime.Registrar) {
-	r.Register("AUDIOSTREAM.MAKE", "audio", runtime.AdaptLegacy(m.streamMake))
-	r.Register("AUDIOSTREAM.UPDATE", "audio", runtime.AdaptLegacy(m.streamUpdate))
-	r.Register("AUDIOSTREAM.ISREADY", "audio", runtime.AdaptLegacy(m.streamIsReady))
-	r.Register("AUDIOSTREAM.ISPLAYING", "audio", runtime.AdaptLegacy(m.streamIsPlaying))
-	r.Register("AUDIOSTREAM.PLAY", "audio", runtime.AdaptLegacy(m.streamPlay))
-	r.Register("AUDIOSTREAM.PAUSE", "audio", runtime.AdaptLegacy(m.streamPause))
-	r.Register("AUDIOSTREAM.RESUME", "audio", runtime.AdaptLegacy(m.streamResume))
-	r.Register("AUDIOSTREAM.STOP", "audio", runtime.AdaptLegacy(m.streamStop))
-	r.Register("AUDIOSTREAM.SETVOLUME", "audio", runtime.AdaptLegacy(m.streamSetVolume))
-	r.Register("AUDIOSTREAM.SETPITCH", "audio", runtime.AdaptLegacy(m.streamSetPitch))
-	r.Register("AUDIOSTREAM.SETPAN", "audio", runtime.AdaptLegacy(m.streamSetPan))
-	r.Register("AUDIOSTREAM.FREE", "audio", runtime.AdaptLegacy(m.streamFree))
-
-	r.Register("WAVE.LOAD", "audio", m.waveLoad)
-	r.Register("WAVE.COPY", "audio", runtime.AdaptLegacy(m.waveCopy))
-	r.Register("WAVE.CROP", "audio", runtime.AdaptLegacy(m.waveCrop))
-	r.Register("WAVE.FORMAT", "audio", runtime.AdaptLegacy(m.waveFormat))
-	r.Register("WAVE.EXPORT", "audio", m.waveExport)
-	r.Register("WAVE.FREE", "audio", runtime.AdaptLegacy(m.waveFree))
-
-	r.Register("SOUND.FROMWAVE", "audio", runtime.AdaptLegacy(m.soundFromWave))
-	r.Register("SOUND.FREE", "audio", runtime.AdaptLegacy(m.soundFree))
-}
+// stream/wave/sound implementation below
 
 func (m *Module) getStream(args []value.Value, ix int, op string) (*audioStreamObj, error) {
 	if err := m.requireHeap(); err != nil {
@@ -367,17 +344,4 @@ func (m *Module) soundFromWave(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromHandle(id), nil
-}
-
-func (m *Module) soundFree(args []value.Value) (value.Value, error) {
-	if err := m.requireHeap(); err != nil {
-		return value.Nil, err
-	}
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("SOUND.FREE expects sound handle")
-	}
-	if err := m.h.Free(heap.Handle(args[0].IVal)); err != nil {
-		return value.Nil, err
-	}
-	return value.Nil, nil
 }

@@ -1,9 +1,9 @@
-//go:build linux && cgo
+//go:build (linux || windows) && cgo
 package mbphysics3d
 
 import (
 	"fmt"
-	"unsafe"
+
 	"github.com/bbitechnologies/jolt-go/jolt"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -54,8 +54,8 @@ func createBodyLowLevel(h *heap.Store, shapeH heap.Handle, motion jolt.MotionTyp
 	// Register in matrix buffer for visual sync
 	joltBodyMu.Lock()
 	bidx := nextBufferIndex
-	bufferIndexMap[uintptr(unsafe.Pointer(id))] = bidx
-	bufferIndexToBody[bidx] = uintptr(unsafe.Pointer(id))
+	bufferIndexMap[id] = bidx
+	bufferIndexToBody[bidx] = id
 	body.bufferIndex = bidx
 	nextBufferIndex++
 	// Grow if needed

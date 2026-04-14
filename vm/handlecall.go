@@ -84,6 +84,12 @@ func handleCallRegistryPrefix(tag uint16) string {
 		return "TRIGGERREF."
 	case heap.TagModel, heap.TagLODModel:
 		return "MODEL."
+	case heap.TagNav:
+		return "NAV."
+	case heap.TagNavAgent:
+		return "NAVAGENT."
+	case heap.TagPath:
+		return "PATH."
 	default:
 		return ""
 	}
@@ -149,6 +155,26 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "ENTITY.SHOW", true, true
 		case "MOVEWITHCAMERA":
 			return "ENTITY.MOVEWITHCAMERA", true, true
+		case "SETCOLLISIONMESH", "COLLISIONMESH":
+			return "ENTITY.STATICENTITY", true, true
+		case "SETSTATIC", "STATIC":
+			return "ENTITY.SETSTATIC", true, true
+		case "SETDAMPING":
+			return "BODY3D.SETDAMPING", true, true
+		case "LOCKAXIS":
+			return "BODY3D.LOCKAXIS", true, true
+		case "SETGRAVITYFACTOR":
+			return "BODY3D.SETGRAVITYFACTOR", true, true
+		case "SETCCD":
+			return "BODY3D.SETCCD", true, true
+		case "SETSTEERING", "STEER":
+			return "VEHICLE.SETSTEER", true, true
+		case "SETTHROTTLE", "THROTTLE":
+			return "VEHICLE.SETTHROTTLE", true, true
+		case "SETLIFT":
+			return "AERO.SETLIFT", true, true
+		case "SETTHRUST":
+			return "AERO.SETTHRUST", true, true
 		}
 	case heap.TagCamera2D:
 		switch mn {
@@ -197,7 +223,11 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		case "SETSCALE":
 			return "BODY3D.SETSCALE", true, true
 		case "SETVELOCITY", "SETVEL":
-			return "BODY3D.SETLINEARVELOCITY", true, true
+			return "BODY3D.SETVELOCITY", true, true
+		case "GETVELOCITY", "GETVEL":
+			return "BODY3D.GETVELOCITY", true, true
+		case "GETMASS", "MASS":
+			return "BODY3D.GETMASS", true, true
 		case "ADDFORCE", "FORCE":
 			return "BODY3D.ADDFORCE", true, true
 		case "ADDIMPULSE", "IMPULSE":
@@ -279,7 +309,7 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		}
 	case heap.TagKinematicBody, heap.TagStaticBody, heap.TagTriggerBody:
 		switch mn {
-		case "SETPOS":
+		case "SETPOS", "POSITION":
 			return "BODYREF.SETPOSITION", true, true
 		case "SETROT":
 			return "BODYREF.SETROTATION", true, true
@@ -297,6 +327,48 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			}
 		case "FREE":
 			return "BODYREF.FREE", true, true
+		}
+	case heap.TagNav:
+		switch mn {
+		case "SETGRID":
+			return "NAV.SETGRID", true, true
+		case "ADDTERRAIN":
+			return "NAV.ADDTERRAIN", true, true
+		case "ADDOBSTACLE":
+			return "NAV.ADDOBSTACLE", true, true
+		case "BUILD":
+			return "NAV.BUILD", true, true
+		case "DEBUGDRAW":
+			return "NAV.DEBUGDRAW", true, true
+		case "FINDPATH":
+			return "NAV.FINDPATH", true, true
+		case "FREE":
+			return "NAV.FREE", true, true
+		}
+	case heap.TagNavAgent:
+		switch mn {
+		case "SETPOS", "POSITION":
+			return "NAVAGENT.SETPOS", true, true
+		case "SETSPEED", "SPEED":
+			return "NAVAGENT.SETSPEED", true, true
+		case "SETMAXFORCE":
+			return "NAVAGENT.SETMAXFORCE", true, true
+		case "APPLYFORCE":
+			return "NAVAGENT.APPLYFORCE", true, true
+		case "MOVETO":
+			return "NAVAGENT.MOVETO", true, true
+		case "UPDATE":
+			return "NAVAGENT.UPDATE", true, true
+		case "ISATDESTINATION":
+			return "NAVAGENT.ISATDESTINATION", true, true
+		case "X":
+			return "NAVAGENT.X", true, true
+		case "Y":
+			return "NAVAGENT.Y", true, true
+		case "Z":
+			return "NAVAGENT.Z", true, true
+		case "FREE":
+			return "NAVAGENT.FREE", true, true
 		}
 	case heap.TagSprite:
 		switch mn {
@@ -632,7 +704,7 @@ func HandleCallSuggestions(tag uint16) []string {
 		out = []string{"Begin", "End", "FOV", "Free", "GetMatrix", "GetPos", "GetRay", "GetTarget", "GetViewRay", "GetYaw", "IsOnScreen",
 			"Look", "LookAt", "MouseRay", "Move", "Orbit", "Pos", "SetFOV", "SetOrbit", "SetPos", "SetPosition", "SetProjection", "SetTarget", "SetUp", "WorldToScreen", "Yaw", "Zoom"}
 	case heap.TagEntityRef:
-		out = []string{"A", "Col", "Color", "Free", "Hide", "Move", "MoveWithCamera", "Pos", "Rot", "Scale", "SetBounciness", "Show", "Turn"}
+		out = []string{"A", "Col", "Color", "Free", "Hide", "LockAxis", "Move", "MoveWithCamera", "Pos", "Rot", "Scale", "SetBounciness", "SetCCD", "SetCollisionMesh", "SetDamping", "SetGravityFactor", "SetStatic", "Show", "Turn"}
 	case heap.TagCamera2D:
 		out = []string{"Begin", "End", "Free", "GetMatrix", "ScreenToWorld", "SetOffset", "SetRotation", "SetTarget", "SetZoom", "WorldToScreen"}
 	case heap.TagRenderTexture:

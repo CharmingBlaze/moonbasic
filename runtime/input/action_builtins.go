@@ -3,21 +3,10 @@ package input
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerActionMapping(r runtime.Registrar) {
-	r.Register("INPUT.MAPKEY", "input", m.inMapKey)
-	r.Register("INPUT.MAPGAMEPADBUTTON", "input", m.inMapGamepadButton)
-	r.Register("INPUT.MAPGAMEPADAXIS", "input", m.inMapGamepadAxis)
-	r.Register("INPUT.ACTIONPRESSED", "input", m.inActionPressed)
-	r.Register("INPUT.ACTIONDOWN", "input", m.inActionDown)
-	r.Register("INPUT.ACTIONRELEASED", "input", m.inActionReleased)
-	r.Register("INPUT.ACTIONAXIS", "input", m.inActionAxis)
-	r.Register("INPUT.SAVEMAPPINGS", "input", m.inSaveMappings)
-	r.Register("INPUT.LOADMAPPINGS", "input", m.inLoadMappings)
-}
+// action mapping implementation below
 
 func numToI32(v value.Value) (int32, bool) {
 	if i, ok := v.ToInt(); ok {
@@ -29,15 +18,11 @@ func numToI32(v value.Value) (int32, bool) {
 	return 0, false
 }
 
-func (m *Module) inMapKey(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inMapKey(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.MAPKEY expects (action, keyCode)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	kc, ok := numToI32(args[1])
 	if !ok {
 		return value.Nil, fmt.Errorf("INPUT.MAPKEY: keyCode must be numeric")
@@ -47,15 +32,11 @@ func (m *Module) inMapKey(rt *runtime.Runtime, args ...value.Value) (value.Value
 	return value.Nil, nil
 }
 
-func (m *Module) inMapGamepadButton(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inMapGamepadButton(args []value.Value) (value.Value, error) {
 	if len(args) != 3 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.MAPGAMEPADBUTTON expects (action, gamepadIndex, buttonCode)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	pad, ok1 := numToI32(args[1])
 	btn, ok2 := numToI32(args[2])
 	if !ok1 || !ok2 {
@@ -65,15 +46,11 @@ func (m *Module) inMapGamepadButton(rt *runtime.Runtime, args ...value.Value) (v
 	return value.Nil, nil
 }
 
-func (m *Module) inMapGamepadAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inMapGamepadAxis(args []value.Value) (value.Value, error) {
 	if len(args) != 3 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.MAPGAMEPADAXIS expects (action, gamepadIndex, axisCode)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	pad, ok1 := numToI32(args[1])
 	ax, ok2 := numToI32(args[2])
 	if !ok1 || !ok2 {
@@ -83,80 +60,79 @@ func (m *Module) inMapGamepadAxis(rt *runtime.Runtime, args ...value.Value) (val
 	return value.Nil, nil
 }
 
-func (m *Module) inActionPressed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inActionPressed(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.ACTIONPRESSED expects (action)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	return value.FromBool(actionPressedAny(act)), nil
 }
 
-func (m *Module) inActionDown(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inActionDown(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.ACTIONDOWN expects (action)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	return value.FromBool(actionDownAny(act)), nil
 }
 
-func (m *Module) inActionReleased(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inActionReleased(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.ACTIONRELEASED expects (action)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	return value.FromBool(actionReleasedAny(act)), nil
 }
 
-func (m *Module) inActionAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inActionAxis(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.ACTIONAXIS expects (action)")
 	}
-	act, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	act := args[0].String()
 	return value.FromFloat(actionAxisSum(act)), nil
 }
 
-func (m *Module) inSaveMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inSaveMappings(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.SAVEMAPPINGS expects (path)")
 	}
-	path, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	path := args[0].String()
 	if err := saveMappingsFile(path); err != nil {
 		return value.Nil, err
 	}
 	return value.Nil, nil
 }
 
-func (m *Module) inLoadMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = m
+func (m *Module) inLoadMappings(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.LOADMAPPINGS expects (path)")
 	}
-	path, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	path := args[0].String()
 	if err := loadMappingsFile(path); err != nil {
 		return value.Nil, err
 	}
+	return value.Nil, nil
+}
+
+func (m *Module) inMapMouse(args []value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("ACTION.MAPMOUSE expects (action, buttonCode)")
+	}
+	act := args[0].String()
+	btn, ok := numToI32(args[1])
+	if !ok {
+		return value.Nil, fmt.Errorf("ACTION.MAPMOUSE: buttonCode must be numeric")
+	}
+	appendBind(act, inputBind{Kind: bkMouseBtn, Code: btn})
+	return value.Nil, nil
+}
+
+func (m *Module) inMapJoy(args []value.Value) (value.Value, error) {
+	// Alias for gamepad button
+	return m.inMapGamepadButton(args)
+}
+
+func (m *Module) inActionReset(args []value.Value) (value.Value, error) {
+	clearAllBindings()
 	return value.Nil, nil
 }

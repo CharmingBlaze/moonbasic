@@ -16,3 +16,8 @@ tmp_*.go
 *.exe
 /dist/
 .check/
+
+# Jolt MinGW static libs for Windows CGO (large; build locally — see
+# third_party/jolt-go/jolt/lib/windows_amd64/README.md). Omit from git unless you
+# intentionally vendor a release snapshot (then force-add if needed).
+third_party/jolt-go/jolt/lib/windows_amd64/*.a

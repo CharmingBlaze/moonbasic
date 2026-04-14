@@ -150,6 +150,8 @@ More detail lives in **[docs/reference/](docs/reference/)** and **[ARCHITECTURE.
 
 Contribution guidelines and development notes are in **[CONTRIBUTING.md](CONTRIBUTING.md)** and **[docs/DEVELOPER.md](docs/DEVELOPER.md)**. Continuous integration validates builds, tests, and representative `go run . --check` samples.
 
+On **Windows**, a **`fullruntime`** link that pulls in Jolt requires prebuilt **`libJolt.a`** and **`libjolt_wrapper.a`** in **[third_party/jolt-go/jolt/lib/windows_amd64/](third_party/jolt-go/jolt/lib/windows_amd64/README.md)** (or build them with **`third_party/jolt-go/scripts/build-libs-windows.ps1`**). **`scripts/check-jolt-windows-libs.ps1`** checks that both files are present.
+
 ---
 
 ## License

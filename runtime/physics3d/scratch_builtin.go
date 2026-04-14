@@ -8,7 +8,7 @@ import (
 )
 
 // phGetScratchFloat exposes VM.PhysicsScratch[index] after WASM sync (see PHYSICS3D.SYNCWASMTOPHYSREGS / SyncWasmPhysicsAfterStep).
-func phGetScratchFloat(m *Module, args []value.Value) (value.Value, error) {
+func (m *Module) phGetScratchFloat(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PHYSICS3D.GETSCRATCHFLOAT expects 1 argument (index)")
 	}

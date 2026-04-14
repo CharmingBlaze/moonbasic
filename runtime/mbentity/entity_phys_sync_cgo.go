@@ -12,6 +12,7 @@ import (
 
 	"moonbasic/runtime"
 	mbphysics3d "moonbasic/runtime/physics3d"
+	"moonbasic/runtime/water"
 	"moonbasic/vm/value"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -119,6 +120,33 @@ func (m *Module) syncEntitiesFromPhysics() {
 		m.setLocalFromWorld(e, tx, ty, tz)
 		if qx, qy, qz, qw, ok := mbphysics3d.GetBodyQuaternionForBufferIndex(e.physBufIndex); ok {
 			m.setLocalRotFromWorldQuat(e, rl.Quaternion{X: qx, Y: qy, Z: qz, W: qw})
+		}
+	}
+}
+
+func (m *Module) processAutoBuoyancy(dt float32) {
+	if !m.autoBuoyancy {
+		return
+	}
+	st := m.store()
+	grav := mbphysics3d.GravityVec()
+	for _, e := range st.ents {
+		if e == nil || e.physBufIndex < 0 || !e.physicsDriven {
+			continue
+		}
+		half := joltColliderHalfExtentDown(e)
+		wp := m.worldPos(e)
+
+		// Fraction 0..1 based on vertical overlap with water volumes.
+		frac := water.EntitySubmergedFraction(m.h, wp.Y-float32(half), wp.Y+float32(half), wp.X, wp.Z)
+		if frac > 0.01 {
+			// Apply upward buoyancy force.
+			// Base buoyancy = counter-gravity + a bit extra to float at equilibrium.
+			// Force = mass * acceleration.
+			buoyY := -grav.Y * frac * 1.5
+			mbphysics3d.ApplyImpulseToIndex(e.physBufIndex, 0, buoyY*float32(dt), 0)
+			// Drag in water (linear damping equivalent)
+			mbphysics3d.ApplyImpulseToIndex(e.physBufIndex, 0, -0.5*float32(dt), 0) // Tiny resistance
 		}
 	}
 }

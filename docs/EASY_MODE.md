@@ -66,12 +66,24 @@ cam2d.rot(45)          ' Set rotation
 
 ## 3. Physics & Networking (Extended)
 
-### Physics (Jolt/Box2D)
-```basic
 body = CreateBody(TYPE_DYNAMIC, SHAPE_BOX)
 body.pos(0, 10, 0)
 body.force(0, -10, 0)  ' Apply force
 body.vel(0, 1, 0)      ' Set linear velocity
+```
+
+### Environment Physics (High-Level)
+```basic
+Graphics(1280, 720, "Level Test")
+LEVEL.SETUP(-28)
+
+' Load and bake a whole level in 2 lines
+level = LEVEL.LOAD("castle.glb")
+LEVEL.AUTOCOLLIDE()
+
+' Or use handle methods
+tree = MODEL.LOAD("tree.glb")
+tree.SetCollisionMesh() ' Instant static mesh physics
 ```
 
 ### Networking (ENet)

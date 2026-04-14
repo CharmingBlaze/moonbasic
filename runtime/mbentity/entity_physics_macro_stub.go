@@ -1,4 +1,4 @@
-//go:build !linux || !cgo
+//go:build (!linux && !windows) || !cgo
 
 package mbentity
 
@@ -7,8 +7,8 @@ import (
 	"moonbasic/vm/value"
 )
 
-// Jolt body builder helpers (BDAdd*, BuilderObj, etc.) exist only on linux+cgo.
-// Full API: entity_physics_macro_cgo.go (linux && cgo).
+// Jolt body builder helpers (BDAdd*, BuilderObj, etc.) exist only on (linux||windows)+cgo.
+// Full API: entity_physics_macro_cgo.go ((linux || windows) && cgo).
 
 func registerEntityPhysicsMacroAPI(m *Module, r runtime.Registrar) {
 	// Succeed without Jolt so the same .mb runs on Windows; physics has no effect until Linux+CGO Jolt.

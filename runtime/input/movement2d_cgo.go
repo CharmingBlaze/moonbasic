@@ -5,19 +5,15 @@ package input
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
-func registerMovement2D(m *Module, r runtime.Registrar) {
-	r.Register("INPUT.MOVEMENT2D", "input", m.movement2D)
-}
+// movement 2D implementation below
 
 // movement2D returns a 2-float array [forwardAxis, strafeAxis] from two Input.Axis pairs.
 // Caller should ERASE the handle when done. Same as Axis(keyBack,keyForward) and Axis(keyLeft,keyRight).
-func (m *Module) movement2D(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) movement2D(args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("INPUT.MOVEMENT2D: heap not bound")
 	}
@@ -36,8 +32,8 @@ func (m *Module) movement2D(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if err != nil {
 		return value.Nil, err
 	}
-	_ = arr.Set([]int64{1}, f)
-	_ = arr.Set([]int64{2}, s)
+	_ = arr.Set([]int64{0}, f)
+	_ = arr.Set([]int64{1}, s)
 	id, err := m.h.Alloc(arr)
 	if err != nil {
 		return value.Nil, err

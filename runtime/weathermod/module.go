@@ -1,7 +1,6 @@
 package weathermod
 
 import (
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 )
 
@@ -26,7 +25,14 @@ func NewModule() *Module {
 }
 
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
-func (m *Module) Register(r runtime.Registrar) { registerWeather(m, r) }
+
+func (m *Module) requireHeap() *heap.Store {
+	if m.h == nil {
+		panic("weathermod: heap not bound")
+	}
+	return m.h
+}
+
 func (m *Module) Shutdown() {}
 
 func (m *Module) Reset() {}

@@ -13396,6 +13396,79 @@
       ]
     },
     {
+      "key": "BODY3D.LOCKAXIS",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "description": "Locks translation/rotation for a body. axis_flags: 1=X, 2=Y, 4=Z (linear), 8, 16, 32 (angular).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY3D.SETGRAVITYFACTOR",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY3D.SETDAMPING",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "Sets linear and angular damping (air resistance).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY3D.SETCCD",
+      "args": [
+        "handle",
+        "bool"
+      ],
+      "description": "Enables/disables Continuous Collision Detection for fast moving objects.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "JOINT.CREATEHINGE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Creates a hinge joint between two bodies at (px,py,pz) around axis (ax,ay,az).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "JOINT.CREATEPOINT",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Creates a point-to-point (ball and socket) joint between two bodies at (px,py,pz).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "JOINT.FREE",
+      "args": [
+        "handle"
+      ],
+      "description": "Destroys a physics joint/constraint.",
+      "namespace": "physics3d"
+    },
+    {
       "key": "PHYSICS2D.START",
       "args": [],
       "phase": "init"
@@ -13752,6 +13825,48 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "CHARCONTROLLER.GETLINEARVEL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "World linear velocity [vx, vy, vz] (Jolt); stub uses internal velocity"
+    },
+    {
+      "key": "CHARCONTROLLER.GETGROUNDVELOCITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Velocity projected to ground plane (Jolt CharacterVirtual.GetGroundVelocity)"
+    },
+    {
+      "key": "CHARCONTROLLER.GETGROUNDNORMAL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Ground contact normal [nx, ny, nz]; stub returns up or zero when airborne"
+    },
+    {
+      "key": "CHARCONTROLLER.GROUNDSTATE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "description": "Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir (stub: 0 or 3)"
+    },
+    {
+      "key": "CHARCONTROLLER.TELEPORT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Snap capsule to (x,y,z) and clear linear velocity"
     },
     {
       "key": "PLAYER.CREATE",
@@ -20046,6 +20161,18 @@
       ]
     },
     {
+      "key": "LEVEL.STATIC",
+      "args": [
+        "any"
+      ],
+      "description": "Creates a static mesh collision body from an entity's current model. Use for optimized level geometry."
+    },
+    {
+      "key": "LEVEL.AUTOCOLLIDE",
+      "args": [],
+      "description": "Scans all active entities and automatically creates static mesh collisions for those marked as static with models."
+    },
+    {
       "key": "LEVEL.APPLYPHYSICS",
       "args": [
         "int"
@@ -24801,6 +24928,222 @@
         "int"
       ],
       "description": "Entity-First: Forces a sleeping physics body to wake up.",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "VEHICLE.CREATE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "Create a vehicle controller for an entity."
+    },
+    {
+      "key": "VEHICLE.SETWHEEL",
+      "args": [
+        "int",
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Configure a wheel (vid, idx, ox, oy, oz, radius)."
+    },
+    {
+      "key": "VEHICLE.SETTUNING",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Tune suspension (vid, spring, damp, maxSpeed, steerSpeed)."
+    },
+    {
+      "key": "VEHICLE.SETSTEER",
+      "args": [
+        "int",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set vehicle steering (-1 to 1)."
+    },
+    {
+      "key": "VEHICLE.SETTHROTTLE",
+      "args": [
+        "int",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set vehicle throttle (-1 to 1)."
+    },
+    {
+      "key": "VEHICLE.CONTROL",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Update all vehicle inputs (vid, throttle, steer, brake)."
+    },
+    {
+      "key": "VEHICLE.STEP",
+      "args": [
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Step all vehicle simulations by dt."
+    },
+    {
+      "key": "VEHICLE.WHEELX",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "VEHICLE.WHEELY",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "VEHICLE.WHEELZ",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "float",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "AERO.SETLIFT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set lift coefficient for a physics body."
+    },
+    {
+      "key": "AERO.SETTHRUST",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Apply local Z-axis thrust power."
+    },
+    {
+      "key": "AERO.SETDRAG",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Apply air resistance coefficient."
+    },
+    {
+      "key": "BODY3D.GETVELOCITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d",
+      "description": "Get linear velocity as a 3-element numeric array."
+    },
+    {
+      "key": "BODY3D.SETVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set linear velocity."
+    },
+    {
+      "key": "BODY3D.GETANGULARVEL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY3D.SETANGULARVEL",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY3D.GETMASS",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY3D.APPLYTORQUE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODYREF.GETPOSITION",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODYREF.GETROTATION",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODYREF.GETVELOCITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODYREF.SETVELOCITY",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
       "namespace": "physics3d"
     }
   ]

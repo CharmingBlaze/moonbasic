@@ -3,29 +3,39 @@
 package input
 
 import (
-	"fmt"
-
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerBlitzAliases(r runtime.Registrar) {
-	stub := func(name string) runtime.BuiltinFn {
-		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-			_ = rt
-			_ = args
-			return value.Nil, fmt.Errorf("%s requires CGO (raylib)", name)
-		}
-	}
-	for _, n := range []string{
-		"INPUT.MOUSEDELTA", "INPUT.MOVEDIR",
-		"INPUT.KEYHIT", "INPUT.MOUSEXSPEED", "INPUT.MOUSEYSPEED",
-		"INPUT.JOYX", "INPUT.JOYY", "INPUT.JOYBUTTON", "INPUT.JOYDOWN",
-		"MOUSEDX", "INPUT.MOUSEDX", "MOUSEDY", "INPUT.MOUSEDY",
-		"MOUSEWHEEL", "INPUT.MOUSEWHEEL", "MouseWheel", "MOUSEX", "MOUSEY", "MOUSEZ",
-		"KEYHIT", "KEYDOWN", "INPUT.KEYDOWN", "KeyDown", "KEYUP", "INPUT.KEYUP", "AXIS",
-	} {
-		r.Register(n, "input", stub(n))
-	}
+func (m *Module) inKeyHit(args []value.Value) (value.Value, error) { return value.False, nil }
+
+func (m *Module) inMouseXSpeed(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
 }
 
+func (m *Module) inMouseYSpeed(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) inJoyX(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) inJoyY(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+
+func (m *Module) inJoyButton(args []value.Value) (value.Value, error) {
+	return value.False, nil
+}
+
+func (m *Module) inMouseWheel(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) inKeyUp(args []value.Value) (value.Value, error) { return value.False, nil }
+
+func (m *Module) inAxis(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+
+func (m *Module) inputMouseDelta(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return allocInputTuple2(nil, 0, 0)
+}
+
+func (m *Module) inputMoveDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return allocInputTuple2(nil, 0, 0)
+}

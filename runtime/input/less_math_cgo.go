@@ -6,20 +6,15 @@ import (
 	"fmt"
 	"math"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func (m *Module) registerLessMathInput(r runtime.Registrar) {
-	r.Register("INPUT.MOUSEDELTA", "input", m.inputMouseDelta)
-	r.Register("INPUT.MOVEDIR", "input", m.inputMoveDir)
-}
+// less math input implementation below
 
-func (m *Module) inputMouseDelta(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) inputMouseDelta(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("INPUT.MOUSEDELTA expects 0 arguments")
 	}
@@ -30,8 +25,7 @@ func (m *Module) inputMouseDelta(rt *runtime.Runtime, args ...value.Value) (valu
 	return allocInputTuple2(m.h, d.X, d.Y)
 }
 
-func (m *Module) inputMoveDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) inputMoveDir(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("INPUT.MOVEDIR expects (yaw, speed)")
 	}

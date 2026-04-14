@@ -118,7 +118,7 @@ go build -tags fullruntime -o moonrun ./cmd/moonrun
 
 On **Windows**, set **`CGO_ENABLED=1`** and point **`CC`** at MinGW **`gcc.exe`** as in [Build on Windows](#2-build-on-windows) above, then use the same **`-tags fullruntime`** lines (outputs **`moonbasic.exe`** / **`moonrun.exe`**).
 
-**3D physics:** native **Jolt** (`PHYSICS3D.*` / `BODY3D.*`) is **Linux + CGO** in this repository. Other platforms still get a **full graphics** runtime, but those builtins **fail with a clear stub error**—see [PHYSICS3D.md](reference/PHYSICS3D.md).
+**3D physics:** native **Jolt** (`PHYSICS3D.*` / `BODY3D.*`) is available on **Linux and Windows x64** when **`CGO_ENABLED=1`** and the Jolt static libraries are present (see [JOLT_WINDOWS_PARITY.md](JOLT_WINDOWS_PARITY.md)). Other builds get a **full graphics** runtime with physics builtins **stubbed** with a clear error—see [PHYSICS3D.md](reference/PHYSICS3D.md).
 
 ---
 

@@ -59,6 +59,27 @@ Removes a body from the simulation and frees its memory.
 
 ---
 
+## Body Properties & Constraints
+
+For complex mechanical systems, joints, and advanced body control, see the **[Advanced Physics Guide](PHYSICS_ADVANCED.md)**.
+
+### `Body3D.SetDamping(handle, linear, angular)`
+Sets air resistance (0..1).
+- *Handle Shortcut*: `e.SetDamping(lin, ang)`
+
+### `Body3D.LockAxis(handle, flags)`
+Locks specific translation/rotation axes.
+- *Handle Shortcut*: `e.LockAxis(flags)`
+
+### `Body3D.SetGravityFactor(handle, factor)`
+Scales gravity for this body (e.g., `0` = weightless).
+- *Handle Shortcut*: `e.SetGravityFactor(factor)`
+
+### `Body3D.SetCCD(handle, toggle)`
+Enables Continuous Collision Detection.
+
+---
+
 ## Queries (Linux + CGO + Jolt)
 
 ### `Physics3D.Raycast(ox, oy, oz, dx, dy, dz, maxDist)`

@@ -12,11 +12,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerMusic(r runtime.Registrar) {
-	r.Register("AUDIO.LOADMUSIC", "audio", m.musicLoad)
-	r.Register("AUDIO.UPDATEMUSIC", "audio", runtime.AdaptLegacy(m.musicUpdate))
-	r.Register("MUSIC.FREE", "audio", runtime.AdaptLegacy(m.musicFree))
-}
+// music implementation below
 
 func (m *Module) musicLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {

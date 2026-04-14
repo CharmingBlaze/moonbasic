@@ -5,7 +5,6 @@ import (
 
 	"strings"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -69,56 +68,10 @@ func (o *body2dObj) Free() {
 	})
 }
 
-func (m *Module) Register(r runtime.Registrar) {
-	r.Register("PHYSICS2D.START", "physics2d", m.phStart)
-	r.Register("PHYSICS2D.STOP", "physics2d", m.phStop)
-	r.Register("PHYSICS2D.SETGRAVITY", "physics2d", m.phSetGravity)
-	r.Register("PHYSICS2D.SETSTEP", "physics2d", m.phSetStep)
-	r.Register("PHYSICS2D.SETITERATIONS", "physics2d", m.phSetIterations)
-	r.Register("PHYSICS2D.STEP", "physics2d", m.phStep)
-
-	r.Register("BODY2D.MAKE", "physics2d", m.bdMake)
-	r.Register("BODY2D.ADDRECT", "physics2d", m.bdAddRect)
-	r.Register("BODY2D.ADDCIRCLE", "physics2d", m.bdAddCircle)
-	r.Register("BODY2D.COMMIT", "physics2d", m.bdCommit)
-	r.Register("BODY2D.X", "physics2d", m.bdX)
-	r.Register("BODY2D.Y", "physics2d", m.bdY)
-	r.Register("BODY2D.ROT", "physics2d", m.bdRot)
-	r.Register("BODY2D.FREE", "physics2d", m.bdFree)
-
-	r.Register("BODY2D.SETPOS", "physics2d", m.bdSetPos)
-	r.Register("BODY2D.GETPOS", "physics2d", m.bdGetPos)
-	r.Register("BODY2D.SETROT", "physics2d", m.bdSetRot)
-	r.Register("BODY2D.GETROT", "physics2d", m.bdGetRot)
-	r.Register("BODY2D.SETMASS", "physics2d", m.bdSetMass)
-	r.Register("BODY2D.SETFRICTION", "physics2d", m.bdSetFriction)
-	r.Register("BODY2D.SETRESTITUTION", "physics2d", m.bdSetRestitution)
-	r.Register("BODY2D.APPLYFORCE", "physics2d", m.bdApplyForce)
-	r.Register("BODY2D.APPLYIMPULSE", "physics2d", m.bdApplyImpulse)
-	r.Register("BODY2D.ADDPOLYGON", "physics2d", m.bdAddPolygon)
-	r.Register("BODY2D.SETLINEARVELOCITY", "physics2d", m.bdSetLinearVel)
-	r.Register("BODY2D.SETANGULARVELOCITY", "physics2d", m.bdSetAngularVel)
-	r.Register("BODY2D.COLLIDED", "physics2d", m.bdCollided)
-	r.Register("BODY2D.COLLISIONOTHER", "physics2d", m.bdCollisionOther)
-	r.Register("BODY2D.COLLISIONNORMAL", "physics2d", m.bdCollisionNormal)
-	r.Register("BODY2D.COLLISIONPOINT", "physics2d", m.bdCollisionPoint)
-	r.Register("PHYSICS2D.DEBUGDRAW", "physics2d", m.phDebugDraw)
-	r.Register("PHYSICS2D.GETDEBUGSEGMENTS", "physics2d", m.phGetDebugSegments)
-	r.Register("JOINT2D.DISTANCE", "physics2d", m.jtDistance)
-	r.Register("JOINT2D.REVOLUTE", "physics2d", m.jtRevolute)
-	r.Register("JOINT2D.PRISMATIC", "physics2d", m.jtPrismatic)
-	r.Register("JOINT2D.FREE", "physics2d", m.jtFree)
-
-	// BOX2D aliases (legacy compatible names)
-	r.Register("BOX2D.WORLDCREATE", "physics2d", m.phStart)
-	r.Register("BOX2D.BODYCREATE", "physics2d", m.bdMake)
-	r.Register("BOX2D.FIXTUREBOX", "physics2d", m.bdAddRect)
-	r.Register("BOX2D.FIXTURECIRCLE", "physics2d", m.bdAddCircle)
-}
 
 var globalWorld *physics2dObj
 
-func (m *Module) phStart(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phStart(args []value.Value) (value.Value, error) {
 	if globalWorld != nil {
 		return value.Nil, nil
 	}
@@ -141,13 +94,13 @@ func (m *Module) phStart(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	return value.Nil, nil
 }
 
-func (m *Module) phStop(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phStop(args []value.Value) (value.Value, error) {
 	globalWorld = nil
 	clearPhysics2dAux()
 	return value.Nil, nil
 }
 
-func (m *Module) phSetGravity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phSetGravity(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("PHYSICS2D not started")
 	}
@@ -162,17 +115,14 @@ func (m *Module) phSetGravity(rt *runtime.Runtime, args ...value.Value) (value.V
 	return value.Nil, nil
 }
 
-func (m *Module) phSetStep(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phSetStep(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("PHYSICS2D not started")
 	}
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PHYSICS2D.SETSTEP expects (dt#)")
 	}
-	dt, err := rt.ArgFloat(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	dt, _ := args[0].ToFloat()
 	if dt <= 0 || dt > 1.0 {
 		return value.Nil, fmt.Errorf("PHYSICS2D.SETSTEP: dt must be in (0, 1] seconds")
 	}
@@ -180,21 +130,15 @@ func (m *Module) phSetStep(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	return value.Nil, nil
 }
 
-func (m *Module) phSetIterations(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phSetIterations(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("PHYSICS2D not started")
 	}
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("PHYSICS2D.SETITERATIONS expects (velocityIters, positionIters)")
 	}
-	vi, err := rt.ArgInt(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
-	pi, err := rt.ArgInt(args, 1)
-	if err != nil {
-		return value.Nil, err
-	}
+	vi := args[0].IVal
+	pi := args[1].IVal
 	if vi < 1 || vi > 64 || pi < 1 || pi > 32 {
 		return value.Nil, fmt.Errorf("PHYSICS2D.SETITERATIONS: velocity 1–64, position 1–32")
 	}
@@ -203,7 +147,7 @@ func (m *Module) phSetIterations(rt *runtime.Runtime, args ...value.Value) (valu
 	return value.Nil, nil
 }
 
-func (m *Module) phStep(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phStep(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, nil
 	}
@@ -212,14 +156,11 @@ func (m *Module) phStep(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.Nil, nil
 }
 
-func (m *Module) bdMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdMake(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("BODY2D.MAKE expects (kind$)")
 	}
-	kind, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	kind := args[0].String()
 	kind = strings.ToLower(kind)
 	id, err := m.h.Alloc(&body2dTemplate{kind: kind})
 	if err != nil {
@@ -228,7 +169,7 @@ func (m *Module) bdMake(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) bdAddRect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdAddRect(args []value.Value) (value.Value, error) {
 	if len(args) != 3 && len(args) != 6 {
 		return value.Nil, fmt.Errorf("BODY2D.ADDRECT expects (handle, w#, h#) or (handle, w#, h#, density#, friction#, restitution#)")
 	}
@@ -248,7 +189,7 @@ func (m *Module) bdAddRect(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	return value.Nil, nil
 }
 
-func (m *Module) bdAddCircle(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdAddCircle(args []value.Value) (value.Value, error) {
 	if len(args) != 2 && len(args) != 5 {
 		return value.Nil, fmt.Errorf("BODY2D.ADDCIRCLE expects (handle, radius#) or (handle, radius#, density#, friction#, restitution#)")
 	}
@@ -267,7 +208,7 @@ func (m *Module) bdAddCircle(rt *runtime.Runtime, args ...value.Value) (value.Va
 	return value.Nil, nil
 }
 
-func (m *Module) bdAddPolygon(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdAddPolygon(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY2D.ADDPOLYGON expects (template, points[])")
 	}
@@ -297,7 +238,7 @@ func (m *Module) bdAddPolygon(rt *runtime.Runtime, args ...value.Value) (value.V
 	return value.Nil, nil
 }
 
-func (m *Module) bdCommit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("PHYSICS2D not started")
 	}
@@ -359,7 +300,7 @@ func (m *Module) bdCommit(rt *runtime.Runtime, args ...value.Value) (value.Value
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) bdX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdX(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.X")
 	if err != nil {
 		return value.Nil, err
@@ -367,7 +308,7 @@ func (m *Module) bdX(rt *runtime.Runtime, args ...value.Value) (value.Value, err
 	return value.FromFloat(o.body.GetPosition().X), nil
 }
 
-func (m *Module) bdY(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdY(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.Y")
 	if err != nil {
 		return value.Nil, err
@@ -375,7 +316,7 @@ func (m *Module) bdY(rt *runtime.Runtime, args ...value.Value) (value.Value, err
 	return value.FromFloat(o.body.GetPosition().Y), nil
 }
 
-func (m *Module) bdRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdRot(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.ROT")
 	if err != nil {
 		return value.Nil, err
@@ -383,7 +324,7 @@ func (m *Module) bdRot(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	return value.FromFloat(o.body.GetAngle()), nil
 }
 
-func (m *Module) bdFree(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdFree(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY2D.FREE expects handle")
 	}
@@ -400,7 +341,7 @@ func (m *Module) getBody(args []value.Value, ix int, op string) (*body2dObj, err
 	return heap.Cast[*body2dObj](m.h, heap.Handle(args[ix].IVal))
 }
 
-func (m *Module) bdSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetPos(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETPOS")
 	if err != nil {
 		return value.Nil, err
@@ -414,7 +355,7 @@ func (m *Module) bdSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value
 	return value.Nil, nil
 }
 
-func (m *Module) bdGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdGetPos(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.GETPOS")
 	if err != nil {
 		return value.Nil, err
@@ -430,7 +371,7 @@ func (m *Module) bdGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) bdSetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetRot(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETROT")
 	if err != nil {
 		return value.Nil, err
@@ -443,7 +384,7 @@ func (m *Module) bdSetRot(rt *runtime.Runtime, args ...value.Value) (value.Value
 	return value.Nil, nil
 }
 
-func (m *Module) bdGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdGetRot(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.GETROT")
 	if err != nil {
 		return value.Nil, err
@@ -451,7 +392,7 @@ func (m *Module) bdGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value
 	return value.FromFloat(o.body.GetAngle()), nil
 }
 
-func (m *Module) bdSetMass(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetMass(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETMASS")
 	if err != nil {
 		return value.Nil, err
@@ -467,7 +408,7 @@ func (m *Module) bdSetMass(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	return value.Nil, nil
 }
 
-func (m *Module) bdSetFriction(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetFriction(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETFRICTION")
 	if err != nil {
 		return value.Nil, err
@@ -482,7 +423,7 @@ func (m *Module) bdSetFriction(rt *runtime.Runtime, args ...value.Value) (value.
 	return value.Nil, nil
 }
 
-func (m *Module) bdSetRestitution(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETRESTITUTION")
 	if err != nil {
 		return value.Nil, err
@@ -497,7 +438,7 @@ func (m *Module) bdSetRestitution(rt *runtime.Runtime, args ...value.Value) (val
 	return value.Nil, nil
 }
 
-func (m *Module) bdApplyForce(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.APPLYFORCE")
 	if err != nil {
 		return value.Nil, err
@@ -511,7 +452,7 @@ func (m *Module) bdApplyForce(rt *runtime.Runtime, args ...value.Value) (value.V
 	return value.Nil, nil
 }
 
-func (m *Module) bdApplyImpulse(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.APPLYIMPULSE")
 	if err != nil {
 		return value.Nil, err

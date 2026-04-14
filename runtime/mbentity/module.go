@@ -7,7 +7,9 @@ import (
 	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/runtime/texture"
 	"moonbasic/vm/heap"
+	"moonbasic/vm/value"
 	"unsafe"
+	"fmt"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -21,6 +23,7 @@ type Module struct {
 	reg runtime.Registrar
 	tex *texture.Module // set by compiler registry (LEVEL.LOADSKYBOX, etc.)
 	cam *mbcamera.Module
+	autoBuoyancy bool
 }
 
 // NewModule constructs the entity module.
@@ -51,8 +54,8 @@ func (m *Module) BindHeap(h *heap.Store) {
 	m.h = h
 	ModulesByStore[h] = m
 	// Wire physics3d mesh lookup for LEVEL.STATIC
-	mbphysics3d.GetModule(h).SetMeshLookup(m.GetEntityMeshes)
-	mbphysics3d.GetModule(h).SetVehicleHooks(func(id int64) (rl.Vector3, float32, bool) {
+	mbphysics3d.SetMeshLookupForHeap(h, m.GetEntityMeshes)
+	mbphysics3d.SetVehicleHooksForHeap(h, func(id int64) (rl.Vector3, float32, bool) {
 		e := m.store().ents[id]
 		if e == nil {
 			return rl.Vector3{}, 0, false
@@ -74,6 +77,14 @@ func (m *Module) BindHeap(h *heap.Store) {
 			return 0, 1, 0, y, true
 		}
 		return 0, 1, 0, 0, false
+	})
+	m.reg.Register("WATER.AUTOPHYSICS", "entity", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("WATER.AUTOPHYSICS expects (toggle)")
+		}
+		on, _ := rt.ArgBool(args, 0)
+		m.autoBuoyancy = on
+		return value.Nil, nil
 	})
 }
 

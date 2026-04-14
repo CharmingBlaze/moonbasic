@@ -7,24 +7,11 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerAudioProps(r runtime.Registrar) {
-	r.Register("AUDIO.SETSOUNDVOLUME", "audio", runtime.AdaptLegacy(m.setSoundVolume))
-	r.Register("AUDIO.SETSOUNDPITCH", "audio", runtime.AdaptLegacy(m.setSoundPitch))
-	r.Register("AUDIO.SETSOUNDPAN", "audio", runtime.AdaptLegacy(m.setSoundPan))
-	r.Register("AUDIO.SETMUSICVOLUME", "audio", runtime.AdaptLegacy(m.setMusicVolume))
-	r.Register("AUDIO.SETMUSICPITCH", "audio", runtime.AdaptLegacy(m.setMusicPitch))
-	r.Register("AUDIO.SETMASTERVOLUME", "audio", runtime.AdaptLegacy(m.setMasterVolume))
-	r.Register("AUDIO.ISSOUNDPLAYING", "audio", runtime.AdaptLegacy(m.isSoundPlaying))
-	r.Register("AUDIO.ISMUSICPLAYING", "audio", runtime.AdaptLegacy(m.isMusicPlaying))
-	r.Register("AUDIO.GETMUSICLENGTH", "audio", runtime.AdaptLegacy(m.getMusicLength))
-	r.Register("AUDIO.GETMUSICTIME", "audio", runtime.AdaptLegacy(m.getMusicTime))
-	r.Register("AUDIO.SEEKMUSIC", "audio", runtime.AdaptLegacy(m.seekMusic))
-}
+// audio properties implementation below
 
 func (m *Module) setSoundVolume(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {

@@ -20,6 +20,19 @@ func NewModule() *Module {
 // BindHeap implements runtime.HeapAware (INPUT.GETMOUSEWORLDPOS allocates numeric arrays).
 func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 
-func (m *Module) Reset() {}
+func (m *Module) requireHeap() *heap.Store {
+	if m.h == nil {
+		panic("input: heap not bound")
+	}
+	return m.h
+}
+
+// Reset implements runtime.Module.
+func (m *Module) Reset() {
+	m.mouseH = 0
+	m.keyH = 0
+	m.gamepadH = 0
+	m.lastInteraction = 0
+}
 
 

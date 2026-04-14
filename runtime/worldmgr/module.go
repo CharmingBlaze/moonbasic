@@ -2,7 +2,6 @@
 package worldmgr
 
 import (
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 
 	scat "moonbasic/runtime/scatter"
@@ -34,10 +33,6 @@ func (m *Module) BindHeap(h *heap.Store) { m.h = h }
 // BindScatter wires the scatter module for WORLD.SETVEGETATION (see compiler pipeline wireWorldModules).
 func (m *Module) BindScatter(s *scat.Module) { m.scat = s }
 
-// Register implements runtime.Module.
-func (m *Module) Register(r runtime.Registrar) {
-	registerWorld(m, r)
-}
 
 // Shutdown implements runtime.Module.
 func (m *Module) Shutdown() {

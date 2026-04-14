@@ -28,6 +28,7 @@ func registerLevelGLTFAPI(m *Module, r runtime.Registrar) {
 	r.Register("LEVEL.GETSPAWN", "entity", m.levelGetSpawn)
 	r.Register("LEVEL.SHOWLAYER", "entity", m.levelShowLayer)
 	r.Register("LEVEL.STATIC", "entity", runtime.AdaptLegacy(m.levelStatic))
+	r.Register("LEVEL.AUTOCOLLIDE", "entity", runtime.AdaptLegacy(m.levelAutoCollide))
 	r.Register("LEVEL.SETUP", "entity", m.levelSetup)
 	r.Register("LEVEL.APPLYPHYSICS", "entity", runtime.AdaptLegacy(m.levelApplyPhysics))
 	r.Register("LEVEL.SYNCLIGHTS", "entity", runtime.AdaptLegacy(m.levelSyncLights))
@@ -523,11 +524,35 @@ func (m *Module) physicsAutoCreate(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) entSetStatic(args []value.Value) (value.Value, error) {
-	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("ENTITY.SETSTATIC expects (entity)")
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("ENTITY.SETSTATIC expects (entity, toggle)")
 	}
-	_, _ = m.entID(args[0])
-	return value.Nil, fmt.Errorf("ENTITY.SETSTATIC: use BODY3D.MAKE(\"STATIC\") + mesh shapes; entity motion flags not exposed here yet")
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity")
+	}
+	st := m.store()
+	e := st.ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("unknown entity")
+	}
+	on, _ := argBool(args[1])
+	e.static = on
+
+	// Update the static cache for performance
+	m.rebuildStaticCache()
+
+	return value.Nil, nil
+}
+
+func (m *Module) rebuildStaticCache() {
+	st := m.store()
+	st.staticEnts = nil
+	for _, e := range st.ents {
+		if e.static {
+			st.staticEnts = append(st.staticEnts, e)
+		}
+	}
 }
 
 func (m *Module) entSetTrigger(args []value.Value) (value.Value, error) {
@@ -562,40 +587,62 @@ func (m *Module) levelStatic(args []value.Value) (value.Value, error) {
 	if e == nil {
 		return value.Nil, fmt.Errorf("LEVEL.STATIC: unknown entity")
 	}
-	e.static = true
-
-	// If CGO and model exists, also create Jolt static mesh
-	if e.hasRLModel && m.h != nil {
-		wp := m.worldPos(e)
-		// 1. Create Builder
-		bh, err := m.h.Alloc(&mbphysics3d.BuilderObj{
-			Motion:   0, // Static
-			Friction: 0.8,
-		})
-		if err != nil {
-			return value.Nil, err
-		}
-		bHandle := value.FromHandle(bh)
-		// 2. Add Mesh
-		_, err = mbphysics3d.BDAddMesh(m.h, []value.Value{bHandle, value.FromInt(id)})
-		if err != nil {
-			m.h.Free(bh)
-			fmt.Printf("LEVEL.STATIC: warning: Jolt mesh creation failed for entity %d: %v\n", id, err)
-			return value.Nil, nil
-		}
-		// 3. Commit
-		bodyHandleVal, err := mbphysics3d.BDCommit(m.h, []value.Value{
-			bHandle,
-			value.FromFloat(float64(wp.X)),
-			value.FromFloat(float64(wp.Y)),
-			value.FromFloat(float64(wp.Z)),
-		})
-		if err != nil {
-			return value.Nil, err
-		}
-		// 4. Link
-		bidxVal, _ := mbphysics3d.BDBufferIndex(m.h, []value.Value{bodyHandleVal})
-		m.entLinkPhysBuffer([]value.Value{args[0], bidxVal})
+	err := m.bakeStaticCollision(e)
+	if err != nil {
+		return value.Nil, err
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) levelAutoCollide(args []value.Value) (value.Value, error) {
+	st := m.store()
+	count := 0
+	for _, e := range st.ents {
+		// Only bake if it's static, has a model, and doesn't have physics yet
+		if e.static && e.hasRLModel && !e.physicsDriven && e.physBufIndex < 0 {
+			err := m.bakeStaticCollision(e)
+			if err == nil {
+				count++
+			}
+		}
+	}
+	fmt.Printf("LEVEL.AUTOCOLLIDE: baked %d entities\n", count)
+	return value.FromInt(int64(count)), nil
+}
+
+func (m *Module) bakeStaticCollision(e *ent) error {
+	if !e.hasRLModel || m.h == nil {
+		return nil
+	}
+	e.static = true
+	wp := m.worldPos(e)
+	// 1. Create Builder
+	bh, err := m.h.Alloc(&mbphysics3d.BuilderObj{
+		Motion:   0, // Static
+		Friction: 0.8,
+	})
+	if err != nil {
+		return err
+	}
+	bHandle := value.FromHandle(bh)
+	// 2. Add Mesh
+	_, err = mbphysics3d.BDAddMesh(m.h, []value.Value{bHandle, value.FromInt(e.id)})
+	if err != nil {
+		m.h.Free(bh)
+		return fmt.Errorf("Jolt mesh creation failed for entity %d: %v", e.id, err)
+	}
+	// 3. Commit
+	bodyHandleVal, err := mbphysics3d.BDCommit(m.h, []value.Value{
+		bHandle,
+		value.FromFloat(float64(wp.X)),
+		value.FromFloat(float64(wp.Y)),
+		value.FromFloat(float64(wp.Z)),
+	})
+	if err != nil {
+		return err
+	}
+	// 4. Link
+	bidxVal, _ := mbphysics3d.BDBufferIndex(m.h, []value.Value{bodyHandleVal})
+	_, _ = m.entLinkPhysBuffer([]value.Value{value.FromInt(e.id), bidxVal})
+	return nil
 }

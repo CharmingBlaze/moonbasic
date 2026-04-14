@@ -14,7 +14,8 @@ Naming note: workflows described as **`Scene.Preload` / `Scene.LoadSkybox`** in 
 |--------|---------|
 | **`LEVEL.SETROOT(path)`** | Base directory for relative paths passed to **`LEVEL.LOAD`**, **`LEVEL.PRELOAD`**, **`LEVEL.LOADSKYBOX`**. |
 | **`LEVEL.LOAD(path)`** → **entity** | Opens glTF, walks the node hierarchy, fills **marker/spawn** maps, then loads graphics. |
-| **`LEVEL.STATIC(entity)`** | **Easy Mode** — automatically generates high-performance static collision from entity meshes. |
+| **`LEVEL.STATIC(entity)`** | **Easy Mode** — generates a high-performance static collision mesh from the entity's current model. |
+| **`LEVEL.AUTOCOLLIDE()`** | **Easy Mode** — scans all active entities and automatically bakes static mesh collisions for those marked as static. |
 | **`LEVEL.SETUP(gravity#)`** | Initializes physics for the level. Alias of **`WORLD.SETUP`**. |
 | **`LEVEL.PRELOAD(dir)`** → **count** | Recursively loads image files under **`dir`** into GPU textures. |
 
@@ -96,7 +97,8 @@ The VM does not auto-call BASIC functions on collision yet. **`LEVEL.BINDSCRIPT`
 | **`LEVEL.APPLYPHYSICS(entity)`** | Not implemented — use **`BODY3D.*`** + **`PHYSICS3D.*`** manually ([PHYSICS3D.md](PHYSICS3D.md)). |
 | **`LEVEL.SYNCLIGHTS(toggle, optional)`** | Not implemented — **`KHR_lights_punctual`** → **`LIGHT.*`** is future work. |
 | **`PHYSICS.AUTOCREATE(entity)`** | Not implemented — use **`ENTITY.GETBOUNDS`** + **`BODY3D.ADDBOX`** / **`ADDMESH`**. |
-| **`ENTITY.SETSTATIC` / `ENTITY.SETTRIGGER`** | Not implemented at entity layer — use **`BODY3D.MAKE("STATIC")`**; sensors pending Jolt exposure. |
+| **`ENTITY.SETSTATIC(entity, toggle)`** | Marks an entity as static (for **`LEVEL.AUTOCOLLIDE`** or internal culling). |
+| **`ENTITY.SETTRIGGER(entity)`** | Not implemented — sensors pending Jolt exposure. |
 | **`ENTITY.INSTANCE`** | Not implemented — **`MODEL.MAKEINSTANCED`** or **`ENTITY.COPY`** / **`ENTITY.INSTANCEGRID`** (VRAM tradeoff). |
 
 ---

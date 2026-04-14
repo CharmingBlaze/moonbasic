@@ -121,6 +121,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("VEHICLE.SETWHEEL", "physics3d", runtime.AdaptLegacy(m.VHSetWheel))
 	reg.Register("VEHICLE.CONTROL", "physics3d", runtime.AdaptLegacy(m.VHControl))
 	reg.Register("VEHICLE.STEP", "physics3d", runtime.AdaptLegacy(m.VHStep))
+	registerAeroCommands(m, reg)
 	registerPhysics3DCommands(m, reg)
 	registerBuoyancyCommands(m, reg)
 }

@@ -7,21 +7,10 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerMouseExtra(reg runtime.Registrar) {
-	reg.Register("INPUT.MOUSEPRESSED", "input", runtime.AdaptLegacy(m.inMousePressed))
-	reg.Register("INPUT.MOUSERELEASED", "input", runtime.AdaptLegacy(m.inMouseReleased))
-	reg.Register("INPUT.MOUSEWHEELMOVE", "input", runtime.AdaptLegacy(m.inMouseWheelMove))
-	reg.Register("INPUT.MOUSEDELTAX", "input", runtime.AdaptLegacy(m.inMouseDeltaX))
-	reg.Register("INPUT.MOUSEDELTAY", "input", runtime.AdaptLegacy(m.inMouseDeltaY))
-	reg.Register("INPUT.SETMOUSEPOS", "input", runtime.AdaptLegacy(m.inSetMousePos))
-	reg.Register("INPUT.CHARPRESSED", "input", runtime.AdaptLegacy(m.inCharPressed))
-	reg.Register("INPUT.ISGAMEPADAVAILABLE", "input", runtime.AdaptLegacy(m.inIsGamepadAvailable))
-	reg.Register("INPUT.GETGAMEPADAXISVALUE", "input", runtime.AdaptLegacy(m.inGetGamepadAxisValue))
-}
+// mouse extra implementation below
 
 func (m *Module) inMousePressed(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {

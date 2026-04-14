@@ -1,0 +1,74 @@
+# Level Collision Commands
+
+Commands for managing environment physics and automated static mesh collisions.
+
+## Core Workflow
+
+1. **Load**: Load your level model using `LEVEL.LOAD()`.
+2. **Mark**: (Optional) Use `ENTITY.SETSTATIC()` to mark specific props as part of the environment.
+3. **Cook**: Call `LEVEL.AUTOCOLLIDE()` to batch-create high-performance collisions for all static objects.
+
+```basic
+; 1. Setup the world
+LEVEL.SETUP(-28)
+
+; 2. Load the main level
+castle = LEVEL.LOAD("models/castle.glb")
+ENTITY.SETSTATIC(castle, TRUE)
+
+; 3. Load extra props
+gate = MODEL.LOAD("models/gate.glb")
+ENTITY.SETSTATIC(gate, TRUE)
+
+; 4. Bake all collisions in one go
+LEVEL.AUTOCOLLIDE()
+```
+
+---
+
+## Static Collision
+
+### `LEVEL.STATIC(entity)`
+Generates a persistent static mesh collision body for a specific entity.
+- `entity`: The ID or handle of the entity to process.
+- **Workflow**: This command is best for dynamic environment pieces that are added after the main level load.
+
+### `LEVEL.AUTOCOLLIDE()`
+The **Easy Mode** way to setup a world. It scans every active entity and creates collisions for anything marked as static that has a valid 3D model.
+- **Performance**: This command is extremely efficient and should be called once the initial level loading is finished.
+- **Returns**: The total count of entities that were successfully "cooked" into the physics world.
+
+---
+
+## Handle Methods (Easy Mode)
+
+You can also trigger these operations directly on entity handles:
+
+### `entity.SetStatic(toggle)`
+Marks or unmarks an entity as "Static" for the next `AUTOCOLLIDE` pass.
+
+### `entity.SetCollisionMesh()`
+Immediately bakes a static mesh collision for this entity. Equivalent to `LEVEL.STATIC(entity)`.
+
+```basic
+hero = MODEL.LOAD("castle.glb")
+hero.SetCollisionMesh()
+```
+
+---
+
+## Platform Notes
+
+| Feature | Windows | Linux |
+|---------|---------|-------|
+| Automated Baking | Supported (Stub) | Supported (Jolt) |
+| Performance | Host-side optimization | Native Jolt performance |
+| Stability | Verified | High Fidelity |
+
+---
+
+## Consistency Check
+Signatures match `compiler/builtinmanifest/commands.json`.
+- `LEVEL.STATIC(any)`
+- `LEVEL.AUTOCOLLIDE()`
+- `ENTITY.SETSTATIC(any, any)`

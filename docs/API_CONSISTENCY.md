@@ -666,12 +666,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CHARCONTROLLER
 
 - **`CHARCONTROLLER.FREE`** - args: handle
+- **`CHARCONTROLLER.GETGROUNDNORMAL`** - args: handle -> returns handle — Ground contact normal [nx, ny, nz]; stub returns up or zero when airborne
+- **`CHARCONTROLLER.GETGROUNDVELOCITY`** - args: handle -> returns handle — Velocity projected to ground plane (Jolt CharacterVirtual.GetGroundVelocity)
+- **`CHARCONTROLLER.GETLINEARVEL`** - args: handle -> returns handle — World linear velocity [vx, vy, vz] (Jolt); stub uses internal velocity
 - **`CHARCONTROLLER.GETPOS`** - args: handle -> returns handle
+- **`CHARCONTROLLER.GROUNDSTATE`** - args: handle -> returns int — Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir (stub: 0 or 3)
 - **`CHARCONTROLLER.ISGROUNDED`** - args: handle -> returns bool
 - **`CHARCONTROLLER.MAKE`** - args: float, float, float, float, float -> returns handle
 - **`CHARCONTROLLER.MOVE`** - args: handle, float, float, float
 - **`CHARCONTROLLER.SETPOS`** - args: handle, float, float, float
 - **`CHARCONTROLLER.SETPOSITION`** - args: handle, float, float, float
+- **`CHARCONTROLLER.TELEPORT`** - args: handle, float, float, float — Snap capsule to (x,y,z) and clear linear velocity
 - **`CHARCONTROLLER.X`** - args: handle -> returns float
 - **`CHARCONTROLLER.Y`** - args: handle -> returns float
 - **`CHARCONTROLLER.Z`** - args: handle -> returns float
@@ -2489,6 +2494,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### LEVEL
 
 - **`LEVEL.APPLYPHYSICS`** - args: int
+- **`LEVEL.AUTOCOLLIDE`** - args: (none) — Scans all active entities and automatically creates static mesh collisions for those marked as static with models.
 - **`LEVEL.BINDSCRIPT`** - args: string, string
 - **`LEVEL.FINDENTITY`** - args: string -> returns int
 - **`LEVEL.GETMARKER`** - args: string -> returns handle
@@ -2500,6 +2506,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`LEVEL.PRELOAD`** - args: string -> returns int
 - **`LEVEL.SETROOT`** - args: string
 - **`LEVEL.SHOWLAYER`** - args: string, any
+- **`LEVEL.STATIC`** - args: any — Creates a static mesh collision body from an entity's current model. Use for optimized level geometry.
 - **`LEVEL.SYNCLIGHTS`** - args: any
 
 ### LIGHT
@@ -3386,6 +3393,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PHYSICS3D
 
+- **`BODY3D.LOCKAXIS`** - args: handle, int — Locks translation/rotation for a body. axis_flags: 1=X, 2=Y, 4=Z (linear), 8, 16, 32 (angular).
+- **`BODY3D.SETCCD`** - args: handle, bool — Enables/disables Continuous Collision Detection for fast moving objects.
+- **`BODY3D.SETDAMPING`** - args: handle, float, float — Sets linear and angular damping (air resistance).
+- **`BODY3D.SETGRAVITYFACTOR`** - args: handle, float
+- **`JOINT.CREATEHINGE`** - args: handle, handle, float, float, float, float, float, float -> returns handle — Creates a hinge joint between two bodies at (px,py,pz) around axis (ax,ay,az).
+- **`JOINT.CREATEPOINT`** - args: handle, handle, float, float, float -> returns handle — Creates a point-to-point (ball and socket) joint between two bodies at (px,py,pz).
+- **`JOINT.FREE`** - args: handle — Destroys a physics joint/constraint.
 - **`PHYSICS.AUTO`** - args: int, string, float — Alias for ENTITY.PHYSICS.
 - **`PHYSICS.BOUNCE`** - args: int, float — Modular building: Sets bounciness (restitution) for a pending physics body.
 - **`PHYSICS.BUILD`** - args: int, float — Modular building: Finalizes and commits the physics body with given mass.

@@ -16,6 +16,7 @@ const (
 	bkKey bindKind = iota
 	bkGamepadBtn
 	bkGamepadAxis
+	bkMouseBtn
 )
 
 type inputBind struct {
@@ -78,6 +79,10 @@ func actionPressedAny(action string) bool {
 			if q.gamepadBtnPressed(b.Pad, b.Code) {
 				return true
 			}
+		case bkMouseBtn:
+			if q.mousePressed(b.Code) {
+				return true
+			}
 		}
 	}
 	return false
@@ -98,6 +103,10 @@ func actionDownAny(action string) bool {
 			if q.gamepadBtnDown(b.Pad, b.Code) {
 				return true
 			}
+		case bkMouseBtn:
+			if q.mouseDown(b.Code) {
+				return true
+			}
 		}
 	}
 	return false
@@ -116,6 +125,10 @@ func actionReleasedAny(action string) bool {
 			}
 		case bkGamepadBtn:
 			if q.gamepadBtnReleased(b.Pad, b.Code) {
+				return true
+			}
+		case bkMouseBtn:
+			if q.mouseReleased(b.Code) {
 				return true
 			}
 		}

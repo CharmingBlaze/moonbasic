@@ -20,8 +20,8 @@ WORLD.FOGDENSITY(0.05)   ; Atmospheric thickness
 
 ; 1b. Navigation System Initialization
 nav = NAV.MAKE()
-NAV.SETGRID(nav, 60, 60, 0.5, -15, -15) ; 30x30 area
-NAV.BUILD(nav)                          ; Auto-scan static world
+nav.SetGrid(60, 60, 0.5, -15, -15) ; 30x30 area
+nav.Build()                          ; Auto-scan static world
 
 ; Create Guardian Agent
 guardianEnt = CreateCube()
@@ -30,8 +30,8 @@ ENTITYCOLOR(guardianEnt, 255, 100, 100, 255)
 POSENT(guardianEnt, 8, 3, 8) ; Place on Step 1
 
 agent = NAVAGENT.MAKE(nav)
-NAVAGENT.SETPOS(agent, 8, 3, 8)
-NAVAGENT.SETSPEED(agent, 3.0)
+agent.SetPos(8, 3, 8)
+agent.SetSpeed(3.0)
 
 patrolDir = 1
 navDebug = 0
@@ -60,12 +60,12 @@ hero.SetGravity(1.0)
 ; Initialize Particles (ambient trail + star pickup bursts)
 starEmit = CREATEEMITTER()
 PARTICLECOLOR(starEmit, 255, 255, 0, 255)
-PARTICLESPEED(starEmit, 5.0, 15.0)
-PARTICLELIFE(starEmit, 0.4, 0.8)
-PARTICLE.SETEMITRATE(starEmit, 18.0)
-PARTICLE.SETDIRECTION(starEmit, 0, 1, 0)
-PARTICLE.SETSPREAD(starEmit, 1.2)
-PARTICLE.PLAY(starEmit)
+starEmit.SetSpeed(5.0, 15.0)
+starEmit.SetLifetime(0.4, 0.8)
+starEmit.SetEmitRate(18.0)
+starEmit.SetDirection(0, 1, 0)
+starEmit.SetSpread(1.2)
+starEmit.Play()
 
 ; 4. Physics Geometry Setup
 ; We'll replace manual ENTTYPE with professional Jolt bodies in the loop
@@ -82,27 +82,27 @@ SCALENT(plats(1).ent, 30, 1, 30)
 POSENT(plats(1).ent, 0, 0, 0)
 floorShape = Shape.CreateBox(15, 0.5, 15)
 floorBody = Static.Create(floorShape)
-BODYREF.SETPOSITION(floorBody, 0, 0, 0)
+floorBody.SetPosition(0, 0, 0)
 
 plats(2) = Platform(CreateCube(), 150, 150, 255) ; Step 1
 SCALENT(plats(2).ent, 4, 1, 4)
 POSENT(plats(2).ent, 8, 2, 8)
 stepShape = Shape.CreateBox(2, 0.5, 2)
 step1Body = Static.Create(stepShape)
-BODYREF.SETPOSITION(step1Body, 8, 2, 8)
+step1Body.SetPosition(8, 2, 8)
 
 plats(3) = Platform(CreateCube(), 255, 150, 150) ; Step 2
 SCALENT(plats(3).ent, 4, 1, 4)
 POSENT(plats(3).ent, 12, 4, 12)
 step2Body = Static.Create(stepShape)
-BODYREF.SETPOSITION(step2Body, 12, 4, 12)
+step2Body.SetPosition(12, 4, 12)
 
 plats(4) = Platform(CreateCube(), 255, 255, 100) ; Goal
 SCALENT(plats(4).ent, 6, 1, 6)
 POSENT(plats(4).ent, 16, 6, 16)
 goalShape = Shape.CreateBox(3, 0.5, 3)
 goalBody = Static.Create(goalShape)
-BODYREF.SETPOSITION(goalBody, 16, 6, 16)
+goalBody.SetPosition(16, 6, 16)
 ; Batch 6: Set Goal to be semi-transparent
 ENTITYALPHA(plats(4).ent, 0.6)
 
@@ -177,20 +177,20 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 
     ; 2c. AI — always step nav; cinematic = patrol, else chase player
     IF cinematicMode = 1 THEN
-        IF NAVAGENT.ISATDESTINATION(agent) THEN
+        IF agent.IsAtDestination() THEN
             IF patrolDir = 1 THEN
-                NAVAGENT.MOVETO(agent, 8, 3, 8)
+                agent.MoveTo(8, 3, 8)
                 patrolDir = 0
             ELSE
-                NAVAGENT.MOVETO(agent, 9.5, 3, 9.5)
+                agent.MoveTo(9.5, 3, 9.5)
                 patrolDir = 1
             ENDIF
         ENDIF
     ELSE
-        NAVAGENT.MOVETO(agent, px0, py0, pz0)
+        agent.MoveTo(px0, py0, pz0)
     ENDIF
-    NAVAGENT.UPDATE(agent, dt)
-    POSENT(guardianEnt, NAVAGENT.X(agent), NAVAGENT.Y(agent), NAVAGENT.Z(agent))
+    agent.Update(dt)
+    POSENT(guardianEnt, agent.X(), agent.Y(), agent.Z())
 
     ; 3. Automatic World Simulation
     ENTITY.UPDATE(dt)
@@ -233,7 +233,7 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         ; Batch 6: Professional debug primitives
         DRAW.LINE3D(px, py, pz, px, py + 2.0, pz, 0, 255, 0, 255) ; Green Up-Vector
         
-        IF navDebug = 1 THEN NAV.DEBUGDRAW(nav)
+        IF navDebug = 1 THEN nav.DebugDraw()
     CAMERA.END()
 
     ; 8. HUD & UI Overlay

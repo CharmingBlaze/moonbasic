@@ -1,0 +1,59 @@
+package mbnav
+
+import (
+	"moonbasic/runtime"
+)
+
+func (m *Module) Register(reg runtime.Registrar) {
+	reg.Register("NAV.MAKE", "nav", runtime.AdaptLegacy(m.navMake))
+	reg.Register("NAV.FREE", "nav", runtime.AdaptLegacy(m.navFree))
+	reg.Register("NAV.SETGRID", "nav", runtime.AdaptLegacy(m.navSetGrid))
+	reg.Register("NAV.ADDTERRAIN", "nav", runtime.AdaptLegacy(m.navAddTerrain))
+	reg.Register("NAV.ADDOBSTACLE", "nav", runtime.AdaptLegacy(m.navAddObstacle))
+	reg.Register("NAV.BUILD", "nav", runtime.AdaptLegacy(m.navBuild))
+	reg.Register("NAV.DEBUGDRAW", "nav", runtime.AdaptLegacy(m.navDebugDraw))
+	reg.Register("NAV.FINDPATH", "nav", runtime.AdaptLegacy(m.navFindPath))
+	reg.Register("NAV.BAKE", "nav", runtime.AdaptLegacy(m.navBakeTerrain))
+	reg.Register("NAV.GETPATH", "nav", runtime.AdaptLegacy(m.navGetPathTerrain))
+	reg.Register("NAV.ISREACHABLE", "nav", runtime.AdaptLegacy(m.navIsReachableTerrain))
+
+	reg.Register("ENEMY.FOLLOWPATH", "enemy", m.enemyFollowPath)
+
+	reg.Register("PATH.ISVALID", "path", runtime.AdaptLegacy(m.pathIsValid))
+	reg.Register("PATH.NODECOUNT", "path", runtime.AdaptLegacy(m.pathNodeCount))
+	reg.Register("PATH.NODEX", "path", runtime.AdaptLegacy(m.pathNodeX))
+	reg.Register("PATH.NODEY", "path", runtime.AdaptLegacy(m.pathNodeY))
+	reg.Register("PATH.NODEZ", "path", runtime.AdaptLegacy(m.pathNodeZ))
+	reg.Register("PATH.FREE", "path", runtime.AdaptLegacy(m.pathFree))
+
+	reg.Register("NAVAGENT.MAKE", "navagent", runtime.AdaptLegacy(m.agentMake))
+	reg.Register("NAVAGENT.FREE", "navagent", runtime.AdaptLegacy(m.agentFree))
+	reg.Register("NAVAGENT.SETPOS", "navagent", runtime.AdaptLegacy(m.agentSetPos))
+	reg.Register("NAVAGENT.SETSPEED", "navagent", runtime.AdaptLegacy(m.agentSetSpeed))
+	reg.Register("NAVAGENT.SETMAXFORCE", "navagent", runtime.AdaptLegacy(m.agentSetMaxForce))
+	reg.Register("NAVAGENT.APPLYFORCE", "navagent", runtime.AdaptLegacy(m.agentApplyForce))
+	reg.Register("NAVAGENT.MOVETO", "navagent", runtime.AdaptLegacy(m.agentMoveTo))
+	reg.Register("NAVAGENT.UPDATE", "navagent", runtime.AdaptLegacy(m.agentUpdate))
+	reg.Register("NAVAGENT.ISATDESTINATION", "navagent", runtime.AdaptLegacy(m.agentIsAtDestination))
+	reg.Register("NAVAGENT.X", "navagent", runtime.AdaptLegacy(m.agentX))
+	reg.Register("NAVAGENT.Y", "navagent", runtime.AdaptLegacy(m.agentY))
+	reg.Register("NAVAGENT.Z", "navagent", runtime.AdaptLegacy(m.agentZ))
+
+	reg.Register("STEER.GROUPMAKE", "steer", runtime.AdaptLegacy(m.steerGroupMake))
+	reg.Register("STEER.GROUPADD", "steer", runtime.AdaptLegacy(m.steerGroupAdd))
+	reg.Register("STEER.GROUPCLEAR", "steer", runtime.AdaptLegacy(m.steerGroupClear))
+	reg.Register("STEER.SEEK", "steer", runtime.AdaptLegacy(m.steerSeek))
+	reg.Register("STEER.FLEE", "steer", runtime.AdaptLegacy(m.steerFlee))
+	reg.Register("STEER.ARRIVE", "steer", runtime.AdaptLegacy(m.steerArrive))
+	reg.Register("STEER.WANDER", "steer", runtime.AdaptLegacy(m.steerWander))
+	reg.Register("STEER.FLOCK", "steer", runtime.AdaptLegacy(m.steerFlock))
+	reg.Register("STEER.AVOIDOBSTACLES", "steer", runtime.AdaptLegacy(m.steerAvoidObstacles))
+	reg.Register("STEER.FOLLOWPATH", "steer", runtime.AdaptLegacy(m.steerFollowPath))
+
+	reg.Register("BTREE.MAKE", "btree", runtime.AdaptLegacy(m.btMake))
+	reg.Register("BTREE.FREE", "btree", runtime.AdaptLegacy(m.btFree))
+	reg.Register("BTREE.SEQUENCE", "btree", runtime.AdaptLegacy(m.btSequence))
+	reg.Register("BTREE.ADDCONDITION", "btree", runtime.AdaptLegacy(m.btAddCondition))
+	reg.Register("BTREE.ADDACTION", "btree", runtime.AdaptLegacy(m.btAddAction))
+	reg.Register("BTREE.RUN", "btree", runtime.AdaptLegacy(m.btRun))
+}

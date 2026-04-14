@@ -94,13 +94,7 @@ func PlaySpatial(h *heap.Store, soundH heap.Handle, wx, wy, wz float32) error {
 	return nil
 }
 
-func (m *Module) registerSpatialAudio(r runtime.Registrar) {
-	r.Register("AUDIO.LISTENERCAMERA", "audio", m.audioListenerCamera)
-	r.Register("Listener", "audio", m.audioListenerCamera)
-	r.Register("Load3DSound", "audio", m.soundLoad3D)
-	r.Register("SoundVolume", "audio", runtime.AdaptLegacy(m.setSoundVolume))
-	r.Register("SoundPitch", "audio", runtime.AdaptLegacy(m.setSoundPitch))
-}
+// spatial implementation below
 
 func (m *Module) audioListenerCamera(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {

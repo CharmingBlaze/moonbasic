@@ -46,4 +46,8 @@ func (actionQuery) gamepadAxis(pad, axis int32) float32 {
 	return rl.GetGamepadAxisMovement(pad, axis)
 }
 
+func (actionQuery) mousePressed(b int32) bool  { return rl.IsMouseButtonPressed(rl.MouseButton(b)) }
+func (actionQuery) mouseDown(b int32) bool    { return rl.IsMouseButtonDown(rl.MouseButton(b)) }
+func (actionQuery) mouseReleased(b int32) bool { return rl.IsMouseButtonReleased(rl.MouseButton(b)) }
+
 func actionQueries() actionQuery { return actionQuery{} }

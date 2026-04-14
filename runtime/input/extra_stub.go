@@ -4,33 +4,41 @@ package input
 
 import (
 	"fmt"
-
 	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerInputAdvanced(reg runtime.Registrar) {
-	hint := "INPUT mouse/touch/gamepad requires CGO (Raylib)"
-	reg.Register("INPUT.MOUSEX", "input", stubErr(hint, "INPUT.MOUSEX"))
-	reg.Register("INPUT.MOUSEY", "input", stubErr(hint, "INPUT.MOUSEY"))
-	reg.Register("INPUT.MOUSEDOWN", "input", stubErr(hint, "INPUT.MOUSEDOWN"))
-	reg.Register("INPUT.MOUSEHIT", "input", stubErr(hint, "INPUT.MOUSEHIT"))
-	reg.Register("INPUT.SETMOUSESCALE", "input", stubErr(hint, "INPUT.SETMOUSESCALE"))
-	reg.Register("INPUT.SETMOUSEOFFSET", "input", stubErr(hint, "INPUT.SETMOUSEOFFSET"))
-	reg.Register("INPUT.GETMOUSEWORLDPOS", "input", stubErr(hint, "INPUT.GETMOUSEWORLDPOS"))
-	reg.Register("INPUT.TOUCHCOUNT", "input", stubErr(hint, "INPUT.TOUCHCOUNT"))
-	reg.Register("INPUT.TOUCHX", "input", stubErr(hint, "INPUT.TOUCHX"))
-	reg.Register("INPUT.TOUCHY", "input", stubErr(hint, "INPUT.TOUCHY"))
-	reg.Register("INPUT.TOUCHPRESSED", "input", stubErr(hint, "INPUT.TOUCHPRESSED"))
-	reg.Register("INPUT.GETTOUCHPOINTID", "input", stubErr(hint, "INPUT.GETTOUCHPOINTID"))
-	reg.Register("INPUT.GAMEPADBUTTONCOUNT", "input", stubErr(hint, "INPUT.GAMEPADBUTTONCOUNT"))
-	reg.Register("INPUT.GAMEPADAXISCOUNT", "input", stubErr(hint, "INPUT.GAMEPADAXISCOUNT"))
-	reg.Register("INPUT.SETGAMEPADMAPPINGS", "input", stubErr(hint, "INPUT.SETGAMEPADMAPPINGS"))
+// extra input methods (stubs) - most are now in mouse_extra_stub.go to avoid duplication
+// but we keep the ones registered as AdaptLegacy if needed.
+
+func (m *Module) inMapKey(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+func (m *Module) inMapGamepadButton(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+func (m *Module) inMapGamepadAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+func (m *Module) inActionPressed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.False, nil
+}
+func (m *Module) inActionDown(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.False, nil
+}
+func (m *Module) inActionReleased(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.False, nil
+}
+func (m *Module) inActionAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+func (m *Module) inSaveMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil
+}
+func (m *Module) inLoadMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.Nil, nil
 }
 
-func stubErr(hint, name string) runtime.BuiltinFn {
-	return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		_ = rt
-		return value.Nil, fmt.Errorf("%s: %s", name, hint)
-	}
+func (m *Module) inSetGamepadMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return value.FromInt(0), nil
 }

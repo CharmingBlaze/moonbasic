@@ -4,27 +4,47 @@ package input
 
 import (
 	"fmt"
-
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
 const gestureHint = "GESTURE.* natives require CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
 
-func registerGesture(r runtime.Registrar) {
-	stub := func(name string) runtime.BuiltinFn {
-		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-			return value.Nil, fmt.Errorf("%s: %s", name, gestureHint)
-		}
-	}
-	r.Register("GESTURE.ENABLE", "input", stub("GESTURE.ENABLE"))
-	r.Register("GESTURE.ISDETECTED", "input", stub("GESTURE.ISDETECTED"))
-	r.Register("GESTURE.GETDETECTED", "input", stub("GESTURE.GETDETECTED"))
-	r.Register("GESTURE.GETHOLDDURATION", "input", stub("GESTURE.GETHOLDDURATION"))
-	r.Register("GESTURE.GETDRAGVECTORX", "input", stub("GESTURE.GETDRAGVECTORX"))
-	r.Register("GESTURE.GETDRAGVECTORY", "input", stub("GESTURE.GETDRAGVECTORY"))
-	r.Register("GESTURE.GETDRAGANGLE", "input", stub("GESTURE.GETDRAGANGLE"))
-	r.Register("GESTURE.GETPINCHVECTORX", "input", stub("GESTURE.GETPINCHVECTORX"))
-	r.Register("GESTURE.GETPINCHVECTORY", "input", stub("GESTURE.GETPINCHVECTORY"))
-	r.Register("GESTURE.GETPINCHANGLE", "input", stub("GESTURE.GETPINCHANGLE"))
+func (m *Module) gestureEnable(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("GESTURE.ENABLE: %s", gestureHint)
+}
+
+func (m *Module) gestureIsDetected(args []value.Value) (value.Value, error) {
+	return value.False, nil
+}
+
+func (m *Module) gestureGetDetected(args []value.Value) (value.Value, error) {
+	return value.FromInt(0), nil
+}
+
+func (m *Module) gestureGetHoldDuration(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) gestureGetDragVectorX(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) gestureGetDragVectorY(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) gestureGetDragAngle(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) gestureGetPinchVectorX(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) gestureGetPinchVectorY(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) gestureGetPinchAngle(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
 }

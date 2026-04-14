@@ -1,41 +1,53 @@
-# Character Controller Commands
+# Character Controller Commands (`CHARCONTROLLER.*`)
 
-Commands for creating and managing a kinematic character controller for 3D worlds. This provides a way to handle player movement that is driven by input rather than physics forces, while still respecting the collision geometry of the world.
+Low-level **heap handle** API around a **capsule character controller**. On **Linux + CGO** this is Jolt’s **`CharacterVirtual`** (full sliding, stairs, ground queries). On **other fullruntime builds** the same **`CHARCONTROLLER.*`** keys are registered against a **lightweight AABB + static-body stub** so scripts compile and run; behavior is simpler than Jolt.
 
-For the **`CHARACTER.CREATE` / `Character.Create`** facade (**standalone** **`(x, y, z)`** vs **entity-bound** **`(entity, radius, height)`**), **virtual ids**, and **`CHARACTERREF.*`**, see [CHARACTER.md](CHARACTER.md).
+**Documentation order:** [Platform priority](../DEVELOPER.md#platform-priority-windows-then-linux) — when OSes differ, Windows-first notes apply.
 
-For an **entity-based** wrapper (**`PLAYER.CREATE`**, **`PLAYER.MOVE`**, look targets, tag queries), see [PLAYER.md](PLAYER.md).
+For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound or host KCC), see [CHARACTER.md](CHARACTER.md). For **`PLAYER.*`** / **`CHAR.*`**, see [PLAYER.md](PLAYER.md) and [KCC.md](KCC.md).
 
-## Core Workflow
+## Core workflow
 
-1.  **Start Physics**: The character controller relies on the 3D physics world. Start it with `Physics3D.Start()`.
-2.  **Create Controller**: Use `CharController.Make()` to create the controller, defining its shape and initial position.
-3.  **Update**: In the main loop, get user input and use `CharController.Move()` to update the controller's position.
-4.  **Synchronize**: Use `CharController.GetPos()` or the `X/Y/Z` commands to sync your visual model with the controller.
-
----
-
-### `CharController.Make(radius, height, x, y, z)`
-Creates a new virtual character controller with a capsule shape at the specified world position. Returns a **controller handle**.
-
-### `CharController.Free(handle)`
-Frees the character controller resource and releases its heap slot.
+1. **`PHYSICS3D.START()`** (or **`WORLD.SETUP()`**) and set world gravity as needed.
+2. **`CHARCONTROLLER.MAKE(radius#, height#, x#, y#, z#)`** → controller **handle**.
+3. Each frame: input → **`CHARCONTROLLER.MOVE(handle, dx#, dy#, dz#)`** (or velocity-driven workflows via **`CHARACTERREF.*`** on Linux when bound to the same backing capsule).
+4. Sync visuals: **`CHARCONTROLLER.GETPOS`**, **`CHARCONTROLLER.X` / `.Y` / `.Z`**, or **`CHARCONTROLLER.GETLINEARVEL`** / ground helpers below.
+5. **`CHARCONTROLLER.FREE(handle)`** when done.
 
 ---
 
-### `CharController.Move(handle, dx, dy, dz)`
-Updates the character's position based on a desired displacement vector. The controller automatically handles collisions with the physics world.
+## Creation and lifetime
 
-### `CharController.IsGrounded(handle)`
-Returns `TRUE` if the character controller is currently standing on a surface (floor).
+| Command | Notes |
+|--------|--------|
+| **`CHARCONTROLLER.MAKE(radius#, height#, x#, y#, z#)`** | Capsule at world position; returns **handle**. Linux+Jolt requires an active **`PHYSICS3D`** session (`CHARCONTROLLER: PHYSICS3D not started` otherwise). |
+| **`CHARCONTROLLER.FREE(handle)`** | Releases heap slot; Linux tears down Jolt **`CharacterVirtual`** safely before physics shutdown. |
 
 ---
 
-### `CharController.GetPos(handle)`
-Returns a 3-float array handle `[x, y, z]` representing the controller's current world position.
+## Pose and motion
 
-### `CharController.X(handle)` / `CharController.Y(handle)` / `CharController.Z(handle)`
-Returns the individual world coordinate component of the controller's position.
+| Command | Notes |
+|--------|--------|
+| **`CHARCONTROLLER.SETPOS(handle, x#, y#, z#)`** / **`CHARCONTROLLER.SETPOSITION(...)`** | Alias pair: set world position (then internal update). |
+| **`CHARCONTROLLER.MOVE(handle, dx#, dy#, dz#)`** | Apply displacement; collisions resolved via Jolt extended update (Linux) or stub slide (other OS). |
+| **`CHARCONTROLLER.TELEPORT(handle, x#, y#, z#)`** | Snap to position and **clear linear velocity** (useful for spawn / cutscenes). |
+| **`CHARCONTROLLER.GETPOS(handle)`** | **Array handle** `[x, y, z]`. |
+| **`CHARCONTROLLER.X(handle)`** / **`.Y`** / **`.Z`** | Scalar world components. |
+
+---
+
+## Ground and velocity (Jolt-rich)
+
+These map closely to **`CharacterVirtual`** on **Linux + CGO**. On the **stub** path, values are approximated so gameplay code can stay portable.
+
+| Command | Returns | Meaning |
+|--------|---------|---------|
+| **`CHARCONTROLLER.ISGROUNDED(handle)`** | `bool` | Supported floor under the capsule. |
+| **`CHARCONTROLLER.GROUNDSTATE(handle)`** | `int` | Jolt **`EGroundState`**: **0** OnGround, **1** OnSteepGround, **2** NotSupported, **3** InAir. Stub: **0** or **3** only. |
+| **`CHARCONTROLLER.GETLINEARVEL(handle)`** | `[vx, vy, vz]` array | World linear velocity. |
+| **`CHARCONTROLLER.GETGROUNDVELOCITY(handle)`** | `[vx, vy, vz]` array | **`GetGroundVelocity()`** — velocity clamped to the ground plane (Jolt). Stub: horizontal components when grounded. |
+| **`CHARCONTROLLER.GETGROUNDNORMAL(handle)`** | `[nx, ny, nz]` array | Contact normal under the capsule; stub returns **up** when grounded else **zero**. |
 
 ---
 
@@ -59,7 +71,7 @@ floor_mesh = Mesh.MakeCube(100, 1, 100)
 mat = Material.MakeDefault()
 
 ; 2. Create Controller
-player = CharController.Make(0.5, 2.0, 0, 5, 0)
+player = CHARCONTROLLER.MAKE(0.5, 2.0, 0, 5, 0)
 player_mesh = Mesh.MakeCapsule(0.5, 2.0, 16, 16)
 
 WHILE NOT Window.ShouldClose()
@@ -73,12 +85,12 @@ WHILE NOT Window.ShouldClose()
     IF Input.KeyDown(KEY_S) THEN dz = speed
     IF Input.KeyDown(KEY_A) THEN dx = -speed
     IF Input.KeyDown(KEY_D) THEN dx = speed
-    CharController.Move(player, dx, 0, dz)
+    CHARCONTROLLER.MOVE(player, dx, 0, dz)
 
     ; 4. Synchronize visuals
-    player_x = CharController.X(player)
-    player_y = CharController.Y(player)
-    player_z = CharController.Z(player)
+    player_x = CHARCONTROLLER.X(player)
+    player_y = CHARCONTROLLER.Y(player)
+    player_z = CHARCONTROLLER.Z(player)
     cam.SetPos(player_x, player_y + 10, player_z + 15)
     cam.SetTarget(player_x, player_y, player_z)
 
@@ -93,7 +105,7 @@ WHILE NOT Window.ShouldClose()
     Render.Frame()
 WEND
 
-CharController.Free(player)
+CHARCONTROLLER.FREE(player)
 Physics3D.Stop()
 Window.Close()
 ```

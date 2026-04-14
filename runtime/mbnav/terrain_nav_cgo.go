@@ -14,8 +14,8 @@ import (
 )
 
 // navBakeTerrain builds a coarse walkability grid from a heightmap terrain (NAV.BAKE).
-func (m *Module) navBakeTerrain(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	h, err := m.requireHeap(rt)
+func (m *Module) navBakeTerrain(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
 	if err != nil {
 		return value.Nil, err
 	}
@@ -94,8 +94,8 @@ func (m *Module) navBakeTerrain(rt *runtime.Runtime, args ...value.Value) (value
 	return value.FromHandle(int32(navID)), nil
 }
 
-func (m *Module) navGetPathTerrain(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	h, err := m.requireHeap(rt)
+func (m *Module) navGetPathTerrain(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
 	if err != nil {
 		return value.Nil, err
 	}
@@ -131,8 +131,8 @@ func (m *Module) navGetPathTerrain(rt *runtime.Runtime, args ...value.Value) (va
 	return value.FromHandle(int32(pid)), nil
 }
 
-func (m *Module) navIsReachableTerrain(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	h, err := m.requireHeap(rt)
+func (m *Module) navIsReachableTerrain(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
 	if err != nil {
 		return value.Nil, err
 	}
@@ -165,7 +165,7 @@ func (m *Module) navIsReachableTerrain(rt *runtime.Runtime, args ...value.Value)
 }
 
 func (m *Module) enemyFollowPath(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	h, err := m.requireHeap(rt)
+	h, err := m.requireHeap()
 	if err != nil {
 		return value.Nil, err
 	}

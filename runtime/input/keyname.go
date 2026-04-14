@@ -5,13 +5,12 @@ package input
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func (m *Module) inGetKeyName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) inGetKeyName(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("INPUT.GETKEYNAME expects (key)")
 	}
@@ -19,7 +18,8 @@ func (m *Module) inGetKeyName(rt *runtime.Runtime, args ...value.Value) (value.V
 	if err != nil {
 		return value.Nil, fmt.Errorf("INPUT.GETKEYNAME: %w", err)
 	}
-	return rt.RetString(keyboardKeyName(k)), nil
+	idx := m.requireHeap().Intern(keyboardKeyName(k))
+	return value.FromStringIndex(idx), nil
 }
 
 // keyboardKeyName returns an English label for a Raylib keyboard key (Raylib 5.x scancodes).

@@ -10,10 +10,6 @@ import (
 	"moonbasic/vm/value"
 )
 
-func registerMovement2D(m *Module, r runtime.Registrar) {
-	r.Register("INPUT.MOVEMENT2D", "input", m.movement2D)
-}
-
 func (m *Module) movement2D(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if m.h == nil {

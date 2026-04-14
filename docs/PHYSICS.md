@@ -4,16 +4,52 @@ MoonBASIC uses a **dual-path physics architecture** to ensure stability across p
 
 ## 1. Dual-Path Architecture
 
-### Path A: Linux + CGO (Jolt Physics)
-On Linux with CGo enabled, MoonBASIC links to the **Jolt Physics** engine. This is the "gold standard" for the engine and supports:
+### Path A: Native Jolt Physics (CGO, Linux and Windows)
+
+On **Linux or Windows** with **CGO enabled** and **Jolt static libraries** available for the platform, MoonBASIC links to the **Jolt Physics** engine. This is the "gold standard" for the engine and supports:
 - **`CharacterVirtual`**: Native kinematic character controller (KCC) with robust sweep tests, stair stepping, and slope management.
 - **Rigid Body Dynamics**: Full multi-threaded solver for cubes, spheres, and complex meshes.
 - **Shared Memory Sync**: Physics state is written to a shared buffer and synced back to entities each frame via `syncEntitiesFromPhysics`.
 
-### Path B: Windows / Non-CGO (Host Solver)
-On Windows (by default) or targets without Jolt, MoonBASIC falls back to an **Iterative Host Solver**.
+### Path B: Stub / non-desktop / no Jolt (Host Solver fallback)
+
+When **CGO is disabled**, or the OS is **not** Linux/Windows (e.g. some builds), or **Jolt libraries are not linked**, MoonBASIC uses **`physics3d` stub files** and the **Iterative Host Solver** where applicable.
 - **Script-Driven Interpolation**: Most "Easy Mode" physics (like `Character.Create`) use a high-level Go implementation that mimics the Jolt KCC behavior through simpler bounding-box or raycast tests.
-- **Visual Parity**: The goal of the Host Solver is to provide identical behavior to Jolt for typical "Mario 64" style gameplay, ensuring code written on Windows works perfectly when deployed to Linux servers.
+- **Visual Parity**: The goal of the Host Solver is to provide identical behavior to Jolt for typical "Mario 64" style gameplay, ensuring code written on Windows Host KCC works perfectly when deployed to Linux Jolt servers.
+
+### Vendored Jolt Go API (`third_party/jolt-go`)
+
+The module **`github.com/bbitechnologies/jolt-go`** is **replaced** in this repo by [`third_party/jolt-go`](../third_party/jolt-go) (see root `go.mod`). It intentionally exposes a **small** C wrapper surface (bodies, shapes, raycasts, `AddImpulse`, linear velocity, etc.). It does **not** mirror the full Jolt C++ API.
+
+For contributors and script authors, the practical rules are:
+
+| Area | Behavior on Linux or Windows + CGO (native Jolt) |
+|------|-------------------------|
+| **`JOINT.CREATEHINGE` / `JOINT.CREATEPOINT`** | Allocates a **placeholder** joint handle so scripts and stubs stay aligned. Real hinge/point constraints are **not** created until the wrapper grows constraint APIs. |
+| **`BODY3D.SETGRAVITYFACTOR`**, **`SETDAMPING`**, **`LOCKAXIS`**, **`SETCCD`** | Parsed and accepted; **no-op** at the native layer with the current wrapper. |
+| **`BODY3D.GETLINEARVEL` / `SETLINEARVEL`** | Uses **`GetLinearVelocity` / `SetLinearVelocity`** on `BodyInterface` (supported). Returns a **3-element numeric array** handle (same pattern as `BODY3D.GETPOS`). |
+| **`BODY3D.GETANGULARVEL` / `SETANGULARVEL`** | Getter returns **zeros**; setter is a **no-op** (angular state not exposed in the vendored binding). |
+| **`BODY3D.APPLYFORCE`** | Implemented as **`AddImpulse(F × dt)`** using the module fixed timestep (`PHYSICS3D.SETTIMESTEP` / default 1/60 s), because the wrapper has **`AddImpulse`** but not **`AddForce`**. Treat script “force” as **impulse per physics step** in spirit. |
+| **`BODY3D.APPLYTORQUE`** | **No-op** (no torque API in the wrapper). |
+| **`BODY3D.GETMASS`** | Returns **`1.0`** (mass not queried from Jolt in this binding). |
+| **Ground probe hook** | **`mbphysics3d.SetRaycastHook`** is implemented on **both** [`pick_cgo.go`](../runtime/physics3d/pick_cgo.go) (Jolt path) and [`pick_stub.go`](../runtime/physics3d/pick_stub.go) (no Jolt) so `mbentity` can register a floor query with the same API on every build. |
+
+gopls on a **Windows** machine may type-check Linux-only files when **`GOOS=linux`** is set in `gopls.build.env`; vendored **`jolt-go`** sources should still analyze cleanly.
+
+---
+
+## Build tag contract for physics3d
+
+To avoid **duplicate symbols** (stub + native compiled together), use **mutually exclusive** tags:
+
+| Role | Typical `//go:build` |
+|------|----------------------|
+| Native Jolt implementation (bodies, picks, collision bridge, matrix export) | ``(linux || windows) && cgo`` |
+| Stub / no native Jolt (same Go signatures, no-ops or “no hit”) | ``(!linux && !windows) || !cgo`` |
+
+Do **not** use ``!linux || !cgo`` for `physics3d` stubs: on **Windows + CGO** that expression is true and **overlaps** the native path.
+
+**Windows:** place prebuilt **`libJolt.a`** and **`libjolt_wrapper.a`** under [`third_party/jolt-go/jolt/lib/windows_amd64/`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md) or build them with [`build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1). Without them, **link** fails even when **compile** succeeds.
 
 ---
 
@@ -37,13 +73,23 @@ Commands that modify physical properties (e.g., `ENTITY.SETBOUNCE`, `ENTITY.SETF
 
 ### Platform Parity
 When adding a new physics feature:
-1. Implement the **Jolt** path in `*_linux.go` or `*_cgo.go`.
-2. Implement an **identical Go signature stub** in `*_stub.go` for the Host Solver target.
+1. Implement the **Jolt** path in `*_cgo.go` (common for Linux and Windows).
+2. Implement an **identical Go signature stub** in `*_stub.go` for the Host Solver fallback.
 3. Ensure both paths expose the **same manifest keys** in `compiler/builtinmanifest/commands.json`.
 
 ---
 
-## 4. Troubleshooting
+## 4. Building Native Jolt on Windows
+
+To enable Path A on Windows, you must link the native static libraries:
+1. **Toolchain**: Install **MinGW-w64** (via MSYS2) and ensure `gcc` is on your `PATH`.
+2. **Libraries**: Run `third_party/jolt-go/scripts/build-libs-windows.ps1` to compile `libJolt.a` and `libjolt_wrapper.a`.
+3. **Build**: Run MoonBASIC with `CGO_ENABLED=1`:
+   `go run -tags fullruntime . --run examples/physics_demo.mb`
+
+---
+
+## 5. Troubleshooting
 
 - **Flickering Grounded State**: Check the `joltGroundRayStartLift` and `joltGroundPastFeetSkin` constants in `entity_phys_sync_cgo.go`. The ray must start slightly above the pivot to avoid self-hits.
 - **Micro-Jitter on Slopes**: Ensure the `groundNormal` check in the probe logic properly filters out wall hits (normal Y < 0.28).

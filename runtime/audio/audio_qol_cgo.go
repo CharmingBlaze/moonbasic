@@ -5,19 +5,13 @@ package mbaudio
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func registerAudioQoLAPI(m *Module, r runtime.Registrar) {
-	r.Register("SOUND.PLAY3D", "audio", runtime.AdaptLegacy(m.soundPlay3D))
-	r.Register("SOUND.ATTACH", "audio", runtime.AdaptLegacy(m.soundAttach))
-	r.Register("WORLD.SETAMBIENCE", "audio", runtime.AdaptLegacy(m.worldSetAmbience))
-	r.Register("WORLD.SETREVERB", "audio", runtime.AdaptLegacy(m.worldSetReverb))
-}
+// audio qol implementation below
 
 func (m *Module) soundPlay3D(args []value.Value) (value.Value, error) {
 	if len(args) != 5 {

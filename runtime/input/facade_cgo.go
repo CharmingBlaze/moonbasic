@@ -7,7 +7,6 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -31,27 +30,7 @@ func (o *gamepadFacade) Free() { o.release.Do(func() {}) }
 func (o *gamepadFacade) TypeTag() uint16  { return heap.TagInputFacade }
 func (o *gamepadFacade) TypeName() string { return "GAMEPAD" }
 
-func (m *Module) registerInputFacade(r runtime.Registrar) {
-	r.Register("MOUSE.DX", "input", m.mouseDX)
-	r.Register("MOUSE.DY", "input", m.mouseDY)
-	r.Register("MOUSE.WHEEL", "input", m.mouseWheel)
-	r.Register("MOUSE.DOWN", "input", m.mouseDown)
-	r.Register("MOUSE.PRESSED", "input", m.mousePressed)
-	r.Register("MOUSE.RELEASED", "input", m.mouseReleased)
-	r.Register("MOUSE", "input", runtime.AdaptLegacy(m.makeMouse))
-	r.Register("MOUSEHIT", "input", runtime.AdaptLegacy(m.mouseHitGlobal))
-	r.Register("MOUSEX", "input", runtime.AdaptLegacy(m.mouseXGlobal))
-	r.Register("MOUSEY", "input", runtime.AdaptLegacy(m.mouseYGlobal))
-
-	r.Register("KEY.DOWN", "input", m.keyDown)
-	r.Register("KEY.HIT", "input", m.keyHit)
-	r.Register("KEY.UP", "input", m.keyUp)
-	r.Register("KEY", "input", runtime.AdaptLegacy(m.makeKey))
-
-	r.Register("GAMEPAD.AXIS", "input", m.gpAxis)
-	r.Register("GAMEPAD.BUTTON", "input", m.gpButton)
-	r.Register("GAMEPAD", "input", runtime.AdaptLegacy(m.makeGamepad))
-}
+// facade implementation below
 
 func (m *Module) makeMouse(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
@@ -107,8 +86,7 @@ func (m *Module) makeGamepad(args []value.Value) (value.Value, error) {
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) mouseDX(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) mouseDX(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("MOUSE.DX expects (mouseHandle)")
 	}
@@ -116,8 +94,7 @@ func (m *Module) mouseDX(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	return value.FromFloat(float64(d.X)), nil
 }
 
-func (m *Module) mouseDY(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) mouseDY(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("MOUSE.DY expects (mouseHandle)")
 	}
@@ -125,16 +102,14 @@ func (m *Module) mouseDY(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	return value.FromFloat(float64(d.Y)), nil
 }
 
-func (m *Module) mouseWheel(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) mouseWheel(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("MOUSE.WHEEL expects (mouseHandle)")
 	}
 	return value.FromFloat(float64(rl.GetMouseWheelMove())), nil
 }
 
-func (m *Module) mouseDown(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) mouseDown(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("MOUSE.DOWN expects (mouseHandle, button)")
 	}
@@ -145,8 +120,7 @@ func (m *Module) mouseDown(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	return value.FromBool(rl.IsMouseButtonDown(b)), nil
 }
 
-func (m *Module) mousePressed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) mousePressed(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("MOUSE.PRESSED expects (mouseHandle, button)")
 	}
@@ -157,8 +131,7 @@ func (m *Module) mousePressed(rt *runtime.Runtime, args ...value.Value) (value.V
 	return value.FromBool(rl.IsMouseButtonPressed(b)), nil
 }
 
-func (m *Module) mouseReleased(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) mouseReleased(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("MOUSE.RELEASED expects (mouseHandle, button)")
 	}
@@ -169,8 +142,7 @@ func (m *Module) mouseReleased(rt *runtime.Runtime, args ...value.Value) (value.
 	return value.FromBool(rl.IsMouseButtonReleased(b)), nil
 }
 
-func (m *Module) keyDown(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) keyDown(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("KEY.DOWN expects (keyHandle, key)")
 	}
@@ -181,8 +153,7 @@ func (m *Module) keyDown(rt *runtime.Runtime, args ...value.Value) (value.Value,
 	return value.FromBool(rl.IsKeyDown(kc)), nil
 }
 
-func (m *Module) keyHit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) keyHit(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("KEY.HIT expects (keyHandle, key)")
 	}
@@ -193,8 +164,7 @@ func (m *Module) keyHit(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.FromBool(rl.IsKeyPressed(kc)), nil
 }
 
-func (m *Module) keyUp(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) keyUp(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("KEY.UP expects (keyHandle, key)")
 	}
@@ -205,8 +175,7 @@ func (m *Module) keyUp(rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	return value.FromBool(rl.IsKeyReleased(kc)), nil
 }
 
-func (m *Module) gpAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) gpAxis(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("GAMEPAD.AXIS expects (padHandle, gamepad, axis)")
 	}
@@ -222,8 +191,7 @@ func (m *Module) gpAxis(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.FromFloat(float64(v)), nil
 }
 
-func (m *Module) gpButton(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) gpButton(args []value.Value) (value.Value, error) {
 	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("GAMEPAD.BUTTON expects (padHandle, gamepad, button)")
 	}

@@ -7,21 +7,11 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerPlayback(r runtime.Registrar) {
-	r.Register("AUDIO.PLAY", "audio", runtime.AdaptLegacy(m.audioPlay))
-	r.Register("AUDIO.STOP", "audio", runtime.AdaptLegacy(m.audioStop))
-	r.Register("AUDIO.PAUSE", "audio", runtime.AdaptLegacy(m.audioPause))
-	r.Register("AUDIO.RESUME", "audio", runtime.AdaptLegacy(m.audioResume))
-
-	// Global shorthands (Easy Mode)
-	r.Register("PLAYSOUND", "audio", runtime.AdaptLegacy(m.audioPlay))
-	r.Register("SOUNDVOLUME", "audio", runtime.AdaptLegacy(m.audioSetVolume))
-}
+// playback implementation below
 
 func (m *Module) audioPlay(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {

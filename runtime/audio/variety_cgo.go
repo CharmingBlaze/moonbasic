@@ -8,15 +8,11 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerVarietyPlayback(r runtime.Registrar) {
-	r.Register("AUDIO.PLAYVARYSOUND", "audio", runtime.AdaptLegacy(m.audioPlayVarySound))
-	r.Register("AUDIO.PLAYRNDSOUND", "audio", runtime.AdaptLegacy(m.audioPlayRndSound))
-}
+// variety playback implementation below
 
 func (m *Module) audioPlayVarySound(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {

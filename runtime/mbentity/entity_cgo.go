@@ -991,6 +991,7 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 	m.processEntityTweens(dt)
 	m.processAITasks(dt)
 	m.processSpawners(dt)
+	m.processAutoBuoyancy(dt)
 
 	st := m.store()
 

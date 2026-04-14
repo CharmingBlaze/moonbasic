@@ -7,15 +7,17 @@ This document summarizes the high-level goals and current status of the MoonBASI
 We are currently in **Phase 2: High-Fidelity Refinement**. Our primary objective is to make the "Easy Mode" demo (`examples/mario64/main_easymode.mb`) represent the absolute best practices of the engine.
 
 ### Completed Milestones
-- [x] **Jolt Integration**: Full high-performance rigid body and KCC support on Linux.
+- [x] **Jolt Integration**: Full high-performance rigid body and KCC support on Linux and Windows (CGO).
 - [x] **Visual Snap Band**: Eliminated solver jitter for a "Nintendo-smooth" feel.
 - [x] **Easy Mode API**: `Character.Create`, `Character.Update`, and `hero.Jump` abstractions.
 - [x] **Decoupled Raylib & HAL**: Isolated engine core from GPU drivers; enabled headless compiler unit tests.
 - [x] **Static Linking**: Supported standalone "Zero-DLL" builds using CGO + Zig CC.
+- [x] **Cross-Platform Parity**: Achieved native physics stability on Windows via prebuilt static libraries.
 
 ### Active Priorities
-- **Method Standardization**: Migrating all showcase scripts to use handle methods (`hero.SetGravity`) rather than namespaced calls (`CHARACTERREF.SETGRAVITY`).
+- **Method Standardization**: Migrating all showcase scripts to use handle methods (`hero.SetGravity`) rather than namespaced calls (`CHARACTERREF.SETGRAVITY`). [IN PROGRESS]
 - **Driver Parity**: Ensuring the `Null` driver implements all new rendering features for robust headless testing.
+- **Advanced Jolt Integration**: Wiring `PHYSICS3D.PROCESSCOLLISIONS` to high-level entity listeners.
 
 ## The "Same Path" Philosophy
 

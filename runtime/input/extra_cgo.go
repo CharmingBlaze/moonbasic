@@ -14,23 +14,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerInputAdvanced(r runtime.Registrar) {
-	r.Register("INPUT.MOUSEX", "input", runtime.AdaptLegacy(m.inMouseX))
-	r.Register("INPUT.MOUSEY", "input", runtime.AdaptLegacy(m.inMouseY))
-	r.Register("INPUT.MOUSEDOWN", "input", runtime.AdaptLegacy(m.inMouseDown))
-	r.Register("INPUT.MOUSEHIT", "input", runtime.AdaptLegacy(m.inMouseHit))
-	r.Register("INPUT.SETMOUSESCALE", "input", runtime.AdaptLegacy(m.inSetMouseScale))
-	r.Register("INPUT.SETMOUSEOFFSET", "input", runtime.AdaptLegacy(m.inSetMouseOffset))
-	r.Register("INPUT.GETMOUSEWORLDPOS", "input", runtime.AdaptLegacy(m.inGetMouseWorldPos))
-	r.Register("INPUT.TOUCHCOUNT", "input", runtime.AdaptLegacy(m.inTouchCount))
-	r.Register("INPUT.TOUCHX", "input", runtime.AdaptLegacy(m.inTouchX))
-	r.Register("INPUT.TOUCHY", "input", runtime.AdaptLegacy(m.inTouchY))
-	r.Register("INPUT.TOUCHPRESSED", "input", runtime.AdaptLegacy(m.inTouchPressed))
-	r.Register("INPUT.GETTOUCHPOINTID", "input", runtime.AdaptLegacy(m.inGetTouchPointID))
-	r.Register("INPUT.GAMEPADBUTTONCOUNT", "input", runtime.AdaptLegacy(m.inGamepadButtonCount))
-	r.Register("INPUT.GAMEPADAXISCOUNT", "input", runtime.AdaptLegacy(m.inGamepadAxisCount))
-	r.Register("INPUT.SETGAMEPADMAPPINGS", "input", m.inSetGamepadMappings)
-}
+// advanced input implementation below
 
 func argMouseButton(v value.Value) (rl.MouseButton, error) {
 	i, ok := v.ToInt()
@@ -297,14 +281,11 @@ func (m *Module) inGamepadAxisCount(args []value.Value) (value.Value, error) {
 	return value.FromInt(int64(rl.GetGamepadAxisCount(int32(pad)))), nil
 }
 
-func (m *Module) inSetGamepadMappings(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) inSetGamepadMappings(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindString {
 		return value.Nil, fmt.Errorf("INPUT.SETGAMEPADMAPPINGS expects 1 string argument (mappings)")
 	}
-	mappings, err := rt.ArgString(args, 0)
-	if err != nil {
-		return value.Nil, err
-	}
+	mappings := args[0].String()
 	n := rl.SetGamepadMappings(mappings)
 	return value.FromInt(int64(n)), nil
 }

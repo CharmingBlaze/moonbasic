@@ -3,25 +3,20 @@
 package input
 
 import (
-	"fmt"
-
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func registerAxis(r runtime.Registrar) {
-	r.Register("INPUT.AXIS", "input", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		if len(args) != 2 {
-			return value.Nil, fmt.Errorf("INPUT.AXIS expects 2 arguments (negKey, posKey)")
-		}
-		return value.FromFloat(0.0), nil
-	}))
-	axisDegStub := func(args []value.Value) (value.Value, error) {
-		if len(args) != 4 {
-			return value.Nil, fmt.Errorf("INPUT.AXISDEG expects 4 arguments (negKey, posKey, degreesPerSec, dt)")
-		}
-		return value.FromFloat(0.0), nil
-	}
-	r.Register("INPUT.AXISDEG", "input", runtime.AdaptLegacy(axisDegStub))
-	r.Register("INPUT.ORBIT", "input", runtime.AdaptLegacy(axisDegStub))
+func (m *Module) inputAxis(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
 }
+
+func (m *Module) inputAxisDeg(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) axisX(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) axisY(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) axisDX(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) axisDY(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) axisDPadX(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) axisDPadY(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }

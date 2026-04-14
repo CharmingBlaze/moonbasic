@@ -145,7 +145,7 @@ func (o *joint2dObj) Free() {
 	})
 }
 
-func (m *Module) phDebugDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phDebugDraw(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PHYSICS2D.DEBUGDRAW expects (mode)")
 	}
@@ -154,7 +154,7 @@ func (m *Module) phDebugDraw(rt *runtime.Runtime, args ...value.Value) (value.Va
 	return value.Nil, nil
 }
 
-func (m *Module) phGetDebugSegments(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) phGetDebugSegments(args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, runtime.Errorf("PHYSICS2D.GETDEBUGSEGMENTS: heap not bound")
 	}
@@ -188,7 +188,7 @@ func (m *Module) phGetDebugSegments(rt *runtime.Runtime, args ...value.Value) (v
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) bdCollided(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdCollided(args []value.Value) (value.Value, error) {
 	if _, err := m.getBody(args, 0, "BODY2D.COLLIDED"); err != nil {
 		return value.Nil, err
 	}
@@ -203,7 +203,7 @@ func (m *Module) bdCollided(rt *runtime.Runtime, args ...value.Value) (value.Val
 	return value.FromInt(1), nil
 }
 
-func (m *Module) bdCollisionOther(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdCollisionOther(args []value.Value) (value.Value, error) {
 	if _, err := m.getBody(args, 0, "BODY2D.COLLISIONOTHER"); err != nil {
 		return value.Nil, err
 	}
@@ -218,7 +218,7 @@ func (m *Module) bdCollisionOther(rt *runtime.Runtime, args ...value.Value) (val
 	return value.FromHandle(c.other), nil
 }
 
-func (m *Module) bdCollisionNormal(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdCollisionNormal(args []value.Value) (value.Value, error) {
 	if _, err := m.getBody(args, 0, "BODY2D.COLLISIONNORMAL"); err != nil {
 		return value.Nil, err
 	}
@@ -247,7 +247,7 @@ func (m *Module) bdCollisionNormal(rt *runtime.Runtime, args ...value.Value) (va
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) bdCollisionPoint(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdCollisionPoint(args []value.Value) (value.Value, error) {
 	if _, err := m.getBody(args, 0, "BODY2D.COLLISIONPOINT"); err != nil {
 		return value.Nil, err
 	}
@@ -284,7 +284,7 @@ func (m *Module) bodyFromArg(args []value.Value, ix int, op string) (*box2d.B2Bo
 	return o.body, nil
 }
 
-func (m *Module) jtDistance(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) jtDistance(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("JOINT2D.DISTANCE: PHYSICS2D not started")
 	}
@@ -317,7 +317,7 @@ func (m *Module) jtDistance(rt *runtime.Runtime, args ...value.Value) (value.Val
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) jtRevolute(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) jtRevolute(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("JOINT2D.REVOLUTE: PHYSICS2D not started")
 	}
@@ -348,7 +348,7 @@ func (m *Module) jtRevolute(rt *runtime.Runtime, args ...value.Value) (value.Val
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) jtPrismatic(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) jtPrismatic(args []value.Value) (value.Value, error) {
 	if globalWorld == nil {
 		return value.Nil, fmt.Errorf("JOINT2D.PRISMATIC: PHYSICS2D not started")
 	}
@@ -381,7 +381,7 @@ func (m *Module) jtPrismatic(rt *runtime.Runtime, args ...value.Value) (value.Va
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) jtFree(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) jtFree(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("JOINT2D.FREE expects joint handle")
 	}
@@ -391,7 +391,7 @@ func (m *Module) jtFree(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.Nil, nil
 }
 
-func (m *Module) bdSetLinearVel(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetLinearVel(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETLINEARVELOCITY")
 	if err != nil {
 		return value.Nil, err
@@ -405,7 +405,7 @@ func (m *Module) bdSetLinearVel(rt *runtime.Runtime, args ...value.Value) (value
 	return value.Nil, nil
 }
 
-func (m *Module) bdSetAngularVel(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
 	o, err := m.getBody(args, 0, "BODY2D.SETANGULARVELOCITY")
 	if err != nil {
 		return value.Nil, err

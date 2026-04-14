@@ -29,6 +29,12 @@ Entity system refactor: [ARCHITECTURE_MODULAR_ENTITIES.md](ARCHITECTURE_MODULAR_
 
 Details: [BUILDING.md](BUILDING.md). **HAL / drivers / Windows purego vs CGO:** [architecture/HAL_AND_RENDERING.md](architecture/HAL_AND_RENDERING.md).
 
+### Physics3D / Jolt on Windows (CGO)
+
+- **Native Jolt** sources use **`(linux || windows) && cgo`**; **stub** companions use the complement **`(!linux && !windows) || !cgo`** so stubs never overlap native code on desktop. Full detail: [PHYSICS.md](PHYSICS.md#build-tag-contract-for-physics3d).
+- **Compile check** (no link): `go build -tags fullruntime ./runtime/... ./compiler/...` with **`CGO_ENABLED=1`** and a C toolchain on `PATH`.
+- **Full link** (`go build -tags fullruntime ./...`, **`moonrun`**, root binary) needs **`libJolt.a`** and **`libjolt_wrapper.a`** under [`third_party/jolt-go/jolt/lib/windows_amd64/`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md). Build them with [`third_party/jolt-go/scripts/build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1) (set **`JPH_SRC`** to a [JoltPhysics](https://github.com/jrouwe/JoltPhysics) checkout). Optional: `powershell -File scripts/check-jolt-windows-libs.ps1` verifies the archives are present.
+
 ## Developer environment: VS Code, gopls, and “split brain”
 
 The repo uses **mutually exclusive** `//go:build` lines at the roots of the main binaries:

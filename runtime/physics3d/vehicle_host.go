@@ -18,6 +18,7 @@ type Wheel struct {
 	IsGrounded  bool
 	GroundPos   rl.Vector3
 	GroundNorm  rl.Vector3
+	WorldPos    rl.Vector3
 }
 
 type Vehicle struct {
@@ -33,6 +34,7 @@ type Vehicle struct {
 	SpringStrength float32
 	SpringDamping  float32
 	MaxSpeed       float32
+	SteerSpeed     float32
 	
 	// Dynamic State
 	Velocity rl.Vector3
@@ -52,9 +54,50 @@ func (m *Module) VHCreate(args []value.Value) (value.Value, error) {
 		SpringStrength: 15.0,
 		SpringDamping:  0.8,
 		MaxSpeed:       45.0,
+		SteerSpeed:     1.5,
 	}
 	m.vehicles[eid] = v
 	return value.FromInt(eid), nil
+}
+
+func (m *Module) VHSetTuning(args []value.Value) (value.Value, error) {
+	if len(args) < 5 {
+		return value.Nil, fmt.Errorf("VEHICLE.SETTUNING(v, spring#, damp#, maxSpeed#, steerSpeed#)")
+	}
+	vid, _ := args[0].ToInt()
+	v := m.vehicles[vid]
+	if v == nil { return value.Nil, nil }
+	
+	s, _ := args[1].ToFloat()
+	d, _ := args[2].ToFloat()
+	ms, _ := args[3].ToFloat()
+	ss, _ := args[4].ToFloat()
+	
+	v.SpringStrength = float32(s)
+	v.SpringDamping = float32(d)
+	v.MaxSpeed = float32(ms)
+	v.SteerSpeed = float32(ss)
+	return value.Nil, nil
+}
+
+func (m *Module) VHWheelAxis(args []value.Value, axis int) (value.Value, error) {
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("VEHICLE.WHEELX/Y/Z(v, idx)")
+	}
+	vid, _ := args[0].ToInt()
+	idx, _ := args[1].ToInt()
+	v := m.vehicles[vid]
+	if v == nil || idx < 0 || idx >= int64(len(v.Wheels)) {
+		return value.FromFloat(0), nil
+	}
+	
+	w := v.Wheels[idx]
+	switch axis {
+	case 0: return value.FromFloat(float64(w.WorldPos.X)), nil
+	case 1: return value.FromFloat(float64(w.WorldPos.Y)), nil
+	case 2: return value.FromFloat(float64(w.WorldPos.Z)), nil
+	}
+	return value.FromFloat(0), nil
 }
 
 func (m *Module) VHSetWheel(args []value.Value) (value.Value, error) {
@@ -99,6 +142,26 @@ func (m *Module) VHControl(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
+func (m *Module) VHSetSteering(args []value.Value) (value.Value, error) {
+	if len(args) < 2 { return value.Nil, fmt.Errorf("VEHICLE.SETSTEER(v, val#)") }
+	vid, _ := args[0].ToInt()
+	v := m.vehicles[vid]
+	if v == nil { return value.Nil, nil }
+	f, _ := args[1].ToFloat()
+	v.Steering = float32(f)
+	return value.Nil, nil
+}
+
+func (m *Module) VHSetThrottle(args []value.Value) (value.Value, error) {
+	if len(args) < 2 { return value.Nil, fmt.Errorf("VEHICLE.SETTHROTTLE(v, val#)") }
+	vid, _ := args[0].ToInt()
+	v := m.vehicles[vid]
+	if v == nil { return value.Nil, nil }
+	f, _ := args[1].ToFloat()
+	v.Throttle = float32(f)
+	return value.Nil, nil
+}
+
 func (m *Module) VHStep(args []value.Value) (value.Value, error) {
 	if len(args) < 1 {
 		return value.Nil, fmt.Errorf("VEHICLE.STEP(dt#)")
@@ -140,6 +203,8 @@ func (m *Module) stepVehicle(v *Vehicle, dt float32) {
 		wz := w.Offset.Z*cosY - w.Offset.X*sinY
 		worldWPos := rl.Vector3{X: pos.X + wx, Y: pos.Y, Z: pos.Z + wz}
 
+		w.WorldPos = worldWPos
+
 		// Raycast down
 		_, _, _, hitY, ok := RaycastDownGroundProbe(float64(worldWPos.X), float64(worldWPos.Y), float64(worldWPos.Z), float64(w.SuspensionH))
 		if ok {
@@ -155,6 +220,9 @@ func (m *Module) stepVehicle(v *Vehicle, dt float32) {
 				
 				v.Velocity.Y += (spring - damp) * dt
 				groundCount++
+				
+				// Update world pos to snapped Y for mesh-tracking visual parity
+				w.WorldPos.Y = float32(hitY) + w.Radius
 			} else {
 				w.IsGrounded = false
 				w.Compress = 0

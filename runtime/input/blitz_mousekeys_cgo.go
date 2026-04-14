@@ -7,24 +7,10 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
-	mbruntime "moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) registerBlitzMouseKeys(r mbruntime.Registrar) {
-	r.Register("MOUSEDOWN", "input", mbruntime.AdaptLegacy(m.inMouseDown))
-	r.Register("MOUSEHIT", "input", mbruntime.AdaptLegacy(m.inMouseHit))
-	r.Register("MOUSEXSPEED", "input", mbruntime.AdaptLegacy(m.inMouseXSpeed))
-	r.Register("MOUSEYSPEED", "input", mbruntime.AdaptLegacy(m.inMouseYSpeed))
-	r.Register("FlushMouse", "input", mbruntime.AdaptLegacy(m.inFlushMouse))
-	r.Register("WaitMouse", "input", mbruntime.AdaptLegacy(m.inWaitMouse))
-	r.Register("MoveMouse", "input", mbruntime.AdaptLegacy(m.inMoveMouse))
-	r.Register("HidePointer", "input", mbruntime.AdaptLegacy(m.inHidePointer))
-	r.Register("ShowPointer", "input", mbruntime.AdaptLegacy(m.inShowPointer))
-	r.Register("GetKey", "input", mbruntime.AdaptLegacy(m.inGetKey))
-	r.Register("WaitKey", "input", mbruntime.AdaptLegacy(m.inWaitKey))
-	r.Register("FlushKeys", "input", mbruntime.AdaptLegacy(m.inFlushKeys))
-}
+// blitz mouse/keys implementation below
 
 func (m *Module) inFlushMouse(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
