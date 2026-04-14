@@ -343,6 +343,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`BODY3D.ADDSPHERE`** - args: handle, float
 - **`BODY3D.APPLYFORCE`** - args: handle, float, float, float
 - **`BODY3D.APPLYIMPULSE`** - args: handle, float, float, float
+- **`BODY3D.BUFFERINDEX`** - args: handle -> returns int
 - **`BODY3D.COLLIDED`** - args: handle -> returns int
 - **`BODY3D.COLLISIONNORMAL`** - args: handle -> returns handle
 - **`BODY3D.COLLISIONOTHER`** - args: handle -> returns handle
@@ -354,8 +355,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`BODY3D.GETROT`** - args: handle -> returns handle
 - **`BODY3D.MAKE`** - args: (none) -> returns handle
 - **`BODY3D.MAKE`** - args: (none) -> returns handle
-- **`BODY3D.MAKE`** - args: string -> returns handle
 - **`BODY3D.MAKE`** - args: string
+- **`BODY3D.MAKE`** - args: string -> returns handle
 - **`BODY3D.SETANGULARVEL`** - args: handle, float, float, float
 - **`BODY3D.SETFRICTION`** - args: handle, float
 - **`BODY3D.SETLINEARVEL`** - args: handle, float, float, float
@@ -3393,10 +3394,23 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PHYSICS3D
 
+- **`AERO.SETDRAG`** - args: handle, float — Apply air resistance coefficient.
+- **`AERO.SETLIFT`** - args: handle, float — Set lift coefficient for a physics body.
+- **`AERO.SETTHRUST`** - args: handle, float — Apply local Z-axis thrust power.
+- **`BODY3D.APPLYTORQUE`** - args: handle, float, float, float
+- **`BODY3D.GETANGULARVEL`** - args: handle -> returns handle
+- **`BODY3D.GETMASS`** - args: handle -> returns float
+- **`BODY3D.GETVELOCITY`** - args: handle -> returns handle — Get linear velocity as a 3-element numeric array.
 - **`BODY3D.LOCKAXIS`** - args: handle, int — Locks translation/rotation for a body. axis_flags: 1=X, 2=Y, 4=Z (linear), 8, 16, 32 (angular).
+- **`BODY3D.SETANGULARVEL`** - args: handle, float, float, float
 - **`BODY3D.SETCCD`** - args: handle, bool — Enables/disables Continuous Collision Detection for fast moving objects.
 - **`BODY3D.SETDAMPING`** - args: handle, float, float — Sets linear and angular damping (air resistance).
 - **`BODY3D.SETGRAVITYFACTOR`** - args: handle, float
+- **`BODY3D.SETVELOCITY`** - args: handle, float, float, float — Set linear velocity.
+- **`BODYREF.GETPOSITION`** - args: handle -> returns handle
+- **`BODYREF.GETROTATION`** - args: handle -> returns handle
+- **`BODYREF.GETVELOCITY`** - args: handle -> returns handle
+- **`BODYREF.SETVELOCITY`** - args: handle, float, float, float
 - **`JOINT.CREATEHINGE`** - args: handle, handle, float, float, float, float, float, float -> returns handle — Creates a hinge joint between two bodies at (px,py,pz) around axis (ax,ay,az).
 - **`JOINT.CREATEPOINT`** - args: handle, handle, float, float, float -> returns handle — Creates a point-to-point (ball and socket) joint between two bodies at (px,py,pz).
 - **`JOINT.FREE`** - args: handle — Destroys a physics joint/constraint.
@@ -3428,6 +3442,16 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS3D.STEP`** - args: (none)
 - **`PHYSICS3D.STOP`** - args: (none)
 - **`PHYSICS3D.STOP`** - args: (none)
+- **`VEHICLE.CONTROL`** - args: int, float, float, float — Update all vehicle inputs (vid, throttle, steer, brake).
+- **`VEHICLE.CREATE`** - args: int, int -> returns int — Create a vehicle controller for an entity.
+- **`VEHICLE.SETSTEER`** - args: int, float — Set vehicle steering (-1 to 1).
+- **`VEHICLE.SETTHROTTLE`** - args: int, float — Set vehicle throttle (-1 to 1).
+- **`VEHICLE.SETTUNING`** - args: int, float, float, float, float — Tune suspension (vid, spring, damp, maxSpeed, steerSpeed).
+- **`VEHICLE.SETWHEEL`** - args: int, int, float, float, float, float — Configure a wheel (vid, idx, ox, oy, oz, radius).
+- **`VEHICLE.STEP`** - args: float — Step all vehicle simulations by dt.
+- **`VEHICLE.WHEELX`** - args: int, int -> returns float
+- **`VEHICLE.WHEELY`** - args: int, int -> returns float
+- **`VEHICLE.WHEELZ`** - args: int, int -> returns float
 
 ### PI
 

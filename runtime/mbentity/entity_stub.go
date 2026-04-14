@@ -16,6 +16,8 @@ func registerEntityEasyAPI(m *Module, r runtime.Registrar) {}
 
 // Register implements runtime.Module — stubs when Raylib is unavailable.
 func (m *Module) Register(r runtime.Registrar) {
+	m.reg = r
+	registerWaterAutoPhysics(m, r)
 	stub := func(name string) runtime.BuiltinFn {
 		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 			_ = rt

@@ -26,11 +26,11 @@ For contributors and script authors, the practical rules are:
 | Area | Behavior on Linux or Windows + CGO (native Jolt) |
 |------|-------------------------|
 | **`JOINT.CREATEHINGE` / `JOINT.CREATEPOINT`** | Allocates a **placeholder** joint handle so scripts and stubs stay aligned. Real hinge/point constraints are **not** created until the wrapper grows constraint APIs. |
-| **`BODY3D.SETGRAVITYFACTOR`**, **`SETDAMPING`**, **`LOCKAXIS`**, **`SETCCD`** | Parsed and accepted; **no-op** at the native layer with the current wrapper. |
+| **`BODY3D.SETGRAVITYFACTOR`**, **`SETDAMPING`**, **`LOCKAXIS`**, **`SETCCD`** | Parsed, validated, then return a deterministic **\"not implemented on native backend\"** error (no silent no-op). |
 | **`BODY3D.GETLINEARVEL` / `SETLINEARVEL`** | Uses **`GetLinearVelocity` / `SetLinearVelocity`** on `BodyInterface` (supported). Returns a **3-element numeric array** handle (same pattern as `BODY3D.GETPOS`). |
-| **`BODY3D.GETANGULARVEL` / `SETANGULARVEL`** | Getter returns **zeros**; setter is a **no-op** (angular state not exposed in the vendored binding). |
+| **`BODY3D.GETANGULARVEL` / `SETANGULARVEL`** | Getter returns **zeros**; setter returns **\"not implemented on native backend\"** (angular state setter not exposed). |
 | **`BODY3D.APPLYFORCE`** | Implemented as **`AddImpulse(F × dt)`** using the module fixed timestep (`PHYSICS3D.SETTIMESTEP` / default 1/60 s), because the wrapper has **`AddImpulse`** but not **`AddForce`**. Treat script “force” as **impulse per physics step** in spirit. |
-| **`BODY3D.APPLYTORQUE`** | **No-op** (no torque API in the wrapper). |
+| **`BODY3D.APPLYTORQUE`** | Returns **\"not implemented on native backend\"** (torque API not exposed in the wrapper). |
 | **`BODY3D.GETMASS`** | Returns **`1.0`** (mass not queried from Jolt in this binding). |
 | **Ground probe hook** | **`mbphysics3d.SetRaycastHook`** is implemented on **both** [`pick_cgo.go`](../runtime/physics3d/pick_cgo.go) (Jolt path) and [`pick_stub.go`](../runtime/physics3d/pick_stub.go) (no Jolt) so `mbentity` can register a floor query with the same API on every build. |
 

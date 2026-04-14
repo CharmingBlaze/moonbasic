@@ -76,5 +76,5 @@ if ($dumpbin) {
     & dumpbin /dependents $out
 } else {
     Write-Host "Tip: In a VS Developer shell, run: dumpbin /dependents $out"
-    Write-Host "     Non-system DLLs (e.g. raylib.dll) should be absent for a static build."
+    Write-Host "     Non-system DLLs (e.g. raylib.dll, jolt.dll) should be absent for a static build."
 }

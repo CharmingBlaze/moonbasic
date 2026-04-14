@@ -5,8 +5,14 @@ package player
 import (
 	"fmt"
 	"math"
+	mbphysics3d "moonbasic/runtime/physics3d"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+const (
+	hostGroundSleepVy = 0.25
+	hostGroundMaxDownVy = 0.1
 )
 
 func (m *Module) Process(dt float64) {
@@ -43,10 +49,16 @@ func (m *Module) updateHostKCC(id int64, st *hostKCCState, dt float64) {
 	}
 	
 	// 2. Gravity & Ground State
+	gy := float64(mbphysics3d.GravityVec().Y)
 	if st.grounded {
-		st.vy = -0.1
+		if math.Abs(st.vy) < hostGroundSleepVy {
+			st.vy = 0
+		}
+		if st.vy < -hostGroundMaxDownVy {
+			st.vy = -hostGroundMaxDownVy
+		}
 	} else {
-		st.vy -= 32.0 * st.gravityScale * dt
+		st.vy += gy * st.gravityScale * dt
 	}
 
 	// 3. Horizontal Displacement & Stair Climbing

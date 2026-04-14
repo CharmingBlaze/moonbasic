@@ -13257,6 +13257,13 @@
       "returns": "handle"
     },
     {
+      "key": "BODY3D.BUFFERINDEX",
+      "args": [
+        "handle"
+      ],
+      "returns": "int"
+    },
+    {
       "key": "BODY3D.SETPOS",
       "args": [
         "handle",

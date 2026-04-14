@@ -103,6 +103,7 @@ Replace paths as needed. On Windows, set `CGO_ENABLED=1` and `CC` per BUILDING.m
 | Run game (source) | `CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun path/to/script.mb` |
 | Run game (alternate) | `CGO_ENABLED=1 go run -tags fullruntime . --run path/to/script.mb` |
 | Static Build (Windows) | `powershell -File scripts/build_static.ps1` |
+| Beta zip (static exe + `shaders` / `assets` / `examples`) | `powershell -File scripts/package_beta_zip.ps1` |
 | Disassemble bytecode | `go run . --disasm path/to/script.mbc` |
 | All Go tests | `go test ./...` |
 | Regenerate API consistency doc | `go run ./tools/apidoc` |

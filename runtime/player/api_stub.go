@@ -1,11 +1,10 @@
-//go:build !windows && !cgo
+//go:build (!linux && !windows) || (!windows && !cgo)
 
 package player
 
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 

@@ -157,10 +157,14 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 
 	reg.RegisterModule(mbcollision.NewModule())
 	reg.RegisterModule(mnoise.NewModule())
-	reg.RegisterModule(mbentity.NewModule())
+	// Register player after charcontroller (from registerPhysicsModules) so PLAYER/CHAR aliases are
+	// the canonical owners for overlapping CHARACTER*/CHARACTERREF* keys.
 	reg.RegisterModule(mbplayer.NewModule())
 	reg.RegisterModule(mbgame.NewModule())
 	reg.RegisterModule(mbblitz.NewModule())
+	// mbentity must register after blitz: Registry.Call uppercases names, so CreateSphere → CREATESPHERE
+	// and would otherwise be overwritten by Blitz's legacy CREATESPHERE (segments, parent) handler.
+	reg.RegisterModule(mbentity.NewModule())
 
 	// Stubs for manifest entries not yet implemented natively
 	reg.RegisterFromManifest(builtinmanifest.Default())

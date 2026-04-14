@@ -140,6 +140,7 @@ The repository includes extensive documentation covering installation, language 
 | [docs/PROGRAMMING.md](docs/PROGRAMMING.md) | Game loop, modules, 2D/3D |
 | [docs/LANGUAGE.md](docs/LANGUAGE.md) | Variables, control flow, functions |
 | [docs/COMMANDS.md](docs/COMMANDS.md) | Built-in command index |
+| [docs/JOLT_WINDOWS_PARITY.md](docs/JOLT_WINDOWS_PARITY.md) | Native Jolt on Windows (CGO), building static `.a` files |
 | [examples/README.md](examples/README.md) | Runnable sample programs |
 
 More detail lives in **[docs/reference/](docs/reference/)** and **[ARCHITECTURE.md](ARCHITECTURE.md)**.

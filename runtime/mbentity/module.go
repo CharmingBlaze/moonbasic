@@ -78,7 +78,12 @@ func (m *Module) BindHeap(h *heap.Store) {
 		}
 		return 0, 1, 0, 0, false
 	})
-	m.reg.Register("WATER.AUTOPHYSICS", "entity", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+}
+
+// registerWaterAutoPhysics registers WATER.AUTOPHYSICS. Must run from Module.Register — not BindHeap
+// (Registry calls BindHeap before Register, so m.reg is nil during BindHeap).
+func registerWaterAutoPhysics(m *Module, r runtime.Registrar) {
+	r.Register("WATER.AUTOPHYSICS", "entity", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Nil, fmt.Errorf("WATER.AUTOPHYSICS expects (toggle)")
 		}

@@ -245,26 +245,28 @@ func (m *Module) phMouseHit(args []value.Value) (value.Value, error) {
 }
 
 // RaycastDownGroundProbe casts along -Y (length maxDown), returns surface normal and hit point Y (world).
+// When Jolt is active, CastRay runs first (authoritative physics surfaces). The optional mbentity hook
+// uses static entity AABBs; it must not run before Jolt — e.g. ENTITY.CREATESPHERE marks balls as static,
+// and the heuristic could treat a ball as its own floor and break physics sync (see syncEntitiesFromPhysics).
 func RaycastDownGroundProbe(ox, oy, oz, maxDown float64) (nx, ny, nz, hitY float64, ok bool) {
+	joltMu.Lock()
+	ps := joltSys
+	joltMu.Unlock()
+	if ps != nil && maxDown > 1e-9 {
+		origin := jolt.Vec3{X: float32(ox), Y: float32(oy), Z: float32(oz)}
+		dir := jolt.Vec3{X: 0, Y: float32(-maxDown), Z: 0}
+		hit, hitOK := ps.CastRay(origin, dir)
+		if hitOK {
+			return float64(hit.Normal.X), float64(hit.Normal.Y), float64(hit.Normal.Z), float64(hit.HitPoint.Y), true
+		}
+	}
 	pickMu.Lock()
 	hook := groundRaycastHook
 	pickMu.Unlock()
 	if hook != nil {
 		return hook(ox, oy, oz, maxDown)
 	}
-	joltMu.Lock()
-	ps := joltSys
-	joltMu.Unlock()
-	if ps == nil || maxDown <= 1e-9 {
-		return 0, 1, 0, 0, false
-	}
-	origin := jolt.Vec3{X: float32(ox), Y: float32(oy), Z: float32(oz)}
-	dir := jolt.Vec3{X: 0, Y: float32(-maxDown), Z: 0}
-	hit, hitOK := ps.CastRay(origin, dir)
-	if !hitOK {
-		return 0, 1, 0, 0, false
-	}
-	return float64(hit.Normal.X), float64(hit.Normal.Y), float64(hit.Normal.Z), float64(hit.HitPoint.Y), true
+	return 0, 1, 0, 0, false
 }
 
 // RaycastDownNormal casts a short ray along -Y and returns the hit surface normal (Jolt CastRay), or ok=false.
@@ -323,7 +325,7 @@ func PickCastEntityID(ox, oy, oz, dx, dy, dz, maxDist float64) int64 {
 }
 
 func (m *Module) pickCast(args []value.Value) (value.Value, error) {
-	if args != nil && len(args) != 0 {
+	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("PICK.CAST expects 0 arguments")
 	}
 	if pickRadius > 1e-9 {

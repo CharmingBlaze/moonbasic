@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"math"
 
-	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
 	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) playerCharacterCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) playerCharacterCreate(args []value.Value) (value.Value, error) {
 	// Polymorphism: Character.Create(x, y, z) vs Character.Create(entity, radius, height)
 	if len(args) == 3 && args[0].Kind != value.KindHandle {
 		_, isEnt := m.playerEntID(args[0])
@@ -23,7 +22,7 @@ func (m *Module) playerCharacterCreate(rt *runtime.Runtime, args ...value.Value)
 		}
 	}
 
-	v, err := m.playerCreate(rt, args...)
+	v, err := m.playerCreate(args)
 	if err != nil {
 		return v, err
 	}

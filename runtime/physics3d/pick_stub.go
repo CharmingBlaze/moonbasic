@@ -5,6 +5,11 @@
 //
 package mbphysics3d
 
+import (
+	"moonbasic/runtime"
+	"moonbasic/vm/value"
+)
+
 // SetPickLayerLookup is a no-op without Jolt.
 func SetPickLayerLookup(fn func(int64) (uint8, bool)) { _ = fn }
 
@@ -46,7 +51,7 @@ func (m *Module) pickGet(args []value.Value, f func() float64) (value.Value, err
 	return value.FromFloat(0), nil
 }
 func (m *Module) pickEntityGet(args []value.Value) (value.Value, error) { return value.FromInt(0), nil }
-func (m *Module) pickHitGet(args []value.Value) (value.Value, error)    { return value.False, nil }
+func (m *Module) pickHitGet(args []value.Value) (value.Value, error)    { return value.FromBool(false), nil }
 
 func resetPickState() {}
 
@@ -75,14 +80,3 @@ func RaycastDownNormal(ox, oy, oz, maxDown float64) (nx, ny, nz float64, ok bool
 	nx, ny, nz, _, ok = RaycastDownGroundProbe(ox, oy, oz, maxDown)
 	return nx, ny, nz, ok
 }
-func (m *Module) pickRadiusSet(args []value.Value) (value.Value, error)    { return value.Nil, nil }
-func (m *Module) pickFromCamera(args []value.Value) (value.Value, error)   { return value.Nil, nil }
-func (m *Module) pickScreenCast(args []value.Value) (value.Value, error)   { return value.Nil, nil }
-func (m *Module) camRaycastMouseEntity(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phMouseHit(args []value.Value) (value.Value, error)       { return value.Nil, nil }
-func (m *Module) pickCast(args []value.Value) (value.Value, error)         { return value.FromInt(0), nil }
-func (m *Module) pickGet(args []value.Value, f func() float64) (value.Value, error) {
-	return value.FromFloat(0), nil
-}
-func (m *Module) pickEntityGet(args []value.Value) (value.Value, error) { return value.FromInt(0), nil }
-func (m *Module) pickHitGet(args []value.Value) (value.Value, error)    { return value.False, nil }

@@ -9,7 +9,7 @@ This guide provides detailed instructions for compiling the `moonBASIC` interpre
 Before you can build, you need the following software installed on your system.
 
 ### All Systems
-- **Go**: Version 1.22 or later. You can download it from the [official Go website](https://go.dev/dl/).
+- **Go**: Version **1.25.3** or later (see [`go.mod`](../go.mod)). Download from the [official Go website](https://go.dev/dl/).
 - **Git**: For cloning the repository.
 
 ### raylib-go and “Raylib 5.5”
@@ -119,6 +119,54 @@ go build -tags fullruntime -o moonrun ./cmd/moonrun
 On **Windows**, set **`CGO_ENABLED=1`** and point **`CC`** at MinGW **`gcc.exe`** as in [Build on Windows](#2-build-on-windows) above, then use the same **`-tags fullruntime`** lines (outputs **`moonbasic.exe`** / **`moonrun.exe`**).
 
 **3D physics:** native **Jolt** (`PHYSICS3D.*` / `BODY3D.*`) is available on **Linux and Windows x64** when **`CGO_ENABLED=1`** and the Jolt static libraries are present (see [JOLT_WINDOWS_PARITY.md](JOLT_WINDOWS_PARITY.md)). Other builds get a **full graphics** runtime with physics builtins **stubbed** with a clear error—see [PHYSICS3D.md](reference/PHYSICS3D.md).
+
+---
+
+## Windows static-linked `moonrun` (no `raylib.dll` / `jolt.dll`)
+
+For a **standalone `.exe`** where native code is linked statically (game content may still load from disk next to the binary):
+
+1. Build Jolt static archives for Windows amd64 (see [`third_party/jolt-go/jolt/lib/windows_amd64/README.md`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md)).
+2. From the repo root, run:
+
+```powershell
+powershell -File scripts/check-jolt-windows-libs.ps1   # optional preflight
+powershell -File scripts/build_static.ps1
+```
+
+Default output: **`moonrun_static.exe`**. Optional: `$env:OUTPUT="moonrun.exe"` before the script.
+
+3. **Verify** the linker did not leave runtime DLLs for Raylib or Jolt:
+
+```powershell
+dumpbin /dependents moonrun_static.exe
+```
+
+You should **not** see **`raylib.dll`** or **`jolt.dll`**. Non-system DLLs (e.g. `VCRUNTIME140.dll`) may still appear depending on toolchain. If `dumpbin` is not on `PATH`, run the same command from a **Visual Studio Developer** shell.
+
+**Purego note:** Builds with **`CGO_ENABLED=0`** on Windows load **`raylib.dll`** at runtime; they are **not** covered by the static script above.
+
+---
+
+## Beta zip distribution (exe + loose folders)
+
+Shipping **scripts, shaders, and assets** as files next to the binary keeps rebuilds fast and matches common engine layouts. A helper script builds the static runner and packs a standard tree:
+
+```powershell
+powershell -File scripts/package_beta_zip.ps1
+```
+
+Default archive: **`dist/MoonBasic-beta-windows-amd64.zip`**, containing a **`MoonBasic/`** root with **`moonrun.exe`**, **`shaders/shd/`** (mirror of [`runtime/shaders/shd`](../runtime/shaders/shd)), **`assets/`**, **`examples/`**, and **`README-BETA.txt`**.
+
+| Issue | What to check |
+|-------|----------------|
+| **File not found** | Restore the full zip layout; paths are often relative to the bundle folder or the `.exe` directory (see **`RES.PATH`** in scripts). |
+| **Wrong working directory** | Run commands from the unzipped **`MoonBasic`** folder (or the folder that contains **`moonrun.exe`**) so relative paths in samples resolve. |
+| **Missing DLL error** | You are likely running a **non-static** build (e.g. purego). Rebuild with **`scripts/build_static.ps1`** or use the packaged **`moonrun.exe`**. |
+
+**Clean-room check:** On a PC **without** Go, Zig, or **`raylib.dll`** on `PATH`, unzip the archive, open a terminal in **`MoonBasic`**, run **`.\moonrun.exe examples\sphere_drop\main.mb`**. The window should open if GPU drivers are available.
+
+**Future:** A single-file **`embed.FS`** bundle (atomic ship) is optional and deferred until physics/rendering are stable across the full matrix; when added, prefer **raw** embedded bytes (no startup decompression) for fast boot.
 
 ---
 

@@ -35,6 +35,7 @@ func (m *Module) phStart(args []value.Value) (value.Value, error) {
 	collPending = nil
 	joltBodyMu.Lock()
 	joltBodyToHandle = make(map[*jolt.BodyID]heap.Handle)
+	joltBodyDynamic = make(map[*jolt.BodyID]bool)
 	joltBodyMu.Unlock()
 	nextBufferIndex = 0
 	matrixBufferAlloc = 1024
@@ -49,7 +50,7 @@ func (m *Module) phStart(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) phStop(args []value.Value) (value.Value, error) {
-	if args != nil && len(args) != 0 {
+	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("PHYSICS3D.STOP expects 0 arguments")
 	}
 	joltMu.Lock()
@@ -67,6 +68,7 @@ func (m *Module) phStop(args []value.Value) (value.Value, error) {
 	collPending = nil
 	joltBodyMu.Lock()
 	joltBodyToHandle = nil
+	joltBodyDynamic = nil
 	joltBodyMu.Unlock()
 	matrixBuffer = nil
 	bufferIndexMap = nil
@@ -158,6 +160,7 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 	steps := 0
 	// Standard semi-fixed timestep accumulator with 5-step cap.
 	for m.accumulator >= m.fixedStep && steps < 5 {
+		m.applyConfiguredGravity(float32(m.fixedStep))
 		ps.Update(float32(m.fixedStep))
 		m.accumulator -= m.fixedStep
 		steps++
@@ -169,11 +172,83 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 	}
 	m.SyncWasmPhysicsAfterStep()
 	collectContactsAfterStep(m)
+	m.queueCollisionCallbacksFromRules()
 
 	// Process Aero (Shared Go Logic)
 	m.ProcessAeroDynamics(float32(dt))
 
 	return value.Nil, nil
+}
+
+// queueCollisionCallbacksFromRules converts contact-frame pairs into PHYSICS3D.ONCOLLISION callbacks.
+// This runs after collectContactsAfterStep so PHYSICS3D.PROCESSCOLLISIONS sees a stable queue.
+func (m *Module) queueCollisionCallbacksFromRules() {
+	joltMu.Lock()
+	rules := append([]collRule(nil), collRules...)
+	joltMu.Unlock()
+	if len(rules) == 0 {
+		return
+	}
+	pending := make([]collEvent, 0, len(rules))
+	for _, r := range rules {
+		ea, oka := EntityIDForBodyHandle(r.ha)
+		eb, okb := EntityIDForBodyHandle(r.hb)
+		if !oka || !okb {
+			continue
+		}
+		if _, hit := PairCollidedThisFrame(ea, eb); !hit {
+			continue
+		}
+		pending = append(pending, collEvent{ha: r.ha, hb: r.hb, cb: r.cb})
+	}
+	if len(pending) == 0 {
+		return
+	}
+	joltMu.Lock()
+	collPending = append(collPending, pending...)
+	joltMu.Unlock()
+}
+
+// applyConfiguredGravity applies PHYSICS3D.SETGRAVITY to dynamic BODY3D instances.
+// The current jolt-go wrapper does not expose PhysicsSystem::SetGravity, so we
+// integrate gravity by velocity for dynamic bodies each fixed simulation step.
+func (m *Module) applyConfiguredGravity(dt float32) {
+	if dt <= 0 {
+		return
+	}
+	joltMu.Lock()
+	bi := joltBi
+	gx, gy, gz := gravX, gravY, gravZ
+	joltMu.Unlock()
+	if bi == nil {
+		return
+	}
+	type bodyRef struct{ id *jolt.BodyID }
+	joltBodyMu.Lock()
+	refs := make([]bodyRef, 0, len(joltBodyDynamic))
+	for id, dynamic := range joltBodyDynamic {
+		if dynamic {
+			refs = append(refs, bodyRef{id: id})
+		}
+	}
+	joltBodyMu.Unlock()
+
+	dvx, dvy, dvz := gx*dt, gy*dt, gz*dt
+	for _, ref := range refs {
+		// Defensive guard: apply only to bodies that still exist and are marked dynamic in heap state.
+		// This prevents static floors from ever receiving gravity if id metadata drifts.
+		if m.h != nil {
+			if h, ok := joltLookupHandle(ref.id); ok {
+				if obj, ok := m.h.Get(h); ok {
+					if bo, ok := obj.(*body3dObj); !ok || bo == nil || bo.motion != jolt.MotionTypeDynamic {
+						continue
+					}
+				}
+			}
+		}
+		v := bi.GetLinearVelocity(ref.id)
+		bi.SetLinearVelocity(ref.id, jolt.Vec3{X: v.X + dvx, Y: v.Y + dvy, Z: v.Z + dvz})
+	}
 }
 
 func (m *Module) phSyncWasmToPhysRegs(args []value.Value) (value.Value, error) {
@@ -403,10 +478,22 @@ func (m *Module) phJointDelete(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func (m *Module) phJointFixed(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phJointHinge(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phJointSlider(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phJointCone(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) phJointFixed(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("JOINT.FIXED is not implemented on native backend yet")
+}
+func (m *Module) phJointHinge(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("JOINT.HINGE is not implemented on native backend yet")
+}
+func (m *Module) phJointSlider(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("JOINT.SLIDER is not implemented on native backend yet")
+}
+func (m *Module) phJointCone(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("JOINT.CONE is not implemented on native backend yet")
+}
 
 func (m *Module) bdSetGravityFactor(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle {
@@ -416,8 +503,7 @@ func (m *Module) bdSetGravityFactor(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	_, _ = args[1].ToFloat()
-	// Not exposed by vendored jolt-go BodyInterface (see docs/PHYSICS.md, vendored Jolt table).
-	return value.Nil, nil
+	return value.Nil, fmt.Errorf("BODY3D.SETGRAVITYFACTOR not implemented on native backend")
 }
 
 func (m *Module) bdSetDamping(args []value.Value) (value.Value, error) {
@@ -429,7 +515,7 @@ func (m *Module) bdSetDamping(args []value.Value) (value.Value, error) {
 	}
 	_, _ = args[1].ToFloat()
 	_, _ = args[2].ToFloat()
-	return value.Nil, nil
+	return value.Nil, fmt.Errorf("BODY3D.SETDAMPING not implemented on native backend")
 }
 
 func (m *Module) bdLockAxis(args []value.Value) (value.Value, error) {
@@ -442,7 +528,7 @@ func (m *Module) bdLockAxis(args []value.Value) (value.Value, error) {
 	if _, ok := args[1].ToInt(); !ok {
 		return value.Nil, fmt.Errorf("invalid axis flags")
 	}
-	return value.Nil, nil
+	return value.Nil, fmt.Errorf("BODY3D.LOCKAXIS not implemented on native backend")
 }
 
 func (m *Module) btdSetCCD(args []value.Value) (value.Value, error) {
@@ -453,15 +539,29 @@ func (m *Module) btdSetCCD(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	_ = value.Truthy(args[1], nil, nil)
-	// Motion quality / CCD not exposed on vendored jolt-go.
-	return value.Nil, nil
+	return value.Nil, fmt.Errorf("BODY3D.SETCCD not implemented on native backend")
 }
 
-func (m *Module) phDebugDraw(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phSpherecast(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phBoxcast(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phEnable(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phDisable(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) phDebugDraw(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("PHYSICS3D.DEBUGDRAW not implemented on native backend")
+}
+func (m *Module) phSpherecast(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("PHYSICS3D.SPHERECAST not implemented on native backend")
+}
+func (m *Module) phBoxcast(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("PHYSICS3D.BOXCAST not implemented on native backend")
+}
+func (m *Module) phEnable(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("PHYSICS3D.ENABLE not implemented on native backend")
+}
+func (m *Module) phDisable(args []value.Value) (value.Value, error) {
+	_ = args
+	return value.Nil, fmt.Errorf("PHYSICS3D.DISABLE not implemented on native backend")
+}
 
 func phSetOnCollision(m *Module, ha, hb value.Value, cb string) (value.Value, error) {
 	joltMu.Lock()
@@ -471,7 +571,7 @@ func phSetOnCollision(m *Module, ha, hb value.Value, cb string) (value.Value, er
 		hb: heap.Handle(hb.IVal),
 		cb: cb,
 	})
-	return value.Nil, nil
+	return value.Nil, fmt.Errorf("BODY3D.SETANGULARVEL not implemented on native backend")
 }
 
 func (m *Module) phWorldSetup(args []value.Value) (value.Value, error) {
@@ -531,7 +631,7 @@ func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
 	_, _ = args[1].ToFloat()
 	_, _ = args[2].ToFloat()
 	_, _ = args[3].ToFloat()
-	return value.Nil, nil
+	return value.Nil, fmt.Errorf("BODY3D.APPLYTORQUE not implemented on native backend")
 }
 
 

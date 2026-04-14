@@ -49,6 +49,7 @@ More commands: [docs/DEVELOPER.md](../docs/DEVELOPER.md), [Makefile](../Makefile
 | [gui_counter](gui_counter/main.mb) | raygui + optional TTF; small interactive demo |
 | [game_math_helpers](game_math_helpers/main.mb) | Compile-only exercise of **`HDIST`**, **`YAWFROMXZ`**, **`SMOOTHERSTEP`**, … ([GAME_MATH_HELPERS](../docs/reference/GAME_MATH_HELPERS.md)) |
 | [spin_cube](spin_cube/main.mb) | 3D camera, lit cube, **`Transform.*`** matrix + grid, resource cleanup |
+| [sphere_drop](sphere_drop/main.mb) | **Jolt `PHYSICS3D`**: click to spawn colored spheres on a platform, orbit camera, cull fallen balls (needs CGO + Jolt libs; see [JOLT_WINDOWS_PARITY](../docs/JOLT_WINDOWS_PARITY.md) on Windows) |
 | [pong](pong/main.mb) | 2D rectangles + default-font HUD |
 | [platformer](platformer/main.mb) | Simple platform collision |
 | [fps](fps/main.mb) | Top-down arena + moving targets |

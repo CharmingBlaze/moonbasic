@@ -29,7 +29,7 @@ The [`--check`](.github/workflows/ci.yml) samples mirror a subset of CI; fixing 
 | **Headless Compiler** (default) | `go build -o moonbasic .` | `.mb` → `.mbc`, `--check`, `--lsp`, `--disasm`. Uses **Null Driver** (dependency-free). |
 | **Full Interactive Runtime** | `go build -tags fullruntime -o moonrun ./cmd/moonrun` | Run graphical programs from `.mb` / `.mbc`. Uses **Raylib Driver**. |
 
-Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** locally. To produce a **standalone static exe** on Windows, use [`scripts/build_static.ps1`](scripts/build_static.ps1).
+Alternatively: `go build -tags fullruntime -o moonbasic .` gives a single binary that can **`--run`** locally. To produce a **standalone static exe** on Windows, use [`scripts/build_static.ps1`](scripts/build_static.ps1). To ship **`moonrun.exe`** with **`shaders/`**, **`assets/`**, and **`examples/`** in a zip, use [`scripts/package_beta_zip.ps1`](scripts/package_beta_zip.ps1) (see [docs/BUILDING.md](docs/BUILDING.md#beta-zip-distribution-exe--loose-folders)).
 
 ### IDE: gopls and build tags (“split brain”)
 

@@ -273,7 +273,8 @@ func (m *Module) playerGetSpeed(rt *runtime.Runtime, args ...value.Value) (value
 }
 
 func (m *Module) playerGetOnSlope(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return m.playerIsOnSteepSlope(rt, args...)
+	_ = rt
+	return m.playerIsOnSteepSlope(args)
 }
 
 func (m *Module) playerGetOnWall(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

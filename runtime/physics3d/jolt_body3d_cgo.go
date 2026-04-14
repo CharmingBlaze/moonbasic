@@ -179,10 +179,11 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 	z, _ := args[3].ToFloat()
 	sh := bu.Shape
 	bu.Shape = nil
-	
-	ccd := bu.EnableCCD && bu.Motion == jolt.MotionTypeDynamic
 
-	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, bu.Motion, ccd,
+	motion := bu.Motion
+	ccd := bu.EnableCCD && motion == jolt.MotionTypeDynamic
+
+	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, motion, ccd,
 		bu.Friction, bu.Restitution, bu.AllowedDOFs)
 	sh.Destroy()
 
@@ -197,7 +198,7 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 	}
 
 	m.h.Free(heap.Handle(args[0].IVal))
-	body := &body3dObj{id: id, queryShape: qshape}
+	body := &body3dObj{id: id, queryShape: qshape, motion: motion}
 	body.setFinalizer()
 	bh, err := m.h.Alloc(body)
 	if err != nil {
@@ -210,6 +211,7 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	joltRegisterBody(id, bh)
+	joltMarkBodyDynamic(id, motion == jolt.MotionTypeDynamic)
 
 	joltBodyMu.Lock()
 	bidx := nextBufferIndex

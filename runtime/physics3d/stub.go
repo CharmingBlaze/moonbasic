@@ -3,7 +3,6 @@
 package mbphysics3d
 
 import (
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -46,12 +45,19 @@ var (
 	nextBodyID   = 1
 )
 
-func (m *Module) phOnCollision(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func phSetOnCollision(m *Module, ha, hb value.Value, cb string) (value.Value, error) {
+	_ = m
+	_, _, _ = ha, hb, cb
 	return value.Nil, nil
 }
 
-func (m *Module) phBodyMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return value.Nil, nil
+func phCreateBody(m *Module, motion string) (value.Value, error) {
+	_ = motion
+	if m == nil || m.h == nil {
+		return value.Nil, nil
+	}
+	id, _ := m.h.Alloc(&BuilderObj{})
+	return value.FromHandle(id), nil
 }
 
 func (m *Module) phStart(args []value.Value) (value.Value, error)              { return value.Nil, nil }
@@ -96,7 +102,6 @@ func (m *Module) phBoxcast(args []value.Value) (value.Value, error)           { 
 func (m *Module) phEnable(args []value.Value) (value.Value, error)            { return value.Nil, nil }
 func (m *Module) phDisable(args []value.Value) (value.Value, error)           { return value.Nil, nil }
 func (m *Module) phSyncWasmToPhysRegs(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phGetScratchFloat(args []value.Value) (value.Value, error)   { return value.FromFloat(0), nil }
 func (m *Module) phDebugDraw(args []value.Value) (value.Value, error)         { return value.Nil, nil }
 
 func (m *Module) shCreateBox(args []value.Value) (value.Value, error) {
@@ -205,7 +210,7 @@ func (m *Module) bdFree(args []value.Value) (value.Value, error) {
 	m.h.Free(bh)
 	return value.Nil, nil
 }
-func (m *Module) bdCollided3D(args []value.Value) (value.Value, error)      { return value.False, nil }
+func (m *Module) bdCollided3D(args []value.Value) (value.Value, error)      { return value.FromBool(false), nil }
 func (m *Module) bdCollisionOther3D(args []value.Value) (value.Value, error) { return value.FromInt(0), nil }
 func (m *Module) bdCollisionPoint3D(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
 func (m *Module) bdCollisionNormal3D(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
@@ -236,9 +241,6 @@ func (m *Module) phJointDelete(args []value.Value) (value.Value, error) { return
 
 func phLevelStatic(m *Module, args []value.Value) (value.Value, error) {
 	return value.Nil, nil
-}
-func valueVec3FromFloats(h *heap.Store, x, y, z float64) (value.Value, error) {
-	return value.Nil, nil // Simplified stub
 }
 
 func (m *Module) hGetBody(v value.Value) (*body3dObj, error) {
@@ -282,6 +284,9 @@ func (m *Module) phWorldSetup(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) bdAddMesh(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) bdAddBox(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) bdAddSphere(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) bdCommit(args []value.Value) (value.Value, error)  { return value.Nil, nil }
 func (m *Module) bdBufferIndex(args []value.Value) (value.Value, error) {
 	return value.FromInt(-1), nil
@@ -359,7 +364,6 @@ func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func (m *Module) bdApplyForce(args []value.Value) (value.Value, error)  { return value.Nil, nil }
 func (m *Module) bdApplyTorque(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) bdGetMass(args []value.Value) (value.Value, error)      { return value.FromFloat(1.0), nil }
 
@@ -367,10 +371,6 @@ func (m *Module) bdGetMass(args []value.Value) (value.Value, error)      { retur
 func (m *Module) arSetLift(args []value.Value) (value.Value, error)   { return value.Nil, nil }
 func (m *Module) arSetThrust(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) arSetDrag(args []value.Value) (value.Value, error)   { return value.Nil, nil }
-
-func phLevelStatic(m *Module, args []value.Value) (value.Value, error) {
-	return value.Nil, nil
-}
 
 type BuilderObj struct {
 	Motion   int

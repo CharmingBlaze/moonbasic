@@ -150,6 +150,7 @@ func (s *entityStore) ensureSlices(id int) {
 
 func (m *Module) Register(r runtime.Registrar) {
 	m.reg = r
+	registerWaterAutoPhysics(m, r)
 	r.Register("ENTITY.CREATE", "entity", runtime.AdaptLegacy(m.entCreate))
 	r.Register("ENTITY.CREATEENTITY", "entity", runtime.AdaptLegacy(m.entCreate))
 	r.Register("ENTITY.CREATEBOX", "entity", runtime.AdaptLegacy(m.entCreateBox))
@@ -828,6 +829,11 @@ func (m *Module) queryFloorYAt(px, py, pz float32) float64 {
 		if !s.static || s.hidden {
 			continue
 		}
+		// Jolt-linked spheres (CreateSphere + LINKPHYSBUFFER) are not static terrain; they must not
+		// serve as floor in this heuristic (self-hit / stacked balls).
+		if s.physicsDriven && s.physBufIndex >= 0 && s.kind == entKindSphere {
+			continue
+		}
 		sp := s.getPos()
 		bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
 		bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
@@ -863,6 +869,9 @@ func (m *Module) queryFloorY(e *ent) float64 {
 	found := false
 	for _, s := range m.store().ents {
 		if !s.static {
+			continue
+		}
+		if s.physicsDriven && s.physBufIndex >= 0 && s.kind == entKindSphere {
 			continue
 		}
 		sp := s.getPos()

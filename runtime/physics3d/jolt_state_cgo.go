@@ -56,6 +56,7 @@ type collEvent struct {
 var (
 	joltBodyMu       sync.Mutex
 	joltBodyToHandle map[*jolt.BodyID]heap.Handle
+	joltBodyDynamic  map[*jolt.BodyID]bool
 )
 
 func joltRegisterBody(id *jolt.BodyID, h heap.Handle) {
@@ -70,6 +71,18 @@ func joltRegisterBody(id *jolt.BodyID, h heap.Handle) {
 	joltBodyToHandle[id] = h
 }
 
+func joltMarkBodyDynamic(id *jolt.BodyID, dynamic bool) {
+	if id == nil {
+		return
+	}
+	joltBodyMu.Lock()
+	defer joltBodyMu.Unlock()
+	if joltBodyDynamic == nil {
+		joltBodyDynamic = make(map[*jolt.BodyID]bool)
+	}
+	joltBodyDynamic[id] = dynamic
+}
+
 func joltUnregisterBody(id *jolt.BodyID) {
 	if id == nil {
 		return
@@ -77,6 +90,7 @@ func joltUnregisterBody(id *jolt.BodyID) {
 	joltBodyMu.Lock()
 	defer joltBodyMu.Unlock()
 	delete(joltBodyToHandle, id)
+	delete(joltBodyDynamic, id)
 }
 
 func joltLookupHandle(id *jolt.BodyID) (heap.Handle, bool) {
@@ -105,6 +119,7 @@ type body3dObj struct {
 	id          *jolt.BodyID
 	queryShape  *jolt.Shape // duplicate shape for CollideShape queries (same geometry as body)
 	bufferIndex int         // index into sharedMatrixBuffer
+	motion      jolt.MotionType
 	release     heap.ReleaseOnce
 }
 

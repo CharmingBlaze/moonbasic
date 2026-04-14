@@ -14,20 +14,25 @@ To link Jolt natively on Windows, you must follow these steps:
 
 ### 1. Requirements
 - **Go 1.25.3+**
-- **MinGW-w64** (via MSYS2). Ensure `gcc` in on your system `PATH`.
+- **MinGW-w64** (via MSYS2). Ensure `gcc` is on your `PATH`.
 - **CMake** (required for building the Jolt static libraries).
+- A local checkout of **[JoltPhysics](https://github.com/jrouwe/JoltPhysics)** (e.g. **v5.4.0** to match vendored **jolt-go**). The build script does **not** clone it; you point **`JPH_SRC`** at that directory.
 
 ### 2. Build Jolt Static Libraries
-MoonBASIC requires `libJolt.a` and `libjolt_wrapper.a`. We provide an automation script for this:
+MoonBASIC requires `libJolt.a` and `libjolt_wrapper.a`. Use [third_party/jolt-go/scripts/build-libs-windows.ps1](../third_party/jolt-go/scripts/build-libs-windows.ps1) from the repository root with **`JPH_SRC`** set:
+
 ```powershell
-# From the repository root
+# Example: JoltPhysics cloned beside moonbasic, or set to your path
+$env:JPH_SRC = "C:\path\to\JoltPhysics"
 powershell -File third_party/jolt-go/scripts/build-libs-windows.ps1
 ```
-This script will:
-- Clone/Locate Jolt Physics source.
-- Compile the Jolt core with SIMD optimizations enabled.
-- Compile the C-wrapper bridge.
-- Place the resulting `.a` files in `third_party/jolt-go/jolt/lib/windows_amd64/`.
+
+The script will:
+- Configure and compile the Jolt core with CMake from **`JPH_SRC`** (under `Build/windows_amd64_release`).
+- Compile the C++ wrapper sources in **jolt-go** and archive **`libjolt_wrapper.a`**.
+- Place both **`libJolt.a`** and **`libjolt_wrapper.a`** in **`third_party/jolt-go/jolt/lib/windows_amd64/`**.
+
+See also [third_party/jolt-go/jolt/lib/windows_amd64/README.md](../third_party/jolt-go/jolt/lib/windows_amd64/README.md).
 
 ### 3. Compile MoonBASIC with Physics
 Use the `fullruntime` tag and enable CGO:

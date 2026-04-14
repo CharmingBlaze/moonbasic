@@ -144,7 +144,7 @@ func collectContactsAfterStep(m *Module) {
 
 	collisionMu.Lock()
 	lastHitValid = false
-	if bufIdxToEntity == nil || len(bufIdxToEntity) == 0 {
+	if len(bufIdxToEntity) == 0 {
 		collisionFrame = collisionFrame[:0]
 		collisionMu.Unlock()
 		return

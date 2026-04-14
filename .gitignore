@@ -21,3 +21,6 @@ tmp_*.go
 # third_party/jolt-go/jolt/lib/windows_amd64/README.md). Omit from git unless you
 # intentionally vendor a release snapshot (then force-add if needed).
 third_party/jolt-go/jolt/lib/windows_amd64/*.a
+
+# Local JoltPhysics source checkout for building static libs (CI clones its own copy).
+third_party/JoltPhysics/

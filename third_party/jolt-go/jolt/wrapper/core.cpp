@@ -50,7 +50,7 @@ int JoltInit()
 	Factory::sInstance = gFactory.get();
 	RegisterTypes();
 
-	gTempAllocator = std::make_unique<TempAllocatorImpl>(10 * 1024 * 1024);
+	gTempAllocator = std::make_unique<TempAllocatorImpl>(64 * 1024 * 1024); // was 10 MiB; large batches need headroom
 	gJobSystem = std::make_unique<JobSystemThreadPool>(cMaxPhysicsJobs, cMaxPhysicsBarriers,
 													   std::thread::hardware_concurrency() - 1);
 
@@ -64,3 +64,5 @@ void JoltShutdown()
 	gFactory.reset();
 	Factory::sInstance = nullptr;
 }
+
+

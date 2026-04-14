@@ -454,12 +454,20 @@ func (v *VM) validateEntityMacroID(id int64) error {
 
 func (v *VM) doEntityPropGet(i opcode.Instruction) error {
 	idVal := v.reg(i.SrcA)
-	id := idVal.IVal
+	var id int64
 	if idVal.Kind == value.KindHandle {
+		id = idVal.IVal
 		if obj, ok := v.Heap.Get(heap.Handle(idVal.IVal)); ok {
 			if er, ok := obj.(*heap.EntityRef); ok {
 				id = er.ID
 			}
+		}
+	} else {
+		// INTEGER arrays store as KindFloat; entity# lives in FVal, not IVal.
+		var ok bool
+		id, ok = idVal.ToInt()
+		if !ok {
+			return v.runtimeError("ENTITY_PROP_GET: entity id must be numeric")
 		}
 	}
 	if err := v.validateEntityMacroID(id); err != nil {
@@ -501,12 +509,19 @@ fallback:
 
 func (v *VM) doEntityPropSet(i opcode.Instruction) error {
 	idVal := v.reg(i.SrcA)
-	id := idVal.IVal
+	var id int64
 	if idVal.Kind == value.KindHandle {
+		id = idVal.IVal
 		if obj, ok := v.Heap.Get(heap.Handle(idVal.IVal)); ok {
 			if er, ok := obj.(*heap.EntityRef); ok {
 				id = er.ID
 			}
+		}
+	} else {
+		var ok bool
+		id, ok = idVal.ToInt()
+		if !ok {
+			return v.runtimeError("ENTITY_PROP_SET: entity id must be numeric")
 		}
 	}
 	if err := v.validateEntityMacroID(id); err != nil {

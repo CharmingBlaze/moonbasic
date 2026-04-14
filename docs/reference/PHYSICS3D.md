@@ -2,7 +2,7 @@
 
 Commands for creating and controlling a 3D physics simulation using Jolt Physics.
 
-**Availability:** **`PHYSICS3D.*`** / **`BODY3D.*`** require **Linux + CGO** with [jolt-go](https://github.com/bbitechnologies/jolt-go); other builds return a stub error. **Registry map:** [moonbasic-command-set/physics-3d.md](moonbasic-command-set/physics-3d.md). Many **`BODY3D`** dynamics builtins are currently **no-ops** in the vendored binding (forces, mass, friction).
+**Availability:** **`PHYSICS3D.*`** / **`BODY3D.*`** require **Linux + CGO** with [jolt-go](https://github.com/bbitechnologies/jolt-go); other builds return a stub error. **Registry map:** [moonbasic-command-set/physics-3d.md](moonbasic-command-set/physics-3d.md). Commands that are not wired by the vendored binding now return explicit **not implemented** errors instead of silently no-oping.
 
 **Terrain / heightfields:** the vendored binding exposes **box / sphere / capsule / convex hull / mesh** shapes only. A **Jolt `HeightFieldShape`** for [`TERRAIN.*`](TERRAIN.md) heightmaps is not wired yet; align physics with generated meshes or separate bodies when needed.
 
@@ -64,19 +64,23 @@ Removes a body from the simulation and frees its memory.
 For complex mechanical systems, joints, and advanced body control, see the **[Advanced Physics Guide](PHYSICS_ADVANCED.md)**.
 
 ### `Body3D.SetDamping(handle, linear, angular)`
-Sets air resistance (0..1).
+Sets air resistance (0..1).  
+Current native backend status: **not implemented** (returns runtime error).
 - *Handle Shortcut*: `e.SetDamping(lin, ang)`
 
 ### `Body3D.LockAxis(handle, flags)`
 Locks specific translation/rotation axes.
+Current native backend status: **not implemented** (returns runtime error).
 - *Handle Shortcut*: `e.LockAxis(flags)`
 
 ### `Body3D.SetGravityFactor(handle, factor)`
 Scales gravity for this body (e.g., `0` = weightless).
+Current native backend status: **not implemented** (returns runtime error).
 - *Handle Shortcut*: `e.SetGravityFactor(factor)`
 
 ### `Body3D.SetCCD(handle, toggle)`
 Enables Continuous Collision Detection.
+Current native backend status: **not implemented** (returns runtime error).
 
 ---
 

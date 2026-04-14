@@ -105,7 +105,12 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		}
 		return value.Nil, nil
 	})
-	// UpdatePhysics — one call per frame: ENTITY.UPDATE(dt), optional WORLD/2D/3D physics (errors ignored if inactive).
+	// UpdatePhysics frame authority order is intentional:
+	// 1) ENTITY.UPDATE(dt) non-physics gameplay integration
+	// 2) player.Process(dt) KCC intent/update
+	// 3) WORLD/2D updates
+	// 4) PHYSICS3D.STEP(dt) final solver step + matrix sync callback into entities
+	// Reordering this causes one-frame pose divergence for linked bodies and KCC entities.
 	reg.Register("UPDATEPHYSICS", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("UPDATEPHYSICS expects 0 arguments")
