@@ -6,7 +6,7 @@ PRINT "Starting Physics Verification..."
 
 ; 1. Body and Aero Setup
 shape = SHAPE.CREATEBOX(1, 1, 1)
-body = BODY3D.MAKE("DYNAMIC")
+body = BODY3D.CREATE("DYNAMIC")
 BODY3D.ADDBOX(body, 1, 1, 1)
 bh = BODY3D.COMMIT(body, 0, 10, 0)
 

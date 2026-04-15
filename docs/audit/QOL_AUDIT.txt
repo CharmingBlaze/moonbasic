@@ -37,8 +37,8 @@ COL_WHITE … COL_* constants  DONE  runtime/mbgame/register_color_format.go (as
 
 # --- Group 3: Collision math (runtime/mbgame/register_collision.go) ---
 BOXCOLLIDE … DISTANCESQ3D   DONE   runtime/mbgame/register_collision.go
-SPRITECOLLIDE             DONE     runtime/sprite/raylib_cgo.go (alias of SPRITE.HIT)
-SPRITE.POINTHIT           DONE     runtime/sprite/raylib_cgo.go
+SPRITECOLLIDE             DONE     runtime/sprite/sprite_hit_cgo.go (alias of SPRITE.HIT; reg. raylib_cgo.go)
+SPRITE.POINTHIT           DONE     runtime/sprite/sprite_hit_cgo.go
 
 # --- Group 4: Movement (runtime/mbgame/register_math.go + pure_math.go) ---
 NEWXVALUE NEWYVALUE … WRAPVALUE  DONE  runtime/mbgame

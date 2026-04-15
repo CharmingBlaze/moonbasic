@@ -22,6 +22,7 @@ type jsonCommand struct {
 	Phase     string   `json:"phase,omitempty"`
 	Namespace string   `json:"namespace,omitempty"`
 	Stub      string   `json:"stub,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 func parseArgKind(s string) (ArgKind, error) {
@@ -71,6 +72,7 @@ func ParseJSON(data []byte) (*Table, error) {
 			Phase:     jc.Phase,
 			Namespace: jc.Namespace,
 			Stub:      jc.Stub,
+			Desc:      jc.Description,
 		}
 		t.Commands[key] = append(t.Commands[key], cmd)
 	}

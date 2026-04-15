@@ -101,7 +101,7 @@ Window.Close()
 - **`CreatePivot()`** — empty transform node (invisible, for parenting).
 - **`CreateCube(...)`** — `CreateCube()` / `CreateCube(w,h,d)` / `CreateCube(parent)` / `CreateCube(parent, w,h,d)`; see [`entity_blitz_cgo.go`](../../runtime/mbentity/entity_blitz_cgo.go).
 - **Jolt (Linux+CGO):** **`ENTITY.LINKPHYSBUFFER(entity, bufferIndex)`** ties an entity to a **`BODY3D`** matrix slot (from **`BODY3D.BUFFERINDEX`**). After **`PHYSICS3D.STEP`**, translation from the shared buffer updates the entity pose. **`ENTITY.CLEARPHYSBUFFER(entity)`** removes the link.
-- **Traffic cop (Jolt-linked entities):** **`ENTITY.ADDPHYSICS`** / **`ENTITY.PHYSICS`** marks the entity **physics-driven** (scripted gravity/velocity integration in **`ENTITY.UPDATE`** is skipped). **`ENTITY.SETPOSITION`** / dot **`Pos`** also teleports the **Jolt** body so meshes do not rubber-band. **`ENTITY.MOVE`** sets **linear velocity** on the body; **`ENTITY.PUSH`** applies an **impulse**. Grounding for **`ENTITY.GROUNDED`** / **`IsGrounded`** uses a short downward ray after the physics sync. See **`examples/mario64/modern_blitz_hop.mb`**.
+- **Traffic cop (Jolt-linked entities):** **`ENTITY.ADDPHYSICS`** / **`ENTITY.PHYSICS`** marks the entity **physics-driven** (scripted gravity/velocity integration in **`ENTITY.UPDATE`** is skipped). **`ENTITY.SETPOS`** (canonical) / deprecated **`ENTITY.SETPOSITION`**, or dot **`Pos`**, also teleports the **Jolt** body so meshes do not rubber-band. **`ENTITY.MOVE`** sets **linear velocity** on the body; **`ENTITY.PUSH`** applies an **impulse**. Grounding for **`ENTITY.GROUNDED`** / **`IsGrounded`** uses a short downward ray after the physics sync. See **`examples/mario64/modern_blitz_hop.mb`**.
 
 ## Jolt collision groups, queries, and AI helpers (Linux + **`PHYSICS3D.START`**)
 
@@ -175,7 +175,7 @@ px, py, pz = Entity.GetPos(player)
 - **`Entity.TFormPoint(x, y, z, srcEntity, dstEntity)`** / **`Entity.TFormVector(...)`** — same semantics as **`TFormVector`** / **`ENTITY.TFORMVECTOR`** above; **`TFORMPOINT`** includes translation (full matrix); **`TFORMVECTOR`** is direction-only. Returns a **3-float numeric array handle** (same pattern as **`ENTITY.GETPOSITION`**).
 - **`Entity.DeltaX`** / **`DeltaY`** / **`DeltaZ(entityA, entityB)`** — world-space axis delta **B − A** between origins.
 - **`Entity.MatrixElement(entity, row, col)`** — one element of the **world** matrix; **row/col 0..3**, **column-major** (same as **`MAT4.GETELEMENT`** / Raylib `rl.Matrix`).
-- **`Entity.InView(entity, camera)`** — conservative frustum test for the entity bounds vs the given **`CAMERA.MAKE`** handle (aspect from current framebuffer). **`Entity.SetCullMode`** force visible/hidden still applies first.
+- **`Entity.InView(entity, camera)`** — conservative frustum test for the entity bounds vs the given **`CAMERA.CREATE`** handle (aspect from current framebuffer). **`Entity.SetCullMode`** force visible/hidden still applies first.
 
 ## 3D sprites (billboards)
 

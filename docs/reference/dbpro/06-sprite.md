@@ -18,3 +18,5 @@ moonBASIC **`Sprite.*`** is **handle-based** (load texture/atlas, then draw), no
 | **SET SPRITE PRIORITY** | ≈ draw order / **Z** / **layer** | Engine uses **order** in your loop or **sprite batch** features if present. |
 | **SET SPRITE IMAGE** | ≈ reload / swap texture handle | |
 | **SPRITE HIT** | ✓ **`Sprite.Hit()`**, **`Sprite.PointHit()`** | |
+
+**Collision:** **`Sprite.Hit`** / **`Sprite.PointHit`** test the **drawn** quad (**`DrawTexturePro`**: scale, origin, rotation), not a separate axis-aligned frame box. See [SPRITE.md](../SPRITE.md).

@@ -16,6 +16,7 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 			return value.Nil, fmt.Errorf("%s requires CGO and Raylib (set CGO_ENABLED=1)", name)
 		}
 	}
+	r.Register("TERRAIN.CREATE", "terrain", hint("TERRAIN.CREATE"))
 	r.Register("TERRAIN.MAKE", "terrain", hint("TERRAIN.MAKE"))
 	r.Register("TERRAIN.FREE", "terrain", hint("TERRAIN.FREE"))
 	r.Register("TERRAIN.SETPOS", "terrain", hint("TERRAIN.SETPOS"))

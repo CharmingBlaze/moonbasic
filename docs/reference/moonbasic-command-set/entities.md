@@ -18,7 +18,7 @@
 
 | Designed | Implementation | Arguments (typical) |
 |----------|----------------|---------------------|
-| **Entity.Position(id, x, y, z)** | **`Entity.Position()`**, **`Entity.SetPosition()`** | **`(entity, x, y, z [, global])`** |
+| **Entity.Position(id, x, y, z)** | **`Entity.SetPos()`**, **`PositionEntity()`** | Registry **`ENTITY.SETPOS`** (canonical); deprecated **`ENTITY.SETPOSITION`**; Blitz **`ENTITY.POSITIONENTITY`**. **`(entity, x, y, z [, global])`** |
 | **Entity.Move(id, f, r, u)** | **`Entity.Move()`**, **`MoveEntity()`** | **`(entity, forward, right, up)`** — **local** move along facing |
 | **Entity.Turn(id, p, y, r)** | **`Entity.Turn()`** | Delta angles |
 | **Entity.Scale(id, x, y, z)** | **`Entity.Scale()`** | **`(entity, sx, sy, sz)`** |

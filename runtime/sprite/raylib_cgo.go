@@ -5,14 +5,18 @@ package mbsprite
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"strconv"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
+
+const spriteDefaultAlpha = float32(1)
 
 type spriteObj struct {
 	tex       rl.Texture2D
@@ -42,6 +46,11 @@ type spriteObj struct {
 	rangeAccum   float32
 
 	anim *animMachine
+
+	scaleX, scaleY float32
+	rotRad         float32 // radians, CCW (DrawTexturePro rotation in degrees)
+	tr, tg, tb     uint8
+	alpha          float32 // 0–1
 
 	release heap.ReleaseOnce
 }
@@ -114,12 +123,21 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("SPRITE.DRAW", "sprite", m.spDraw)
 	reg.Register("SPRITE.SETPOS", "sprite", m.spSetPos)
 	reg.Register("SPRITE.SETPOSITION", "sprite", m.spSetPos)
+	reg.Register("SPRITE.GETPOS", "sprite", m.spGetPos)
 	reg.Register("SPRITE.DEFANIM", "sprite", m.spDefAnim)
 	reg.Register("SPRITE.PLAYANIM", "sprite", m.spPlayAnim)
 	reg.Register("SPRITE.UPDATEANIM", "sprite", m.spUpdateAnim)
 	reg.Register("SPRITE.SETFRAME", "sprite", m.spSetFrame)
 	reg.Register("SPRITE.PLAY", "sprite", m.spPlayRange)
 	reg.Register("SPRITE.SETORIGIN", "sprite", m.spSetOrigin)
+	reg.Register("SPRITE.GETSCALE", "sprite", m.spGetScale)
+	reg.Register("SPRITE.SETSCALE", "sprite", m.spSetScale)
+	reg.Register("SPRITE.GETROT", "sprite", m.spGetRot)
+	reg.Register("SPRITE.SETROT", "sprite", m.spSetRot)
+	reg.Register("SPRITE.GETCOLOR", "sprite", m.spGetColor)
+	reg.Register("SPRITE.SETCOLOR", "sprite", m.spSetColor)
+	reg.Register("SPRITE.GETALPHA", "sprite", m.spGetAlpha)
+	reg.Register("SPRITE.SETALPHA", "sprite", m.spSetAlpha)
 	reg.Register("SPRITE.HIT", "sprite", m.spHit)
 	reg.Register("SPRITECOLLIDE", "sprite", m.spHit)
 	reg.Register("SPRITE.POINTHIT", "sprite", m.spPointHit)
@@ -164,6 +182,12 @@ func (m *Module) spLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 		frameH:       t.Height,
 		numFrames:    1,
 		fps:          8,
+		scaleX:       1,
+		scaleY:       1,
+		tr:           255,
+		tg:           255,
+		tb:           255,
+		alpha:        spriteDefaultAlpha,
 	}
 	id, err := m.h.Alloc(s)
 	if err != nil {
@@ -205,16 +229,66 @@ func (m *Module) drawSpriteAtScreen(s *spriteObj, screenX, screenY int32) error 
 		s.syncAnimFrame()
 	}
 	srcX := float32(s.srcX) + float32(s.curFrame)*float32(s.frameW)
-	rec := rl.Rectangle{
+	src := rl.Rectangle{
 		X:      srcX,
 		Y:      float32(s.srcY),
 		Width:  float32(s.frameW),
 		Height: float32(s.frameH),
 	}
-	pos := rl.Vector2{X: float32(screenX) + s.x - s.originX, Y: float32(screenY) + s.y - s.originY}
-	tint := color.RGBA{R: 255, G: 255, B: 255, A: 255}
-	rl.DrawTextureRec(s.tex, rec, pos, tint)
+	sx := s.scaleX
+	sy := s.scaleY
+	if sx == 0 {
+		sx = 1
+	}
+	if sy == 0 {
+		sy = 1
+	}
+	dw := float32(s.frameW) * sx
+	dh := float32(s.frameH) * sy
+	dest := rl.Rectangle{
+		X:      float32(screenX) + s.x,
+		Y:      float32(screenY) + s.y,
+		Width:  dw,
+		Height: dh,
+	}
+	origin := rl.Vector2{X: s.originX * sx, Y: s.originY * sy}
+	rotDeg := float32(s.rotRad * 180.0 / math.Pi)
+	a := s.alpha
+	if a <= 0 {
+		a = spriteDefaultAlpha
+	}
+	if a > 1 {
+		a = 1
+	}
+	ai := int32(a * 255)
+	if ai < 0 {
+		ai = 0
+	}
+	if ai > 255 {
+		ai = 255
+	}
+	tint := color.RGBA{R: s.tr, G: s.tg, B: s.tb, A: uint8(ai)}
+	rl.DrawTexturePro(s.tex, src, dest, origin, rotDeg, tint)
 	return nil
+}
+
+func (m *Module) spGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("SPRITE.GETPOS: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("SPRITE.GETPOS expects (handle)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.GETPOS: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, s.x, s.y, 0)
 }
 
 func (m *Module) spSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -392,6 +466,257 @@ func (m *Module) spSetOrigin(rt *runtime.Runtime, args ...value.Value) (value.Va
 	return value.Nil, nil
 }
 
+func clampSpriteU8(n int64) uint8 {
+	if n < 0 {
+		return 0
+	}
+	if n > 255 {
+		return 255
+	}
+	return uint8(n)
+}
+
+func spriteEffScale(s *spriteObj) (float32, float32) {
+	sx, sy := s.scaleX, s.scaleY
+	if sx == 0 {
+		sx = 1
+	}
+	if sy == 0 {
+		sy = 1
+	}
+	return sx, sy
+}
+
+func (m *Module) spGetScale(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("SPRITE.GETSCALE: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("SPRITE.GETSCALE expects (handle)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.GETSCALE: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	sx, sy := spriteEffScale(s)
+	return mbmatrix.AllocVec3Value(m.h, sx, sy, 1)
+}
+
+func (m *Module) spSetScale(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("SPRITE.SETSCALE expects (handle, sx#, sy#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETSCALE: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	x1, ok1 := argF(args[1])
+	y1, ok2 := argF(args[2])
+	if !ok1 || !ok2 {
+		return value.Nil, fmt.Errorf("SPRITE.SETSCALE: sx, sy must be numeric")
+	}
+	if x1 <= 0 || y1 <= 0 {
+		return value.Nil, fmt.Errorf("SPRITE.SETSCALE: sx, sy must be > 0")
+	}
+	s.scaleX = x1
+	s.scaleY = y1
+	return value.Nil, nil
+}
+
+func (m *Module) spGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("SPRITE.GETROT: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("SPRITE.GETROT expects (handle)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.GETROT: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, 0, 0, s.rotRad)
+}
+
+func (m *Module) spSetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("SPRITE.SETROT expects (handle, radians#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETROT: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	rad, ok := argF(args[1])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETROT: radians must be numeric")
+	}
+	s.rotRad = rad
+	return value.Nil, nil
+}
+
+func (m *Module) spGetColor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("SPRITE.GETCOLOR: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("SPRITE.GETCOLOR expects (handle)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.GETCOLOR: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	a := s.alpha
+	if a <= 0 {
+		a = spriteDefaultAlpha
+	}
+	if a > 1 {
+		a = 1
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(s.tr)
+	arr.Floats[1] = float64(s.tg)
+	arr.Floats[2] = float64(s.tb)
+	arr.Floats[3] = float64(a * 255)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) spSetColor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 4 && len(args) != 5 {
+		return value.Nil, fmt.Errorf("SPRITE.SETCOLOR expects (handle, r, g, b [, a])")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETCOLOR: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	ri, ok1 := args[1].ToInt()
+	gi, ok2 := args[2].ToInt()
+	bi, ok3 := args[3].ToInt()
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("SPRITE.SETCOLOR: RGB must be integer")
+	}
+	s.tr = clampSpriteU8(ri)
+	s.tg = clampSpriteU8(gi)
+	s.tb = clampSpriteU8(bi)
+	if len(args) == 5 {
+		if af, ok := args[4].ToFloat(); ok {
+			s.alpha = float32(af)
+		} else if ai, ok := args[4].ToInt(); ok {
+			s.alpha = float32(ai) / 255
+		} else {
+			return value.Nil, fmt.Errorf("SPRITE.SETCOLOR: alpha must be numeric")
+		}
+		if s.alpha < 0 {
+			s.alpha = 0
+		}
+		if s.alpha > 1 {
+			s.alpha = 1
+		}
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) spGetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("SPRITE.GETALPHA: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("SPRITE.GETALPHA expects (handle)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.GETALPHA: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	a := s.alpha
+	if a <= 0 {
+		a = spriteDefaultAlpha
+	}
+	if a > 1 {
+		a = 1
+	}
+	return value.FromFloat(float64(a)), nil
+}
+
+func (m *Module) spSetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("SPRITE.SETALPHA expects (handle, alpha#)")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("SPRITE.SETALPHA: invalid handle")
+	}
+	s, err := heap.Cast[*spriteObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	if af, ok := args[1].ToFloat(); ok {
+		a := float32(af)
+		if a > 1 && a <= 255 {
+			a /= 255
+		}
+		if a < 0 {
+			a = 0
+		}
+		if a > 1 {
+			a = 1
+		}
+		s.alpha = a
+		return value.Nil, nil
+	}
+	if ai, ok := args[1].ToInt(); ok {
+		s.alpha = float32(ai) / 255
+		if s.alpha < 0 {
+			s.alpha = 0
+		}
+		if s.alpha > 1 {
+			s.alpha = 1
+		}
+		return value.Nil, nil
+	}
+	return value.Nil, fmt.Errorf("SPRITE.SETALPHA: alpha must be numeric")
+}
+
 func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	_ = rt
 	if len(args) != 2 {
@@ -440,65 +765,4 @@ func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.V
 		s.curFrame = (s.curFrame + 1) % s.numFrames
 	}
 	return value.Nil, nil
-}
-
-func (m *Module) spHit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("SPRITE.HIT expects 2 arguments (handleA, handleB)")
-	}
-	ha, ok := argHandle(args[0])
-	if !ok {
-		return value.Nil, fmt.Errorf("SPRITE.HIT: invalid handle A")
-	}
-	hb, ok := argHandle(args[1])
-	if !ok {
-		return value.Nil, fmt.Errorf("SPRITE.HIT: invalid handle B")
-	}
-	a, err := heap.Cast[*spriteObj](m.h, ha)
-	if err != nil {
-		return value.Nil, err
-	}
-	b, err := heap.Cast[*spriteObj](m.h, hb)
-	if err != nil {
-		return value.Nil, err
-	}
-	ax := float64(a.x)
-	ay := float64(a.y)
-	aw := float64(a.frameW)
-	ah := float64(a.frameH)
-	bx := float64(b.x)
-	by := float64(b.y)
-	bw := float64(b.frameW)
-	bh := float64(b.frameH)
-	hit := ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by
-	return value.FromBool(hit), nil
-}
-
-func (m *Module) spPointHit(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
-	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("SPRITE.POINTHIT expects 3 arguments (handle, x, y)")
-	}
-	h, ok := argHandle(args[0])
-	if !ok {
-		return value.Nil, fmt.Errorf("SPRITE.POINTHIT: invalid sprite handle")
-	}
-	s, err := heap.Cast[*spriteObj](m.h, h)
-	if err != nil {
-		return value.Nil, err
-	}
-	px, ok1 := argF(args[1])
-	py, ok2 := argF(args[2])
-	if !ok1 || !ok2 {
-		return value.Nil, fmt.Errorf("SPRITE.POINTHIT: x and y must be numeric")
-	}
-	sx := float64(s.x)
-	sy := float64(s.y)
-	sw := float64(s.frameW)
-	sh := float64(s.frameH)
-	pxf := float64(px)
-	pyf := float64(py)
-	inside := pxf >= sx && pxf < sx+sw && pyf >= sy && pyf < sy+sh
-	return value.FromBool(inside), nil
 }

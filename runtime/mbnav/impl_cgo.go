@@ -692,6 +692,49 @@ func (m *Module) agentZ(args []value.Value) (value.Value, error) {
 	return value.FromFloat(a.z), nil
 }
 
+func (m *Module) agentGetPos(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("NAVAGENT.GETPOS expects agent handle")
+	}
+	a, err := m.getAgent(h, args[0], "NAVAGENT.GETPOS")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, float32(a.x), float32(a.y), float32(a.z))
+}
+
+func (m *Module) agentGetRot(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("NAVAGENT.GETROT expects agent handle")
+	}
+	a, err := m.getAgent(h, args[0], "NAVAGENT.GETROT")
+	if err != nil {
+		return value.Nil, err
+	}
+	dx, dy, dz := a.movementDirection()
+	p, y, r := EulerFromWorldDirection(dx, dy, dz)
+	arr, err := heap.NewArray([]int64{3})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, p)
+	_ = arr.Set([]int64{1}, y)
+	_ = arr.Set([]int64{2}, r)
+	ah, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(ah), nil
+}
+
 func (m *Module) steerGroupMake(args []value.Value) (value.Value, error) {
 	h, err := m.requireHeap()
 	if err != nil {

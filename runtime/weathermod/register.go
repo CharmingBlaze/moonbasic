@@ -5,6 +5,7 @@ import (
 )
 
 func (m *Module) Register(r runtime.Registrar) {
+	r.Register("WEATHER.CREATE", "weather", runtime.AdaptLegacy(m.wMake))
 	r.Register("WEATHER.MAKE", "weather", runtime.AdaptLegacy(m.wMake))
 	r.Register("WEATHER.FREE", "weather", runtime.AdaptLegacy(m.wFree))
 	r.Register("WEATHER.UPDATE", "weather", runtime.AdaptLegacy(m.wUpdate))

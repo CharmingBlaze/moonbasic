@@ -23,6 +23,7 @@ func registerEntityInteractionAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.SETTEXTURESCROLL", "entity", runtime.AdaptLegacy(m.entSetTextureScroll))
 	r.Register("ENTITY.SETTEXTUREFLIP", "entity", runtime.AdaptLegacy(m.entSetTextureFlip))
 	r.Register("PLAYER.CREATE", "entity", runtime.AdaptLegacy(m.playerCreate))
+	r.Register("PLAYER.MAKE", "entity", runtime.AdaptLegacy(m.playerCreate))
 	r.Register("SCENE.APPLYPHYSICS", "entity", runtime.AdaptLegacy(m.sceneApplyPhysics))
 	r.Register("ENTITY.SETSHADER", "entity", runtime.AdaptLegacy(m.entSetShader))
 }
@@ -32,9 +33,13 @@ func (m *Module) entSetShader(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.SETSHADER expects (handle, shaderID)")
 	}
 	id, ok := m.entID(args[0])
-	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity handle")
+	}
 	sh, ok := args[1].ToInt()
-	if !ok { return value.Nil, fmt.Errorf("invalid shader id") }
+	if !ok {
+		return value.Nil, fmt.Errorf("invalid shader id")
+	}
 	// Store in Entity metadata logic
 	_ = sh
 	return value.Nil, nil
@@ -45,7 +50,9 @@ func (m *Module) playerCreate(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("PLAYER.CREATE expects (handle)")
 	}
 	id, ok := m.entID(args[0])
-	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity handle")
+	}
 	// Initializes a Kinematic Character Controller in the Jolt buffer.
 	return value.Nil, nil
 }
@@ -55,7 +62,9 @@ func (m *Module) sceneApplyPhysics(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("SCENE.APPLYPHYSICS expects (handle)")
 	}
 	id, ok := m.entID(args[0])
-	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity handle")
+	}
 	// Automatically parses glTF Extras to generate Jolt colliders.
 	return value.Nil, nil
 }
@@ -65,7 +74,9 @@ func (m *Module) entSetTextureScroll(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.SETTEXTURESCROLL expects (handle, xOffset#, yOffset#)")
 	}
 	id, ok := m.entID(args[0])
-	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity handle")
+	}
 	// Further integration with Raylib texture scaling/offsets to be appended.
 	return value.Nil, nil
 }
@@ -75,7 +86,9 @@ func (m *Module) entSetTextureFlip(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("ENTITY.SETTEXTUREFLIP expects (handle, xFlip#, yFlip#)")
 	}
 	id, ok := m.entID(args[0])
-	if !ok || id < 1 { return value.Nil, fmt.Errorf("invalid entity handle") }
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("invalid entity handle")
+	}
 	return value.Nil, nil
 }
 

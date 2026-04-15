@@ -57,9 +57,9 @@ If you call **`Player.GetPositionX()`** (or any zero-arg getter) **before** any 
 | **`PLAYER.JUMP(entity, impulseY)`** | Adds **impulseY** to upward linear velocity (same idea as **`CharacterJump`**). |
 | **`PLAYER.ISGROUNDED(entity)`** → **bool** | **`true`** if the Jolt character reports ground support (**`IsSupported`**). |
 
-Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** ([CHARCONTROLLER.md](CHARCONTROLLER.md)).
+Lower-level access without entity ids: **`CHARCONTROLLER.CREATE`** (deprecated **`CHARCONTROLLER.MAKE`**) / **`MOVE` / …** ([CHARCONTROLLER.md](CHARCONTROLLER.md)).
 
-**`CHAR.*` aliases:** **`CHAR.MAKE`** = **`PLAYER.CREATE`**; **`CHAR.MOVE(entity, dirX, dirZ, speed)`** = **direction × speed** (not raw velocity — see **[KCC.md](KCC.md)**); **`CHAR.SETSTEP`**, **`CHAR.SETSLOPE`**, **`CHAR.SETPADDING`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.NAVTO`**, **`CHAR.NAVUPDATE`**, **`CHAR.STICK`** map to the corresponding **`PLAYER.*`** commands.
+**`CHAR.*` aliases:** **`CHAR.CREATE`** = **`PLAYER.CREATE`** (deprecated **`CHAR.MAKE`**); **`CHAR.MOVE(entity, dirX, dirZ, speed)`** = **direction × speed** (not raw velocity — see **[KCC.md](KCC.md)**); **`CHAR.SETSTEP`**, **`CHAR.SETSLOPE`**, **`CHAR.SETPADDING`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.NAVTO`**, **`CHAR.NAVUPDATE`**, **`CHAR.STICK`** map to the corresponding **`PLAYER.*`** commands.
 
 ---
 

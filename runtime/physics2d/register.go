@@ -12,6 +12,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("PHYSICS2D.SETITERATIONS", "physics2d", runtime.AdaptLegacy(m.phSetIterations))
 	r.Register("PHYSICS2D.STEP", "physics2d", runtime.AdaptLegacy(m.phStep))
 
+	r.Register("BODY2D.CREATE", "physics2d", runtime.AdaptLegacy(m.bdMake))
 	r.Register("BODY2D.MAKE", "physics2d", runtime.AdaptLegacy(m.bdMake))
 	r.Register("BODY2D.ADDRECT", "physics2d", runtime.AdaptLegacy(m.bdAddRect))
 	r.Register("BODY2D.ADDCIRCLE", "physics2d", runtime.AdaptLegacy(m.bdAddCircle))

@@ -5,21 +5,21 @@ WINDOW.OPEN(1280, 720, "MoonBASIC KCC Easy Mode")
 PHYSICS3D.START()
 
 ; Create ground (half-extents: 50, 0.5, 50 at center y = -0.5)
-floorDef = BODY3D.MAKE("STATIC")
+floorDef = BODY3D.CREATE("STATIC")
 BODY3D.ADDBOX(floorDef, 50, 0.5, 50)
 floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
 ; Small obstacle (half 1, 0.2, 1 at 0, 0, 5)
-obsDef = BODY3D.MAKE("STATIC")
+obsDef = BODY3D.CREATE("STATIC")
 BODY3D.ADDBOX(obsDef, 1, 0.2, 1)
 obsBody = BODY3D.COMMIT(obsDef, 0, 0, 5)
 
 ; Create a hero entity (placeholder)
 hero = ENTITY.CREATE()
-ENTITY.SETPOSITION(hero, 0, 2, 0, 0)
+ENTITY.SETPOS(hero, 0, 2, 0, 0)
 
 ; Attach Professional Character Controller
-; Best Practice: Use CHAR.MAKE(entity) for automatic binding
-CHAR.MAKE(hero)
+; Best Practice: Use CHAR.CREATE(entity) for automatic binding
+CHAR.CREATE(hero)
 CHAR.SETSTEP(hero, 0.5)   ; High-level step height
 CHAR.SETSLOPE(hero, 50)   ; High-level slope limit
 
@@ -43,7 +43,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     
     ; Sync camera
     px, py, pz = ENTITY.GETPOSITION(hero)
-    CAMERA.SETPOSITION(cam, px, py + 2, pz - 10)
+    CAMERA.SETPOS(cam, px, py + 2, pz - 10)
     CAMERA.SETTARGET(cam, px, py + 1.2, pz)
     
     RENDER.CLEAR(40, 44, 52)

@@ -6,6 +6,7 @@ import "moonbasic/runtime"
 
 func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("GRID.CREATE", "grid", m.gridCreate)
+	reg.Register("GRID.MAKE", "grid", m.gridCreate)
 	reg.Register("GRID.FREE", "grid", m.gridFree)
 	reg.Register("GRID.SETCELL", "grid", m.gridSetCell)
 	reg.Register("GRID.GETCELL", "grid", m.gridGetCell)

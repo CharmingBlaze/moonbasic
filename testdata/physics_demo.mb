@@ -5,15 +5,15 @@ Physics3D.Start()
 Physics3D.SetGravity(0, -9.81, 0)
 Physics3D.SetSubsteps(4)
 
-bf = Body3D.Make("STATIC")
+bf = Body3D.Create("STATIC")
 Body3D.AddBox(bf, 8, 0.25, 8)
 floor = Body3D.Commit(bf, 0, 0, 0)
 
-bb = Body3D.Make("DYNAMIC")
+bb = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bb, 0.4, 0.4, 0.4)
 crate = Body3D.Commit(bb, 0, 3, 0)
 
-player = CharController.Make(0.35, 1.7, 0, 1.2, 0)
+player = CharController.Create(0.35, 1.7, 0, 1.2, 0)
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     Physics3D.Step()

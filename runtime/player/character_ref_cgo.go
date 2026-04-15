@@ -218,7 +218,7 @@ func (m *Module) charRefIsGrounded(args []value.Value) (value.Value, error) {
 
 func (m *Module) charRefSetPos(args []value.Value) (value.Value, error) {
 	if len(args) != 4 {
-		return value.Nil, fmt.Errorf("CHARACTERREF.SETPOSITION expects (handle, x#, y#, z#)")
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETPOS expects (handle, x#, y#, z#)")
 	}
 	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {

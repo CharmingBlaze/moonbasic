@@ -7,7 +7,7 @@ For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, `REN
 ## Conventions
 
 - **Entity** — integer entity id from `ENTITY.CREATE*` / `Create*` helpers.
-- **camera** — heap handle from `CAMERA.MAKE` / `CreateCamera()`.
+- **camera** — heap handle from **`CAMERA.CREATE`** (canonical) or deprecated `CAMERA.MAKE` / `CreateCamera()`.
 - **Parent `0`** — no parent (world root). Optional parent arguments attach via `ENTITY.PARENT` / `EntityParent`.
 - **Dotted forms** — every friendly command has an equivalent `ENTITY.*` / `CAMERA.*` / `FOG.*` / `TERRAIN.*` name where applicable.
 
@@ -16,7 +16,7 @@ For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, `REN
 | Command | Arguments | Implementation |
 |--------|-----------|------------------|
 | `CreatePivot` | `[parent]` | Empty hidden entity; optional parent. |
-| `CreateCamera` | `[parent]` | `CAMERA.MAKE`; parent attachment not applied (camera is heap object). |
+| `CreateCamera` | `[parent]` | **`CAMERA.CREATE`** (thin wrapper); parent attachment not applied (camera is heap object). |
 | `CreateCube` | `()` / `(parent)` / `(w,h,d)` / `(parent,w,h,d)` | Box primitive. |
 | `CreateSphere` | (see `ENTITY.CREATESPHERE`) | Radius + segments; parent overloads same pattern as cube where registered. |
 | `CreateCylinder` | `(radius, height, segments)` | Cylinder primitive. |
@@ -40,7 +40,7 @@ For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, `REN
 
 | Command | Arguments | Notes |
 |--------|-----------|------|
-| `PositionEntity` | `(entity, x, y, z [, global])` | Same as `ENTITY.POSITIONENTITY` / `ENTITY.SETPOSITION`. |
+| `PositionEntity` | `(entity, x, y, z [, global])` | Same as `ENTITY.POSITIONENTITY` / **`ENTITY.SETPOS`** (canonical) / deprecated `ENTITY.SETPOSITION`. |
 | `MoveEntity` | `(entity, forward, right, up)` | Same as `MOVEENTITY` / `ENTITY.MOVE` — **local** axes from pitch/yaw. |
 | `TranslateEntity` | `(entity, dx, dy, dz)` | Same as `ENTITY.TRANSLATE` / `ENTITY.TRANSLATEENTITY` — **world** delta. |
 | `RotateEntity`, `TurnEntity`, `ScaleEntity` | (see `ENTITY.ROTATEENTITY`, `ENTITY.TURNENTITY`, `ENTITY.SCALE`) | Absolute vs delta rotation; non-uniform scale. |
@@ -238,7 +238,7 @@ Banks are `MEM.*` heap objects; Blitz names are aliases.
 
 | Command | Arguments | Notes |
 |--------|-----------|--------|
-| `CreateBank` | `(size)` | `MEM.MAKE` |
+| `CreateBank` | `(size)` | **`MEM.CREATE`** (canonical) / deprecated **`MEM.MAKE`** |
 | `FreeBank` | `(bank)` | `MEM.FREE` |
 | `BankSize` | `(bank)` | `MEM.SIZE` |
 | `ResizeBank` | `(bank, newSize)` | `MEM.RESIZE` |

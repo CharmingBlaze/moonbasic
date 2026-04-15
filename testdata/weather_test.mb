@@ -8,7 +8,7 @@ Window.SetFPS(60)
 
 
 
-wx = Weather.Make()
+wx = Weather.Create()
 
 Weather.SetType(wx, "rain")
 
@@ -32,7 +32,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     Render.Clear(60, 70, 85)
 
-    cam = Camera.Make()
+    cam = CreateCamera()
 
     Camera.SetPos(cam, 0, 4, 10)
 

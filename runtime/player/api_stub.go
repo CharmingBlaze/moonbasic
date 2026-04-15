@@ -45,7 +45,7 @@ func (m *Module) charRefIsGrounded(args []value.Value) (value.Value, error) {
 	return stubErr("CHARACTERREF.ISGROUNDED")(args)
 }
 func (m *Module) charRefSetPos(args []value.Value) (value.Value, error) {
-	return stubErr("CHARACTERREF.SETPOSITION")(args)
+	return stubErr("CHARACTERREF.SETPOS")(args)
 }
 func (m *Module) charRefGetPos(args []value.Value) (value.Value, error) {
 	return stubErr("CHARACTERREF.GETPOSITION")(args)

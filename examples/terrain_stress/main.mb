@@ -29,7 +29,7 @@ Window.Open(1280, 720, "moonBASIC - terrain stress (loading mode)")
 WINDOW.SETLOADINGMODE(TRUE)
 Window.SetFPS(60)
 
-terrain = Terrain.Make(TW, TW)
+terrain = Terrain.Create(TW, TW)
 Terrain.FillPerlin(terrain, 0.03, 52.0)
 Terrain.SetMeshBuildBudget(terrain, 2)
 Terrain.SetAsyncMeshBuild(terrain, TRUE)
@@ -86,14 +86,14 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         px = Entity.X(player)
         py = Entity.Y(player)
         pz = Entity.Z(player)
-        Entity.SetPosition(player, px + stepX, py, pz + stepZ, TRUE)
+        Entity.SetPos(player, px + stepX, py, pz + stepZ, TRUE)
     ENDIF
 
     px = Entity.X(player)
     pz = Entity.Z(player)
     px = CLAMP(px, 4.0, FLOAT(TW) - 4.0)
     pz = CLAMP(pz, 4.0, FLOAT(TW) - 4.0)
-    Entity.SetPosition(player, px, Entity.Y(player), pz, TRUE)
+    Entity.SetPos(player, px, Entity.Y(player), pz, TRUE)
 
     World.SetCenter(px, pz)
     World.Update(dt)
@@ -109,7 +109,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         Terrain.SnapY(terrain, player, PLAYER_R)
     ELSE
         py = PLAYER_R + 0.5
-        Entity.SetPosition(player, Entity.X(player), py, Entity.Z(player), TRUE)
+        Entity.SetPos(player, Entity.X(player), py, Entity.Z(player), TRUE)
     ENDIF
 
     ENTITY.UPDATE(dt)

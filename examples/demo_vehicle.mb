@@ -9,23 +9,23 @@ Physics3D.Start()
 Physics3D.SetGravity(0, -9.81, 0)
 
 ; --- Road ---
-bf = Body3D.Make("STATIC")
+bf = Body3D.Create("STATIC")
 Body3D.AddBox(bf, 50, 0.5, 50)
 road = Body3D.Commit(bf, 0, 0, 0)
 Body3D.SetFriction(road, 0.9)
 
 ; --- Ramp ---
-br = Body3D.Make("STATIC")
+br = Body3D.Create("STATIC")
 Body3D.AddBox(br, 4, 0.2, 8)
 ramp = Body3D.Commit(br, 15, 1, 0)
 
 ; --- Wall ---
-bw = Body3D.Make("STATIC")
+bw = Body3D.Create("STATIC")
 Body3D.AddBox(bw, 1, 1.5, 6)
 wall = Body3D.Commit(bw, -10, 1.5, 0)
 
 ; --- Car chassis ---
-bcar = Body3D.Make("DYNAMIC")
+bcar = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bcar, 1.0, 0.4, 2.2)
 car = Body3D.Commit(bcar, 0, 1.5, 0)
 Body3D.SetFriction(car, 0.3)
@@ -41,12 +41,12 @@ Vehicle.SetWheel(vid, 3,  0.8, -0.3, -1.4, 0.3)  ; rear-right
 Vehicle.SetTuning(vid, 25.0, 1.2, 80.0, 3.0)
 
 ; --- Barrel ---
-bb = Body3D.Make("DYNAMIC")
+bb = Body3D.Create("DYNAMIC")
 Body3D.AddCapsule(bb, 0.3, 0.7)
 barrel = Body3D.Commit(bb, 5, 2, 5)
 Body3D.SetRestitution(barrel, 0.5)
 
-cam = Camera.Make()
+cam = CreateCamera()
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt = Time.Delta()

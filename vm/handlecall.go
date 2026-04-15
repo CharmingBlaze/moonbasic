@@ -122,7 +122,7 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 	case heap.TagEntityRef:
 		switch mn {
 		case "SETPOS":
-			return "ENTITY.SETPOSITION", true, true
+			return "ENTITY.SETPOS", true, true
 		case "MOVE":
 			return "ENTITY.MOVE", true, true
 		case "PUSH":
@@ -239,6 +239,8 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		switch mn {
 		case "SETPOS":
 			return "PHYSICS2D.SETBODYPOSITION", true, true
+		case "SETROT":
+			return "BODY2D.SETROT", true, true
 		case "SETVELOCITY", "SETVEL":
 			return "PHYSICS2D.SETBODYLINEARVELOCITY", true, true
 		case "FREE":
@@ -258,7 +260,7 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 	case heap.TagCharController:
 		switch mn {
 		case "SETPOS", "POSITION":
-			return "CHARACTERREF.SETPOSITION", true, true
+			return "CHARACTERREF.SETPOS", true, true
 		case "MOVE":
 			return "CHARACTERREF.MOVE", true, true
 		case "UPDATE":
@@ -310,7 +312,7 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 	case heap.TagKinematicBody, heap.TagStaticBody, heap.TagTriggerBody:
 		switch mn {
 		case "SETPOS", "POSITION":
-			return "BODYREF.SETPOSITION", true, true
+			return "BODYREF.SETPOS", true, true
 		case "SETROT":
 			return "BODYREF.SETROTATION", true, true
 		case "SETLAYER":
@@ -372,12 +374,22 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 		}
 	case heap.TagSprite:
 		switch mn {
-		case "SETPOS", "DRAW", "DEFANIM", "PLAYANIM", "UPDATEANIM", "HIT", "FREE":
+		case "SETPOS", "DRAW", "DEFANIM", "PLAYANIM", "UPDATEANIM", "SETFRAME", "SETORIGIN", "PLAY", "POINTHIT", "FREE":
 			return "SPRITE." + mn, true, true
+		case "HIT", "COLLIDE":
+			return "SPRITE.HIT", true, true
+		case "SETSCALE":
+			return "SPRITE.SETSCALE", true, true
+		case "SETROT":
+			return "SPRITE.SETROT", true, true
+		case "SETCOLOR":
+			return "SPRITE.SETCOLOR", true, true
+		case "SETALPHA":
+			return "SPRITE.SETALPHA", true, true
 		}
 	case heap.TagLight:
 		switch mn {
-		case "SETDIR", "SETSHADOW", "FREE", "SETCOLOR", "SETINTENSITY", "SETPOSITION", "SETPOS",
+		case "SETDIR", "SETSHADOW", "FREE", "SETCOLOR", "SETINTENSITY", "SETPOS",
 			"SETTARGET", "SETSHADOWBIAS", "SETINNERCONE", "SETOUTERCONE", "SETRANGE", "ENABLE", "ISENABLED":
 			return "LIGHT." + mn, true, true
 		}
@@ -389,6 +401,16 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "MODEL.SETROT", true, true
 		case "SETSCALE":
 			return "MODEL.SETSCALE", true, true
+		case "SETCOLOR":
+			return "MODEL.SETCOLOR", true, true
+		case "SETALPHA":
+			return "MODEL.SETALPHA", true, true
+		case "GETROT":
+			return "MODEL.GETROT", true, true
+		case "GETSCALE":
+			return "MODEL.GETSCALE", true, true
+		case "FREE":
+			return "MODEL.FREE", true, true
 		case "DRAW":
 			return "MODEL.DRAW", true, true
 		}
@@ -696,6 +718,138 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 	return "", false, false
 }
 
+// handleCallDispatch resolves handle method calls. When argCount==0, universal pose setters
+// (pos/rot/scale) dispatch to GET* builtins so e.g. handle.pos() reads position.
+func handleCallDispatch(tag uint16, method string, argCount int) (registryKey string, prependReceiver bool, ok bool) {
+	if argCount > 0 {
+		return handleCallBuiltin(tag, method)
+	}
+	mn := normalizeHandleMethod(strings.ToUpper(strings.TrimSpace(method)))
+	switch tag {
+	case heap.TagCamera:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "CAMERA.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "CAMERA.GETROT", true, true
+		}
+	case heap.TagModel, heap.TagLODModel:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "MODEL.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "MODEL.GETROT", true, true
+		case "SETSCALE", "SCALE":
+			return "MODEL.GETSCALE", true, true
+		}
+	case heap.TagInstancedModel:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "INSTANCE.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "INSTANCE.GETROT", true, true
+		case "SETSCALE", "SCALE":
+			return "INSTANCE.GETSCALE", true, true
+		}
+	case heap.TagPhysicsBody:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "BODY3D.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "BODY3D.GETROT", true, true
+		case "SETSCALE", "SCALE":
+			return "BODY3D.GETSCALE", true, true
+		}
+	case heap.TagBody2D:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "BODY2D.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "BODY2D.GETROT", true, true
+		}
+	case heap.TagCharController:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "CHARACTERREF.GETPOSITION", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "CHARACTERREF.GETROT", true, true
+		}
+	case heap.TagEntityRef:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "ENTITY.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "ENTITY.GETROT", true, true
+		case "SETSCALE", "SCALE":
+			return "ENTITY.GETSCALE", true, true
+		case "SETCOLOR", "COLOR", "COL":
+			return "ENTITY.GETCOLOR", true, true
+		case "SETALPHA", "ALPHA", "A":
+			return "ENTITY.GETALPHA", true, true
+		}
+	case heap.TagLight:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "LIGHT.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "LIGHT.GETDIR", true, true
+		case "SETCOLOR", "COLOR", "COL":
+			return "LIGHT.GETCOLOR", true, true
+		}
+	case heap.TagSprite:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "SPRITE.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "SPRITE.GETROT", true, true
+		case "SETSCALE", "SCALE":
+			return "SPRITE.GETSCALE", true, true
+		case "SETCOLOR", "COLOR", "COL":
+			return "SPRITE.GETCOLOR", true, true
+		case "SETALPHA", "ALPHA", "A":
+			return "SPRITE.GETALPHA", true, true
+		}
+	case heap.TagParticle:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "PARTICLE.GETPOS", true, true
+		case "SETCOLOR", "COLOR", "COL":
+			return "PARTICLE.GETCOLOR", true, true
+		case "SETALPHA", "ALPHA", "A":
+			return "PARTICLE.GETALPHA", true, true
+		}
+	case heap.TagNavAgent:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "NAVAGENT.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "NAVAGENT.GETROT", true, true
+		}
+	case heap.TagLight2D:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "LIGHT2D.GETPOS", true, true
+		case "SETCOLOR", "COLOR", "COL":
+			return "LIGHT2D.GETCOLOR", true, true
+		}
+	case heap.TagCamera2D:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "CAMERA2D.GETPOS", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "CAMERA2D.GETROTATION", true, true
+		}
+	case heap.TagKinematicBody, heap.TagStaticBody, heap.TagTriggerBody:
+		switch mn {
+		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+			return "BODYREF.GETPOSITION", true, true
+		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+			return "BODYREF.GETROTATION", true, true
+		}
+	}
+	return handleCallBuiltin(tag, method)
+}
+
 // HandleCallSuggestions lists common script-side method names for a handle type (error hints).
 func HandleCallSuggestions(tag uint16) []string {
 	var out []string
@@ -735,15 +889,15 @@ func HandleCallSuggestions(tag uint16) []string {
 	case heap.TagStaticBody, heap.TagTriggerBody:
 		out = []string{"EnableCollision", "Free", "Pos", "Rot", "SetLayer", "SetPos", "SetPosition", "SetRot", "SetRotation"}
 	case heap.TagSprite:
-		out = []string{"Draw", "Free", "SetPos", "SetPosition", "DefAnim", "PlayAnim", "UpdateAnim", "Hit"}
+		out = []string{"Alpha", "Col", "Color", "Draw", "Free", "Pos", "Rot", "Scale", "SetAlpha", "SetColor", "SetOrigin", "SetPos", "SetPosition", "SetRot", "SetScale", "SetFrame", "DefAnim", "PlayAnim", "UpdateAnim", "Play", "Hit", "Collide", "PointHit"}
 	case heap.TagModel, heap.TagLODModel:
-		out = []string{"Draw", "SetPos", "SetPosition"}
+		out = []string{"Draw", "Free", "GetPos", "GetRot", "GetScale", "Pos", "Rot", "Scale", "SetAlpha", "SetColor", "SetPos", "SetPosition", "SetRot", "SetScale"}
 	case heap.TagParticle:
 		out = []string{"Count", "Draw", "Free", "IsAlive", "Play", "SetBillboard", "SetBurst", "SetColor", "SetColorEnd",
 			"SetDirection", "SetEmitRate", "SetEndColor", "SetEndSize", "SetGravity", "SetLifetime", "SetPos", "SetPosition",
 			"SetRate", "SetSize", "SetSpeed", "SetSpread", "SetStartColor", "SetStartSize", "SetTexture", "SetVelocity", "Stop", "Update"}
 	case heap.TagInstancedModel:
-		out = []string{"Count", "Draw", "DrawLOD", "Free", "SetColor", "SetCullDistance", "SetInstancePos", "SetInstanceScale",
+		out = []string{"Count", "Draw", "DrawLOD", "Free", "GetPos", "GetRot", "GetScale", "SetColor", "SetCullDistance", "SetInstancePos", "SetInstanceScale",
 			"SetMatrix", "SetPos", "SetRot", "SetScale", "UpdateBuffer", "UpdateInstances"}
 	case heap.TagLight:
 		out = []string{"Enable", "Free", "IsEnabled", "SetColor", "SetDir", "SetInnerCone", "SetIntensity",

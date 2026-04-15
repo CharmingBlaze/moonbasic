@@ -30,7 +30,7 @@ moonBASIC keeps the render loop in **`RENDER.FRAME`**, **`CAMERA.Begin`/`End`**,
 | Idea | moonBASIC |
 |------|-----------|
 | Point light at position with color + energy | **`LIGHT.CREATEPOINT(x, y, z, r, g, b, energy)`** — returns a light handle. RGB accepts **0–255** or **0.0–1.0** (same heuristic as **`LIGHT.SETCOLOR`**). |
-| Generic light | **`LIGHT.MAKE("point")`** / **`"directional"`** / **`"spot"`**, then **`LIGHT.SETPOS`**, **`LIGHT.SETCOLOR`**, **`LIGHT.SETINTENSITY`**. |
+| Generic light | **`LIGHT.CREATE`** / deprecated **`LIGHT.MAKE`** `("point" \| "directional" \| "spot")`, then **`LIGHT.SETPOS`**, **`LIGHT.SETCOLOR`**, **`LIGHT.SETINTENSITY`**. |
 | Spotlight aim | **`LIGHT.SETTARGET`** (shadow frustum look-at; spot/directional semantics depend on kind). |
 | Scene base level | **`RENDER.SETAMBIENT`** — so unlit areas are not pure black. |
 

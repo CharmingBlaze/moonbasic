@@ -43,7 +43,22 @@ func createBodyLowLevel(h *heap.Store, shapeH heap.Handle, motion jolt.MotionTyp
 		qshape = jolt.CreateCapsule(shObj.Dim2/2-shObj.Dim1, shObj.Dim1)
 	}
 
-	body := &body3dObj{id: id, queryShape: qshape}
+	body := &body3dObj{id: id, queryShape: qshape, motion: motion}
+	body.qKind = uint8(shObj.Kind)
+	switch shObj.Kind {
+	case 1:
+		body.qBox = jolt.Vec3{X: shObj.Dim1, Y: shObj.Dim2, Z: shObj.Dim3}
+	case 2:
+		body.qSphere = shObj.Dim1
+	case 3:
+		hh := shObj.Dim2/2 - shObj.Dim1
+		if hh < 0.05 {
+			hh = 0.05
+		}
+		body.qCapH = hh
+		body.qCapR = shObj.Dim1
+	}
+	body.sx, body.sy, body.sz = 1, 1, 1
 	body.setFinalizer()
 
 	// Determine the exact tag for the handle

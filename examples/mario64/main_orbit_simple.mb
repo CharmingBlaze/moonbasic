@@ -91,7 +91,7 @@ CONST P_CAP_RAD = 0.38
 CONST P_HEAD_RAD = 0.24
 CONST P_HEAD_YOFF = 0.72
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(CAM_FOV)
 
 px = 0.0

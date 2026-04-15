@@ -5,7 +5,7 @@ Small **third-person** demos in a **Blitz3D-style** spirit: walk on a plane, jum
 | File | What to notice |
 |------|----------------|
 | **`modern_blitz_hop.mb`** | **Minimal loop:** **`cam.Orbit(player, distance)`** (engine-owned yaw/pitch/zoom), **`cam.Yaw()`** for facing, **`player.Move`** in units/sec. **Start here:** **[`MODERN_BLITZ_HOP_BEGINNER.md`](MODERN_BLITZ_HOP_BEGINNER.md)** (line-by-line tutorial). Optional **orbit configuration** (see below). |
-| **`modern_blitz_hop_kcc.mb`** | Same orbit camera, but the hero uses **Jolt KCC** (**`CHAR.MAKE`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.JUMP`**) instead of **`ENTITY.PHYSICS`** on the player. **Linux + CGO + fullruntime.** See **[`docs/reference/KCC.md`](../../docs/reference/KCC.md)**. |
+| **`modern_blitz_hop_kcc.mb`** | Same orbit camera, but the hero uses **Jolt KCC** (**`CHAR.CREATE`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.JUMP`**) instead of **`ENTITY.PHYSICS`** on the player. **Linux + CGO + fullruntime.** See **[`docs/reference/KCC.md`](../../docs/reference/KCC.md)**. |
 | **`main_orbit_simple.mb`** | **Easiest read:** commented “map” at the top, **`CONST`** palette + world bounds, one floor + one box — **`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`**, **`MOVESTEPX`/`Z`**, **`LANDBOXES`**, **`Camera.SetOrbit`**, **`ERASE ALL`**. |
 | **`main.mb`** | **Default pick:** same hop as before, **implicit types** (no `#` / `$` / `?` suffixes), **Draw3D** + **Camera** only — no skybox or entity graph. |
 | **`main_entities.mb`** | **Engine-style:** **CreateCube** / **CreateSphere**, **COLLISIONS**, **EntityGrounded** (coyote), **EntityMoveCameraRelative**, **Camera.OrbitEntity**, **CopyEntity** platforms, **ENTITY.UPDATE**, **DrawEntities**, child **hat** on **player**. |
@@ -40,7 +40,7 @@ Window.SetFPS(60)
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(60)
 
 player = Model.CreateCapsule(0.4, 1.0)
@@ -86,7 +86,7 @@ Window.Close()
 
 ### How the orbit loop fits together
 
-1. **`Camera.Make()`** creates the camera. Optionally call **orbit configuration** commands right after (see below).
+1. **`CreateCamera()`** (Easy Mode; forwards to **`CAMERA.CREATE`**) creates the camera. Optionally call **orbit configuration** commands right after (see below).
 2. **Each frame** in your **`WHILE`**: call **`cam.Orbit(player, distance)`** so the engine updates hidden yaw/pitch/zoom and moves the eye around the player.
 3. **`cam.Yaw()`** reads the **horizontal** angle of that orbit (radians). Use **`player.SetRot(0, cam.Yaw(), 0)`** so the character faces the way the camera looks, and **`player.Move(...)`** stays aligned with **WASD**.
 
@@ -96,7 +96,7 @@ You only configure orbit **once** at startup. The game loop stays one line: **`c
 
 ### Orbit configuration (optional) — step by step
 
-**When to call:** after **`cam = Camera.Make()`** (and **`cam.SetFOV`**, etc.), **before** the **`WHILE`** loop.
+**When to call:** after **`cam = CreateCamera()`** (and **`cam.SetFOV`**, etc.), **before** the **`WHILE`** loop.
 
 **Two ways to spell the same call:**
 
@@ -134,7 +134,7 @@ If you never call the settings below, you get:
 **Example — keyboard + wheel only (mouse does not orbit):**
 
 ```moonbasic
-cam = Camera.Make()
+cam = CreateCamera()
 cam.UseMouseOrbit(FALSE)
 ; Q/E and mouse wheel still work (unless you also change keys / disable them)
 ```

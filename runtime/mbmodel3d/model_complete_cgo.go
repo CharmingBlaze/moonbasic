@@ -62,6 +62,15 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		return value.FromFloat(float64(o.model.Transform.M14)), nil
 	}))
 
+	reg.Register("MODEL.GETPOS", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		o, err := m.getModelTransform(args, "MODEL.GETPOS")
+		if err != nil {
+			return value.Nil, err
+		}
+		mat := o.model.Transform
+		return mbmatrix.AllocVec3Value(m.h, mat.M12, mat.M13, mat.M14)
+	}))
+
 	reg.Register("MODEL.SETROT", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err

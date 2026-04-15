@@ -2,8 +2,8 @@
 
 | Designed | moonBASIC | Notes |
 |----------|------------|-------|
-| **CreateCamera(parent)** | **`Camera.Make()`** | Returns **camera handle**. Parenting via `Entity.Parent()`. |
-| **PositionCamera(x, y, z)** | **`Camera.SetPos()`** | Sets eye position. |
+| **CreateCamera(parent)** | **`Camera.Create()`** (Pascal) / deprecated **`Camera.Make()`** | Returns **camera handle**; registry canonical is **`CAMERA.CREATE`** (deprecated **`CAMERA.MAKE`**). Parenting via `Entity.Parent()`. |
+| **PositionCamera(x, y, z)** | **`Camera.SetPos()`** | Sets eye position; registry **`CAMERA.SETPOS`** (deprecated **`CAMERA.SETPOSITION`**). |
 | **PointCamera(x, y, z)** | **`Camera.SetTarget()`** | Sets look-at point. |
 | **RotateCamera(p, y, r)** | **`Camera.SetRot()`** | |
 | **MoveCamera(d)** | **`Camera.Move()`** | |

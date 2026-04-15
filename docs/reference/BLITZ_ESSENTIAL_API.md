@@ -56,7 +56,7 @@ Loads a sprite handle.
 Draws sprite at pixel position.
 
 ### `Sprite.Hit(a, b)`
-Checks for sprite collision.
+Checks for sprite collision (oriented quads matching **`SPRITE.DRAW`** — scale, origin, rotation; see [SPRITE.md](SPRITE.md)).
 
 ---
 

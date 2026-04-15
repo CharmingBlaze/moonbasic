@@ -177,6 +177,12 @@ func (m *Module) atlasGetSprite(rt *runtime.Runtime, args ...value.Value) (value
 		numFrames:      1,
 		fps:            8,
 		curFrame:       0,
+		scaleX:         1,
+		scaleY:         1,
+		tr:             255,
+		tg:             255,
+		tb:             255,
+		alpha:          spriteDefaultAlpha,
 	}
 	id, err := m.h.Alloc(s)
 	if err != nil {

@@ -13,14 +13,14 @@ Window.SetFPS(60)
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(60)
 
 ; Player Setup
 player = Model.CreateCapsule(0.4, 1.0)
 player.Pos(0, 5, 0)
 player.Color(255, 60, 60)
-CHAR.MAKE(player, 0.4, 1.0)
+CHAR.CREATE(player, 0.4, 1.0)
 CHAR.SETSTEP(player, 0.3)
 CHAR.STICK(player, 0.5)
 
@@ -53,7 +53,7 @@ While Not (KEYDOWN(KEY_ESCAPE) Or Window.ShouldClose())
     CHAR.MOVEWITHCAMERA(player, cam, mz, mx, 10.0)
     NAV.UPDATE(player)
 
-    ; Player.GetGrounded() — implicit KCC subject after CHAR.MAKE
+    ; Player.GetGrounded() — implicit KCC subject after CHAR.CREATE
     If KEYPRESSED(KEY_SPACE) And Player.GetGrounded() Then
         CHAR.JUMP(player, 15.0)
         ENTITY.SQUASH(player, 0.7, 0.2)

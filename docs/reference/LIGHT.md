@@ -1,6 +1,6 @@
 # Light and shadow (3D)
 
-moonBASIC exposes **3D** lights as small **CPU-side handles** (`TypeName` `Light`). The built-in **PBR + shadow** path uses a **single directional** light for diffuse shading and **one shadow-casting light** at a time. Registry keys use **dots and uppercase** (e.g. `LIGHT.MAKE`); the tables below show both **PascalCase** names (as in specs) and the **canonical keys**.
+moonBASIC exposes **3D** lights as small **CPU-side handles** (`TypeName` `Light`). The built-in **PBR + shadow** path uses a **single directional** light for diffuse shading and **one shadow-casting light** at a time. Registry keys use **dots and uppercase** (e.g. **`LIGHT.CREATE`**, deprecated **`LIGHT.MAKE`**); the tables below show both **PascalCase** names (as in specs) and the **canonical keys**.
 
 **Engine-style constructors (`LIGHT.CREATEPOINT`, `CREATEDIRECTIONAL`, `CREATESPOT`, …):** [CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md).
 

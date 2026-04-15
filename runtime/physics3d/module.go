@@ -142,6 +142,7 @@ func (m *Module) SyncWasmPhysicsAfterStep() {
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("VEHICLE.CREATE", "physics3d", runtime.AdaptLegacy(m.VHCreate))
+	reg.Register("VEHICLE.MAKE", "physics3d", runtime.AdaptLegacy(m.VHCreate))
 	reg.Register("VEHICLE.SETWHEEL", "physics3d", runtime.AdaptLegacy(m.VHSetWheel))
 	reg.Register("VEHICLE.CONTROL", "physics3d", runtime.AdaptLegacy(m.VHControl))
 	reg.Register("VEHICLE.STEP", "physics3d", runtime.AdaptLegacy(m.VHStep))
@@ -159,4 +160,3 @@ func (m *Module) Shutdown() {
 }
 
 func (m *Module) Reset() {}
-

@@ -6,9 +6,9 @@ Window.Open(1280, 720, "KCC Direct Control")
 Physics3D.Start()
 
 ; Create the character: radius 0.4, height 1.8, position (0, 2, 0)
-char = CharController.Make(0.4, 1.8, 0.0, 2.0, 0.0)
+char = CharController.Create(0.4, 1.8, 0.0, 2.0, 0.0)
 
-cam = Camera.Make()
+cam = CreateCamera()
 Camera.SetOrbit(cam, 0.0, 1.0, 0.0, 0.4, 0.3, 10.0)
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())

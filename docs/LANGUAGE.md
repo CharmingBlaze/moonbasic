@@ -21,6 +21,8 @@ Variables are created when you first assign a value to them. Their type is deter
 
 The language is dynamically typed; a variable can hold any value (implicit `Any` type).
 
+**Case insensitivity:** Language keywords and built-in command names (for example `Namespace.Method` / `NAMESPACE.METHOD`) are matched **without regard to letter case**. Prefer a consistent style in new code; see [STYLE_GUIDE.md](../STYLE_GUIDE.md).
+
 ### Scope
 
 Variables are global by default. You can declare variables with local scope inside functions using the `LOCAL` keyword.

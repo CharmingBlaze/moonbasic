@@ -6,9 +6,11 @@ The **Gameplay Intent API** is a high-level command manifest designed to bridge 
 
 Replaces standard "Rigid Body" physics for players and humanoid NPCs. These commands use collision-aware sweeps instead of forces, eliminating jitter and "bunny hopping."
 
+**Naming:** **`CHAR.CREATE`** is canonical; **`CHAR.MAKE`** is a deprecated alias (same handler as **`PLAYER.CREATE`**).
+
 | Command | Role | Description |
 | :--- | :--- | :--- |
-| `CHAR.MAKE(e, r, h)` | Setup | Initializes the KCC on entity `e` with radius `r` and height `h`. Disables scripted gravity. |
+| `CHAR.CREATE(e, r, h)` | Setup | Initializes the KCC on entity `e` with radius `r` and height `h`. Disables scripted gravity. |
 | `CHAR.SETSTEP(e, h)` | Stairs | Sets the maximum height (world units) the character can automatically step over. |
 | `CHAR.SETSLOPE(e, deg)` | Slopes | Prevents the character from climbing surfaces steeper than `deg`. |
 | `CHAR.STICK(e, dist)` | Glue | Keeps the character "glued" to the floor when moving down slopes within `dist`. |

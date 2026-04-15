@@ -10,7 +10,7 @@ Physics3D.SetGravity(0, -20.0, 0)
 ; CHARACTER.CREATE with 3 floats creates a character at (x,y,z) with default radius/height.
 char = Character.Create(0.0, 5.0, 0.0)
 
-cam = Camera.Make()
+cam = CreateCamera()
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     dt = Time.Delta()

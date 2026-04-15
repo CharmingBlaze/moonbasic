@@ -65,6 +65,7 @@ func (m *Module) getPool(args []value.Value, ix int, op string) (*poolObj, error
 
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
+	reg.Register("POOL.CREATE", "pool", runtime.AdaptLegacy(m.poolMake))
 	reg.Register("POOL.MAKE", "pool", runtime.AdaptLegacy(m.poolMake))
 	reg.Register("POOL.SETFACTORY", "pool", m.poolSetFactory)
 	reg.Register("POOL.SETRESET", "pool", m.poolSetReset)

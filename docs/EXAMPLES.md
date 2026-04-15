@@ -70,7 +70,7 @@ Window.Close()
 Camera, mesh, material tint, transform matrix rotation, optional **ground grid**, and **cleanup** (`Mesh.Free`, `Material.Free`, `Transform.Free`, `Camera.Free`).
 
 ```basic
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetPos(0, 2, 8)
 cam.SetTarget(0, 0, 0)
 cubeMesh = Mesh.MakeCube(2, 2, 2)

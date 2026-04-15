@@ -14,6 +14,7 @@ import (
 )
 
 func (m *Module) registerVec3(reg runtime.Registrar) {
+	reg.Register("VEC3.CREATE", "vec3", runtime.AdaptLegacy(m.vec3Make))
 	reg.Register("VEC3.MAKE", "vec3", runtime.AdaptLegacy(m.vec3Make))
 	reg.Register("VEC3.FREE", "vec3", runtime.AdaptLegacy(m.vec3Free))
 	reg.Register("VEC3.X", "vec3", runtime.AdaptLegacy(m.vec3X))

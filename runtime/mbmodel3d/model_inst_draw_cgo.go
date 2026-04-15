@@ -58,78 +58,85 @@ func newInstancedFromLoadedModel(mod rl.Model, path string, n int) *instancedMod
 }
 
 func registerModelInstDraw(m *Module, reg runtime.Registrar) {
-	makeInstanced := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if err := m.requireHeap(); err != nil {
-			return value.Nil, err
-		}
-		if len(args) != 2 || args[0].Kind != value.KindString {
-			return value.Nil, fmt.Errorf("MODEL.MAKEINSTANCED expects path$, instanceCount")
-		}
-		path, err := rt.ArgString(args, 0)
-		if err != nil {
-			return value.Nil, err
-		}
-		n64, ok := args[1].ToInt()
-		if !ok {
-			if f, okf := args[1].ToFloat(); okf {
-				n64 = int64(f)
-			} else {
-				return value.Nil, fmt.Errorf("MODEL.MAKEINSTANCED: instanceCount must be numeric")
+	pathInstanced := func(label string) func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			if err := m.requireHeap(); err != nil {
+				return value.Nil, err
 			}
+			if len(args) != 2 || args[0].Kind != value.KindString {
+				return value.Nil, fmt.Errorf("%s expects path$, instanceCount", label)
+			}
+			path, err := rt.ArgString(args, 0)
+			if err != nil {
+				return value.Nil, err
+			}
+			n64, ok := args[1].ToInt()
+			if !ok {
+				if f, okf := args[1].ToFloat(); okf {
+					n64 = int64(f)
+				} else {
+					return value.Nil, fmt.Errorf("%s: instanceCount must be numeric", label)
+				}
+			}
+			if n64 < 1 || n64 > 200000 {
+				return value.Nil, fmt.Errorf("%s: instanceCount must be in range 1..200000", label)
+			}
+			n := int(n64)
+			mod := rl.LoadModel(path)
+			io := newInstancedFromLoadedModel(mod, path, n)
+			id, err := m.h.Alloc(io)
+			if err != nil {
+				rl.UnloadModel(mod)
+				return value.Nil, err
+			}
+			return value.FromHandle(id), nil
 		}
-		if n64 < 1 || n64 > 200000 {
-			return value.Nil, fmt.Errorf("MODEL.MAKEINSTANCED: instanceCount must be in range 1..200000")
-		}
-		n := int(n64)
-		mod := rl.LoadModel(path)
-		io := newInstancedFromLoadedModel(mod, path, n)
-		id, err := m.h.Alloc(io)
-		if err != nil {
-			rl.UnloadModel(mod)
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
 	}
 
-	makeInstancedFromModel := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if err := m.requireHeap(); err != nil {
-			return value.Nil, err
-		}
-		if len(args) != 2 || args[0].Kind != value.KindHandle {
-			return value.Nil, fmt.Errorf("INSTANCE.MAKE expects (model, instanceCount)")
-		}
-		mo, err := m.getModel(args, 0, "INSTANCE.MAKE")
-		if err != nil {
-			return value.Nil, err
-		}
-		if mo.loadedPath == "" {
-			return value.Nil, fmt.Errorf("INSTANCE.MAKE: model must come from MODEL.LOAD (file path); use INSTANCE.MAKEINSTANCED(path$, count) for assets")
-		}
-		n64, ok := args[1].ToInt()
-		if !ok {
-			if f, okf := args[1].ToFloat(); okf {
-				n64 = int64(f)
-			} else {
-				return value.Nil, fmt.Errorf("INSTANCE.MAKE: instanceCount must be numeric")
+	instancedFromModel := func(label string) func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			if err := m.requireHeap(); err != nil {
+				return value.Nil, err
 			}
+			if len(args) != 2 || args[0].Kind != value.KindHandle {
+				return value.Nil, fmt.Errorf("%s expects (model, instanceCount)", label)
+			}
+			mo, err := m.getModel(args, 0, label)
+			if err != nil {
+				return value.Nil, err
+			}
+			if mo.loadedPath == "" {
+				return value.Nil, fmt.Errorf("%s: model must come from MODEL.LOAD (file path); use INSTANCE.MAKEINSTANCED(path$, count) or MODEL.CREATEINSTANCED(path$, count) for assets", label)
+			}
+			n64, ok := args[1].ToInt()
+			if !ok {
+				if f, okf := args[1].ToFloat(); okf {
+					n64 = int64(f)
+				} else {
+					return value.Nil, fmt.Errorf("%s: instanceCount must be numeric", label)
+				}
+			}
+			if n64 < 1 || n64 > 200000 {
+				return value.Nil, fmt.Errorf("%s: instanceCount must be in range 1..200000", label)
+			}
+			n := int(n64)
+			mod := rl.LoadModel(mo.loadedPath)
+			io := newInstancedFromLoadedModel(mod, mo.loadedPath, n)
+			id, err := m.h.Alloc(io)
+			if err != nil {
+				rl.UnloadModel(mod)
+				return value.Nil, err
+			}
+			return value.FromHandle(id), nil
 		}
-		if n64 < 1 || n64 > 200000 {
-			return value.Nil, fmt.Errorf("INSTANCE.MAKE: instanceCount must be in range 1..200000")
-		}
-		n := int(n64)
-		mod := rl.LoadModel(mo.loadedPath)
-		io := newInstancedFromLoadedModel(mod, mo.loadedPath, n)
-		id, err := m.h.Alloc(io)
-		if err != nil {
-			rl.UnloadModel(mod)
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
 	}
 
-	reg.Register("MODEL.MAKEINSTANCED", "model", makeInstanced)
-	reg.Register("INSTANCE.MAKEINSTANCED", "model", makeInstanced)
-	reg.Register("INSTANCE.MAKE", "model", makeInstancedFromModel)
+	reg.Register("MODEL.MAKEINSTANCED", "model", pathInstanced("MODEL.MAKEINSTANCED"))
+	reg.Register("MODEL.CREATEINSTANCED", "model", pathInstanced("MODEL.CREATEINSTANCED"))
+	reg.Register("INSTANCE.MAKEINSTANCED", "model", pathInstanced("INSTANCE.MAKEINSTANCED"))
+	reg.Register("INSTANCE.CREATEINSTANCED", "model", pathInstanced("INSTANCE.CREATEINSTANCED"))
+	reg.Register("INSTANCE.MAKE", "model", instancedFromModel("INSTANCE.MAKE"))
+	reg.Register("INSTANCE.CREATE", "model", instancedFromModel("INSTANCE.CREATE"))
 
 	setInstancePos := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
@@ -336,6 +343,83 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		return value.FromInt(int64(o.count)), nil
 	}
 	reg.Register("INSTANCE.COUNT", "model", runtime.AdaptLegacy(instCount))
+
+	// GETPOS/GETROT/GETSCALE read instance index 0 (common default; use MODEL.SETINSTANCEPOS etc. for other indices).
+	instGetPos0 := func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("INSTANCE.GETPOS expects (instancedModel)")
+		}
+		o, err := m.getInstancedModel(args, 0, "INSTANCE.GETPOS")
+		if err != nil {
+			return value.Nil, err
+		}
+		if o.count < 1 {
+			return value.Nil, fmt.Errorf("INSTANCE.GETPOS: no instances")
+		}
+		return mbmatrix.AllocVec3Value(m.h, o.px[0], o.py[0], o.pz[0])
+	}
+	reg.Register("INSTANCE.GETPOS", "model", runtime.AdaptLegacy(instGetPos0))
+
+	instGetRot0 := func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("INSTANCE.GETROT expects (instancedModel)")
+		}
+		o, err := m.getInstancedModel(args, 0, "INSTANCE.GETROT")
+		if err != nil {
+			return value.Nil, err
+		}
+		if o.count < 1 {
+			return value.Nil, fmt.Errorf("INSTANCE.GETROT: no instances")
+		}
+		arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+		arr.Floats[0] = float64(o.rx[0])
+		arr.Floats[1] = float64(o.ry[0])
+		arr.Floats[2] = float64(o.rz[0])
+		id, err := m.h.Alloc(arr)
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromHandle(id), nil
+	}
+	reg.Register("INSTANCE.GETROT", "model", runtime.AdaptLegacy(instGetRot0))
+
+	instGetScale0 := func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("INSTANCE.GETSCALE expects (instancedModel)")
+		}
+		o, err := m.getInstancedModel(args, 0, "INSTANCE.GETSCALE")
+		if err != nil {
+			return value.Nil, err
+		}
+		if o.count < 1 {
+			return value.Nil, fmt.Errorf("INSTANCE.GETSCALE: no instances")
+		}
+		arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+		arr.Floats[0] = float64(o.sx[0])
+		arr.Floats[1] = float64(o.sy[0])
+		arr.Floats[2] = float64(o.sz[0])
+		id, err := m.h.Alloc(arr)
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromHandle(id), nil
+	}
+	reg.Register("INSTANCE.GETSCALE", "model", runtime.AdaptLegacy(instGetScale0))
 
 	instDrawLOD := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {

@@ -26,7 +26,7 @@ WHILE gotack = 0 AND iter < 5000
         Event.Free(ev)
     ENDIF
     IF connected = 1 AND sent = 0 THEN
-        j = JSON.Make()
+        j = JSON.Create()
         JSON.SetString(j, "op", "hello")
         JSON.SetString(j, "from", "client")
         s$ = JSON.ToString(j)

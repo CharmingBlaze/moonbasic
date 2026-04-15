@@ -299,7 +299,7 @@ All math functions are also available as `MATH.name(...)` (e.g. `MATH.SIN`, `MAT
 
 ## Module Commands
 
-moonBASIC uses a dot-notation module system for its game engine commands. These all use the form `Module.Command(args)`. They can also be called on a handle variable: `cam = Camera.Make()` then `cam.SetPos(0, 5, 10)`.
+moonBASIC uses a dot-notation module system for its game engine commands. These all use the form `Module.Command(args)`. They can also be called on a handle variable: `cam = CreateCamera()` (Easy Mode → `CAMERA.CREATE`) then `cam.SetPos(0, 5, 10)` — deprecated `Camera.Make()` / `CAMERA.MAKE` still compile with a warning.
 
 > **Note:** Commands listed as `**[PARTIAL]**` or `**[MISSING]**` in this section are planned features that are not yet fully implemented.
 
@@ -332,7 +332,7 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Camera.Make()` | Creates a 3D camera handle. |
+| `CreateCamera()` / `CAMERA.CREATE()` | Creates a 3D camera handle (deprecated: `Camera.Make()` / `CAMERA.MAKE`). |
 | `Camera.Begin(cam)` | Enters 3D mode. |
 | `Camera.End()` | Exits 3D mode. |
 | `Camera.SetPos(cam, x, y, z)` | Sets camera position. |

@@ -3,6 +3,7 @@ package noisemod
 import "moonbasic/runtime"
 
 func registerNoise(m *Module, r runtime.Registrar) {
+	r.Register("NOISE.CREATE", "noise", m.noiseMake)
 	r.Register("NOISE.MAKE", "noise", m.noiseMake)
 	r.Register("NOISE.FREE", "noise", m.noiseFree)
 	r.Register("NOISE.SETTYPE", "noise", m.noiseSetType)

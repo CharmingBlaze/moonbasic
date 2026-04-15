@@ -98,7 +98,7 @@ Also: `MATH.LERP`, `MATH.APPROACH`, `MATH.CLAMP` — see [MATH.md](MATH.md).
 | Timed despawn | `ENTITY.DESTROYAFTER(entity, sec#)` or **`ENTITY.SETLIFETIMER`** (alias) — returns **handle** |
 | Parent | `ENTITY.PARENT(child, parent [, global])` — returns handle |
 | Unparent | `ENTITY.PARENTCLEAR` / `UNPARENT` or **`ENTITY.DETACH`** |
-| Spawner | `SPAWNER.MAKE(prefab, interval#)` at origin XZ **0**, or **`(prefab, interval, x#, z#)`** |
+| Spawner | `SPAWNER.CREATE(prefab, interval#)` at origin XZ **0**, or **`(prefab, interval, x#, z#)`** |
 
 ---
 

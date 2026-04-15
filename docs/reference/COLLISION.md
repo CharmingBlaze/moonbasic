@@ -7,4 +7,4 @@ Pure collision tests registered at **top-level** keys (no `GAME.` prefix) from *
 - Distance helpers: **`DISTANCE2D`**, **`DISTANCE3D`**, **`DISTANCESQ2D`**, **`DISTANCESQ3D`**
 - **Raycasts:** **`RAY.*`** (3D, Raylib / CGO) and **`RAY2D.*`** (circle, rect, segment) — see **[RAYCAST.md](RAYCAST.md)**.
 
-**Sprites:** axis-aligned tests are **`Sprite.Hit`**, alias **`SPRITECOLLIDE`**, and **`Sprite.PointHit`** — see **[SPRITE.md](SPRITE.md)**.
+**Sprites:** **`Sprite.Hit`** (alias **`SPRITECOLLIDE`**) and **`Sprite.PointHit`** match the **oriented** sprite quad from **`DrawTexturePro`** (scale, origin, rotation), not a plain axis-aligned frame rect — see **[SPRITE.md](SPRITE.md)**.

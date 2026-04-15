@@ -9,8 +9,8 @@ A **model** is a Raylib **`Model`**: meshes, materials, optional animation data,
 ### `Model.Load(path)`
 Loads a 3D model file (glTF, GLB, OBJ, IQM, B3D). Returns a **model handle**.
 
-### `Model.Make(mesh)`
-Builds a model from an existing **`Mesh`** handle. The model takes ownership of the mesh GPU data.
+### `Model.Make(mesh)` / `Model.Create(mesh)`
+Builds a model from an existing **`Mesh`** handle. The model takes ownership of the mesh GPU data. Prefer registry **`MODEL.CREATE`** (canonical); **`MODEL.MAKE`** is a deprecated alias.
 
 ---
 
@@ -59,9 +59,9 @@ Window.Close()
 
 ## Common mistakes
 
-- **`MODEL.DRAW(mdl, matrix)`** — not supported; use **`MODEL.SETPOSITION`** / **`SETMATRIX`** / **`DRAWAT`**.
+- **`MODEL.DRAW(mdl, matrix)`** — not supported; use **`MODEL.SETPOS`** (canonical) or deprecated **`MODEL.SETPOSITION`**, **`SETMATRIX`**, **`DRAWAT`**.
 - **`mod` as a variable name** — **`MOD`** is reserved in moonBASIC; use **`mdl`** or **`modelHandle`**.
-- **Double-free after `MODEL.MAKE`** — follow **`MODEL.FREE`** then **`MESH.FREE`** (mesh slot only) as in the test, or read **`consumedByModel`** behaviour above.
+- **Double-free after `MODEL.CREATE` (mesh → model)** — **`MODEL.MAKE`** is deprecated with the same arity; follow **`MODEL.FREE`** then **`MESH.FREE`** (mesh slot only) as in the test, or read **`consumedByModel`** behaviour above.
 
 ---
 

@@ -15,6 +15,7 @@ func registerBiome(m *Module, r runtime.Registrar) {
 			return value.Nil, fmt.Errorf("%s requires CGO", n)
 		}
 	}
+	r.Register("BIOME.CREATE", "biome", h("BIOME.CREATE"))
 	r.Register("BIOME.MAKE", "biome", h("BIOME.MAKE"))
 	r.Register("BIOME.FREE", "biome", h("BIOME.FREE"))
 	r.Register("BIOME.SETTEMP", "biome", h("BIOME.SETTEMP"))

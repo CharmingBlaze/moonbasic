@@ -9,18 +9,18 @@ Physics3D.Start()
 Physics3D.SetGravity(0, -9.81, 0)
 
 ; Ocean floor (deep below water)
-bf = Body3D.Make("STATIC")
+bf = Body3D.Create("STATIC")
 Body3D.AddBox(bf, 100, 1, 100)
 seabed = Body3D.Commit(bf, 0, -20, 0)
 
 ; Dock
-bd = Body3D.Make("STATIC")
+bd = Body3D.Create("STATIC")
 Body3D.AddBox(bd, 3, 0.5, 8)
 dock = Body3D.Commit(bd, -15, 0.5, 0)
 Body3D.SetFriction(dock, 0.6)
 
 ; Boat hull (dynamic)
-bh = Body3D.Make("DYNAMIC")
+bh = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bh, 1.2, 0.4, 3.0)
 boat = Body3D.Commit(bh, 0, 1.0, 0)
 Body3D.SetDamping(boat, 0.3, 0.5)
@@ -33,14 +33,14 @@ AERO.SETDRAG(boat, 0.02)
 AERO.SETTHRUST(boat, 0.0)
 
 ; Floating crates
-bc1 = Body3D.Make("DYNAMIC")
+bc1 = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bc1, 0.5, 0.5, 0.5)
 crate1 = Body3D.Commit(bc1, 8, 1, 5)
 Body3D.SetGravityFactor(crate1, 0.3)
 Body3D.SetDamping(crate1, 0.5, 0.5)
 Body3D.SetRestitution(crate1, 0.3)
 
-bc2 = Body3D.Make("DYNAMIC")
+bc2 = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bc2, 0.5, 0.5, 0.5)
 crate2 = Body3D.Commit(bc2, -5, 1, 10)
 Body3D.SetGravityFactor(crate2, 0.3)
@@ -48,14 +48,14 @@ Body3D.SetDamping(crate2, 0.5, 0.5)
 Body3D.SetRestitution(crate2, 0.3)
 
 ; Buoy (dynamic sphere)
-bbuoy = Body3D.Make("DYNAMIC")
+bbuoy = Body3D.Create("DYNAMIC")
 Body3D.AddSphere(bbuoy, 0.5)
 buoy = Body3D.Commit(bbuoy, 12, 1, -8)
 Body3D.SetGravityFactor(buoy, 0.2)
 Body3D.SetDamping(buoy, 0.4, 0.4)
 Body3D.SetRestitution(buoy, 0.6)
 
-cam = Camera.Make()
+cam = CreateCamera()
 
 thrustPower = 0.0
 maxThrust = 40.0

@@ -1,16 +1,18 @@
 # MoonBASIC Easy Mode Guide
 
-MoonBASIC Easy Mode provides shorthands and property-style methods to make game development as fast and ergonomic as BlitzBasic.
+MoonBASIC Easy Mode is a convenience layer that provides shorthands and property-style methods for BlitzBasic-style ergonomics.
+
+Canonical API documentation and new examples should use `Namespace.Method` commands first (for example `CAMERA.CREATE`, `MODEL.LOAD`, `ENTITY.SETPOS`).
 
 ## 1. Global Shorthands
 
-These commands are available globally and act as shortcuts to the standard MoonBASIC modules.
+These commands are available globally and act as thin wrappers over standard MoonBASIC namespace methods.
 
 | Easy Mode | Canonical MoonBASIC | Description |
 |-----------|----------------------|-------------|
 | `Graphics(w, h)` | `WINDOW.OPEN(w, h, "moonBASIC")` | Opens a game window. |
 | `Graphics(w, h, title)` | `WINDOW.OPEN(w, h, title)` | Opens a game window with a title. |
-| `PositionEntity(ent, x, y, z)` | `ENTITY.POSITIONENTITY(ent, x, y, z)` | Set an entity's absolute position (optional global flag on canonical API). |
+| `PositionEntity(ent, x, y, z)` | **`ENTITY.SETPOS`** (canonical) / `ENTITY.POSITIONENTITY` (Blitz name; same handler) | Set an entity's absolute position (optional global flag on **`ENTITY.SETPOS`**). |
 | `RotateEntity(ent, p, y, r)` | `ENTITY.ROTATEENTITY(ent, p, y, r)` | Set an entity's absolute rotation (pitch, yaw, roll). |
 | `MoveEntity(ent, f, r, u)` | `ENTITY.MOVE(ent, f, r, u)`, `MOVEENTITY` | Move along **local** forward, right, and up by **`f`**, **`r`**, **`u`** (from entity yaw/pitch). |
 | `TranslateEntity(ent, dx, dy, dz)` | `ENTITY.TRANSLATE`, `ENTITY.TRANSLATEENTITY` | **World-space** delta **`(dx, dy, dz)`**; use for offsets that ignore entity facing. |
@@ -19,10 +21,10 @@ These commands are available globally and act as shortcuts to the standard MoonB
 | `EntityColor(obj, r, g, b)` | `ENTITY.COLOR(obj, r, g, b)` | Set an entity's color. |
 | `EntityAlpha(obj, a)` | `ENTITY.ALPHA(obj, a)` | Set an entity's alpha transparency (0-1). |
 | `FreeEntity(obj)` | `ENTITY.FREE(obj)` | Free an entity's memory. |
-| `CreateCamera()` | `CAMERA.CREATE3D` | Create a standard 3D camera. |
+| `CreateCamera()` | `CAMERA.CREATE` | Create a standard 3D camera (same as **`CreateCamera`** on the entity module). |
 | `TurnCamera(cam, p, y, r)` | `CAMERA.TURN(cam, p, y, r)` | Rotate camera relative to orientation. |
 | `ShakeCamera(cam, i, d)` | `CAMERA.SHAKE(cam, intensity, duration)` | Shake the camera. |
-| `CreateCamera2D()` | `CAMERA2D.MAKE()` | Create a 2D camera. |
+| `CreateCamera2D()` | `CAMERA2D.CREATE()` | Create a 2D camera. |
 | `Camera2DZoom(cam, z)` | `CAMERA2D.SETZOOM(cam, zoom)` | Set 2D camera zoom level. |
 | `KeyHit(k)` | `INPUT.KEYPRESSED(k)` | Check if a key was pressed this frame. |
 | `KeyDown(k)` | `INPUT.KEYDOWN(k)` | Check if a key is held down. |

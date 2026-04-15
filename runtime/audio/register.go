@@ -63,6 +63,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("MUSIC.FREE", "audio", runtime.AdaptLegacy(m.musicFree))
 
 	// Streams (stream_wave_cgo.go)
+	r.Register("AUDIOSTREAM.CREATE", "audio", runtime.AdaptLegacy(m.streamMake))
 	r.Register("AUDIOSTREAM.MAKE", "audio", runtime.AdaptLegacy(m.streamMake))
 	r.Register("AUDIOSTREAM.UPDATE", "audio", runtime.AdaptLegacy(m.streamUpdate))
 	r.Register("AUDIOSTREAM.ISREADY", "audio", runtime.AdaptLegacy(m.streamIsReady))

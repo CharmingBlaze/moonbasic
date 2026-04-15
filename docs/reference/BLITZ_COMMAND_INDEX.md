@@ -47,8 +47,8 @@ Blitz **2D** used a software framebuffer, **current pen color**, and **Origin/Vi
 
 | Blitz-style | moonBASIC | Notes |
 |-------------|-----------|--------|
-| **CreateCamera(parent)** | **≈** `CAMERA.MAKE` | Returns **camera handle**; parenting differs from Blitz entity graph. |
-| **CreateLight(type, parent)** | **≈** `LIGHT.MAKE` + **`LIGHT.SET*`** | See [LIGHT.md](LIGHT.md). |
+| **CreateCamera(parent)** | **≈** **`CAMERA.CREATE`** (deprecated `CAMERA.MAKE`) | Returns **camera handle**; parenting differs from Blitz entity graph. |
+| **CreateLight(type, parent)** | **≈** **`LIGHT.CREATE`** / deprecated **`LIGHT.MAKE`** + **`LIGHT.SET*`** | See [LIGHT.md](LIGHT.md). |
 | **CreatePivot(parent)** | **—** | Use **empty entity** / **group** patterns or **`ENTITY.PARENT`**. |
 | **CreateListener(parent)** | **—** | No audio listener entity; use **spatial** audio APIs if exposed. |
 | **RenderWorld** | **—** *(intentional)* | Not a builtin — use **`CAMERA.Begin`/`End`** or **`RENDER.Begin3D`/`End3D`**, then **`ENTITY.DRAWALL`**, then **`RENDER.FRAME`**. See [BLITZ3D.md](BLITZ3D.md) § Raylib render pipeline. |
@@ -137,7 +137,7 @@ moonBASIC uses **`ENTITY.*`** with **integer entity ids** (and optional **`ENTIT
 |-------------|-------------------|--------|
 | **LoadTexture** | **`LOADTEXTURE`** or **`TEXTURE.LOAD`** | Alias — same handler. [TEXTURE.md](TEXTURE.md) |
 | **FreeTexture** | **`FREETEXTURE`** or **`TEXTURE.FREE`** | Alias. |
-| **CreateTexture** | **`IMAGE.MAKE`** + **`TEXTURE.FROMIMAGE`** | Or load from file with **`LOADTEXTURE`**. |
+| **CreateTexture** | **`IMAGE.CREATE`** + **`TEXTURE.FROMIMAGE`** | Or load from file with **`LOADTEXTURE`**. |
 | **TextureWidth** / **Height** | **`TEXTUREWIDTH`** / **`TEXTUREHEIGHT`** or **`TEXTURE.WIDTH`** / **`HEIGHT`** | Aliases. |
 | **TextureBlend** / UV transforms | **`TEXTURE.SETFILTER`**, **`SETWRAP`**, **`DRAW.TEXTUREPRO`** | No Blitz-style matrix stack. |
 

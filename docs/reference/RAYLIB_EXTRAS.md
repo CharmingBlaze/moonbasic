@@ -30,7 +30,7 @@ Core lifecycle: **`WINDOW.OPEN`**, **`WINDOW.SETFPS`** / **`WINDOW.SETTARGETFPS`
 
 | Command | Role |
 |---------|------|
-| **`WINDOW.SETPOSITION`** `(x, y)` | `SetWindowPosition` |
+| **`WINDOW.SETPOS`** `(x, y)` (canonical) / deprecated **`WINDOW.SETPOSITION`** | `SetWindowPosition` |
 | **`WINDOW.SETSIZE`** `(w, h)` | `SetWindowSize` |
 | **`WINDOW.GETPOSITIONX`** / **`WINDOW.GETPOSITIONY`** | Current window position |
 

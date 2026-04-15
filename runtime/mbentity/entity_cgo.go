@@ -152,6 +152,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	m.reg = r
 	registerWaterAutoPhysics(m, r)
 	r.Register("ENTITY.CREATE", "entity", runtime.AdaptLegacy(m.entCreate))
+	r.Register("ENTITY.MAKE", "entity", runtime.AdaptLegacy(m.entCreate))
 	r.Register("ENTITY.CREATEENTITY", "entity", runtime.AdaptLegacy(m.entCreate))
 	r.Register("ENTITY.CREATEBOX", "entity", runtime.AdaptLegacy(m.entCreateBox))
 	r.Register("ENTITY.CREATECUBE", "entity", runtime.AdaptLegacy(m.entCreateBox))
@@ -164,10 +165,15 @@ func (m *Module) Register(r runtime.Registrar) {
 	registerLevelGLTFAPI(m, r)
 	registerEntityInteractionAPI(m, r)
 	registerEntityEasyAPI(m, r)
+	r.Register("ENTITY.SETPOS", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.SETPOSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.POSITION", "entity", runtime.AdaptLegacy(m.entSetPosition))
 	r.Register("ENTITY.GETPOSITION", "entity", runtime.AdaptLegacy(m.entGetPosition))
 	r.Register("ENTITY.GETPOS", "entity", runtime.AdaptLegacy(m.entGetPos))
+	r.Register("ENTITY.GETROT", "entity", runtime.AdaptLegacy(m.entGetRot))
+	r.Register("ENTITY.GETSCALE", "entity", runtime.AdaptLegacy(m.entGetScale))
+	r.Register("ENTITY.GETCOLOR", "entity", runtime.AdaptLegacy(m.entGetColor))
+	r.Register("ENTITY.GETALPHA", "entity", runtime.AdaptLegacy(m.entGetAlpha))
 	r.Register("ENTITY.GETXZ", "entity", runtime.AdaptLegacy(m.entGetXZ))
 	r.Register("TERRAIN.SNAPY", "terrain", runtime.AdaptLegacy(m.entTerrainSnapY))
 	r.Register("TERRAIN.PLACE", "terrain", runtime.AdaptLegacy(m.entTerrainPlace))
@@ -461,21 +467,21 @@ func (m *Module) entCreateBox(args []value.Value) (value.Value, error) {
 
 func (m *Module) entSetPosition(args []value.Value) (value.Value, error) {
 	if len(args) != 4 && len(args) != 5 {
-		return value.Nil, fmt.Errorf("ENTITY.SETPOSITION expects 4–5 arguments (entity#, x#, y#, z# [, global])")
+		return value.Nil, fmt.Errorf("ENTITY.SETPOS expects 4–5 arguments (entity#, x#, y#, z# [, global])")
 	}
 	id, ok := m.entID(args[0])
 	if !ok || id < 1 {
-		return value.Nil, fmt.Errorf("ENTITY.SETPOSITION: invalid entity")
+		return value.Nil, fmt.Errorf("ENTITY.SETPOS: invalid entity")
 	}
 	e := m.store().ents[id]
 	if e == nil {
-		return value.Nil, fmt.Errorf("ENTITY.SETPOSITION: unknown entity %d", id)
+		return value.Nil, fmt.Errorf("ENTITY.SETPOS: unknown entity %d", id)
 	}
 	x, ok1 := argF32(args[1])
 	y, ok2 := argF32(args[2])
 	z, ok3 := argF32(args[3])
 	if !ok1 || !ok2 || !ok3 {
-		return value.Nil, fmt.Errorf("ENTITY.SETPOSITION: position must be numeric")
+		return value.Nil, fmt.Errorf("ENTITY.SETPOS: position must be numeric")
 	}
 	global := false
 	if len(args) == 5 {
@@ -485,7 +491,7 @@ func (m *Module) entSetPosition(args []value.Value) (value.Value, error) {
 		case value.KindInt:
 			global = args[4].IVal != 0
 		default:
-			return value.Nil, fmt.Errorf("ENTITY.SETPOSITION: global must be TRUE/FALSE or 0/1")
+			return value.Nil, fmt.Errorf("ENTITY.SETPOS: global must be TRUE/FALSE or 0/1")
 		}
 	}
 	if global {
@@ -547,6 +553,111 @@ func (m *Module) entGetPos(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromHandle(h), nil
+}
+
+func (m *Module) entGetRot(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("ENTITY.GETROT: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETROT expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETROT: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.GETROT: unknown entity %d", id)
+	}
+	p, w, r := e.getRot()
+	arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(p)
+	arr.Floats[1] = float64(w)
+	arr.Floats[2] = float64(r)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
+}
+
+func (m *Module) entGetScale(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("ENTITY.GETSCALE: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETSCALE expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETSCALE: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.GETSCALE: unknown entity %d", id)
+	}
+	s := e.scale
+	arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(s.X)
+	arr.Floats[1] = float64(s.Y)
+	arr.Floats[2] = float64(s.Z)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
+}
+
+func (m *Module) entGetColor(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("ENTITY.GETCOLOR: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETCOLOR expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETCOLOR: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.GETCOLOR: unknown entity %d", id)
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(e.r)
+	arr.Floats[1] = float64(e.g)
+	arr.Floats[2] = float64(e.b)
+	arr.Floats[3] = float64(e.alpha * 255.0)
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
+}
+
+func (m *Module) entGetAlpha(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETALPHA expects entity#")
+	}
+	id, ok := m.entID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("ENTITY.GETALPHA: invalid entity")
+	}
+	e := m.store().ents[id]
+	if e == nil {
+		return value.Nil, fmt.Errorf("ENTITY.GETALPHA: unknown entity %d", id)
+	}
+	return value.FromFloat(float64(e.alpha)), nil
 }
 
 func localAxes(yaw, pitch float32) (forward, right, up rl.Vector3) {
@@ -838,8 +949,8 @@ func (m *Module) queryFloorYAt(px, py, pz float32) float64 {
 		bx, by, bz := float64(sp.X), float64(sp.Y), float64(sp.Z)
 		bw, bh, bd := float64(s.w), float64(s.h), float64(s.d)
 		top := by + bh*0.5
-		halfW := bw*0.5
-		halfD := bd*0.5
+		halfW := bw * 0.5
+		halfD := bd * 0.5
 		if math.Abs(float64(px)-bx) > halfW || math.Abs(float64(pz)-bz) > halfD {
 			continue
 		}
@@ -1064,15 +1175,17 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 		if e.useSphere {
 			wp0 := m.worldPos(e)
 			px, py, pz := float64(wp0.X), float64(wp0.Y), float64(wp0.Z)
-			
+
 			// Detect scripted "feet" position for snapping (Stub/Windows path)
 			bottomOff := float64(e.physBottomOffset) * float64(e.scale.Y)
 			if bottomOff < 1e-4 {
 				// Fallback for uninitialized offsets
 				bottomOff = float64(e.radius)
-				if e.kind == entKindCapsule { bottomOff += float64(e.cylH) * 0.5 }
+				if e.kind == entKindCapsule {
+					bottomOff += float64(e.cylH) * 0.5
+				}
 			}
-			
+
 			supported := false
 			for _, s := range st.ents {
 				if s == nil || !s.static {
@@ -1103,13 +1216,15 @@ func (m *Module) entUpdate(args []value.Value) (value.Value, error) {
 			wp2 := m.worldPos(e)
 			px, py, pz := float32(wp2.X), float32(wp2.Y), float32(wp2.Z)
 			pvy := float32(e.vel.Y)
-			
+
 			bottomOff := float64(e.physBottomOffset) * float64(e.scale.Y)
 			if bottomOff < 1e-4 {
 				bottomOff = float64(e.radius)
-				if e.kind == entKindCapsule { bottomOff += float64(e.cylH) * 0.5 }
+				if e.kind == entKindCapsule {
+					bottomOff += float64(e.cylH) * 0.5
+				}
 			}
-			
+
 			var bestSnap float64
 			found := false
 			for _, s := range st.ents {
@@ -1646,12 +1761,17 @@ func (m *Module) WorldPosFromEntityHandle(handle heap.Handle) (rl.Vector3, bool)
 	}
 	return m.worldPos(e), true
 }
+
 // TranslateEntityByID (Internal) nudge an entity in world space.
 func (m *Module) TranslateEntityByID(id int, dx, dy, dz float32) {
 	st := m.store()
-	if id < 1 || id >= len(st.ents) { return }
+	if id < 1 || id >= len(st.ents) {
+		return
+	}
 	e := st.ents[int64(id)]
-	if e == nil { return }
+	if e == nil {
+		return
+	}
 	wp := m.worldPos(e)
 	m.setLocalFromWorld(e, wp.X+dx, wp.Y+dy, wp.Z+dz)
 }
@@ -1659,27 +1779,39 @@ func (m *Module) TranslateEntityByID(id int, dx, dy, dz float32) {
 // RotateEntityAbsByID (Internal) set entity absolute rotation.
 func (m *Module) RotateEntityAbsByID(id int, p, w, r float32) {
 	st := m.store()
-	if id < 1 || id >= len(st.ents) { return }
+	if id < 1 || id >= len(st.ents) {
+		return
+	}
 	e := st.ents[int64(id)]
-	if e == nil { return }
+	if e == nil {
+		return
+	}
 	e.setRot(p, w, r)
 }
 
 // SetWorldPosByID (Internal) set entity world position.
 func (m *Module) SetWorldPosByID(id int, x, y, z float32) {
 	st := m.store()
-	if id < 1 || id >= len(st.ents) { return }
+	if id < 1 || id >= len(st.ents) {
+		return
+	}
 	e := st.ents[int64(id)]
-	if e == nil { return }
+	if e == nil {
+		return
+	}
 	m.setLocalFromWorld(e, x, y, z)
 }
 
 // DisablePhysicsByID (Internal) kills scripted gravity and physics for KCC takeover.
 func (m *Module) DisablePhysicsByID(id int) {
 	st := m.store()
-	if id < 1 || id >= len(st.ents) { return }
+	if id < 1 || id >= len(st.ents) {
+		return
+	}
 	e := st.ents[int64(id)]
-	if e == nil { return }
+	if e == nil {
+		return
+	}
 	e.physicsDriven = false
 	e.gravity = 0
 	mbphysics3d.UnregisterEntityCollision(int64(id))

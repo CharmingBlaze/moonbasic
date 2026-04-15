@@ -340,6 +340,9 @@ func registerHelperNet(m *Module, reg runtime.Registrar) {
 	reg.Register("PACKET.CREATE", "packet", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return packetCreate(m, rt, args...)
 	})
+	reg.Register("PACKET.MAKE", "packet", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return packetCreate(m, rt, args...)
+	})
 	reg.Register("PACKET.DATA", "packet", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return packetData(m, rt, args...)
 	})

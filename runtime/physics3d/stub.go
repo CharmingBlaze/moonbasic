@@ -39,6 +39,7 @@ type body3dObj struct {
 	Shape       *ShapeObj
 	Layer       int
 	Collision   bool
+	Sx, Sy, Sz  float32 // stub collision scale factors
 }
 
 var (
@@ -167,14 +168,14 @@ func (m *Module) shFree(args []value.Value) (value.Value, error) {
 
 func (m *Module) knCreate(args []value.Value) (value.Value, error) {
 	sh, _ := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true}
+	body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true, Sx: 1, Sy: 1, Sz: 1}
 	nextBodyID++
 	id, _ := m.h.Alloc(body)
 	return value.FromHandle(id), nil
 }
 func (m *Module) stCreate(args []value.Value) (value.Value, error) {
 	sh, _ := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true}
+	body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true, Sx: 1, Sy: 1, Sz: 1}
 	nextBodyID++
 	id, _ := m.h.Alloc(body)
 	staticBodies[id] = body
@@ -182,7 +183,7 @@ func (m *Module) stCreate(args []value.Value) (value.Value, error) {
 }
 func (m *Module) trCreate(args []value.Value) (value.Value, error) {
 	sh, _ := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true}
+	body := &body3dObj{ID: nextBodyID, Shape: sh, Collision: true, Sx: 1, Sy: 1, Sz: 1}
 	nextBodyID++
 	id, _ := m.h.Alloc(body)
 	return value.FromHandle(id), nil
@@ -201,6 +202,43 @@ func (m *Module) bdGetPos(args []value.Value) (value.Value, error) {
 	if bo == nil { return valueVec3FromFloats(m.h, 0, 0, 0) }
 	return valueVec3FromFloats(m.h, float64(bo.Pos.X), float64(bo.Pos.Y), float64(bo.Pos.Z))
 }
+
+func (m *Module) bdGetScale(args []value.Value) (value.Value, error) {
+	bo, _ := m.hGetBody(args[0])
+	if bo == nil {
+		return valueVec3FromFloats(m.h, 1, 1, 1)
+	}
+	sx, sy, sz := float64(bo.Sx), float64(bo.Sy), float64(bo.Sz)
+	if sx == 0 && sy == 0 && sz == 0 {
+		sx, sy, sz = 1, 1, 1
+	}
+	if sx == 0 {
+		sx = 1
+	}
+	if sy == 0 {
+		sy = 1
+	}
+	if sz == 0 {
+		sz = 1
+	}
+	return valueVec3FromFloats(m.h, sx, sy, sz)
+}
+
+func (m *Module) bdSetScale(args []value.Value) (value.Value, error) {
+	bo, _ := m.hGetBody(args[0])
+	if bo == nil || len(args) < 4 {
+		return value.Nil, nil
+	}
+	x1, _ := args[1].ToFloat()
+	y1, _ := args[2].ToFloat()
+	z1, _ := args[3].ToFloat()
+	if x1 <= 0 || y1 <= 0 || z1 <= 0 {
+		return value.Nil, nil
+	}
+	bo.Sx, bo.Sy, bo.Sz = float32(x1), float32(y1), float32(z1)
+	return value.Nil, nil
+}
+
 func (m *Module) bdActivate(args []value.Value) (value.Value, error)     { return value.Nil, nil }
 func (m *Module) bdDeactivate(args []value.Value) (value.Value, error)   { return value.Nil, nil }
 func (m *Module) bdSetRotation(args []value.Value) (value.Value, error) { return value.Nil, nil }

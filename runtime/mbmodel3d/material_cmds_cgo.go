@@ -32,6 +32,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 	}
 	reg.Register("MATERIAL.MAKEDEFAULT", "material", runtime.AdaptLegacy(matMakeDefault))
 	reg.Register("MATERIAL.CREATE", "material", runtime.AdaptLegacy(matMakeDefault))
+	reg.Register("MATERIAL.MAKE", "material", runtime.AdaptLegacy(matMakeDefault))
 
 	reg.Register("MATERIAL.MAKEPBR", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {

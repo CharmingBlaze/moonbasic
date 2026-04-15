@@ -1,10 +1,10 @@
 PRINT("=== Image Tests ===")
 
 ; Creation: (w,h) = transparent black; (w,h,r,g,b,a) = solid fill
-img = IMAGE.MAKE(64, 64)
-ASSERT(IMAGE.WIDTH(img) = 64, "MAKE 2-arg width")
-ASSERT(IMAGE.HEIGHT(img) = 64, "MAKE 2-arg height")
-ASSERT(IMAGE.GETCOLORA(img, 0, 0) = 0, "MAKE 2-arg transparent A")
+img = IMAGE.CREATE(64, 64)
+ASSERT(IMAGE.WIDTH(img) = 64, "CREATE 2-arg width")
+ASSERT(IMAGE.HEIGHT(img) = 64, "CREATE 2-arg height")
+ASSERT(IMAGE.GETCOLORA(img, 0, 0) = 0, "CREATE 2-arg transparent A")
 
 IMAGE.CLEAR(img, 100, 150, 200, 255)
 ASSERT(IMAGE.GETCOLORR(img, 0, 0) = 100, "CLEAR R")
@@ -38,17 +38,17 @@ ASSERT(FILEEXISTS("testdata/image_test_out.png"), "FILEEXISTS out png")
 IMAGE.FREE(img)
 
 ; Copy alias + 6-arg solid
-src = IMAGE.MAKE(8, 8, 10, 20, 30, 255)
+src = IMAGE.CREATE(8, 8, 10, 20, 30, 255)
 dup = IMAGE.COPY(src)
 ASSERT(IMAGE.WIDTH(dup) = 8, "COPY width")
 IMAGE.FREE(dup)
 IMAGE.FREE(src)
 
-img2 = IMAGE.MAKEBLANK(4, 4, 0, 0, 0, 0)
-ASSERT(IMAGE.WIDTH(img2) = 4, "MAKEBLANK width")
+img2 = IMAGE.CREATEBLANK(4, 4, 0, 0, 0, 0)
+ASSERT(IMAGE.WIDTH(img2) = 4, "CREATEBLANK width")
 IMAGE.FREE(img2)
 
-gen = IMAGE.MAKE(32, 32, 255, 128, 64, 255)
+gen = IMAGE.CREATE(32, 32, 255, 128, 64, 255)
 ok2 = IMAGE.EXPORT(gen, "testdata/image_test.jpg")
 ASSERT(ok2, "EXPORT jpg")
 IMAGE.FREE(gen)

@@ -108,7 +108,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         px = Entity.X(player)
         py = Entity.Y(player)
         pz = Entity.Z(player)
-        Entity.SetPosition(player, px + stepX, py, pz + stepZ, TRUE)
+        Entity.SetPos(player, px + stepX, py, pz + stepZ, TRUE)
     ENDIF
 
     px = Entity.X(player)
@@ -116,7 +116,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     pz = Entity.Z(player)
     px = CLAMP(px, -WORLD_HALF + 4.0, WORLD_HALF - 4.0)
     pz = CLAMP(pz, -WORLD_HALF + 4.0, WORLD_HALF - 4.0)
-    Entity.SetPosition(player, px, PLAYER_Y, pz, TRUE)
+    Entity.SetPos(player, px, PLAYER_Y, pz, TRUE)
 
     Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
 
@@ -139,7 +139,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         ENDIF
         ex = CLAMP(ex, -WORLD_HALF + 2.0, WORLD_HALF - 2.0)
         ez = CLAMP(ez, -WORLD_HALF + 2.0, WORLD_HALF - 2.0)
-        Entity.SetPosition(enemy(i), ex, ENEMY_Y, ez, TRUE)
+        Entity.SetPos(enemy(i), ex, ENEMY_Y, ez, TRUE)
 
         ddx = px - ex
         ddz = pz - ez
@@ -152,8 +152,8 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
             pz = pz + nz * push
             ex = ex - nx * push * 0.35
             ez = ez - nz * push * 0.35
-            Entity.SetPosition(player, px, PLAYER_Y, pz, TRUE)
-            Entity.SetPosition(enemy(i), ex, ENEMY_Y, ez, TRUE)
+            Entity.SetPos(player, px, PLAYER_Y, pz, TRUE)
+            Entity.SetPos(enemy(i), ex, ENEMY_Y, ez, TRUE)
         ENDIF
     NEXT i
     RENDER.Begin3D(cam)

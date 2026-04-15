@@ -9,12 +9,12 @@ Physics3D.Start()
 Physics3D.SetGravity(0, -9.81, 0)
 
 ; --- Ground ---
-bf = Body3D.Make("STATIC")
+bf = Body3D.Create("STATIC")
 Body3D.AddBox(bf, 100, 0.5, 100)
 ground = Body3D.Commit(bf, 0, 0, 0)
 
 ; --- Jet ---
-bj = Body3D.Make("DYNAMIC")
+bj = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bj, 0.8, 0.3, 2.5)
 jet = Body3D.Commit(bj, 0, 1, 0)
 Body3D.SetDamping(jet, 0.02, 0.4)
@@ -24,7 +24,7 @@ Body3D.SetGravityFactor(jet, 1.0)
 AERO.SETLIFT(jet, 0.008)
 AERO.SETDRAG(jet, 0.003)
 
-cam = Camera.Make()
+cam = CreateCamera()
 thrust = 0.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())

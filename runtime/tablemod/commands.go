@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"moonbasic/runtime"
 	mbcsv "moonbasic/runtime/csvmod"
 	mbjson "moonbasic/runtime/jsonmod"
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -17,14 +17,21 @@ func castTable(m *Module, h heap.Handle) (*tableObj, error) {
 
 func registerTableCommands(m *Module, r runtime.Registrar) {
 	r.Register("TABLE.CREATE", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabCreate(m, rt, args...) })
+	r.Register("TABLE.MAKE", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabCreate(m, rt, args...) })
 	r.Register("TABLE.FREE", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabFree(m, rt, args...) })
 	r.Register("TABLE.ADDROW", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabAddRow(m, rt, args...) })
-	r.Register("TABLE.ROWCOUNT", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabRowCount(m, rt, args...) })
-	r.Register("TABLE.COLCOUNT", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabColCount(m, rt, args...) })
+	r.Register("TABLE.ROWCOUNT", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return tabRowCount(m, rt, args...)
+	})
+	r.Register("TABLE.COLCOUNT", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return tabColCount(m, rt, args...)
+	})
 	r.Register("TABLE.GET", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabGet(m, rt, args...) })
 	r.Register("TABLE.SET", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabSet(m, rt, args...) })
 	r.Register("TABLE.TOJSON", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabToJSON(m, rt, args...) })
-	r.Register("TABLE.FROMJSON", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabFromJSON(m, rt, args...) })
+	r.Register("TABLE.FROMJSON", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return tabFromJSON(m, rt, args...)
+	})
 	r.Register("TABLE.TOCSV", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabToCSV(m, rt, args...) })
 	r.Register("TABLE.FROMCSV", "table", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return tabFromCSV(m, rt, args...) })
 }

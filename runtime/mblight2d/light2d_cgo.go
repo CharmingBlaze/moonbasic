@@ -10,6 +10,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/window"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -116,10 +117,13 @@ func clampU8(n int32) uint8 {
 }
 
 func (m *Module) Register(reg runtime.Registrar) {
+	reg.Register("LIGHT2D.CREATE", "light2d", runtime.AdaptLegacy(m.ldMake))
 	reg.Register("LIGHT2D.MAKE", "light2d", runtime.AdaptLegacy(m.ldMake))
 	reg.Register("LIGHT2D.FREE", "light2d", runtime.AdaptLegacy(m.ldFree))
 	reg.Register("LIGHT2D.SETPOS", "light2d", runtime.AdaptLegacy(m.ldSetPos))
 	reg.Register("LIGHT2D.SETPOSITION", "light2d", runtime.AdaptLegacy(m.ldSetPos))
+	reg.Register("LIGHT2D.GETPOS", "light2d", runtime.AdaptLegacy(m.ldGetPos))
+	reg.Register("LIGHT2D.GETCOLOR", "light2d", runtime.AdaptLegacy(m.ldGetColor))
 	reg.Register("LIGHT2D.SETCOLOR", "light2d", runtime.AdaptLegacy(m.ldSetColor))
 	reg.Register("LIGHT2D.SETRADIUS", "light2d", runtime.AdaptLegacy(m.ldSetRadius))
 	reg.Register("LIGHT2D.SETINTENSITY", "light2d", runtime.AdaptLegacy(m.ldSetIntensity))
@@ -187,6 +191,46 @@ func (m *Module) ldSetPos(args []value.Value) (value.Value, error) {
 	}
 	o.x, o.y = x, y
 	return value.Nil, nil
+}
+
+func (m *Module) ldGetPos(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("LIGHT2D.GETPOS expects (light)")
+	}
+	o, err := m.getLight(args, 0, "LIGHT2D.GETPOS")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.x, o.y, 0)
+}
+
+func (m *Module) ldGetColor(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("LIGHT2D.GETCOLOR expects (light)")
+	}
+	o, err := m.getLight(args, 0, "LIGHT2D.GETCOLOR")
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(o.r)
+	arr.Floats[1] = float64(o.g)
+	arr.Floats[2] = float64(o.b)
+	arr.Floats[3] = float64(o.a)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }
 
 func (m *Module) ldSetColor(args []value.Value) (value.Value, error) {

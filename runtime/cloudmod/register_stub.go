@@ -15,6 +15,7 @@ func registerCloud(m *Module, r runtime.Registrar) {
 			return value.Nil, fmt.Errorf("%s requires CGO", n)
 		}
 	}
+	r.Register("CLOUD.CREATE", "cloud", h("CLOUD.CREATE"))
 	r.Register("CLOUD.MAKE", "cloud", h("CLOUD.MAKE"))
 	r.Register("CLOUD.FREE", "cloud", h("CLOUD.FREE"))
 	r.Register("CLOUD.UPDATE", "cloud", h("CLOUD.UPDATE"))

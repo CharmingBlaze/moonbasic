@@ -10,7 +10,7 @@
 
 | Command | Notes |
 |---------|--------|
-| **`PARTICLE.MAKE`** / **`PARTICLE3D.MAKE`** | No args → emitter **handle**. |
+| **`PARTICLE.CREATE`** / **`PARTICLE3D.CREATE`** (canonical) / deprecated **`PARTICLE.MAKE`** / **`PARTICLE3D.MAKE`** | No args → emitter **handle**. |
 | **`PARTICLE.FREE`** / **`PARTICLE3D.FREE`** | Free emitter. |
 | **`PARTICLE.SETTEXTURE`** | `(emitter, textureHandle)` |
 | **`PARTICLE.SETEMITRATE`** / **`PARTICLE.SETRATE`** | `(emitter, per_sec)` — **`SETRATE`** is an alias. **`PARTICLE3D.SETRATE`** same. |

@@ -13,6 +13,7 @@ import (
 )
 
 func registerRenderTargetCmds(m *Module, r runtime.Registrar) {
+	r.Register("RENDERTARGET.CREATE", "texture", runtime.AdaptLegacy(m.rtMake))
 	r.Register("RENDERTARGET.MAKE", "texture", runtime.AdaptLegacy(m.rtMake))
 	r.Register("RENDERTARGET.FREE", "texture", runtime.AdaptLegacy(m.rtFree))
 	r.Register("RENDERTARGET.BEGIN", "texture", runtime.AdaptLegacy(m.rtBegin))

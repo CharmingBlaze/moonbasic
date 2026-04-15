@@ -14,6 +14,7 @@ import (
 	"moonbasic/runtime"
 	mbcamera "moonbasic/runtime/camera"
 	mbdraw "moonbasic/runtime/draw"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -235,16 +236,16 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		if len(args) != 0 {
-			return value.Nil, fmt.Errorf("PARTICLE.MAKE expects no arguments")
+			return value.Nil, fmt.Errorf("PARTICLE emitter constructor expects no arguments")
 		}
 		o := &particleObj{
 			lifeMin: 1, lifeMax: 1,
 			sr: 255, sg: 255, sb: 255, sa: 255,
 			er: 255, eg: 255, eb: 255, ea: 0,
 			sizeStartMin: 0.2, sizeStartMax: 0.2,
-			sizeEndMin:   0, sizeEndMax: 0,
-			speedMin:     1, speedMax: 1,
-			billboard:    true,
+			sizeEndMin: 0, sizeEndMax: 0,
+			speedMin: 1, speedMax: 1,
+			billboard: true,
 		}
 		id, err := m.h.Alloc(o)
 		if err != nil {
@@ -552,6 +553,60 @@ func (m *Module) Register(reg runtime.Registrar) {
 		return value.Nil, nil
 	})
 
+	getPosFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.GETPOS expects (particle)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.GETPOS")
+		if err != nil {
+			return value.Nil, err
+		}
+		return mbmatrix.AllocVec3Value(m.h, o.px, o.py, o.pz)
+	})
+
+	getColorFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.GETCOLOR expects (particle)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.GETCOLOR")
+		if err != nil {
+			return value.Nil, err
+		}
+		arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+		if err != nil {
+			return value.Nil, err
+		}
+		arr.Floats[0] = float64(o.sr)
+		arr.Floats[1] = float64(o.sg)
+		arr.Floats[2] = float64(o.sb)
+		arr.Floats[3] = float64(o.sa)
+		id, err := m.h.Alloc(arr)
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromHandle(id), nil
+	})
+
+	getAlphaFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.GETALPHA expects (particle)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.GETALPHA")
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromFloat(float64(o.sa) / 255.0), nil
+	})
+
 	setBurstFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
@@ -812,6 +867,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 
 	// Register all variations
 	regDual(reg, "PARTICLE.MAKE", makeFn)
+	regDual(reg, "PARTICLE.CREATE", makeFn)
 	reg.Register("CREATEEMITTER", "particle", makeFn)
 
 	regDual(reg, "PARTICLE.FREE", freeFn)
@@ -850,6 +906,9 @@ func (m *Module) Register(reg runtime.Registrar) {
 	regDual(reg, "PARTICLE.SETGRAVITY", setGravFn)
 
 	regDual(reg, "PARTICLE.SETPOS", setPosFn)
+	regDual(reg, "PARTICLE.GETPOS", getPosFn)
+	regDual(reg, "PARTICLE.GETCOLOR", getColorFn)
+	regDual(reg, "PARTICLE.GETALPHA", getAlphaFn)
 	reg.Register("EMITTERPOS", "particle", setPosFn)
 
 	regDual(reg, "PARTICLE.SETBURST", setBurstFn)

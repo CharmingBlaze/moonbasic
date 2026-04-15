@@ -1,6 +1,6 @@
 # Kinematic Character Controller (`CHAR.*` / `PLAYER.*`)
 
-This page is the **gameplay-first** guide to MoonBASIC’s **Kinematic Character Controller (KCC)** — Jolt **`CharacterVirtual`** behind **`PLAYER.CREATE`**, **`CHAR.MAKE`**, and related commands. It bridges **“what I want the hero to do”** and **stable 3D navigation** (wall slide, stairs, floor stick) without you hand-writing collision response.
+This page is the **gameplay-first** guide to MoonBASIC’s **Kinematic Character Controller (KCC)** — Jolt **`CharacterVirtual`** behind **`PLAYER.CREATE`**, **`CHAR.CREATE`**, and related commands. It bridges **“what I want the hero to do”** and **stable 3D navigation** (wall slide, stairs, floor stick) without you hand-writing collision response.
 
 For the **low-level capsule API** (`CharController.*` handles), see [CHARCONTROLLER.md](CHARCONTROLLER.md). For the full **`PLAYER.*`** surface (swim, push, surface type, …), see [PLAYER.md](PLAYER.md). For **heap `Character` handles** (**`CHARACTER.CREATE(entity, r, h)`**), see [CHARACTER.md](CHARACTER.md).
 
@@ -14,9 +14,9 @@ Project policy: document **Windows** first, **Linux** second ([DEVELOPER.md](../
 | **`ENT.*`**, **`WORLD.TOSCREEN`**, **`WORLD.HITSTOP`**, **`ENT.SHOOT`**, **`ENT.FADE`** | Yes — **entity** and **time** helpers work wherever **`mbentity`** + Raylib run. | Yes |
 | **`WORLD.MOUSEFLOOR` / `WORLD.MOUSEPICK`** | **Stub** returns errors without native Jolt (see [PHYSICS3D.md](PHYSICS3D.md)). | Needs Jolt picks |
 
-Start the world with **`PHYSICS3D.START()`** (and set gravity) **before** **`CHAR.MAKE` / `PLAYER.CREATE`**.
+Start the world with **`PHYSICS3D.START()`** (and set gravity) **before** **`CHAR.CREATE` / `PLAYER.CREATE`**.
 
-**Entity handles:** Pass the **EntityRef** from **`MODEL.CREATECAPSULE`** (or **`CUBE`** / **`SPHERE`**) into **`CHAR.MAKE`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.JUMP`**, etc. The runtime resolves the handle to an internal entity id; using a wrong integer (e.g. the heap slot) breaks KCC lookup.
+**Entity handles:** Pass the **EntityRef** from **`MODEL.CREATECAPSULE`** (or **`CUBE`** / **`SPHERE`**) into **`CHAR.CREATE`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.JUMP`**, etc. The runtime resolves the handle to an internal entity id; using a wrong integer (e.g. the heap slot) breaks KCC lookup.
 
 ---
 
@@ -24,19 +24,19 @@ Start the world with **`PHYSICS3D.START()`** (and set gravity) **before** **`CHA
 
 | Command | Role | Beginner | Advanced |
 |--------|------|----------|----------|
-| **`CHAR.MAKE(entity)`** or **`CHAR.MAKE(entity, radius#, height#)`** | Create **`CharacterVirtual`** at the entity’s position and map **entity → controller**. Clears scripted gravity/velocity so the capsule drives motion. | `CHAR.MAKE(hero)` | Match mesh: `CHAR.MAKE(hero, 0.4, 1.0)` |
+| **`CHAR.CREATE(entity)`** or **`CHAR.CREATE(entity, radius#, height#)`** | Create **`CharacterVirtual`** at the entity’s position and map **entity → controller**. Clears scripted gravity/velocity so the capsule drives motion. | `CHAR.CREATE(hero)` | Match mesh: `CHAR.CREATE(hero, 0.4, 1.0)` |
 | **`CHAR.SETSTEP(entity, height#)`** | Max **step up** (stairs / curbs), via Jolt extended update — always **`(entity, height)`**, not a lone height. | `CHAR.SETSTEP(hero, 0.3)` | Tune per level art |
 | **`CHAR.SETSLOPE(entity, degrees#)`** | **`PLAYER.SETSLOPELIMIT`** — rebuilds capsule with **`MaxSlopeAngle`**. | `CHAR.SETSLOPE(hero, 45)` | Lower to block “walking up walls” |
 | **`CHAR.SETPADDING(entity, padding#)`** | Skin around capsule (**&gt; 0**); reduces snagging on messy geometry. | Often omit (runtime default) | `CHAR.SETPADDING(hero, 0.02)` |
 
-Aliases: **`PLAYER.CREATE`** = **`CHAR.MAKE`**; **`PLAYER.SETSTEPOFFSET`** = **`CHAR.SETSTEP`**; **`PLAYER.SETSLOPELIMIT`** = **`CHAR.SETSLOPE`**; **`PLAYER.SETPADDING`** = **`CHAR.SETPADDING`**.
+Aliases: **`PLAYER.CREATE`** and **`CHAR.CREATE`** are equivalent KCC setup; **`PLAYER.SETSTEPOFFSET`** = **`CHAR.SETSTEP`**; **`PLAYER.SETSLOPELIMIT`** = **`CHAR.SETSLOPE`**; **`PLAYER.SETPADDING`** = **`CHAR.SETPADDING`**.
 
-**Important:** Do **not** put the hero on **`ENTITY.PHYSICS`** as a **dynamic** body if you are using **`CHAR.MAKE`** — the KCC owns movement and collision for that entity. Keep **static** level meshes as usual.
+**Important:** Do **not** put the hero on **`ENTITY.PHYSICS`** as a **dynamic** body if you are using **`CHAR.CREATE`** — the KCC owns movement and collision for that entity. Keep **static** level meshes as usual.
 
 ### Capsule size and pivot (primitive or glTF hero)
 
-- **`MODEL.CREATECAPSULE(radius#, height#)`** draws a **Jolt-style** capsule: pivot at the **center** of the shape; total height is **`height#`** (same convention as **`CHAR.MAKE(…, radius#, height#)`**).
-- Use the **same** `radius` and `height` in **`CHAR.MAKE(hero, radius, height)`** as in **`MODEL.CREATECAPSULE`**, or feet vs floor will not match the mesh. For an imported **`MODEL.LOAD` / glTF** hero, pick **`radius` / `height`** that match your collision need; Jolt KCC uses **height/2** from the pivot down to the feet (center-pivot capsules), not the radius, for ground contact.
+- **`MODEL.CREATECAPSULE(radius#, height#)`** draws a **Jolt-style** capsule: pivot at the **center** of the shape; total height is **`height#`** (same convention as **`CHAR.CREATE(…, radius#, height#)`**).
+- Use the **same** `radius` and `height` in **`CHAR.CREATE(hero, radius, height)`** as in **`MODEL.CREATECAPSULE`**, or feet vs floor will not match the mesh. For an imported **`MODEL.LOAD` / glTF** hero, pick **`radius` / `height`** that match your collision need; Jolt KCC uses **height/2** from the pivot down to the feet (center-pivot capsules), not the radius, for ground contact.
 - Arbitrary meshes still **render** as authored; KCC uses the **numeric capsule** you pass — it does not auto-read mesh bounds yet.
 
 ---
@@ -50,7 +50,7 @@ Aliases: **`PLAYER.CREATE`** = **`CHAR.MAKE`**; **`PLAYER.SETSTEPOFFSET`** = **`
 | **`NAV.GOTO`** | Alias of **`PLAYER.NAVTO`** — click-to-move; default **arrival** radius is **~0.2** world units so the hero **stops cleanly** (no jitter at the exact point). Optional **`arrivalXZ`** / **`brakeDist`** match **`PLAYER.NAVTO`**. |
 | **`NAV.UPDATE`** | Alias of **`PLAYER.NAVUPDATE`** — call each frame while navigating. |
 | **`NAV.CHASE(entity, target#, gap#, speed#)`** | **KCC only:** move toward **target** entity until within **gap** (world units), then hold. |
-| **`NAV.PATROL(entity, ax#, az#, bx#, bz#, speed#)`** | **KCC only:** ping-pong between world **XZ** points **A** and **B** (same idea as **`ENTITY.PATROL`**, but for **`CHAR.MAKE`** entities). |
+| **`NAV.PATROL(entity, ax#, az#, bx#, bz#, speed#)`** | **KCC only:** ping-pong between world **XZ** points **A** and **B** (same idea as **`ENTITY.PATROL`**, but for **`CHAR.CREATE`** entities). |
 | **`PLAYER.NAVTO(entity, tx#, tz#, speed# [, arrivalXZ# [, brakeDist#]])`** | Same as **`NAV.GOTO`** — explicit **`PLAYER.*`** name. |
 | **`PLAYER.NAVUPDATE(entity)`** | Steps navigation toward the active target (goto / chase / patrol) with **soft braking** when **`brakeDist`** is set. |
 | **`CHAR.JUMP(entity, impulseY#)`** | Vertical impulse (snappy hop; not “physics toy” bounciness). |
@@ -108,7 +108,7 @@ For property tweens (**alpha**, **yaw**, …) use **`ENTITY.TWEEN`** (different 
 ```moonbasic
 PHYSICS3D.START()
 hero = Entity.Load("hero.iqm")
-CHAR.MAKE(hero, 0.4, 1.75)
+CHAR.CREATE(hero, 0.4, 1.75)
 
 pt = WORLD.MOUSEFLOOR(cam, 0.0)
 IF pt <> NIL THEN

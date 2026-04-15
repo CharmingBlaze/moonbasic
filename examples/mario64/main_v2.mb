@@ -18,7 +18,7 @@ CONST PLAT_N = 4
 CONST MOUSE_ORBIT_SENS = 0.0055
 CONST ORBIT_DEG_PER_SEC = 77.0
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(55)
 
 ; Player (sphere centre)

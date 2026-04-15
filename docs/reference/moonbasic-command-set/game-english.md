@@ -6,8 +6,8 @@ Blitz-like names for **third-person** movement on **XZ** and **orbit yaw** delta
 
 | Designed | moonBASIC | Memory / notes |
 |----------|------------|----------------|
-| **Create mover** | **`PLAYER2D.Make()`** | Heap handle — **`PLAYER2D.Free()`** or **`ERASE ALL`**. |
-| **Set position** | **`PLAYER2D.SetPos(p, x, z)`** | |
+| **Create mover** | **`PLAYER2D.Create()`** (deprecated **`PLAYER2D.Make()`**) | Heap handle — **`PLAYER2D.Free()`** or **`ERASE ALL`**; registry **`PLAYER2D.CREATE`**. |
+| **Set position** | **`PLAYER2D.SetPos(p, x, z)`** | Registry **`PLAYER2D.SETPOS`** (deprecated **`PLAYER2D.SETPOSITION`**). |
 | **MoveEntity2D / MovePlayer** | **`PLAYER2D.Move(p, camYaw, f, s, speed, dt)`** | Same math as **`MOVESTEPX`/`MOVESTEPZ`** in place. |
 | **ClampEntity2D** | **`PLAYER2D.Clamp(p, minX, maxX, minZ, maxZ)`** | Stores bounds and clamps **now**. |
 | **KeepPlayerInBounds** | **`PLAYER2D.KeepInBounds(p)`** | Re-clamps to **last** **`CLAMPENTITY2D`** bounds. |

@@ -4,7 +4,7 @@ This document describes the modern, simplified physics API for MoonBASIC. These 
 
 **Example:** [examples/mario64/modern_blitz_hop.mb](../examples/mario64/modern_blitz_hop.mb) uses **`ENTITY.PHYSICS`** for the player capsule and static floor (friction + restitution in one call).
 
-**Kinematic hero (KCC):** For **CharacterVirtual** movement (slide on walls, stairs, stick-to-floor) instead of a **dynamic** rigid body, use **`CHAR.MAKE`** / **`PLAYER.CREATE`** and avoid **`ENTITY.PHYSICS`** on the hero. See [reference/KCC.md](reference/KCC.md) and [examples/mario64/modern_blitz_hop_kcc.mb](../examples/mario64/modern_blitz_hop_kcc.mb).
+**Kinematic hero (KCC):** For **CharacterVirtual** movement (slide on walls, stairs, stick-to-floor) instead of a **dynamic** rigid body, use **`CHAR.CREATE`** / **`PLAYER.CREATE`** (deprecated **`CHAR.MAKE`**) and avoid **`ENTITY.PHYSICS`** on the hero. See [reference/KCC.md](reference/KCC.md) and [examples/mario64/modern_blitz_hop_kcc.mb](../examples/mario64/modern_blitz_hop_kcc.mb).
 
 ## 1. Quick Setup (`ENTITY.PHYSICS`)
 
@@ -31,7 +31,7 @@ If you need fine-tuned control without long argument lists, use the `PHYSICS.*` 
 
 ### Old Way (Low-Level)
 ```basic
-b = BODY3D.MAKE("dynamic")
+b = BODY3D.CREATE("dynamic")
 BODY3D.ADDBOX(b, 1.0, 0.5, 1.0)
 bh = BODY3D.COMMIT(b, 0, 10, 0)
 ENTITY.LINKPHYSBUFFER(myEnt, BODY3D.BUFFERINDEX(bh))

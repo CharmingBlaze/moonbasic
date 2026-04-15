@@ -53,7 +53,7 @@ For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plo
 |--------|-----------|
 | World gravity | **`PHYSICS3D.SETGRAVITY`** or alias **`PHYSICS.SETGRAVITY`** |
 | Ray cast | **`PHYSICS3D.RAYCAST`** or **`PHYSICS.RAYCAST`** |
-| Character | **`CHARCONTROLLER.MAKE`** or **`CONTROLLER.CREATE`**; **`MOVE`**, **`ISGROUNDED`** / **`CONTROLLER.GROUNDED`**; **`FREE`** |
+| Character | **`CHARCONTROLLER.CREATE`** or **`CONTROLLER.CREATE`** (deprecated **`CHARCONTROLLER.MAKE`** / **`CONTROLLER.MAKE`**); **`MOVE`**, **`ISGROUNDED`** / **`CONTROLLER.GROUNDED`**; **`FREE`** |
 
 **`PHYSICS.SPHERECAST` / `BOXCAST` / `ENABLE` / `DISABLE`:** reserved stubs with messages directing to **`RAYCAST`** / **`BODY3D.ACTIVATE`** / **`DEACTIVATE`**. **`CONTROLLER.JUMP`** is not implemented on this controller yet.
 
@@ -64,7 +64,7 @@ For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plo
 | Intent | MoonBASIC |
 |--------|-----------|
 | Fog color / range | **`FOG.SETCOLOR`**, **`FOG.SETNEAR` / `SETFAR`** or **`FOG.SETRANGE(near, far)`** |
-| Lights | **`LIGHT.MAKE`**, **`LIGHT.SETCOLOR`**, **`LIGHT.SETRANGE`**, cones, … |
+| Lights | **`LIGHT.CREATE`** / typed **`LIGHT.CREATEPOINT`** …, **`LIGHT.SETCOLOR`**, **`LIGHT.SETRANGE`**, cones, … (deprecated: **`LIGHT.MAKE`**) |
 | Skybox | **`RENDER.SETSKYBOX`** (path) — see [rendering docs](../BUILDING.md) / manifest |
 | Material | **`MATERIAL.MAKEDEFAULT`** or **`MATERIAL.CREATE`** (alias) |
 

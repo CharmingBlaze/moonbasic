@@ -5,14 +5,14 @@ WINDOW.OPEN(1280, 720, "MoonBASIC KCC Buoyancy")
 PHYSICS3D.START()
 
 ; Pool floor volume (half 25, 5, 25)
-poolDef = BODY3D.MAKE("STATIC")
+poolDef = BODY3D.CREATE("STATIC")
 BODY3D.ADDBOX(poolDef, 25, 5, 25)
 poolBody = BODY3D.COMMIT(poolDef, 0, -5, 0)
 
 ; Initialize character
 radius = 0.4
 height = 1.8
-char = CHARCONTROLLER.MAKE(0, 5, 0, radius, height)
+char = CHARCONTROLLER.CREATE(0, 5, 0, radius, height)
 
 cam = CAMERA.CREATE()
 CAMERA.SETMODE(cam, 1)
@@ -53,7 +53,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     
     ; Sync camera
     px, py, pz = CHARACTERREF.GETPOSITION(char)
-    CAMERA.SETPOSITION(cam, px, py + 1.6, pz - 8)
+    CAMERA.SETPOS(cam, px, py + 1.6, pz - 8)
     CAMERA.SETTARGET(cam, px, py + 1.2, pz)
     
     RENDER.CLEAR(40, 44, 52)

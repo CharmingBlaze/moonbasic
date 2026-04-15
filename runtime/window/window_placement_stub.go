@@ -7,7 +7,7 @@ import "moonbasic/runtime"
 func (m *Module) registerWindowPlacementCommands(reg runtime.Registrar) {
 	stub := stubFn(stubHint)
 	for _, k := range []string{
-		"WINDOW.SETPOSITION", "WINDOW.SETSIZE",
+		"WINDOW.SETPOS", "WINDOW.SETPOSITION", "WINDOW.SETSIZE",
 		"WINDOW.MINIMIZE", "WINDOW.MAXIMIZE", "WINDOW.RESTORE",
 		"WINDOW.SETTARGETFPS",
 	} {

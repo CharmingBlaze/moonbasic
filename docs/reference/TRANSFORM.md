@@ -44,7 +44,7 @@ Releases the matrix from the heap and frees its memory.
 Window.Open(960, 540, "Transform demo")
 Window.SetFPS(60)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetPos(0, 3, 10)
 cam.SetTarget(0, 0, 0)
 cam.SetFOV(45)

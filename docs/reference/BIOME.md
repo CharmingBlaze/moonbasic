@@ -4,9 +4,9 @@ Lightweight **temperature / humidity** state (`TagBiome`) for driving ambience o
 
 ---
 
-## `Biome.Make()` → handle
+## `Biome.Create(name$)` → handle (canonical; deprecated `Biome.Make()` / `BIOME.MAKE`)
 
-Creates a biome descriptor.
+Creates a biome descriptor (registry **`BIOME.CREATE`**).
 
 ---
 

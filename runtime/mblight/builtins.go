@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -371,6 +372,64 @@ func (m *Module) lightSetIntensity(rt *runtime.Runtime, args ...value.Value) (va
 	}
 	o.intensity = v
 	return value.Nil, nil
+}
+
+func (m *Module) lightGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.GETPOS: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETPOS expects (light)")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.posX, o.posY, o.posZ)
+}
+
+func (m *Module) lightGetDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.GETDIR: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETDIR expects (light)")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.dirX, o.dirY, o.dirZ)
+}
+
+// lightGetColor returns [r, g, b, a] as 0–255 floats (matches LIGHT.SETCOLOR 0–255 / 0–1 inputs).
+func (m *Module) lightGetColor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.GETCOLOR: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETCOLOR expects (light)")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(o.r * 255)
+	arr.Floats[1] = float64(o.g * 255)
+	arr.Floats[2] = float64(o.b * 255)
+	arr.Floats[3] = float64(o.colA * 255)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }
 
 func (m *Module) lightSetPosition(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

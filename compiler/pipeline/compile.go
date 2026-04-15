@@ -38,6 +38,9 @@ type CompileOptions struct {
 
 	// Debug enables verbose output during compilation.
 	Debug bool
+
+	// StrictDeprecated treats deprecated manifest aliases (e.g. *.MAKE, *.SETPOSITION) as compile errors.
+	StrictDeprecated bool
 }
 
 // CompileSource parses, analyzes, and generates code from a string.
@@ -77,8 +80,12 @@ func CompileSourceWithOptions(name, src string, opts CompileOptions) (*opcode.Pr
 
 	// 3. Semantic Analysis
 	an := semantic.DefaultAnalyzer(name, lines)
+	an.StrictDeprecated = opts.StrictDeprecated
 	if err := an.Run(prog); err != nil {
 		return nil, err
+	}
+	for _, w := range an.DeprecationWarnings() {
+		fmt.Fprintf(os.Stderr, "[moonBASIC] Warning: %s\n", w)
 	}
 
 	// 4. Code Generation (passing symbol table if using implicit declaration)
@@ -100,30 +107,62 @@ func CompileFile(path string) (*opcode.Program, error) {
 	return CompileSource(path, string(data))
 }
 
+// CheckOptions configures standalone semantic analysis (check / LSP).
+type CheckOptions struct {
+	StrictDeprecated bool
+}
+
 // CheckFile reads a file from disk and performs only semantic analysis.
 func CheckFile(path string) error {
+	return CheckFileWithOptions(path, CheckOptions{})
+}
+
+// CheckFileWithOptions is like CheckFile with extra semantic options.
+func CheckFileWithOptions(path string, opts CheckOptions) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	return CheckSource(path, string(data))
+	return CheckSourceWithOptions(path, string(data), opts)
 }
 
-// CheckSource performs parsing and semantic analysis only.
-func CheckSource(name, src string) error {
+// CheckSourceWithNotices runs the same analysis as CheckSource and returns deprecation notices.
+// If semantic analysis fails, err is non-nil; notices may still contain entries from code analyzed before the failure.
+func CheckSourceWithNotices(name, src string, opts CheckOptions) ([]semantic.DeprecationNotice, error) {
 	SyncPackageIncludeRoots()
 	ar := arena.NewArena()
 	defer ar.Reset()
 	prog, err := parser.ParseSourceWithArena(name, src, ar)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	prog, err = include.ExpandWithArena(name, prog, ar)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	an := semantic.DefaultAnalyzer(name, parser.SplitLines(src))
-	return an.Run(prog)
+	an.StrictDeprecated = opts.StrictDeprecated
+	if err := an.Run(prog); err != nil {
+		return an.DeprecationNotices(), err
+	}
+	return an.DeprecationNotices(), nil
+}
+
+// CheckSource performs parsing and semantic analysis only.
+func CheckSource(name, src string) error {
+	return CheckSourceWithOptions(name, src, CheckOptions{})
+}
+
+// CheckSourceWithOptions is CheckSource with semantic options.
+func CheckSourceWithOptions(name, src string, opts CheckOptions) error {
+	notices, err := CheckSourceWithNotices(name, src, opts)
+	if opts.StrictDeprecated {
+		return err
+	}
+	for _, n := range notices {
+		fmt.Fprintf(os.Stderr, "[moonBASIC] Warning: %s\n", n.String())
+	}
+	return err
 }
 
 // EncodeMOON serializes a compiled program to MOON container bytes (.mbc).

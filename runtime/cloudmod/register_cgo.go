@@ -11,6 +11,7 @@ import (
 )
 
 func registerCloud(m *Module, r runtime.Registrar) {
+	r.Register("CLOUD.CREATE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cMake(m, rt, args...) })
 	r.Register("CLOUD.MAKE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cMake(m, rt, args...) })
 	r.Register("CLOUD.FREE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cFree(m, rt, args...) })
 	r.Register("CLOUD.UPDATE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cUpdate(m, rt, args...) })

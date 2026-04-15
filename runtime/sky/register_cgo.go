@@ -14,7 +14,8 @@ import (
 )
 
 func registerSky(m *Module, r runtime.Registrar) {
-	r.Register("SKY.MAKE", "sky", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return skyMake(m, rt, args...) })
+	r.Register("SKY.MAKE", "sky", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return skyMake(m, rt, "SKY.MAKE", args...) })
+	r.Register("SKY.CREATE", "sky", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return skyMake(m, rt, "SKY.CREATE", args...) })
 	r.Register("SKY.FREE", "sky", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return skyFree(m, rt, args...) })
 	r.Register("SKY.UPDATE", "sky", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return skyUpdate(m, rt, args...) })
 	r.Register("SKY.DRAW", "sky", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return skyDraw(m, rt, args...) })
@@ -37,9 +38,9 @@ func skyColor(o *SkyObject) rl.Color {
 	return rl.Color{R: r, G: g, B: b, A: 255}
 }
 
-func skyMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func skyMake(m *Module, rt *runtime.Runtime, op string, args ...value.Value) (value.Value, error) {
 	if m.h == nil || len(args) != 0 {
-		return value.Nil, fmt.Errorf("SKY.MAKE expects no arguments")
+		return value.Nil, fmt.Errorf("%s expects no arguments", op)
 	}
 	o := &SkyObject{Time: 0.45}
 	id, err := m.h.Alloc(o)

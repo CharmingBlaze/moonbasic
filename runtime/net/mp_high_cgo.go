@@ -54,6 +54,7 @@ func registerHighLevelNet(m *Module, reg runtime.Registrar) {
 	reg.Register("RPC.CALLSERVER", "rpc", m.rpcCallServer)
 
 	reg.Register("LOBBY.CREATE", "lobby", m.lobbyCreate)
+	reg.Register("LOBBY.MAKE", "lobby", m.lobbyCreate)
 	reg.Register("LOBBY.FREE", "lobby", m.lobbyFree)
 	reg.Register("LOBBY.SETPROPERTY", "lobby", m.lobbySetProperty)
 	reg.Register("LOBBY.SETHOST", "lobby", m.lobbySetHost)
@@ -61,7 +62,7 @@ func registerHighLevelNet(m *Module, reg runtime.Registrar) {
 	reg.Register("LOBBY.FIND", "lobby", m.lobbyFind)
 	reg.Register("LOBBY.GETNAME", "lobby", m.lobbyGetName)
 	reg.Register("LOBBY.JOIN", "lobby", m.lobbyJoin)
-	
+
 	// Professional Shorthands
 	reg.Register("NET.HOST", "net", m.netHost)
 	reg.Register("NET.CONNECT", "net", m.cliConnect)
@@ -225,7 +226,7 @@ func (m *Module) srvStop(rt *runtime.Runtime, args ...value.Value) (value.Value,
 }
 
 func (m *Module) srvOnConnect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		return value.Nil, fmt.Errorf("SERVER.ONCONNECT expects functionName")
+	return value.Nil, fmt.Errorf("SERVER.ONCONNECT expects functionName")
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
 		return value.Nil, err

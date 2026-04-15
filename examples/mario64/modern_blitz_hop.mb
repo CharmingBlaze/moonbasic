@@ -20,14 +20,14 @@ Window.SetFPS(60)
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(60)
 
 hero = Model.CreateCapsule(0.4, 1.0)
 hero.Pos(0, 5, 0)
 hero.Color(255, 60, 60)
 
-CHAR.MAKE(hero, 0.4, 1.0)
+CHAR.CREATE(hero, 0.4, 1.0)
 CHAR.SETSTEP(hero, 0.3)
 CHAR.SETSLOPE(hero, 45.0)
 CHAR.STICK(hero, 0.5)

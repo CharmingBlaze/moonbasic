@@ -12,7 +12,7 @@ WHILE done = 0
             rp = Event.Peer(ev)
             jin = JSON.Parse(raw)
             IF JSON.GetString(jin, "op") = "hello" THEN
-                jout = JSON.Make()
+                jout = JSON.Create()
                 JSON.SetString(jout, "op", "ack")
                 JSON.SetString(jout, "msg", "ok")
                 out$ = JSON.ToString(jout)

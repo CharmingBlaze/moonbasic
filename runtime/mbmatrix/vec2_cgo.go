@@ -15,6 +15,7 @@ import (
 )
 
 func (m *Module) registerVec2(reg runtime.Registrar) {
+	reg.Register("VEC2.CREATE", "vec2", runtime.AdaptLegacy(m.vec2Make))
 	reg.Register("VEC2.MAKE", "vec2", runtime.AdaptLegacy(m.vec2Make))
 	reg.Register("VEC2.FREE", "vec2", runtime.AdaptLegacy(m.vec2Free))
 	reg.Register("VEC2.X", "vec2", runtime.AdaptLegacy(m.vec2X))

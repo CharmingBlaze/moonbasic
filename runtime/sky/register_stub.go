@@ -16,6 +16,7 @@ func registerSky(m *Module, r runtime.Registrar) {
 		}
 	}
 	r.Register("SKY.MAKE", "sky", h("SKY.MAKE"))
+	r.Register("SKY.CREATE", "sky", h("SKY.CREATE"))
 	r.Register("SKY.FREE", "sky", h("SKY.FREE"))
 	r.Register("SKY.UPDATE", "sky", h("SKY.UPDATE"))
 	r.Register("SKY.DRAW", "sky", h("SKY.DRAW"))

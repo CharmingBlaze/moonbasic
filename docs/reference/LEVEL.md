@@ -77,7 +77,7 @@ The VM does not auto-call BASIC functions on collision yet. **`LEVEL.BINDSCRIPT`
 | Command | Status |
 |--------|--------|
 | **`TRIGGER.CREATEFROMENTITY(entity)`** | Not implemented — Jolt sensor-from-mesh still blocked on bindings; use **`ENTITY.SETTRIGGER`** when exposed. |
-| **`LEVEL.OPTIMIZE(entity)`** | Not implemented — static mesh merging / batching is future work; use **`MODEL.MAKEINSTANCED`** for GPU instancing today. |
+| **`LEVEL.OPTIMIZE(entity)`** | Not implemented — static mesh merging / batching is future work; use **`MODEL.CREATEINSTANCED`** (canonical) / **`MODEL.MAKEINSTANCED`** for GPU instancing today. |
 | **`WORLD.SETREFLECTION(entity)`** | Not implemented — reflection probe capture / env map path not wired. |
 
 ---
@@ -86,7 +86,7 @@ The VM does not auto-call BASIC functions on collision yet. **`LEVEL.BINDSCRIPT`
 
 | Command | Purpose |
 |--------|---------|
-| **`ENTITY.INSTANCEGRID(entity, countX, countZ, spacing)`** → **total** | Places **`countX * countZ`** copies on the **XZ** plane: the original entity moves to the first cell; additional cells use **`ENTITY.COPY`** (separate VRAM per copy). For **true** hardware instancing with one draw path, prefer **`MODEL.MAKEINSTANCED`**. |
+| **`ENTITY.INSTANCEGRID(entity, countX, countZ, spacing)`** → **total** | Places **`countX * countZ`** copies on the **XZ** plane: the original entity moves to the first cell; additional cells use **`ENTITY.COPY`** (separate VRAM per copy). For **true** hardware instancing with one draw path, prefer **`MODEL.CREATEINSTANCED`**. |
 
 ---
 
@@ -99,7 +99,7 @@ The VM does not auto-call BASIC functions on collision yet. **`LEVEL.BINDSCRIPT`
 | **`PHYSICS.AUTOCREATE(entity)`** | Not implemented — use **`ENTITY.GETBOUNDS`** + **`BODY3D.ADDBOX`** / **`ADDMESH`**. |
 | **`ENTITY.SETSTATIC(entity, toggle)`** | Marks an entity as static (for **`LEVEL.AUTOCOLLIDE`** or internal culling). |
 | **`ENTITY.SETTRIGGER(entity)`** | Not implemented — sensors pending Jolt exposure. |
-| **`ENTITY.INSTANCE`** | Not implemented — **`MODEL.MAKEINSTANCED`** or **`ENTITY.COPY`** / **`ENTITY.INSTANCEGRID`** (VRAM tradeoff). |
+| **`ENTITY.INSTANCE`** | Not implemented — **`MODEL.CREATEINSTANCED`** / **`MODEL.MAKEINSTANCED`** or **`ENTITY.COPY`** / **`ENTITY.INSTANCEGRID`** (VRAM tradeoff). |
 
 ---
 

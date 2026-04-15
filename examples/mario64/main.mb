@@ -6,7 +6,7 @@ Window.SetFPS(60)
 ; Hide the OS cursor during play; restore before close. See docs/reference/INPUT.md (Cursor).
 CURSOR.HIDE()
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(55)
 
 ; Player: capsule/sphere center (px, py, pz), radius pr

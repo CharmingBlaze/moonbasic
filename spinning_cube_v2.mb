@@ -2,7 +2,7 @@
 WINDOW.OPEN(1280, 720, "MoonBASIC - Spinning Cube Entity")
 WINDOW.SETFPS(60)
 
-cam = CAMERA.MAKE()
+cam = CAMERA.CREATE()
 CAMERA.SETPOS(cam, 0, 3, 10)
 CAMERA.SETTARGET(cam, 0, 0, 0)
 

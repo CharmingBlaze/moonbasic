@@ -162,7 +162,7 @@ Physics3D.Start()
 Physics3D.SetGravity(0, -10, 0)
 
 ; Setup camera
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetPos(0, 10, 20)
 cam.SetTarget(0, 0, 0)
 

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"moonbasic/compiler/ast"
@@ -109,6 +110,60 @@ func TestTypeCheckSetFPSInt(t *testing.T) {
 	a := DefaultAnalyzer("t.mbc", parser.SplitLines("RENDER.SETFPS(60)"))
 	if err := a.Run(prog); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDeprecatedMakeProducesWarning(t *testing.T) {
+	src := "cam = CAMERA.MAKE()\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	if err := a.Run(prog); err != nil {
+		t.Fatal(err)
+	}
+	ws := a.DeprecationWarnings()
+	if len(ws) == 0 {
+		t.Fatal("expected deprecation warning for CAMERA.MAKE")
+	}
+	if !strings.Contains(ws[0], "use CAMERA.CREATE") {
+		t.Fatalf("unexpected warning: %q", ws[0])
+	}
+}
+
+func TestStrictDeprecatedErrorsOnMake(t *testing.T) {
+	src := "CAMERA.MAKE()\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	a.StrictDeprecated = true
+	if err := a.Run(prog); err == nil {
+		t.Fatal("expected strict deprecation error for CAMERA.MAKE")
+	}
+}
+
+func TestDeprecatedSetPositionProducesWarning(t *testing.T) {
+	src := "c = CAMERA.CREATE()\nCAMERA.SETPOSITION(c, 0, 1, 2)\n"
+	prog, err := parser.ParseSource("t.mb", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := DefaultAnalyzer("t.mb", parser.SplitLines(src))
+	if err := a.Run(prog); err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, w := range a.DeprecationWarnings() {
+		if strings.Contains(w, "CAMERA.SETPOSITION") && strings.Contains(w, "CAMERA.SETPOS") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected SETPOSITION deprecation warning, got: %#v", a.DeprecationWarnings())
 	}
 }
 

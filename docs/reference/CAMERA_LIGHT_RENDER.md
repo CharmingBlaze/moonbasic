@@ -8,8 +8,8 @@ moonBASIC uses **`CAMERA.*`** (heap **handles**, not integer IDs), **`LIGHT.*`**
 
 | Concept | moonBASIC |
 |--------|-----------|
-| Create camera | **`CAMERA.CREATE`** or **`CAMERA.MAKE`** / **`CAM`** — returns a **handle** (`Camera3D`). |
-| Set eye position | **`CAMERA.SETPOS`** / **`CAMERA.SETPOSITION`** |
+| Create camera | **`CAMERA.CREATE`** (canonical) or deprecated **`CAMERA.MAKE`** / **`CAM`** — returns a **handle** (`Camera3D`). |
+| Set eye position | **`CAMERA.SETPOS`** (canonical) / deprecated **`CAMERA.SETPOSITION`** |
 | Set look-at target | **`CAMERA.SETTARGET`** / **`CAMERA.LOOKAT`** |
 | Field of view | **`CAMERA.SETFOV`** (vertical FOV in degrees, Raylib-style) |
 | Perspective vs orthographic | **`CAMERA.SETMODE`** — **`0`** / **`"perspective"`** or **`1`** / **`"orthographic"`**; or **`CAMERA.SETPROJECTION`** `(cam, 0\|1)`. |
@@ -29,9 +29,9 @@ See **[CAMERA.md](CAMERA.md)** for orbit, FPS mode, culling, and 2D cameras.
 | Point (omni) | **`LIGHT.CREATEPOINT`** `(x, y, z, r, g, b, energy)` |
 | Directional (sun) | **`LIGHT.CREATEDIRECTIONAL`** `(dx, dy, dz, r, g, b, energy)` — direction is normalized. |
 | Spotlight | **`LIGHT.CREATESPOT`** `(x,y,z, tx,ty,tz, r,g,b, outerConeDeg, energy)` — aim is **position → target**; inner cone is derived. |
-| Generic | **`LIGHT.MAKE`** `("point" \| "directional" \| "spot")` then **`LIGHT.SETPOS`**, **`LIGHT.SETDIR`**, **`LIGHT.SETTARGET`**, cones, **`LIGHT.SETRANGE`**, etc. |
+| Generic | **`LIGHT.CREATE`** `([kind$])` (canonical) or deprecated **`LIGHT.MAKE`**; then **`LIGHT.SETPOS`**, **`LIGHT.SETDIR`**, **`LIGHT.SETTARGET`**, cones, **`LIGHT.SETRANGE`**, etc. |
 | Color | **`LIGHT.SETCOLOR`** — channels **0–1** or **0–255** (same heuristic as elsewhere). |
-| Position | **`LIGHT.SETPOSITION`** / **`LIGHT.SETPOS`** |
+| Position | **`LIGHT.SETPOS`** (canonical) / deprecated **`LIGHT.SETPOSITION`** |
 | On / off | **`LIGHT.ENABLE`** or **`LIGHT.SETSTATE`** `(light, enabled)` |
 | Range | **`LIGHT.SETRANGE`** |
 | Free | **`LIGHT.FREE`** |
@@ -52,7 +52,7 @@ PBR + directional shadows are described in **[LIGHT.md](LIGHT.md)** and the API 
 
 **Sky / environment**
 
-- **Procedural sky (time of day):** **`SKY.MAKE`**, **`SKY.DRAW`**, **`SKY.UPDATE`**, … — see **[SKY.md](SKY.md)**.
+- **Procedural sky (time of day):** **`SKY.CREATE`** (canonical) or deprecated **`SKY.MAKE`**, **`SKY.DRAW`**, **`SKY.UPDATE`**, … — see **[SKY.md](SKY.md)**.
 - **`RENDER.SETSKYBOX`** appears in the manifest for future / asset pipeline use; there is **no** dedicated HDR cubemap loader wired to that name yet. Prefer **`SKY.*`** or load environment data through your content path.
 
 ---

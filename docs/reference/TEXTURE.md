@@ -90,6 +90,6 @@ TEXTURE.FREE(tex)
 
 ## See also
 
-- [IMAGE.md](IMAGE.md) — `IMAGE.MAKE`, `IMAGE.COPY`, export.
+- [IMAGE.md](IMAGE.md) — **`IMAGE.CREATE`** / deprecated **`IMAGE.MAKE`**, `IMAGE.COPY`, export.
 - [DRAW2D.md](DRAW2D.md) — `Draw.Texture*`, rectangles.
 - [RENDER.md](RENDER.md) — `Render.Clear`, `Render.Frame`.

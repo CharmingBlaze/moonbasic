@@ -364,7 +364,7 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 
 	tag := obj.TypeTag()
 	typeName := obj.TypeName()
-	key, prepend, mapped := handleCallBuiltin(tag, methodName)
+	key, prepend, mapped := handleCallDispatch(tag, methodName, argCount)
 	var callArgs []value.Value
 	var callKey string
 	if mapped {

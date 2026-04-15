@@ -78,6 +78,7 @@ func (o *particle2DObj) TypeTag() uint16 { return heap.TagParticle2D }
 func (o *particle2DObj) Free() {}
 
 func (m *Module) registerSpriteExtras(reg runtime.Registrar) {
+	reg.Register("SPRITEGROUP.CREATE", "sprite", m.sgMake)
 	reg.Register("SPRITEGROUP.MAKE", "sprite", m.sgMake)
 	reg.Register("SPRITEGROUP.ADD", "sprite", m.sgAdd)
 	reg.Register("SPRITEGROUP.REMOVE", "sprite", m.sgRemove)
@@ -85,23 +86,27 @@ func (m *Module) registerSpriteExtras(reg runtime.Registrar) {
 	reg.Register("SPRITEGROUP.DRAW", "sprite", m.sgDraw)
 	reg.Register("SPRITEGROUP.FREE", "sprite", m.sgFree)
 
-	reg.Register("SPRITELAYER.MAKE", "sprite", m.slMake)
+	reg.Register("SPRITELAYER.MAKE", "sprite", m.slMakeDeprecated)
+	reg.Register("SPRITELAYER.CREATE", "sprite", m.slCreate)
 	reg.Register("SPRITELAYER.ADD", "sprite", m.slAdd)
 	reg.Register("SPRITELAYER.CLEAR", "sprite", m.slClear)
 	reg.Register("SPRITELAYER.SETZ", "sprite", m.slSetZ)
 	reg.Register("SPRITELAYER.DRAW", "sprite", m.slDraw)
 	reg.Register("SPRITELAYER.FREE", "sprite", m.slFree)
 
-	reg.Register("SPRITEBATCH.MAKE", "sprite", m.sbMake)
+	reg.Register("SPRITEBATCH.MAKE", "sprite", m.sbMakeDeprecated)
+	reg.Register("SPRITEBATCH.CREATE", "sprite", m.sbCreate)
 	reg.Register("SPRITEBATCH.ADD", "sprite", m.sbAdd)
 	reg.Register("SPRITEBATCH.CLEAR", "sprite", m.sbClear)
 	reg.Register("SPRITEBATCH.DRAW", "sprite", m.sbDraw)
 	reg.Register("SPRITEBATCH.FREE", "sprite", m.sbFree)
 
+	reg.Register("SPRITEUI.CREATE", "sprite", m.suiMake)
 	reg.Register("SPRITEUI.MAKE", "sprite", m.suiMake)
 	reg.Register("SPRITEUI.DRAW", "sprite", m.suiDraw)
 	reg.Register("SPRITEUI.FREE", "sprite", m.suiFree)
 
+	reg.Register("PARTICLE2D.CREATE", "sprite", m.p2Make)
 	reg.Register("PARTICLE2D.MAKE", "sprite", m.p2Make)
 	reg.Register("PARTICLE2D.EMIT", "sprite", m.p2Emit)
 	reg.Register("PARTICLE2D.UPDATE", "sprite", m.p2Update)
@@ -224,17 +229,25 @@ func (m *Module) sgFree(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.Nil, m.h.Free(heap.Handle(args[0].IVal))
 }
 
-func (m *Module) slMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) slCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return m.slMakeWithOp(rt, args, "SPRITELAYER.CREATE")
+}
+
+func (m *Module) slMakeDeprecated(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return m.slMakeWithOp(rt, args, "SPRITELAYER.MAKE")
+}
+
+func (m *Module) slMakeWithOp(rt *runtime.Runtime, args []value.Value, op string) (value.Value, error) {
 	_ = rt
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("SPRITELAYER.MAKE expects (z)")
+		return value.Nil, fmt.Errorf("%s expects (z)", op)
 	}
 	z, ok := argF(args[0])
 	if !ok {
-		return value.Nil, fmt.Errorf("SPRITELAYER.MAKE: z must be numeric")
+		return value.Nil, fmt.Errorf("%s: z must be numeric", op)
 	}
 	if m.h == nil {
-		return value.Nil, runtime.Errorf("SPRITELAYER.MAKE: heap not bound")
+		return value.Nil, runtime.Errorf("%s: heap not bound", op)
 	}
 	o := &spriteLayerObj{z: z}
 	id, err := m.h.Alloc(o)
@@ -342,13 +355,21 @@ func (m *Module) slFree(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	return value.Nil, m.h.Free(heap.Handle(args[0].IVal))
 }
 
-func (m *Module) sbMake(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+func (m *Module) sbCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return m.sbMakeWithOp(rt, args, "SPRITEBATCH.CREATE")
+}
+
+func (m *Module) sbMakeDeprecated(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	return m.sbMakeWithOp(rt, args, "SPRITEBATCH.MAKE")
+}
+
+func (m *Module) sbMakeWithOp(rt *runtime.Runtime, args []value.Value, op string) (value.Value, error) {
 	_ = rt
 	if len(args) != 0 {
-		return value.Nil, fmt.Errorf("SPRITEBATCH.MAKE expects 0 arguments")
+		return value.Nil, fmt.Errorf("%s expects 0 arguments", op)
 	}
 	if m.h == nil {
-		return value.Nil, runtime.Errorf("SPRITEBATCH.MAKE: heap not bound")
+		return value.Nil, runtime.Errorf("%s: heap not bound", op)
 	}
 	o := &spriteBatchObj{}
 	id, err := m.h.Alloc(o)

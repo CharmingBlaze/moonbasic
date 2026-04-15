@@ -10,13 +10,13 @@ Implemented in **`runtime/mbgame/timers.go`** and **`runtime/mbgame/timer_sim.go
 - **`TIMER.FINISHED(timer)`** — **`TRUE`** after the deadline (wall timers only; use **`TIMER.DONE`** for sim).
 - **`TIMER.FREE(timer)`** — frees the handle.
 
-## Simulation timers (`TIMER.MAKE`)
+## Simulation timers (`TIMER.CREATE` / deprecated `TIMER.MAKE`)
 
 Delta-time driven (game time), not tied to **`time.Now`**:
 
 | Command | Role |
 |---------|------|
-| **`TIMER.MAKE(duration)`** | Create a stopped timer with a **duration** in seconds. |
+| **`TIMER.CREATE(duration)`** (canonical) / **`TIMER.MAKE(duration)`** (deprecated) | Create a stopped timer with a **duration** in seconds. |
 | **`TIMER.START(timer)`** | Start from zero. |
 | **`TIMER.STOP(timer)`** | Pause advancement. |
 | **`TIMER.REWIND(timer)`** | Reset **`elapsed`** to zero. |
@@ -25,7 +25,7 @@ Delta-time driven (game time), not tied to **`time.Now`**:
 | **`TIMER.DONE(timer)`** | **`TRUE`** for **one** call when a cycle completes (edge-triggered). |
 | **`TIMER.FRACTION(timer)`** | **`elapsed/duration`**, clamped to **`0..1`**. |
 
-**`TIMER.REMAINING`** accepts **either** a wall **`TIMER.NEW`** handle **or** a **`TIMER.MAKE`** handle (remaining sim time = **`duration − elapsed`**).
+**`TIMER.REMAINING`** accepts **either** a wall **`TIMER.NEW`** handle **or** a sim **`TIMER.CREATE`** / **`TIMER.MAKE`** handle (remaining sim time = **`duration − elapsed`**).
 
 ## Related
 

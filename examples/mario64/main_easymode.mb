@@ -19,7 +19,7 @@ WORLD.FOGCOLOR(55, 65, 120)
 WORLD.FOGDENSITY(0.05)   ; Atmospheric thickness
 
 ; 1b. Navigation System Initialization
-nav = NAV.MAKE()
+nav = NAV.CREATE()
 nav.SetGrid(60, 60, 0.5, -15, -15) ; 30x30 area
 nav.Build()                          ; Auto-scan static world
 
@@ -29,7 +29,7 @@ SCALENT(guardianEnt, 0.6, 1.2, 0.6)
 ENTITYCOLOR(guardianEnt, 255, 100, 100, 255)
 POSENT(guardianEnt, 8, 3, 8) ; Place on Step 1
 
-agent = NAVAGENT.MAKE(nav)
+agent = NAVAGENT.CREATE(nav)
 agent.SetPos(8, 3, 8)
 agent.SetSpeed(3.0)
 
@@ -82,27 +82,27 @@ SCALENT(plats(1).ent, 30, 1, 30)
 POSENT(plats(1).ent, 0, 0, 0)
 floorShape = Shape.CreateBox(15, 0.5, 15)
 floorBody = Static.Create(floorShape)
-floorBody.SetPosition(0, 0, 0)
+floorBody.SetPos(0, 0, 0)
 
 plats(2) = Platform(CreateCube(), 150, 150, 255) ; Step 1
 SCALENT(plats(2).ent, 4, 1, 4)
 POSENT(plats(2).ent, 8, 2, 8)
 stepShape = Shape.CreateBox(2, 0.5, 2)
 step1Body = Static.Create(stepShape)
-step1Body.SetPosition(8, 2, 8)
+step1Body.SetPos(8, 2, 8)
 
 plats(3) = Platform(CreateCube(), 255, 150, 150) ; Step 2
 SCALENT(plats(3).ent, 4, 1, 4)
 POSENT(plats(3).ent, 12, 4, 12)
 step2Body = Static.Create(stepShape)
-step2Body.SetPosition(12, 4, 12)
+step2Body.SetPos(12, 4, 12)
 
 plats(4) = Platform(CreateCube(), 255, 255, 100) ; Goal
 SCALENT(plats(4).ent, 6, 1, 6)
 POSENT(plats(4).ent, 16, 6, 16)
 goalShape = Shape.CreateBox(3, 0.5, 3)
 goalBody = Static.Create(goalShape)
-goalBody.SetPosition(16, 6, 16)
+goalBody.SetPos(16, 6, 16)
 ; Batch 6: Set Goal to be semi-transparent
 ENTITYALPHA(plats(4).ent, 0.6)
 

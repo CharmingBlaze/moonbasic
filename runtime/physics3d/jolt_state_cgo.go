@@ -146,6 +146,13 @@ type body3dObj struct {
 	bufferIndex int         // index into sharedMatrixBuffer
 	motion      jolt.MotionType
 	release     heap.ReleaseOnce
+	// Primitive template from COMMIT / SHAPE.CREATE* (qKind 0 = mesh or unknown)
+	qKind      uint8
+	qBox       jolt.Vec3
+	qSphere    float32
+	qCapH      float32
+	qCapR      float32
+	sx, sy, sz float32 // collision scale factors (default 1)
 }
 
 func (b *body3dObj) TypeName() string { return "Body3D" }

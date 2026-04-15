@@ -33,7 +33,7 @@ Physics3D.SetGravity(0, -18.0, 0)
 Physics3D.SetSubsteps(4)
 
 ; Static platform (top surface near y=0)
-floorDef = Body3D.Make("STATIC")
+floorDef = Body3D.Create("STATIC")
 Body3D.AddBox(floorDef, PLAT_HX, PLAT_HY, PLAT_HZ)
 floorBody = Body3D.Commit(floorDef, 0.0, -PLAT_HY, 0.0)
 floorBuf = Body3D.BufferIndex(floorBody)
@@ -104,7 +104,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
                 ; Click-to-world spawn: cast mouse ray against plane y=0 (0*x + 1*y + 0*z + 0 = 0).
                 ; If no plane hit (should be rare), fall back to in-platform random spawn.
                 pickArr = Camera.MouseRay(cam)
-                pickRay = RAY.MAKE(pickArr(1), pickArr(2), pickArr(3), pickArr(4), pickArr(5), pickArr(6))
+                pickRay = RAY.CREATE(pickArr(1), pickArr(2), pickArr(3), pickArr(4), pickArr(5), pickArr(6))
                 sx = (FLOAT(RND(0, 1000)) / 1000.0 - 0.5) * 8.0
                 sz = (FLOAT(RND(0, 1000)) / 1000.0 - 0.5) * 8.0
                 IF RAY.HITPLANE_HIT(pickRay, 0.0, 1.0, 0.0, 0.0) THEN
@@ -114,7 +114,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
                     sz = CLAMP(sz, -PLAT_HZ + BALL_R, PLAT_HZ - BALL_R)
                 ENDIF
                 RAY.FREE(pickRay)
-                bdef = Body3D.Make("DYNAMIC")
+                bdef = Body3D.Create("DYNAMIC")
                 Body3D.AddSphere(bdef, BALL_R)
                 bh = Body3D.Commit(bdef, sx, SPAWN_Y, sz)
                 Body3D.SetRestitution(bh, 0.15)

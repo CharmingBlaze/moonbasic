@@ -21,7 +21,7 @@ TYPE Platform
     R, G, B
 ENDTYPE
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(56)
 
 px = 0.0

@@ -184,7 +184,7 @@ For 3D scenes, wrap your drawing commands in `cam.Begin()` / `cam.End()`:
 Window.Open(960, 540, "3D Cube")
 Window.SetFPS(60)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetPos(0, 3, 8)
 cam.SetTarget(0, 0, 0)
 cam.SetFOV(45)

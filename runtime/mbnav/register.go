@@ -5,6 +5,7 @@ import (
 )
 
 func (m *Module) Register(reg runtime.Registrar) {
+	reg.Register("NAV.CREATE", "nav", runtime.AdaptLegacy(m.navMake))
 	reg.Register("NAV.MAKE", "nav", runtime.AdaptLegacy(m.navMake))
 	reg.Register("NAV.FREE", "nav", runtime.AdaptLegacy(m.navFree))
 	reg.Register("NAV.SETGRID", "nav", runtime.AdaptLegacy(m.navSetGrid))
@@ -26,6 +27,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("PATH.NODEZ", "path", runtime.AdaptLegacy(m.pathNodeZ))
 	reg.Register("PATH.FREE", "path", runtime.AdaptLegacy(m.pathFree))
 
+	reg.Register("NAVAGENT.CREATE", "navagent", runtime.AdaptLegacy(m.agentMake))
 	reg.Register("NAVAGENT.MAKE", "navagent", runtime.AdaptLegacy(m.agentMake))
 	reg.Register("NAVAGENT.FREE", "navagent", runtime.AdaptLegacy(m.agentFree))
 	reg.Register("NAVAGENT.SETPOS", "navagent", runtime.AdaptLegacy(m.agentSetPos))
@@ -38,6 +40,8 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("NAVAGENT.X", "navagent", runtime.AdaptLegacy(m.agentX))
 	reg.Register("NAVAGENT.Y", "navagent", runtime.AdaptLegacy(m.agentY))
 	reg.Register("NAVAGENT.Z", "navagent", runtime.AdaptLegacy(m.agentZ))
+	reg.Register("NAVAGENT.GETPOS", "navagent", runtime.AdaptLegacy(m.agentGetPos))
+	reg.Register("NAVAGENT.GETROT", "navagent", runtime.AdaptLegacy(m.agentGetRot))
 
 	reg.Register("STEER.GROUPMAKE", "steer", runtime.AdaptLegacy(m.steerGroupMake))
 	reg.Register("STEER.GROUPADD", "steer", runtime.AdaptLegacy(m.steerGroupAdd))
@@ -50,6 +54,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("STEER.AVOIDOBSTACLES", "steer", runtime.AdaptLegacy(m.steerAvoidObstacles))
 	reg.Register("STEER.FOLLOWPATH", "steer", runtime.AdaptLegacy(m.steerFollowPath))
 
+	reg.Register("BTREE.CREATE", "btree", runtime.AdaptLegacy(m.btMake))
 	reg.Register("BTREE.MAKE", "btree", runtime.AdaptLegacy(m.btMake))
 	reg.Register("BTREE.FREE", "btree", runtime.AdaptLegacy(m.btFree))
 	reg.Register("BTREE.SEQUENCE", "btree", runtime.AdaptLegacy(m.btSequence))

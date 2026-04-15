@@ -8,7 +8,7 @@ Registry keys use **dots and uppercase** (e.g. `SPRITE.LOAD`). This document use
 
 **Related:** [ATLAS.md](ATLAS.md) (`ATLAS.LOAD`, `ATLAS.GETSPRITE`, `ATLAS.FREE`), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
 
-**Blitz-style “sprite collide”:** there is no separate **`Sprite.Collide`** name — use **`SPRITE.HIT`** / **`SPRITE.POINTHIT`** (bounding-box style tests). For pixel-perfect work, use **`IMAGE.*`** CPU pixels or custom overlap — see table below and [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md).
+**Blitz-style “sprite collide”:** there is no separate **`Sprite.Collide`** name — use **`SPRITE.HIT`** / **`SPRITE.POINTHIT`**. Overlap uses the same **scaled** destination quad, **origin**, and **rotation** as **`SPRITE.DRAW`** (raylib **`DrawTexturePro`**), not a separate axis-aligned box. For pixel-perfect work, use **`IMAGE.*`** CPU pixels or custom overlap — see table below and [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md).
 
 ---
 
@@ -37,10 +37,10 @@ Advances animation frame by time.
 ---
 
 ### `Sprite.Hit(a, b)`
-Returns `TRUE` if two sprites overlap.
+Returns `TRUE` if the two drawn quads overlap (SAT on the four corners; matches **`DrawTexturePro`** geometry).
 
 ### `Sprite.PointHit(handle, x, y)`
-Returns `TRUE` if a pixel is inside the sprite.
+Returns `TRUE` if **`(x, y)`** lies inside that quad in the same coordinate space as **`Sprite.Draw`**’s **`x, y`** plus **`SetPos`** offsets (inverse rotation into local frame size).
 
 ---
 
@@ -68,7 +68,7 @@ Frees the group object (members remain).
 
 | Command | Signature | Notes |
 |---|---|---|
-| `SPRITELAYER.MAKE` | `(z)` → handle | **`z`** stored for your sorting; draw order is under your control. |
+| **`SPRITELAYER.CREATE`** / deprecated `SPRITELAYER.MAKE` | `(z)` → handle | **`z`** stored for your sorting; draw order is under your control. |
 | `SPRITELAYER.ADD` | `(layer, spr)` | |
 | `SPRITELAYER.CLEAR` | `(layer)` | Remove all members. |
 | `SPRITELAYER.SETZ` | `(layer, z)` | Update stored **z**. |
@@ -83,7 +83,7 @@ Records **multiple** **`(sprite, x, y)`** draws; **`SPRITEBATCH.DRAW`** executes
 
 | Command | Notes |
 |---|---|
-| `SPRITEBATCH.MAKE` | `()` → handle |
+| **`SPRITEBATCH.CREATE`** / deprecated `SPRITEBATCH.MAKE` | `()` → handle |
 | `SPRITEBATCH.ADD` | `(batch, spr, x, y)` — **int** positions |
 | `SPRITEBATCH.CLEAR` | `(batch)` |
 | `SPRITEBATCH.DRAW` | `(batch)` |
@@ -96,7 +96,7 @@ Records **multiple** **`(sprite, x, y)`** draws; **`SPRITEBATCH.DRAW`** executes
 Anchored placement using **fractions of screen size** (e.g. **`0.5, 0.5`** = center).
 
 ```basic
-ui = SPRITEUI.MAKE(spr, anchorX, anchorY)
+ui = SPRITEUI.CREATE(spr, anchorX, anchorY)
 SPRITEUI.DRAW(ui, SCREENW(), SCREENH())
 SPRITEUI.FREE(ui)
 ```
@@ -107,7 +107,7 @@ SPRITEUI.FREE(ui)
 
 ## Particle2D.* (simple filled circles)
 
-CPU-side **circles** (no texture). **`PARTICLE2D.MAKE(max, r, g, b, a)`** sets pool size and colour; **`EMIT`** adds particles; **`UPDATE`** integrates velocity and **`life`**; **`DRAW`** renders.
+CPU-side **circles** (no texture). **`PARTICLE2D.CREATE(max, r, g, b, a)`** sets pool size and colour; **`EMIT`** adds particles; **`UPDATE`** integrates velocity and **`life`**; **`DRAW`** renders.
 
 | Command | Arguments |
 |---|---|

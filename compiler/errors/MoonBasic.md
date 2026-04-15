@@ -329,7 +329,7 @@ The programmer chose mixed case — the compiler must accept it.
   Render.SetShadowMapSize(2048)
   Render.SetAmbient(0.1, 0.1, 0.2)
 
-  cam = Camera.Make()
+  cam = CreateCamera()
   cam.SetPos(0, 5, -12)
   cam.SetRot(20, 0, 0)
   cam.SetFOV(75)

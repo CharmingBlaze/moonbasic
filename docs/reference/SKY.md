@@ -4,9 +4,9 @@ Day/night **tinted sky dome** (drawn as a large sphere) with time-of-day in **ho
 
 ---
 
-## `Sky.Make()` → handle
+## `Sky.Create()` / `Sky.Make()` → handle
 
-Creates a sky object with default time and day length.
+**Canonical:** **`SKY.CREATE`**. Deprecated alias: **`SKY.MAKE`**. Creates a sky object with default time and day length.
 
 ---
 

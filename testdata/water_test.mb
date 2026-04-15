@@ -8,7 +8,7 @@ Window.SetFPS(60)
 
 
 
-w = Water.Make(120, 120)
+w = Water.Create(120, 120)
 
 Water.SetPos(w, 0, -2, 0)
 
@@ -28,7 +28,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     Render.Clear(30, 40, 60)
 
-    cam = Camera.Make()
+    cam = CreateCamera()
 
     Camera.SetPos(cam, 0, 8, 18)
 

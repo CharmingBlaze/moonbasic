@@ -298,7 +298,7 @@ func (m *Module) entCreateCameraEasy(args []value.Value) (value.Value, error) {
 	}
 	// Parent is accepted for API parity with Blitz; cameras are heap objects and are not parented to entities yet.
 	_ = args
-	return reg.Call("CAMERA.MAKE", nil)
+	return reg.Call("CAMERA.CREATE", nil)
 }
 
 func (m *Module) entScaleEntity(args []value.Value) (value.Value, error) {

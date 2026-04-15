@@ -14,6 +14,7 @@ import (
 )
 
 func (m *Module) registerBBoxBuiltins(reg runtime.Registrar) {
+	reg.Register("BBOX.CREATE", "collision", runtime.AdaptLegacy(m.bboxMake))
 	reg.Register("BBOX.MAKE", "collision", runtime.AdaptLegacy(m.bboxMake))
 	reg.Register("BBOX.FROMMODEL", "collision", runtime.AdaptLegacy(m.bboxFromModel))
 	reg.Register("BBOX.CHECK", "collision", runtime.AdaptLegacy(m.bboxCheck))

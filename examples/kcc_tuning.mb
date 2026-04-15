@@ -5,26 +5,26 @@ WINDOW.OPEN(1280, 720, "MoonBASIC KCC Tuning")
 PHYSICS3D.START()
 
 ; Ground (half 50, 0.5, 50)
-floorDef = BODY3D.MAKE("STATIC")
+floorDef = BODY3D.CREATE("STATIC")
 BODY3D.ADDBOX(floorDef, 50, 0.5, 50)
 floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
 
 ; Stairs (0.4m steps; half 1, 0.2, 1 per step)
 FOR i = 1 TO 5
-    stepDef = BODY3D.MAKE("STATIC")
+    stepDef = BODY3D.CREATE("STATIC")
     BODY3D.ADDBOX(stepDef, 1, 0.2, 1)
     stepBody = BODY3D.COMMIT(stepDef, 5, i * 0.4 - 0.2, -5 + i)
 NEXT
 
 ; Steep slope placeholder (axis-aligned box; no rotation until SETROTATION exists)
-slopeDef = BODY3D.MAKE("STATIC")
+slopeDef = BODY3D.CREATE("STATIC")
 BODY3D.ADDBOX(slopeDef, 5, 0.25, 5)
 hSlope1 = BODY3D.COMMIT(slopeDef, 5, 1, 5)
 
 ; Initialize character
 radius = 0.4
 height = 1.8
-char = CHARCONTROLLER.MAKE(0, 2, 0, radius, height)
+char = CHARCONTROLLER.CREATE(0, 2, 0, radius, height)
 
 ; Apply professional tuning
 CHARACTERREF.SETSETTING(char, "MAXSLOPE", 50)     ; Cannot climb past 50 deg
@@ -59,7 +59,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     
     ; Sync camera
     px, py, pz = CHARACTERREF.GETPOSITION(char)
-    CAMERA.SETPOSITION(cam, px, py + 1.6, pz - 5)
+    CAMERA.SETPOS(cam, px, py + 1.6, pz - 5)
     CAMERA.SETTARGET(cam, px, py + 1.6, pz + 10)
     
     RENDER.CLEAR(40, 44, 52)

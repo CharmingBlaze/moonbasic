@@ -84,6 +84,7 @@ func argOffset(v value.Value, op string) (int, error) {
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
 	r.Register("MEM.MAKE", "mem", runtime.AdaptLegacy(m.memMake))
+	r.Register("MEM.CREATE", "mem", runtime.AdaptLegacy(m.memCreate))
 	r.Register("MEM.FREE", "mem", runtime.AdaptLegacy(m.memFree))
 	r.Register("MEM.SIZE", "mem", runtime.AdaptLegacy(m.memSize))
 	r.Register("MEM.CLEAR", "mem", runtime.AdaptLegacy(m.memClear))
@@ -108,13 +109,21 @@ func (m *Module) Register(r runtime.Registrar) {
 func (m *Module) Shutdown() {}
 
 func (m *Module) memMake(args []value.Value) (value.Value, error) {
+	return m.memAlloc(args, "MEM.MAKE")
+}
+
+func (m *Module) memCreate(args []value.Value) (value.Value, error) {
+	return m.memAlloc(args, "MEM.CREATE")
+}
+
+func (m *Module) memAlloc(args []value.Value, op string) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
 	if len(args) != 1 {
-		return value.Nil, fmt.Errorf("MEM.MAKE expects 1 argument (size)")
+		return value.Nil, fmt.Errorf("%s expects 1 argument (size)", op)
 	}
-	n, err := argSize(args[0], "MEM.MAKE")
+	n, err := argSize(args[0], op)
 	if err != nil {
 		return value.Nil, err
 	}

@@ -91,6 +91,7 @@ func (m *Module) getTween(args []value.Value, ix int, op string) (*tweenObj, err
 
 // Register implements runtime.Module.
 func (m *Module) Register(reg runtime.Registrar) {
+	reg.Register("TWEEN.CREATE", "tween", runtime.AdaptLegacy(m.twMake))
 	reg.Register("TWEEN.MAKE", "tween", runtime.AdaptLegacy(m.twMake))
 	reg.Register("TWEEN.TO", "tween", m.twTo)
 	reg.Register("TWEEN.THEN", "tween", m.twThen)

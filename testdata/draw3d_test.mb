@@ -1,7 +1,7 @@
 Window.Open(1024, 768, "Draw 3D Test")
 Window.SetFPS(60)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetPos(5, 5, 10)
 cam.SetTarget(0, 0, 0)
 cam.SetFOV(60)

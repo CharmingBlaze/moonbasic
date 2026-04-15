@@ -10,41 +10,41 @@ Physics3D.SetGravity(0, -20.0, 0)
 Physics3D.SetSubsteps(4)
 
 ; --- Floor ---
-bf = Body3D.Make("STATIC")
+bf = Body3D.Create("STATIC")
 Body3D.AddBox(bf, 25, 0.5, 25)
 floor = Body3D.Commit(bf, 0, -0.5, 0)
 Body3D.SetFriction(floor, 0.8)
 
 ; --- Platforms ---
-bp1 = Body3D.Make("STATIC")
+bp1 = Body3D.Create("STATIC")
 Body3D.AddBox(bp1, 3, 0.3, 3)
 plat1 = Body3D.Commit(bp1, 6, 2, 0)
 
-bp2 = Body3D.Make("STATIC")
+bp2 = Body3D.Create("STATIC")
 Body3D.AddBox(bp2, 3, 0.3, 3)
 plat2 = Body3D.Commit(bp2, -4, 4, -5)
 
-bp3 = Body3D.Make("STATIC")
+bp3 = Body3D.Create("STATIC")
 Body3D.AddBox(bp3, 2, 0.3, 2)
 plat3 = Body3D.Commit(bp3, 0, 6, -10)
 
 ; --- Dynamic crate ---
-bc = Body3D.Make("DYNAMIC")
+bc = Body3D.Create("DYNAMIC")
 Body3D.AddBox(bc, 0.5, 0.5, 0.5)
 crate = Body3D.Commit(bc, 3, 5, 0)
 Body3D.SetRestitution(crate, 0.4)
 Body3D.SetDamping(crate, 0.1, 0.2)
 
 ; --- Bouncy ball ---
-bs = Body3D.Make("DYNAMIC")
+bs = Body3D.Create("DYNAMIC")
 Body3D.AddSphere(bs, 0.4)
 ball = Body3D.Commit(bs, -3, 8, 3)
 Body3D.SetRestitution(ball, 0.9)
 Body3D.SetCCD(ball, TRUE)
 
 ; --- KCC Player ---
-player = CharController.Make(0.35, 1.8, 0, 3, 0)
-cam = Camera.Make()
+player = CharController.Create(0.35, 1.8, 0, 3, 0)
+cam = CreateCamera()
 speed = 8.0
 jumpPower = 14.0
 

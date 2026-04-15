@@ -8,8 +8,8 @@ GPU **instancing** draws many copies of one loaded model with **per-instance tra
 
 | Command | Arguments | Returns | Notes |
 |---------|-----------|---------|--------|
-| **`INSTANCE.MAKEINSTANCED`** / **`MODEL.MAKEINSTANCED`** | `path`, `instanceCount` | handle | `LoadModel(path)` then allocate `instanceCount` slots (1…200000). |
-| **`INSTANCE.MAKE`** | `model`, `instanceCount` | handle | Reloads from the **same path** as **`MODEL.LOAD`** (source model must have been loaded from disk). Fails for procedural **`MODEL.MAKE(mesh)`**-only models — use **`MAKEINSTANCED`** with an asset path instead. |
+| **`MODEL.CREATEINSTANCED`** (canonical) / **`MODEL.MAKEINSTANCED`** (deprecated); **`INSTANCE.CREATEINSTANCED`** (canonical) / **`INSTANCE.MAKEINSTANCED`** (deprecated) | `path`, `instanceCount` | handle | `LoadModel(path)` then allocate `instanceCount` slots (1…200000). |
+| **`INSTANCE.CREATE`** (canonical) / **`INSTANCE.MAKE`** (deprecated) | `model`, `instanceCount` | handle | Reloads from the **same path** as **`MODEL.LOAD`** (source model must have been loaded from disk). Fails for procedural **`MODEL.CREATE(mesh)`** / **`MODEL.MAKE(mesh)`**-only models — use **`CREATEINSTANCED`** / **`MAKEINSTANCED`** with an asset path instead. |
 
 ---
 
@@ -19,7 +19,7 @@ Indices are **`0 .. INSTANCE.COUNT(inst)-1`**.
 
 | Command | Arguments | Notes |
 |---------|-----------|--------|
-| **`INSTANCE.SETPOS`** / **`INSTANCE.SETINSTANCEPOS`** / **`MODEL.SETINSTANCEPOS`** | `inst`, `index`, `x`, `y`, `z` | World position. Clears a manual **`SETMATRIX`** for that index. |
+| **`INSTANCE.SETPOS`** / deprecated **`INSTANCE.SETPOSITION`**; **`INSTANCE.SETINSTANCEPOS`** / **`MODEL.SETINSTANCEPOS`** | `inst`, `index`, `x`, `y`, `z` | World position. Clears a manual **`SETMATRIX`** for that index. |
 | **`INSTANCE.SETROT`** | `inst`, `index`, `rx`, `ry`, `rz` | Euler rotation **radians** (same order as **`MatrixRotateXYZ`**). Clears manual matrix for that index. |
 | **`INSTANCE.SETSCALE`** / **`INSTANCE.SETINSTANCESCALE`** / **`MODEL.SETINSTANCESCALE`** | `inst`, `index`, `sx`, `sy`, `sz` | Clears manual matrix for that index. |
 | **`INSTANCE.SETMATRIX`** | `inst`, `index`, `mat` | **`Matrix4`** handle — full row-major transform for that instance. **Manual** mode: **`UPDATEBUFFER`** / **`UPDATEINSTANCES`** skips that index until **`SETPOS`**, **`SETROT`**, or **`SETSCALE`** clears it. |
@@ -52,10 +52,13 @@ Indices are **`0 .. INSTANCE.COUNT(inst)-1`**.
 
 `inst.Method(...)` maps to **`INSTANCE.*`** keys (prefix **`INSTANCE.`**). Examples:
 
+- **`inst.pos()`** / **`inst.rot()`** / **`inst.scale()`** with **no arguments** → **`INSTANCE.GETPOS`** / **`GETROT`** / **`GETSCALE`** (transform of **instance index 0**; use **`INSTANCE.SETINSTANCEPOS`** / **`INSTANCE.SETROT`** / **`SETSCALE`** with an index for other slots)
 - **`inst.SetPos`** / **`Instance.SetPos`** → **`INSTANCE.SETPOS`**
 - **`inst.Draw`** → **`MODEL.DRAW`** (shared draw path)
 - **`inst.DrawLOD mesh, dist`** → **`INSTANCE.DRAWLOD`**
 - **`inst.Free`** → **`INSTANCE.FREE`**
+
+See [UNIVERSAL_HANDLE_METHODS.md](UNIVERSAL_HANDLE_METHODS.md).
 
 ---
 

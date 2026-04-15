@@ -4,9 +4,9 @@
 
 ---
 
-## `Cloud.Make()` → handle
+## `Cloud.Create()` → handle (canonical; deprecated `Cloud.Make()` / `CLOUD.MAKE`)
 
-Creates a cloud layer object.
+Creates a cloud layer object (registry **`CLOUD.CREATE`**).
 
 ---
 

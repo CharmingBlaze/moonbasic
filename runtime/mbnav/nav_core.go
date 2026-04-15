@@ -175,6 +175,16 @@ func (a *navAgentObj) Free() {
 	a.way = nil
 }
 
+// movementDirection returns world-space direction for facing: toward the active
+// waypoint while pathing, otherwise the stored velocity (steering integration).
+func (a *navAgentObj) movementDirection() (dx, dy, dz float64) {
+	if len(a.way) > 0 && a.wayIdx < len(a.way) {
+		t := a.way[a.wayIdx]
+		return t.x - a.x, t.y - a.y, t.z - a.z
+	}
+	return a.vx, a.vy, a.vz
+}
+
 type steerGroupObj struct {
 	agents []heap.Handle
 }

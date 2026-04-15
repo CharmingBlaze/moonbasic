@@ -9,7 +9,7 @@ For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound, Jolt on desktop
 ## Core workflow
 
 1. **`PHYSICS3D.START()`** (or **`WORLD.SETUP()`**) and set world gravity as needed.
-2. **`CHARCONTROLLER.MAKE(radius#, height#, x#, y#, z#)`** → controller **handle**.
+2. **`CHARCONTROLLER.CREATE(radius#, height#, x#, y#, z#)`** → controller **handle**.
 3. Each frame: input → **`CHARCONTROLLER.MOVE(handle, dx#, dy#, dz#)`** (or velocity-driven workflows via **`CHARACTERREF.*`** on Linux when bound to the same backing capsule).
 4. Sync visuals: **`CHARCONTROLLER.GETPOS`**, **`CHARCONTROLLER.X` / `.Y` / `.Z`**, or **`CHARCONTROLLER.GETLINEARVEL`** / ground helpers below.
 5. **`CHARCONTROLLER.FREE(handle)`** when done.
@@ -20,7 +20,7 @@ For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound, Jolt on desktop
 
 | Command | Notes |
 |--------|--------|
-| **`CHARCONTROLLER.MAKE(radius#, height#, x#, y#, z#)`** | Capsule at world position; returns **handle**. Linux+Jolt requires an active **`PHYSICS3D`** session (`CHARCONTROLLER: PHYSICS3D not started` otherwise). |
+| **`CHARCONTROLLER.CREATE(radius#, height#, x#, y#, z#)`** | Capsule at world position; returns **handle**. Linux+Jolt requires an active **`PHYSICS3D`** session (`CHARCONTROLLER: PHYSICS3D not started` otherwise). |
 | **`CHARCONTROLLER.FREE(handle)`** | Releases heap slot; Linux tears down Jolt **`CharacterVirtual`** safely before physics shutdown. |
 
 ---
@@ -29,7 +29,7 @@ For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound, Jolt on desktop
 
 | Command | Notes |
 |--------|--------|
-| **`CHARCONTROLLER.SETPOS(handle, x#, y#, z#)`** / **`CHARCONTROLLER.SETPOSITION(...)`** | Alias pair: set world position (then internal update). |
+| **`CHARCONTROLLER.SETPOS(handle, x#, y#, z#)`** (canonical); deprecated **`CHARCONTROLLER.SETPOSITION`** | Set world position (then internal update). |
 | **`CHARCONTROLLER.MOVE(handle, dx#, dy#, dz#)`** | Apply displacement; collisions resolved via Jolt extended update (Linux) or stub slide (other OS). |
 | **`CHARCONTROLLER.TELEPORT(handle, x#, y#, z#)`** | Snap to position and **clear linear velocity** (useful for spawn / cutscenes). |
 | **`CHARCONTROLLER.GETPOS(handle)`** | **Array handle** `[x, y, z]`. |
@@ -62,7 +62,7 @@ Physics3D.Start()
 Physics3D.SetGravity(0, -10, 0)
 
 ; Setup camera and floor
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetTarget(0, 5, 0)
 floor_def = Body3D.Make("static")
 Body3D.AddBox(floor_def, 100, 1, 100)
@@ -71,7 +71,7 @@ floor_mesh = Mesh.MakeCube(100, 1, 100)
 mat = Material.MakeDefault()
 
 ; 2. Create Controller
-player = CHARCONTROLLER.MAKE(0.5, 2.0, 0, 5, 0)
+player = CHARCONTROLLER.CREATE(0.5, 2.0, 0, 5, 0)
 player_mesh = Mesh.MakeCapsule(0.5, 2.0, 16, 16)
 
 WHILE NOT Window.ShouldClose()

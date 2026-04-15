@@ -12,11 +12,14 @@ Blitz3D-style **`Camera.Turn`**, **`Rotate`**, **`Orbit`**, **`Zoom`**, **`Follo
 
 ## 3D camera (`Camera.*`)
 
-### `Camera.Make()`
-Creates a default perspective camera. Returns a **handle** (`Camera3D`).
+### `CreateCamera()` / **`CAMERA.CREATE()`**
+Easy Mode **`CreateCamera()`** forwards to **`CAMERA.CREATE`** (same defaults as below). Prefer this or the registry call to avoid deprecated **`CAMERA.MAKE`**.
+
+### `Camera.Make()` (deprecated)
+Same as **`CAMERA.CREATE`**; the compiler warns — prefer **`CreateCamera()`** or **`CAMERA.CREATE()`**. Creates a default perspective camera. Returns a **handle** (`Camera3D`).
 
 ### `Cam()` / `CAM()`
-Aliases of **`Camera.Make()`**. Short Blitz-style names.
+Aliases of **`Camera.Make()`** / **`CAMERA.CREATE`**. Short Blitz-style names.
 
 ### `Camera.SetPos(handle, x, y, z)`
 Sets the camera **eye** position in world space.
@@ -107,7 +110,7 @@ Simpler **third-person** placement: camera stays at fixed world height **`camera
 
 ### `Camera.GetRay(camera, screenX, screenY)`
 
-Screen-space to world **ray** for the **current render size**. Returns a **handle** to a **6-float array**: origin `(x,y,z)` then direction `(dx,dy,dz)`. Use with `Draw3D.Ray`, **`RAY.MAKE`** with the same six components, or **`RAY.HITSPHERE_*`** / other **`RAY.HIT*_*`** queries — see **[RAYCAST.md](RAYCAST.md)**.
+Screen-space to world **ray** for the **current render size**. Returns a **handle** to a **6-float array**: origin `(x,y,z)` then direction `(dx,dy,dz)`. Use with `Draw3D.Ray`, **`RAY.CREATE`** (canonical) or deprecated **`RAY.MAKE`** with the same six components, or **`RAY.HITSPHERE_*`** / other **`RAY.HIT*_*`** queries — see **[RAYCAST.md](RAYCAST.md)**.
 
 ### `Camera.GetViewRay(screenX, screenY, camera, width, height)`
 

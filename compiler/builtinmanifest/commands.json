@@ -451,7 +451,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "Alias of CURVE \u00e2\u20ac\u201d current + (target-current)/divisor (divisor clamped to >= 1)"
+      "description": "Alias of CURVE — current + (target-current)/divisor (divisor clamped to >= 1)"
     },
     {
       "key": "MOVE.TOWARD",
@@ -461,7 +461,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "Alias of MATH.APPROACH \u00e2\u20ac\u201d move current toward target by at most maxDelta without overshooting"
+      "description": "Alias of MATH.APPROACH — move current toward target by at most maxDelta without overshooting"
     },
     {
       "key": "MOVE.LERP",
@@ -950,7 +950,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "Same as MOVEX(yaw,f,s)*speed*dt \u00e2\u20ac\u201d world X delta this frame"
+      "description": "Same as MOVEX(yaw,f,s)*speed*dt — world X delta this frame"
     },
     {
       "key": "MOVESTEPZ",
@@ -962,7 +962,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "Same as MOVEZ(yaw,f,s)*speed*dt \u00e2\u20ac\u201d world Z delta this frame"
+      "description": "Same as MOVEZ(yaw,f,s)*speed*dt — world Z delta this frame"
     },
     {
       "key": "MATH.NEWX",
@@ -972,7 +972,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "currentX + MOVEX(yaw,1,0)*dist \u00e2\u20ac\u201d yaw in radians (XZ forward step)"
+      "description": "currentX + MOVEX(yaw,1,0)*dist — yaw in radians (XZ forward step)"
     },
     {
       "key": "MATH.NEWZ",
@@ -982,7 +982,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "currentZ + MOVEZ(yaw,1,0)*dist \u00e2\u20ac\u201d yaw in radians"
+      "description": "currentZ + MOVEZ(yaw,1,0)*dist — yaw in radians"
     },
     {
       "key": "FIX",
@@ -1058,7 +1058,7 @@
         "any"
       ],
       "returns": "int",
-      "description": "Same as RND(min, max) \u00e2\u20ac\u201d inclusive integer range"
+      "description": "Same as RND(min, max) — inclusive integer range"
     },
     {
       "key": "MATH.RAND",
@@ -1086,7 +1086,7 @@
         "any"
       ],
       "returns": "int",
-      "description": "Inclusive int range \u00e2\u20ac\u201d same as RND(lo, hi)"
+      "description": "Inclusive int range — same as RND(lo, hi)"
     },
     {
       "key": "RNDF",
@@ -2112,7 +2112,7 @@
       "args": [
         "handle"
       ],
-      "description": "Alias of POST.ADDSHADER \u00e2\u20ac\u201d full-screen post shader for the render pipeline"
+      "description": "Alias of POST.ADDSHADER — full-screen post shader for the render pipeline"
     },
     {
       "key": "WINDOW.WIDTH",
@@ -2150,11 +2150,19 @@
       "phase": "rendering"
     },
     {
-      "key": "WINDOW.SETPOSITION",
+      "key": "WINDOW.SETPOS",
       "args": [
         "int",
         "int"
       ]
+    },
+    {
+      "key": "WINDOW.SETPOSITION",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "Deprecated alias of WINDOW.SETPOS — set window client-area position in screen pixels"
     },
     {
       "key": "WINDOW.SETSIZE",
@@ -2305,7 +2313,7 @@
       ],
       "returns": "handle",
       "phase": "any",
-      "description": "MOVESTEPX/Z combined \u00e2\u20ac\u201d 2-float array [dx,dz]; ERASE when done"
+      "description": "MOVESTEPX/Z combined — 2-float array [dx,dz]; ERASE when done"
     },
     {
       "key": "GAME.MX",
@@ -2633,7 +2641,7 @@
         "float",
         "float"
       ],
-      "description": "Fog RGB, near, far, density \u00e2\u20ac\u201d FOG.* + WORLD.FOGDENSITY"
+      "description": "Fog RGB, near, far, density — FOG.* + WORLD.FOGDENSITY"
     },
     {
       "key": "RENDER.SETBLOOM",
@@ -2697,7 +2705,7 @@
         "handle"
       ],
       "phase": "rendering",
-      "description": "Alias for CAMERA.BEGIN: 3D camera handle (heap) from CAMERA.MAKE / CreateCamera"
+      "description": "Alias for CAMERA.BEGIN: 3D camera heap handle from CAMERA.CREATE or CreateCamera (deprecated alias CAMERA.MAKE)"
     },
     {
       "key": "RENDER.END3D",
@@ -2811,12 +2819,6 @@
       "key": "RENDER.SETMSAA",
       "args": [
         "bool"
-      ]
-    },
-    {
-      "key": "RENDER.SETSHADOWMAPSIZE",
-      "args": [
-        "int"
       ]
     },
     {
@@ -3060,7 +3062,7 @@
       ]
     },
     {
-      "key": "DECAL.MAKE",
+      "key": "DECAL.CREATE",
       "args": [
         "handle"
       ],
@@ -3103,7 +3105,7 @@
       ]
     },
     {
-      "key": "NAV.MAKE",
+      "key": "NAV.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -3201,7 +3203,7 @@
       "description": "Moves an entity along a PATH handle toward waypoints at speed (world units/sec)"
     },
     {
-      "key": "NOISE.MAKE",
+      "key": "NOISE.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "any"
@@ -3405,7 +3407,7 @@
       "phase": "any"
     },
     {
-      "key": "NOISE.MAKEPERLIN",
+      "key": "NOISE.CREATEPERLIN",
       "args": [
         "int",
         "float"
@@ -3414,7 +3416,7 @@
       "phase": "any"
     },
     {
-      "key": "NOISE.MAKESIMPLEX",
+      "key": "NOISE.CREATESIMPLEX",
       "args": [
         "int",
         "float"
@@ -3423,7 +3425,7 @@
       "phase": "any"
     },
     {
-      "key": "NOISE.MAKEFRACTAL",
+      "key": "NOISE.CREATEFRACTAL",
       "args": [
         "int",
         "float",
@@ -3434,7 +3436,7 @@
       "phase": "any"
     },
     {
-      "key": "NOISE.MAKECELLULAR",
+      "key": "NOISE.CREATECELLULAR",
       "args": [
         "int",
         "float",
@@ -3444,7 +3446,7 @@
       "phase": "any"
     },
     {
-      "key": "NOISE.MAKEDOMAINWARP",
+      "key": "NOISE.CREATEDOMAINWARP",
       "args": [
         "int",
         "float",
@@ -3498,7 +3500,7 @@
       ]
     },
     {
-      "key": "NAVAGENT.MAKE",
+      "key": "NAVAGENT.CREATE",
       "args": [
         "handle"
       ],
@@ -3509,6 +3511,21 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "NAVAGENT.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array"
+    },
+    {
+      "key": "NAVAGENT.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Approximate [pitch,yaw,roll] (radians) from path waypoint tangent or steering velocity"
     },
     {
       "key": "NAVAGENT.SETPOS",
@@ -3672,7 +3689,7 @@
       "returns": "handle"
     },
     {
-      "key": "BTREE.MAKE",
+      "key": "BTREE.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -3718,30 +3735,30 @@
       ]
     },
     {
-      "key": "CAMERA.MAKE",
+      "key": "CAMERA.CREATE",
       "args": []
     },
     {
       "key": "CAM",
       "args": [],
       "returns": "handle",
-      "description": "Alias of CAMERA.MAKE \u00e2\u20ac\u201d short Blitz-style 3D camera constructor"
+      "description": "Short Blitz-style camera alias; same as CAMERA.CREATE (deprecated name: CAMERA.MAKE)"
     },
     {
       "key": "CAMERA.CREATE",
       "args": [],
       "returns": "handle",
-      "description": "Alias of CAMERA.MAKE \u00e2\u20ac\u201d returns a Camera3D handle"
+      "description": "Returns a Camera3D heap handle (canonical; deprecated alias: CAMERA.MAKE)"
     },
     {
-      "key": "LIGHT.MAKE",
+      "key": "LIGHT.CREATE",
       "args": [
         "string"
       ],
       "returns": "handle"
     },
     {
-      "key": "LIGHT.MAKE",
+      "key": "LIGHT.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -3757,7 +3774,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Point light at (x,y,z) with RGB (0\u00e2\u20ac\u201c255 or 0\u00e2\u20ac\u201c1) and intensity (energy)"
+      "description": "Point light at (x,y,z) with RGB (0–255 or 0–1) and intensity (energy)"
     },
     {
       "key": "LIGHT.CREATEDIRECTIONAL",
@@ -3771,7 +3788,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Directional light: direction vector (dx,dy,dz), RGB, energy \u00e2\u20ac\u201d direction is normalized"
+      "description": "Directional light: direction vector (dx,dy,dz), RGB, energy — direction is normalized"
     },
     {
       "key": "LIGHT.CREATESPOT",
@@ -3839,6 +3856,27 @@
       "args": [
         "handle"
       ]
+    },
+    {
+      "key": "LIGHT.GETDIR",
+      "args": [
+        "handle"
+      ],
+      "returns": "array"
+    },
+    {
+      "key": "LIGHT.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array"
+    },
+    {
+      "key": "LIGHT.GETCOLOR",
+      "args": [
+        "handle"
+      ],
+      "returns": "array"
     },
     {
       "key": "LIGHT.SETCOLOR",
@@ -3944,7 +3982,7 @@
       "returns": "int"
     },
     {
-      "key": "TERRAIN.MAKE",
+      "key": "TERRAIN.CREATE",
       "args": [
         "int",
         "int"
@@ -3957,7 +3995,7 @@
       ]
     },
     {
-      "key": "MODEL.MAKE",
+      "key": "MODEL.CREATE",
       "args": [
         "handle"
       ],
@@ -4151,7 +4189,7 @@
       "phase": "rendering"
     },
     {
-      "key": "MODEL.MAKEINSTANCED",
+      "key": "MODEL.CREATEINSTANCED",
       "args": [
         "string",
         "int"
@@ -4185,7 +4223,7 @@
       ]
     },
     {
-      "key": "INSTANCE.MAKEINSTANCED",
+      "key": "INSTANCE.CREATEINSTANCED",
       "args": [
         "string",
         "int"
@@ -4219,7 +4257,7 @@
       ]
     },
     {
-      "key": "INSTANCE.MAKE",
+      "key": "INSTANCE.CREATE",
       "args": [
         "handle",
         "int"
@@ -4294,6 +4332,30 @@
         "handle"
       ],
       "returns": "int"
+    },
+    {
+      "key": "INSTANCE.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "INSTANCE.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "INSTANCE.GETSCALE",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
     },
     {
       "key": "INSTANCE.FREE",
@@ -4459,6 +4521,13 @@
     },
     {
       "key": "MODEL.GETPARENT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "MODEL.GETPOS",
       "args": [
         "handle"
       ],
@@ -4668,7 +4737,7 @@
       "returns": "float"
     },
     {
-      "key": "PARTICLE.MAKE",
+      "key": "PARTICLE.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "rendering"
@@ -4763,6 +4832,30 @@
         "float",
         "float"
       ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.GETCOLOR",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE.GETALPHA",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
       "phase": "rendering"
     },
     {
@@ -4920,7 +5013,7 @@
       "phase": "rendering"
     },
     {
-      "key": "PARTICLE3D.MAKE",
+      "key": "PARTICLE3D.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "rendering"
@@ -4930,6 +5023,30 @@
       "args": [
         "handle"
       ],
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.GETCOLOR",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "PARTICLE3D.GETALPHA",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
       "phase": "rendering"
     },
     {
@@ -5543,7 +5660,7 @@
       "phase": "rendering"
     },
     {
-      "key": "RENDERTARGET.MAKE",
+      "key": "RENDERTARGET.CREATE",
       "args": [
         "int",
         "int"
@@ -5579,14 +5696,14 @@
       "phase": "rendering"
     },
     {
-      "key": "MESH.MAKEPOLY",
+      "key": "MESH.CREATEPOLY",
       "args": [
         "int",
         "float"
       ]
     },
     {
-      "key": "MESH.MAKEPLANE",
+      "key": "MESH.CREATEPLANE",
       "args": [
         "float",
         "float",
@@ -5603,10 +5720,10 @@
         "int"
       ],
       "returns": "handle",
-      "description": "Alias of MESH.MAKEPLANE \u00e2\u20ac\u201d procedural plane mesh handle"
+      "description": "Alias of MESH.MAKEPLANE — procedural plane mesh handle"
     },
     {
-      "key": "MESH.MAKECUBE",
+      "key": "MESH.CREATECUBE",
       "args": [
         "float",
         "float",
@@ -5614,7 +5731,7 @@
       ]
     },
     {
-      "key": "MESH.MAKESPHERE",
+      "key": "MESH.CREATESPHERE",
       "args": [
         "float",
         "int",
@@ -5642,7 +5759,7 @@
       "description": "Alias of MESH.MAKESPHERE"
     },
     {
-      "key": "MESH.MAKECYLINDER",
+      "key": "MESH.CREATECYLINDER",
       "args": [
         "float",
         "float",
@@ -5650,7 +5767,7 @@
       ]
     },
     {
-      "key": "MESH.MAKECONE",
+      "key": "MESH.CREATECONE",
       "args": [
         "float",
         "float",
@@ -5658,16 +5775,7 @@
       ]
     },
     {
-      "key": "MESH.MAKETORUS",
-      "args": [
-        "float",
-        "float",
-        "int",
-        "int"
-      ]
-    },
-    {
-      "key": "MESH.MAKEKNOT",
+      "key": "MESH.CREATETORUS",
       "args": [
         "float",
         "float",
@@ -5676,7 +5784,16 @@
       ]
     },
     {
-      "key": "MESH.MAKEHEIGHTMAP",
+      "key": "MESH.CREATEKNOT",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "MESH.CREATEHEIGHTMAP",
       "args": [
         "handle",
         "float",
@@ -5685,7 +5802,7 @@
       ]
     },
     {
-      "key": "MESH.MAKECUBICMAP",
+      "key": "MESH.CREATECUBICMAP",
       "args": [
         "handle",
         "float",
@@ -5892,7 +6009,7 @@
       "returns": "handle"
     },
     {
-      "key": "MESH.MAKECAPSULE",
+      "key": "MESH.CREATECAPSULE",
       "args": [
         "float",
         "float",
@@ -5901,7 +6018,7 @@
       ]
     },
     {
-      "key": "MESH.MAKECUSTOM",
+      "key": "MESH.CREATECUSTOM",
       "args": [
         "handle",
         "handle"
@@ -5966,7 +6083,7 @@
       ]
     },
     {
-      "key": "MATERIAL.MAKEDEFAULT",
+      "key": "MATERIAL.CREATEDEFAULT",
       "args": []
     },
     {
@@ -5975,7 +6092,7 @@
       "returns": "handle"
     },
     {
-      "key": "MATERIAL.MAKEPBR",
+      "key": "MATERIAL.CREATEPBR",
       "args": [],
       "returns": "handle"
     },
@@ -6152,18 +6269,6 @@
       ]
     },
     {
-      "key": "AUDIO.LOADMUSIC",
-      "args": [
-        "string"
-      ]
-    },
-    {
-      "key": "AUDIO.LOADSOUND",
-      "args": [
-        "string"
-      ]
-    },
-    {
       "key": "AUDIO.PLAY",
       "args": [
         "any"
@@ -6219,7 +6324,7 @@
       ],
       "returns": "float",
       "phase": "any",
-      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) \u00e2\u20ac\u201d radians this frame"
+      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) — radians this frame"
     },
     {
       "key": "INPUT.ORBIT",
@@ -6231,7 +6336,7 @@
       ],
       "returns": "float",
       "phase": "any",
-      "description": "Alias of INPUT.AXISDEG \u00e2\u20ac\u201d orbit / yaw delta this frame"
+      "description": "Alias of INPUT.AXISDEG — orbit / yaw delta this frame"
     },
     {
       "key": "INPUT.MOVEMENT2D",
@@ -6603,32 +6708,14 @@
       "description": "Animated GIF to ImageSequence (cumulative frames)"
     },
     {
-      "key": "IMAGE.MAKEBLANK",
+      "key": "IMAGE.CREATEBLANK",
       "args": [
         "int",
         "int"
       ]
     },
     {
-      "key": "IMAGE.MAKEBLANK",
-      "args": [
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int"
-      ]
-    },
-    {
-      "key": "IMAGE.MAKE",
-      "args": [
-        "int",
-        "int"
-      ]
-    },
-    {
-      "key": "IMAGE.MAKE",
+      "key": "IMAGE.CREATEBLANK",
       "args": [
         "int",
         "int",
@@ -6639,7 +6726,25 @@
       ]
     },
     {
-      "key": "IMAGE.MAKECOPY",
+      "key": "IMAGE.CREATE",
+      "args": [
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "IMAGE.CREATE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ]
+    },
+    {
+      "key": "IMAGE.CREATECOPY",
       "args": [
         "handle"
       ]
@@ -6651,7 +6756,7 @@
       ]
     },
     {
-      "key": "IMAGE.MAKETEXT",
+      "key": "IMAGE.CREATETEXT",
       "args": [
         "string",
         "int",
@@ -7360,7 +7465,7 @@
       "args": []
     },
     {
-      "key": "AUDIOSTREAM.MAKE",
+      "key": "AUDIOSTREAM.CREATE",
       "args": [
         "int",
         "int",
@@ -7628,7 +7733,7 @@
       "phase": "rendering"
     },
     {
-      "key": "RAY.MAKE",
+      "key": "RAY.CREATE",
       "args": [
         "float",
         "float",
@@ -8247,7 +8352,7 @@
       ],
       "returns": "bool",
       "phase": "any",
-      "description": "Alias of RAY.HITMODEL_HIT \u00e2\u20ac\u201d ray vs loaded MODEL mesh union"
+      "description": "Alias of RAY.HITMODEL_HIT — ray vs loaded MODEL mesh union"
     },
     {
       "key": "RAY.INTERSECTSMODEL_DISTANCE",
@@ -8325,7 +8430,7 @@
       ],
       "returns": "bool",
       "phase": "any",
-      "description": "2D ray vs circle \u00e2\u20ac\u201d hit?"
+      "description": "2D ray vs circle — hit?"
     },
     {
       "key": "RAY2D.HITCIRCLE_DISTANCE",
@@ -8493,7 +8598,7 @@
       "phase": "any"
     },
     {
-      "key": "BBOX.MAKE",
+      "key": "BBOX.CREATE",
       "args": [
         "float",
         "float",
@@ -8542,7 +8647,7 @@
       "phase": "any"
     },
     {
-      "key": "BSPHERE.MAKE",
+      "key": "BSPHERE.CREATE",
       "args": [
         "float",
         "float",
@@ -8910,7 +9015,7 @@
       "phase": "any"
     },
     {
-      "key": "VEC3.MAKE",
+      "key": "VEC3.CREATE",
       "args": [
         "float",
         "float",
@@ -9246,7 +9351,7 @@
       "phase": "any"
     },
     {
-      "key": "VEC2.MAKE",
+      "key": "VEC2.CREATE",
       "args": [
         "float",
         "float"
@@ -9606,7 +9711,7 @@
       ],
       "returns": "handle",
       "phase": "any",
-      "description": "COLOR.HSV(index, total) \u00e2\u20ac\u201d evenly spaced hues on the wheel"
+      "description": "COLOR.HSV(index, total) — evenly spaced hues on the wheel"
     },
     {
       "key": "COLOR.FROMHSV",
@@ -9753,7 +9858,7 @@
       "phase": "any"
     },
     {
-      "key": "MEM.MAKE",
+      "key": "MEM.CREATE",
       "args": [
         "int"
       ],
@@ -9964,7 +10069,7 @@
       "phase": "any"
     },
     {
-      "key": "RAND.MAKE",
+      "key": "RAND.CREATE",
       "args": [
         "int"
       ],
@@ -10111,7 +10216,7 @@
       "phase": "any"
     },
     {
-      "key": "UTIL.MAKEDIRECTORY",
+      "key": "UTIL.CREATEDIRECTORY",
       "args": [
         "string"
       ],
@@ -11009,6 +11114,14 @@
       "phase": "rendering"
     },
     {
+      "key": "SPRITE.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
       "key": "SPRITE.SETPOS",
       "args": [
         "handle",
@@ -11082,12 +11195,95 @@
       "description": "Pivot offset in pixels (subtracted from draw position)"
     },
     {
+      "key": "SPRITE.GETSCALE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Returns [sx, sy, 1] scale factors (2D draw uses DrawTexturePro)"
+    },
+    {
+      "key": "SPRITE.SETSCALE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITE.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "Returns [0, 0, roll] radians (2D screen rotation)"
+    },
+    {
+      "key": "SPRITE.SETROT",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "Sets rotation in radians (CCW)"
+    },
+    {
+      "key": "SPRITE.GETCOLOR",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering",
+      "description": "RGBA as floats (A channel 0–255)"
+    },
+    {
+      "key": "SPRITE.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITE.SETCOLOR",
+      "args": [
+        "handle",
+        "int",
+        "int",
+        "int",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITE.GETALPHA",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "phase": "rendering"
+    },
+    {
+      "key": "SPRITE.SETALPHA",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "rendering"
+    },
+    {
       "key": "SPRITE.HIT",
       "args": [
         "handle",
         "handle"
       ],
-      "phase": "rendering"
+      "phase": "rendering",
+      "description": "True if the two sprites' drawn quads overlap (same scale, origin, and rotation as SPRITE.DRAW / DrawTexturePro; SAT on quad corners)."
     },
     {
       "key": "SPRITECOLLIDE",
@@ -11095,7 +11291,8 @@
         "handle",
         "handle"
       ],
-      "phase": "rendering"
+      "phase": "rendering",
+      "description": "Alias of SPRITE.HIT."
     },
     {
       "key": "SPRITE.POINTHIT",
@@ -11104,7 +11301,8 @@
         "float",
         "float"
       ],
-      "phase": "rendering"
+      "phase": "rendering",
+      "description": "True if (x,y) lies inside the sprite's drawn quad (same space as SPRITE.DRAW position plus SETPOS offsets)."
     },
     {
       "key": "PARTICLE2D.DRAW",
@@ -11133,7 +11331,7 @@
       "phase": "rendering"
     },
     {
-      "key": "PARTICLE2D.MAKE",
+      "key": "PARTICLE2D.CREATE",
       "args": [
         "int",
         "int",
@@ -11184,7 +11382,7 @@
       "phase": "rendering"
     },
     {
-      "key": "SPRITEBATCH.MAKE",
+      "key": "SPRITEBATCH.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "rendering"
@@ -11229,7 +11427,7 @@
       "phase": "rendering"
     },
     {
-      "key": "SPRITEGROUP.MAKE",
+      "key": "SPRITEGROUP.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "rendering"
@@ -11266,7 +11464,7 @@
       "phase": "rendering"
     },
     {
-      "key": "SPRITELAYER.MAKE",
+      "key": "SPRITELAYER.CREATE",
       "args": [
         "float"
       ],
@@ -11298,7 +11496,7 @@
       "phase": "rendering"
     },
     {
-      "key": "SPRITEUI.MAKE",
+      "key": "SPRITEUI.CREATE",
       "args": [
         "handle",
         "float",
@@ -11516,7 +11714,7 @@
       "phase": "rendering"
     },
     {
-      "key": "LIGHT2D.MAKE",
+      "key": "LIGHT2D.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "rendering"
@@ -11526,6 +11724,22 @@
       "args": [
         "handle"
       ],
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "LIGHT2D.GETCOLOR",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
       "phase": "rendering"
     },
     {
@@ -11660,7 +11874,7 @@
       "phase": "rendering"
     },
     {
-      "key": "POOL.MAKE",
+      "key": "POOL.CREATE",
       "args": [
         "string",
         "int"
@@ -11715,7 +11929,7 @@
       "phase": "any"
     },
     {
-      "key": "TWEEN.MAKE",
+      "key": "TWEEN.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "any"
@@ -12094,7 +12308,7 @@
       ],
       "returns": "handle",
       "phase": "rendering",
-      "description": "Screen (x,y) to world ray \u00e2\u20ac\u201d alias of CAMERA.GETRAY / PICK"
+      "description": "Screen (x,y) to world ray — alias of CAMERA.GETRAY / PICK"
     },
     {
       "key": "CAMERA.GETVIEWRAY",
@@ -12109,6 +12323,14 @@
     },
     {
       "key": "CAMERA.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA.GETROT",
       "args": [
         "handle"
       ],
@@ -12153,7 +12375,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Alias of CAMERA.WORLDTOSCREEN \u00e2\u20ac\u201d world point to screen [sx,sy]",
+      "description": "Alias of CAMERA.WORLDTOSCREEN — world point to screen [sx,sy]",
       "phase": "rendering"
     },
     {
@@ -12327,7 +12549,7 @@
         "any"
       ],
       "phase": "rendering",
-      "description": "0/1 or perspective/orthographic \u00e2\u20ac\u201d alias-friendly CAMERA.SETPROJECTION"
+      "description": "0/1 or perspective/orthographic — alias-friendly CAMERA.SETPROJECTION"
     },
     {
       "key": "CAMERA2D.BEGIN",
@@ -12345,7 +12567,7 @@
       "args": []
     },
     {
-      "key": "CAMERA2D.MAKE",
+      "key": "CAMERA2D.CREATE",
       "args": [],
       "returns": "handle",
       "phase": "rendering"
@@ -12390,6 +12612,22 @@
         "handle"
       ],
       "returns": "handle",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "phase": "rendering"
+    },
+    {
+      "key": "CAMERA2D.GETROTATION",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
       "phase": "rendering"
     },
     {
@@ -12533,13 +12771,13 @@
       "phase": "rendering"
     },
     {
-      "key": "BODY3D.MAKE",
+      "key": "BODY3D.CREATE",
       "args": [
         "string"
       ]
     },
     {
-      "key": "BODY3D.MAKE",
+      "key": "BODY3D.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -12987,35 +13225,6 @@
       ]
     },
     {
-      "key": "PHYSICS3D.START",
-      "args": [],
-      "phase": "init"
-    },
-    {
-      "key": "PHYSICS3D.STOP",
-      "args": []
-    },
-    {
-      "key": "PHYSICS3D.SETGRAVITY",
-      "args": [
-        "float",
-        "float",
-        "float"
-      ]
-    },
-    {
-      "key": "PHYSICS3D.STEP",
-      "args": []
-    },
-    {
-      "key": "PHYSICS3D.ONCOLLISION",
-      "args": [
-        "handle",
-        "handle",
-        "string"
-      ]
-    },
-    {
       "key": "PHYSICS3D.PROCESSCOLLISIONS",
       "args": []
     },
@@ -13204,15 +13413,10 @@
       ]
     },
     {
-      "key": "BODY3D.MAKE",
+      "key": "BODY3D.CREATE",
       "args": [
         "string"
       ],
-      "returns": "handle"
-    },
-    {
-      "key": "BODY3D.MAKE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -13317,6 +13521,24 @@
         "handle"
       ],
       "returns": "handle"
+    },
+    {
+      "key": "BODY3D.GETSCALE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Returns [sx,sy,sz] scale factors for primitive bodies (box/sphere/capsule); mesh bodies report 1,1,1"
+    },
+    {
+      "key": "BODY3D.SETSCALE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Scales collision shape for primitive bodies built via ADDBOX/ADDSPHERE/ADDCAPSULE or SHAPE.CREATE*; not supported for mesh (ADDMESH)"
     },
     {
       "key": "BODY3D.SETMASS",
@@ -13454,11 +13676,6 @@
       "description": "Create a hinge joint (b1, b2, px, py, pz, ax, ay, az)."
     },
     {
-      "key": "PHYSICS3D.PROCESSCOLLISIONS",
-      "args": [],
-      "description": "Drain pending collision events from the physics world."
-    },
-    {
       "key": "JOINT.CREATEHINGE",
       "args": [
         "handle",
@@ -13550,7 +13767,7 @@
       "args": []
     },
     {
-      "key": "BODY2D.MAKE",
+      "key": "BODY2D.CREATE",
       "args": [
         "string"
       ],
@@ -13775,7 +13992,7 @@
       ]
     },
     {
-      "key": "CHARCONTROLLER.MAKE",
+      "key": "CHARCONTROLLER.CREATE",
       "args": [
         "float",
         "float",
@@ -14143,7 +14360,7 @@
         "int"
       ],
       "returns": "float",
-      "description": "Linear velocity X (m/s); requires PLAYER.CREATE / CHAR.MAKE"
+      "description": "Linear velocity X (m/s); requires PLAYER.CREATE / CHAR.CREATE (deprecated CHAR.MAKE)"
     },
     {
       "key": "PLAYER.GETVELOCITYY",
@@ -14526,14 +14743,14 @@
       "description": "Stick-to-floor max step down (world units); Jolt CharacterVirtual ExtendedUpdateSettings (Linux+CGO)"
     },
     {
-      "key": "CHAR.MAKE",
+      "key": "CHAR.CREATE",
       "args": [
         "int"
       ],
       "description": "Alias of PLAYER.CREATE: (entity) or (entity, radius#, height#); allocates Jolt CharacterVirtual and clears scripted gravity/velocity for stable KCC (Linux+CGO)"
     },
     {
-      "key": "CHAR.MAKE",
+      "key": "CHAR.CREATE",
       "args": [
         "int",
         "float",
@@ -14980,7 +15197,7 @@
       "namespace": "Character"
     },
     {
-      "key": "CHARACTERREF.SETPOSITION",
+      "key": "CHARACTERREF.SETPOS",
       "args": [
         "handle",
         "float",
@@ -14988,6 +15205,17 @@
         "float"
       ],
       "description": "Teleports the character capsule to a new world position.",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTERREF.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of CHARACTERREF.SETPOS. Use CHARACTERREF.SETPOS.",
       "namespace": "Character"
     },
     {
@@ -15236,7 +15464,7 @@
       "description": "Creates a Trigger Body (non-solid sensor) from a shape handle."
     },
     {
-      "key": "BODYREF.SETPOSITION",
+      "key": "BODYREF.SETPOS",
       "args": [
         "handle",
         "float",
@@ -15244,6 +15472,16 @@
         "float"
       ],
       "description": "Moves a Kinematic/Static/Trigger body."
+    },
+    {
+      "key": "BODYREF.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of BODYREF.SETPOS. Use BODYREF.SETPOS."
     },
     {
       "key": "BODYREF.SETROTATION",
@@ -15317,6 +15555,14 @@
       ],
       "returns": "array",
       "description": "Returns [x, y, z] position of the character capsule."
+    },
+    {
+      "key": "CHARACTERREF.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Approximate [pitch,yaw,roll] (radians) from linear velocity direction (Jolt CharacterVirtual has no orientation API)."
     },
     {
       "key": "CHAR.UPDATE",
@@ -15604,28 +15850,12 @@
       "description": "Smooth move to world (x,y,z) over duration — alias of ENTITY.ANIMATETOWARD"
     },
     {
-      "key": "ENT.FADE",
-      "args": [
-        "int",
-        "float",
-        "float"
-      ],
-      "description": "Smoothly interpolate entity alpha to targetValue over duration"
-    },
-    {
       "key": "WORLD.SHAKE",
       "args": [
         "float",
         "float"
       ],
       "description": "Alias of WORLD.SCREENSHAKE — screen impact via active camera"
-    },
-    {
-      "key": "WORLD.HITSTOP",
-      "args": [
-        "float"
-      ],
-      "description": "Pause simulation (hit-stop) for duration seconds for better combat feel"
     },
     {
       "key": "PLAYER.GETSTANDNORMAL",
@@ -16505,7 +16735,7 @@
       ]
     },
     {
-      "key": "JSON.MAKE",
+      "key": "JSON.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -17297,48 +17527,8 @@
       ]
     },
     {
-      "key": "DRAW.RECTANGLE",
-      "args": [
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int"
-      ]
-    },
-    {
       "key": "DRAW.LINE",
       "args": [
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int"
-      ]
-    },
-    {
-      "key": "DRAW.TEXT",
-      "args": [
-        "string",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int",
-        "int"
-      ]
-    },
-    {
-      "key": "DRAW.RECTANGLE_ROUNDED",
-      "args": [
-        "int",
         "int",
         "int",
         "int",
@@ -17714,7 +17904,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CUBE \u00e2\u20ac\u201d solid axis-aligned box"
+      "description": "alias of DRAW3D.CUBE — solid axis-aligned box"
     },
     {
       "key": "BOXW",
@@ -17730,7 +17920,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CUBEWIRES \u00e2\u20ac\u201d wire box"
+      "description": "alias of DRAW3D.CUBEWIRES — wire box"
     },
     {
       "key": "WIRECUBE",
@@ -17760,7 +17950,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.SPHERE \u00e2\u20ac\u201d solid sphere"
+      "description": "alias of DRAW3D.SPHERE — solid sphere"
     },
     {
       "key": "BALLW",
@@ -17776,7 +17966,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.SPHEREWIRES \u00e2\u20ac\u201d wire sphere"
+      "description": "alias of DRAW3D.SPHEREWIRES — wire sphere"
     },
     {
       "key": "GRID3",
@@ -17784,7 +17974,7 @@
         "int",
         "float"
       ],
-      "description": "alias of DRAW3D.GRID \u00e2\u20ac\u201d XZ reference grid"
+      "description": "alias of DRAW3D.GRID — XZ reference grid"
     },
     {
       "key": "GRID3",
@@ -17944,7 +18134,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.PLANE \u00e2\u20ac\u201d horizontal plane patch"
+      "description": "alias of DRAW3D.PLANE — horizontal plane patch"
     },
     {
       "key": "CAP",
@@ -17963,7 +18153,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CAPSULE \u00e2\u20ac\u201d solid capsule"
+      "description": "alias of DRAW3D.CAPSULE — solid capsule"
     },
     {
       "key": "CAPW",
@@ -17982,7 +18172,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CAPSULEWIRES \u00e2\u20ac\u201d wire capsule"
+      "description": "alias of DRAW3D.CAPSULEWIRES — wire capsule"
     },
     {
       "key": "DRAW3D.CYLINDER",
@@ -18166,7 +18356,7 @@
       "args": [
         "handle"
       ],
-      "description": "Sets spatial audio listener from CAMERA.MAKE handle (call each frame before EmitSound)"
+      "description": "Sets spatial audio listener from a Camera3D handle (CAMERA.CREATE / CreateCamera; deprecated alias CAMERA.MAKE); call each frame before EmitSound"
     },
     {
       "key": "Load3DSound",
@@ -18288,7 +18478,7 @@
       ]
     },
     {
-      "key": "SKY.MAKE",
+      "key": "SKY.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -18340,7 +18530,7 @@
       "returns": "bool"
     },
     {
-      "key": "WEATHER.MAKE",
+      "key": "WEATHER.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -18432,7 +18622,7 @@
       "returns": "float"
     },
     {
-      "key": "WATER.MAKE",
+      "key": "WATER.CREATE",
       "args": [
         "float",
         "int",
@@ -18483,14 +18673,6 @@
     {
       "key": "TIME.DELTA",
       "args": [],
-      "returns": "float"
-    },
-    {
-      "key": "TIME.DELTA",
-      "args": [
-        "float",
-        "float"
-      ],
       "returns": "float"
     },
     {
@@ -18570,111 +18752,6 @@
       "returns": "string"
     },
     {
-      "key": "UTIL.FILEEXISTS",
-      "args": [
-        "string"
-      ],
-      "returns": "bool"
-    },
-    {
-      "key": "RES.PATH",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "RES.EXISTS",
-      "args": [
-        "string"
-      ],
-      "returns": "bool"
-    },
-    {
-      "key": "UTIL.ISDIR",
-      "args": [
-        "string"
-      ],
-      "returns": "bool"
-    },
-    {
-      "key": "UTIL.GETFILEEXT",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "UTIL.GETFILENAME",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "UTIL.GETFILENAMENOEXT",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "UTIL.GETFILEPATH",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "UTIL.GETFILESIZE",
-      "args": [
-        "string"
-      ],
-      "returns": "int"
-    },
-    {
-      "key": "UTIL.GETFILEMODTIME",
-      "args": [
-        "string"
-      ],
-      "returns": "int"
-    },
-    {
-      "key": "UTIL.LOADTEXT",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "UTIL.SAVETEXT",
-      "args": [
-        "string",
-        "string"
-      ]
-    },
-    {
-      "key": "UTIL.GETDIRFILES",
-      "args": [
-        "string"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "UTIL.CHANGEDIR",
-      "args": [
-        "string"
-      ],
-      "returns": "bool"
-    },
-    {
-      "key": "UTIL.MAKEDIRECTORY",
-      "args": [
-        "string"
-      ],
-      "returns": "bool"
-    },
-    {
       "key": "UTIL.DELETEFILE",
       "args": [
         "string"
@@ -18740,13 +18817,6 @@
         "string"
       ],
       "returns": "string"
-    },
-    {
-      "key": "WRITEALLTEXT",
-      "args": [
-        "string",
-        "string"
-      ]
     },
     {
       "key": "MAKEDIR",
@@ -19041,53 +19111,10 @@
       "description": "Packed RGB diffuse (0xRRGGBB) and clarity (0..1 alpha, or 0..255); updates shallow/deep tint"
     },
     {
-      "key": "LIGHT2D.MAKE",
-      "args": [],
-      "returns": "handle"
-    },
-    {
-      "key": "LIGHT2D.FREE",
-      "args": [
-        "handle"
-      ]
-    },
-    {
-      "key": "LIGHT2D.SETPOS",
-      "args": [
-        "handle",
-        "float",
-        "float"
-      ]
-    },
-    {
       "key": "LIGHT2D.SETPOSITION",
       "args": [
         "handle",
         "float",
-        "float"
-      ]
-    },
-    {
-      "key": "LIGHT2D.SETCOLOR",
-      "args": [
-        "handle",
-        "int",
-        "int",
-        "int",
-        "int"
-      ]
-    },
-    {
-      "key": "LIGHT2D.SETRADIUS",
-      "args": [
-        "handle",
-        "float"
-      ]
-    },
-    {
-      "key": "LIGHT2D.SETINTENSITY",
-      "args": [
-        "handle",
         "float"
       ]
     },
@@ -19101,7 +19128,7 @@
       ]
     },
     {
-      "key": "TERRAIN.MAKE",
+      "key": "TERRAIN.CREATE",
       "args": [
         "int",
         "int",
@@ -19442,66 +19469,101 @@
       ]
     },
     {
-      "key": "RAY.MAKE",
+      "key": "TIMER.CREATE",
       "args": [
-        "float",
-        "float",
-        "float",
-        "float",
-        "float",
         "float"
       ],
-      "returns": "handle"
+      "returns": "handle",
+      "description": "Simulation timer: duration in seconds; use TIMER.START/UPDATE with delta time"
     },
     {
-      "key": "RAY.FREE",
+      "key": "TIMER.MAKE",
       "args": [
-        "handle"
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of TIMER.CREATE. Use TIMER.CREATE."
+    },
+    {
+      "key": "TIMER.NEW",
+      "args": [
+        "float"
+      ],
+      "returns": "handle",
+      "description": "Wall-clock deadline timer (time.Now-based)"
+    },
+    {
+      "key": "TIMER.RESET",
+      "args": [
+        "handle",
+        "float"
       ]
     },
     {
-      "key": "BBOX.MAKE",
+      "key": "TIMER.FINISHED",
       "args": [
-        "float",
-        "float",
-        "float",
-        "float",
-        "float",
-        "float"
-      ],
-      "returns": "handle"
-    },
-    {
-      "key": "BBOX.FROMMODEL",
-      "args": [
-        "handle"
-      ],
-      "returns": "handle"
-    },
-    {
-      "key": "BBOX.CHECK",
-      "args": [
-        "handle",
         "handle"
       ],
       "returns": "bool"
     },
     {
-      "key": "BBOX.CHECKSPHERE",
+      "key": "TIMER.FREE",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TIMER.START",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TIMER.STOP",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TIMER.REWIND",
+      "args": [
+        "handle"
+      ]
+    },
+    {
+      "key": "TIMER.SETLOOP",
       "args": [
         "handle",
-        "float",
-        "float",
-        "float",
+        "any"
+      ]
+    },
+    {
+      "key": "TIMER.UPDATE",
+      "args": [
+        "handle",
         "float"
+      ]
+    },
+    {
+      "key": "TIMER.DONE",
+      "args": [
+        "handle"
       ],
       "returns": "bool"
     },
     {
-      "key": "BBOX.FREE",
+      "key": "TIMER.FRACTION",
       "args": [
         "handle"
-      ]
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "TIMER.REMAINING",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
     },
     {
       "key": "CAMERA.TURN",
@@ -19708,7 +19770,7 @@
       "description": "Uniform cube: size# used for width, height, and depth (alias ENTITY.CREATECUBE)"
     },
     {
-      "key": "ENTITY.SETPOSITION",
+      "key": "ENTITY.SETPOS",
       "args": [
         "int",
         "float",
@@ -19716,6 +19778,17 @@
         "float",
         "any"
       ]
+    },
+    {
+      "key": "ENTITY.SETPOSITION",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float",
+        "any"
+      ],
+      "description": "Deprecated alias of ENTITY.SETPOS — set world or local position"
     },
     {
       "key": "ENTITY.POSITION",
@@ -19726,7 +19799,7 @@
         "float",
         "any"
       ],
-      "description": "Alias of ENTITY.SETPOSITION \u00e2\u20ac\u201d set world or local position"
+      "description": "Alias of ENTITY.SETPOS — set world or local position"
     },
     {
       "key": "ENTITY.POS",
@@ -19883,6 +19956,34 @@
       "returns": "handle"
     },
     {
+      "key": "ENTITY.GETROT",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.GETSCALE",
+      "args": [
+        "int"
+      ],
+      "returns": "handle"
+    },
+    {
+      "key": "ENTITY.GETCOLOR",
+      "args": [
+        "int"
+      ],
+      "returns": "array"
+    },
+    {
+      "key": "ENTITY.GETALPHA",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "ENTITY.GETXZ",
       "args": [
         "int"
@@ -19969,7 +20070,7 @@
         "float",
         "float"
       ],
-      "description": "Add pitch/yaw/roll degrees \u00e2\u20ac\u201d alias of ENTITY.ROTATE / TURNENTITY"
+      "description": "Add pitch/yaw/roll degrees — alias of ENTITY.ROTATE / TURNENTITY"
     },
     {
       "key": "ENTITY.SCALE",
@@ -20718,7 +20819,7 @@
         "int",
         "float"
       ],
-      "description": "Alias of PHYSICS.SETBUOYANCY \u00e2\u20ac\u201d per-entity density hint for buoyancy"
+      "description": "Alias of PHYSICS.SETBUOYANCY — per-entity density hint for buoyancy"
     },
     {
       "key": "ENTITY.GETBUOYANCY",
@@ -21081,7 +21182,7 @@
         "float",
         "float"
       ],
-      "description": "Blitz-style: ENTITY.POSITIONENTITY(obj, x, y, z)"
+      "description": "Blitz-style global: ENTITY.SETPOS(ent, x, y, z); Blitz namespace alias ENTITY.POSITIONENTITY; deprecated ENTITY.SETPOSITION"
     },
     {
       "key": "ROTATEENTITY",
@@ -21145,13 +21246,13 @@
       "key": "CREATECAMERA",
       "args": [],
       "returns": "handle",
-      "description": "Blitz-style: CAMERA.CREATE3D()"
+      "description": "Blitz-style: forwards to CAMERA.CREATE (3D heap camera)"
     },
     {
       "key": "CREATELIGHT",
       "args": [],
       "returns": "handle",
-      "description": "Blitz-style: LIGHT.MAKE()"
+      "description": "Blitz-style: forwards to LIGHT.CREATE (same as deprecated LIGHT.MAKE)"
     },
     {
       "key": "MOUSEDX",
@@ -21658,18 +21759,6 @@
       "description": "Easy Mode: Returns 1 if mouse button was pressed this frame"
     },
     {
-      "key": "MOUSEX",
-      "args": [],
-      "returns": "int",
-      "description": "Easy Mode: Get current mouse X coordinate"
-    },
-    {
-      "key": "MOUSEY",
-      "args": [],
-      "returns": "int",
-      "description": "Easy Mode: Get current mouse Y coordinate"
-    },
-    {
       "key": "MILLISECS",
       "args": [],
       "returns": "int",
@@ -21747,7 +21836,7 @@
       "key": "CREATECAMERA2D",
       "args": [],
       "returns": "handle",
-      "description": "Easy Mode: CAMERA2D.MAKE()"
+      "description": "Easy Mode: forwards to CAMERA2D.CREATE (same as deprecated CAMERA2D.MAKE)"
     },
     {
       "key": "CAMERA2DTARGET",
@@ -21863,14 +21952,6 @@
       "description": "Easy Mode: NET.GETEVENTPACKET$()"
     },
     {
-      "key": "LOADSOUND",
-      "args": [
-        "string"
-      ],
-      "returns": "handle",
-      "description": "Easy Mode: AUDIO.LOADSOUND(path)"
-    },
-    {
       "key": "LOADMUSIC",
       "args": [
         "string"
@@ -21906,14 +21987,6 @@
         "float"
       ],
       "description": "Easy Mode: AUDIO.SETMUSICVOLUME(music, vol)"
-    },
-    {
-      "key": "LOADTEXTURE",
-      "args": [
-        "string"
-      ],
-      "returns": "handle",
-      "description": "Easy Mode: TEXTURE.LOAD(path)"
     },
     {
       "key": "LOADIMAGE",
@@ -21989,7 +22062,7 @@
       "key": "CUBE",
       "args": [],
       "returns": "handle",
-      "description": "Blitz-style static box entity (1\u00c3\u20141\u00c3\u20141); use CUBE(w,h,d) for dimensions \u00e2\u20ac\u201d ENTITYREF handle"
+      "description": "Blitz-style static box entity (1×1×1); use CUBE(w,h,d) for dimensions — ENTITYREF handle"
     },
     {
       "key": "CUBE",
@@ -21999,7 +22072,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Blitz-style static box entity \u00e2\u20ac\u201d ENTITYREF handle"
+      "description": "Blitz-style static box entity — ENTITYREF handle"
     },
     {
       "key": "ENTITY.CREATECUBE",
@@ -22024,7 +22097,7 @@
         "float",
         "float"
       ],
-      "description": "Easy Mode: ENTITY.POSITIONENTITY(ent, x, y, z)"
+      "description": "Easy Mode: ENTITY.SETPOS(ent, x, y, z) (Blitz alias ENTITY.POSITIONENTITY)"
     },
     {
       "key": "SCALENT",
@@ -22121,47 +22194,6 @@
       "description": "Easy Mode: Define collision rules between types"
     },
     {
-      "key": "MOVESTEPX",
-      "args": [
-        "float",
-        "float",
-        "float",
-        "float",
-        "float"
-      ],
-      "returns": "float"
-    },
-    {
-      "key": "MOVESTEPZ",
-      "args": [
-        "float",
-        "float",
-        "float",
-        "float",
-        "float"
-      ],
-      "returns": "float"
-    },
-    {
-      "key": "DIST3D",
-      "args": [
-        "float",
-        "float",
-        "float",
-        "float",
-        "float",
-        "float"
-      ],
-      "returns": "float"
-    },
-    {
-      "key": "WORLD.UPDATE",
-      "args": [
-        "float"
-      ],
-      "description": "Update physics and world state"
-    },
-    {
       "key": "WORLD.FOGMODE",
       "args": [
         "int"
@@ -22182,104 +22214,9 @@
       ]
     },
     {
-      "key": "NAV.MAKE",
-      "args": [],
-      "returns": "handle"
-    },
-    {
-      "key": "NAV.SETGRID",
-      "args": [
-        "handle",
-        "int",
-        "int",
-        "float",
-        "float",
-        "float"
-      ]
-    },
-    {
-      "key": "NAV.BUILD",
-      "args": [
-        "handle"
-      ]
-    },
-    {
-      "key": "NAVAGENT.MAKE",
-      "args": [
-        "handle"
-      ],
-      "returns": "handle"
-    },
-    {
-      "key": "NAVAGENT.SETPOS",
-      "args": [
-        "handle",
-        "float",
-        "float",
-        "float"
-      ]
-    },
-    {
-      "key": "NAVAGENT.SETSPEED",
-      "args": [
-        "handle",
-        "float"
-      ]
-    },
-    {
-      "key": "NAVAGENT.MOVETO",
-      "args": [
-        "handle",
-        "float",
-        "float",
-        "float"
-      ]
-    },
-    {
-      "key": "NAVAGENT.UPDATE",
-      "args": [
-        "handle",
-        "float"
-      ]
-    },
-    {
-      "key": "NAVAGENT.X",
-      "args": [
-        "handle"
-      ],
-      "returns": "float"
-    },
-    {
-      "key": "NAVAGENT.Y",
-      "args": [
-        "handle"
-      ],
-      "returns": "float"
-    },
-    {
-      "key": "NAVAGENT.Z",
-      "args": [
-        "handle"
-      ],
-      "returns": "float"
-    },
-    {
-      "key": "NAVAGENT.ISATDESTINATION",
-      "args": [
-        "handle"
-      ],
-      "returns": "bool"
-    },
-    {
       "key": "NAV.DEBUGDRAW",
       "args": [
         "handle"
-      ]
-    },
-    {
-      "key": "POST.ADD",
-      "args": [
-        "string"
       ]
     },
     {
@@ -22301,31 +22238,16 @@
       ]
     },
     {
-      "key": "CAMERA.BEGIN",
-      "args": [
-        "handle"
-      ]
-    },
-    {
       "key": "CAMERA.END",
       "args": [
         "handle"
       ]
     },
     {
-      "key": "ENTITY.DRAWALL",
-      "args": []
-    },
-    {
       "key": "PARTICLES.DRAWEMITTER",
       "args": [
         "handle"
       ]
-    },
-    {
-      "key": "CREATEEMITTER",
-      "args": [],
-      "returns": "handle"
     },
     {
       "key": "PARTICLECOLOR",
@@ -22406,7 +22328,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Blitz-style static sphere entity \u00e2\u20ac\u201d ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)"
+      "description": "Blitz-style static sphere entity — ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)"
     },
     {
       "key": "SPHERE",
@@ -22415,7 +22337,7 @@
         "int"
       ],
       "returns": "handle",
-      "description": "Blitz-style static sphere entity \u00e2\u20ac\u201d ENTITYREF handle"
+      "description": "Blitz-style static sphere entity — ENTITYREF handle"
     },
     {
       "key": "ENTITY.CREATESPHERE",
@@ -22431,7 +22353,7 @@
         "float"
       ],
       "returns": "int",
-      "description": "Radius only \u00e2\u20ac\u201d default 16 segments"
+      "description": "Radius only — default 16 segments"
     },
     {
       "key": "ENTITY.CREATECYLINDER",
@@ -22470,7 +22392,7 @@
         "any"
       ],
       "returns": "int",
-      "description": "Alias of ENTITY.LOADMESH \u00e2\u20ac\u201d static model path (Raylib-supported formats), optional parentEntity#"
+      "description": "Alias of ENTITY.LOADMESH — static model path (Raylib-supported formats), optional parentEntity#"
     },
     {
       "key": "ENTITY.LOADANIMATEDMESH",
@@ -22615,7 +22537,7 @@
         "float",
         "any"
       ],
-      "description": "Absolute pitch/yaw/roll degrees \u00e2\u20ac\u201d alias of ENTITY.ROTATEENTITY"
+      "description": "Absolute pitch/yaw/roll degrees — alias of ENTITY.ROTATEENTITY"
     },
     {
       "key": "ENTITY.TURNENTITY",
@@ -22720,7 +22642,7 @@
       "args": [
         "int"
       ],
-      "description": "Alias of ENTITY.PARENTCLEAR \u00e2\u20ac\u201d detach and keep world position"
+      "description": "Alias of ENTITY.PARENTCLEAR — detach and keep world position"
     },
     {
       "key": "ENTITY.COUNTCHILDREN",
@@ -22817,13 +22739,6 @@
         "any"
       ],
       "description": "Alias of ENTITY.VISIBLE"
-    },
-    {
-      "key": "ENTITY.ALPHA",
-      "args": [
-        "int",
-        "float"
-      ]
     },
     {
       "key": "ENTITY.SHININESS",
@@ -23754,7 +23669,7 @@
       "returns": "float"
     },
     {
-      "key": "PLAYER2D.MAKE",
+      "key": "PLAYER2D.CREATE",
       "args": [],
       "returns": "handle"
     },
@@ -23936,7 +23851,7 @@
         "float",
         "float"
       ],
-      "description": "Shorthand: POSITIONENTITY(ent, x, y, z)"
+      "description": "Shorthand: ENTITY.SETPOS(ent, x, y, z) (same as POSITIONENTITY; Blitz ENTITY.POSITIONENTITY)"
     },
     {
       "key": "ROTENT",
@@ -24005,7 +23920,7 @@
       "args": [
         "float"
       ],
-      "description": "Shorthand: ENTITY.UPDATE(dt) \u00e2\u20ac\u201d use ENTITY.UPDATE in scripts"
+      "description": "Shorthand: ENTITY.UPDATE(dt) — use ENTITY.UPDATE in scripts"
     },
     {
       "key": "ENTX",
@@ -24146,7 +24061,7 @@
       "description": "Show or hide the real-time FPS graph overlay."
     },
     {
-      "key": "NAV.MAKE",
+      "key": "NAV.CREATE",
       "args": [],
       "returns": "int",
       "description": "Create a new navigation grid handle."
@@ -24178,7 +24093,7 @@
       "description": "Render a debug overlay of the navigation grid (Green=Walkable, Red=Blocked)."
     },
     {
-      "key": "NAVAGENT.MAKE",
+      "key": "NAVAGENT.CREATE",
       "args": [
         "int"
       ],
@@ -24254,48 +24169,11 @@
       "description": "Check if the agent has reached its destination."
     },
     {
-      "key": "POST.REMOVE",
-      "args": [
-        "string"
-      ],
-      "description": "Remove a post-processing effect by name (e.g. 'bloom', 'sharpen', or 'all')."
-    },
-    {
-      "key": "POST.SETTONEMAP",
-      "args": [
-        "int"
-      ],
-      "description": "Set the tonemapping mode: 0=None, 1=Linear, 2=Reinhard, 3=Filmic, 4=Uncharted2."
-    },
-    {
       "key": "PHYSICS3D.SETTIMESTEP",
       "args": [
         "float"
       ],
       "description": "Set the fixed physics simulation timestep (e.g. 60.0, 90.0)."
-    },
-    {
-      "key": "WORLD.FOGMODE",
-      "args": [
-        "int"
-      ],
-      "description": "Set the fog mode: 0=None, 1=Linear, 2=Exponential."
-    },
-    {
-      "key": "WORLD.FOGCOLOR",
-      "args": [
-        "int",
-        "int",
-        "int"
-      ],
-      "description": "Set the fog color: (r, g, b)."
-    },
-    {
-      "key": "WORLD.FOGDENSITY",
-      "args": [
-        "float"
-      ],
-      "description": "Set the fog density (0.0 to 1.0)."
     },
     {
       "key": "ENTITY.SETTEXTURESCROLL",
@@ -24531,15 +24409,6 @@
       ],
       "returns": "handle",
       "description": "Raycast sensor"
-    },
-    {
-      "key": "CAMERA.SHAKE",
-      "args": [
-        "handle",
-        "float",
-        "float"
-      ],
-      "description": "Shakes camera"
     },
     {
       "key": "ENTITY.FADE",
@@ -25071,17 +24940,6 @@
       "namespace": "physics3d"
     },
     {
-      "key": "PHYSICS.IMPULSE",
-      "args": [
-        "int",
-        "float",
-        "float",
-        "float"
-      ],
-      "description": "Entity-First: Applies an impulse to an entity's physics body.",
-      "namespace": "physics3d"
-    },
-    {
       "key": "PHYSICS.VELOCITY",
       "args": [
         "int",
@@ -25286,16 +25144,6 @@
       "namespace": "physics3d"
     },
     {
-      "key": "BODY3D.SETANGULARVEL",
-      "args": [
-        "handle",
-        "float",
-        "float",
-        "float"
-      ],
-      "namespace": "physics3d"
-    },
-    {
       "key": "BODY3D.GETMASS",
       "args": [
         "handle"
@@ -25429,16 +25277,6 @@
       "description": "Initialise physics world with custom Y gravity."
     },
     {
-      "key": "WORLD.SETGRAVITY",
-      "args": [
-        "float",
-        "float",
-        "float"
-      ],
-      "namespace": "physics3d",
-      "description": "Set world gravity vector (alias of PHYSICS3D.SETGRAVITY)."
-    },
-    {
       "key": "BODY3D.GETLINEARVEL",
       "args": [
         "handle"
@@ -25552,141 +25390,6 @@
       "description": "Debug draw a physics body wireframe (no-op on stub builds)."
     },
     {
-      "key": "PICK.ORIGIN",
-      "args": [
-        "float",
-        "float",
-        "float"
-      ],
-      "namespace": "physics3d",
-      "description": "Set ray origin for the next PICK.CAST (x, y, z)."
-    },
-    {
-      "key": "PICK.DIRECTION",
-      "args": [
-        "float",
-        "float",
-        "float"
-      ],
-      "namespace": "physics3d",
-      "description": "Set ray direction for the next PICK.CAST (dx, dy, dz)."
-    },
-    {
-      "key": "PICK.MAXDIST",
-      "args": [
-        "float"
-      ],
-      "namespace": "physics3d",
-      "description": "Set maximum ray distance for PICK.CAST."
-    },
-    {
-      "key": "PICK.LAYERMASK",
-      "args": [
-        "int"
-      ],
-      "namespace": "physics3d",
-      "description": "Set collision layer bitmask filter for PICK.CAST (0 = all)."
-    },
-    {
-      "key": "PICK.RADIUS",
-      "args": [
-        "float"
-      ],
-      "namespace": "physics3d",
-      "description": "Set sphere pick radius (0 = line ray)."
-    },
-    {
-      "key": "PICK.CAST",
-      "args": [],
-      "returns": "int",
-      "namespace": "physics3d",
-      "description": "Execute a raycast with current PICK settings; returns entity id or 0."
-    },
-    {
-      "key": "PICK.FROMCAMERA",
-      "args": [
-        "handle",
-        "float",
-        "float"
-      ],
-      "namespace": "physics3d",
-      "description": "Set PICK origin/direction from a camera at screen (x, y)."
-    },
-    {
-      "key": "PICK.SCREENCAST",
-      "args": [
-        "handle",
-        "float",
-        "float"
-      ],
-      "returns": "int",
-      "namespace": "physics3d",
-      "description": "PICK.FROMCAMERA + PICK.CAST in one call."
-    },
-    {
-      "key": "PICK.X",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get X of last PICK hit point."
-    },
-    {
-      "key": "PICK.Y",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get Y of last PICK hit point."
-    },
-    {
-      "key": "PICK.Z",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get Z of last PICK hit point."
-    },
-    {
-      "key": "PICK.NX",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get surface normal X of last PICK hit."
-    },
-    {
-      "key": "PICK.NY",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get surface normal Y of last PICK hit."
-    },
-    {
-      "key": "PICK.NZ",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get surface normal Z of last PICK hit."
-    },
-    {
-      "key": "PICK.ENTITY",
-      "args": [],
-      "returns": "int",
-      "namespace": "physics3d",
-      "description": "Get entity id of last PICK hit (0 = no hit)."
-    },
-    {
-      "key": "PICK.DIST",
-      "args": [],
-      "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get distance from ray origin to last PICK hit."
-    },
-    {
-      "key": "PICK.HIT",
-      "args": [],
-      "returns": "bool",
-      "namespace": "physics3d",
-      "description": "True if last PICK.CAST hit something."
-    },
-    {
       "key": "PHYSICS3D.MOUSEHIT",
       "args": [
         "handle"
@@ -25694,24 +25397,6 @@
       "returns": "handle",
       "namespace": "physics3d",
       "description": "Raycast from mouse through camera; returns [x,y,z] array or nil."
-    },
-    {
-      "key": "WORLD.MOUSETOENTITY",
-      "args": [
-        "handle"
-      ],
-      "returns": "int",
-      "namespace": "physics3d",
-      "description": "Raycast from mouse through camera; returns entity id or 0."
-    },
-    {
-      "key": "WORLD.MOUSEPICK",
-      "args": [
-        "handle"
-      ],
-      "returns": "int",
-      "namespace": "physics3d",
-      "description": "Alias of WORLD.MOUSETOENTITY."
     },
     {
       "key": "CAMERA.RAYCASTMOUSE",
@@ -25747,6 +25432,1345 @@
       ],
       "namespace": "charcontroller",
       "description": "Set a callback function name to be called on KCC contact events."
+    },
+    {
+      "key": "DECAL.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of DECAL.SETPOS. Use DECAL.SETPOS."
+    },
+    {
+      "key": "NAVAGENT.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of NAVAGENT.SETPOS. Use NAVAGENT.SETPOS."
+    },
+    {
+      "key": "INSTANCE.SETPOSITION",
+      "args": [
+        "handle",
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of INSTANCE.SETPOS. Use INSTANCE.SETPOS."
+    },
+    {
+      "key": "PARTICLE.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "DEPRECATED alias of PARTICLE.SETPOS. Use PARTICLE.SETPOS."
+    },
+    {
+      "key": "PARTICLE3D.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "phase": "rendering",
+      "description": "DEPRECATED alias of PARTICLE3D.SETPOS. Use PARTICLE3D.SETPOS."
+    },
+    {
+      "key": "BODY2D.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of BODY2D.SETPOS. Use BODY2D.SETPOS."
+    },
+    {
+      "key": "WATER.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of WATER.SETPOS. Use WATER.SETPOS."
+    },
+    {
+      "key": "TERRAIN.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of TERRAIN.SETPOS. Use TERRAIN.SETPOS."
+    },
+    {
+      "key": "PLAYER2D.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of PLAYER2D.SETPOS. Use PLAYER2D.SETPOS."
+    },
+    {
+      "key": "NAVAGENT.SETPOSITION",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of NAVAGENT.SETPOS. Use NAVAGENT.SETPOS. Set the agent's world-space position: (handle, x#, y#, z#)"
+    },
+    {
+      "key": "DECAL.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of DECAL.CREATE. Use DECAL.CREATE."
+    },
+    {
+      "key": "NAV.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of NAV.CREATE. Use NAV.CREATE."
+    },
+    {
+      "key": "NOISE.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of NOISE.CREATE. Use NOISE.CREATE."
+    },
+    {
+      "key": "NOISE.MAKEPERLIN",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of NOISE.CREATEPERLIN. Use NOISE.CREATEPERLIN."
+    },
+    {
+      "key": "NOISE.MAKESIMPLEX",
+      "args": [
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of NOISE.CREATESIMPLEX. Use NOISE.CREATESIMPLEX."
+    },
+    {
+      "key": "NOISE.MAKEFRACTAL",
+      "args": [
+        "int",
+        "float",
+        "int",
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of NOISE.CREATEFRACTAL. Use NOISE.CREATEFRACTAL."
+    },
+    {
+      "key": "NOISE.MAKECELLULAR",
+      "args": [
+        "int",
+        "float",
+        "string"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of NOISE.CREATECELLULAR. Use NOISE.CREATECELLULAR."
+    },
+    {
+      "key": "NOISE.MAKEDOMAINWARP",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of NOISE.CREATEDOMAINWARP. Use NOISE.CREATEDOMAINWARP."
+    },
+    {
+      "key": "NAVAGENT.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of NAVAGENT.CREATE. Use NAVAGENT.CREATE."
+    },
+    {
+      "key": "BTREE.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of BTREE.CREATE. Use BTREE.CREATE."
+    },
+    {
+      "key": "CAMERA.MAKE",
+      "args": [],
+      "description": "DEPRECATED alias of CAMERA.CREATE. Use CAMERA.CREATE."
+    },
+    {
+      "key": "CAMERA.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CAMERA.CREATE. Returns a Camera3D heap handle."
+    },
+    {
+      "key": "LIGHT.MAKE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE."
+    },
+    {
+      "key": "LIGHT.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE."
+    },
+    {
+      "key": "LIGHT.MAKEPOINT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of LIGHT.CREATEPOINT. Use LIGHT.CREATEPOINT. Point light at (x,y,z) with RGB (0–255 or 0–1) and intensity (energy)"
+    },
+    {
+      "key": "LIGHT.MAKEDIRECTIONAL",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of LIGHT.CREATEDIRECTIONAL. Use LIGHT.CREATEDIRECTIONAL. Directional light: direction vector (dx,dy,dz), RGB, energy — direction is normalized"
+    },
+    {
+      "key": "LIGHT.MAKESPOT",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of LIGHT.CREATESPOT. Use LIGHT.CREATESPOT. Spot: position, target point, RGB, outer cone degrees, energy"
+    },
+    {
+      "key": "TERRAIN.MAKE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of TERRAIN.CREATE. Use TERRAIN.CREATE."
+    },
+    {
+      "key": "MODEL.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of MODEL.CREATE. Use MODEL.CREATE."
+    },
+    {
+      "key": "MODEL.MAKECAPSULE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MODEL.CREATECAPSULE. Use MODEL.CREATECAPSULE. EntityRef capsule primitive (radius#, height#); draw matches Jolt capsule when using ENTITY.ADDPHYSICS capsule"
+    },
+    {
+      "key": "MODEL.MAKEBOX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MODEL.CREATEBOX. Use MODEL.CREATEBOX."
+    },
+    {
+      "key": "MODEL.MAKEBOX",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "bool"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MODEL.CREATEBOX. Use MODEL.CREATEBOX."
+    },
+    {
+      "key": "MODEL.MAKEINSTANCED",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MODEL.CREATEINSTANCED. Use MODEL.CREATEINSTANCED."
+    },
+    {
+      "key": "INSTANCE.MAKEINSTANCED",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of INSTANCE.CREATEINSTANCED. Use INSTANCE.CREATEINSTANCED."
+    },
+    {
+      "key": "INSTANCE.MAKE",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of INSTANCE.CREATE. Use INSTANCE.CREATE."
+    },
+    {
+      "key": "PARTICLE.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of PARTICLE.CREATE. Use PARTICLE.CREATE."
+    },
+    {
+      "key": "PARTICLE3D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of PARTICLE3D.CREATE. Use PARTICLE3D.CREATE."
+    },
+    {
+      "key": "RENDERTARGET.MAKE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of RENDERTARGET.CREATE. Use RENDERTARGET.CREATE."
+    },
+    {
+      "key": "MESH.MAKEPOLY",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATEPOLY. Use MESH.CREATEPOLY."
+    },
+    {
+      "key": "MESH.MAKEPLANE",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE."
+    },
+    {
+      "key": "MESH.MAKEPLANE",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE. Alias of MESH.MAKEPLANE — procedural plane mesh handle"
+    },
+    {
+      "key": "MESH.MAKECUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATECUBE. Use MESH.CREATECUBE."
+    },
+    {
+      "key": "MESH.MAKESPHERE",
+      "args": [
+        "float",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATESPHERE. Use MESH.CREATESPHERE."
+    },
+    {
+      "key": "MESH.MAKECUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MESH.CREATECUBE. Use MESH.CREATECUBE. Alias of MESH.MAKECUBE"
+    },
+    {
+      "key": "MESH.MAKESPHERE",
+      "args": [
+        "float",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MESH.CREATESPHERE. Use MESH.CREATESPHERE. Alias of MESH.MAKESPHERE"
+    },
+    {
+      "key": "MESH.MAKECYLINDER",
+      "args": [
+        "float",
+        "float",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATECYLINDER. Use MESH.CREATECYLINDER."
+    },
+    {
+      "key": "MESH.MAKECONE",
+      "args": [
+        "float",
+        "float",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATECONE. Use MESH.CREATECONE."
+    },
+    {
+      "key": "MESH.MAKETORUS",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATETORUS. Use MESH.CREATETORUS."
+    },
+    {
+      "key": "MESH.MAKEKNOT",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATEKNOT. Use MESH.CREATEKNOT."
+    },
+    {
+      "key": "MESH.MAKEHEIGHTMAP",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATEHEIGHTMAP. Use MESH.CREATEHEIGHTMAP."
+    },
+    {
+      "key": "MESH.MAKECUBICMAP",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATECUBICMAP. Use MESH.CREATECUBICMAP."
+    },
+    {
+      "key": "MESH.MAKECAPSULE",
+      "args": [
+        "float",
+        "float",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of MESH.CREATECAPSULE. Use MESH.CREATECAPSULE."
+    },
+    {
+      "key": "MESH.MAKECUSTOM",
+      "args": [
+        "handle",
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MESH.CREATECUSTOM. Use MESH.CREATECUSTOM."
+    },
+    {
+      "key": "MATERIAL.MAKEDEFAULT",
+      "args": [],
+      "description": "DEPRECATED alias of MATERIAL.CREATEDEFAULT. Use MATERIAL.CREATEDEFAULT."
+    },
+    {
+      "key": "MATERIAL.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MATERIAL.CREATE. Use MATERIAL.CREATE."
+    },
+    {
+      "key": "MATERIAL.MAKEPBR",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of MATERIAL.CREATEPBR. Use MATERIAL.CREATEPBR."
+    },
+    {
+      "key": "IMAGE.MAKEBLANK",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of IMAGE.CREATEBLANK. Use IMAGE.CREATEBLANK."
+    },
+    {
+      "key": "IMAGE.MAKEBLANK",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of IMAGE.CREATEBLANK. Use IMAGE.CREATEBLANK."
+    },
+    {
+      "key": "IMAGE.MAKE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of IMAGE.CREATE. Use IMAGE.CREATE."
+    },
+    {
+      "key": "IMAGE.MAKE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of IMAGE.CREATE. Use IMAGE.CREATE."
+    },
+    {
+      "key": "IMAGE.MAKECOPY",
+      "args": [
+        "handle"
+      ],
+      "description": "DEPRECATED alias of IMAGE.CREATECOPY. Use IMAGE.CREATECOPY."
+    },
+    {
+      "key": "IMAGE.MAKETEXT",
+      "args": [
+        "string",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of IMAGE.CREATETEXT. Use IMAGE.CREATETEXT."
+    },
+    {
+      "key": "AUDIOSTREAM.MAKE",
+      "args": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of AUDIOSTREAM.CREATE. Use AUDIOSTREAM.CREATE."
+    },
+    {
+      "key": "RAY.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of RAY.CREATE. Use RAY.CREATE."
+    },
+    {
+      "key": "BBOX.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of BBOX.CREATE. Use BBOX.CREATE."
+    },
+    {
+      "key": "BSPHERE.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of BSPHERE.CREATE. Use BSPHERE.CREATE."
+    },
+    {
+      "key": "VEC3.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of VEC3.CREATE. Use VEC3.CREATE."
+    },
+    {
+      "key": "VEC2.MAKE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of VEC2.CREATE. Use VEC2.CREATE."
+    },
+    {
+      "key": "MEM.MAKE",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of MEM.CREATE. Use MEM.CREATE."
+    },
+    {
+      "key": "RAND.MAKE",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of RAND.CREATE. Use RAND.CREATE."
+    },
+    {
+      "key": "UTIL.MAKEDIRECTORY",
+      "args": [
+        "string"
+      ],
+      "returns": "bool",
+      "phase": "any",
+      "description": "DEPRECATED alias of UTIL.CREATEDIRECTORY. Use UTIL.CREATEDIRECTORY."
+    },
+    {
+      "key": "PARTICLE2D.MAKE",
+      "args": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of PARTICLE2D.CREATE. Use PARTICLE2D.CREATE."
+    },
+    {
+      "key": "SPRITEBATCH.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of SPRITEBATCH.CREATE. Use SPRITEBATCH.CREATE."
+    },
+    {
+      "key": "SPRITEGROUP.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of SPRITEGROUP.CREATE. Use SPRITEGROUP.CREATE."
+    },
+    {
+      "key": "SPRITELAYER.MAKE",
+      "args": [
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of SPRITELAYER.CREATE. Use SPRITELAYER.CREATE."
+    },
+    {
+      "key": "SPRITEUI.MAKE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of SPRITEUI.CREATE. Use SPRITEUI.CREATE."
+    },
+    {
+      "key": "LIGHT2D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of LIGHT2D.CREATE. Use LIGHT2D.CREATE."
+    },
+    {
+      "key": "POOL.MAKE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of POOL.CREATE. Use POOL.CREATE."
+    },
+    {
+      "key": "TWEEN.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "any",
+      "description": "DEPRECATED alias of TWEEN.CREATE. Use TWEEN.CREATE."
+    },
+    {
+      "key": "CAMERA2D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of CAMERA2D.CREATE. Use CAMERA2D.CREATE."
+    },
+    {
+      "key": "BODY3D.MAKE",
+      "args": [
+        "string"
+      ],
+      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE."
+    },
+    {
+      "key": "BODY3D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE."
+    },
+    {
+      "key": "ENET.MAKEHOST",
+      "args": [
+        "string",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "DEPRECATED alias of ENET.CREATEHOST. Use ENET.CREATEHOST."
+    },
+    {
+      "key": "BODY3D.MAKE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE."
+    },
+    {
+      "key": "JOINT.MAKEHINGE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of JOINT.CREATEHINGE. Use JOINT.CREATEHINGE. Create a hinge joint (b1, b2, px, py, pz, ax, ay, az)."
+    },
+    {
+      "key": "JOINT.MAKEHINGE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of JOINT.CREATEHINGE. Use JOINT.CREATEHINGE. Creates a hinge joint between two bodies at (px,py,pz) around axis (ax,ay,az).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "JOINT.MAKEPOINT",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of JOINT.CREATEPOINT. Use JOINT.CREATEPOINT. Creates a point-to-point (ball and socket) joint between two bodies at (px,py,pz).",
+      "namespace": "physics3d"
+    },
+    {
+      "key": "BODY2D.MAKE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of BODY2D.CREATE. Use BODY2D.CREATE."
+    },
+    {
+      "key": "CHARCONTROLLER.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CHARCONTROLLER.CREATE. Use CHARCONTROLLER.CREATE."
+    },
+    {
+      "key": "PLAYER.MAKE",
+      "args": [
+        "int"
+      ],
+      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE."
+    },
+    {
+      "key": "PLAYER.MAKE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE. KCC with explicit capsule radius and height (world units)"
+    },
+    {
+      "key": "CHAR.MAKE",
+      "args": [
+        "int"
+      ],
+      "description": "DEPRECATED alias of CHAR.CREATE. Use CHAR.CREATE. Alias of PLAYER.CREATE: (entity) or (entity, radius#, height#); allocates Jolt CharacterVirtual and clears scripted gravity/velocity for stable KCC (Linux+CGO)"
+    },
+    {
+      "key": "CHAR.MAKE",
+      "args": [
+        "int",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of CHAR.CREATE. Use CHAR.CREATE. Alias of PLAYER.CREATE(entity, radius#, height#)"
+    },
+    {
+      "key": "CHARACTER.MAKE",
+      "args": [
+        "any",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.",
+      "namespace": "Character"
+    },
+    {
+      "key": "SHAPE.MAKEBOX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of SHAPE.CREATEBOX. Use SHAPE.CREATEBOX. Creates a Jolt Box shape for collision geometry."
+    },
+    {
+      "key": "SHAPE.MAKESPHERE",
+      "args": [
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of SHAPE.CREATESPHERE. Use SHAPE.CREATESPHERE. Creates a Jolt Sphere shape."
+    },
+    {
+      "key": "SHAPE.MAKECAPSULE",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of SHAPE.CREATECAPSULE. Use SHAPE.CREATECAPSULE. Creates a Jolt Capsule shape: (radius, height)."
+    },
+    {
+      "key": "SHAPE.MAKECYLINDER",
+      "args": [
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of SHAPE.CREATECYLINDER. Use SHAPE.CREATECYLINDER. Creates a Jolt Cylinder shape: (radius, height)."
+    },
+    {
+      "key": "KINEMATIC.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of KINEMATIC.CREATE. Use KINEMATIC.CREATE. Creates a Kinematic Body from a shape handle."
+    },
+    {
+      "key": "STATIC.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of STATIC.CREATE. Use STATIC.CREATE. Creates a Static Body (environment) from a shape handle."
+    },
+    {
+      "key": "TRIGGER.MAKE",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of TRIGGER.CREATE. Use TRIGGER.CREATE. Creates a Trigger Body (non-solid sensor) from a shape handle."
+    },
+    {
+      "key": "CONTROLLER.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CONTROLLER.CREATE. Use CONTROLLER.CREATE."
+    },
+    {
+      "key": "NET.MAKESERVER",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of NET.CREATESERVER. Use NET.CREATESERVER."
+    },
+    {
+      "key": "NET.MAKECLIENT",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of NET.CREATECLIENT. Use NET.CREATECLIENT."
+    },
+    {
+      "key": "PACKET.MAKE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of PACKET.CREATE. Use PACKET.CREATE."
+    },
+    {
+      "key": "LOBBY.MAKE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of LOBBY.CREATE. Use LOBBY.CREATE."
+    },
+    {
+      "key": "JSON.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of JSON.CREATE. Use JSON.CREATE."
+    },
+    {
+      "key": "GRID.MAKE",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of GRID.CREATE. Use GRID.CREATE. Logical XZ tactical grid (width x depth cells, cell size)"
+    },
+    {
+      "key": "SKY.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of SKY.CREATE. Use SKY.CREATE."
+    },
+    {
+      "key": "WEATHER.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of WEATHER.CREATE. Use WEATHER.CREATE."
+    },
+    {
+      "key": "WATER.MAKE",
+      "args": [
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of WATER.CREATE. Use WATER.CREATE."
+    },
+    {
+      "key": "TABLE.MAKE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of TABLE.CREATE. Use TABLE.CREATE."
+    },
+    {
+      "key": "WATER.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of WATER.CREATE. Use WATER.CREATE. x, z, width, depth, water level (Y); same plane as WATER.MAKE"
+    },
+    {
+      "key": "TERRAIN.MAKE",
+      "args": [
+        "int",
+        "int",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of TERRAIN.CREATE. Use TERRAIN.CREATE."
+    },
+    {
+      "key": "ENTITY.MAKE",
+      "args": [],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATE. Use ENTITY.CREATE."
+    },
+    {
+      "key": "ENTITY.MAKEBOX",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATEBOX. Use ENTITY.CREATEBOX."
+    },
+    {
+      "key": "ENTITY.MAKEBOX",
+      "args": [
+        "float"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATEBOX. Use ENTITY.CREATEBOX. Uniform cube: size# used for width, height, and depth (alias ENTITY.CREATECUBE)"
+    },
+    {
+      "key": "TRIGGER.MAKEFROMENTITY",
+      "args": [
+        "int"
+      ],
+      "description": "DEPRECATED alias of TRIGGER.CREATEFROMENTITY. Use TRIGGER.CREATEFROMENTITY."
+    },
+    {
+      "key": "ENTITY.MAKEENTITY",
+      "args": [],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATEENTITY. Use ENTITY.CREATEENTITY."
+    },
+    {
+      "key": "ENTITY.MAKECUBE",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATECUBE. Use ENTITY.CREATECUBE."
+    },
+    {
+      "key": "ENTITY.MAKESPHERE",
+      "args": [
+        "float",
+        "int"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE."
+    },
+    {
+      "key": "ENTITY.MAKESPHERE",
+      "args": [
+        "float"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE. Radius only — default 16 segments"
+    },
+    {
+      "key": "ENTITY.MAKECYLINDER",
+      "args": [
+        "float",
+        "float",
+        "int"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATECYLINDER. Use ENTITY.CREATECYLINDER."
+    },
+    {
+      "key": "ENTITY.MAKEPLANE",
+      "args": [
+        "float"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATEPLANE. Use ENTITY.CREATEPLANE."
+    },
+    {
+      "key": "ENTITY.MAKEMESH",
+      "args": [
+        "any"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATEMESH. Use ENTITY.CREATEMESH. Procedural mesh: optional parentEntity#; use AddVertex/UpdateMesh"
+    },
+    {
+      "key": "ENTITY.MAKESPRITE",
+      "args": [
+        "string"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE."
+    },
+    {
+      "key": "ENTITY.MAKESPRITE",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE."
+    },
+    {
+      "key": "ENTITY.MAKESPRITE",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE. Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)"
+    },
+    {
+      "key": "ENTITY.MAKESPRITE",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "int"
+      ],
+      "returns": "int",
+      "phase": "rendering",
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE."
+    },
+    {
+      "key": "ENTITY.MAKESURFACE",
+      "args": [
+        "int"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of ENTITY.CREATESURFACE. Use ENTITY.CREATESURFACE."
+    },
+    {
+      "key": "PLAYER2D.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of PLAYER2D.CREATE. Use PLAYER2D.CREATE."
+    },
+    {
+      "key": "NAV.MAKE",
+      "args": [],
+      "returns": "int",
+      "description": "DEPRECATED alias of NAV.CREATE. Use NAV.CREATE. Create a new navigation grid handle."
+    },
+    {
+      "key": "NAVAGENT.MAKE",
+      "args": [
+        "int"
+      ],
+      "returns": "int",
+      "description": "DEPRECATED alias of NAVAGENT.CREATE. Use NAVAGENT.CREATE. Create a navigation agent for the specified grid handle."
+    },
+    {
+      "key": "PLAYER.MAKE",
+      "args": [
+        "handle"
+      ],
+      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE. Initializes a Kinematic Character Controller in the Jolt buffer."
+    },
+    {
+      "key": "TRIGGER.MAKEZONE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of TRIGGER.CREATEZONE. Use TRIGGER.CREATEZONE. Creates non-blocking zone firing hit tags."
+    },
+    {
+      "key": "VEHICLE.MAKE",
+      "args": [
+        "int",
+        "int"
+      ],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "DEPRECATED alias of VEHICLE.CREATE. Use VEHICLE.CREATE. Create a vehicle controller for an entity."
+    },
+    {
+      "key": "CLOUD.CREATE",
+      "args": [],
+      "returns": "handle",
+      "description": "Procedural cloud volume handle (CPU-side; coverage via CLOUD.SETCOVERAGE)."
+    },
+    {
+      "key": "CLOUD.MAKE",
+      "args": [],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CLOUD.CREATE. Use CLOUD.CREATE."
+    },
+    {
+      "key": "CLOUD.FREE",
+      "args": [
+        "handle"
+      ],
+      "description": "Release cloud handle."
+    },
+    {
+      "key": "CLOUD.UPDATE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Advance cloud state (dt in seconds)."
+    },
+    {
+      "key": "CLOUD.DRAW",
+      "args": [
+        "handle"
+      ],
+      "description": "Draw cloud volume (stub path)."
+    },
+    {
+      "key": "CLOUD.SETCOVERAGE",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Set cloud coverage amount (0..1)."
+    },
+    {
+      "key": "BIOME.CREATE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "Create a named biome state handle (temperature/humidity via BIOME.SET*)."
+    },
+    {
+      "key": "BIOME.MAKE",
+      "args": [
+        "string"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of BIOME.CREATE. Use BIOME.CREATE."
+    },
+    {
+      "key": "BIOME.FREE",
+      "args": [
+        "handle"
+      ],
+      "description": "Release biome handle."
+    },
+    {
+      "key": "BIOME.SETTEMP",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Set biome temperature (celsius)."
+    },
+    {
+      "key": "BIOME.SETHUMIDITY",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Set biome humidity (0..1)."
     }
   ]
 }

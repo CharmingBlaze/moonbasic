@@ -4,14 +4,14 @@ High-fidelity character movement with iterative "Move and Slide" collision resol
 
 ## Core Workflow
 
-1.  **Initialize**: Call `CHAR.MAKE(entity, radius#, height#)`.
+1.  **Initialize**: Call `CHAR.CREATE(entity, radius#, height#)`.
 2.  **Configuration**: Set step height with `CHAR.SETSTEP(entity, height#)`.
 3.  **Movement**: Apply intentional movement using `CHAR.MOVEWITHCAMERA()` or `CHAR.MOVE()`.
 4.  **Feedback**: Check grounding with `CHAR.ISGROUNDED()`.
 
 ```basic
 player = CreateCapsule()
-CHAR.MAKE(player, 0.5, 2.0)
+CHAR.CREATE(player, 0.5, 2.0)
 CHAR.SETSTEP(player, 0.4)
 
 WHILE NOT Window.ShouldClose()
@@ -32,9 +32,9 @@ WEND
 
 ### `CHARACTER.CREATE` (`Character.*`)
 
-**Entity-bound only:** **`Character.Create(entity, radius#, height#)`** — same role as **`CHAR.MAKE`**: visuals and KCC stay in sync. Requires **desktop `fullruntime` with CGO + Jolt** (see [CHARACTER.md](reference/CHARACTER.md)).
+**Entity-bound only:** **`Character.Create(entity, radius#, height#)`** — same role as **`CHAR.CREATE`** (deprecated **`CHAR.MAKE`**): visuals and KCC stay in sync. Requires **desktop `fullruntime` with CGO + Jolt** (see [CHARACTER.md](reference/CHARACTER.md)).
 
-### `CHAR.MAKE(entity, radius#, height#)`
+### `CHAR.CREATE(entity, radius#, height#)`
 
 Allocates a Kinematic Character Controller for the entity (**Jolt `CharacterVirtual`** on Windows and Linux when built with CGO + Jolt).
 

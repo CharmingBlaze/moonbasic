@@ -26,7 +26,7 @@ Classic Blitz3D drove the frame with **Flip**, **RenderWorld**, and **UpdateWorl
 |--------------|-----------|
 | **`Graphics3D width, height, depth`** | **`Window.Open(w, h, title)`** — depth is handled by the 3D camera / Z-buffer, not a third dimension argument. |
 | **`AmbientLight` / `CameraClsMode`** | **`Render.Clear(r,g,b)`** before **`Camera.Begin`**; sky colour is your clear. |
-| **`CreateCamera` / orbit the view** | **`cam = Camera.Make()`** then **`Camera.SetOrbit`** or **`Camera.Orbit`** (same math — see [CAMERA.md](CAMERA.md)). Third-person yaw/pitch/distance helpers: **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** ([GAMEHELPERS.md](GAMEHELPERS.md)). |
+| **`CreateCamera` / orbit the view** | **`cam = CreateCamera()`** (→ **`CAMERA.CREATE`**) then **`Camera.SetOrbit`** or **`Camera.Orbit`** (same math — see [CAMERA.md](CAMERA.md)). Third-person yaw/pitch/distance helpers: **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** ([GAMEHELPERS.md](GAMEHELPERS.md)). |
 | **`WireCube` / `Cube` (immediate)** | Short globals **`WIRECUBE`** / **`BOX`** (same as **`DRAW3D.CUBEWIRES`** / **`DRAW3D.CUBE`**) — see [DRAW3D.md](DRAW3D.md). Optional OOP-style **`DRAWCUBE()`** / **`DRAWSPHERE()`** wrappers: [DRAW_WRAPPERS.md](DRAW_WRAPPERS.md) (distinct from **`CUBE()`** entities). |
 | **`MoveEntity` / `PositionEntity`** | **`Entity.MoveEntity`** / **`Entity.PositionEntity`** for **entity ids**; **dot-syntax** on **`CUBE`/`SPHERE`** handles below; for raw floats + **`LANDBOXES`** / **`LANDBOX`**, see **`examples/mario64/main_orbit_simple.mb`**. |
 | **`KeyHit` / `KeyDown`** | Flat **`KEYHIT(key)`** / **`KEYDOWN(key)`** (also **`GAME.KEYHIT`** / **`GAME.KEYDOWN`**). |
@@ -72,7 +72,7 @@ Handle methods are normal calls: **`receiver.Method(args)`** (parentheses requir
 
 ## Short camera handle (`CAM()` / `Cam()`)
 
-**`cam = CAM()`** (alias of **`Camera.Make`**) returns the same **`Camera3D`** handle as **`Camera.Make`**. Prefer **dot methods** on the handle for short code:
+**`cam = CAM()`** (alias of **`CAMERA.CREATE`**) returns the same **`Camera3D`** handle as **`CreateCamera()`** / **`Camera.Make()`** (deprecated). Prefer **dot methods** on the handle for short code:
 
 | Dot (as a call) | Registry |
 |-----|----------|

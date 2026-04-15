@@ -12,6 +12,7 @@ import (
 )
 
 func (m *Module) registerWindowPlacementCommands(reg runtime.Registrar) {
+	reg.Register("WINDOW.SETPOS", "window", runtime.AdaptLegacy(m.wSetPos))
 	reg.Register("WINDOW.SETPOSITION", "window", runtime.AdaptLegacy(m.wSetPosition))
 	reg.Register("WINDOW.SETSIZE", "window", runtime.AdaptLegacy(m.wSetSize))
 	reg.Register("WINDOW.MINIMIZE", "window", runtime.AdaptLegacy(m.wMinimize))
@@ -20,17 +21,25 @@ func (m *Module) registerWindowPlacementCommands(reg runtime.Registrar) {
 	reg.Register("WINDOW.SETTARGETFPS", "window", m.wSetFPS)
 }
 
+func (m *Module) wSetPos(args []value.Value) (value.Value, error) {
+	return m.setWindowXY(args, "WINDOW.SETPOS")
+}
+
 func (m *Module) wSetPosition(args []value.Value) (value.Value, error) {
-	if err := m.requireOpen("WINDOW.SETPOSITION"); err != nil {
+	return m.setWindowXY(args, "WINDOW.SETPOSITION")
+}
+
+func (m *Module) setWindowXY(args []value.Value, op string) (value.Value, error) {
+	if err := m.requireOpen(op); err != nil {
 		return value.Nil, err
 	}
 	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("WINDOW.SETPOSITION expects (x, y)")
+		return value.Nil, fmt.Errorf("%s expects (x, y)", op)
 	}
 	x, okx := argInt(args[0])
 	y, oky := argInt(args[1])
 	if !okx || !oky {
-		return value.Nil, fmt.Errorf("WINDOW.SETPOSITION: x and y must be numeric")
+		return value.Nil, fmt.Errorf("%s: x and y must be numeric", op)
 	}
 	rl.SetWindowPosition(int(x), int(y))
 	return value.Nil, nil

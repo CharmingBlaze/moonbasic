@@ -81,25 +81,29 @@ func (m *Module) getTimerSim(args []value.Value, ix int, op string) (*gameTimerS
 }
 
 func (m *Module) registerTimerSim(r runtime.Registrar) {
-	r.Register("TIMER.MAKE", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		_ = rt
-		if err := m.requireHeap("TIMER.MAKE"); err != nil {
-			return value.Nil, err
+	simTimerNew := func(op string) func(*runtime.Runtime, ...value.Value) (value.Value, error) {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			_ = rt
+			if err := m.requireHeap(op); err != nil {
+				return value.Nil, err
+			}
+			if len(args) != 1 {
+				return value.Nil, fmt.Errorf("%s expects 1 argument (duration)", op)
+			}
+			sec, ok := argF(args[0])
+			if !ok || sec < 0 {
+				return value.Nil, fmt.Errorf("%s: duration must be a non-negative number", op)
+			}
+			o := &gameTimerSimObj{duration: sec}
+			id, err := m.h.Alloc(o)
+			if err != nil {
+				return value.Nil, err
+			}
+			return value.FromHandle(id), nil
 		}
-		if len(args) != 1 {
-			return value.Nil, fmt.Errorf("TIMER.MAKE expects 1 argument (duration)")
-		}
-		sec, ok := argF(args[0])
-		if !ok || sec < 0 {
-			return value.Nil, fmt.Errorf("TIMER.MAKE: duration must be a non-negative number")
-		}
-		o := &gameTimerSimObj{duration: sec}
-		id, err := m.h.Alloc(o)
-		if err != nil {
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
-	})
+	}
+	r.Register("TIMER.MAKE", "game", simTimerNew("TIMER.MAKE"))
+	r.Register("TIMER.CREATE", "game", simTimerNew("TIMER.CREATE"))
 	r.Register("TIMER.START", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		_ = rt
 		o, err := m.getTimerSim(args, 0, "TIMER.START")

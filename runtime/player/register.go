@@ -7,6 +7,7 @@ import (
 func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	// Standard CHARACTER.* and CHARACTERREF.* (Core)
 	reg.Register("CHARACTER.CREATE", "player", runtime.AdaptLegacy(m.playerCharacterCreate))
+	reg.Register("CHARACTER.MAKE", "player", runtime.AdaptLegacy(m.playerCharacterCreate))
 	reg.Register("CHARACTERREF.ADDVELOCITY", "player", runtime.AdaptLegacy(m.charRefAddVel))
 	reg.Register("CHARACTERREF.SETLINEARVELOCITY", "player", runtime.AdaptLegacy(m.charRefSetVel))
 	reg.Register("CHARACTERREF.SETVELOCITY", "player", runtime.AdaptLegacy(m.charRefSetVel))
@@ -19,6 +20,7 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.SETMAXSLOPE", "player", runtime.AdaptLegacy(m.charRefSetMaxSlope))
 	reg.Register("CHARACTERREF.SETSTEPHEIGHT", "player", runtime.AdaptLegacy(m.charRefSetStepHeight))
 	reg.Register("CHARACTERREF.ISGROUNDED", "player", runtime.AdaptLegacy(m.charRefIsGrounded))
+	reg.Register("CHARACTERREF.SETPOS", "player", runtime.AdaptLegacy(m.charRefSetPos))
 	reg.Register("CHARACTERREF.SETPOSITION", "player", runtime.AdaptLegacy(m.charRefSetPos))
 	reg.Register("CHARACTERREF.GETPOSITION", "player", runtime.AdaptLegacy(m.charRefGetPos))
 	reg.Register("CHARACTERREF.FREE", "player", runtime.AdaptLegacy(m.charRefFree))
@@ -33,6 +35,7 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 
 	// PLAYER.* Aliases (Easy Mode)
 	reg.Register("PLAYER.CREATE", "player", runtime.AdaptLegacy(m.playerCharacterCreate))
+	reg.Register("PLAYER.MAKE", "player", runtime.AdaptLegacy(m.playerCharacterCreate))
 	reg.Register("PLAYER.MOVE", "player", runtime.AdaptLegacy(m.playerMove))
 	reg.Register("PLAYER.SETVELOCITY", "player", runtime.AdaptLegacy(m.playerSetVelocity))
 	reg.Register("PLAYER.ADDIMPULSE", "player", runtime.AdaptLegacy(m.playerAddImpulse))
@@ -53,7 +56,7 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PLAYER.SETPADDING", "player", runtime.AdaptLegacy(m.charRefSetPadding))
 	reg.Register("PLAYER.MOVEWITHCAMERA", "player", runtime.AdaptLegacy(m.charRefMoveWithCam))
 
-    // Extras / High-level
+	// Extras / High-level
 	reg.Register("PLAYER.GETLOOKTARGET", "player", runtime.AdaptLegacy(m.playerGetLookTarget))
 	reg.Register("PLAYER.GETNEARBY", "player", runtime.AdaptLegacy(m.playerGetNearby))
 	reg.Register("PLAYER.ONTRIGGER", "player", runtime.AdaptLegacy(m.playerOnTrigger))
@@ -76,6 +79,7 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PLAYER.SETGROUNDCONTROL", "player", runtime.AdaptLegacy(m.playerSetGroundControl))
 
 	// CHAR.* Aliases (Easy Mode)
+	reg.Register("CHAR.CREATE", "player", runtime.AdaptLegacy(m.playerCharacterCreate))
 	reg.Register("CHAR.MAKE", "player", runtime.AdaptLegacy(m.playerCharacterCreate))
 	reg.Register("CHAR.SETSTEP", "player", runtime.AdaptLegacy(m.playerSetStepOffset))
 	reg.Register("CHAR.SETSLOPE", "player", runtime.AdaptLegacy(m.playerSetSlopeLimit))

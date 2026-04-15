@@ -81,31 +81,35 @@ func registerModelLoad(m *Module, reg runtime.Registrar) {
 		return value.FromHandle(id), nil
 	})
 
-	// MODEL.MAKE wraps LoadModelFromMesh — copies mesh data into a new Model (independent of the mesh handle).
-	reg.Register("MODEL.MAKE", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		_ = rt
-		if err := m.requireHeap(); err != nil {
-			return value.Nil, err
+	// MODEL.CREATE / MODEL.MAKE wrap LoadModelFromMesh — copy mesh data into a new Model (independent of the mesh handle).
+	modelFromMesh := func(op string) func(*runtime.Runtime, ...value.Value) (value.Value, error) {
+		return func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+			_ = rt
+			if err := m.requireHeap(); err != nil {
+				return value.Nil, err
+			}
+			if len(args) != 1 || args[0].Kind != value.KindHandle {
+				return value.Nil, fmt.Errorf("%s expects mesh handle", op)
+			}
+			o, err := m.getMesh(args, 0, op)
+			if err != nil {
+				return value.Nil, err
+			}
+			mod := rl.LoadModelFromMesh(o.m)
+			o.consumedByModel = true
+			obj := &modelObj{model: mod, loadedPath: "", animSpeed: 1}
+			obj.setFinalizer()
+			id, err := m.h.Alloc(obj)
+			if err != nil {
+				o.consumedByModel = false
+				rl.UnloadModel(mod)
+				return value.Nil, err
+			}
+			return value.FromHandle(id), nil
 		}
-		if len(args) != 1 || args[0].Kind != value.KindHandle {
-			return value.Nil, fmt.Errorf("MODEL.MAKE expects mesh handle")
-		}
-		o, err := m.getMesh(args, 0, "MODEL.MAKE")
-		if err != nil {
-			return value.Nil, err
-		}
-		mod := rl.LoadModelFromMesh(o.m)
-		o.consumedByModel = true
-		obj := &modelObj{model: mod, loadedPath: "", animSpeed: 1}
-		obj.setFinalizer()
-		id, err := m.h.Alloc(obj)
-		if err != nil {
-			o.consumedByModel = false
-			rl.UnloadModel(mod)
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
-	})
+	}
+	reg.Register("MODEL.MAKE", "model", modelFromMesh("MODEL.MAKE"))
+	reg.Register("MODEL.CREATE", "model", modelFromMesh("MODEL.CREATE"))
 
 	freeModelOrInst := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {

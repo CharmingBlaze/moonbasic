@@ -11,11 +11,13 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"moonbasic/compiler/builtinmanifest"
 	moonerrors "moonbasic/compiler/errors"
 	"moonbasic/compiler/pipeline"
+	"moonbasic/compiler/semantic"
 )
 
 // Serve runs the LSP server on stdin/stdout until shutdown or EOF.
@@ -191,7 +193,7 @@ func (s *server) publishDiagnostics(uri, text string) {
 		name = "buffer.mb"
 		path = name
 	}
-	err := pipeline.CheckSource(path, text)
+	notices, err := pipeline.CheckSourceWithNotices(path, text, pipeline.CheckOptions{})
 	var diags []any
 	var me *moonerrors.MoonError
 	if err != nil && errors.As(err, &me) {
@@ -215,6 +217,9 @@ func (s *server) publishDiagnostics(uri, text string) {
 			"message":  err.Error(),
 		})
 	}
+	for _, n := range notices {
+		diags = append(diags, deprecationDiagnostic(n))
+	}
 	notif := map[string]any{
 		"jsonrpc": "2.0",
 		"method":  "textDocument/publishDiagnostics",
@@ -225,6 +230,34 @@ func (s *server) publishDiagnostics(uri, text string) {
 	}
 	raw, _ := json.Marshal(notif)
 	_ = writeFramedMessage(os.Stdout, raw)
+}
+
+// deprecationDiagnostic builds an LSP diagnostic for a deprecated built-in alias (warning).
+func deprecationDiagnostic(n semantic.DeprecationNotice) map[string]any {
+	line := n.Line - 1
+	if line < 0 {
+		line = 0
+	}
+	startChar := n.Col - 1
+	if startChar < 0 {
+		startChar = 0
+	}
+	keyLen := len(n.DeprecatedKey)
+	if keyLen < 1 {
+		keyLen = 1
+	}
+	endChar := startChar + keyLen
+	return map[string]any{
+		"range": map[string]any{
+			"start": map[string]uint32{"line": uint32(line), "character": uint32(startChar)},
+			"end":   map[string]uint32{"line": uint32(line), "character": uint32(endChar)},
+		},
+		"severity": 2,
+		"code":     "deprecated-api",
+		"source":   "moonbasic",
+		"tags":     []any{2},
+		"message":  fmt.Sprintf("Deprecated command %s; use %s", n.DeprecatedKey, n.ReplacementKey),
+	}
 }
 
 func (s *server) hover(params json.RawMessage) any {
@@ -368,6 +401,14 @@ func (s *server) completion(params json.RawMessage) any {
 	}
 	nsPart = strings.ToUpper(nsPart)
 	keys := s.table.KeysWithNamespacePrefix(nsPart)
+	sort.SliceStable(keys, func(i, j int) bool {
+		pi := completionMethodPriority(strings.TrimPrefix(keys[i], nsPart+"."))
+		pj := completionMethodPriority(strings.TrimPrefix(keys[j], nsPart+"."))
+		if pi != pj {
+			return pi < pj
+		}
+		return keys[i] < keys[j]
+	})
 	var items []any
 	for _, k := range keys {
 		suf := strings.TrimPrefix(k, nsPart+".")
@@ -378,6 +419,27 @@ func (s *server) completion(params json.RawMessage) any {
 		})
 	}
 	return map[string]any{"isIncomplete": false, "items": items}
+}
+
+// completionMethodPriority ranks suffixes so canonical names surface first (CREATE, SETPOS).
+func completionMethodPriority(method string) int {
+	u := strings.ToUpper(strings.TrimSpace(method))
+	switch {
+	case strings.HasPrefix(u, "CREATE"):
+		return 0
+	case u == "SETPOS":
+		return 1
+	case strings.HasPrefix(u, "GET"):
+		return 2
+	case strings.HasPrefix(u, "SET") && u != "SETPOSITION":
+		return 3
+	case u == "SETPOSITION":
+		return 40
+	case strings.HasPrefix(u, "MAKE"):
+		return 50
+	default:
+		return 10
+	}
 }
 
 func filePathFromURI(raw string) string {

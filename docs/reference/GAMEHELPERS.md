@@ -103,7 +103,7 @@ These read like classic Blitz commands: a **`PLAYER2D`** handle stores **X/Z** o
 
 | Command | Role |
 |--------|------|
-| **`p = PLAYER2D.MAKE()`** | Create a mover; **`PLAYER2D.FREE p`** or scene **`ERASE ALL`** when done. |
+| **`p = PLAYER2D.CREATE()`** | Create a mover; **`PLAYER2D.FREE p`** or scene **`ERASE ALL`** when done. |
 | **`PLAYER2D.SETPOS p, x, z`** | Set world X/Z (e.g. spawn). |
 | **`MOVEENTITY2D p, camYaw, f, s, speed, dt`** | Camera-relative move on **XZ** (same math as **`MOVESTEPX`/`MOVESTEPZ`** applied in place). Aliases: **`PLAYER2D.MOVE`**, **`MOVEPLAYER`**. |
 | **`CLAMPENTITY2D p, minX, maxX, minZ, maxZ`** | Store bounds and clamp **current** position into the axis-aligned box. Alias: **`PLAYER2D.CLAMP`**. |
@@ -121,7 +121,7 @@ Camera **yaw** is still a script variable (e.g. **`camYaw`**). The camera handle
 Example:
 
 ```basic
-p = PLAYER2D.MAKE()
+p = PLAYER2D.CREATE()
 PLAYER2D.SETPOS(p, 0.0, 0.0)
 CLAMPENTITY2D(p, -17.0, 17.0, -17.0, 22.0)
 

@@ -31,6 +31,7 @@ func (d *decalObj) TypeTag() uint16 { return heap.TagDecal }
 func (d *decalObj) Free() {}
 
 func (m *Module) registerDecalCommands(r runtime.Registrar) {
+	r.Register("DECAL.CREATE", "decal", m.decalMake)
 	r.Register("DECAL.MAKE", "decal", m.decalMake)
 	r.Register("DECAL.FREE", "decal", m.decalFree)
 	r.Register("DECAL.SETPOS", "decal", m.decalSetPos)

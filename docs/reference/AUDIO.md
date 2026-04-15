@@ -24,7 +24,7 @@ Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a **sound handl
 
 ### Spatial / Blitz-style 3D helpers
 
-- **`Listener(cameraHandle)`** / **`Audio.ListenerCamera()`** — sets the virtual listener from a **`Camera.Make()`** handle (position + horizontal forward). Call **each frame** before **`Entity.EmitSound()`** so pan and falloff stay correct.
+- **`Listener(cameraHandle)`** / **`Audio.ListenerCamera()`** — sets the virtual listener from a **`CreateCamera()`** / **`CAMERA.CREATE`** handle (position + horizontal forward; deprecated **`Camera.Make()`**). Call **each frame** before **`Entity.EmitSound()`** so pan and falloff stay correct.
 - **`Load3DSound(path)`** — same buffers as **`Audio.LoadSound()`**; the “3D” path is for scripts that pair it with **`Listener`** + **`Entity.EmitSound()`**.
 - **`Entity.EmitSound(sound, entity)`** — plays once with **quadratic distance falloff** (max distance ≈ 80 world units) and **stereo pan** from the horizontal angle to the source. Restores each sound’s last **`Audio.SetSoundVolume()`** / **`Audio.SetSoundPan()`** after the play call.
 - **`Audio.SoundVolume()`** / **`Audio.SoundPitch()`** — aliases of **`Audio.SetSoundVolume()`** / **`Audio.SetSoundPitch()`**.

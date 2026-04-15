@@ -4,7 +4,7 @@ Window.SetFPS(60)
 
 
 
-cam = CAMERA.MAKE()
+cam = CAMERA.CREATE()
 
 CAMERA.SETPOS(cam, 1, 2, 8)
 
@@ -34,15 +34,15 @@ CAMERA.SETPROJECTION(cam, 0)
 
 
 
-mesh = MESH.MAKECUBE(1.0, 1.0, 1.0)
+mesh = MESH.CREATECUBE(1.0, 1.0, 1.0)
 
-mdl = MODEL.MAKE(mesh)
+mdl = MODEL.CREATE(mesh)
 
 MODEL.SETPOS(mdl, 0, 0.5, 0)
 
 
 
-cam2 = CAMERA2D.MAKE()
+cam2 = CAMERA2D.CREATE()
 
 CAMERA2D.SETTARGET(cam2, 0, 0)
 

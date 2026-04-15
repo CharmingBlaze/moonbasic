@@ -4,14 +4,14 @@
 Window.Open(640, 480, "memtest_streaming")
 Window.SetFPS(60)
 
-terrain = Terrain.Make(128, 128)
+terrain = Terrain.Create(128, 128)
 Terrain.FillPerlin(terrain, 0.06, 50)
 Chunk.SetRange(terrain, 80, 140)
 World.SetCenter(64, 64)
 World.StreamEnable(TRUE)
 World.Preload(terrain, 2)
 
-cam = Camera.Make()
+cam = CreateCamera()
 Camera.SetPos(cam, 64, 40, 64)
 Camera.SetTarget(cam, 64, 0, 64)
 Camera.SetFOV(cam, 60)

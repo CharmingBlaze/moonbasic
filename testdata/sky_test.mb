@@ -8,7 +8,7 @@ Window.SetFPS(60)
 
 
 
-sky = Sky.Make()
+sky = Sky.Create()
 
 Sky.SetDayLength(sky, 30)
 
@@ -22,7 +22,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     Render.Clear(20, 20, 30)
 
-    cam = Camera.Make()
+    cam = CreateCamera()
 
     Camera.SetPos(cam, 0, 5, 10)
 

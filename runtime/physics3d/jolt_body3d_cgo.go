@@ -233,7 +233,11 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 	}
 
 	m.h.Free(heap.Handle(args[0].IVal))
-	body := &body3dObj{id: id, queryShape: qshape, motion: motion}
+	body := &body3dObj{
+		id: id, queryShape: qshape, motion: motion,
+		qKind: bu.QKind, qBox: bu.QBox, qSphere: bu.QSphere, qCapH: bu.QCapH, qCapR: bu.QCapR,
+		sx: 1, sy: 1, sz: 1,
+	}
 	body.setFinalizer()
 	bh, err := m.h.Alloc(body)
 	if err != nil {
@@ -395,6 +399,129 @@ func (m *Module) bdGetRotZero(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromHandle(ph), nil
+}
+
+func body3dEffectiveScale(bo *body3dObj) (sx, sy, sz float32) {
+	sx, sy, sz = bo.sx, bo.sy, bo.sz
+	if sx == 0 && sy == 0 && sz == 0 {
+		return 1, 1, 1
+	}
+	if sx == 0 {
+		sx = 1
+	}
+	if sy == 0 {
+		sy = 1
+	}
+	if sz == 0 {
+		sz = 1
+	}
+	return
+}
+
+func allocScaledCollisionShape(bo *body3dObj) (*jolt.Shape, error) {
+	sx, sy, sz := body3dEffectiveScale(bo)
+	switch bo.qKind {
+	case 1:
+		return jolt.CreateBox(jolt.Vec3{
+			X: bo.qBox.X * sx,
+			Y: bo.qBox.Y * sy,
+			Z: bo.qBox.Z * sz,
+		}), nil
+	case 2:
+		u := sx
+		if sy > u {
+			u = sy
+		}
+		if sz > u {
+			u = sz
+		}
+		return jolt.CreateSphere(bo.qSphere * u), nil
+	case 3:
+		xz := sx
+		if sz > xz {
+			xz = sz
+		}
+		r := bo.qCapR * xz
+		hh := bo.qCapH * sy
+		return jolt.CreateCapsule(hh, r), nil
+	default:
+		return nil, fmt.Errorf("BODY3D.SETSCALE: not supported for mesh bodies")
+	}
+}
+
+func (m *Module) bdGetScale(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, mbruntime.Errorf("BODY3D.GETSCALE: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETSCALE expects body handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	sx, sy, sz := body3dEffectiveScale(bo)
+	arr, err := heap.NewArray([]int64{3})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, float64(sx))
+	_ = arr.Set([]int64{1}, float64(sy))
+	_ = arr.Set([]int64{2}, float64(sz))
+	ph, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(ph), nil
+}
+
+func (m *Module) bdSetScale(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, mbruntime.Errorf("BODY3D.SETSCALE: heap not bound")
+	}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.SETSCALE expects (body, sx, sy, sz)")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	x1, ok1 := args[1].ToFloat()
+	y1, ok2 := args[2].ToFloat()
+	z1, ok3 := args[3].ToFloat()
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("BODY3D.SETSCALE: sx, sy, sz must be numeric")
+	}
+	if x1 <= 0 || y1 <= 0 || z1 <= 0 {
+		return value.Nil, fmt.Errorf("BODY3D.SETSCALE: scales must be > 0")
+	}
+	if bo.qKind == 0 {
+		return value.Nil, fmt.Errorf("BODY3D.SETSCALE: not supported for mesh bodies")
+	}
+	bo.sx = float32(x1)
+	bo.sy = float32(y1)
+	bo.sz = float32(z1)
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return value.Nil, mbruntime.Errorf("BODY3D.SETSCALE: physics not started")
+	}
+	newSh, err := allocScaledCollisionShape(bo)
+	if err != nil {
+		return value.Nil, err
+	}
+	bi.SetShape(bo.id, newSh, true)
+	newSh.Destroy()
+	if bo.queryShape != nil {
+		bo.queryShape.Destroy()
+	}
+	qNew, err := allocScaledCollisionShape(bo)
+	if err != nil {
+		return value.Nil, err
+	}
+	bo.queryShape = qNew
+	return value.Nil, nil
 }
 
 func (m *Module) bdSetRotation(args []value.Value) (value.Value, error) {

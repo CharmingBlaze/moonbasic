@@ -14,12 +14,13 @@ import (
 	"moonbasic/lsp"
 )
 
-const version = "1.2.10"
+const version = "1.2.17"
 
 func main() {
 	var (
-		checkOnly   = flag.Bool("check", false, "parse and type-check only")
-		showVer     = flag.Bool("version", false, "print version and exit")
+		checkOnly        = flag.Bool("check", false, "parse and type-check only")
+		strictDeprecated = flag.Bool("strict-deprecated", false, "with --check: treat deprecated MAKE/SETPOSITION aliases as errors")
+		showVer          = flag.Bool("version", false, "print version and exit")
 		lspMode     = flag.Bool("lsp", false, "run Language Server Protocol (stdio) for editors")
 		disasm      = flag.Bool("disasm", false, "print human-readable bytecode for a .mbc file")
 		symbolsOut  = flag.String("symbols-out", "", "also write symbol table JSON (path, globals with Persistent, funcs, types) to this file when compiling")
@@ -74,7 +75,7 @@ func main() {
 	}
 
 	if *checkOnly {
-		if err := pipeline.CheckFile(path); err != nil {
+		if err := pipeline.CheckFileWithOptions(path, pipeline.CheckOptions{StrictDeprecated: *strictDeprecated}); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(2)
 		}

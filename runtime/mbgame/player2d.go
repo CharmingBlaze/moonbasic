@@ -12,20 +12,21 @@ import (
 // player2DObj holds XZ position and optional axis-aligned bounds for Blitz-style helpers.
 // Ownership: GAME / PLAYER2D.* only — free with PLAYER2D.FREE or ERASE.
 type player2DObj struct {
-	X, Z     float64
-	MinX     float64
-	MaxX     float64
-	MinZ     float64
-	MaxZ     float64
+	X, Z      float64
+	MinX      float64
+	MaxX      float64
+	MinZ      float64
+	MaxZ      float64
 	hasBounds bool
-	release  heap.ReleaseOnce
+	release   heap.ReleaseOnce
 }
 
-func (o *player2DObj) Free() { o.release.Do(func() {}) }
+func (o *player2DObj) Free()            { o.release.Do(func() {}) }
 func (o *player2DObj) TypeName() string { return "Player2D" }
 func (o *player2DObj) TypeTag() uint16  { return heap.TagPlayer2D }
 
 func (m *Module) registerPlayer2D(r runtime.Registrar) {
+	r.Register("PLAYER2D.CREATE", "game", m.player2DMake)
 	r.Register("PLAYER2D.MAKE", "game", m.player2DMake)
 	r.Register("PLAYER2D.FREE", "game", m.player2DFree)
 	r.Register("PLAYER2D.MOVE", "game", m.player2DMove)

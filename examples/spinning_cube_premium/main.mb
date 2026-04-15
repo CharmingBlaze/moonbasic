@@ -6,7 +6,7 @@ Window.Open(1280, 720, "moonBASIC - Spinning Cube Premium")
 Window.SetFPS(60)
 
 ; 2. Create the camera
-cam = Camera.Make()
+cam = CreateCamera()
 Camera.SetPos(cam, 0, 4, 10)
 Camera.SetTarget(cam, 0, 0, 0)
 

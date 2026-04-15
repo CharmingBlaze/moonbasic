@@ -36,7 +36,7 @@ A future **“smart level loader”** should use a **distinct prefix** (e.g. **`
 | Idea | Direction | Current hooks |
 |------|-----------|----------------|
 | **Zero-copy Jolt sync** | Pre-allocate rows in **`PHYSICS3D.GETMATRIXBUFFER`** / shared float buffer; avoid per-frame body lookup | **`ENTITY.LINKPHYSBUFFER`**, **`PHYSICS3D.STEP`**, **`PHYSICS3D.SYNCWASMTOPHYSREGS`** (WASM paths) — see [PHYSICS3D.md](PHYSICS3D.md) |
-| **Instancing** | Second entity references same GPU mesh/materials; only transform + body id differ | **`MODEL.MAKEINSTANCED`** / instanced draw path in `mbmodel3d`; entity-side **`ENTITY.COPY`** duplicates logic, not necessarily GPU sharing — **needs explicit “instance” semantics** if we mirror the brief |
+| **Instancing** | Second entity references same GPU mesh/materials; only transform + body id differ | **`MODEL.CREATEINSTANCED`** / **`MODEL.MAKEINSTANCED`** / instanced draw path in `mbmodel3d`; entity-side **`ENTITY.COPY`** duplicates logic, not necessarily GPU sharing — **needs explicit “instance” semantics** if we mirror the brief |
 | **Frustum culling** | **`Scene.Draw`**-style batch skips off-screen draws | **`ENTITY.INVIEW`**, cull modes on entities; deferred renderer already has some culling hooks — **no** dedicated “level draw” with hierarchical culling yet |
 
 ---
@@ -55,7 +55,7 @@ The **compiler** parses and emits bytecode; **runtime** owns loaders, heaps, Ray
 | **`Scene.ShowLayer(name)`** | **`LEVEL.SHOWLAYER`** | **Implemented** — **`extras.layer`** or entity group name. |
 | **`Scene.ApplyPhysics(id)`** | **`LEVEL.APPLYPHYSICS`** | **Stub** — use **`BODY3D.*`** manually ([PHYSICS3D.md](PHYSICS3D.md)). |
 | **`Physics.AutoCreate(id)`** | **`PHYSICS.AUTOCREATE`** | **Stub** — use **`ENTITY.GETBOUNDS`** + **`BODY3D.ADD*`** |
-| **`Entity.SetStatic` / `SetTrigger`** | **`ENTITY.SETSTATIC`** / **`SETTRIGGER`** | **Stub** — use **`BODY3D.MAKE("STATIC")`**; sensors N/A in binding yet. |
+| **`Entity.SetStatic` / `SetTrigger`** | **`ENTITY.SETSTATIC`** / **`SETTRIGGER`** | **Stub** — use **`BODY3D.CREATE("STATIC")`** (deprecated **`BODY3D.MAKE("STATIC")`**); sensors N/A in binding yet. |
 | **`Material.AutoFilter`** | **`MATERIAL.AUTOFILTER`** | **Stub** — use **`TEXTURE.SETFILTER`**. |
 | **`Scene.SyncLights`** | **`LEVEL.SYNCLIGHTS`** | **Stub** — **`KHR_lights_punctual`** not wired. |
 | **`Texture.Reload`** | **`TEXTURE.RELOAD`** | **Implemented** — reloads from **`SourcePath`** (main thread). |

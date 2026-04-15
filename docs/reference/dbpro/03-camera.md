@@ -1,10 +1,10 @@
 # DBPro — Camera
 
-moonBASIC cameras are **`CAMERA.*`** on a **handle** from **`CAMERA.MAKE`** (see [CAMERA.md](../CAMERA.md)). DBPro integer slot **cam** → store the **handle** your program gets from **`CAMERA.MAKE`**.
+moonBASIC cameras are **`CAMERA.*`** on a **handle** from **`CAMERA.CREATE`** (see [CAMERA.md](../CAMERA.md)). DBPro integer slot **cam** → store the **handle** your program gets from **`CAMERA.CREATE`**.
 
 | DBPro | moonBASIC | Notes |
 |-------|-----------|--------|
-| **MAKE CAMERA (cam)** | ✓ **`Camera.Make()`** | Returns handle, not a reserved slot index. |
+| **MAKE CAMERA (cam)** | ✓ **`CreateCamera()`** / **`CAMERA.CREATE`** (deprecated **`Camera.Make()`**) | Returns handle, not a reserved slot index. |
 | **DELETE CAMERA** | ✓ **`Camera.Free()`** | |
 | **POSITION CAMERA (x, y, z)** | ✓ **`Camera.SetPos()`** | Sets eye position. |
 | **ROTATE CAMERA (pitch, yaw, roll)** | ≈ **`Camera.SetPos()`** + **`Camera.SetTarget()`** | MoonBasic uses eye/target points. |

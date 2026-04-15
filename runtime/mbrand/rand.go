@@ -21,6 +21,7 @@ func (o *rngObj) Free() { o.r = nil }
 
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
+	r.Register("RAND.CREATE", "rand", runtime.AdaptLegacy(m.randMake))
 	r.Register("RAND.MAKE", "rand", runtime.AdaptLegacy(m.randMake))
 	r.Register("RAND.NEXT", "rand", runtime.AdaptLegacy(m.randNext))
 	r.Register("RAND.NEXTF", "rand", runtime.AdaptLegacy(m.randNextF))

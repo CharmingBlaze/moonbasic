@@ -13,7 +13,7 @@ Window.SetFPS(60)
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(60)
 
 player = Model.CreateCapsule(0.4, 1.0)

@@ -6,7 +6,7 @@ SetMSAA(0)
 Window.Open(800, 600, "moonBASIC — spinning cube")
 Window.SetFPS(60)
 
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(55)
 
 cube = CreateCube()

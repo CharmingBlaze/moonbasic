@@ -1,6 +1,6 @@
 # Spinning cube (3D)
 
-Minimal 3D demo: `Camera.Make` (defaults plus explicit framing), **`Transform.Identity`** + **`Transform.SetRotation`** for a single reusable matrix (no per-frame alloc/free), **`Mesh.MakeCube`** (GPU upload is automatic), and **`Mesh.Draw`**. Uses handle-style **`cam.Begin()`** / **`cam.End()`** so the active camera is obvious.
+Minimal 3D demo: `CreateCamera()` (Easy Mode → `CAMERA.CREATE`; defaults plus explicit framing), **`Transform.Identity`** + **`Transform.SetRotation`** for a single reusable matrix (no per-frame alloc/free), **`Mesh.MakeCube`** (GPU upload is automatic), and **`Mesh.Draw`**. Uses handle-style **`cam.Begin()`** / **`cam.End()`** so the active camera is obvious.
 
 Alternatives you can try in code:
 

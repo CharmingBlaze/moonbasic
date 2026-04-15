@@ -86,6 +86,7 @@ func (m *Module) camOrbitCamera(rt *runtime.Runtime, args ...value.Value) (value
 
 func (m *Module) registerCameraExtras(reg runtime.Registrar) {
 	reg.Register("CAMERA.GETPOS", "camera", runtime.AdaptLegacy(m.camGetPos))
+	reg.Register("CAMERA.GETROT", "camera", runtime.AdaptLegacy(m.camGetRot))
 	reg.Register("CAMERA.GETTARGET", "camera", runtime.AdaptLegacy(m.camGetTarget))
 	reg.Register("CAMERA.SETUP", "camera", runtime.AdaptLegacy(m.camSetUp))
 	reg.Register("CAMERA.SETORBIT", "camera", runtime.AdaptLegacy(m.camSetOrbit))
@@ -123,6 +124,41 @@ func (m *Module) camGetPos(args []value.Value) (value.Value, error) {
 	}
 	p := o.cam.Position
 	return mbmatrix.AllocVec3Value(m.h, p.X, p.Y, p.Z)
+}
+
+// camGetRot returns [pitch, yaw, roll] euler angles in radians (Raylib QuaternionToEuler),
+// derived from the camera view matrix — same component order as MODEL.GETROT.
+func (m *Module) camGetRot(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA.GETROT: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA.GETROT expects camera handle")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.GETROT: invalid handle")
+	}
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	view := rl.GetCameraMatrix(o.cam)
+	pose := rl.MatrixInvert(view)
+	q := rl.QuaternionFromMatrix(pose)
+	eul := rl.QuaternionToEuler(q)
+	arr, err := heap.NewArray([]int64{3})
+	if err != nil {
+		return value.Nil, err
+	}
+	_ = arr.Set([]int64{0}, float64(eul.X))
+	_ = arr.Set([]int64{1}, float64(eul.Y))
+	_ = arr.Set([]int64{2}, float64(eul.Z))
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }
 
 func (m *Module) camGetTarget(args []value.Value) (value.Value, error) {

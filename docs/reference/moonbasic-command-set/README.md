@@ -4,6 +4,10 @@
 
 This folder is the **canonical, human-oriented** view of what moonBASIC provides: short names in these tables are **teaching names**; the runtime usually exposes **`NAMESPACE.NAME`** (see [LANGUAGE.md](../../LANGUAGE.md)). The **Implementation** column gives the real registry keys to search in [API_CONSISTENCY.md](../../API_CONSISTENCY.md).
 
+## Naming (registry)
+
+Prefer **`*.CREATE`** over deprecated **`*.MAKE`**, and **`*.SETPOS`** over deprecated **`*.SETPOSITION`**, when the manifest registers both. See [API_CONVENTIONS.md](../API_CONVENTIONS.md) and [MIGRATION_CREATE_FROM_MAKE.md](../../MIGRATION_CREATE_FROM_MAKE.md).
+
 ---
 
 ## Memory model (read this first)

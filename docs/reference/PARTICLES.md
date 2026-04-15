@@ -6,8 +6,8 @@ Emitter-based **3D** particles (**`PARTICLE.*`** and alias **`PARTICLE3D.*`**) a
 
 ## 3D workflow
 
-### `Particles.Make(maxCount)`
-Creates a new particle system with a fixed maximum number of particles. Returns an **emitter handle**.
+### `Particles.Make(maxCount)` / `Particles.Create(maxCount)`
+Creates a new particle system with a fixed maximum number of particles. Returns an **emitter handle**. Registry: **`PARTICLE.CREATE`** (canonical); **`PARTICLE.MAKE`** is deprecated.
 
 ### `Particles.Free(handle)`
 Frees the particle system and all associated resources from memory.
@@ -41,37 +41,37 @@ Sets the starting and ending sizes for particles over their lifetime.
 ## Example (minimal 3D)
 
 ```basic
-cam = Camera.Make()
+cam = CAMERA.CREATE()
 cam.SetPos(0, 2, 10)
 cam.SetTarget(0, 0, 0)
 
-p = PARTICLE.MAKE
-PARTICLE.SETTEXTURE p, myTex
-PARTICLE.SETEMITRATE p, 40
-PARTICLE.SETLIFETIME p, 0.5, 1.5
-PARTICLE.SETVELOCITY p, 0, 1, 0, 0.4
-PARTICLE.SETSPREAD p, 0.4
-PARTICLE.SETSPEED p, 0.8, 1.2
-PARTICLE.SETSTARTSIZE p, 0.15, 0.35
-PARTICLE.SETENDSIZE p, 0.05, 0.1
-PARTICLE.SETCOLOR p, 255, 200, 100, 255
-PARTICLE.SETCOLOREND p, 255, 50, 0, 0
-PARTICLE.SETGRAVITY p, 0, -2, 0
-PARTICLE.SETPOS p, 0, 0, 0
-PARTICLE.PLAY p
+p = PARTICLE.CREATE()
+PARTICLE.SETTEXTURE(p, myTex)
+PARTICLE.SETEMITRATE(p, 40)
+PARTICLE.SETLIFETIME(p, 0.5, 1.5)
+PARTICLE.SETVELOCITY(p, 0, 1, 0, 0.4)
+PARTICLE.SETSPREAD(p, 0.4)
+PARTICLE.SETSPEED(p, 0.8, 1.2)
+PARTICLE.SETSTARTSIZE(p, 0.15, 0.35)
+PARTICLE.SETENDSIZE(p, 0.05, 0.1)
+PARTICLE.SETCOLOR(p, 255, 200, 100, 255)
+PARTICLE.SETCOLOREND(p, 255, 50, 0, 0)
+PARTICLE.SETGRAVITY(p, 0, -2, 0)
+PARTICLE.SETPOS(p, 0, 0, 0)
+PARTICLE.PLAY(p)
 
 WHILE NOT Window.ShouldClose()
     dt = Time.Delta()
-    PARTICLE.UPDATE p, dt
+    PARTICLE.UPDATE(p, dt)
     Render.Clear(20, 24, 32)
     cam.Begin()
-        PARTICLE.DRAW p
+        PARTICLE.DRAW(p)
     cam.End()
     Render.Frame()
 WEND
 
-PARTICLE.FREE p
-Camera.Free cam
+PARTICLE.FREE(p)
+cam.Free()
 ```
 
 ---
@@ -79,5 +79,5 @@ Camera.Free cam
 ## Tips
 
 - **Performance:** keep emit rates reasonable; **`COUNT`** for debugging.
-- **Gravity:** use **`SETGRAVITY p, gx, gy, gz`** for world-space acceleration.
+- **Gravity:** use **`SETGRAVITY(p, gx, gy, gz)`** for world-space acceleration.
 - **Alias:** **`PARTICLE3D.*`** matches **`PARTICLE.*`** line-for-line.

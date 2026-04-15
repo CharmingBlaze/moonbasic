@@ -30,6 +30,7 @@ type Command struct {
 	Phase     string `json:"phase,omitempty"`
 	Namespace string `json:"namespace,omitempty"`
 	Stub      string `json:"stub,omitempty"`
+	Desc      string `json:"description,omitempty"`
 }
 
 // Table maps canonical command keys to one or more overloads (different arities).
@@ -136,4 +137,43 @@ func NormalizeCommand(name string) string {
 		parts[i] = strings.ToUpper(strings.TrimSpace(parts[i]))
 	}
 	return strings.Join(parts, ".")
+}
+
+// DeprecationReplacement returns canonical replacement for a deprecated command alias.
+// The returned replacement is fully-qualified (e.g. "CAMERA.CREATE"), if known.
+func (t *Table) DeprecationReplacement(ns, method string) (string, bool) {
+	if t == nil || t.Commands == nil {
+		return "", false
+	}
+	ns = strings.ToUpper(strings.TrimSpace(ns))
+	method = strings.ToUpper(strings.TrimSpace(method))
+
+	// Fast-path policy aliases standardized by the compiler directive.
+	if strings.HasPrefix(method, "MAKE") {
+		replMethod := strings.Replace(method, "MAKE", "CREATE", 1)
+		if t.Has(ns, replMethod) {
+			return Key(ns, replMethod), true
+		}
+	}
+	if method == "SETPOSITION" && t.Has(ns, "SETPOS") {
+		return Key(ns, "SETPOS"), true
+	}
+
+	// Fallback to manifest description metadata when available.
+	ovs := t.Commands[Key(ns, method)]
+	for _, c := range ovs {
+		desc := strings.ToUpper(strings.TrimSpace(c.Desc))
+		if !strings.Contains(desc, "DEPRECATED ALIAS OF ") {
+			continue
+		}
+		parts := strings.SplitN(desc, "DEPRECATED ALIAS OF ", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		target := strings.Fields(parts[1])
+		if len(target) > 0 && strings.Contains(target[0], ".") {
+			return target[0], true
+		}
+	}
+	return "", false
 }

@@ -2,6 +2,7 @@ package semantic
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"moonbasic/compiler/ast"
@@ -29,6 +30,12 @@ type Analyzer struct {
 	// Scopes for tracking assigned variables (Implicit Declaration/First-Assignment)
 	// scopes[0] is always global.
 	scopes []map[string]bool
+
+	// StrictDeprecated turns manifest migration aliases (MAKE, SETPOSITION, …) into type errors.
+	StrictDeprecated bool
+
+	deprecationNotices []DeprecationNotice
+	deprecationSeen    map[string]bool
 }
 
 // DefaultAnalyzer uses the built-in command manifest and enables folding.
@@ -51,8 +58,26 @@ func (a *Analyzer) Run(prog *ast.Program) error {
 		FoldConstants(prog)
 	}
 	a.scopes = []map[string]bool{make(map[string]bool)} // Global scope
+	a.deprecationNotices = nil
+	a.deprecationSeen = make(map[string]bool)
 	a.seedBuiltinConstants()
 	return a.checkProgram(prog)
+}
+
+// DeprecationNotices returns structured deprecation data for tooling (LSP, IDEs).
+func (a *Analyzer) DeprecationNotices() []DeprecationNotice {
+	return append([]DeprecationNotice(nil), a.deprecationNotices...)
+}
+
+// DeprecationWarnings returns compiler warnings collected during semantic analysis.
+func (a *Analyzer) DeprecationWarnings() []string {
+	notes := a.DeprecationNotices()
+	out := make([]string, len(notes))
+	for i, n := range notes {
+		out[i] = n.String()
+	}
+	sort.Strings(out)
+	return out
 }
 
 func (a *Analyzer) seedBuiltinConstants() {
@@ -472,6 +497,24 @@ func (a *Analyzer) checkNamespaceCall(ns, method string, args []ast.Expr, line, 
 		return a.typeError(line, col, msg, hint)
 	}
 	key := builtinmanifest.Key(ns, method)
+	if repl, ok := a.Table.DeprecationReplacement(ns, method); ok {
+		if a.StrictDeprecated {
+			return a.typeError(line, col,
+				fmt.Sprintf("deprecated command %s (strict: use %s)", key, repl),
+				"Remove --strict-deprecated or migrate to the canonical name.")
+		}
+		dk := fmt.Sprintf("%d:%d:%s:%s", line, col, key, repl)
+		if !a.deprecationSeen[dk] {
+			a.deprecationSeen[dk] = true
+			a.deprecationNotices = append(a.deprecationNotices, DeprecationNotice{
+				File:           a.File,
+				Line:           line,
+				Col:            col,
+				DeprecatedKey:  key,
+				ReplacementKey: repl,
+			})
+		}
+	}
 
 	// Record CallGraph edge
 	if _, exists := a.CallGraph[a.currentFunc]; !exists {

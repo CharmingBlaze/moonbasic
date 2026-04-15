@@ -1,29 +1,29 @@
 Window.Open(320, 240, "sprite complete")
 Window.SetFPS(60)
 
-img = IMAGE.MAKE(8, 8, 255, 40, 20, 255)
+img = IMAGE.CREATE(8, 8, 255, 40, 20, 255)
 ok = IMAGE.EXPORT(img, "testdata/sprite_test_texture.png")
 ASSERT(ok, "IMAGE.EXPORT for sprite texture")
 IMAGE.FREE(img)
 
 sp = SPRITE.LOAD("testdata/sprite_test_texture.png")
 
-g = SPRITEGROUP.MAKE()
+g = SPRITEGROUP.CREATE()
 SPRITEGROUP.ADD(g, sp)
 SPRITEGROUP.REMOVE(g, sp)
 SPRITEGROUP.ADD(g, sp)
 
-L = SPRITELAYER.MAKE(0.0)
+L = SPRITELAYER.CREATE(0.0)
 SPRITELAYER.ADD(L, sp)
 SPRITELAYER.CLEAR(L)
 SPRITELAYER.ADD(L, sp)
 
-bat = SPRITEBATCH.MAKE()
+bat = SPRITEBATCH.CREATE()
 SPRITEBATCH.ADD(bat, sp, 4, 4)
 
-ui = SPRITEUI.MAKE(sp, 0.0, 0.0)
+ui = SPRITEUI.CREATE(sp, 0.0, 0.0)
 
-part = PARTICLE2D.MAKE(8, 255, 200, 100, 220)
+part = PARTICLE2D.CREATE(8, 255, 200, 100, 220)
 PARTICLE2D.EMIT(part, 20.0, 20.0, 0.0, 0.0, 1.0)
 
 SPRITE.SETPOS(sp, 0, 0)

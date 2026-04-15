@@ -11,10 +11,13 @@ import (
 )
 
 func registerBiome(m *Module, r runtime.Registrar) {
+	r.Register("BIOME.CREATE", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return bMake(m, rt, args...) })
 	r.Register("BIOME.MAKE", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return bMake(m, rt, args...) })
 	r.Register("BIOME.FREE", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return bFree(m, rt, args...) })
 	r.Register("BIOME.SETTEMP", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return bSetTemp(m, rt, args...) })
-	r.Register("BIOME.SETHUMIDITY", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return bSetHumidity(m, rt, args...) })
+	r.Register("BIOME.SETHUMIDITY", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return bSetHumidity(m, rt, args...)
+	})
 }
 
 func bMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -45,7 +48,9 @@ func bFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 }
 
 func bSetTemp(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("BIOME.SETTEMP expects biome, celsius")
+	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
 		return value.Nil, err
@@ -63,7 +68,9 @@ func bSetTemp(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 }
 
 func bSetHumidity(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("BIOME.SETHUMIDITY expects biome, amount")
+	}
 	h, err := rt.ArgHandle(args, 0)
 	if err != nil {
 		return value.Nil, err

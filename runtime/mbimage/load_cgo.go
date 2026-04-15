@@ -81,6 +81,7 @@ func registerImageLoad(m *Module, reg runtime.Registrar) {
 	}
 	reg.Register("IMAGE.MAKEBLANK", "image", runtime.AdaptLegacy(makeBlank("IMAGE.MAKEBLANK")))
 	reg.Register("IMAGE.MAKE", "image", runtime.AdaptLegacy(makeBlank("IMAGE.MAKE")))
+	reg.Register("IMAGE.CREATE", "image", runtime.AdaptLegacy(makeBlank("IMAGE.CREATE")))
 
 	makeCopy := func(op string) func([]value.Value) (value.Value, error) {
 		return func(args []value.Value) (value.Value, error) {

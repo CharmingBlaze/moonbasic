@@ -12,23 +12,58 @@ import (
 )
 
 func registerTerrain(m *Module, r runtime.Registrar) {
-	r.Register("TERRAIN.MAKE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainMake(m, rt, args...) })
-	r.Register("TERRAIN.FREE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainFree(m, rt, args...) })
-	r.Register("TERRAIN.SETPOS", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetPos(m, rt, args...) })
-	r.Register("TERRAIN.SETCHUNKSIZE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetChunkSize(m, rt, args...) })
-	r.Register("TERRAIN.FILLPERLIN", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainFillPerlin(m, rt, args...) })
-	r.Register("TERRAIN.FILLFLAT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainFillFlat(m, rt, args...) })
-	r.Register("TERRAIN.GETHEIGHT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainGetHeight(m, rt, args...) })
-	r.Register("TERRAIN.GETSLOPE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainGetSlope(m, rt, args...) })
-	r.Register("TERRAIN.RAISE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainRaise(m, rt, args...) })
-	r.Register("TERRAIN.LOWER", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainLower(m, rt, args...) })
-	r.Register("TERRAIN.DRAW", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainDraw(m, rt, args...) })
-	r.Register("CHUNK.GENERATE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkGenerate(m, rt, args...) })
+	r.Register("TERRAIN.CREATE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainMake(m, rt, args...)
+	})
+	r.Register("TERRAIN.MAKE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainMake(m, rt, args...)
+	})
+	r.Register("TERRAIN.FREE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainFree(m, rt, args...)
+	})
+	r.Register("TERRAIN.SETPOS", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainSetPos(m, rt, args...)
+	})
+	r.Register("TERRAIN.SETCHUNKSIZE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainSetChunkSize(m, rt, args...)
+	})
+	r.Register("TERRAIN.FILLPERLIN", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainFillPerlin(m, rt, args...)
+	})
+	r.Register("TERRAIN.FILLFLAT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainFillFlat(m, rt, args...)
+	})
+	r.Register("TERRAIN.GETHEIGHT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainGetHeight(m, rt, args...)
+	})
+	r.Register("TERRAIN.GETSLOPE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainGetSlope(m, rt, args...)
+	})
+	r.Register("TERRAIN.RAISE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainRaise(m, rt, args...)
+	})
+	r.Register("TERRAIN.LOWER", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainLower(m, rt, args...)
+	})
+	r.Register("TERRAIN.DRAW", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainDraw(m, rt, args...)
+	})
+	r.Register("CHUNK.GENERATE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return chunkGenerate(m, rt, args...)
+	})
 	r.Register("CHUNK.COUNT", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkCount(m, rt, args...) })
-	r.Register("CHUNK.SETRANGE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkSetRange(m, rt, args...) })
-	r.Register("CHUNK.ISLOADED", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return chunkIsLoaded(m, rt, args...) })
-	r.Register("TERRAIN.SETMESHBUILDBUDGET", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetMeshBudget(m, rt, args...) })
-	r.Register("TERRAIN.SETASYNCMESHBUILD", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetAsync(m, rt, args...) })
+	r.Register("CHUNK.SETRANGE", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return chunkSetRange(m, rt, args...)
+	})
+	r.Register("CHUNK.ISLOADED", "chunk", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return chunkIsLoaded(m, rt, args...)
+	})
+	r.Register("TERRAIN.SETMESHBUILDBUDGET", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainSetMeshBudget(m, rt, args...)
+	})
+	r.Register("TERRAIN.SETASYNCMESHBUILD", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainSetAsync(m, rt, args...)
+	})
 	registerTerrainExtended(m, r)
 	registerTerrainBlitzAliases(m, r)
 	registerTerrainApply(m, r)

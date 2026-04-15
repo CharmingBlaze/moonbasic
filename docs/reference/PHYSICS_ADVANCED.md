@@ -6,7 +6,7 @@ Powerful commands for high-level physics machinery, constraints, and automated w
 
 Advanced physics typically involves connecting dynamic bodies with joints to create complex mechanisms.
 
-1. **Create Bodies**: Define your rigid parts using `BODY3D.MAKE()` or `ENTITY.ADDPHYSICS()`.
+1. **Create Bodies**: Define your rigid parts using `BODY3D.CREATE()` or `ENTITY.ADDPHYSICS()`.
 2. **Connect Joints**: Link parts using `JOINT.CREATEHINGE()` or `JOINT.CREATEPOINT()`.
 3. **Configure World**: Enable automated behaviors like `WATER.AUTOPHYSICS()`.
 

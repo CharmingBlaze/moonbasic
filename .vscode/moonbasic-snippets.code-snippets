@@ -1,0 +1,22 @@
+{
+  "MoonBASIC camera chain": {
+    "prefix": "mbcam",
+    "body": [
+      "${1:cam} = CAMERA.CREATE()",
+      "$1.pos(${2:0}, ${3:10}, ${4:20})",
+      "    .look(${5:0}, ${6:0}, ${7:0})",
+      "    .fov(${8:60})"
+    ],
+    "description": "Canonical CAMERA.CREATE + chained pos/look/fov"
+  },
+  "MoonBASIC namespace create": {
+    "prefix": "mbcreate",
+    "body": "${1:NAMESPACE}.CREATE(${2:})",
+    "description": "Canonical NAMESPACE.CREATE(...)"
+  },
+  "MoonBASIC SETPOS": {
+    "prefix": "mbsetpos",
+    "body": "${1:NAMESPACE}.SETPOS(${2:handle}, ${3:x}, ${4:y}, ${5:z})",
+    "description": "Canonical namespace position setter"
+  }
+}

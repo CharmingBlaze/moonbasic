@@ -1,10 +1,10 @@
 # Image (CPU) — `Image.*` / `IMAGE.*`
 
-**CPU-side** pixel buffers (Raylib `Image`): read, mutate, save. **Not** GPU textures (`Texture.*`). Typical pipeline: **`IMAGE.MAKE`** / **`IMAGE.LOAD`** → optional edits → **`TEXTURE.FROMIMAGE`** → **`DRAW.TEXTURE`** on the main framebuffer → free when done.
+**CPU-side** pixel buffers (Raylib `Image`): read, mutate, save. **Not** GPU textures (`Texture.*`). Typical pipeline: **`IMAGE.CREATE`** (canonical) or deprecated **`IMAGE.MAKE`** / **`IMAGE.LOAD`** → optional edits → **`TEXTURE.FROMIMAGE`** → **`DRAW.TEXTURE`** on the main framebuffer → free when done.
 
 **Requires CGO** and Raylib (same as `Draw.*`, `Texture.*`).
 
-Registry keys use **dots and uppercase** (e.g. `IMAGE.MAKE`). PascalCase names below match docs/spec style.
+Registry keys use **dots and uppercase** (e.g. **`IMAGE.CREATE`**). PascalCase names below match docs/spec style.
 
 ---
 
@@ -44,9 +44,9 @@ Draws a filled rectangle on the image.
 Window.Open(640, 480, "Image to texture")
 Window.SetFPS(60)
 
-a = IMAGE.MAKE(128, 128)
+a = IMAGE.CREATE(128, 128)
 IMAGE.CLEAR(a, 40, 40, 50, 255)
-b = IMAGE.MAKE(32, 32, 200, 80, 80, 255)
+b = IMAGE.CREATE(32, 32, 200, 80, 80, 255)
 IMAGE.DRAWIMAGE(a, b, 0, 0, 32, 32, 48, 48, 32, 32, 255, 255, 255, 255)
 IMAGE.FREE(b)
 
@@ -69,7 +69,7 @@ Window.Close()
 
 - **`IMAGE.*` vs GPU** — To display pixels, use **`TEXTURE.FROMIMAGE`** then **`DRAW.TEXTURE`** (or equivalent), not **`IMAGE.*`** alone.
 - **Unpaired `IMAGE.FREE`** — Each load/create should be freed when done.
-- **`IMAGE.MAKE(w,h)`** — Transparent, not black-opaque, until you clear or paint.
+- **`IMAGE.CREATE(w,h)`** — Transparent, not black-opaque, until you clear or paint.
 
 ---
 

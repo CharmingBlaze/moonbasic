@@ -74,7 +74,7 @@ Order matters: the camera uses the player’s **position** from last frame’s p
 | Idea | Plain meaning |
 |------|----------------|
 | **Handle** | A number that refers to an object the engine created (camera, entity). You pass it into commands instead of raw pointers. |
-| **`Camera.Make()`** | Creates a 3D camera. **`cam`** stores that handle. |
+| **`CreateCamera()`** | Creates a 3D camera (Easy Mode → **`CAMERA.CREATE`**). **`cam`** stores that handle. |
 | **Orbit** | The camera sits at some **distance** from the player and looks at them. **Yaw** spins left/right; **pitch** looks up/down. |
 | **`cam.Orbit(player, 12.0)`** | “Each frame, recompute my orbit around **`player`** using base distance **12** (world units), and apply mouse / keys / wheel according to defaults or your [orbit settings](README.md#orbit-configuration-optional--step-by-step).” |
 | **`cam.Yaw()`** | Horizontal angle of that orbit, in **radians**, so you can rotate the character to **face** the view. |
@@ -121,11 +121,11 @@ WORLD.Gravity(0, -40, 0)
 ### Lines 18–19 — camera
 
 ```moonbasic
-cam = Camera.Make()
+cam = CreateCamera()
 cam.SetFOV(60)
 ```
 
-- **`Camera.Make()`** returns a **camera handle** stored in **`cam`**.
+- **`CreateCamera()`** returns a **camera handle** stored in **`cam`**.
 - **`SetFOV(60)`** sets vertical field of view to **60°** (wider = see more at once; narrower = more “zoomed in” feel).
 
 ---

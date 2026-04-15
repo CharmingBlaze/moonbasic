@@ -16,6 +16,7 @@ import (
 
 func (m *Module) registerRayBuiltins(reg runtime.Registrar) {
 	reg.Register("RAY.MAKE", "collision", runtime.AdaptLegacy(m.rayMake))
+	reg.Register("RAY.CREATE", "collision", runtime.AdaptLegacy(m.rayCreate))
 	reg.Register("RAY.FREE", "collision", runtime.AdaptLegacy(m.rayFree))
 
 	rayCollisionScalars(reg, "RAY.HITSPHERE", 5, func(args []value.Value) (rl.RayCollision, error) {
@@ -174,11 +175,19 @@ func (m *Module) registerRayBuiltins(reg runtime.Registrar) {
 }
 
 func (m *Module) rayMake(args []value.Value) (value.Value, error) {
+	return m.allocRay(args, "RAY.MAKE")
+}
+
+func (m *Module) rayCreate(args []value.Value) (value.Value, error) {
+	return m.allocRay(args, "RAY.CREATE")
+}
+
+func (m *Module) allocRay(args []value.Value, op string) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
 	if len(args) != 6 {
-		return value.Nil, fmt.Errorf("RAY.MAKE expects 6 arguments (ox, oy, oz, dx, dy, dz)")
+		return value.Nil, fmt.Errorf("%s expects 6 arguments (ox, oy, oz, dx, dy, dz)", op)
 	}
 	var pos, dir rl.Vector3
 	for i, tgt := range []*rl.Vector3{&pos, &dir} {
@@ -187,7 +196,7 @@ func (m *Module) rayMake(args []value.Value) (value.Value, error) {
 		y, oky := argF(args[base+1])
 		z, okz := argF(args[base+2])
 		if !okx || !oky || !okz {
-			return value.Nil, fmt.Errorf("RAY.MAKE: arguments must be numeric")
+			return value.Nil, fmt.Errorf("%s: arguments must be numeric", op)
 		}
 		tgt.X, tgt.Y, tgt.Z = x, y, z
 	}

@@ -8,7 +8,7 @@ Window.SetFPS(60)
 
 
 
-terrain = Terrain.Make(400, 400)
+terrain = Terrain.Create(400, 400)
 
 Terrain.FillPerlin(terrain, 0.02, 70)
 
@@ -22,25 +22,25 @@ World.Preload(terrain, 4)
 
 
 
-water = Water.Make(500, 500)
+water = Water.Create(500, 500)
 
 Water.SetPos(water, 0, -3, 0)
 
 
 
-sky = Sky.Make()
+sky = Sky.Create()
 
 Sky.SetDayLength(sky, 120)
 
 
 
-cloud = Cloud.Make()
+cloud = Cloud.Create()
 
 Cloud.SetCoverage(cloud, 0.35)
 
 
 
-wx = Weather.Make()
+wx = Weather.Create()
 
 Weather.SetType(wx, "clear")
 
@@ -48,7 +48,7 @@ Wind.Set(0.8, 1, 0.2)
 
 
 
-bio = Biome.Make("temperate")
+bio = Biome.Create("temperate")
 
 Biome.SetTemp(bio, 18)
 
@@ -62,7 +62,7 @@ Scatter.Apply(sc, terrain, 0.2)
 
 
 
-cam = Camera.Make()
+cam = CreateCamera()
 
 cx# = 200
 

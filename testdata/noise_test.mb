@@ -1,7 +1,7 @@
 ; NOISE.* unit checks (no window) — uses real registry APIs only
 ; Use ng (not "noise") so the NOISE namespace is not shadowed by a variable name.
 
-ng = Noise.Make()
+ng = Noise.Create()
 Noise.SetType(ng, "perlin")
 Noise.SetSeed(ng, 42)
 Noise.SetFrequency(ng, 0.01)

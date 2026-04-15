@@ -196,7 +196,7 @@ func (m *Module) createLight(rt *runtime.Runtime, args ...value.Value) (value.Va
 	default:
 		return value.Nil, fmt.Errorf("CREATELIGHT: type must be int (1=dir,2=point,3=spot) or kind string")
 	}
-	v, err := call(rt,"LIGHT.MAKE", value.FromStringIndex(rt.Heap.Intern(kindStr)))
+	v, err := call(rt,"LIGHT.CREATE", value.FromStringIndex(rt.Heap.Intern(kindStr)))
 	if err != nil {
 		return value.Nil, err
 	}
@@ -395,7 +395,7 @@ func (m *Module) createTexture(rt *runtime.Runtime, args ...value.Value) (value.
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("CREATETEXTURE expects 2 arguments (w, h)")
 	}
-	img, err := call(rt,"IMAGE.MAKE", args[0], args[1])
+	img, err := call(rt,"IMAGE.CREATE", args[0], args[1])
 	if err != nil {
 		return value.Nil, err
 	}

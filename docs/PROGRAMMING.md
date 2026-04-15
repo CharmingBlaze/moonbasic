@@ -78,8 +78,8 @@ moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** /
 
 ## 4. 2D vs 3D drawing
 
-- **Screen-space 2D** (pixels): **`Camera2D.Begin()`** … **`Camera2D.End()`** (identity camera) or pass a handle from **`Camera2D.Make()`** (see [RENDER](reference/RENDER.md), [CAMERA](reference/CAMERA.md)). There is no `Render.BeginMode2D` builtin.
-- **3D**: create `cam = Camera.Make()`, configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc., or use **`RENDER.Begin3D(cam)`** / **`RENDER.End3D()`** (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
+- **Screen-space 2D** (pixels): **`Camera2D.Begin()`** … **`Camera2D.End()`** (identity camera) or pass a handle from **`Camera2D.Create()`** (deprecated **`Camera2D.MAKE`**) (see [RENDER](reference/RENDER.md), [CAMERA](reference/CAMERA.md)). There is no `Render.BeginMode2D` builtin.
+- **3D**: create `cam = CreateCamera()` (or **`CAMERA.CREATE()`**), configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc., or use **`RENDER.Begin3D(cam)`** / **`RENDER.End3D()`** (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
 
 Some 3D helpers are also registered under `DRAW.*` (e.g. `Draw.Grid` inside a camera block).
 

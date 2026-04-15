@@ -53,4 +53,4 @@
 ; --- Lifecycle ---
 ; bullet.SetLifeTimer(2.0)   ; alias ENTITY.DESTROYAFTER
 ; child.Detach()             ; alias PARENTCLEAR
-; SPAWNER.MAKE(prefab, 1.5)    ; or SPAWNER.MAKE(prefab, 1.5, x, z)
+; SPAWNER.CREATE(prefab, 1.5)    ; or SPAWNER.CREATE(prefab, 1.5, x, z)

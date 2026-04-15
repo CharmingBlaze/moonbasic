@@ -31,7 +31,10 @@ func (m *Module) getCam2D(args []value.Value, ix int, op string) (*cam2dObj, err
 }
 
 func (m *Module) registerCamera2D(reg runtime.Registrar) {
+	reg.Register("CAMERA2D.CREATE", "camera", runtime.AdaptLegacy(m.cam2dMake))
 	reg.Register("CAMERA2D.MAKE", "camera", runtime.AdaptLegacy(m.cam2dMake))
+	reg.Register("CAMERA2D.GETPOS", "camera", runtime.AdaptLegacy(m.cam2dGetPos))
+	reg.Register("CAMERA2D.GETROTATION", "camera", runtime.AdaptLegacy(m.cam2dGetRotation))
 	reg.Register("CAMERA2D.SETTARGET", "camera", runtime.AdaptLegacy(m.cam2dSetTarget))
 	reg.Register("CAMERA2D.SETOFFSET", "camera", runtime.AdaptLegacy(m.cam2dSetOffset))
 	reg.Register("CAMERA2D.SETZOOM", "camera", runtime.AdaptLegacy(m.cam2dSetZoom))
@@ -141,6 +144,34 @@ func (m *Module) cam2dSetRotation(args []value.Value) (value.Value, error) {
 	}
 	o.cam.Rotation = rad
 	return value.Nil, nil
+}
+
+func (m *Module) cam2dGetPos(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.GETPOS: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA2D.GETPOS expects camera handle")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.GETPOS")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.cam.Target.X, o.cam.Target.Y, 0)
+}
+
+func (m *Module) cam2dGetRotation(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.GETROTATION: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA2D.GETROTATION expects camera handle")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.GETROTATION")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.cam.Rotation)), nil
 }
 
 func (m *Module) cam2dBegin(args []value.Value) (value.Value, error) {

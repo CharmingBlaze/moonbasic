@@ -8,7 +8,7 @@ This file is **maintainer documentation** for the long-term plan: API polish, re
 |--------|------|
 | **1A** | **API consistency** — one naming story for spatial handles (`SetPos` + optional `SetPosition` alias), documented in [API_CONSISTENCY.md](./API_CONSISTENCY.md) (regenerate with `go run ./tools/apidoc`). |
 | **1B** | **Error quality** — compile-time did-you-mean + arity hints; runtime file/line wrapping; heap `Cast` hints. See [ERROR_MESSAGES.md](./ERROR_MESSAGES.md). |
-| **1C** | **Sensible defaults** — `CAMERA.MAKE`, `LIGHT.MAKE`, `BODY3D.MAKE`, materials, etc. (verify in each module’s `Make` / `LOAD`). |
+| **1C** | **Sensible defaults** — `CAMERA.CREATE`, `LIGHT.CREATE`, `BODY3D.CREATE`, materials, etc. (verify deprecated `*.MAKE` aliases and each module’s `LOAD` paths). |
 | **1D** | **Debug overlay** — `DEBUG.WATCH` / `DEBUG.WATCHCLEAR` with on-screen panel when **CGO + Raylib** (`runtime/mbdebug/overlay_cgo.go`), hooked from the window frame path in `compiler/pipeline/pipeline.go`. |
 
 ## Next — Phases 2–4 (features)

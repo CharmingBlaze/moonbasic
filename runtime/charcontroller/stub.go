@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"moonbasic/runtime"
+	mbnav "moonbasic/runtime/mbnav"
 	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -40,6 +41,7 @@ const stubCharDt = float32(1.0 / 60.0)
 
 func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	// Host KCC owns CHARACTER.* on this build; CHARCONTROLLER.* uses the lightweight AABB capsule stub.
+	reg.Register("CHARCONTROLLER.CREATE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcMake(m, args) }))
 	reg.Register("CHARCONTROLLER.MAKE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcMake(m, args) }))
 	reg.Register("CHARCONTROLLER.SETPOS", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcSetPos(m, args) }))
 	reg.Register("CHARCONTROLLER.SETPOSITION", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcSetPos(m, args) }))
@@ -56,6 +58,14 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARCONTROLLER.GROUNDSTATE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcGroundState(m, args) }))
 	reg.Register("CHARCONTROLLER.TELEPORT", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcTeleport(m, args) }))
 
+	reg.Register("CONTROLLER.CREATE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcMake(m, args) }))
+	reg.Register("CONTROLLER.MAKE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcMake(m, args) }))
+	reg.Register("CONTROLLER.MOVE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcMove(m, args) }))
+	reg.Register("CONTROLLER.GROUNDED", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcIsGrounded(m, args) }))
+	reg.Register("CONTROLLER.JUMP", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcJump(m, args) }))
+	reg.Register("CONTROLLER.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcFree(m, args) }))
+
+	reg.Register("CHARACTERREF.SETPOS", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcSetPos(m, args) }))
 	reg.Register("CHARACTERREF.SETPOSITION", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcSetPos(m, args) }))
 	reg.Register("CHARACTERREF.MOVE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcMove(m, args) }))
 	reg.Register("CHARACTERREF.SETVELOCITY", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcSetVel(m, args) }))
@@ -74,6 +84,7 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.SETSNAPDISTANCE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcSetSnapDist(m, args) }))
 	reg.Register("CHARACTERREF.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcFree(m, args) }))
 	reg.Register("CHARACTERREF.GETPOSITION", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcGetPos(m, args) }))
+	reg.Register("CHARACTERREF.GETROT", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcGetRot(m, args) }))
 }
 
 func stubAllocFloat3(m *Module, x, y, z float64) (value.Value, error) {
@@ -252,6 +263,21 @@ func stubCcGetPos(m *Module, args []value.Value) (value.Value, error) {
 	return stubAllocFloat3(m, float64(co.pos.X), float64(co.pos.Y), float64(co.pos.Z))
 }
 
+func stubCcGetRot(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETROT: heap not bound")
+	}
+	if len(args) < 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETROT: need handle")
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETROT: invalid handle")
+	}
+	p, y, r := mbnav.EulerFromWorldDirection(float64(co.vel.X), float64(co.vel.Y), float64(co.vel.Z))
+	return stubAllocFloat3(m, p, y, r)
+}
+
 func stubCcFree(m *Module, args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("CHARCONTROLLER.FREE: heap not bound")
@@ -357,7 +383,9 @@ func stubCcTeleport(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcSetVel(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	vx, _ := args[1].ToFloat()
 	vy, _ := args[2].ToFloat()
 	vz, _ := args[3].ToFloat()
@@ -367,7 +395,9 @@ func stubCcSetVel(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcAddVel(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	vx, _ := args[1].ToFloat()
 	vy, _ := args[2].ToFloat()
 	vz, _ := args[3].ToFloat()
@@ -379,7 +409,9 @@ func stubCcAddVel(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcJump(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	f, _ := args[1].ToFloat()
 	co.vel.Y = float32(f)
 	co.grounded = false
@@ -388,7 +420,9 @@ func stubCcJump(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcUpdate(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	dt, _ := args[1].ToFloat()
 	co.hostUpdate(float32(dt))
 	return value.Nil, nil
@@ -408,14 +442,18 @@ func stubCcSlopeAngle(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcGetSpeed(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.FromFloat(0), nil }
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
 	s := math.Sqrt(float64(co.vel.X*co.vel.X + co.vel.Y*co.vel.Y + co.vel.Z*co.vel.Z))
 	return value.FromFloat(s), nil
 }
 
 func stubCcSetGravity(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	g, _ := args[1].ToFloat()
 	co.gravityG = float32(g)
 	return value.Nil, nil
@@ -423,7 +461,9 @@ func stubCcSetGravity(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcSetFriction(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	f, _ := args[1].ToFloat()
 	co.friction = float32(f)
 	return value.Nil, nil
@@ -431,7 +471,9 @@ func stubCcSetFriction(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcSetMaxSlope(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	deg, _ := args[1].ToFloat()
 	co.maxSlope = float32(deg)
 	return value.Nil, nil
@@ -439,7 +481,9 @@ func stubCcSetMaxSlope(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcSetStepHeight(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	h, _ := args[1].ToFloat()
 	co.stepH = float32(h)
 	return value.Nil, nil
@@ -447,7 +491,9 @@ func stubCcSetStepHeight(m *Module, args []value.Value) (value.Value, error) {
 
 func stubCcSetSnapDist(m *Module, args []value.Value) (value.Value, error) {
 	co, err := hGet(m, args[0])
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	d, _ := args[1].ToFloat()
 	co.snapD = float32(d)
 	return value.Nil, nil
@@ -530,21 +576,23 @@ func (c *charObj) hostUpdate(dt float32) {
 	// 1. Horizontal Phase (Iterative Slide)
 	moveX := c.vel.X * dt
 	moveZ := c.vel.Z * dt
-	
+
 	c.pos.X += moveX
 	c.pos.Z += moveZ
 
 	statics := mbphysics3d.GetStaticBodyRegistry()
-	
+
 	// Iterative Slide (Simplified for AABB-stubs)
 	for i := 0; i < 3; i++ {
 		hit := false
 		var nx, nz float32
-		
+
 		for _, b := range statics {
-			if b.Shape == nil || b.Shape.Kind != 1 { continue }
+			if b.Shape == nil || b.Shape.Kind != 1 {
+				continue
+			}
 			hx, hy, hz := b.Shape.F1, b.Shape.F2, b.Shape.F3
-			
+
 			// Y-range check for body
 			if c.pos.Y+c.height*0.5 < b.Pos.Y-hy || c.pos.Y-c.height*0.5 > b.Pos.Y+hy {
 				continue
@@ -552,23 +600,37 @@ func (c *charObj) hostUpdate(dt float32) {
 
 			// AABB overlap check
 			if c.pos.X > b.Pos.X-hx-c.radius && c.pos.X < b.Pos.X+hx+c.radius &&
-			   c.pos.Z > b.Pos.Z-hz-c.radius && c.pos.Z < b.Pos.Z+hz+c.radius {
-				
+				c.pos.Z > b.Pos.Z-hz-c.radius && c.pos.Z < b.Pos.Z+hz+c.radius {
+
 				hit = true
 				// Calculate push-out normal
 				dx := c.pos.X - b.Pos.X
 				dz := c.pos.Z - b.Pos.Z
-				
+
 				if math.Abs(float64(dx))/(float64(hx)+float64(c.radius)) > math.Abs(float64(dz))/(float64(hz)+float64(c.radius)) {
-					if dx > 0 { nx = 1; c.pos.X = b.Pos.X + hx + c.radius + 0.001 } else { nx = -1; c.pos.X = b.Pos.X - hx - c.radius - 0.001 }
+					if dx > 0 {
+						nx = 1
+						c.pos.X = b.Pos.X + hx + c.radius + 0.001
+					} else {
+						nx = -1
+						c.pos.X = b.Pos.X - hx - c.radius - 0.001
+					}
 				} else {
-					if dz > 0 { nz = 1; c.pos.Z = b.Pos.Z + hz + c.radius + 0.001 } else { nz = -1; c.pos.Z = b.Pos.Z - hz - c.radius - 0.001 }
+					if dz > 0 {
+						nz = 1
+						c.pos.Z = b.Pos.Z + hz + c.radius + 0.001
+					} else {
+						nz = -1
+						c.pos.Z = b.Pos.Z - hz - c.radius - 0.001
+					}
 				}
 				break
 			}
 		}
-		if !hit { break }
-		
+		if !hit {
+			break
+		}
+
 		// Project velocity onto plane
 		dot := c.vel.X*nx + c.vel.Z*nz
 		if dot < 0 {
@@ -583,15 +645,17 @@ func (c *charObj) hostUpdate(dt float32) {
 	// 3. Ground Snapping
 	c.grounded = false
 	feetY := c.pos.Y - c.height*0.5
-	
+
 	for _, b := range statics {
-		if b.Shape == nil || b.Shape.Kind != 1 { continue }
+		if b.Shape == nil || b.Shape.Kind != 1 {
+			continue
+		}
 		hx, hy, hz := b.Shape.F1, b.Shape.F2, b.Shape.F3
 		if c.pos.X > b.Pos.X-hx-c.radius && c.pos.X < b.Pos.X+hx+c.radius &&
-		   c.pos.Z > b.Pos.Z-hz-c.radius && c.pos.Z < b.Pos.Z+hz+c.radius {
-			
+			c.pos.Z > b.Pos.Z-hz-c.radius && c.pos.Z < b.Pos.Z+hz+c.radius {
+
 			topY := b.Pos.Y + hy
-			if feetY <= topY + c.snapD && feetY >= topY - 0.5 {
+			if feetY <= topY+c.snapD && feetY >= topY-0.5 {
 				c.pos.Y = topY + c.height*0.5
 				c.vel.Y = 0
 				c.grounded = true

@@ -10,10 +10,10 @@ Implemented with Raylib (**requires CGO** on typical Unix builds; on **non-Windo
 
 ### Ray handle
 
-- **`RAY.MAKE(ox, oy, oz, dx, dy, dz)`** — returns a **handle** to a ray. Origin `(ox,oy,oz)`; direction `(dx,dy,dz)` (need not be unit length; Raylib normalizes internally for collision).
+- **`RAY.CREATE(ox, oy, oz, dx, dy, dz)`** (canonical) or deprecated **`RAY.MAKE(...)`** — returns a **handle** to a ray. Origin `(ox,oy,oz)`; direction `(dx,dy,dz)` (need not be unit length; Raylib normalizes internally for collision).
 - **`RAY.FREE(handle)`** — frees the ray handle.
 
-**Screen picking:** **`Camera.GetRay`**, **`Camera.GetViewRay`**, and **`Camera.MouseRay`** return a **6-float array handle**: origin then direction — same layout as the six floats passed to **`RAY.MAKE`**. See [CAMERA.md](CAMERA.md).
+**Screen picking:** **`Camera.GetRay`**, **`Camera.GetViewRay`**, and **`Camera.MouseRay`** return a **6-float array handle**: origin then direction — same layout as the six floats passed to **`RAY.CREATE`** / **`RAY.MAKE`**. See [CAMERA.md](CAMERA.md).
 
 ### Hit queries
 

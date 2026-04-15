@@ -13,6 +13,7 @@ import (
 )
 
 func (m *Module) registerBSphereBuiltins(reg runtime.Registrar) {
+	reg.Register("BSPHERE.CREATE", "collision", runtime.AdaptLegacy(m.bsphereMake))
 	reg.Register("BSPHERE.MAKE", "collision", runtime.AdaptLegacy(m.bsphereMake))
 	reg.Register("BSPHERE.CHECK", "collision", runtime.AdaptLegacy(m.bsphereCheck))
 	reg.Register("BSPHERE.CHECKBOX", "collision", runtime.AdaptLegacy(m.bsphereCheckBox))
