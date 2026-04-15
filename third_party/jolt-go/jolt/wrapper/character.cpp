@@ -4,9 +4,11 @@
 
 #include "character.h"
 #include "physics.h"
+#include "physics_bridge.h"
 #include "physics_layers.h"
 #include "core.h"
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>

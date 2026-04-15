@@ -3,6 +3,7 @@
  */
 
 #include "joint.h"
+#include "physics_bridge.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Constraints/HingeConstraint.h>
@@ -11,10 +12,6 @@
 #include <cmath>
 
 using namespace JPH;
-
-// Defined in physics.cpp (opaque here so this TU does not depend on PhysicsSystemWrapper layout)
-struct PhysicsSystemWrapper;
-PhysicsSystem* GetPhysicsSystem(PhysicsSystemWrapper* wrapper);
 
 JoltConstraint JoltCreateHingeJoint(JoltPhysicsSystem system,
                                    JoltBodyID body1,
@@ -39,7 +36,7 @@ JoltConstraint JoltCreateHingeJoint(JoltPhysicsSystem system,
         normal = Vec3::sAxisY();
     }
     settings.mNormalAxis1 = settings.mNormalAxis2 =
-        settings.mHingeAxis1.GetCrossProduct(normal).NormalizedOr(Vec3::sAxisZ());
+        settings.mHingeAxis1.Cross(normal).NormalizedOr(Vec3::sAxisZ());
 
     TwoBodyConstraint* constraint = nullptr;
     const BodyID ids[2] = { *bid1, *bid2 };

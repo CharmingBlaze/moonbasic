@@ -4,6 +4,7 @@
 
 #include "query.h"
 #include "physics.h"
+#include "physics_bridge.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/CollideShape.h>

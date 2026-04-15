@@ -4,6 +4,7 @@
 
 #include "body.h"
 #include "physics.h"
+#include "physics_bridge.h"
 #include "physics_layers.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
@@ -11,6 +12,7 @@
 #include <Jolt/Physics/Body/AllowedDOFs.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Body/BodyLockInterface.h>
 #include <Jolt/Physics/Body/MotionProperties.h>
 #include <memory>
@@ -137,7 +139,12 @@ void JoltSetBodyAllowedDOFs(JoltPhysicsSystem system,
     if (lock.Succeeded())
     {
         Body &body = lock.GetBody();
-        body.SetAllowedDOFs(static_cast<EAllowedDOFs>(static_cast<uint8_t>(allowedDOFs)));
+        MotionProperties *mp = body.GetMotionProperties();
+        if (mp != nullptr)
+        {
+            const EAllowedDOFs dof = static_cast<EAllowedDOFs>(static_cast<uint8_t>(allowedDOFs));
+            mp->SetMassProperties(dof, body.GetShape()->GetMassProperties());
+        }
     }
 }
 
