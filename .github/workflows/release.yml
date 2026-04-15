@@ -12,13 +12,17 @@ on:
 permissions:
   contents: write
 
+# Prefer Node 24 for JS-based actions (deprecation of Node 20 runners).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   linux-amd64:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.25.3'
 
@@ -40,7 +44,7 @@ jobs:
 
       # Rebuild Jolt + wrapper so moonrun links against symbols expected by vendored jolt-go (committed .a may lag).
       - name: Checkout Jolt Physics
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: jrouwe/JoltPhysics
           ref: v5.4.0
@@ -94,7 +98,7 @@ jobs:
           tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
             -C dist moonbasic moonrun README-RELEASE.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: moonbasic-linux-amd64
           path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
@@ -102,9 +106,9 @@ jobs:
   windows-amd64:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.25.3'
 
@@ -120,7 +124,7 @@ jobs:
 
       # moonrun (-tags fullruntime) links Jolt; build Windows .a from JoltPhysics v5.4.0 (CMake under Build/).
       - name: Checkout Jolt Physics
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: jrouwe/JoltPhysics
           ref: v5.4.0
@@ -156,7 +160,7 @@ jobs:
           $name = "moonbasic-${{ github.ref_name }}-windows-amd64.zip"
           Compress-Archive -Path dist/* -DestinationPath $name -Force
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: moonbasic-windows-amd64
           path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
@@ -166,7 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: release-assets
           pattern: moonbasic-*
