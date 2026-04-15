@@ -1,5 +1,6 @@
 # Local Claude / Cursor agent permissions (machine-specific paths)
 .claude/
+.cursor/
 # Accidental path created by bad tooling (do not track)
 .../
 
