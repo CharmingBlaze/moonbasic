@@ -23,8 +23,8 @@ Target OS:     Windows x64 + Linux x64
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GROUND TRUTH (READ FIRST)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-This file is the **long-form language + engine specification** for contributors
-and AI assistants. For **enforced repo layout, stable APIs, and anti-revert rules**,
+This file is the **long-form language + engine specification** for contributors.
+For **enforced repo layout, stable APIs, and anti-revert rules**,
 the mandatory companion is:
 
   **`ARCHITECTURE.md`** (repository root, next to `go.mod`)
@@ -1055,7 +1055,7 @@ Do not attempt to fix forward. Use this exact format:
   ------------------------------------------
   [one clear sentence]
 
-Paste this report to your AI assistant (or teammate) for diagnosis.
+Share this report with whoever is debugging (or keep it in your notes).
 Before large refactors, re-read **`ARCHITECTURE.md`** so fixes align with the
 stable pipeline and do not reintroduce removed layouts (e.g. empty `CallStmt`
 codegen, stub-only `--compile`).

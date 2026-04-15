@@ -1,11 +1,11 @@
 # moonBASIC Architecture (v1.3.0)
-## Mandatory Document for AI Assistants
+## Mandatory architecture reference
 
 This document defines the **Ground Truth** for the moonBASIC compiler and runtime. Any changes must adhere to the modular structure and stable APIs defined here. **DO NOT REVERT TO OLD MONOLITHIC VERSIONS.**
 
-### Note for AI assistants (Cursor, etc.)
+### Notes for maintainers
 
-- Treat this file as **authoritative** over chat memory or older summaries. If the repo already matches this document, **do not** “restore” or replace `main.go` / `pipeline.go` with older orchestration patterns.
+- Treat this file as **authoritative** over informal notes or older write-ups. If the repo already matches this document, **do not** “restore” or replace `main.go` / `pipeline.go` with older orchestration patterns.
 - **`compiler/pipeline`** intentionally imports **`runtime`** here so **`RunProgram`** is a one-call embedder entrypoint. Do not delete `EncodeMOON` / `DecodeMOON` or stub out `--compile` / `--run` in `main.go` if this section lists them as shipped.
 - **`CallStmtNode`** must delegate to **`emitCallStmt`** in **`codegen_stmts.go`**; an empty `case` is a **bug** (symptoms: `PRINT` produces no bytecode).
 - **`commands.json`** supports **multiple rows per `key`** (overload arities). Semantic analysis uses **`LookupArity`**; do not assume **`Table.Commands[key]`** is a single struct.
@@ -260,7 +260,7 @@ Phase D extends the runtime with models, lighting, environment (skybox / IBL / f
 
 - **Diagnostics**: Unknown **`NS.METHOD`** engine commands use **`compiler/builtinmanifest`** helpers for **did-you-mean** (edit distance) and **Available:** listings for the namespace (see **`compiler/semantic/cmdhint.go`**).
 - **CLI** (**`main.go`**): **`--disasm <file.mbc>`** — human-readable bytecode via **`compiler/pipeline.PrintProgramDisassembly`** (optional same-stem **`.mb`** for source-line annotations). **`--profile <source.mb>`** — per–source-line instruction counts via **`vm.ProfileRecorder`**; prints top 10 after run. **`--watch <source.mb>`** — **`fsnotify`** debounced recompile + **`RunProgram`**. **`--lsp`** — stdio LSP in **`lsp/`** (hover for **`NS.METHOD`** using **`builtinmanifest.FirstOverload`** when arity is not parsed from the line — **§4**; completion after **`.`**, diagnostics from **`pipeline.CheckSource`** with **overload-aware arity** checking).
-- **VS Code / Cursor**: Extension under **`editors/vscode-moonbasic`** — TextMate grammar for **`.mb`** and **`.mbc`**, snippets (**WHILE/WEND**, **FOR/NEXT**, **FUNCTION/ENDFUNCTION**, **SELECT/CASE**), Language Client spawning **`moonbasic --lsp`** (override with **`moonbasic.languageServerPath`**). Run **`npm install`** and **`npm run compile`** in that folder before **F5** / packaging (**`vscode-languageclient`** lives in **`node_modules`**; **`out/extension.js`** is emitted by **`tsc`**).
+- **VS Code**: Extension under **`editors/vscode-moonbasic`** — TextMate grammar for **`.mb`** and **`.mbc`**, snippets (**WHILE/WEND**, **FOR/NEXT**, **FUNCTION/ENDFUNCTION**, **SELECT/CASE**), Language Client spawning **`moonbasic --lsp`** (override with **`moonbasic.languageServerPath`**). Run **`npm install`** and **`npm run compile`** in that folder before **F5** / packaging (**`vscode-languageclient`** lives in **`node_modules`**; **`out/extension.js`** is emitted by **`tsc`**).
 - **gopls / build tags**: **`.vscode/settings.json`** sets **`fullruntime,gopls_stub`** plus **`CGO_ENABLED=1`** so Raylib AND Jolt **`*_cgo.go`** files analyze on Windows. **`gopls_stub`** switches **`runtime/terrain`** and Jolt components to their **stub** sources for the language server when required (see **`//go:build`** on **`heap_objects_stub.go`** vs **`heap_objects_raylib.go`**); **`go build -tags fullruntime`** does **not** use **`gopls_stub`**. **`main.go`** / **`cmd/moonbasic`** use **`!fullruntime`** — you may see **“no packages found”** for those until you temporarily adjust gopls tags (**[`docs/DEVELOPER.md`](docs/DEVELOPER.md)**).
 
 ### 15. Procedural noise (`NOISE.*`, `runtime/procnoise`, `runtime/noisemod`)

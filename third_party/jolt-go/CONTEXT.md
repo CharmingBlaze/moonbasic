@@ -1,4 +1,4 @@
-# jolt-go: LLM Assistant Context
+# jolt-go: contributor context
 
 ## What This Is
 
@@ -89,7 +89,7 @@ Go bindings for Jolt Physics (C++ engine). Pre-built binaries included in reposi
 - Changing CI/CD workflow
 - Adding platform support
 
-**CLAUDE.md (this file)** - Update when:
+**CONTEXT.md (this file)** - Update when:
 - Changing project architecture
 - Adding new directories or major files
 - Modifying core principles or workflows
@@ -107,7 +107,7 @@ Go bindings for Jolt Physics (C++ engine). Pre-built binaries included in reposi
 - CGO: Minimize crossings, opaque pointers, explicit memory management
 - Cross-platform: Test both, avoid platform assumptions
 
-**Verify before suggesting.** Read actual code, don't guess.
+**Verify against the source.** Read actual code, don't guess.
 
 **Prioritize maintainability.** Clear code > clever code.
 

@@ -1,6 +1,6 @@
-# Agent / assistant notes
+# Project notes (contributors)
 
-- **Contributor workflow and commands:** [CONTRIBUTING.md](CONTRIBUTING.md), [docs/DEVELOPER.md](docs/DEVELOPER.md) (includes **VS Code / gopls** `fullruntime` + **`gopls_stub`** for terrain stubs on Windows and **`scripts/check_builds.sh`**), [docs/PHYSICS.md](docs/PHYSICS.md) (Dual-path architecture), and [docs/STATE_OF_THE_UNION.md](docs/STATE_OF_THE_UNION.md) (Current Engine Status).
+- **Contributor workflow and commands:** [CONTRIBUTING.md](CONTRIBUTING.md), [docs/DEVELOPER.md](docs/DEVELOPER.md) (includes **VS Code + gopls** `fullruntime` + **`gopls_stub`** for terrain stubs on Windows and **`scripts/check_builds.sh`**), [docs/PHYSICS.md](docs/PHYSICS.md) (Dual-path architecture), and [docs/STATE_OF_THE_UNION.md](docs/STATE_OF_THE_UNION.md) (Current Engine Status).
 - **Default `go run .` only compiles to `.mbc`.** Graphical programs need **`-tags fullruntime`** and **`moonrun`** or **`moonbasic --run`** (built with fullruntime).
 - **Manifest changes:** edit `compiler/builtinmanifest/commands.json`, then run `go run . --check` on a relevant sample; regenerate `docs/API_CONSISTENCY.md` with `go run ./tools/apidoc` when the public API surface changes.
 - **Easy Mode & Handle Methods (Consistency Rule):** Prioritize using handle methods (e.g., `hero.SetGravity(1.0)`) over global namespaced commands (e.g., `CHARACTERREF.SETGRAVITY`) in all premium showcase examples and Mario 64 parity scripts. Ensures a unified developer path.

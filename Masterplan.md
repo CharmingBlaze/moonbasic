@@ -53,7 +53,7 @@ The goal for Phase B is to implement the actual implementation of engine command
 ### Phase D: Tooling & Documentation
 1.  **The moonBASIC Language Reference**: Detailed documentation of every manifested command.
 2.  **Bytecode Disassembler**: Integrated with the CLI for debugging.
-3.  **VS Code / Cursor Extensions**: Syntax highlighting and autocomplete using the `commands.json` manifest.
+3.  **VS Code extension**: Syntax highlighting and autocomplete using the `commands.json` manifest.
 
 ---
 
