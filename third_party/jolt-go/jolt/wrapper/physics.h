@@ -1,7 +1,7 @@
 /*
  * Jolt Physics C Wrapper - Physics System
  *
- * Handles physics world creation, management, and collision layers.
+ * The primary entry point for the physics simulation.
  */
 
 #ifndef JOLT_WRAPPER_PHYSICS_H
@@ -11,35 +11,37 @@
 extern "C" {
 #endif
 
-// Opaque pointer types
+// Opaque pointer to the physics system wrapper
 typedef void* JoltPhysicsSystem;
 
-// Create a new physics world
+// Initialize global Jolt resources (allocators, job system)
+// Returns 1 on success, 0 on failure.
+int JoltInit();
+
+// Shutdown global Jolt resources
+void JoltShutdown();
+
+// Create a new physics system
 JoltPhysicsSystem JoltCreatePhysicsSystem();
 
-// Destroy a physics world
+// Destroy a physics system
 void JoltDestroyPhysicsSystem(JoltPhysicsSystem system);
 
-// Step the physics simulation by deltaTime seconds
+// Update the physics system (step the simulation)
 void JoltPhysicsSystemUpdate(JoltPhysicsSystem system, float deltaTime);
+
+// Collision Event Struct
+typedef struct {
+    void* body1;
+    void* body2;
+} JoltCollisionEvent;
+
+// Drain the global contact queue of the physics system.
+// Returns the number of events written to the 'out' buffer.
+int JoltPhysicsSystemDrainContactQueue(JoltPhysicsSystem system, JoltCollisionEvent* out, int maxCount);
 
 #ifdef __cplusplus
 }
-
-// C++ only: Accessor functions for wrapper internals (used by character.cpp)
-namespace JPH {
-    class PhysicsSystem;
-    class ObjectVsBroadPhaseLayerFilter;
-    class ObjectLayerPairFilter;
-}
-
-struct PhysicsSystemWrapper;  // Opaque forward declaration
-
-// Accessor functions
-JPH::PhysicsSystem* GetPhysicsSystem(PhysicsSystemWrapper* wrapper);
-const JPH::ObjectVsBroadPhaseLayerFilter* GetObjectVsBroadPhaseLayerFilter(PhysicsSystemWrapper* wrapper);
-const JPH::ObjectLayerPairFilter* GetObjectLayerPairFilter(PhysicsSystemWrapper* wrapper);
-
 #endif
 
 #endif // JOLT_WRAPPER_PHYSICS_H

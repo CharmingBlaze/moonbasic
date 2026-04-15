@@ -35,15 +35,18 @@ func (m *Module) phStart(args []value.Value) (value.Value, error) {
 	collPending = nil
 	joltBodyMu.Lock()
 	joltBodyToHandle = make(map[*jolt.BodyID]heap.Handle)
+	joltBodyPacked = make(map[uint32]heap.Handle)
 	joltBodyDynamic = make(map[*jolt.BodyID]bool)
 	joltBodyMu.Unlock()
 	nextBufferIndex = 0
 	matrixBufferAlloc = 1024
 	matrixBuffer = make([]float32, matrixBufferAlloc*16)
+	prevMatrixBuffer = make([]float32, matrixBufferAlloc*16)
 	bufferIndexMap = make(map[*jolt.BodyID]int)
 	bufferIndexToBody = make(map[int]*jolt.BodyID)
 	m.accumulator = 0
 	m.fixedStep = 1.0 / 60.0
+	m.simTime = 0
 	resetCollisionBridgeState()
 	resetPickState()
 	return value.Nil, nil
@@ -68,9 +71,11 @@ func (m *Module) phStop(args []value.Value) (value.Value, error) {
 	collPending = nil
 	joltBodyMu.Lock()
 	joltBodyToHandle = nil
+	joltBodyPacked = nil
 	joltBodyDynamic = nil
 	joltBodyMu.Unlock()
 	matrixBuffer = nil
+	prevMatrixBuffer = nil
 	bufferIndexMap = nil
 	bufferIndexToBody = nil
 	resetCollisionBridgeState()
@@ -156,6 +161,14 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 		return value.Nil, mbruntime.Errorf("PHYSICS3D.STEP: physics not started")
 	}
 
+	// Snapshot last published poses for render interpolation (translation blend).
+	if len(matrixBuffer) > 0 && len(prevMatrixBuffer) == len(matrixBuffer) {
+		copy(prevMatrixBuffer, matrixBuffer)
+	} else if len(matrixBuffer) > 0 && (len(prevMatrixBuffer) != len(matrixBuffer)) {
+		prevMatrixBuffer = make([]float32, len(matrixBuffer))
+		copy(prevMatrixBuffer, matrixBuffer)
+	}
+
 	m.accumulator += dt
 	steps := 0
 	// Standard semi-fixed timestep accumulator with 5-step cap.
@@ -163,16 +176,22 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 		m.applyConfiguredGravity(float32(m.fixedStep))
 		ps.Update(float32(m.fixedStep))
 		m.accumulator -= m.fixedStep
+		m.simTime += m.fixedStep
 		steps++
 	}
 
 	m.syncSharedBuffers()
+	matrixInterpAccum = m.accumulator
+	matrixInterpFixed = m.fixedStep
 	if afterPhysicsMatrixSync != nil {
 		afterPhysicsMatrixSync()
 	}
 	m.SyncWasmPhysicsAfterStep()
 	collectContactsAfterStep(m)
 	m.queueCollisionCallbacksFromRules()
+	if physicsKCCFanIn != nil {
+		physicsKCCFanIn(m)
+	}
 
 	// Process Aero (Shared Go Logic)
 	m.ProcessAeroDynamics(float32(dt))
@@ -191,8 +210,8 @@ func (m *Module) queueCollisionCallbacksFromRules() {
 	}
 	pending := make([]collEvent, 0, len(rules))
 	for _, r := range rules {
-		ea, oka := EntityIDForBodyHandle(r.ha)
-		eb, okb := EntityIDForBodyHandle(r.hb)
+		ea, oka := entityIDForCollisionRuleHandle(m, r.ha)
+		eb, okb := entityIDForCollisionRuleHandle(m, r.hb)
 		if !oka || !okb {
 			continue
 		}
@@ -223,22 +242,14 @@ func (m *Module) applyConfiguredGravity(dt float32) {
 	if bi == nil {
 		return
 	}
-	type bodyRef struct{ id *jolt.BodyID }
 	joltBodyMu.Lock()
-	refs := make([]bodyRef, 0, len(joltBodyDynamic))
+	var gravIDs []*jolt.BodyID
 	for id, dynamic := range joltBodyDynamic {
-		if dynamic {
-			refs = append(refs, bodyRef{id: id})
+		if !dynamic {
+			continue
 		}
-	}
-	joltBodyMu.Unlock()
-
-	dvx, dvy, dvz := gx*dt, gy*dt, gz*dt
-	for _, ref := range refs {
-		// Defensive guard: apply only to bodies that still exist and are marked dynamic in heap state.
-		// This prevents static floors from ever receiving gravity if id metadata drifts.
 		if m.h != nil {
-			if h, ok := joltLookupHandle(ref.id); ok {
+			if h, ok := joltLookupHandle(id); ok {
 				if obj, ok := m.h.Get(h); ok {
 					if bo, ok := obj.(*body3dObj); !ok || bo == nil || bo.motion != jolt.MotionTypeDynamic {
 						continue
@@ -246,9 +257,15 @@ func (m *Module) applyConfiguredGravity(dt float32) {
 				}
 			}
 		}
-		v := bi.GetLinearVelocity(ref.id)
-		bi.SetLinearVelocity(ref.id, jolt.Vec3{X: v.X + dvx, Y: v.Y + dvy, Z: v.Z + dvz})
+		gravIDs = append(gravIDs, id)
 	}
+	joltBodyMu.Unlock()
+
+	if len(gravIDs) == 0 {
+		return
+	}
+	dvx, dvy, dvz := gx*dt, gy*dt, gz*dt
+	bi.BatchApplyGravityDelta(gravIDs, dvx, dvy, dvz)
 }
 
 func (m *Module) phSyncWasmToPhysRegs(args []value.Value) (value.Value, error) {
@@ -318,16 +335,31 @@ func (m *Module) syncSharedBuffers() {
 	}
 
 	joltBodyMu.Lock()
-	defer joltBodyMu.Unlock()
-
-	// Sync every registered body into the shared matrix buffer.
-	for id := range joltBodyToHandle {
-		idx, ok := bufferIndexMap[id]
-		if !ok {
-			continue
+	n := nextBufferIndex
+	if n <= 0 {
+		joltBodyMu.Unlock()
+		return
+	}
+	ids := make([]*jolt.BodyID, 0, n)
+	idxs := make([]int, 0, n)
+	for idx := 0; idx < n; idx++ {
+		if id, ok := bufferIndexToBody[idx]; ok && id != nil {
+			ids = append(ids, id)
+			idxs = append(idxs, idx)
 		}
-		pos := bi.GetPosition(id)
-		rot := bi.GetRotation(id)
+	}
+	joltBodyMu.Unlock()
+
+	if len(ids) == 0 {
+		return
+	}
+	batch := make([]float32, len(ids)*8)
+	bi.BatchGetBodyTransforms(ids, batch)
+	for j := range ids {
+		off := j * 8
+		pos := jolt.Vec3{X: batch[off], Y: batch[off+1], Z: batch[off+2]}
+		rot := jolt.Quat{X: batch[off+3], Y: batch[off+4], Z: batch[off+5], W: batch[off+6]}
+		idx := idxs[j]
 		dest := matrixBuffer[idx*16 : (idx+1)*16]
 		matrix16FromPosQuatRL(dest, pos, rot)
 	}
@@ -350,15 +382,30 @@ func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		return value.Nil, fmt.Errorf("PHYSICS3D.PROCESSCOLLISIONS expects 0 arguments")
 	}
-	if m.invoke == nil {
+	joltMu.Lock()
+	sys := joltSys
+	joltMu.Unlock()
+	if sys == nil {
 		return value.Nil, nil
 	}
+	
+	// Drain rigid body contacts (sensors & triggers)
+	events := sys.DrainContactQueue(256)
+	for range events {
+		// Map global BodyIDs back to Entity handles if possible
+		// This requires a lookup which we'll implement later or rely on the script to filter.
+		// For now, we only support the virtual character callback pattern if specifically registered.
+	}
+
+	// Character collisions already populate collPending elsewhere (usually in Step)
 	joltMu.Lock()
 	q := collPending
 	collPending = nil
 	joltMu.Unlock()
-	for _, ev := range q {
-		_, _ = m.invoke(ev.cb, []value.Value{value.FromHandle(ev.ha), value.FromHandle(ev.hb)})
+	if m.invoke != nil {
+		for _, ev := range q {
+			_, _ = m.invoke(ev.cb, []value.Value{value.FromHandle(ev.ha), value.FromHandle(ev.hb)})
+		}
 	}
 	return value.Nil, nil
 }
@@ -483,8 +530,31 @@ func (m *Module) phJointFixed(args []value.Value) (value.Value, error) {
 	return value.Nil, fmt.Errorf("JOINT.FIXED is not implemented on native backend yet")
 }
 func (m *Module) phJointHinge(args []value.Value) (value.Value, error) {
-	_ = args
-	return value.Nil, fmt.Errorf("JOINT.HINGE is not implemented on native backend yet")
+	if len(args) != 8 || args[0].Kind != value.KindHandle || args[1].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("JOINT.HINGE expects (b1, b2, px, py, pz, ax, ay, az)")
+	}
+	bo1, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil { return value.Nil, err }
+	bo2, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[1].IVal))
+	if err != nil { return value.Nil, err }
+	px, _ := args[2].ToFloat()
+	py, _ := args[3].ToFloat()
+	pz, _ := args[4].ToFloat()
+	ax, _ := args[5].ToFloat()
+	ay, _ := args[6].ToFloat()
+	az, _ := args[7].ToFloat()
+
+	joltMu.Lock()
+	sys := joltSys
+	joltMu.Unlock()
+	if sys == nil { return value.Nil, nil }
+
+	joint := sys.CreateHingeJoint(bo1.id, bo2.id, jolt.Vec3{X: float32(px), Y: float32(py), Z: float32(pz)}, jolt.Vec3{X: float32(ax), Y: float32(ay), Z: float32(az)})
+	if joint == nil {
+		return value.Nil, fmt.Errorf("failed to create hinge joint")
+	}
+	// We might want to return a joint handle here, but the manifest says returns null.
+	return value.Nil, nil
 }
 func (m *Module) phJointSlider(args []value.Value) (value.Value, error) {
 	_ = args
@@ -499,47 +569,82 @@ func (m *Module) bdSetGravityFactor(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.SETGRAVITYFACTOR expects (body, factor#)")
 	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || bo.id == nil {
 		return value.Nil, err
 	}
-	_, _ = args[1].ToFloat()
-	return value.Nil, fmt.Errorf("BODY3D.SETGRAVITYFACTOR not implemented on native backend")
+	factor, _ := args[1].ToFloat()
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi != nil {
+		bi.SetGravityFactor(bo.id, float32(factor))
+	}
+	return value.Nil, nil
 }
 
 func (m *Module) bdSetDamping(args []value.Value) (value.Value, error) {
 	if len(args) != 3 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.SETDAMPING expects (body, linear#, angular#)")
 	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || bo.id == nil {
 		return value.Nil, err
 	}
-	_, _ = args[1].ToFloat()
-	_, _ = args[2].ToFloat()
-	return value.Nil, fmt.Errorf("BODY3D.SETDAMPING not implemented on native backend")
+	lin, _ := args[1].ToFloat()
+	ang, _ := args[2].ToFloat()
+
+	joltMu.Lock()
+	sys := joltSys
+	joltMu.Unlock()
+	if sys == nil {
+		return value.Nil, nil
+	}
+	sys.SetBodyDamping(bo.id, float32(lin), float32(ang))
+	return value.Nil, nil
 }
 
 func (m *Module) bdLockAxis(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.LOCKAXIS expects (body, axis_flags)")
 	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || bo.id == nil {
 		return value.Nil, err
 	}
-	if _, ok := args[1].ToInt(); !ok {
+	flags, ok := args[1].ToInt()
+	if !ok {
 		return value.Nil, fmt.Errorf("invalid axis flags")
 	}
-	return value.Nil, fmt.Errorf("BODY3D.LOCKAXIS not implemented on native backend")
+	
+	joltMu.Lock()
+	sys := joltSys
+	joltMu.Unlock()
+	if sys != nil {
+		sys.SetAllowedDOFs(bo.id, int(flags))
+	}
+	return value.Nil, nil
 }
 
 func (m *Module) btdSetCCD(args []value.Value) (value.Value, error) {
 	if len(args) != 2 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.SETCCD expects (body, toggle)")
 	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || bo.id == nil {
 		return value.Nil, err
 	}
-	_ = value.Truthy(args[1], nil, nil)
-	return value.Nil, fmt.Errorf("BODY3D.SETCCD not implemented on native backend")
+	quality := jolt.MotionQualityDiscrete
+	if value.Truthy(args[1], nil, nil) {
+		quality = jolt.MotionQualityLinearCast
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi != nil {
+		bi.SetMotionQuality(bo.id, quality)
+	}
+	return value.Nil, nil
 }
 
 func (m *Module) phDebugDraw(args []value.Value) (value.Value, error) {
@@ -571,7 +676,7 @@ func phSetOnCollision(m *Module, ha, hb value.Value, cb string) (value.Value, er
 		hb: heap.Handle(hb.IVal),
 		cb: cb,
 	})
-	return value.Nil, fmt.Errorf("BODY3D.SETANGULARVEL not implemented on native backend")
+	return value.Nil, nil
 }
 
 func (m *Module) phWorldSetup(args []value.Value) (value.Value, error) {
@@ -609,7 +714,6 @@ func (m *Module) bdGetLinearVel(args []value.Value) (value.Value, error) {
 	return valueVec3FromFloats(m.h, float64(v.X), float64(v.Y), float64(v.Z))
 }
 
-
 func (m *Module) bdGetAngularVel(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.GETANGULARVEL expects (body)")
@@ -633,7 +737,6 @@ func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
 	_, _ = args[3].ToFloat()
 	return value.Nil, fmt.Errorf("BODY3D.APPLYTORQUE not implemented on native backend")
 }
-
 
 func (m *Module) bdApplyTorque(args []value.Value) (value.Value, error) {
 	if len(args) != 4 || args[0].Kind != value.KindHandle {
@@ -692,4 +795,54 @@ func (m *Module) applyBodyForce(b *body3dObj, f rl.Vector3) {
 		return
 	}
 	joltBi.AddImpulse(b.id, jolt.Vec3{X: f.X * dt, Y: f.Y * dt, Z: f.Z * dt})
+}
+
+// physicsKCCFanIn is registered by the player/KCC bridge to merge CharacterVirtual contact drains into ONCOLLISION.
+var physicsKCCFanIn func(*Module)
+
+// SetPhysicsKCCFanIn registers a hook invoked near the end of PHYSICS3D.STEP (after rigid contact rules are queued).
+func SetPhysicsKCCFanIn(fn func(*Module)) {
+	physicsKCCFanIn = fn
+}
+
+// FanInCharacterContactEvents appends matching PHYSICS3D.ONCOLLISION callbacks when KCC contacts involve playerEid and a registered rigid body.
+func (m *Module) FanInCharacterContactEvents(playerEid int64, events []jolt.CharacterContactEvent) {
+	if m == nil || m.h == nil || len(events) == 0 {
+		return
+	}
+	joltMu.Lock()
+	rules := append([]collRule(nil), collRules...)
+	joltMu.Unlock()
+	if len(rules) == 0 {
+		return
+	}
+	seen := make(map[string]struct{}, len(events)*2)
+	for _, ev := range events {
+		bh, ok := LookupBodyHeapByPacked(ev.BodyB)
+		if !ok {
+			continue
+		}
+		otherEid, ok := EntityIDForBodyHandle(bh)
+		if !ok {
+			continue
+		}
+		for _, r := range rules {
+			ea, oka := entityIDForCollisionRuleHandle(m, r.ha)
+			eb, okb := entityIDForCollisionRuleHandle(m, r.hb)
+			if !oka || !okb {
+				continue
+			}
+			if !((ea == playerEid && eb == otherEid) || (eb == playerEid && ea == otherEid)) {
+				continue
+			}
+			key := pairKey(ea, eb) + ":" + r.cb
+			if _, dup := seen[key]; dup {
+				continue
+			}
+			seen[key] = struct{}{}
+			joltMu.Lock()
+			collPending = append(collPending, collEvent{ha: r.ha, hb: r.hb, cb: r.cb})
+			joltMu.Unlock()
+		}
+	}
 }

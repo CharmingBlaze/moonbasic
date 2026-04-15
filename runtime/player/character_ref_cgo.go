@@ -135,9 +135,7 @@ func (m *Module) charRefMoveWithCam(args []value.Value) (value.Value, error) {
 	vx := (float64(fwd.X)*f + float64(right.X)*s) * spd
 	vz := (float64(fwd.Z)*f + float64(right.Z)*s) * spd
 
-	// CharacterMoveXZVelocity handles its own integration if we pass a dt, but typically called per-frame.
-	// We'll use a fixed dt or fetch from time if we had rt.
-	dt := 1.0 / 60.0
+	dt := m.physicsFixedDt()
 	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
 		return value.Nil, err
 	}

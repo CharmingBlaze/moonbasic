@@ -24,7 +24,7 @@ We are currently in **Phase 2: High-Fidelity Refinement**. Our primary objective
 All MoonBASIC development follows the **Same Path** rule:
 
 1. **One Script runs Everywhere**: A `.mb` file written using "Easy Mode" syntax on Windows must behave identically on Linux without code changes.
-2. **Explicit Fallbacks**: Windows developers use the Host Solver; Linux deployments use Jolt. The engine must handle this transition transparently behind the `ENTITY.ADDPHYSICS` or `Character.Create` calls.
+2. **Same physics on desktop**: **Windows and Linux** fullruntime builds with **CGO + Jolt** share one native path. Headless, mobile, or **`!cgo`** builds use stubs so the same `.mb` compiles; KCC gameplay requires the toolchain + Jolt libs documented in [BUILDING.md](BUILDING.md) and [JOLT_WINDOWS_PARITY.md](JOLT_WINDOWS_PARITY.md).
 3. **Handle Consistency**: Handles (Entities, Characters, Models) are the primary currency of the API. Prefer handle methods over global namespaced commands in all user-facing examples.
 
 ## Near-Term Roadmap

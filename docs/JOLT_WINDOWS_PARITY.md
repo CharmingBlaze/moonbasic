@@ -6,7 +6,7 @@ As of v1.3.1, MoonBASIC supports full native **Jolt Physics** parity on Windows 
 
 - **Cross-Platform CGO**: Architecture has been migrated from `*_linux.go` to platform-agnostic `*_cgo.go` files.
 - **Windows Support**: Native Jolt is supported on Windows x86-64 when `CGO_ENABLED=1` is set.
-- **Unified API**: The "Easy Mode" API and "Host KCC" (Path B) are synchronized with the native Jolt behavior (Path A), ensuring scripts are portable even in non-CGO environments.
+- **Unified API**: **`PLAYER.*` / `CHAR.*` / heap `Character`** on desktop **Linux and Windows** use the **same** Jolt **`CharacterVirtual`** path when **`CGO_ENABLED=1`** and libraries are linked. Builds **without** CGO/Jolt get **stub** implementations with explicit errors—not a parallel solver.
 
 ## How to Build on Windows
 
@@ -47,7 +47,7 @@ For other programmers and maintainers:
 
 - **LDFLAGS**: Windows-specific linking is handled in `third_party/jolt-go/jolt/cgo_windows_amd64.go`. It links `-lJolt`, `-ljolt_wrapper`, and the required C++ standard libraries (`-lstdc++`).
 - **Build Tags**: Promotion of modules was achieved by switching from `linux && cgo` to `(linux || windows) && cgo`.
-- **Stub Sync**: `runtime/charcontroller/stub.go` implements a lightweight AABB capsule solver that mirrors the native `CHARACTERREF.*` API surface.
+- **Stub sync**: When Jolt is not linked, **`runtime/charcontroller`** and **`runtime/player`** expose the same **manifest** entry points with **stubs** (no native **`CharacterVirtual`**). Desktop KCC gameplay requires **CGO + Jolt** on Windows or Linux.
 
 ## Summary
 

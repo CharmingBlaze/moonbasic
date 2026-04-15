@@ -11,11 +11,9 @@ On **Linux or Windows** with **CGO enabled** and **Jolt static libraries** avail
 - **Rigid Body Dynamics**: Full multi-threaded solver for cubes, spheres, and complex meshes.
 - **Shared Memory Sync**: Physics state is written to a shared buffer and synced back to entities each frame via `syncEntitiesFromPhysics`.
 
-### Path B: Stub / non-desktop / no Jolt (Host Solver fallback)
+### Path B: Stub / non-desktop / no native Jolt
 
-When **CGO is disabled**, or the OS is **not** Linux/Windows (e.g. some builds), or **Jolt libraries are not linked**, MoonBASIC uses **`physics3d` stub files** and the **Iterative Host Solver** where applicable.
-- **Script-Driven Interpolation**: Most "Easy Mode" physics (like `Character.Create`) use a high-level Go implementation that mimics the Jolt KCC behavior through simpler bounding-box or raycast tests.
-- **Visual Parity**: The goal of the Host Solver is to provide identical behavior to Jolt for typical "Mario 64" style gameplay, ensuring code written on Windows Host KCC works perfectly when deployed to Linux Jolt servers.
+When **CGO is disabled**, or the OS is **not** Linux/Windows (e.g. some builds), or **Jolt libraries are not linked**, MoonBASIC uses **`physics3d` stub files** (no rigid-body solver hits) and **`runtime/player` stub files** that return **clear errors** for **`PLAYER.*` / `CHAR.*` / `CHARACTER.*`** KCC commands (see `errPlayerRequiresCGOJolt` in the player package). There is **no second Go “host” character solver**: desktop **Windows and Linux** with **CGO + Jolt** are the supported path for real KCC physics.
 
 ### Vendored Jolt Go API (`third_party/jolt-go`)
 
@@ -74,7 +72,7 @@ Commands that modify physical properties (e.g., `ENTITY.SETBOUNCE`, `ENTITY.SETF
 ### Platform Parity
 When adding a new physics feature:
 1. Implement the **Jolt** path in `*_cgo.go` (common for Linux and Windows).
-2. Implement an **identical Go signature stub** in `*_stub.go` for the Host Solver fallback.
+2. Implement an **identical Go signature stub** in `*_stub.go` for builds without native Jolt (errors or no-ops as appropriate).
 3. Ensure both paths expose the **same manifest keys** in `compiler/builtinmanifest/commands.json`.
 
 ---
@@ -93,3 +91,13 @@ To enable Path A on Windows, you must link the native static libraries:
 
 - **Flickering Grounded State**: Check the `joltGroundRayStartLift` and `joltGroundPastFeetSkin` constants in `entity_phys_sync_cgo.go`. The ray must start slightly above the pivot to avoid self-hits.
 - **Micro-Jitter on Slopes**: Ensure the `groundNormal` check in the probe logic properly filters out wall hits (normal Y < 0.28).
+
+---
+
+## 6. KCC contacts vs rigid-body collision queue
+
+Jolt **`CharacterVirtual`** uses an internal **`CharacterContactListener`** path. Scripts can drain a small event queue via **`CHARACTERREF.DRAINCONTACTS`** (and related listener toggles). That pipeline is **separate** from **`PHYSICS3D.PROCESSCOLLISIONS`**, which feeds the rigid-body collision callback queue used for dynamic bodies.
+
+- **Do not assume** the same events appear in both places; order and pairing differ.
+- **One-way platforms** use object layer **`ONE_WAY` (4)** on static/kinematic bodies; the character listener weakens contact response when the hit comes from **below** (see `third_party/jolt-go/jolt/wrapper/character.cpp`).
+- If you need a **single** script callback for both KCC and rigid bodies, fan in manually (e.g. poll `DRAINCONTACTS` in the same frame as `PROCESSCOLLISIONS`) or keep two handlers and document ordering for your game.

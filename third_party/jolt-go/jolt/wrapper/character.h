@@ -31,11 +31,18 @@ typedef enum {
     JoltBackFaceModeCollide = 1        // Collide with back facing surfaces
 } JoltBackFaceMode;
 
-// Character contact settings structure
 typedef struct {
     int canPushCharacter;        // bool as int (0 or 1)
     int canReceiveImpulses;      // bool as int (0 or 1)
 } JoltCharacterContactSettings;
+
+// Contact event for the ring buffer
+typedef struct {
+    unsigned int bodyB;          // ID of body B
+    float positionX, positionY, positionZ;
+    float normalX, normalY, normalZ;
+    float distance;
+} JoltCharacterContactEvent;
 
 // Character contact structure (subset of Jolt's CharacterVirtual::Contact)
 typedef struct {
@@ -161,13 +168,18 @@ void JoltCharacterVirtualGetGroundNormal(const JoltCharacterVirtual character,
 void JoltCharacterVirtualGetGroundPosition(const JoltCharacterVirtual character,
                                            float* x, float* y, float* z);
 
-// Get the active contacts for the character
-// contacts: pointer to array to store contacts (must be pre-allocated)
-// maxContacts: maximum number of contacts to return
-// Returns: actual number of contacts returned
 int JoltCharacterVirtualGetActiveContacts(const JoltCharacterVirtual character,
                                           JoltCharacterContact* contacts,
                                           int maxContacts);
+
+// Set whether to enable the contact listener queue (pushes to bridge buffer)
+void JoltCharacterVirtualSetContactListenerEnabled(JoltCharacterVirtual character, int enabled);
+
+// Drain the contact event queue into the provided buffer
+// Returns actual number of events copied
+int JoltCharacterVirtualDrainContactQueue(JoltCharacterVirtual character,
+                                         JoltCharacterContactEvent* events,
+                                         int maxEvents);
 
 #ifdef __cplusplus
 }

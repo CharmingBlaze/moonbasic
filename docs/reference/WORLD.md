@@ -11,7 +11,7 @@ The **world manager** ties into the active [`terrain`](TERRAIN.md) module: it up
 ---
 
 ### `World.Setup([gravity#])`
-**Easy Mode** physics entry point. Starts Jolt (Linux) or Host solvers and initializes global gravity. Replaces manual start/gravity calls. Default is `-9.81`.
+**Easy Mode** physics entry point. Initializes global gravity and expects **`PHYSICS3D.START()`** / Jolt when using full **3D** physics (see [PHYSICS3D.md](PHYSICS3D.md)). On desktop **Windows and Linux** with **CGO + Jolt**, behavior matches the native world step. Default gravity is `-9.81`.
 
 ---
 

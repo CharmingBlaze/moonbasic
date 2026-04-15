@@ -4,22 +4,20 @@
 
 #include "body.h"
 #include "physics.h"
+#include "physics_layers.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Body/AllowedDOFs.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Body/BodyLockInterface.h>
+#include <Jolt/Physics/Body/MotionProperties.h>
 #include <memory>
 
 using namespace JPH;
 
-// Collision layers (defined in physics.cpp)
-namespace Layers
-{
-	static constexpr ObjectLayer NON_MOVING = 0;
-	static constexpr ObjectLayer MOVING = 1;
-};
+namespace Layers = MBPHYS_Layers;
 
 JoltBodyInterface JoltPhysicsSystemGetBodyInterface(JoltPhysicsSystem system)
 {
@@ -100,6 +98,67 @@ void JoltAddBodyImpulse(JoltBodyInterface bodyInterface,
 	bi->AddImpulse(*bid, Vec3(x, y, z));
 }
 
+void JoltSetBodyDamping(JoltPhysicsSystem system, JoltBodyID bodyID, float linear, float angular)
+{
+	PhysicsSystemWrapper *wrapper = static_cast<PhysicsSystemWrapper *>(system);
+	PhysicsSystem* ps = GetPhysicsSystem(wrapper);
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+
+	BodyLockWrite lock(ps->GetBodyLockInterface(), *bid);
+	if (lock.Succeeded())
+	{
+		Body &body = lock.GetBody();
+		if (body.GetMotionProperties())
+		{
+			body.GetMotionProperties()->SetLinearDamping(linear);
+			body.GetMotionProperties()->SetAngularDamping(angular);
+		}
+	}
+}
+
+void JoltSetBodyMotionQuality(JoltBodyInterface bodyInterface,
+                             JoltBodyID bodyID,
+                             JoltMotionQuality quality)
+{
+    BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+    const BodyID *bid = static_cast<const BodyID *>(bodyID);
+    bi->SetMotionQuality(*bid, static_cast<EMotionQuality>(quality));
+}
+
+void JoltSetBodyAllowedDOFs(JoltPhysicsSystem system,
+                           JoltBodyID bodyID,
+                           int allowedDOFs)
+{
+    PhysicsSystemWrapper *wrapper = static_cast<PhysicsSystemWrapper *>(system);
+    PhysicsSystem* ps = GetPhysicsSystem(wrapper);
+    const BodyID *bid = static_cast<const BodyID *>(bodyID);
+
+    BodyLockWrite lock(ps->GetBodyLockInterface(), *bid);
+    if (lock.Succeeded())
+    {
+        Body &body = lock.GetBody();
+        body.SetAllowedDOFs(static_cast<EAllowedDOFs>(static_cast<uint8_t>(allowedDOFs)));
+    }
+}
+
+void JoltSetBodyGravityFactor(JoltBodyInterface bodyInterface,
+                             JoltBodyID bodyID,
+                             float gravityFactor)
+{
+    BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+    const BodyID *bid = static_cast<const BodyID *>(bodyID);
+    bi->SetGravityFactor(*bid, gravityFactor);
+}
+
+void JoltSetBodyIsSensor(JoltBodyInterface bodyInterface,
+                        JoltBodyID bodyID,
+                        int isSensor)
+{
+    BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+    const BodyID *bid = static_cast<const BodyID *>(bodyID);
+    bi->SetIsSensor(*bid, isSensor != 0);
+}
+
 void JoltSetBodyFriction(JoltBodyInterface bodyInterface,
 						 JoltBodyID bodyID,
 						 float friction)
@@ -118,6 +177,47 @@ void JoltSetBodyRestitution(JoltBodyInterface bodyInterface,
 	bi->SetRestitution(*bid, restitution);
 }
 
+void JoltBatchGetBodyTransforms(JoltBodyInterface bodyInterface,
+								const JoltBodyID *bodyIDs,
+								int count,
+								float *out)
+{
+	const BodyInterface *bi = static_cast<const BodyInterface *>(bodyInterface);
+	float *w = out;
+	for (int i = 0; i < count; i++)
+	{
+		const BodyID *bid = static_cast<const BodyID *>(bodyIDs[i]);
+		RVec3 pos = bi->GetPosition(*bid);
+		Quat q = bi->GetRotation(*bid);
+		w[0] = static_cast<float>(pos.GetX());
+		w[1] = static_cast<float>(pos.GetY());
+		w[2] = static_cast<float>(pos.GetZ());
+		w[3] = q.GetX();
+		w[4] = q.GetY();
+		w[5] = q.GetZ();
+		w[6] = q.GetW();
+		w[7] = bi->IsActive(*bid) ? 1.0f : 0.0f;
+		w += 8;
+	}
+}
+
+void JoltBatchApplyGravityDelta(JoltBodyInterface bodyInterface,
+								const JoltBodyID *bodyIDs,
+								int count,
+								float dvx,
+								float dvy,
+								float dvz)
+{
+	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
+	for (int i = 0; i < count; i++)
+	{
+		const BodyID *bid = static_cast<const BodyID *>(bodyIDs[i]);
+		Vec3 v = bi->GetLinearVelocity(*bid);
+		bi->SetLinearVelocity(*bid, Vec3(v.GetX() + dvx, v.GetY() + dvy, v.GetZ() + dvz));
+		bi->ActivateBody(*bid);
+	}
+}
+
 JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
 						  JoltShape shape,
 						  float x, float y, float z,
@@ -125,32 +225,55 @@ JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
 						  int isSensor,
 						  float friction,
 						  float restitution,
-						  int allowedDOFsOrZero)
+						  int allowedDOFsOrZero,
+						  int objectLayerOrMinusOne)
 {
 	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
 	const Shape *s = static_cast<const Shape *>(shape);
 
-	// Convert motion type
 	EMotionType joltMotionType;
 	ObjectLayer layer;
-	switch (motionType)
+
+	if (objectLayerOrMinusOne >= 0 && objectLayerOrMinusOne < (int)Layers::NUM_LAYERS)
 	{
-	case JoltMotionTypeStatic:
-		joltMotionType = EMotionType::Static;
-		layer = Layers::NON_MOVING;
-		break;
-	case JoltMotionTypeKinematic:
-		joltMotionType = EMotionType::Kinematic;
-		layer = Layers::MOVING;
-		break;
-	case JoltMotionTypeDynamic:
-		joltMotionType = EMotionType::Dynamic;
-		layer = Layers::MOVING;
-		break;
-	default:
-		joltMotionType = EMotionType::Static;
-		layer = Layers::NON_MOVING;
-		break;
+		layer = static_cast<ObjectLayer>(objectLayerOrMinusOne);
+		switch (motionType)
+		{
+		case JoltMotionTypeStatic:
+			joltMotionType = EMotionType::Static;
+			break;
+		case JoltMotionTypeKinematic:
+			joltMotionType = EMotionType::Kinematic;
+			break;
+		case JoltMotionTypeDynamic:
+			joltMotionType = EMotionType::Dynamic;
+			break;
+		default:
+			joltMotionType = EMotionType::Static;
+			break;
+		}
+	}
+	else
+	{
+		switch (motionType)
+		{
+		case JoltMotionTypeStatic:
+			joltMotionType = EMotionType::Static;
+			layer = Layers::NON_MOVING;
+			break;
+		case JoltMotionTypeKinematic:
+			joltMotionType = EMotionType::Kinematic;
+			layer = isSensor ? Layers::SENSOR : Layers::MOVING;
+			break;
+		case JoltMotionTypeDynamic:
+			joltMotionType = EMotionType::Dynamic;
+			layer = isSensor ? Layers::SENSOR : Layers::MOVING;
+			break;
+		default:
+			joltMotionType = EMotionType::Static;
+			layer = Layers::NON_MOVING;
+			break;
+		}
 	}
 
 	BodyCreationSettings body_settings(
@@ -160,10 +283,18 @@ JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
 		joltMotionType,
 		layer);
 
-	// Set sensor flag if requested
 	body_settings.mIsSensor = (isSensor != 0);
 	body_settings.mFriction = friction;
 	body_settings.mRestitution = restitution;
+
+    // Set Tri-Tier defaults if appropriate
+    if (joltMotionType == EMotionType::Static) {
+        body_settings.mFriction = 0.5f; // Architect's Stage default
+    } else if (joltMotionType == EMotionType::Dynamic) {
+        body_settings.mLinearDamping = 0.05f; // Architect's Prop default
+        body_settings.mAngularDamping = 0.05f;
+    }
+
 	if (allowedDOFsOrZero != 0)
 	{
 		body_settings.mAllowedDOFs = static_cast<EAllowedDOFs>(static_cast<uint8_t>(allowedDOFsOrZero));
@@ -175,10 +306,8 @@ JoltBodyID JoltCreateBody(JoltBodyInterface bodyInterface,
 		return nullptr;
 	}
 
-	// Don't activate yet - caller will activate when ready
 	bi->AddBody(body->GetID(), EActivation::DontActivate);
 
-	// Use smart pointer for exception safety, then release to caller
 	auto bodyIDPtr = std::make_unique<BodyID>(body->GetID());
 	return static_cast<JoltBodyID>(bodyIDPtr.release());
 }
@@ -201,7 +330,7 @@ void JoltDeactivateBody(JoltBodyInterface bodyInterface, JoltBodyID bodyID)
 
 void JoltSetBodyShape(JoltBodyInterface bodyInterface,
 					 JoltBodyID bodyID,
-					 JoltShape shape,
+                     JoltShape shape,
 					 int updateMassProperties)
 {
 	BodyInterface *bi = static_cast<BodyInterface *>(bodyInterface);
@@ -209,6 +338,12 @@ void JoltSetBodyShape(JoltBodyInterface bodyInterface,
 	const Shape *s = static_cast<const Shape *>(shape);
 
 	bi->SetShape(*bid, s, updateMassProperties != 0, EActivation::Activate);
+}
+
+unsigned int JoltBodyIDGetIndexAndSequenceNumber(JoltBodyID bodyID)
+{
+	const BodyID *bid = static_cast<const BodyID *>(bodyID);
+	return bid->GetIndexAndSequenceNumber();
 }
 
 void JoltDestroyBodyID(JoltBodyID bodyID)

@@ -120,6 +120,8 @@ On **Windows**, set **`CGO_ENABLED=1`** and point **`CC`** at MinGW **`gcc.exe`*
 
 **3D physics:** native **Jolt** (`PHYSICS3D.*` / `BODY3D.*`) is available on **Linux and Windows x64** when **`CGO_ENABLED=1`** and the Jolt static libraries are present (see [JOLT_WINDOWS_PARITY.md](JOLT_WINDOWS_PARITY.md)). Other builds get a **full graphics** runtime with physics builtins **stubbed** with a clear error—see [PHYSICS3D.md](reference/PHYSICS3D.md).
 
+**Jolt on Windows (LTO / GCC mismatch):** If the link step fails with **LTO** or **GCC version** errors (e.g. vendored **`libJolt.a`** built with a different toolchain than your MinGW **`gcc`**), rebuild the static archives with the **same** compiler you use for CGO — see [`third_party/jolt-go/jolt/lib/windows_amd64/README.md`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md). As a **temporary** experiment, you can try disabling LTO on the **final** link only, for example: `go build -ldflags="-extldflags=-fno-lto" -tags fullruntime ./cmd/moonrun`. That may not fix every mismatch; rebuilding the **`.a`** files to match your environment remains the reliable fix.
+
 ---
 
 ## Windows static-linked `moonrun` (no `raylib.dll` / `jolt.dll`)

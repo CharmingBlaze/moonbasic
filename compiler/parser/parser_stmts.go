@@ -412,6 +412,18 @@ func (p *Parser) parseStmtBlockUntil(stop []token.TokenType) ([]ast.Stmt, error)
 		if s != nil {
 			out = append(out, s)
 		}
+		// Same as ParseProgram: chain statements on one line with colon (e.g. vx = 0 : vz = 0).
+		for p.cur().Type == token.COLON {
+			p.advance()
+			p.skipNewlines()
+			s2, err2 := p.parseStmt()
+			if err2 != nil {
+				return nil, err2
+			}
+			if s2 != nil {
+				out = append(out, s2)
+			}
+		}
 	}
 	return out, nil
 }

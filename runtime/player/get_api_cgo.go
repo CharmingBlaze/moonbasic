@@ -31,10 +31,15 @@ func registerPlayerCharGetAPI(m *Module, reg runtime.Registrar) {
 	reg.Register("PLAYER.GETGRAVITYSCALE", "player", runtime.AdaptLegacy(m.playerGetGravityScale))
 	reg.Register("PLAYER.GETFRICTION", "player", runtime.AdaptLegacy(m.playerGetFriction))
 	reg.Register("PLAYER.GETSNAPDISTANCE", "player", runtime.AdaptLegacy(m.playerGetSnapDistance))
+	reg.Register("PLAYER.GETISSLIDING", "player", runtime.AdaptLegacy(m.playerGetIsSliding))
+	reg.Register("PLAYER.GETCEILING", "player", runtime.AdaptLegacy(m.playerGetCeiling))
+	reg.Register("PLAYER.GETGROUNDVELOCITYX", "player", runtime.AdaptLegacy(m.playerGetGroundVelocityX))
+	reg.Register("PLAYER.GETGROUNDVELOCITYY", "player", runtime.AdaptLegacy(m.playerGetGroundVelocityY))
+	reg.Register("PLAYER.GETGROUNDVELOCITYZ", "player", runtime.AdaptLegacy(m.playerGetGroundVelocityZ))
 	reg.Register("PLAYER.GETHEIGHT", "player", runtime.AdaptLegacy(m.playerGetCapsuleHeight))
 	reg.Register("PLAYER.GETRADIUS", "player", runtime.AdaptLegacy(m.playerGetCapsuleRadius))
-	reg.Register("PLAYER.GETLAYER", "player", runtime.AdaptLegacy(m.playerGetLayerStub))
-	reg.Register("PLAYER.GETMASK", "player", runtime.AdaptLegacy(m.playerGetMaskStub))
+	reg.Register("PLAYER.GETLAYER", "player", runtime.AdaptLegacy(m.playerGetKCCObjectLayer))
+	reg.Register("PLAYER.GETMASK", "player", runtime.AdaptLegacy(m.playerGetKCCCollisionMask))
 	reg.Register("PLAYER.GETCOLLISIONENABLED", "player", runtime.AdaptLegacy(m.playerGetCollisionEnabled))
 
 	reg.Register("CHAR.GETPOSITIONX", "player", runtime.AdaptLegacy(m.playerGetPositionX))
@@ -57,10 +62,15 @@ func registerPlayerCharGetAPI(m *Module, reg runtime.Registrar) {
 	reg.Register("CHAR.GETGRAVITYSCALE", "player", runtime.AdaptLegacy(m.playerGetGravityScale))
 	reg.Register("CHAR.GETFRICTION", "player", runtime.AdaptLegacy(m.playerGetFriction))
 	reg.Register("CHAR.GETSNAPDISTANCE", "player", runtime.AdaptLegacy(m.playerGetSnapDistance))
+	reg.Register("CHAR.GETISSLIDING", "player", runtime.AdaptLegacy(m.playerGetIsSliding))
+	reg.Register("CHAR.GETCEILING", "player", runtime.AdaptLegacy(m.playerGetCeiling))
+	reg.Register("CHAR.GETGROUNDVELOCITYX", "player", runtime.AdaptLegacy(m.playerGetGroundVelocityX))
+	reg.Register("CHAR.GETGROUNDVELOCITYY", "player", runtime.AdaptLegacy(m.playerGetGroundVelocityY))
+	reg.Register("CHAR.GETGROUNDVELOCITYZ", "player", runtime.AdaptLegacy(m.playerGetGroundVelocityZ))
 	reg.Register("CHAR.GETHEIGHT", "player", runtime.AdaptLegacy(m.playerGetCapsuleHeight))
 	reg.Register("CHAR.GETRADIUS", "player", runtime.AdaptLegacy(m.playerGetCapsuleRadius))
-	reg.Register("CHAR.GETLAYER", "player", runtime.AdaptLegacy(m.playerGetLayerStub))
-	reg.Register("CHAR.GETMASK", "player", runtime.AdaptLegacy(m.playerGetMaskStub))
+	reg.Register("CHAR.GETLAYER", "player", runtime.AdaptLegacy(m.playerGetKCCObjectLayer))
+	reg.Register("CHAR.GETMASK", "player", runtime.AdaptLegacy(m.playerGetKCCCollisionMask))
 	reg.Register("CHAR.GETCOLLISIONENABLED", "player", runtime.AdaptLegacy(m.playerGetCollisionEnabled))
 
 	registerPlayerKCCAliases(m, reg)
@@ -464,14 +474,92 @@ func (m *Module) playerGetCapsuleRadius(args []value.Value) (value.Value, error)
 	return value.FromFloat(r), nil
 }
 
-func (m *Module) playerGetLayerStub(args []value.Value) (value.Value, error) {
+// KCC queries use Jolt object layer id 2 (CHARACTER) in physics_layers.h; mask includes all object layers (0..4 with ONE_WAY).
+func (m *Module) playerGetKCCObjectLayer(args []value.Value) (value.Value, error) {
 	_ = args
-	return value.FromInt(0), nil
+	return value.FromInt(2), nil
 }
 
-func (m *Module) playerGetMaskStub(args []value.Value) (value.Value, error) {
+func (m *Module) playerGetKCCCollisionMask(args []value.Value) (value.Value, error) {
 	_ = args
-	return value.FromInt(0), nil
+	return value.FromInt(31), nil
+}
+
+func (m *Module) playerGetIsSliding(args []value.Value) (value.Value, error) {
+	id, ok := m.kccSubjectID(args)
+	if !ok {
+		if len(args) < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.GETISSLIDING: %s", kccErrNoSubject)
+		}
+		return value.FromBool(false), nil
+	}
+	ch, ok := m.entToChar[id]
+	if !ok || m.char == nil {
+		return value.FromBool(false), nil
+	}
+	return value.FromBool(m.char.CharacterIsSliding(ch)), nil
+}
+
+func (m *Module) playerGetCeiling(args []value.Value) (value.Value, error) {
+	id, ok := m.kccSubjectID(args)
+	if !ok {
+		if len(args) < 1 {
+			return value.Nil, fmt.Errorf("PLAYER.GETCEILING: %s", kccErrNoSubject)
+		}
+		return value.FromBool(false), nil
+	}
+	ch, ok := m.entToChar[id]
+	if !ok || m.char == nil {
+		return value.FromBool(false), nil
+	}
+	return value.FromBool(m.char.CharacterTouchingCeiling(ch)), nil
+}
+
+func (m *Module) playerGetGroundVelocityX(args []value.Value) (value.Value, error) {
+	v, ok := m.playerGetGroundVelocityAxis(args, 0)
+	if !ok {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(v), nil
+}
+
+func (m *Module) playerGetGroundVelocityY(args []value.Value) (value.Value, error) {
+	v, ok := m.playerGetGroundVelocityAxis(args, 1)
+	if !ok {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(v), nil
+}
+
+func (m *Module) playerGetGroundVelocityZ(args []value.Value) (value.Value, error) {
+	v, ok := m.playerGetGroundVelocityAxis(args, 2)
+	if !ok {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(v), nil
+}
+
+func (m *Module) playerGetGroundVelocityAxis(args []value.Value, axis int) (float64, bool) {
+	id, ok := m.kccSubjectID(args)
+	if !ok {
+		return 0, false
+	}
+	ch, ok := m.entToChar[id]
+	if !ok || m.char == nil {
+		return 0, false
+	}
+	vx, vy, vz, ok := m.char.CharacterGroundVelocityVec(ch)
+	if !ok {
+		return 0, false
+	}
+	switch axis {
+	case 0:
+		return vx, true
+	case 1:
+		return vy, true
+	default:
+		return vz, true
+	}
 }
 
 func (m *Module) playerGetCollisionEnabled(args []value.Value) (value.Value, error) {

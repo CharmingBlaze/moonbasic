@@ -7,6 +7,8 @@ import (
 	"math"
 	"sync"
 
+	"github.com/bbitechnologies/jolt-go/jolt"
+
 	"moonbasic/vm/heap"
 )
 
@@ -133,6 +135,27 @@ func unregisterBufferBodyForCollision(bufIdx int) {
 	delete(bufIdxToBodyHeap, bufIdx)
 }
 
+// matrixTranslationForBodyID reads the last-published translation from the matrix buffer when registered.
+func matrixTranslationForBodyID(id *jolt.BodyID) (x, y, z float32, ok bool) {
+	if id == nil {
+		return 0, 0, 0, false
+	}
+	joltBodyMu.Lock()
+	idx, has := bufferIndexMap[id]
+	joltBodyMu.Unlock()
+	if !has {
+		return 0, 0, 0, false
+	}
+	off := idx * 16
+	joltMu.Lock()
+	buf := matrixBuffer
+	joltMu.Unlock()
+	if off+15 >= len(buf) {
+		return 0, 0, 0, false
+	}
+	return buf[off+12], buf[off+13], buf[off+14], true
+}
+
 func collectContactsAfterStep(m *Module) {
 	joltMu.Lock()
 	ps := joltSys
@@ -165,7 +188,12 @@ func collectContactsAfterStep(m *Module) {
 		if err != nil || bo.queryShape == nil || bo.id == nil {
 			continue
 		}
-		pos := bi.GetPosition(bo.id)
+		var pos jolt.Vec3
+		if px, py, pz, ok := matrixTranslationForBodyID(bo.id); ok {
+			pos = jolt.Vec3{X: px, Y: py, Z: pz}
+		} else {
+			pos = bi.GetPosition(bo.id)
+		}
 		hits := ps.CollideShapeGetHits(bo.queryShape, pos, 16, 1e-3)
 		for _, hit := range hits {
 			if hit.BodyID == nil {
@@ -191,7 +219,12 @@ func collectContactsAfterStep(m *Module) {
 			}
 			pairSeen[k] = struct{}{}
 
-			otherPos := bi.GetPosition(hit.BodyID)
+			var otherPos jolt.Vec3
+			if ox, oy, oz, ok2 := matrixTranslationForBodyID(hit.BodyID); ok2 {
+				otherPos = jolt.Vec3{X: ox, Y: oy, Z: oz}
+			} else {
+				otherPos = bi.GetPosition(hit.BodyID)
+			}
 			dx := float64(otherPos.X - pos.X)
 			dy := float64(otherPos.Y - pos.Y)
 			dz := float64(otherPos.Z - pos.Z)
@@ -280,6 +313,29 @@ func EntityIDForBodyHandle(bodyH heap.Handle) (int64, bool) {
 	}
 	id, ok := handleToEntity[bodyH]
 	return id, ok
+}
+
+// entityIDForCollisionRuleHandle resolves PHYSICS3D.ONCOLLISION rule handles: BODY3D handles with LINKPHYSBUFFER, or EntityRef handles.
+func entityIDForCollisionRuleHandle(m *Module, h heap.Handle) (int64, bool) {
+	if h == 0 {
+		return 0, false
+	}
+	if eid, ok := EntityIDForBodyHandle(h); ok {
+		return eid, true
+	}
+	if m == nil || m.h == nil {
+		return 0, false
+	}
+	obj, ok := m.h.Get(h)
+	if !ok {
+		return 0, false
+	}
+	if obj.TypeTag() == heap.TagEntityRef {
+		if ref, ok := obj.(interface{ GetID() int64 }); ok {
+			return ref.GetID(), true
+		}
+	}
+	return 0, false
 }
 
 // ReviveEntity clears a tombstone so a reused id is not treated as dead (defensive).

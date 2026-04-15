@@ -13408,8 +13408,8 @@
         "handle",
         "int"
       ],
-      "description": "Locks translation/rotation for a body. axis_flags: 1=X, 2=Y, 4=Z (linear), 8, 16, 32 (angular).",
-      "namespace": "physics3d"
+      "namespace": "body",
+      "description": "Lock motion/rotation axes (flags: 1=X, 2=Y, 4=Z, 8=RotX, 16=RotY, 32=RotZ)."
     },
     {
       "key": "BODY3D.SETGRAVITYFACTOR",
@@ -13417,7 +13417,8 @@
         "handle",
         "float"
       ],
-      "namespace": "physics3d"
+      "namespace": "body",
+      "description": "Set gravity multiplier (0.0 = weightless)."
     },
     {
       "key": "BODY3D.SETDAMPING",
@@ -13426,8 +13427,8 @@
         "float",
         "float"
       ],
-      "description": "Sets linear and angular damping (air resistance).",
-      "namespace": "physics3d"
+      "namespace": "body",
+      "description": "Set linear and angular damping."
     },
     {
       "key": "BODY3D.SETCCD",
@@ -13435,8 +13436,27 @@
         "handle",
         "bool"
       ],
-      "description": "Enables/disables Continuous Collision Detection for fast moving objects.",
-      "namespace": "physics3d"
+      "namespace": "body",
+      "description": "Enable/disable Continuous Collision Detection."
+    },
+    {
+      "key": "JOINT.CREATEHINGE",
+      "args": [
+        "handle",
+        "handle",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Create a hinge joint (b1, b2, px, py, pz, ax, ay, az)."
+    },
+    {
+      "key": "PHYSICS3D.PROCESSCOLLISIONS",
+      "args": [],
+      "description": "Drain pending collision events from the physics world."
     },
     {
       "key": "JOINT.CREATEHINGE",
@@ -13899,6 +13919,42 @@
       ]
     },
     {
+      "key": "PLAYER.SETVELOCITY",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Sets KCC linear velocity (m/s); alias for CHARACTERREF.SETLINEARVELOCITY"
+    },
+    {
+      "key": "PLAYER.ADDIMPULSE",
+      "args": [
+        "int",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Adds to KCC linear velocity (velocity delta; no separate mass impulse)"
+    },
+    {
+      "key": "PLAYER.GETSUBMERGEDFACTOR",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "0..1 fraction of capsule height below WATER surface (requires WATER.* volumes)"
+    },
+    {
+      "key": "PLAYER.ISSUBMERGED",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True when GETSUBMERGEDFACTOR exceeds ~45%"
+    },
+    {
       "key": "PLAYER.JUMP",
       "args": [
         "int",
@@ -13925,7 +13981,7 @@
       "key": "PLAYER.ISGROUNDED",
       "args": [],
       "returns": "bool",
-      "description": "Implicit KCC subject: the last PLAYER.CREATE / Character.Create capsule (standalone virtual id on host)"
+      "description": "Implicit KCC subject: the last PLAYER.CREATE / Character.Create capsule (entity-bound Jolt KCC)"
     },
     {
       "key": "PLAYER.GETLOOKTARGET",
@@ -13995,7 +14051,7 @@
         "int"
       ],
       "returns": "int",
-      "description": "Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir (host KCC approximates 0 or 3)"
+      "description": "Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir"
     },
     {
       "key": "PLAYER.GETGROUNDSTATE",
@@ -14009,7 +14065,7 @@
         "int"
       ],
       "returns": "bool",
-      "description": "True if GetGroundState is OnSteepGround (Linux+Jolt); always false on host KCC"
+      "description": "True if GetGroundState is OnSteepGround (Jolt CharacterVirtual)"
     },
     {
       "key": "PLAYER.ISONSTEEPSLOPE",
@@ -14137,7 +14193,7 @@
         "int"
       ],
       "returns": "bool",
-      "description": "Jolt ground state NotSupported (vertical contact); false on host KCC"
+      "description": "Jolt ground state NotSupported (vertical contact)"
     },
     {
       "key": "PLAYER.GETSLOPEANGLE",
@@ -14145,7 +14201,7 @@
         "int"
       ],
       "returns": "float",
-      "description": "Ground tilt from vertical (degrees) on walkable floor; 0 on host KCC"
+      "description": "Ground tilt from vertical (degrees) on walkable floor"
     },
     {
       "key": "PLAYER.GETISJUMPING",
@@ -14190,7 +14246,7 @@
         "int"
       ],
       "returns": "float",
-      "description": "Gameplay friction (CHARACTERREF.SETFRICTION); host KCC returns 0.5 stub"
+      "description": "Gameplay friction (CHARACTERREF.SETFRICTION)"
     },
     {
       "key": "PLAYER.GETSNAPDISTANCE",
@@ -14222,7 +14278,7 @@
         "int"
       ],
       "returns": "int",
-      "description": "Reserved; returns 0"
+      "description": "KCC object layer id (Jolt CHARACTER layer = 2)"
     },
     {
       "key": "PLAYER.GETMASK",
@@ -14230,7 +14286,7 @@
         "int"
       ],
       "returns": "int",
-      "description": "Reserved; returns 0"
+      "description": "Bitmask of object layers (0..4); typical full mask 31"
     },
     {
       "key": "PLAYER.GETCOLLISIONENABLED",
@@ -14384,7 +14440,7 @@
       "key": "PLAYER.GETSHAPETYPE",
       "args": [],
       "returns": "string",
-      "description": "Returns \"capsule\" for CharacterVirtual / host KCC"
+      "description": "Returns \"capsule\" for CharacterVirtual"
     },
     {
       "key": "PLAYER.GETSHAPETYPE",
@@ -14686,6 +14742,43 @@
       "returns": "float"
     },
     {
+      "key": "CHAR.GETISSLIDING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Alias of PLAYER.GETISSLIDING"
+    },
+    {
+      "key": "CHAR.GETCEILING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "Alias of PLAYER.GETCEILING"
+    },
+    {
+      "key": "CHAR.GETGROUNDVELOCITYX",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETGROUNDVELOCITYY",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
+      "key": "CHAR.GETGROUNDVELOCITYZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "CHAR.GETHEIGHT",
       "args": [
         "int"
@@ -14873,18 +14966,7 @@
       "args": [
         "float"
       ],
-      "description": "Update kinematic character solver with delta time (Host-falling logic)"
-    },
-    {
-      "key": "CHARACTER.CREATE",
-      "args": [
-        "float",
-        "float",
-        "float"
-      ],
-      "returns": "handle",
-      "description": "Standalone kinematic character at (x, y, z): host KCC (e.g. Windows fullruntime) assigns a virtual id (negative int). Linux+CGO: use (entity, radius, height) or position an entity first — three floats are not standalone there.",
-      "namespace": "Character"
+      "description": "Update kinematic character solver with delta time (legacy; prefer CHARACTERREF.UPDATE / UPDATEPHYSICS)"
     },
     {
       "key": "CHARACTER.CREATE",
@@ -14894,7 +14976,7 @@
         "float"
       ],
       "returns": "handle",
-      "description": "Entity-bound capsule: (visualEntity, radius, height). Linux+CGO: Jolt CharacterVirtual. Host: iterative KCC bound to the entity.",
+      "description": "Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.",
       "namespace": "Character"
     },
     {
@@ -15046,6 +15128,54 @@
       "description": "Current scalar speed (m/s)."
     },
     {
+      "key": "CHARACTERREF.SETJUMPBUFFER",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Jump buffer window (seconds) for CHARACTERREF.JUMP while airborne"
+    },
+    {
+      "key": "CHARACTERREF.SETAIRCONTROL",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Scales horizontal move input while airborne"
+    },
+    {
+      "key": "CHARACTERREF.SETGROUNDCONTROL",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "description": "Scales horizontal move input while on ground"
+    },
+    {
+      "key": "CHARACTERREF.GETISSLIDING",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool",
+      "description": "True on steep-ground sliding (Jolt ground state)"
+    },
+    {
+      "key": "CHARACTERREF.GETCEILING",
+      "args": [
+        "handle"
+      ],
+      "returns": "bool",
+      "description": "True if ceiling/head contact detected on last move"
+    },
+    {
+      "key": "CHARACTERREF.GETGROUNDVELOCITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "description": "Returns [vx,vy,vz] array for ground/platform velocity (same as CHARCONTROLLER.GETGROUNDVELOCITY)"
+    },
+    {
       "key": "SHAPE.CREATEBOX",
       "args": [
         "float",
@@ -15193,7 +15323,7 @@
       "args": [
         "float"
       ],
-      "description": "Update kinematic character solver with delta time (Host-falling logic)"
+      "description": "Update kinematic character solver with delta time (legacy; prefer CHARACTERREF.UPDATE / UPDATEPHYSICS)"
     },
     {
       "key": "CHAR.GETVX",
@@ -15561,6 +15691,70 @@
       ],
       "returns": "bool",
       "description": "True if horizontal linear speed > ~0.05 (CharacterVirtual)"
+    },
+    {
+      "key": "PLAYER.SETJUMPBUFFER",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Jump buffer window (seconds) when jump pressed in air; consumed on landing"
+    },
+    {
+      "key": "PLAYER.SETAIRCONTROL",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Scales horizontal PLAYER.MOVE input while airborne (1 = default)"
+    },
+    {
+      "key": "PLAYER.SETGROUNDCONTROL",
+      "args": [
+        "int",
+        "float"
+      ],
+      "description": "Scales horizontal PLAYER.MOVE input while on ground (1 = default)"
+    },
+    {
+      "key": "PLAYER.GETISSLIDING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True when Jolt CharacterVirtual ground state is steep/slide"
+    },
+    {
+      "key": "PLAYER.GETCEILING",
+      "args": [
+        "int"
+      ],
+      "returns": "bool",
+      "description": "True if last integration saw a strong ceiling contact (head bump)"
+    },
+    {
+      "key": "PLAYER.GETGROUNDVELOCITYX",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Ground/platform velocity X (Jolt GetGroundVelocity)"
+    },
+    {
+      "key": "PLAYER.GETGROUNDVELOCITYY",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Ground/platform velocity Y (Jolt GetGroundVelocity)"
+    },
+    {
+      "key": "PLAYER.GETGROUNDVELOCITYZ",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "description": "Ground/platform velocity Z (Jolt GetGroundVelocity)"
     },
     {
       "key": "CONTROLLER.CREATE",
@@ -25152,6 +25346,407 @@
         "float"
       ],
       "namespace": "physics3d"
+    },
+    {
+      "key": "PHYSICS3D.GETGRAVITYX",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get current gravity X component."
+    },
+    {
+      "key": "PHYSICS3D.GETGRAVITYY",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get current gravity Y component."
+    },
+    {
+      "key": "PHYSICS3D.GETGRAVITYZ",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get current gravity Z component."
+    },
+    {
+      "key": "PHYSICS3D.GETMATRIXBUFFER",
+      "args": [],
+      "returns": "handle",
+      "namespace": "physics3d",
+      "description": "Get the shared matrix buffer for render interpolation."
+    },
+    {
+      "key": "PHYSICS3D.SYNCWASMTOPHYSREGS",
+      "args": [
+        "int",
+        "int"
+      ],
+      "namespace": "physics3d",
+      "description": "Sync WASM physics view to VM registers (count, firstReg)."
+    },
+    {
+      "key": "PHYSICS3D.GETSCRATCHFLOAT",
+      "args": [
+        "int"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Read a scratch float from the physics scratch buffer."
+    },
+    {
+      "key": "PHYSICS.GETGRAVITYX",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get gravity X (alias of PHYSICS3D.GETGRAVITYX)."
+    },
+    {
+      "key": "PHYSICS.GETGRAVITYY",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get gravity Y (alias of PHYSICS3D.GETGRAVITYY)."
+    },
+    {
+      "key": "PHYSICS.GETGRAVITYZ",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get gravity Z (alias of PHYSICS3D.GETGRAVITYZ)."
+    },
+    {
+      "key": "WORLD.SETUP",
+      "args": [],
+      "namespace": "physics3d",
+      "description": "Initialise physics world with default gravity (-9.81)."
+    },
+    {
+      "key": "WORLD.SETUP",
+      "args": [
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Initialise physics world with custom Y gravity."
+    },
+    {
+      "key": "WORLD.SETGRAVITY",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set world gravity vector (alias of PHYSICS3D.SETGRAVITY)."
+    },
+    {
+      "key": "BODY3D.GETLINEARVEL",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d",
+      "description": "Get linear velocity as a 3-element array (alias of BODY3D.GETVELOCITY)."
+    },
+    {
+      "key": "SHAPE.GETTYPE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "Get the shape type (1=Box, 2=Sphere, 3=Capsule, 4=Cylinder)."
+    },
+    {
+      "key": "SHAPE.GETWIDTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape dimension 1 (half-extent X or radius)."
+    },
+    {
+      "key": "SHAPE.GETHEIGHT",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape dimension 2 (half-extent Y or height)."
+    },
+    {
+      "key": "SHAPE.GETDEPTH",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape dimension 3 (half-extent Z)."
+    },
+    {
+      "key": "SHAPE.GETRADIUS",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape radius (same as SHAPE.GETWIDTH for spheres)."
+    },
+    {
+      "key": "SHAPE.GETSIZEX",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape X dimension."
+    },
+    {
+      "key": "SHAPE.GETSIZEY",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape Y dimension."
+    },
+    {
+      "key": "SHAPE.GETSIZEZ",
+      "args": [
+        "handle"
+      ],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get shape Z dimension."
+    },
+    {
+      "key": "SHAPEREF.FREE",
+      "args": [
+        "handle"
+      ],
+      "namespace": "physics3d",
+      "description": "Destroy a collision shape."
+    },
+    {
+      "key": "BODYREF.FREE",
+      "args": [
+        "handle"
+      ],
+      "namespace": "physics3d",
+      "description": "Destroy a physics body (handle method)."
+    },
+    {
+      "key": "DEBUG.DRAWCHARACTER",
+      "args": [
+        "any"
+      ],
+      "namespace": "physics3d",
+      "description": "Debug draw a KCC capsule (no-op on stub builds)."
+    },
+    {
+      "key": "DEBUG.DRAWBODY",
+      "args": [
+        "any"
+      ],
+      "namespace": "physics3d",
+      "description": "Debug draw a physics body wireframe (no-op on stub builds)."
+    },
+    {
+      "key": "PICK.ORIGIN",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set ray origin for the next PICK.CAST (x, y, z)."
+    },
+    {
+      "key": "PICK.DIRECTION",
+      "args": [
+        "float",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set ray direction for the next PICK.CAST (dx, dy, dz)."
+    },
+    {
+      "key": "PICK.MAXDIST",
+      "args": [
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set maximum ray distance for PICK.CAST."
+    },
+    {
+      "key": "PICK.LAYERMASK",
+      "args": [
+        "int"
+      ],
+      "namespace": "physics3d",
+      "description": "Set collision layer bitmask filter for PICK.CAST (0 = all)."
+    },
+    {
+      "key": "PICK.RADIUS",
+      "args": [
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set sphere pick radius (0 = line ray)."
+    },
+    {
+      "key": "PICK.CAST",
+      "args": [],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "Execute a raycast with current PICK settings; returns entity id or 0."
+    },
+    {
+      "key": "PICK.FROMCAMERA",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "namespace": "physics3d",
+      "description": "Set PICK origin/direction from a camera at screen (x, y)."
+    },
+    {
+      "key": "PICK.SCREENCAST",
+      "args": [
+        "handle",
+        "float",
+        "float"
+      ],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "PICK.FROMCAMERA + PICK.CAST in one call."
+    },
+    {
+      "key": "PICK.X",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get X of last PICK hit point."
+    },
+    {
+      "key": "PICK.Y",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get Y of last PICK hit point."
+    },
+    {
+      "key": "PICK.Z",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get Z of last PICK hit point."
+    },
+    {
+      "key": "PICK.NX",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get surface normal X of last PICK hit."
+    },
+    {
+      "key": "PICK.NY",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get surface normal Y of last PICK hit."
+    },
+    {
+      "key": "PICK.NZ",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get surface normal Z of last PICK hit."
+    },
+    {
+      "key": "PICK.ENTITY",
+      "args": [],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "Get entity id of last PICK hit (0 = no hit)."
+    },
+    {
+      "key": "PICK.DIST",
+      "args": [],
+      "returns": "float",
+      "namespace": "physics3d",
+      "description": "Get distance from ray origin to last PICK hit."
+    },
+    {
+      "key": "PICK.HIT",
+      "args": [],
+      "returns": "bool",
+      "namespace": "physics3d",
+      "description": "True if last PICK.CAST hit something."
+    },
+    {
+      "key": "PHYSICS3D.MOUSEHIT",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "physics3d",
+      "description": "Raycast from mouse through camera; returns [x,y,z] array or nil."
+    },
+    {
+      "key": "WORLD.MOUSETOENTITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "Raycast from mouse through camera; returns entity id or 0."
+    },
+    {
+      "key": "WORLD.MOUSEPICK",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "namespace": "physics3d",
+      "description": "Alias of WORLD.MOUSETOENTITY."
+    },
+    {
+      "key": "CAMERA.RAYCASTMOUSE",
+      "args": [
+        "handle"
+      ],
+      "returns": "int",
+      "namespace": "camera",
+      "description": "Raycast from mouse through camera; returns entity id or 0."
+    },
+    {
+      "key": "CHARACTERREF.FREE",
+      "args": [
+        "handle"
+      ],
+      "namespace": "charcontroller",
+      "description": "Destroy a Kinematic Character Controller."
+    },
+    {
+      "key": "CHARACTERREF.DRAINCONTACTS",
+      "args": [
+        "handle"
+      ],
+      "returns": "handle",
+      "namespace": "charcontroller",
+      "description": "Drain pending contact events from a KCC; returns array of contact info."
+    },
+    {
+      "key": "CHARACTERREF.SETCONTACTLISTENER",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "namespace": "charcontroller",
+      "description": "Set a callback function name to be called on KCC contact events."
     }
   ]
 }

@@ -6,10 +6,10 @@ High-level helpers for **kinematic character control** (KCC) and **spatial queri
 
 Order: **Windows** first, **Linux** second ([DEVELOPER.md](../DEVELOPER.md#platform-priority-windows-then-linux)).
 
-| Feature | Windows / no physics | Linux + CGO + Jolt |
-|--------|----------------------|---------------------|
-| **`PLAYER.CREATE` / `MOVE` / `JUMP` / `ISGROUNDED` / `SYNCANIM`** | Error (use **`CHARCONTROLLER.*`** manually if you add Windows Jolt later) | Supported |
-| **`PLAYER.GETLOOKTARGET` / `GETNEARBY` / `SETSTATE`** | Works (look uses physics ray when **`PHYSICS3D.START`**; otherwise mesh AABB fallback) | Full |
+| Feature | `!cgo` / stub build | Windows + Linux, CGO + Jolt |
+|--------|---------------------|------------------------------|
+| **`PLAYER.CREATE` / `MOVE` / `JUMP` / `ISGROUNDED` / `SYNCANIM`** | Clear error (requires CGO + Jolt) | Supported |
+| **`PLAYER.GETLOOKTARGET` / `GETNEARBY` / `SETSTATE`** | Stub / limited | Full when **`PHYSICS3D.START`** and entity pipeline are active |
 
 Start the world with **`PHYSICS3D.START()`** before **`PLAYER.CREATE`**.
 
@@ -24,7 +24,7 @@ Start the world with **`PHYSICS3D.START()`** before **`PLAYER.CREATE`**.
 After **`Player.Create(...)`** / **`Character.Create(...)`** / **`Char.Make(...)`**, the runtime remembers the **last KCC subject** (**implicit hero**). Most **`Player.Get*`** queries accept **either**:
 
 - **`()`** — use the implicit subject (the capsule you created last in this session), or  
-- **`(entity)`** — query a specific entity or **standalone virtual id** (negative integer on **Windows** host KCC for **`Character.Create(x, y, z)`**).
+- **`(entity)`** — query a specific entity id / **EntityRef**.
 
 If you call **`Player.GetPositionX()`** (or any zero-arg getter) **before** any KCC exists, the runtime reports an error (no implicit subject).
 
@@ -37,15 +37,15 @@ If you call **`Player.GetPositionX()`** (or any zero-arg getter) **before** any 
 | **`Player.GetGrounded()`** | **`Player.IsGrounded()`** |
 | **`Player.GetGravity()`** | **`Player.GetGravityScale()`** (per-character scale, not world gravity) |
 | **`Player.GetCapsuleRadius()`** / **`GetCapsuleHeight()`** | **`Player.GetRadius()`** / **`Player.GetHeight()`** |
-| **`Player.GetShapeType()`** | Returns **`"capsule"`** (CharacterVirtual / host KCC) |
+| **`Player.GetShapeType()`** | Returns **`"capsule"`** (CharacterVirtual) |
 
 **World gravity** (global, not per-player): **`Physics.GetGravityX()`** / **`Physics.GetGravityY()`** / **`Physics.GetGravityZ()`** (and **`Physics3D.GetGravity*`** aliases) — see [PHYSICS3D.md](PHYSICS3D.md).
 
-**Not exposed** as **`Ray.*`** / **`Sweep.*`** / **`Debug.*`** getters today — use **`PICK.*`**, **`PHYSICS3D`**, and host logging as documented in [PHYSICS3D.md](PHYSICS3D.md). Physics-wide **body counts** / **collision counts** are not surfaced as **`Physics.GetBodyCount`**-style builtins yet.
+**Not exposed** as **`Ray.*`** / **`Sweep.*`** / **`Debug.*`** getters today — use **`PICK.*`**, **`PHYSICS3D`**, and engine logging as documented in [PHYSICS3D.md](PHYSICS3D.md). Physics-wide **body counts** / **collision counts** are not surfaced as **`Physics.GetBodyCount`**-style builtins yet.
 
 ---
 
-## Kinematic character (Linux + Jolt; Windows host KCC — see [KCC.md](KCC.md))
+## Kinematic character (Jolt on desktop CGO — see [KCC.md](KCC.md))
 
 | Command | Purpose |
 |--------|---------|
@@ -80,7 +80,7 @@ Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** 
 | **`PLAYER.ONTRIGGER(entity, callbackFunc)`** | **Not implemented** — the VM cannot be entered from Jolt sensors yet. Use **`LEVEL.BINDSCRIPT`** + **`LEVEL.MATCHSCRIPTBIND`**, **`EntityCollided`**, or **`PHYSICS3D`** collision hooks instead. A future **physics → BASIC** callback path would need a strict **main-thread / post-step** queue (no VM reentrancy inside Jolt) and is separate from the **wazero** WASM story. |
 | **`PLAYER.SETSTATE(entity, state)`** | Stores an integer **state id** for gameplay logic (e.g. **0 = idle**, **1 = walk**, **2 = jump**). Constants **`STATE_*`** are not built-ins yet—use literals or your own **`CONST`**. |
 | **`PLAYER.SYNCANIM(entity [, scale])`** | Sets **`ENTITY`** animation speed from **horizontal** linear velocity (× optional **scale**, default **1**). Requires **`PLAYER.CREATE`**. |
-| **`PLAYER.SETSTEPHEIGHT(entity, height)`** | Sets Jolt **ExtendedUpdate** **WalkStairsStepUp** (max stair/curb height) on **Linux+Jolt**; stored for tooling on host KCC. |
+| **`PLAYER.SETSTEPHEIGHT(entity, height)`** | Sets Jolt **ExtendedUpdate** **WalkStairsStepUp** (max stair/curb height). |
 | **`PLAYER.SETSLOPELIMIT(entity, maxSlopeDegrees)`** | **Rebuilds** the **`CharacterVirtual`** with **`MaxSlopeAngle`** = **maxSlopeDegrees** (must be between **0** and **90**). Preserves linear velocity. |
 | **`PLAYER.GETVELOCITY(entity)`** → **vec3 handle** | **`CharacterVirtual`** linear velocity (**vx, vy, vz**). |
 | **`PLAYER.TELEPORT(entity, x, y, z)`** | **`SetPosition`** + clears velocity + **`ExtendedUpdate`** + syncs the **entity** transform (snap teleport without smoothing). |
@@ -89,15 +89,15 @@ Lower-level access without entity ids: **`CHARCONTROLLER.MAKE` / `MOVE` / …** 
 | **`PLAYER.SWIM(entity, buoyancy, drag)`** | **Swim mode**: **buoyancy** (0–1) reduces downward gravity; **drag** damps horizontal velocity per second. Use **`(0, 0)`** to disable. |
 | **`PLAYER.SETSTEPOFFSET(entity, height)`** | Alias of **`PLAYER.SETSTEPHEIGHT`** (reserved for future stair tuning). |
 | **`PLAYER.GETSTANDNORMAL(entity)`** → **vec3 handle** | Ground/floor normal under the feet (**`GetGroundNormal`** or short downward ray). |
-| **`PLAYER.PUSH(player, target, force)`** | Forward **horizontal** push on **target** via host **`ENTITY.ADDFORCE`**-style integration; scaled by **`PLAYER.SETMASS`**. |
+| **`PLAYER.PUSH(player, target, force)`** | Forward **horizontal** push on **target** via **`ENTITY.ADDFORCE`**-style integration; scaled by **`PLAYER.SETMASS`**. |
 | **`PLAYER.GRAB(player, target)`** | Each **`PLAYER.MOVE`**, repositions **target** in front of the player ( **`target 0`** releases). Not a Jolt **fixed constraint** yet. |
 | **`PLAYER.SETMASS(entity, mass)`** | Stores **gameplay mass** (e.g. **`PLAYER.PUSH`**); Jolt **CharacterVirtual** mass is fixed at **`PLAYER.CREATE`**. |
 | **`PLAYER.GETSURFACETYPE(entity)`** → **string** | Downward **Jolt** ray → hit entity → **`SurfaceMaterialHint`** from glTF **`material` / `footstep`** metadata or **Blender tag**; else **`Default`**. |
 | **`PLAYER.SETFOVKICK` / `PLAYER.GETFOVKICK`** | Stores **extra FOV degrees** per entity; each frame do **`Camera.SetFOV(cam, base + Player.GetFovKick(hero))`** (or your own base). |
 | **`PLAYER.ISMOVING(entity)`** → **bool** | **True** if horizontal **linear speed** is above ~**0.05** (for footsteps / sprint FX). |
-| **`PLAYER.GETPOSITIONX` / `Y` / `Z`**, **`GETROTATIONPITCH` / `YAW` / `ROLL`**, **`GETVELOCITYX` / `Y` / `Z`**, **`GETSPEED`** | **float** — world pose / velocity from the KCC (Linux+Jolt) or host KCC + entity bridge (Windows). |
-| **`PLAYER.GETONSLOPE`**, **`GETONWALL`**, **`GETSLOPEANGLE`**, **`GETISJUMPING`**, **`GETISFALLING`** | **bool** / **float** — ground and motion hints (**`GETONSLOPE`** mirrors **`ISONSTEEPSLOPE`**; **`GETONWALL`** uses Jolt **NotSupported**; host KCC returns simplified values). |
-| **`PLAYER.GETMAXSLOPE`**, **`GETSTEPHEIGHT`**, **`GETGRAVITYSCALE`**, **`GETFRICTION`**, **`GETSNAPDISTANCE`**, **`GETHEIGHT`**, **`GETRADIUS`** | **float** — tuned capsule / stair / gravity / stick-down (**`GETFRICTION`** on host KCC is a stub). |
+| **`PLAYER.GETPOSITIONX` / `Y` / `Z`**, **`GETROTATIONPITCH` / `YAW` / `ROLL`**, **`GETVELOCITYX` / `Y` / `Z`**, **`GETSPEED`** | **float** — world pose / velocity from **CharacterVirtual** + entity bridge. |
+| **`PLAYER.GETONSLOPE`**, **`GETONWALL`**, **`GETSLOPEANGLE`**, **`GETISJUMPING`**, **`GETISFALLING`** | **bool** / **float** — ground and motion hints (**`GETONSLOPE`** mirrors **`ISONSTEEPSLOPE`**; **`GETONWALL`** uses Jolt **NotSupported**). |
+| **`PLAYER.GETMAXSLOPE`**, **`GETSTEPHEIGHT`**, **`GETGRAVITYSCALE`**, **`GETFRICTION`**, **`GETSNAPDISTANCE`**, **`GETHEIGHT`**, **`GETRADIUS`** | **float** — tuned capsule / stair / gravity / stick-down. |
 | **`PLAYER.GETLAYER`**, **`GETMASK`** | **int** — reserved (**0**). |
 | **`PLAYER.GETCOLLISIONENABLED`** | **bool** — reserved (**true**). |
 | **`CHAR.GET*`** | Same signatures as **`PLAYER.GET*`** (aliases). |
@@ -139,7 +139,7 @@ Naming: use **`LEVEL.LOAD`** / **`Entity.Draw`** (or your project’s draw path)
 
 ## See also
 
-- [CHARACTER.md](CHARACTER.md) — **`CHARACTER.CREATE`** / **`Character.*`**, polymorphic spawn, **`CHARACTERREF.*`**, virtual ids (host)  
+- [CHARACTER.md](CHARACTER.md) — **`CHARACTER.CREATE(entity, r, h)`**, **`CHARACTERREF.*`**, entity-bound Jolt KCC  
 - [KCC.md](KCC.md) — **`CHAR.*`** tutorial, mouse floor/pick, RPG helpers  
 - [CHARCONTROLLER.md](CHARCONTROLLER.md) — capsule API and full sample  
 - [LEVEL.md](LEVEL.md) — glTF, tags, **`LEVEL.BINDSCRIPT`**  

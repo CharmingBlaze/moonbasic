@@ -1,0 +1,73 @@
+; kcc_buoyancy.mb - Professional KCC Buoyancy Example
+; Demonstrates floating, drag, and swim mode.
+
+WINDOW.OPEN(1280, 720, "MoonBASIC KCC Buoyancy")
+PHYSICS3D.START()
+
+; Pool floor volume (half 25, 5, 25)
+poolDef = BODY3D.MAKE("STATIC")
+BODY3D.ADDBOX(poolDef, 25, 5, 25)
+poolBody = BODY3D.COMMIT(poolDef, 0, -5, 0)
+
+; Initialize character
+radius = 0.4
+height = 1.8
+char = CHARCONTROLLER.MAKE(0, 5, 0, radius, height)
+
+cam = CAMERA.CREATE()
+CAMERA.SETMODE(cam, 1)
+
+PRINT("KCC Buoyancy Demo")
+PRINT("The character will enter the water at Y below 2")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    ; Movement
+    vx = 0 : vz = 0
+    IF KEYDOWN(KEY_UP) THEN vz = 4
+    IF KEYDOWN(KEY_DOWN) THEN vz = -4
+    
+    ; Check for water region (Y < 2m)
+    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    IF py < 2 THEN
+        ; Entering water
+        CHARACTERREF.SETSETTING(char, "SWIMMODE", 1)
+        CHARACTERREF.SETSETTING(char, "BUOYANCY", 0.8) ; 80 percent gravity cancelled
+        CHARACTERREF.SETSETTING(char, "DRAG", 2.0)     ; Slow down linear movement
+        
+        ; Swim up
+        IF KEYDOWN(KEY_SPACE) THEN 
+            CHARACTERREF.ADDVELOCITY(char, 0, 0.5, 0)
+        ENDIF
+    ELSE
+        ; Out of water
+        CHARACTERREF.SETSETTING(char, "SWIMMODE", 0)
+        
+        ; Regular jump
+        IF INPUT.KEYPRESSED(KEY_SPACE) AND CHARACTERREF.ISGROUNDED(char) THEN
+            CHARACTERREF.JUMP(char, 6)
+        ENDIF
+    ENDIF
+    
+    CHARACTERREF.SETVELOCITY(char, vx, 0, vz)
+    CHARACTERREF.UPDATE(char)
+    
+    ; Sync camera
+    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    CAMERA.SETPOSITION(cam, px, py + 1.6, pz - 8)
+    CAMERA.SETTARGET(cam, px, py + 1.2, pz)
+    
+    RENDER.CLEAR(40, 44, 52)
+    CAMERA.BEGIN(cam)
+    PHYSICS3D.DEBUGDRAW(1)
+    ; Water indicator
+    IF py < 2 THEN
+        DRAW.RECTANGLE(0, 0, 1280, 720, 0, 80, 255, 51)
+        DRAW.TEXT("SUBMERGED", 10, 10, 30, 0, 255, 255, 255)
+    ENDIF
+    CAMERA.END()
+    RENDER.FRAME()
+WEND
+
+CHARCONTROLLER.FREE(char)
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

@@ -2,15 +2,15 @@
 
 This page is the **gameplay-first** guide to MoonBASIC’s **Kinematic Character Controller (KCC)** — Jolt **`CharacterVirtual`** behind **`PLAYER.CREATE`**, **`CHAR.MAKE`**, and related commands. It bridges **“what I want the hero to do”** and **stable 3D navigation** (wall slide, stairs, floor stick) without you hand-writing collision response.
 
-For the **low-level capsule API** (`CharController.*` handles), see [CHARCONTROLLER.md](CHARCONTROLLER.md). For the full **`PLAYER.*`** surface (swim, push, surface type, …), see [PLAYER.md](PLAYER.md). For **heap `Character` handles** — including **polymorphic** **`CHARACTER.CREATE`** (**`Character.Create(x, y, z)`** vs **`Character.Create(entity, r, h)`**) and **virtual ids** on the host solver — see [CHARACTER.md](CHARACTER.md).
+For the **low-level capsule API** (`CharController.*` handles), see [CHARCONTROLLER.md](CHARCONTROLLER.md). For the full **`PLAYER.*`** surface (swim, push, surface type, …), see [PLAYER.md](PLAYER.md). For **heap `Character` handles** (**`CHARACTER.CREATE(entity, r, h)`**), see [CHARACTER.md](CHARACTER.md).
 
 ## Platform
 
 Project policy: document **Windows** first, **Linux** second ([DEVELOPER.md](../DEVELOPER.md#platform-priority-windows-then-linux)).
 
-| | Windows (`fullruntime`, CGO + Raylib) | Linux + CGO + Jolt (`fullruntime`) |
+| | Windows (`fullruntime`, CGO + Raylib + Jolt) | Linux + CGO + Jolt (`fullruntime`) |
 |--|----------------------------------------|-------------------------------------|
-| **`CHAR.*` / `NAV.*` / `PLAYER.NAV*` (KCC)** | **Host KCC** (analytic floor + static AABB; no Jolt). Same commands; stairs/slope parity is approximate. | Full **Jolt CharacterVirtual** |
+| **`CHAR.*` / `NAV.*` / `PLAYER.NAV*` (KCC)** | **Jolt CharacterVirtual** (requires CGO + linked Jolt libs) | **Jolt CharacterVirtual** |
 | **`ENT.*`**, **`WORLD.TOSCREEN`**, **`WORLD.HITSTOP`**, **`ENT.SHOOT`**, **`ENT.FADE`** | Yes — **entity** and **time** helpers work wherever **`mbentity`** + Raylib run. | Yes |
 | **`WORLD.MOUSEFLOOR` / `WORLD.MOUSEPICK`** | **Stub** returns errors without native Jolt (see [PHYSICS3D.md](PHYSICS3D.md)). | Needs Jolt picks |
 
@@ -36,7 +36,7 @@ Aliases: **`PLAYER.CREATE`** = **`CHAR.MAKE`**; **`PLAYER.SETSTEPOFFSET`** = **`
 ### Capsule size and pivot (primitive or glTF hero)
 
 - **`MODEL.CREATECAPSULE(radius#, height#)`** draws a **Jolt-style** capsule: pivot at the **center** of the shape; total height is **`height#`** (same convention as **`CHAR.MAKE(…, radius#, height#)`**).
-- Use the **same** `radius` and `height` in **`CHAR.MAKE(hero, radius, height)`** as in **`MODEL.CREATECAPSULE`**, or feet vs floor will not match the mesh. For an imported **`MODEL.LOAD` / glTF** hero, pick **`radius` / `height`** that match your collision need; the host KCC on Windows uses **height/2** from the pivot down to the feet (center-pivot capsules), not the radius, for ground contact.
+- Use the **same** `radius` and `height` in **`CHAR.MAKE(hero, radius, height)`** as in **`MODEL.CREATECAPSULE`**, or feet vs floor will not match the mesh. For an imported **`MODEL.LOAD` / glTF** hero, pick **`radius` / `height`** that match your collision need; Jolt KCC uses **height/2** from the pivot down to the feet (center-pivot capsules), not the radius, for ground contact.
 - Arbitrary meshes still **render** as authored; KCC uses the **numeric capsule** you pass — it does not auto-read mesh bounds yet.
 
 ---
@@ -70,7 +70,7 @@ Lower-level: **`PLAYER.MOVE(entity, vx#, vz#)`** is **world velocity** (units/se
 | **`WORLD.TOSCREEN(entity#)`** | Same, using the entity’s **world position** (handy for HUD / health bars). |
 | **`WORLD.HITSTOP(duration#)`** | **Gameplay freeze** for **wall-clock** seconds (uses **`HitStopEndAt`** + **`TIME.DELTA`/`DT` → 0**); impact-frame “crunch”. |
 | **`CHAR.ISGROUNDED(entity)`** | **`TRUE`** if Jolt reports ground support. |
-| **`CHAR.ISGROUNDED(entity, coyoteSec#)`** | Optional **coyote time**: still **`TRUE`** for **coyoteSec** seconds after the last grounded frame (wall-clock), so **`IF CHAR.ISGROUNDED(hero, 0.12)`** feels forgiving. **Linux+Jolt KCC only** (see stub table above). |
+| **`CHAR.ISGROUNDED(entity, coyoteSec#)`** | Optional **coyote time**: still **`TRUE`** for **coyoteSec** **physics simulation** seconds after the last **supported** frame (aligned with **`PHYSICS3D.STEP`** / fixed timestep), so **`IF CHAR.ISGROUNDED(hero, 0.12)`** stays stable at 144Hz. |
 | **`CHAR.DIST(a, b)`** / **`ENTITY.DIST` / `ENT.DIST`** | **3D distance** between two entities (same implementation as **`ENTITY.DISTANCE`**). |
 
 ---
@@ -136,6 +136,19 @@ See **`examples/mario64/modern_blitz_hop_kcc.mb`** — orbit camera + **`CHAR.MO
 - **`NAV.GOTO` / `PLAYER.NAVTO`**: default **arrival** is **0.2** world units; when inside that radius, the runtime applies **zero horizontal velocity** on the **`CharacterVirtual`** so the capsule does not **overshoot and jitter** at the click point. **Soft braking** still uses **`brakeDist`** (quadratic ease).
 - **`CHAR.STICK` / `PLAYER.SETSTICKFLOOR`**: maps to Jolt **ExtendedUpdate** **`StickToFloorStepDown`** (see `SetCharacterStickToFloorDown` in the Linux charcontroller).
 - **`ENT.DAMAGE`**: **0.1s** material tint (red) then restore — no separate shader; tint is on entity **RGB** fields.
+
+## Industrial / Final Mile (Jolt `CharacterVirtual`)
+
+- **Grounded query:** **`CHAR.ISGROUNDED` / `CHARACTERREF.ISGROUNDED`** use Jolt **`IsSupported()`** (walkable ground **or** steep supported contact), not only **`GroundStateOnGround`**. **`PLAYER.JUMP`** uses **`IsSupported()`** plus **~0.1s** physics-time **coyote** after leaving support; **`PLAYER.SETJUMPBUFFER`** sets buffered air-press window in **simulation** seconds.
+- **Fixed timestep:** KCC integration uses the same **`fixedStep`** as **`PHYSICS3D.STEP`** (not raw frame **`TIME.DELTA`**), so extended update and jump/coyote clocks stay in lockstep with the physics accumulator.
+- **Moving platforms:** horizontal **`GetGroundVelocity`** is folded into **`PLAYER.MOVE`** / **`CharacterMoveXZVelocity`**; vertical platform motion uses **`gv.Y`** when grounded or on steep ground so elevators do not separate from the feet.
+- **One-way / cloud floors:** `CharacterContactListener` disables contact response when hitting **`ONE_WAY`** layer from below (normal vs character up). Assign **`ONE_WAY`** on mesh/body layers in Jolt layer setup; verify pass-through when the platform moves upward through the character.
+- **KCC → `PHYSICS3D.ONCOLLISION`:** After each physics step, **`CharacterVirtual`** contact events are drained and matched against **`PHYSICS3D.ONCOLLISION(entityOrBodyA, entityOrBodyB, callback$)`** rules (handles may be **`BODY3D`** with **`ENTITY.LINKPHYSBUFFER`** or **`EntityRef`**). Enable the character contact listener (on by default for new capsules). **`CHARACTERREF.DRAINCONTACTS`** still returns raw events for custom handling.
+- **Water:** **`PLAYER.GETSUBMERGEDFACTOR`** / **`PLAYER.ISSUBMERGED`** use **`WATER.*`** volumes. Ambient swim (buoyancy/drag) is applied on **`PLAYER.MOVE`** / **`CHAR.MOVE`** / camera-walk moves when **`PLAYER.SWIM`** has **not** been used to pin manual swim on that entity (**`swimManual`**).
+
+### Regression checklist (manual)
+
+See **`examples/kcc_regression_checklist.mb`**: stairs **0.3m**, slopes **30° / 60°**, **`PHYSICS3D.SETTIMESTEP(144)`** + high refresh — feet should not jitter when grounded; verify **`PLAYER.MOVE`** on kinematic platforms.
 
 ## See also
 

@@ -6,6 +6,7 @@ import (
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
+	"github.com/bbitechnologies/jolt-go/jolt"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -89,10 +90,25 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 
 	// 1. Process Aero (Shared Go Logic)
 	m.ProcessAeroDynamics(float32(dt))
-	
+
+	m.simTime += dt
+
 	return value.Nil, nil
 }
-func (m *Module) phSetTimeStep(args []value.Value) (value.Value, error)       { return value.Nil, nil }
+
+// SetPhysicsKCCFanIn is a no-op when Jolt is not linked.
+func SetPhysicsKCCFanIn(fn func(*Module)) { _ = fn }
+func (m *Module) phSetTimeStep(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, nil
+	}
+	v, ok := args[0].ToFloat()
+	if !ok || v < 1 {
+		return value.Nil, nil
+	}
+	m.fixedStep = 1.0 / v
+	return value.Nil, nil
+}
 func (m *Module) phGetMatrixBuffer(args []value.Value) (value.Value, error)   { return value.Nil, nil }
 func (m *Module) phSetSubsteps(args []value.Value) (value.Value, error)       { return value.Nil, nil }
 func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) { return value.Nil, nil }
@@ -399,4 +415,9 @@ func (m *Module) applyBodyForce(b *body3dObj, f rl.Vector3) {
 	b.LinearVel.X += f.X * 0.016 // Approx 1/60 step
 	b.LinearVel.Y += f.Y * 0.016
 	b.LinearVel.Z += f.Z * 0.016
+}
+
+// FanInCharacterContactEvents is a no-op when Jolt is not linked.
+func (m *Module) FanInCharacterContactEvents(playerEid int64, events []jolt.CharacterContactEvent) {
+	_, _ = playerEid, events
 }

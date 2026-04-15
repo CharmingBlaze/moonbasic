@@ -34,6 +34,8 @@ type Module struct {
 	invoke      func(string, []value.Value) (value.Value, error)
 	accumulator float64
 	fixedStep   float64
+	// simTime advances by fixedStep for each physics sub-step in STEP (simulation clock, not wall clock).
+	simTime float64
 
 	vmMu   sync.Mutex
 	vmRef  *vm.VM
@@ -54,8 +56,30 @@ type Module struct {
 // NewModule creates the physics3d module.
 func NewModule() *Module {
 	return &Module{
-		vehicles: make(map[int64]*Vehicle),
+		vehicles:  make(map[int64]*Vehicle),
+		fixedStep: 1.0 / 60.0,
 	}
+}
+
+// FixedStepSeconds returns the simulation fixed timestep in seconds (1/rate from PHYSICS3D.SETTIMESTEP).
+// Used by KCC and gameplay logic to stay aligned with PHYSICS3D.STEP.
+func (m *Module) FixedStepSeconds() float64 {
+	if m == nil {
+		return 1.0 / 60.0
+	}
+	if m.fixedStep <= 0 || m.fixedStep > 1 {
+		return 1.0 / 60.0
+	}
+	return m.fixedStep
+}
+
+// SimTimeSeconds returns monotonic simulation time in seconds (sum of fixed substeps advanced in PHYSICS3D.STEP).
+// Used by KCC coyote/jump-buffer deadlines so gameplay stays in physics time at any frame rate.
+func (m *Module) SimTimeSeconds() float64 {
+	if m == nil {
+		return 0
+	}
+	return m.simTime
 }
 
 func (m *Module) BindHeap(h *heap.Store) {

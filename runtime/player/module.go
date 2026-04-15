@@ -4,6 +4,7 @@ package player
 import (
 	mbcharcontroller "moonbasic/runtime/charcontroller"
 	mbentity "moonbasic/runtime/mbentity"
+	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/runtime"
 	mwater "moonbasic/runtime/water"
 	"moonbasic/vm/heap"
@@ -23,16 +24,14 @@ type Module struct {
 	grab       map[int64]int64   // player entity# -> grabbed entity# (0 = none)
 	fovKick    map[int64]float64 // degrees added to camera FOV (read via GETFOVKICK; apply in script or future hook)
 
-	// hostKCC: non-Jolt KCC backing (Windows/macOS CGO). Linux+Jolt uses entToChar + mbcharcontroller.
-	hostKCC map[int64]*hostKCCState
-	// nextStandaloneID: counter for negative IDs assigned to standalone characters (no entity).
-	nextStandaloneID int64
-	lastHero         int64
+	lastHero int64
 
 	// kccNav: click-to-move / NAV targets for PLAYER.CREATE entities (see CHAR.NAVTO / CHAR.NAVUPDATE).
 	kccNav map[int64]*kccNavState
-	// kccLastGroundedAt: wall time (seconds) when CharacterVirtual last reported grounded — for optional coyote grace in ISGROUNDED.
+	// kccLastGroundedAt: physics sim time when CharacterVirtual last reported grounded — for coyote grace in ISGROUNDED.
 	kccLastGroundedAt map[int64]float64
+	// swimManual: entity had PLAYER.SWIM enabled manually; skip ambient WATER volume swim override while true.
+	swimManual map[int64]bool
 }
 
 // kccNavMode: NAV.GOTO / PLAYER.NAVTO (goto), NAV.CHASE, NAV.PATROL (KCC entities only).
@@ -55,27 +54,6 @@ type kccNavState struct {
 
 	patrolAX, patrolAZ, patrolBX, patrolBZ float64
 	patrolToB                              bool
-}
-
-// hostKCCState is a software kinematic solver used when Jolt CharacterVirtual is unavailable
-// (Windows/macOS fullruntime). Same script surface as Linux+Jolt; collision is approximate (static boxes).
-//
-// rad: horizontal capsule radius (same as CHAR.MAKE / MODEL.CREATECAPSULE radius).
-// hei: total capsule height; pivot is the capsule center, so feet are hei/2 below the pivot (matches primitive draw).
-type hostKCCState struct {
-	x, y, z         float64
-	rad, hei        float64
-	stepH, slopeDeg float64
-	stickDown, pad  float64
-	gravityScale    float64
-	friction, bounce float64
-	mass            float64
-	vx, vy, vz      float64
-	crouch          bool
-	swimBuoy        float64
-	swimDrag        float64
-	swimOn          bool
-	grounded        bool
 }
 
 // NewModule constructs the player module.
@@ -105,11 +83,8 @@ func (m *Module) BindHeap(h *heap.Store) {
 	if m.kccLastGroundedAt == nil {
 		m.kccLastGroundedAt = make(map[int64]float64)
 	}
-	if m.hostKCC == nil {
-		m.hostKCC = make(map[int64]*hostKCCState)
-	}
-	if m.nextStandaloneID == 0 {
-		m.nextStandaloneID = -1000 // Start from -1000 to avoid small negative confusion
+	if m.swimManual == nil {
+		m.swimManual = make(map[int64]bool)
 	}
 }
 
@@ -126,10 +101,6 @@ func (m *Module) Bind(char *mbcharcontroller.Module, ent *mbentity.Module) {
 				return true
 			}
 		}
-		if m.hostKCC != nil {
-			_, ok := m.hostKCC[id]
-			return ok
-		}
 		return false
 	})
 	mbentity.SetCharacterGroundNormalResolver(func(id int64) (float64, float64, float64, bool) {
@@ -141,12 +112,23 @@ func (m *Module) Bind(char *mbcharcontroller.Module, ent *mbentity.Module) {
 				}
 			}
 		}
-		if m.hostKCC != nil {
-			if st, ok := m.hostKCC[id]; ok && st.grounded {
-				return 0, 1, 0, true
-			}
-		}
 		return 0, 0, 0, false
+	})
+
+	mbphysics3d.SetPhysicsKCCFanIn(func(ph *mbphysics3d.Module) {
+		if m.char == nil || ph == nil || m.entToChar == nil {
+			return
+		}
+		for eid, ch := range m.entToChar {
+			if eid < 1 {
+				continue
+			}
+			ev := m.char.DrainCharacterContactsForFanIn(ch)
+			if len(ev) == 0 {
+				continue
+			}
+			ph.FanInCharacterContactEvents(eid, ev)
+		}
 	})
 }
 
@@ -159,6 +141,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 func (m *Module) Shutdown() {
 	mbentity.SetKinematicCharacterLookup(nil)
 	mbentity.SetCharacterGroundNormalResolver(nil)
+	mbphysics3d.SetPhysicsKCCFanIn(nil)
 }
 
 func (m *Module) Reset() {}

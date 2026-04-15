@@ -19,7 +19,7 @@ func parseMotion(s string) jolt.MotionType {
 	switch strings.ToUpper(strings.TrimSpace(s)) {
 	case "STATIC":
 		return jolt.MotionTypeStatic
-	case "KINEMATIC":
+	case "KINEMATIC", "TRIGGER":
 		return jolt.MotionTypeKinematic
 	case "DYNAMIC":
 		return jolt.MotionTypeDynamic
@@ -32,11 +32,33 @@ func phCreateBody(m *Module, motion string) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, mbruntime.Errorf("BODY3D.CREATE: heap not bound")
 	}
+	mType := parseMotion(motion)
+
+	// Professional Architect Defaults (Tri-Tier Architecture)
+	friction := float32(0.5) // Default for props
+	restitution := float32(0.0)
+	linearDamping := float32(0.0)
+	angularDamping := float32(0.0)
+
+	switch mType {
+	case jolt.MotionTypeStatic:
+		friction = 0.5 // High friction for stage floors
+	case jolt.MotionTypeDynamic:
+		linearDamping = 0.05 // Prevents sliding on ice
+		angularDamping = 0.05
+	}
+
 	bu := &BuilderObj{
-		Motion:      parseMotion(motion),
-		Friction:    0.5,
-		Restitution: 0.0,
-		AllowedDOFs: 0,
+		Motion:         mType,
+		Friction:       friction,
+		Restitution:    restitution,
+		LinearDamping:  linearDamping,
+		AngularDamping: angularDamping,
+		AllowedDOFs:    0,
+		ObjectLayer:    -1,
+	}
+	if strings.EqualFold(strings.TrimSpace(motion), "TRIGGER") {
+		bu.ForceSensor = true
 	}
 	id, err := m.h.Alloc(bu)
 	if err != nil {
@@ -181,10 +203,23 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 	bu.Shape = nil
 
 	motion := bu.Motion
-	ccd := bu.EnableCCD && motion == jolt.MotionTypeDynamic
+	isSensor := bu.ForceSensor
 
-	id := bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, motion, ccd,
-		bu.Friction, bu.Restitution, bu.AllowedDOFs)
+	var id *jolt.BodyID
+	if bu.ObjectLayer >= 0 {
+		id = bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, motion, isSensor,
+			bu.Friction, bu.Restitution, bu.AllowedDOFs, bu.ObjectLayer)
+	} else {
+		id = bi.CreateBody(sh, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)}, motion, isSensor,
+			bu.Friction, bu.Restitution, bu.AllowedDOFs)
+	}
+	_ = bu.EnableCCD && motion == jolt.MotionTypeDynamic // reserved for future CCD exposure on body creation
+
+	// Apply Tri-Tier Damping
+	if motion == jolt.MotionTypeDynamic && joltSys != nil {
+		joltSys.SetBodyDamping(id, bu.LinearDamping, bu.AngularDamping)
+	}
+
 	sh.Destroy()
 
 	var qshape *jolt.Shape
@@ -225,6 +260,11 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 		newBuf := make([]float32, matrixBufferAlloc*16)
 		copy(newBuf, matrixBuffer)
 		matrixBuffer = newBuf
+		newPrev := make([]float32, len(newBuf))
+		if len(prevMatrixBuffer) > 0 {
+			copy(newPrev, prevMatrixBuffer)
+		}
+		prevMatrixBuffer = newPrev
 	}
 	joltBodyMu.Unlock()
 
@@ -364,7 +404,9 @@ func (m *Module) bdSetRotation(args []value.Value) (value.Value, error) {
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, mbruntime.Errorf("physics not started") }
+	if bi == nil {
+		return value.Nil, mbruntime.Errorf("physics not started")
+	}
 	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, err
 	}
@@ -428,7 +470,9 @@ func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, nil }
+	if bi == nil {
+		return value.Nil, nil
+	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
@@ -436,12 +480,14 @@ func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
 	x, _ := args[1].ToFloat()
 	y, _ := args[2].ToFloat()
 	z, _ := args[3].ToFloat()
-	
+
 	// Implementation note: vendored Jolt wrapper only has AddImpulse.
 	// Force is impulse / dt. So impulse = force * dt.
 	dt := float32(m.fixedStep)
-	if dt <= 0 { dt = 1.0 / 60.0 }
-	
+	if dt <= 0 {
+		dt = 1.0 / 60.0
+	}
+
 	bi.AddImpulse(bo.id, jolt.Vec3{X: float32(x) * dt, Y: float32(y) * dt, Z: float32(z) * dt})
 	bi.ActivateBody(bo.id)
 	return value.Nil, nil
@@ -454,7 +500,9 @@ func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, nil }
+	if bi == nil {
+		return value.Nil, nil
+	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
@@ -474,7 +522,9 @@ func (m *Module) bdSetLinearVel(args []value.Value) (value.Value, error) {
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, nil }
+	if bi == nil {
+		return value.Nil, nil
+	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err

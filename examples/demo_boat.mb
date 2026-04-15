@@ -1,0 +1,151 @@
+; MoonBASIC Boat Demo
+; Physics body on water with buoyancy, AERO drag, thrust, and dynamic obstacles.
+; W/S for throttle, A/D to steer. ESC to quit.
+
+Window.Open(1280, 720, "MoonBASIC Boat Demo")
+Window.SetFPS(60)
+
+Physics3D.Start()
+Physics3D.SetGravity(0, -9.81, 0)
+
+; Ocean floor (deep below water)
+bf = Body3D.Make("STATIC")
+Body3D.AddBox(bf, 100, 1, 100)
+seabed = Body3D.Commit(bf, 0, -20, 0)
+
+; Dock
+bd = Body3D.Make("STATIC")
+Body3D.AddBox(bd, 3, 0.5, 8)
+dock = Body3D.Commit(bd, -15, 0.5, 0)
+Body3D.SetFriction(dock, 0.6)
+
+; Boat hull (dynamic)
+bh = Body3D.Make("DYNAMIC")
+Body3D.AddBox(bh, 1.2, 0.4, 3.0)
+boat = Body3D.Commit(bh, 0, 1.0, 0)
+Body3D.SetDamping(boat, 0.3, 0.5)
+Body3D.SetGravityFactor(boat, 0.4)
+Body3D.SetFriction(boat, 0.1)
+Body3D.SetCCD(boat, TRUE)
+
+; Aero for water drag and forward thrust
+AERO.SETDRAG(boat, 0.02)
+AERO.SETTHRUST(boat, 0.0)
+
+; Floating crates
+bc1 = Body3D.Make("DYNAMIC")
+Body3D.AddBox(bc1, 0.5, 0.5, 0.5)
+crate1 = Body3D.Commit(bc1, 8, 1, 5)
+Body3D.SetGravityFactor(crate1, 0.3)
+Body3D.SetDamping(crate1, 0.5, 0.5)
+Body3D.SetRestitution(crate1, 0.3)
+
+bc2 = Body3D.Make("DYNAMIC")
+Body3D.AddBox(bc2, 0.5, 0.5, 0.5)
+crate2 = Body3D.Commit(bc2, -5, 1, 10)
+Body3D.SetGravityFactor(crate2, 0.3)
+Body3D.SetDamping(crate2, 0.5, 0.5)
+Body3D.SetRestitution(crate2, 0.3)
+
+; Buoy (dynamic sphere)
+bbuoy = Body3D.Make("DYNAMIC")
+Body3D.AddSphere(bbuoy, 0.5)
+buoy = Body3D.Commit(bbuoy, 12, 1, -8)
+Body3D.SetGravityFactor(buoy, 0.2)
+Body3D.SetDamping(buoy, 0.4, 0.4)
+Body3D.SetRestitution(buoy, 0.6)
+
+cam = Camera.Make()
+
+thrustPower = 0.0
+maxThrust = 40.0
+waterLevel = 0.0
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt = Time.Delta()
+
+    ; Throttle
+    IF Input.KeyDown(KEY_W) THEN thrustPower = MATH.MIN(maxThrust, thrustPower + 20 * dt)
+    IF Input.KeyDown(KEY_S) THEN thrustPower = MATH.MAX(-10, thrustPower - 30 * dt)
+    thrustPower = thrustPower * 0.98
+
+    AERO.SETTHRUST(boat, thrustPower)
+
+    ; Steering via torque
+    IF Input.KeyDown(KEY_A) THEN Body3D.ApplyTorque(boat, 0, 4, 0)
+    IF Input.KeyDown(KEY_D) THEN Body3D.ApplyTorque(boat, 0, -4, 0)
+
+    ; Simple buoyancy: push up when below water
+    boatY = Body3D.Y(boat)
+    IF boatY < waterLevel THEN
+        depth = waterLevel - boatY
+        buoyForce = depth * 30.0
+        Body3D.ApplyForce(boat, 0, buoyForce, 0)
+    ENDIF
+
+    ; Buoyancy for floating objects
+    c1y = Body3D.Y(crate1)
+    IF c1y < waterLevel THEN Body3D.ApplyForce(crate1, 0, (waterLevel - c1y) * 15, 0)
+
+    c2y = Body3D.Y(crate2)
+    IF c2y < waterLevel THEN Body3D.ApplyForce(crate2, 0, (waterLevel - c2y) * 15, 0)
+
+    buoyY = Body3D.Y(buoy)
+    IF buoyY < waterLevel THEN Body3D.ApplyForce(buoy, 0, (waterLevel - buoyY) * 20, 0)
+
+    ; Step physics
+    Physics3D.Step()
+    Physics3D.ProcessCollisions()
+
+    ; Boat position
+    bx = Body3D.X(boat)
+    by = Body3D.Y(boat)
+    bz = Body3D.Z(boat)
+
+    ; Camera
+    Camera.SetOrbit(cam, bx, by + 2, bz, 0.4, 0.25, 18.0)
+
+    ; Render
+    Render.Clear(20, 40, 80)
+    cam.Begin()
+        ; Water plane
+        Draw3D.Plane(0, waterLevel, 0, 200, 200, 30, 80, 160, 180)
+
+        ; Dock
+        Draw3D.Cube(-15, 0.5, 0, 6, 1, 16, 120, 90, 60, 255)
+
+        ; Boat
+        Draw3D.Cube(bx, by, bz, 2.4, 0.8, 6.0, 180, 50, 50, 255)
+
+        ; Floating crates
+        c1x = Body3D.X(crate1)
+        c1z = Body3D.Z(crate1)
+        Draw3D.Cube(c1x, c1y, c1z, 1, 1, 1, 160, 130, 60, 255)
+
+        c2x = Body3D.X(crate2)
+        c2z = Body3D.Z(crate2)
+        Draw3D.Cube(c2x, c2y, c2z, 1, 1, 1, 160, 130, 60, 255)
+
+        ; Buoy
+        buoyX = Body3D.X(buoy)
+        buoyZ = Body3D.Z(buoy)
+        Draw3D.Sphere(buoyX, buoyY, buoyZ, 0.5, 255, 60, 60, 255)
+
+        Draw3D.Grid(40, 2.0)
+    cam.End()
+
+    Draw.Text("W/S: Throttle  A/D: Steer  ESC: Quit", 10, 10, 20, 255, 255, 255, 255)
+    Draw.Text("Thrust: " + STR(INT(thrustPower)), 10, 40, 18, 100, 200, 255, 255)
+    Draw.Text("Depth: " + STR(INT((waterLevel - by) * 10) / 10.0) + "m", 10, 65, 18, 200, 255, 200, 255)
+
+    Render.Frame()
+WEND
+
+Body3D.Free(buoy)
+Body3D.Free(crate2)
+Body3D.Free(crate1)
+Body3D.Free(boat)
+Body3D.Free(dock)
+Body3D.Free(seabed)
+Physics3D.Stop()
+Window.Close()

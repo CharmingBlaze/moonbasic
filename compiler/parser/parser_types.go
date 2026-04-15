@@ -82,6 +82,17 @@ func (p *Parser) parseFunctionDef() (*ast.FunctionDef, error) {
 		if s != nil {
 			body = append(body, s)
 		}
+		for p.cur().Type == token.COLON {
+			p.advance()
+			p.skipNewlines()
+			s2, err3 := p.parseStmt()
+			if err3 != nil {
+				return nil, err3
+			}
+			if s2 != nil {
+				body = append(body, s2)
+			}
+		}
 	}
 	p.advance() // consume ENDFUNCTION
 	p.sym.PopScope()

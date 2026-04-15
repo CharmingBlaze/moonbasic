@@ -9,6 +9,8 @@ import (
 	mbphysics3d "moonbasic/runtime/physics3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+
+	"github.com/bbitechnologies/jolt-go/jolt"
 )
 
 type Vec3 struct {
@@ -597,6 +599,11 @@ func (c *charObj) hostUpdate(dt float32) {
 			}
 		}
 	}
+}
+
+// DrainCharacterContactsForFanIn is a no-op without Jolt CharacterVirtual.
+func (m *Module) DrainCharacterContactsForFanIn(h heap.Handle) []jolt.CharacterContactEvent {
+	return nil
 }
 
 func shutdownCharController(m *Module) { _ = m }

@@ -1,4 +1,5 @@
 //go:build cgo || (windows && !cgo)
+
 //
 // Platform: builds on Windows and Linux fullruntime (not linux-only). Jolt-backed raycasts and
 // matrix sync run only where physics3d links Jolt (Linux+CGO). On Windows, stubs return no ray hits;
@@ -52,8 +53,12 @@ func joltColliderHalfExtentDown(e *ent) float64 {
 		switch e.kind {
 		case entKindBox, entKindSphere, entKindCylinder, entKindCapsule:
 			off = float64(e.h) * 0.5
-			if e.kind == entKindSphere { off = float64(e.radius) }
-			if e.kind == entKindCapsule { off = float64(e.cylH)*0.5 + float64(e.radius) }
+			if e.kind == entKindSphere {
+				off = float64(e.radius)
+			}
+			if e.kind == entKindCapsule {
+				off = float64(e.cylH)*0.5 + float64(e.radius)
+			}
 		}
 	}
 	res := off * float64(e.scale.Y)
@@ -71,6 +76,9 @@ func (m *Module) syncEntitiesFromPhysics() {
 	if len(buf) == 0 {
 		return
 	}
+	prev := mbphysics3d.MatrixBufferPrevForEntitySync()
+	alpha := mbphysics3d.PhysicsMatrixInterpAlpha()
+	useLerp := len(prev) == len(buf) && alpha > 1e-5 && alpha < 1.0-1e-5
 	st := m.store()
 	for _, e := range st.ents {
 		if e == nil || e.physBufIndex < 0 {
@@ -80,9 +88,17 @@ func (m *Module) syncEntitiesFromPhysics() {
 		if idx+16 > len(buf) {
 			continue
 		}
-		tx := buf[idx+12]
-		ty := buf[idx+13]
-		tz := buf[idx+14]
+		var tx, ty, tz float32
+		if useLerp {
+			a := alpha
+			tx = float32((1-a)*float64(prev[idx+12]) + a*float64(buf[idx+12]))
+			ty = float32((1-a)*float64(prev[idx+13]) + a*float64(buf[idx+13]))
+			tz = float32((1-a)*float64(prev[idx+14]) + a*float64(buf[idx+14]))
+		} else {
+			tx = buf[idx+12]
+			ty = buf[idx+13]
+			tz = buf[idx+14]
+		}
 
 		if e.physicsDriven {
 			half := joltColliderHalfExtentDown(e)

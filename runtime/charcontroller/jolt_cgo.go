@@ -31,8 +31,6 @@ func untrackChar(h heap.Handle) {
 	charTrackMu.Unlock()
 }
 
-const charDt = float32(1.0 / 60.0)
-
 // charVerticalSleepVy: when Jolt reports OnGround and |vy| is below this, zero vy (stationary bounce).
 const charVerticalSleepVy = float32(0.25)
 
@@ -50,16 +48,67 @@ type charObj struct {
 	swimMode     bool
 	swimBuoyancy float32 // reduces downward acceleration when swimming (0..1 typical)
 	swimDrag     float32 // horizontal velocity damping per second when swimming
-	crouch       bool    // gameplay flag (capsule resize not in wrapper yet)
+	crouch       bool    // when true, capsule uses standCapFullH * crouchHeightMul (feet-anchored rebuild)
 	charMass     float32 // stored for gameplay; Jolt CharacterVirtual mass is fixed at create
 
 	// Capsule + padding (for rebuild after PLAYER.SETSLOPE / CHAR.SETPADDING).
 	capRadius   float32
 	capFullH    float32 // total capsule height passed to CreateCapsule
+	standCapFullH   float32 // standing height (PLAYER.CREATE); used to restore after crouch
+	crouchHeightMul float32 // crouch height = standCapFullH * mul (default 0.55)
 	maxSlopeDeg float32
 	charPad     float32 // CharacterVirtualSettings.CharacterPadding
 	charFriction float32 // gameplay scalar (CHARACTERREF.SETFRICTION); not Jolt body friction
 	charBounce   float32 // gameplay scalar (CHARACTERREF.SETBOUNCE)
+	maxStrength  float32 // New: Max force character can push with
+	backoffDist  float32 // New: PredictiveContactDistance
+
+	// Jump buffer (seconds): if jump pressed in air, apply impulse on landing before deadline (sim time).
+	jumpBufferSec float32
+	jumpPendingImp float32
+	jumpDeadlineSim float64 // sim-time deadline; 0 = none
+
+	// Coyote time (seconds, physics clock): jump allowed briefly after IsSupported becomes false.
+	coyoteSec        float32
+	lastSupportedSim float64 // mbphysics3d sim time when IsSupported was last true; -1 = unset
+
+	// Horizontal control multipliers (PLAYER.SETAIRCONTROL / SETGROUNDCONTROL).
+	airControl    float32
+	groundControl float32
+
+	touchCeiling bool // last move: head/capsule contact with downward-facing surface
+}
+
+func (m *Module) kccDt() float32 {
+	if m == nil || m.h == nil {
+		return float32(1.0 / 60.0)
+	}
+	ph := mbphysics3d.GetModule(m.h)
+	if ph == nil {
+		return float32(1.0 / 60.0)
+	}
+	return float32(ph.FixedStepSeconds())
+}
+
+func (m *Module) simTimeSeconds() float64 {
+	if m == nil || m.h == nil {
+		return 0
+	}
+	ph := mbphysics3d.GetModule(m.h)
+	if ph == nil {
+		return 0
+	}
+	return ph.SimTimeSeconds()
+}
+
+func (m *Module) updateKCCSupportedClock(co *charObj) {
+	if co == nil || co.cv == nil {
+		return
+	}
+	st := m.simTimeSeconds()
+	if co.cv.IsSupported() {
+		co.lastSupportedSim = st
+	}
 }
 
 func (c *charObj) TypeName() string { return "CharController" }
@@ -116,8 +165,73 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.SETMAXSLOPE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetMaxSlope(m, args) }))
 	reg.Register("CHARACTERREF.SETSTEPHEIGHT", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetStepHeight(m, args) }))
 	reg.Register("CHARACTERREF.SETSNAPDISTANCE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetSnapDist(m, args) }))
+	reg.Register("CHARACTERREF.SETSETTING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetSetting(m, args) }))
+	reg.Register("CHARACTERREF.SETCONTACTLISTENER", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetContactListener(m, args) }))
+	reg.Register("CHARACTERREF.DRAINCONTACTS", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccDrainContacts(m, args) }))
 	reg.Register("CHARACTERREF.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccFree(m, args) }))
 	reg.Register("CHARACTERREF.GETPOSITION", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetPos(m, args) }))
+	reg.Register("CHARACTERREF.SETJUMPBUFFER", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetJumpBuffer(m, args) }))
+	reg.Register("CHARACTERREF.SETAIRCONTROL", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetAirControl(m, args) }))
+	reg.Register("CHARACTERREF.SETGROUNDCONTROL", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccSetGroundControl(m, args) }))
+	reg.Register("CHARACTERREF.GETISSLIDING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetIsSliding(m, args) }))
+	reg.Register("CHARACTERREF.GETCEILING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetCeiling(m, args) }))
+	reg.Register("CHARACTERREF.GETGROUNDVELOCITY", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetGroundVel(m, args) }))
+}
+
+func ccSetJumpBuffer(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) < 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETJUMPBUFFER: need handle, seconds#")
+	}
+	sec, ok := args[1].ToFloat()
+	if !ok || sec < 0 {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETJUMPBUFFER: seconds must be >= 0")
+	}
+	if err := m.SetCharacterJumpBuffer(heap.Handle(args[0].IVal), sec); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func ccSetAirControl(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) < 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETAIRCONTROL: need handle, scale#")
+	}
+	s, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETAIRCONTROL: scale must be numeric")
+	}
+	if err := m.SetCharacterAirControl(heap.Handle(args[0].IVal), s); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func ccSetGroundControl(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) < 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETGROUNDCONTROL: need handle, scale#")
+	}
+	s, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETGROUNDCONTROL: scale must be numeric")
+	}
+	if err := m.SetCharacterGroundControl(heap.Handle(args[0].IVal), s); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func ccGetIsSliding(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) < 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETISSLIDING: need handle")
+	}
+	return value.FromBool(m.CharacterIsSliding(heap.Handle(args[0].IVal))), nil
+}
+
+func ccGetCeiling(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) < 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETCEILING: need handle")
+	}
+	return value.FromBool(m.CharacterTouchingCeiling(heap.Handle(args[0].IVal))), nil
 }
 
 func (m *Module) extendedUpdateChar(co *charObj, dt float32) {
@@ -225,16 +339,17 @@ func ccMake(m *Module, args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("CHARCONTROLLER.MAKE: z must be numeric")
 	}
-	h, err := createCharacterVirtualFromParams(m, radius, height, x, y, z, 45, -1)
+	h, err := createCharacterVirtualFromParams(m, radius, height, x, y, z, 50, 0.02, 100.0, 0.05)
 	if err != nil {
 		return value.Nil, err
 	}
 	return value.FromHandle(h), nil
 }
 
-// createCharacterVirtualFromParams allocates a CharacterVirtual. maxSlopeDeg ≤ 0 uses 45°.
-// padding ≤ 0 uses Jolt default CharacterPadding (0.02); else sets CharacterVirtualSettings.CharacterPadding.
-func createCharacterVirtualFromParams(m *Module, radius, height, x, y, z, maxSlopeDeg, padding float64) (heap.Handle, error) {
+// createCharacterVirtualFromParams allocates a CharacterVirtual. maxSlopeDeg ≤ 0 uses 50°.
+// padding ≤ 0 uses Jolt default CharacterPadding (0.02).
+// strength ≤ 0 uses 100. padding2 ≤ 0 uses 0.05.
+func createCharacterVirtualFromParams(m *Module, radius, height, x, y, z, maxSlopeDeg, padding, strength, padding2 float64) (heap.Handle, error) {
 	ps := mbphysics3d.ActiveJoltPhysics()
 	if ps == nil {
 		return 0, fmt.Errorf("CHARCONTROLLER: PHYSICS3D not started")
@@ -249,19 +364,32 @@ func createCharacterVirtualFromParams(m *Module, radius, height, x, y, z, maxSlo
 	}
 	capsule := jolt.CreateCapsule(hh, fr)
 	settings := jolt.NewCharacterVirtualSettings(capsule)
+	if maxSlopeDeg <= 0 {
+		maxSlopeDeg = 50
+	}
 	settings.MaxSlopeAngle = jolt.DegreesToRadians(float32(maxSlopeDeg))
+	settings.MaxStrength = 500.0 // Professional Architect Default
+	if strength > 0 {
+		settings.MaxStrength = float32(strength)
+	}
 	// Bug Fix: Explicitly set recovery speed and contact distance to ensure zero-bounce
 	settings.PenetrationRecoverySpeed = 1.0
-	settings.PredictiveContactDistance = 0.1
+	settings.PredictiveContactDistance = 0.1 // Professional Architect Default
+	if padding2 > 0 {
+		settings.PredictiveContactDistance = float32(padding2)
+	}
 	if padding > 0 {
 		settings.CharacterPadding = float32(padding)
 	}
 	cv := ps.CreateCharacterVirtual(settings, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	cv.SetContactListenerEnabled(true)
 	ext := jolt.DefaultExtendedUpdateSettings()
-	pad := settings.CharacterPadding
 	h, err := m.h.Alloc(&charObj{
 		cv: cv, extUpdate: ext, gravityScale: 1, charMass: 70, charFriction: 0.5, charBounce: 0,
-		capRadius: fr, capFullH: fh, maxSlopeDeg: float32(maxSlopeDeg), charPad: pad,
+		capRadius: fr, capFullH: fh, standCapFullH: fh, crouchHeightMul: 0.55, maxSlopeDeg: float32(maxSlopeDeg), charPad: settings.CharacterPadding,
+		maxStrength: settings.MaxStrength, backoffDist: settings.PredictiveContactDistance,
+		airControl: 1, groundControl: 1,
+		jumpBufferSec: 0.1, coyoteSec: 0.1, lastSupportedSim: -1,
 	})
 	if err != nil {
 		if cv != nil {
@@ -297,7 +425,7 @@ func ccSetPos(m *Module, args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CHARCONTROLLER.SETPOS: z must be numeric")
 	}
 	co.cv.SetPosition(jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
-	m.extendedUpdateChar(co, charDt)
+	m.extendedUpdateChar(co, m.kccDt())
 	return value.Nil, nil
 }
 
@@ -336,7 +464,7 @@ func ccMove(m *Module, args []value.Value) (value.Value, error) {
 		Y: p.Y + float32(dy),
 		Z: p.Z + float32(dz),
 	})
-	m.extendedUpdateChar(co, charDt)
+	m.extendedUpdateChar(co, m.kccDt())
 	return value.Nil, nil
 }
 
@@ -528,20 +656,29 @@ func ccTeleportScript(m *Module, args []value.Value) (value.Value, error) {
 // AllocCharacter creates a Jolt CharacterVirtual (used by runtime/player).
 // maxSlopeDeg ≤ 0 defaults to 45° (matches prior CHARCONTROLLER.MAKE behavior).
 // padding ≤ 0 uses default skin width; >0 sets CharacterPadding.
-func (m *Module) AllocCharacter(radius, height, x, y, z float64, maxSlopeDeg, padding float64) (heap.Handle, error) {
-	return createCharacterVirtualFromParams(m, radius, height, x, y, z, maxSlopeDeg, padding)
+func (m *Module) AllocCharacter(radius, height, x, y, z float64, maxSlopeDeg, padding, strength, padding2 float64) (heap.Handle, error) {
+	return createCharacterVirtualFromParams(m, radius, height, x, y, z, maxSlopeDeg, padding, strength, padding2)
 }
 
 // RecreateCharacterWithSlope destroys a character and creates a new one at the same pose with a new max walk slope.
 func (m *Module) RecreateCharacterWithSlope(oldH heap.Handle, radius, height, maxSlopeDeg float64) (heap.Handle, error) {
-	if m.h == nil {
-		return 0, fmt.Errorf("RecreateCharacterWithSlope: heap not bound")
-	}
 	co, err := heap.Cast[*charObj](m.h, oldH)
 	if err != nil || co.cv == nil {
 		return 0, fmt.Errorf("RecreateCharacterWithSlope: invalid handle")
 	}
 	p := co.cv.GetPosition()
+	return m.RecreateCharacterWithSlopeAt(oldH, radius, height, maxSlopeDeg, float64(p.X), float64(p.Y), float64(p.Z))
+}
+
+// RecreateCharacterWithSlopeAt recreates the character at an explicit position (feet-anchored crouch uses a new center Y).
+func (m *Module) RecreateCharacterWithSlopeAt(oldH heap.Handle, radius, height, maxSlopeDeg, atX, atY, atZ float64) (heap.Handle, error) {
+	if m.h == nil {
+		return 0, fmt.Errorf("RecreateCharacterWithSlopeAt: heap not bound")
+	}
+	co, err := heap.Cast[*charObj](m.h, oldH)
+	if err != nil || co.cv == nil {
+		return 0, fmt.Errorf("RecreateCharacterWithSlopeAt: invalid handle")
+	}
 	v := co.cv.GetLinearVelocity()
 	extCopy := co.extUpdate
 	gs := co.gravityScale
@@ -551,19 +688,29 @@ func (m *Module) RecreateCharacterWithSlope(oldH heap.Handle, radius, height, ma
 	cm := co.charMass
 	cf := co.charFriction
 	cb := co.charBounce
+	ms := co.maxStrength
+	bd := co.backoffDist
+	standH := co.standCapFullH
+	crouchMul := co.crouchHeightMul
+	jb := co.jumpBufferSec
+	jpi := co.jumpPendingImp
+	jds := co.jumpDeadlineSim
+	coy := co.coyoteSec
+	lss := co.lastSupportedSim
+	ac, gc := co.airControl, co.groundControl
 	untrackChar(oldH)
 	co.cv.Destroy()
 	co.cv = nil
 	if err := m.h.Free(oldH); err != nil {
 		return 0, err
 	}
-	h, err := createCharacterVirtualFromParams(m, radius, height, float64(p.X), float64(p.Y), float64(p.Z), maxSlopeDeg, float64(co.charPad))
+	h, err := createCharacterVirtualFromParams(m, radius, height, atX, atY, atZ, maxSlopeDeg, float64(co.charPad), float64(ms), float64(bd))
 	if err != nil {
 		return 0, err
 	}
 	co2, err := heap.Cast[*charObj](m.h, h)
 	if err != nil || co2.cv == nil {
-		return 0, fmt.Errorf("RecreateCharacterWithSlope: internal")
+		return 0, fmt.Errorf("RecreateCharacterWithSlopeAt: internal")
 	}
 	co2.cv.SetLinearVelocity(v)
 	co2.extUpdate = extCopy
@@ -574,6 +721,16 @@ func (m *Module) RecreateCharacterWithSlope(oldH heap.Handle, radius, height, ma
 	co2.charMass = cm
 	co2.charFriction = cf
 	co2.charBounce = cb
+	co2.maxStrength = ms
+	co2.backoffDist = bd
+	co2.standCapFullH = standH
+	co2.crouchHeightMul = crouchMul
+	co2.jumpBufferSec = jb
+	co2.jumpPendingImp = jpi
+	co2.jumpDeadlineSim = jds
+	co2.coyoteSec = coy
+	co2.lastSupportedSim = lss
+	co2.airControl, co2.groundControl = ac, gc
 	return h, nil
 }
 
@@ -614,28 +771,73 @@ func (m *Module) CharacterIntegrateStep(h heap.Handle, dt float64) error {
 	if err != nil || co.cv == nil {
 		return fmt.Errorf("invalid character handle")
 	}
-	if dt <= 0 {
-		dt = 1.0 / 60.0
+	dtUse := float64(m.kccDt())
+	if dtUse <= 0 {
+		return nil
 	}
+	_ = dt // script/frame delta ignored; KCC uses physics fixed step (same as PHYSICS3D.STEP)
+
 	vel := co.cv.GetLinearVelocity()
+	gst0 := co.cv.GetGroundState()
+	if gst0 == jolt.GroundStateOnGround || gst0 == jolt.GroundStateOnSteepGround {
+		gv := co.cv.GetGroundVelocity()
+		vel.X += gv.X
+		vel.Z += gv.Z
+		vel.Y += gv.Y
+	}
 	g := mbphysics3d.GravityVec()
 	gs := co.gravityScale
 	if gs <= 0 {
 		gs = 1
 	}
-	gy := g.Y * float32(dt) * gs
-	if co.swimMode {
-		b := co.swimBuoyancy
-		if b < 0 {
-			b = 0
+	
+	// Grounding & Slopes (Vertical Clamping)
+	// If stationary and SlopeAngle < MaxSlopeAngle, lock horizontal and zero Y jitter.
+	groundState := co.cv.GetGroundState()
+	onGround := (groundState == jolt.GroundStateOnGround)
+	
+	if onGround {
+		// Professional Grade: Vertical Clamping & Anti-Jitter
+		horizSpeedSq := vel.X*vel.X + vel.Z*vel.Z
+		if horizSpeedSq < 0.01 {
+			vel.X = 0
+			vel.Z = 0
 		}
+	} else if groundState == jolt.GroundStateOnSteepGround {
+		// Professional Grade: Slope Clipping & Sliding Math
+		// Specification: V_clipped = V - (V . N)N
+		n := co.cv.GetGroundNormal()
+		dot := vel.X*n.X + vel.Y*n.Y + vel.Z*n.Z
+		if dot < 0 {
+			vel.X -= dot * n.X
+			vel.Y -= dot * n.Y
+			vel.Z -= dot * n.Z
+		}
+
+		// Sliding Gravity: Add component of gravity along the steep slope plane
+		// G_plane = G - (G . N)N
+		gdot := g.X*n.X + g.Y*n.Y + g.Z*n.Z
+		gx := (g.X - gdot*n.X) * gs
+		gy := (g.Y - gdot*n.Y) * gs
+		gz := (g.Z - gdot*n.Z) * gs
+		
+		vel.X += gx * float32(dtUse)
+		vel.Y += gy * float32(dtUse)
+		vel.Z += gz * float32(dtUse)
+	}
+
+	// Physics logic (Gravity + Swim)
+	gy := g.Y * float32(dtUse) * gs
+	if co.swimMode {
+		// Blueprint: Decrease gravity and add linear damping
+		b := co.swimBuoyancy
 		if b > 1 {
 			b = 1
 		}
 		gy *= (1.0 - b)
 		d := float64(co.swimDrag)
-		if d > 0 && dt > 0 {
-			damp := math.Max(0, 1-d*dt)
+		if d > 0 && dtUse > 0 {
+			damp := math.Max(0, 1-d*dtUse)
 			vel.X *= float32(damp)
 			vel.Z *= float32(damp)
 		}
@@ -645,7 +847,10 @@ func (m *Module) CharacterIntegrateStep(h heap.Handle, dt float64) error {
 		vel.Y = -groundedMaxDownVy
 	}
 	co.cv.SetLinearVelocity(vel)
-	m.extendedUpdateChar(co, float32(dt))
+	m.extendedUpdateChar(co, float32(dtUse))
+	m.tryConsumeBufferedJump(co)
+	m.updateTouchCeiling(co)
+	m.updateKCCSupportedClock(co)
 	return nil
 }
 
@@ -748,11 +953,115 @@ func (m *Module) SetCharacterPadding(h heap.Handle, pad float32) (heap.Handle, e
 	if err != nil || co.cv == nil {
 		return 0, fmt.Errorf("invalid character handle")
 	}
-	if pad < 1e-4 {
-		pad = 0.02
-	}
 	co.charPad = pad
+	// Recreating with existing slope
 	return m.RecreateCharacterWithSlope(h, float64(co.capRadius), float64(co.capFullH), float64(co.maxSlopeDeg))
+}
+
+func ccSetSetting(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETSETTING: heap not bound")
+	}
+	if len(args) < 3 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETSETTING: need handle, settingName$, value")
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || co.cv == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETSETTING: invalid handle")
+	}
+	name := runtime.ArgString(args[1])
+	val, ok := args[2].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETSETTING: value must be numeric")
+	}
+
+	switch name {
+	case "MAXSTRENGTH":
+		co.maxStrength = float32(val)
+		// Refactor: We would need a Recreate or a Jolt API to update these live.
+		// For now, we store it. If the blueprint implies live updates, we should rebuild.
+		_, _ = m.RecreateCharacterWithSlope(heap.Handle(args[0].IVal), float64(co.capRadius), float64(co.capFullH), float64(co.maxSlopeDeg))
+	case "BACKOFFDIST", "PREDICTIVEDISTANCE":
+		co.backoffDist = float32(val)
+		_, _ = m.RecreateCharacterWithSlope(heap.Handle(args[0].IVal), float64(co.capRadius), float64(co.capFullH), float64(co.maxSlopeDeg))
+	case "PADDING":
+		_, _ = m.SetCharacterPadding(heap.Handle(args[0].IVal), float32(val))
+	case "MAXSLOPE":
+		_, _ = m.RecreateCharacterWithSlope(heap.Handle(args[0].IVal), float64(co.capRadius), float64(co.capFullH), val)
+	case "GRAVITY":
+		co.gravityScale = float32(val)
+	case "STEPHEIGHT":
+		co.extUpdate.WalkStairsStepUp.Y = float32(val)
+	case "SNAPDIST":
+		co.extUpdate.StickToFloorStepDown.Y = -float32(val)
+	case "SWIMMODE":
+		co.swimMode = val != 0
+	case "BUOYANCY":
+		co.swimBuoyancy = float32(val)
+	case "DRAG":
+		co.swimDrag = float32(val)
+	default:
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETSETTING: unknown setting '%s'", name)
+	}
+
+	return value.Nil, nil
+}
+
+func ccSetContactListener(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETCONTACTLISTENER: heap not bound")
+	}
+	if len(args) < 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETCONTACTLISTENER: need handle, enabled?")
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || co.cv == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETCONTACTLISTENER: invalid handle")
+	}
+	co.cv.SetContactListenerEnabled(args[1].IVal != 0)
+	return value.Nil, nil
+}
+
+func ccDrainContacts(m *Module, args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.DRAINCONTACTS: heap not bound")
+	}
+	if len(args) < 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("CHARACTERREF.DRAINCONTACTS: need handle")
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil || co.cv == nil {
+		return value.Nil, fmt.Errorf("CHARACTERREF.DRAINCONTACTS: invalid handle")
+	}
+	
+	events := co.cv.DrainContactQueue(256)
+	if len(events) == 0 {
+		return value.Nil, nil
+	}
+	
+	// Return a 2D array: [[bodyB, px, py, pz, nx, ny, nz, dist], ...]
+	arr, err := heap.NewArray([]int64{int64(len(events)), 8})
+	if err != nil {
+		return value.Nil, err
+	}
+	
+	for i, e := range events {
+		idx := int64(i)
+		_ = arr.Set([]int64{idx, 0}, float64(e.BodyB))
+		_ = arr.Set([]int64{idx, 1}, float64(e.Position.X))
+		_ = arr.Set([]int64{idx, 2}, float64(e.Position.Y))
+		_ = arr.Set([]int64{idx, 3}, float64(e.Position.Z))
+		_ = arr.Set([]int64{idx, 4}, float64(e.Normal.X))
+		_ = arr.Set([]int64{idx, 5}, float64(e.Normal.Y))
+		_ = arr.Set([]int64{idx, 6}, float64(e.Normal.Z))
+		_ = arr.Set([]int64{idx, 7}, float64(e.Distance))
+	}
+	
+	ah, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(ah), nil
 }
 
 // SetCharacterWalkStairsStepUp sets ExtendedUpdateSettings.mWalkStairsStepUp (typically Y-only curb height).
@@ -794,14 +1103,77 @@ func (m *Module) SetCharacterMass(h heap.Handle, mass float64) error {
 	return nil
 }
 
-// SetCharacterCrouch stores a crouch flag (capsule height change is not in the Jolt wrapper yet).
-func (m *Module) SetCharacterCrouch(h heap.Handle, on bool) error {
+// characterCeilingBlocksStand returns true if a standing-height capsule would overlap geometry above (cannot un-crouch).
+func (m *Module) characterCeilingBlocksStand(co *charObj) bool {
+	if co == nil || co.cv == nil {
+		return false
+	}
+	ps := co.cv.PhysicsSystem()
+	if ps == nil {
+		return false
+	}
+	p := co.cv.GetPosition()
+	fr := co.capRadius
+	standH := co.standCapFullH
+	hh := standH*0.5 - fr
+	if hh < 0.05 {
+		hh = 0.05
+	}
+	capSh := jolt.CreateCapsule(hh, fr)
+	defer capSh.Destroy()
+	feetY := p.Y - co.capFullH*0.5
+	cy := feetY + standH*0.5
+	pos := jolt.Vec3{X: p.X, Y: cy, Z: p.Z}
+	hits := ps.CollideShapeGetHits(capSh, pos, 16, 1e-3)
+	curTop := p.Y + co.capFullH*0.5
+	for _, hit := range hits {
+		if hit.BodyID == nil {
+			continue
+		}
+		if hit.ContactPoint.Y < feetY+0.05 {
+			continue
+		}
+		if hit.ContactPoint.Y > curTop+0.02 {
+			return true
+		}
+	}
+	return false
+}
+
+// SetCharacterCrouch toggles crouch: rebuilds capsule at standCapFullH * crouchHeightMul (feet-anchored).
+// Returns the handle to use (may differ from h after rebuild).
+func (m *Module) SetCharacterCrouch(h heap.Handle, on bool) (heap.Handle, error) {
 	co, err := heap.Cast[*charObj](m.h, h)
 	if err != nil || co.cv == nil {
-		return fmt.Errorf("invalid character handle")
+		return 0, fmt.Errorf("invalid character handle")
 	}
-	co.crouch = on
-	return nil
+	if co.crouch == on {
+		return h, nil
+	}
+	if !on && co.crouch && m.characterCeilingBlocksStand(co) {
+		return h, nil
+	}
+	targetH := float64(co.standCapFullH)
+	if on {
+		targetH = float64(co.standCapFullH) * float64(co.crouchHeightMul)
+	}
+	minH := float64(co.capRadius)*2 + 0.05
+	if targetH < minH {
+		targetH = minH
+	}
+	p := co.cv.GetPosition()
+	feetY := float64(p.Y) - float64(co.capFullH)*0.5
+	newY := feetY + targetH*0.5
+	newH, err := m.RecreateCharacterWithSlopeAt(h, float64(co.capRadius), targetH, float64(co.maxSlopeDeg), float64(p.X), newY, float64(p.Z))
+	if err != nil {
+		return 0, err
+	}
+	co2, err2 := heap.Cast[*charObj](m.h, newH)
+	if err2 != nil || co2 == nil {
+		return newH, nil
+	}
+	co2.crouch = on
+	return newH, nil
 }
 
 // CharacterCrouch reports the stored crouch flag.
@@ -822,6 +1194,73 @@ func (m *Module) CharacterMass(h heap.Handle) float64 {
 	return float64(co.charMass)
 }
 
+// SetCharacterJumpBuffer sets coyote-style jump buffer duration (seconds) for air presses.
+func (m *Module) SetCharacterJumpBuffer(h heap.Handle, sec float64) error {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return fmt.Errorf("invalid character handle")
+	}
+	if sec < 0 {
+		sec = 0
+	}
+	co.jumpBufferSec = float32(sec)
+	return nil
+}
+
+// SetCharacterAirControl scales horizontal input while airborne (1 = default).
+func (m *Module) SetCharacterAirControl(h heap.Handle, scale float64) error {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return fmt.Errorf("invalid character handle")
+	}
+	if scale < 0 {
+		scale = 0
+	}
+	co.airControl = float32(scale)
+	return nil
+}
+
+// SetCharacterGroundControl scales horizontal input while on ground (1 = default).
+func (m *Module) SetCharacterGroundControl(h heap.Handle, scale float64) error {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return fmt.Errorf("invalid character handle")
+	}
+	if scale < 0 {
+		scale = 0
+	}
+	co.groundControl = float32(scale)
+	return nil
+}
+
+// CharacterTouchingCeiling reports whether the last move step saw a strong downward contact normal (head bump).
+func (m *Module) CharacterTouchingCeiling(h heap.Handle) bool {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return false
+	}
+	return co.touchCeiling
+}
+
+// CharacterIsSliding reports Jolt steep-ground / sliding state.
+func (m *Module) CharacterIsSliding(h heap.Handle) bool {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return false
+	}
+	return co.cv.GetGroundState() == jolt.GroundStateOnSteepGround
+}
+
+// CharacterGroundVelocityVec returns Jolt GetGroundVelocity (platform motion on ground plane).
+func (m *Module) CharacterGroundVelocityVec(h heap.Handle) (vx, vy, vz float64, ok bool) {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return 0, 0, 0, false
+	}
+	v := co.cv.GetGroundVelocity()
+	return float64(v.X), float64(v.Y), float64(v.Z), true
+}
+
 // CharacterTeleport snaps the capsule to a world position and clears velocity (no interpolation smoothing).
 func (m *Module) CharacterTeleport(h heap.Handle, x, y, z float64) error {
 	co, err := heap.Cast[*charObj](m.h, h)
@@ -830,8 +1269,44 @@ func (m *Module) CharacterTeleport(h heap.Handle, x, y, z float64) error {
 	}
 	co.cv.SetPosition(jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
 	co.cv.SetLinearVelocity(jolt.Vec3{})
-	m.extendedUpdateChar(co, charDt)
+	m.extendedUpdateChar(co, m.kccDt())
 	return nil
+}
+
+func (m *Module) tryConsumeBufferedJump(co *charObj) {
+	if co == nil || co.cv == nil || co.jumpPendingImp <= 0 {
+		return
+	}
+	st := m.simTimeSeconds()
+	if co.jumpBufferSec > 0 && co.jumpDeadlineSim > 0 && st > co.jumpDeadlineSim {
+		co.jumpPendingImp = 0
+		co.jumpDeadlineSim = 0
+		return
+	}
+	if !co.cv.IsSupported() {
+		return
+	}
+	v := co.cv.GetLinearVelocity()
+	v.Y += co.jumpPendingImp
+	co.cv.SetLinearVelocity(v)
+	co.jumpPendingImp = 0
+	co.jumpDeadlineSim = 0
+}
+
+func (m *Module) updateTouchCeiling(co *charObj) {
+	if co == nil {
+		return
+	}
+	co.touchCeiling = false
+	if co.cv == nil {
+		return
+	}
+	for _, c := range co.cv.GetActiveContacts(48) {
+		if c.ContactNormal.Y < -0.35 {
+			co.touchCeiling = true
+			return
+		}
+	}
 }
 
 // CharacterMoveXZVelocity sets horizontal world velocity (units/s) and integrates for dt seconds (gravity on Y).
@@ -843,15 +1318,38 @@ func (m *Module) CharacterMoveXZVelocity(h heap.Handle, vx, vz, dt float64) erro
 	if err != nil || co.cv == nil {
 		return fmt.Errorf("invalid character handle")
 	}
+	dtUse := float64(m.kccDt())
+	_ = dt
+	ac := co.airControl
+	gc := co.groundControl
+	if ac <= 0 {
+		ac = 1
+	}
+	if gc <= 0 {
+		gc = 1
+	}
+	gst := co.cv.GetGroundState()
+	scale := ac
+	if gst == jolt.GroundStateOnGround {
+		scale = gc
+	}
+	inX := float32(vx) * scale
+	inZ := float32(vz) * scale
 	vel := co.cv.GetLinearVelocity()
-	vel.X = float32(vx)
-	vel.Z = float32(vz)
+	vel.X = inX
+	vel.Z = inZ
+	if gst == jolt.GroundStateOnGround || gst == jolt.GroundStateOnSteepGround {
+		gv := co.cv.GetGroundVelocity()
+		vel.X += gv.X
+		vel.Z += gv.Z
+		vel.Y += gv.Y
+	}
 	g := mbphysics3d.GravityVec()
 	gs := co.gravityScale
 	if gs <= 0 {
 		gs = 1
 	}
-	gy := g.Y * float32(dt) * gs
+	gy := g.Y * float32(dtUse) * gs
 	if co.swimMode {
 		b := co.swimBuoyancy
 		if b < 0 {
@@ -862,8 +1360,8 @@ func (m *Module) CharacterMoveXZVelocity(h heap.Handle, vx, vz, dt float64) erro
 		}
 		gy *= (1.0 - b)
 		d := float64(co.swimDrag)
-		if d > 0 && dt > 0 {
-			damp := math.Max(0, 1-d*dt)
+		if d > 0 && dtUse > 0 {
+			damp := math.Max(0, 1-d*dtUse)
 			vel.X *= float32(damp)
 			vel.Z *= float32(damp)
 		}
@@ -873,7 +1371,10 @@ func (m *Module) CharacterMoveXZVelocity(h heap.Handle, vx, vz, dt float64) erro
 		vel.Y = -groundedMaxDownVy
 	}
 	co.cv.SetLinearVelocity(vel)
-	m.extendedUpdateChar(co, float32(dt))
+	m.extendedUpdateChar(co, float32(dtUse))
+	m.tryConsumeBufferedJump(co)
+	m.updateTouchCeiling(co)
+	m.updateKCCSupportedClock(co)
 	return nil
 }
 
@@ -886,10 +1387,29 @@ func (m *Module) CharacterJump(h heap.Handle, impulseY float64) error {
 	if err != nil || co.cv == nil {
 		return fmt.Errorf("invalid character handle")
 	}
-	v := co.cv.GetLinearVelocity()
-	v.Y += float32(impulseY)
-	co.cv.SetLinearVelocity(v)
-	m.extendedUpdateChar(co, charDt)
+	st := m.simTimeSeconds()
+	coy := float64(co.coyoteSec)
+	if coy <= 0 {
+		coy = 0.1
+	}
+	supported := co.cv.IsSupported()
+	if !supported && co.lastSupportedSim >= 0 && st-co.lastSupportedSim <= coy {
+		supported = true
+	}
+	if supported {
+		v := co.cv.GetLinearVelocity()
+		v.Y += float32(impulseY)
+		co.cv.SetLinearVelocity(v)
+		co.jumpPendingImp = 0
+		co.jumpDeadlineSim = 0
+		m.extendedUpdateChar(co, m.kccDt())
+		return nil
+	}
+	if co.jumpBufferSec > 0 {
+		co.jumpPendingImp = float32(impulseY)
+		co.jumpDeadlineSim = st + float64(co.jumpBufferSec)
+		return nil
+	}
 	return nil
 }
 
@@ -931,11 +1451,24 @@ func (m *Module) FreeCharacter(h heap.Handle) error {
 	return err
 }
 
+// DrainCharacterContactsForFanIn drains pending CharacterVirtual contacts (same data as CHARACTERREF.DRAINCONTACTS) for physics ONCOLLISION fan-in.
+func (m *Module) DrainCharacterContactsForFanIn(h heap.Handle) []jolt.CharacterContactEvent {
+	if m.h == nil {
+		return nil
+	}
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return nil
+	}
+	return co.cv.DrainContactQueue(256)
+}
+
 func ccMakeLegacy(m *Module, args []value.Value) (value.Value, error) {
 	if len(args) < 3 { return value.Nil, fmt.Errorf("CHARACTER.CREATE(entity, r, h) needs 3 args") }
 	r, _ := args[1].ToFloat()
 	h_val, _ := args[2].ToFloat()
-	h, err := createCharacterVirtualFromParams(m, r, h_val, 0, 0, 0, 45, -1)
+	// Legacy call: default strength 100, backoff 0.05
+	h, err := createCharacterVirtualFromParams(m, r, h_val, 0, 0, 0, 50, 0.02, 100.0, 0.05)
 	if err != nil { return value.Nil, err }
 	return value.FromHandle(h), nil
 }
@@ -979,7 +1512,7 @@ func ccUpdate(m *Module, args []value.Value) (value.Value, error) {
 	if len(args) < 1 { return value.Nil, fmt.Errorf("CHARACTER.UPDATE needs handle") }
 	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil { return value.Nil, err }
-	dt := charDt 
+	dt := m.kccDt()
 	m.extendedUpdateChar(co, dt)
 	return value.Nil, nil
 }

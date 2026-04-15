@@ -4,7 +4,7 @@ Low-level **heap handle** API around a **capsule character controller**. On **Li
 
 **Documentation order:** [Platform priority](../DEVELOPER.md#platform-priority-windows-then-linux) — when OSes differ, Windows-first notes apply.
 
-For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound or host KCC), see [CHARACTER.md](CHARACTER.md). For **`PLAYER.*`** / **`CHAR.*`**, see [PLAYER.md](PLAYER.md) and [KCC.md](KCC.md).
+For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound, Jolt on desktop CGO), see [CHARACTER.md](CHARACTER.md). For **`PLAYER.*`** / **`CHAR.*`**, see [PLAYER.md](PLAYER.md) and [KCC.md](KCC.md).
 
 ## Core workflow
 

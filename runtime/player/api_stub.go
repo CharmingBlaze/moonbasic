@@ -1,4 +1,4 @@
-//go:build (!linux && !windows) || (!windows && !cgo)
+//go:build (!linux && !windows) || !cgo
 
 package player
 
@@ -10,10 +10,10 @@ import (
 
 func stubErr(name string) func(args []value.Value) (value.Value, error) {
 	return func(args []value.Value) (value.Value, error) {
-		return value.Nil, fmt.Errorf("%s requires CGO_ENABLED=1 (Linux Jolt fullruntime)", name)
+		_ = args
+		return value.Nil, fmt.Errorf("%s [%s]", errPlayerRequiresCGOJolt, name)
 	}
 }
-
 func (m *Module) playerCharacterCreate(args []value.Value) (value.Value, error) {
 	return stubErr("CHARACTER.CREATE")(args)
 }
@@ -153,6 +153,18 @@ func (m *Module) playerSetCrouch(args []value.Value) (value.Value, error) {
 func (m *Module) playerSwim(args []value.Value) (value.Value, error) {
 	return stubErr("PLAYER.SWIM")(args)
 }
+func (m *Module) playerSetVelocity(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.SETVELOCITY")(args)
+}
+func (m *Module) playerAddImpulse(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.ADDIMPULSE")(args)
+}
+func (m *Module) playerGetSubmergedFraction(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.GETSUBMERGEDFACTOR")(args)
+}
+func (m *Module) playerIsSubmerged(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.ISSUBMERGED")(args)
+}
 func (m *Module) playerGetStandNormal(args []value.Value) (value.Value, error) {
 	return stubErr("PLAYER.GETSTANDNORMAL")(args)
 }
@@ -173,6 +185,15 @@ func (m *Module) playerSetFovKick(args []value.Value) (value.Value, error) {
 }
 func (m *Module) playerGetFovKick(args []value.Value) (value.Value, error) {
 	return stubErr("PLAYER.GETFOVKICK")(args)
+}
+func (m *Module) playerSetJumpBuffer(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.SETJUMPBUFFER")(args)
+}
+func (m *Module) playerSetAirControl(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.SETAIRCONTROL")(args)
+}
+func (m *Module) playerSetGroundControl(args []value.Value) (value.Value, error) {
+	return stubErr("PLAYER.SETGROUNDCONTROL")(args)
 }
 func (m *Module) playerIsMoving(args []value.Value) (value.Value, error) {
 	return stubErr("PLAYER.ISMOVING")(args)

@@ -1,0 +1,62 @@
+; MoonBASIC Example: KCC Direct Control
+; This example uses the CHARCONTROLLER namespace for raw kinematic control.
+; Movement is manual (dx, dy, dz) and ignores gravity integration.
+
+Window.Open(1280, 720, "KCC Direct Control")
+Physics3D.Start()
+
+; Create the character: radius 0.4, height 1.8, position (0, 2, 0)
+char = CharController.Make(0.4, 1.8, 0.0, 2.0, 0.0)
+
+cam = Camera.Make()
+Camera.SetOrbit(cam, 0.0, 1.0, 0.0, 0.4, 0.3, 10.0)
+
+WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+    dt = Time.Delta()
+    
+    ; Movement logic
+    dx = 0.0
+    dz = 0.0
+    dy = 0.0
+    speed = 8.0
+    
+    IF Input.KeyDown(KEY_W) THEN dz = dz - speed * dt
+    IF Input.KeyDown(KEY_S) THEN dz = dz + speed * dt
+    IF Input.KeyDown(KEY_A) THEN dx = dx - speed * dt
+    IF Input.KeyDown(KEY_D) THEN dx = dx + speed * dt
+    
+    ; Space/Shift for manual vertical movement
+    IF Input.KeyDown(KEY_SPACE) THEN dy = dy + speed * dt
+    IF Input.KeyDown(KEY_Q) THEN dy = dy - speed * dt
+    
+    ; Apply manual movement
+    CharController.Move(char, dx, dy, dz)
+    
+    ; Get current position
+    px = CharController.X(char)
+    py = CharController.Y(char)
+    pz = CharController.Z(char)
+    
+    ; Update camera to follow
+    Camera.SetOrbit(cam, px, py, pz, 0.4, 0.3, 10.0)
+    
+    Render.Clear(40, 44, 52)
+    cam.Begin()
+        Draw3D.Grid(20, 1.0)
+        ; Character visualization
+        Draw3D.Capsule(px, py - 0.9, pz, px, py + 0.9, pz, 0.4, 8, 12, 100, 200, 255, 255)
+        
+        ; Some obstacles to collide with
+        Draw3D.Cube(4.0, 1.0, 0.0, 2.0, 2.0, 10.0, 200, 100, 100, 255)
+        Draw3D.Cube(-4.0, 1.0, 0.0, 2.0, 2.0, 10.0, 100, 200, 100, 255)
+    cam.End()
+    
+    Draw.Text("WASD: Move XZ   SPACE up / Q down   ESC: Quit", 10, 10, 20, 255, 255, 255, 255)
+    Draw.Text("Pos: " + STR(px) + ", " + STR(py) + ", " + STR(pz), 10, 40, 18, 200, 255, 200, 255)
+    
+    Render.Frame()
+WEND
+
+CharController.Free(char)
+Physics3D.Stop()
+Window.Close()

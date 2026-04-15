@@ -4,12 +4,17 @@
 
 #include "character.h"
 #include "physics.h"
+#include "physics_layers.h"
 #include "core.h"
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <memory>
+#include <mutex>
+#include <vector>
+#include <atomic>
 
 using namespace JPH;
 
@@ -53,6 +58,93 @@ private:
 	ObjectLayer m_object_layer;
 };
 
+// Character contact listener that pushes events into a queue
+class CharacterContactListenerImpl : public CharacterContactListener
+{
+public:
+    explicit CharacterContactListenerImpl(PhysicsSystem *inPhysicsSystem)
+        : mPhysicsSystem(inPhysicsSystem), m_enabled(false) {}
+
+    void SetEnabled(bool enabled) { m_enabled = enabled; }
+    bool IsEnabled() const { return m_enabled; }
+
+    virtual void OnContactAdded(const CharacterVirtual *inCharacter, const BodyID &inBodyID2, const SubShapeID &inSubShapeID2, RVec3Arg inContactPosition, Vec3Arg inContactNormal, CharacterContactSettings &ioSettings) override
+    {
+        // One-way platforms: when hitting ONE_WAY layer from below, disable contact response (pass-through).
+        if (mPhysicsSystem != nullptr)
+        {
+            BodyLockRead lock(mPhysicsSystem->GetBodyLockInterface(), inBodyID2);
+            if (lock.Succeeded())
+            {
+                const Body &body = lock.GetBody();
+                if (body.GetObjectLayer() == MBPHYS_Layers::ONE_WAY)
+                {
+                    Vec3 up = inCharacter->GetUp();
+                    if (inContactNormal.Dot(up) > 0.05f)
+                    {
+                        ioSettings.mCanPushCharacter = false;
+                        ioSettings.mCanReceiveImpulses = false;
+                    }
+                }
+            }
+        }
+
+        if (!m_enabled) return;
+
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (m_events.size() < 1024) { // Avoid unbounded growth
+            JoltCharacterContactEvent event;
+            event.bodyB = inBodyID2.GetIndexAndSequenceNumber();
+            event.positionX = (float)inContactPosition.GetX();
+            event.positionY = (float)inContactPosition.GetY();
+            event.positionZ = (float)inContactPosition.GetZ();
+            event.normalX = inContactNormal.GetX();
+            event.normalY = inContactNormal.GetY();
+            event.normalZ = inContactNormal.GetZ();
+            event.distance = 0.0f; // OnContactAdded is actual contact
+            m_events.push_back(event);
+        }
+    }
+
+    int Drain(JoltCharacterContactEvent* outEvents, int maxEvents)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        int count = (int)m_events.size();
+        if (count == 0) return 0;
+        if (count > maxEvents) count = maxEvents;
+        
+        std::copy(m_events.begin(), m_events.begin() + count, outEvents);
+        
+        m_events.erase(m_events.begin(), m_events.begin() + count);
+        return count;
+    }
+
+private:
+    PhysicsSystem *mPhysicsSystem;
+    std::mutex m_mutex;
+    std::vector<JoltCharacterContactEvent> m_events;
+    std::atomic<bool> m_enabled;
+};
+
+// Internal wrapper structure to keep track of character and its listener
+struct CharacterVirtualWrapper
+{
+    CharacterVirtual* mCharacter;
+    CharacterContactListenerImpl mListener;
+
+    CharacterVirtualWrapper(const CharacterVirtualSettings* inSettings, RVec3Arg inPosition, QuatArg inRotation, PhysicsSystem* inSystem)
+        : mListener(inSystem)
+    {
+        mCharacter = new CharacterVirtual(inSettings, inPosition, inRotation, inSystem);
+        mCharacter->SetListener(&mListener);
+    }
+
+    ~CharacterVirtualWrapper()
+    {
+        delete mCharacter;
+    }
+};
+
 JoltCharacterVirtual JoltCreateCharacterVirtual(JoltPhysicsSystem system,
 											 const JoltCharacterVirtualSettings* goSettings,
 											 float x, float y, float z)
@@ -79,15 +171,15 @@ JoltCharacterVirtual JoltCreateCharacterVirtual(JoltPhysicsSystem system,
 	settings.mPenetrationRecoverySpeed = goSettings->penetrationRecoverySpeed;
 	settings.mEnhancedInternalEdgeRemoval = goSettings->enhancedInternalEdgeRemoval != 0;
 
-	// Create at specified position using smart pointer for exception safety
-	auto character = std::make_unique<CharacterVirtual>(&settings, RVec3(x, y, z), Quat::sIdentity(), GetPhysicsSystem(wrapper));
-	return static_cast<JoltCharacterVirtual>(character.release());
+	// Create wrapper which manages character and listener
+	auto wrapper_obj = std::make_unique<CharacterVirtualWrapper>(&settings, RVec3(x, y, z), Quat::sIdentity(), GetPhysicsSystem(wrapper));
+	return static_cast<JoltCharacterVirtual>(wrapper_obj.release());
 }
 
 void JoltDestroyCharacterVirtual(JoltCharacterVirtual character)
 {
-	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
-	delete cv;
+	CharacterVirtualWrapper* wrapper = static_cast<CharacterVirtualWrapper*>(character);
+	delete wrapper;
 }
 
 void JoltCharacterVirtualUpdate(JoltCharacterVirtual character,
@@ -95,12 +187,13 @@ void JoltCharacterVirtualUpdate(JoltCharacterVirtual character,
 								float deltaTime,
 								float gravityX, float gravityY, float gravityZ)
 {
-	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
-	PhysicsSystemWrapper* wrapper = static_cast<PhysicsSystemWrapper*>(system);
+	CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
+	PhysicsSystemWrapper* physics_wrapper = static_cast<PhysicsSystemWrapper*>(system);
 
 	// Use MOVING layer for character (same as dynamic bodies)
-	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(wrapper), Layers::MOVING);
-	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(wrapper), Layers::MOVING);
+	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(physics_wrapper), Layers::MOVING);
+	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(physics_wrapper), Layers::MOVING);
 
 	// Call basic Update with gravity vector and layer filters
 	cv->Update(
@@ -120,8 +213,9 @@ void JoltCharacterVirtualExtendedUpdate(JoltCharacterVirtual character,
 										float gravityX, float gravityY, float gravityZ,
 										const JoltCharacterExtendedUpdateSettings* extendedSettingsOrNull)
 {
-	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
-	PhysicsSystemWrapper* wrapper = static_cast<PhysicsSystemWrapper*>(system);
+	CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
+	PhysicsSystemWrapper* physics_wrapper = static_cast<PhysicsSystemWrapper*>(system);
 
 	CharacterVirtual::ExtendedUpdateSettings settings;
 	if (extendedSettingsOrNull != nullptr)
@@ -144,8 +238,8 @@ void JoltCharacterVirtualExtendedUpdate(JoltCharacterVirtual character,
 	}
 
 	// Use MOVING layer for character (same as dynamic bodies)
-	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(wrapper), Layers::MOVING);
-	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(wrapper), Layers::MOVING);
+	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(physics_wrapper), Layers::MOVING);
+	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(physics_wrapper), Layers::MOVING);
 
 	cv->ExtendedUpdate(
 		deltaTime,
@@ -162,14 +256,16 @@ void JoltCharacterVirtualExtendedUpdate(JoltCharacterVirtual character,
 void JoltCharacterVirtualSetLinearVelocity(JoltCharacterVirtual character,
 										   float x, float y, float z)
 {
-	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	cv->SetLinearVelocity(Vec3(x, y, z));
 }
 
 void JoltCharacterVirtualGetLinearVelocity(const JoltCharacterVirtual character,
 										   float* x, float* y, float* z)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	Vec3 vel = cv->GetLinearVelocity();
 	*x = vel.GetX();
 	*y = vel.GetY();
@@ -179,7 +275,8 @@ void JoltCharacterVirtualGetLinearVelocity(const JoltCharacterVirtual character,
 void JoltCharacterVirtualGetGroundVelocity(const JoltCharacterVirtual character,
 											float* x, float* y, float* z)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	Vec3 vel = cv->GetGroundVelocity();
 	*x = vel.GetX();
 	*y = vel.GetY();
@@ -189,14 +286,16 @@ void JoltCharacterVirtualGetGroundVelocity(const JoltCharacterVirtual character,
 void JoltCharacterVirtualSetPosition(JoltCharacterVirtual character,
 									 float x, float y, float z)
 {
-	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	cv->SetPosition(RVec3(x, y, z));
 }
 
 void JoltCharacterVirtualGetPosition(const JoltCharacterVirtual character,
 									 float* x, float* y, float* z)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	RVec3 pos = cv->GetPosition();
 	*x = static_cast<float>(pos.GetX());
 	*y = static_cast<float>(pos.GetY());
@@ -205,14 +304,16 @@ void JoltCharacterVirtualGetPosition(const JoltCharacterVirtual character,
 
 JoltGroundState JoltCharacterVirtualGetGroundState(const JoltCharacterVirtual character)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	CharacterBase::EGroundState state = cv->GetGroundState();
 	return static_cast<JoltGroundState>(state);
 }
 
 int JoltCharacterVirtualIsSupported(const JoltCharacterVirtual character)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	return cv->IsSupported() ? 1 : 0;
 }
 
@@ -221,13 +322,14 @@ void JoltCharacterVirtualSetShape(JoltCharacterVirtual character,
 								  float maxPenetrationDepth,
 								  JoltPhysicsSystem system)
 {
-	CharacterVirtual* cv = static_cast<CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	const Shape* s = static_cast<const Shape*>(shape);
-	PhysicsSystemWrapper* wrapper = static_cast<PhysicsSystemWrapper*>(system);
+	PhysicsSystemWrapper* physics_wrapper = static_cast<PhysicsSystemWrapper*>(system);
 
 	// Use MOVING layer for character (same as dynamic bodies)
-	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(wrapper), Layers::MOVING);
-	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(wrapper), Layers::MOVING);
+	BroadPhaseLayerFilterAdapter broad_phase_filter(GetObjectVsBroadPhaseLayerFilter(physics_wrapper), Layers::MOVING);
+	ObjectLayerFilterAdapter object_layer_filter(GetObjectLayerPairFilter(physics_wrapper), Layers::MOVING);
 
 	// Call SetShape with required filters
 	cv->SetShape(
@@ -244,7 +346,8 @@ void JoltCharacterVirtualSetShape(JoltCharacterVirtual character,
 // Get the shape of a virtual character
 JoltShape JoltCharacterVirtualGetShape(const JoltCharacterVirtual character)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	return const_cast<Shape*>(cv->GetShape());
 }
 
@@ -252,7 +355,8 @@ JoltShape JoltCharacterVirtualGetShape(const JoltCharacterVirtual character)
 void JoltCharacterVirtualGetGroundNormal(const JoltCharacterVirtual character,
 										 float* x, float* y, float* z)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	Vec3 normal = cv->GetGroundNormal();
 	*x = normal.GetX();
 	*y = normal.GetY();
@@ -263,7 +367,8 @@ void JoltCharacterVirtualGetGroundNormal(const JoltCharacterVirtual character,
 void JoltCharacterVirtualGetGroundPosition(const JoltCharacterVirtual character,
 										   float* x, float* y, float* z)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	RVec3 pos = cv->GetGroundPosition();
 	*x = static_cast<float>(pos.GetX());
 	*y = static_cast<float>(pos.GetY());
@@ -275,7 +380,8 @@ int JoltCharacterVirtualGetActiveContacts(const JoltCharacterVirtual character,
 										  JoltCharacterContact* contacts,
 										  int maxContacts)
 {
-	const CharacterVirtual* cv = static_cast<const CharacterVirtual*>(character);
+	CharacterVirtualWrapper* wrapper_obj = const_cast<CharacterVirtualWrapper*>(static_cast<const CharacterVirtualWrapper*>(character));
+	CharacterVirtual* cv = wrapper_obj->mCharacter;
 	const CharacterVirtual::ContactList& activeContacts = cv->GetActiveContacts();
 
 	int numContacts = static_cast<int>(activeContacts.size());
@@ -329,4 +435,18 @@ int JoltCharacterVirtualGetActiveContacts(const JoltCharacterVirtual character,
 	}
 
 	return numToReturn;
+}
+
+void JoltCharacterVirtualSetContactListenerEnabled(JoltCharacterVirtual character, int enabled)
+{
+    CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+    wrapper_obj->mListener.SetEnabled(enabled != 0);
+}
+
+int JoltCharacterVirtualDrainContactQueue(JoltCharacterVirtual character,
+                                         JoltCharacterContactEvent* events,
+                                         int maxEvents)
+{
+    CharacterVirtualWrapper* wrapper_obj = static_cast<CharacterVirtualWrapper*>(character);
+    return wrapper_obj->mListener.Drain(events, maxEvents);
 }

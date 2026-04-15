@@ -1,4 +1,5 @@
 //go:build (linux || windows) && cgo
+
 package mbphysics3d
 
 import (
@@ -23,7 +24,7 @@ func createBodyLowLevel(h *heap.Store, shapeH heap.Handle, motion jolt.MotionTyp
 	}
 
 	// Create body in Jolt
-	id := bi.CreateBody(shObj.Shape, jolt.Vec3{}, motion, false, 0.5, 0.2, 0)
+	id := bi.CreateBody(shObj.Shape, jolt.Vec3{}, motion, sensor, 0.5, 0.2, 0)
 	if id == nil {
 		return value.Nil, fmt.Errorf("failed to create Jolt body")
 	}
@@ -34,18 +35,23 @@ func createBodyLowLevel(h *heap.Store, shapeH heap.Handle, motion jolt.MotionTyp
 	// Double check if we need a query shape
 	var qshape *jolt.Shape
 	switch shObj.Kind {
-	case 1: qshape = jolt.CreateBox(jolt.Vec3{X: shObj.Dim1, Y: shObj.Dim2, Z: shObj.Dim3})
-	case 2: qshape = jolt.CreateSphere(shObj.Dim1)
-	case 3: qshape = jolt.CreateCapsule(shObj.Dim2/2 - shObj.Dim1, shObj.Dim1)
+	case 1:
+		qshape = jolt.CreateBox(jolt.Vec3{X: shObj.Dim1, Y: shObj.Dim2, Z: shObj.Dim3})
+	case 2:
+		qshape = jolt.CreateSphere(shObj.Dim1)
+	case 3:
+		qshape = jolt.CreateCapsule(shObj.Dim2/2-shObj.Dim1, shObj.Dim1)
 	}
 
 	body := &body3dObj{id: id, queryShape: qshape}
 	body.setFinalizer()
-	
+
 	// Determine the exact tag for the handle
 	bh, err := h.Alloc(body)
 	if err != nil {
-		if qshape != nil { qshape.Destroy() }
+		if qshape != nil {
+			qshape.Destroy()
+		}
 		id.Destroy()
 		return value.Nil, err
 	}
@@ -64,6 +70,11 @@ func createBodyLowLevel(h *heap.Store, shapeH heap.Handle, motion jolt.MotionTyp
 		newBuf := make([]float32, matrixBufferAlloc*16)
 		copy(newBuf, matrixBuffer)
 		matrixBuffer = newBuf
+		newPrev := make([]float32, len(newBuf))
+		if len(prevMatrixBuffer) > 0 {
+			copy(newPrev, prevMatrixBuffer)
+		}
+		prevMatrixBuffer = newPrev
 	}
 	joltBodyMu.Unlock()
 
@@ -100,14 +111,18 @@ func brSetPos(h *heap.Store, args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("BODY.SETPOSITION expects (body, x, y, z)")
 	}
 	bo, err := castBody(h, heap.Handle(args[0].IVal))
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	x, _ := args[1].ToFloat()
 	y, _ := args[2].ToFloat()
 	z, _ := args[3].ToFloat()
 	joltMu.Lock()
 	bi := joltBi
 	joltMu.Unlock()
-	if bi == nil { return value.Nil, nil }
+	if bi == nil {
+		return value.Nil, nil
+	}
 	bi.SetPosition(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
 	return value.Nil, nil
 }
@@ -119,7 +134,9 @@ func castBody(h *heap.Store, bh heap.Handle) (*body3dObj, error) {
 	}
 	// Try specific types if needed, but since they all use body3dObj struct:
 	obj, ok := h.Get(bh)
-	if !ok { return nil, fmt.Errorf("invalid body handle") }
+	if !ok {
+		return nil, fmt.Errorf("invalid body handle")
+	}
 	if b, ok := obj.(*body3dObj); ok {
 		return b, nil
 	}

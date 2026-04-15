@@ -5,11 +5,11 @@ Package mbphysics3d provides the Jolt Physics integration for MoonBASIC.
 
 ARCHITECTURE: SHARED-MEMORY SYNCHRONIZATION
 This module implements a zero-copy shared memory architecture for physics-to-entity synchronization.
-Physics simulation results (position and rotation) are written directly into a contiguous float32 
-buffer (the "matrix buffer") which is shared with the entity module (mbentity). 
+Physics simulation results (position and rotation) are written directly into a contiguous float32
+buffer (the "matrix buffer") which is shared with the entity module (mbentity).
 
 CROSS-PLATFORM CGO
-Since v1.3.1, this module is platform-agnostic for CGO builds. On Windows, it links against 
+Since v1.3.1, this module is platform-agnostic for CGO builds. On Windows, it links against
 static libraries (libJolt.a, libjolt_wrapper.a) built from the local third_party/jolt-go tree.
 */
 package mbphysics3d
@@ -37,10 +37,14 @@ var (
 
 var (
 	matrixBuffer      []float32
+	prevMatrixBuffer  []float32 // snapshot at start of STEP (for optional render interpolation + collision reuse)
 	nextBufferIndex   int
 	bufferIndexMap    map[*jolt.BodyID]int // body -> index
 	bufferIndexToBody map[int]*jolt.BodyID // index -> body
 	matrixBufferAlloc int
+	// Written at end of PHYSICS3D.STEP; used by PhysicsMatrixInterpAlpha.
+	matrixInterpAccum float64
+	matrixInterpFixed float64
 )
 
 type collRule struct {
@@ -56,6 +60,7 @@ type collEvent struct {
 var (
 	joltBodyMu       sync.Mutex
 	joltBodyToHandle map[*jolt.BodyID]heap.Handle
+	joltBodyPacked   map[uint32]heap.Handle // Jolt BodyID index+sequence → BODY3D heap handle (KCC contact fan-in)
 	joltBodyDynamic  map[*jolt.BodyID]bool
 )
 
@@ -69,6 +74,11 @@ func joltRegisterBody(id *jolt.BodyID, h heap.Handle) {
 		joltBodyToHandle = make(map[*jolt.BodyID]heap.Handle)
 	}
 	joltBodyToHandle[id] = h
+	packed := id.IndexAndSequenceNumber()
+	if joltBodyPacked == nil {
+		joltBodyPacked = make(map[uint32]heap.Handle)
+	}
+	joltBodyPacked[packed] = h
 }
 
 func joltMarkBodyDynamic(id *jolt.BodyID, dynamic bool) {
@@ -89,8 +99,12 @@ func joltUnregisterBody(id *jolt.BodyID) {
 	}
 	joltBodyMu.Lock()
 	defer joltBodyMu.Unlock()
+	packed := id.IndexAndSequenceNumber()
 	delete(joltBodyToHandle, id)
 	delete(joltBodyDynamic, id)
+	if joltBodyPacked != nil {
+		delete(joltBodyPacked, packed)
+	}
 }
 
 func joltLookupHandle(id *jolt.BodyID) (heap.Handle, bool) {
@@ -100,6 +114,17 @@ func joltLookupHandle(id *jolt.BodyID) (heap.Handle, bool) {
 	joltBodyMu.Lock()
 	defer joltBodyMu.Unlock()
 	h, ok := joltBodyToHandle[id]
+	return h, ok
+}
+
+// LookupBodyHeapByPacked resolves CharacterContactEvent.BodyB (index+sequence) to a registered BODY3D handle.
+func LookupBodyHeapByPacked(packed uint32) (heap.Handle, bool) {
+	joltBodyMu.Lock()
+	defer joltBodyMu.Unlock()
+	if joltBodyPacked == nil {
+		return 0, false
+	}
+	h, ok := joltBodyPacked[packed]
 	return h, ok
 }
 
@@ -154,16 +179,22 @@ type BuilderObj struct {
 	Shape   *jolt.Shape
 	Release heap.ReleaseOnce
 	// Query template (rebuild after COMMIT for overlap tests).
-	QKind   uint8 // 1 box, 2 sphere, 3 capsule
-	QBox    jolt.Vec3
-	QSphere float32
-	QCapH   float32
-	QCapR   float32
-	Friction    float32
-	Restitution float32
-	EnableCCD   bool
+	QKind          uint8 // 1 box, 2 sphere, 3 capsule
+	QBox           jolt.Vec3
+	QSphere        float32
+	QCapH          float32
+	QCapR          float32
+	Friction       float32
+	Restitution    float32
+	LinearDamping  float32
+	AngularDamping float32
+	EnableCCD      bool
 	// AllowedDOFs: 0 = Jolt default (all DOFs). Non-zero = EAllowedDOFs bitmask (e.g. platformer = 0x17).
 	AllowedDOFs int
+	// ForceSensor: trigger volumes (kinematic sensor); uses Jolt sensor object layer when true.
+	ForceSensor bool
+	// ObjectLayer: jolt.ObjectLayerAuto (-1) to derive from motion/sensor; else explicit layer (0..4, see physics_layers.h: ONE_WAY=4).
+	ObjectLayer int
 }
 
 func (b *BuilderObj) TypeName() string { return "Body3DBuilder" }
@@ -281,7 +312,9 @@ func WakeIndex(idx int) {
 	joltBodyMu.Unlock()
 	joltMu.Unlock()
 
-	if !ok || bi == nil { return }
+	if !ok || bi == nil {
+		return
+	}
 	bi.ActivateBody(id)
 }
 func ApplyForceToIndex(idx int, x, y, z float32) {

@@ -1,0 +1,61 @@
+; kcc_contacts.mb - KCC contacts-style demo (hazard volume + proximity flash)
+; For manifest-checked scripts, use BODY3D proximity or wire PHYSICS3D.ONCOLLISION at runtime.
+
+WINDOW.OPEN(1280, 720, "MoonBASIC KCC Contacts")
+PHYSICS3D.START()
+
+; Static hazard (half 2.5, 1, 2.5)
+hazardDef = BODY3D.MAKE("STATIC")
+BODY3D.ADDBOX(hazardDef, 2.5, 1, 2.5)
+hHazard = BODY3D.COMMIT(hazardDef, 0, 0, 10)
+
+; Floor
+floorDef = BODY3D.MAKE("STATIC")
+BODY3D.ADDBOX(floorDef, 50, 0.5, 50)
+floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
+
+; Initialize character
+radius = 0.4
+height = 1.8
+char = CHARCONTROLLER.MAKE(0, 2, 0, radius, height)
+
+cam = CAMERA.CREATE()
+CAMERA.SETMODE(cam, 1)
+
+PRINT("KCC Contacts Demo")
+PRINT("The screen will flash red when you touch the hazard box.")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    ; Movement
+    vx = 0 : vz = 0
+    IF KEYDOWN(KEY_UP) THEN vz = 5
+    IF KEYDOWN(KEY_DOWN) THEN vz = -5
+    IF KEYDOWN(KEY_LEFT) THEN vx = -5
+    IF KEYDOWN(KEY_RIGHT) THEN vx = 5
+    
+    CHARACTERREF.SETVELOCITY(char, vx, 0, vz)
+    CHARACTERREF.UPDATE(char)
+    
+    ; Sync camera (simple AABB vs hazard for demo when inside the red box volume)
+    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    touchingHazard = FALSE
+    IF px >= -2.5 AND px <= 2.5 AND pz >= 7.5 AND pz <= 12.5 AND py >= -1.5 AND py <= 2.5 THEN
+        touchingHazard = TRUE
+    ENDIF
+    CAMERA.SETPOSITION(cam, px, py + 1.2, pz - 8)
+    CAMERA.SETTARGET(cam, px, py + 1.2, pz)
+    
+    RENDER.CLEAR(40, 44, 52)
+    CAMERA.BEGIN(cam)
+    PHYSICS3D.DEBUGDRAW(1)
+    IF touchingHazard THEN
+        DRAW.RECTANGLE(0, 0, 1280, 720, 255, 0, 0, 76)
+        DRAW.TEXT("HAZARD CONTACT!", 10, 10, 30, 255, 255, 0, 255)
+    ENDIF
+    CAMERA.END()
+    RENDER.FRAME()
+WEND
+
+CHARCONTROLLER.FREE(char)
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

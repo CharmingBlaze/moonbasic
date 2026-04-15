@@ -74,9 +74,11 @@ When enabled, all physics-driven entities automatically receive buoyancy forces 
 
 ## Platform Parity
 
-| Feature | Windows (Host Solver) | Linux (Jolt) |
+Desktop **Windows and Linux** with **`CGO_ENABLED=1`** and linked Jolt use the **same** native physics path. **`!cgo`** or missing Jolt libs use **stubs** (limited or error-returning APIs).
+
+| Feature | With native Jolt (desktop CGO) | Stub / no Jolt |
 | :--- | :--- | :--- |
-| **Joints** | Stub (No constraint) | Fully Supported |
-| **LockAxis** | Partial (Upright only) | Fully Supported |
-| **Buoyancy** | Scripted Only | Automated & Physical |
-| **CCD** | Discrete only | Supported |
+| **Joints** | Placeholder handles (wrapper growth pending) | No-op / errors |
+| **LockAxis** | Parsed; some setters not implemented | Stub |
+| **Buoyancy** | Volume-based where wired | Scripted / limited |
+| **CCD** | Supported where exposed in wrapper | Not available |

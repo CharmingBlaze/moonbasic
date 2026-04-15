@@ -2,6 +2,7 @@ package jolt
 
 // #include "wrapper/body.h"
 import "C"
+import "unsafe"
 
 // MotionType determines how a body responds to forces
 type MotionType int
@@ -12,11 +13,33 @@ const (
 	MotionTypeDynamic   MotionType = C.JoltMotionTypeDynamic   // Affected by forces
 )
 
-// AllowedDOFsOrZero passes 0 to Jolt body creation to keep EAllowedDOFs::All.
-// AllowedDOFsPlatformer is world-space TranslationX|Y|Z + RotationY (upright capsule / character).
+// MotionQuality determines the depth of collision detection
+type MotionQuality int
+
 const (
-	AllowedDOFsOrZero     int = 0
-	AllowedDOFsPlatformer int = 0x17 // 1+2+4+16; see Jolt AllowedDOFs.h
+	MotionQualityDiscrete   MotionQuality = C.JoltMotionQualityDiscrete   // Discrete collision detection
+	MotionQualityLinearCast MotionQuality = C.JoltMotionQualityLinearCast // Continuous collision detection (CCD)
+)
+
+// AllowedDOFs passes bits to Jolt to lock rotation/translation axes.
+const (
+	AllowedDOFsAll        int = 0
+	AllowedDOFsTranslationX int = 1
+	AllowedDOFsTranslationY int = 2
+	AllowedDOFsTranslationZ int = 4
+	AllowedDOFsRotationX    int = 8
+	AllowedDOFsRotationY    int = 16
+	AllowedDOFsRotationZ    int = 32
+	AllowedDOFsPlaneXZ      int = 1 | 4 | 16 // Transl X/Z, Rot Y (2D Platformer)
+)
+
+// Object layer IDs (must match physics_layers.h / wrapper). Use ObjectLayerAuto to derive from motion + sensor.
+const (
+	ObjectLayerAuto      int = -1
+	ObjectLayerNonMoving int = 0
+	ObjectLayerMoving    int = 1
+	ObjectLayerCharacter int = 2
+	ObjectLayerSensor    int = 3
 )
 
 // BodyInterface provides methods to create and manipulate physics bodies
@@ -38,6 +61,14 @@ type BodyID struct {
 // Destroy frees the body ID
 func (b *BodyID) Destroy() {
 	C.JoltDestroyBodyID(b.handle)
+}
+
+// IndexAndSequenceNumber returns Jolt's packed body id (matches CharacterContactEvent.BodyB).
+func (b *BodyID) IndexAndSequenceNumber() uint32 {
+	if b == nil {
+		return 0
+	}
+	return uint32(C.JoltBodyIDGetIndexAndSequenceNumber(b.handle))
 }
 
 // GetPosition returns the current position of a body
@@ -64,32 +95,14 @@ func (bi *BodyInterface) GetRotation(bodyID *BodyID) Quat {
 }
 
 // CreateBody creates a body with specific motion type and sensor flag.
-//
-// Parameters:
-//   - shape: The collision shape
-//   - position: Initial position
-//   - motionType: MotionTypeStatic, MotionTypeKinematic, or MotionTypeDynamic
-//   - isSensor: If true, body is detected by queries but doesn't generate contact forces
-//
-// Examples:
-//
-//	// Create static ground
-//	box := jolt.CreateBox(jolt.Vec3{X: 10, Y: 0.5, Z: 10})
-//	ground := bi.CreateBody(box, jolt.Vec3{X: 0, Y: 0, Z: 0}, jolt.MotionTypeStatic, false)
-//
-//	// Create dynamic sphere
-//	sphere := jolt.CreateSphere(1.0)
-//	ball := bi.CreateBody(sphere, jolt.Vec3{X: 0, Y: 10, Z: 0}, jolt.MotionTypeDynamic, false)
-//	bi.ActivateBody(ball)
-//
-//	// Create kinematic sensor
-//	capsule := jolt.CreateCapsule(0.5, 1.8)
-//	sensor := bi.CreateBody(capsule, jolt.Vec3{X: 0, Y: 1, Z: 0}, jolt.MotionTypeKinematic, true, 0.2, 0, jolt.AllowedDOFsOrZero)
-//	bi.ActivateBody(sensor)
-func (bi *BodyInterface) CreateBody(shape *Shape, position Vec3, motionType MotionType, isSensor bool, friction, restitution float32, allowedDOFsOrZero int) *BodyID {
+func (bi *BodyInterface) CreateBody(shape *Shape, position Vec3, motionType MotionType, isSensor bool, friction, restitution float32, allowedDOFsOrZero int, objectLayerOrMinusOne ...int) *BodyID {
 	sensor := C.int(0)
 	if isSensor {
 		sensor = C.int(1)
+	}
+	oly := C.int(-1)
+	if len(objectLayerOrMinusOne) > 0 {
+		oly = C.int(objectLayerOrMinusOne[0])
 	}
 
 	handle := C.JoltCreateBody(
@@ -103,9 +116,37 @@ func (bi *BodyInterface) CreateBody(shape *Shape, position Vec3, motionType Moti
 		C.float(friction),
 		C.float(restitution),
 		C.int(allowedDOFsOrZero),
+		oly,
 	)
 
 	return &BodyID{handle: handle}
+}
+
+// BatchGetBodyTransforms fills out with 8 floats per body: px,py,pz, qx,qy,qz,qw, active(1/0).
+func (bi *BodyInterface) BatchGetBodyTransforms(ids []*BodyID, out []float32) {
+	if len(ids) == 0 {
+		return
+	}
+	if len(out) < len(ids)*8 {
+		return
+	}
+	cIDs := make([]C.JoltBodyID, len(ids))
+	for i := range ids {
+		cIDs[i] = ids[i].handle
+	}
+	C.JoltBatchGetBodyTransforms(bi.handle, (*C.JoltBodyID)(unsafe.Pointer(&cIDs[0])), C.int(len(ids)), (*C.float)(unsafe.Pointer(&out[0])))
+}
+
+// BatchApplyGravityDelta adds (dvx,dvy,dvz) to each body's linear velocity in one CGO call.
+func (bi *BodyInterface) BatchApplyGravityDelta(ids []*BodyID, dvx, dvy, dvz float32) {
+	if len(ids) == 0 {
+		return
+	}
+	cIDs := make([]C.JoltBodyID, len(ids))
+	for i := range ids {
+		cIDs[i] = ids[i].handle
+	}
+	C.JoltBatchApplyGravityDelta(bi.handle, (*C.JoltBodyID)(unsafe.Pointer(&cIDs[0])), C.int(len(ids)), C.float(dvx), C.float(dvy), C.float(dvz))
 }
 
 // SetFriction sets the friction coefficient on an existing body (0 = no friction).
@@ -116,6 +157,33 @@ func (bi *BodyInterface) SetFriction(bodyID *BodyID, friction float32) {
 // SetRestitution sets restitution on an existing body (0 = no bounce).
 func (bi *BodyInterface) SetRestitution(bodyID *BodyID, restitution float32) {
 	C.JoltSetBodyRestitution(bi.handle, bodyID.handle, C.float(restitution))
+}
+
+// SetBodyDamping sets linear and angular damping on an existing body.
+func (ps *PhysicsSystem) SetBodyDamping(bodyID *BodyID, linear, angular float32) {
+	C.JoltSetBodyDamping(ps.handle, bodyID.handle, C.float(linear), C.float(angular))
+}
+
+// SetMotionQuality sets motion quality for a body (e.g., enable CCD).
+func (bi *BodyInterface) SetMotionQuality(bodyID *BodyID, quality MotionQuality) {
+    C.JoltSetBodyMotionQuality(bi.handle, bodyID.handle, C.JoltMotionQuality(quality))
+}
+
+// SetAllowedDOFs sets allowed degrees of freedom (Lock Axis). Requires the system for locking.
+func (ps *PhysicsSystem) SetAllowedDOFs(bodyID *BodyID, allowedDOFs int) {
+    C.JoltSetBodyAllowedDOFs(ps.handle, bodyID.handle, C.int(allowedDOFs))
+}
+
+// SetGravityFactor sets the gravity multiplier for a body.
+func (bi *BodyInterface) SetGravityFactor(bodyID *BodyID, factor float32) {
+    C.JoltSetBodyGravityFactor(bi.handle, bodyID.handle, C.float(factor))
+}
+
+// SetIsSensor toggles the sensor flag on a body.
+func (bi *BodyInterface) SetIsSensor(bodyID *BodyID, isSensor bool) {
+    sensor := C.int(0)
+    if isSensor { sensor = C.int(1) }
+    C.JoltSetBodyIsSensor(bi.handle, bodyID.handle, sensor)
 }
 
 // SetPosition updates the position of a body
@@ -169,13 +237,6 @@ func (bi *BodyInterface) DeactivateBody(bodyID *BodyID) {
 }
 
 // SetShape changes the collision shape of a body
-//
-// Parameters:
-//   - bodyID: The body to modify
-//   - shape: The new collision shape
-//   - updateMassProperties: If true, recalculates mass/inertia from the new shape
-//
-// Note: This automatically activates the body
 func (bi *BodyInterface) SetShape(bodyID *BodyID, shape *Shape, updateMassProperties bool) {
 	update := C.int(0)
 	if updateMassProperties {

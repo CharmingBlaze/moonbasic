@@ -52,3 +52,16 @@ func TestColonSeparatedStatements(t *testing.T) {
 		t.Fatalf("want 3 stmts, got %d", len(prog.Stmts))
 	}
 }
+
+func TestColonSeparatedStatementsInWhileBody(t *testing.T) {
+	src := "WHILE TRUE\n" +
+		"    vx = 0 : vz = 0\n" +
+		"WEND\n"
+	prog, err := ParseSource("x.mbc", src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prog.Stmts) != 1 {
+		t.Fatalf("want 1 stmt, got %d", len(prog.Stmts))
+	}
+}

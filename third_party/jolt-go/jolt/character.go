@@ -42,6 +42,14 @@ type CharacterContact struct {
 	CanPushCharacter bool
 }
 
+// CharacterContactEvent represents a simplified contact for high-frequency event streaming
+type CharacterContactEvent struct {
+	BodyB    uint32
+	Position Vec3
+	Normal   Vec3
+	Distance float32
+}
+
 // CharacterVirtualSettings configures a virtual character
 type CharacterVirtualSettings struct {
 	// Shape is the collision shape for the character (required)
@@ -327,6 +335,41 @@ func (cv *CharacterVirtual) GetPosition() Vec3 {
 // Destroy frees the character resources
 func (cv *CharacterVirtual) Destroy() {
 	C.JoltDestroyCharacterVirtual(cv.handle)
+}
+
+// SetContactListenerEnabled enables or disables the contact event bridge
+func (cv *CharacterVirtual) SetContactListenerEnabled(enabled bool) {
+	e := 0
+	if enabled {
+		e = 1
+	}
+	C.JoltCharacterVirtualSetContactListenerEnabled(cv.handle, C.int(e))
+}
+
+// DrainContactQueue moves pending contact events from C++ into the provided Go slice
+func (cv *CharacterVirtual) DrainContactQueue(maxEvents int) []CharacterContactEvent {
+	cEvents := make([]C.JoltCharacterContactEvent, maxEvents)
+	num := int(C.JoltCharacterVirtualDrainContactQueue(cv.handle, &cEvents[0], C.int(maxEvents)))
+
+	events := make([]CharacterContactEvent, num)
+	for i := 0; i < num; i++ {
+		e := &cEvents[i]
+		events[i] = CharacterContactEvent{
+			BodyB: uint32(e.bodyB),
+			Position: Vec3{
+				X: float32(e.positionX),
+				Y: float32(e.positionY),
+				Z: float32(e.positionZ),
+			},
+			Normal: Vec3{
+				X: float32(e.normalX),
+				Y: float32(e.normalY),
+				Z: float32(e.normalZ),
+			},
+			Distance: float32(e.distance),
+		}
+	}
+	return events
 }
 
 // GetGroundState returns the current ground contact state

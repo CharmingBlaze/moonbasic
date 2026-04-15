@@ -1,4 +1,4 @@
-//go:build cgo || (windows && !cgo)
+//go:build (linux || windows) && cgo
 
 package player
 

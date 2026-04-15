@@ -10,16 +10,26 @@ import (
 	mbentity "moonbasic/runtime/mbentity"
 	mbmatrix "moonbasic/runtime/mbmatrix"
 	mbphysics3d "moonbasic/runtime/physics3d"
+	mwater "moonbasic/runtime/water"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const defaultEyeY = 1.65
 
 const playerCapsuleRadius = 0.4
 const playerCapsuleHeight = 1.75
+
+func (m *Module) physicsFixedDt() float64 {
+	if m.h == nil {
+		return 1.0 / 60.0
+	}
+	ph := mbphysics3d.GetModule(m.h)
+	if ph == nil {
+		return 1.0 / 60.0
+	}
+	return ph.FixedStepSeconds()
+}
 
 // playerCreateInternal allocates Jolt KCC for an entity; used by PLAYER.CREATE and CHARACTER.CREATE.
 
@@ -50,7 +60,7 @@ func (m *Module) playerCreateInternal(args []value.Value) (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf("PLAYER.CREATE: unknown entity")
 	}
-	h, err := m.char.AllocCharacter(rad, hei, px, py, pz, 0, -1)
+	h, err := m.char.AllocCharacter(rad, hei, px, py, pz, 0, 0.02, 100.0, 0.05)
 	if err != nil {
 		return 0, err
 	}
@@ -87,7 +97,8 @@ func (m *Module) playerMove(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("PLAYER.MOVE: call PLAYER.CREATE first")
 	}
-	dt := 1.0 / 60.0 // Fetch from context/time if possible, but fixed for now
+	m.syncKCCAmbientWater(id, ch)
+	dt := m.physicsFixedDt()
 	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
 		return value.Nil, err
 	}
@@ -137,9 +148,10 @@ func (m *Module) playerCharMoveDir(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("CHAR.MOVE: call PLAYER.CREATE / CHAR.MAKE first")
 	}
+	m.syncKCCAmbientWater(id, ch)
 	vx := dx * spd
 	vz := dz * spd
-	dt := 1.0 / 60.0
+	dt := m.physicsFixedDt()
 	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
 		return value.Nil, err
 	}
@@ -183,9 +195,10 @@ func (m *Module) playerMoveWithCamera(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
+	m.syncKCCAmbientWater(id, ch)
 	vx := (float64(fwd.X)*f + float64(right.X)*s) * spd
 	vz := (float64(fwd.Z)*f + float64(right.Z)*s) * spd
-	dt := 1.0 / 60.0
+	dt := m.physicsFixedDt()
 	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
 		return value.Nil, err
 	}
@@ -316,6 +329,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 		st.active = false
 		return value.Nil, nil
 	}
+	m.syncKCCAmbientWater(id, ch)
 	px, _, pz, ok := m.ent.PlayerBridgeWorldPos(id)
 	if !ok {
 		return value.Nil, nil
@@ -332,7 +346,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 			return value.Nil, nil
 		}
 		if math.Hypot(tx-px, tz-pz) <= st.chaseGap {
-			dt := 1.0 / 60.0
+			dt := m.physicsFixedDt()
 			_ = m.char.CharacterMoveXZVelocity(ch, 0, 0, dt)
 			x, y, z, ok2 := m.char.CharacterPosition(ch)
 			if ok2 {
@@ -353,9 +367,10 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 	dx := tx - px
 	dz := tz - pz
 	dist := math.Hypot(dx, dz)
-	if st.mode == kccNavPatrol {
+	switch st.mode {
+	case kccNavPatrol:
 		if dist <= st.arrival {
-			dt := 1.0 / 60.0
+			dt := m.physicsFixedDt()
 			_ = m.char.CharacterMoveXZVelocity(ch, 0, 0, dt)
 			x, y, z, ok2 := m.char.CharacterPosition(ch)
 			if ok2 {
@@ -364,9 +379,9 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 			st.patrolToB = !st.patrolToB
 			return value.Nil, nil
 		}
-	} else if st.mode == kccNavGoto {
+	case kccNavGoto:
 		if dist <= st.arrival {
-			dt := 1.0 / 60.0
+			dt := m.physicsFixedDt()
 			_ = m.char.CharacterMoveXZVelocity(ch, 0, 0, dt)
 			x, y, z, ok2 := m.char.CharacterPosition(ch)
 			if ok2 {
@@ -384,7 +399,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 	}
 	vx := (dx / dist) * spd
 	vz := (dz / dist) * spd
-	dt := 1.0 / 60.0
+	dt := m.physicsFixedDt()
 	if err := m.char.CharacterMoveXZVelocity(ch, vx, vz, dt); err != nil {
 		return value.Nil, err
 	}
@@ -482,7 +497,12 @@ func (m *Module) playerIsGrounded(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	now := float64(rl.GetTime())
+	var now float64
+	if m.h != nil {
+		if ph := mbphysics3d.GetModule(m.h); ph != nil {
+			now = ph.SimTimeSeconds()
+		}
+	}
 	if m.kccLastGroundedAt == nil {
 		m.kccLastGroundedAt = make(map[int64]float64)
 	}
@@ -842,7 +862,86 @@ func (m *Module) playerSetCrouch(args []value.Value) (value.Value, error) {
 			en = f != 0
 		}
 	}
-	if err := m.char.SetCharacterCrouch(ch, en); err != nil {
+	newH, err := m.char.SetCharacterCrouch(ch, en)
+	if err != nil {
+		return value.Nil, err
+	}
+	if newH != ch {
+		m.entToChar[id] = newH
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerSetJumpBuffer(args []value.Value) (value.Value, error) {
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.SETJUMPBUFFER: not available on this platform")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.SETJUMPBUFFER expects (entity, seconds#)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.SETJUMPBUFFER: invalid entity")
+	}
+	sec, ok := args[1].ToFloat()
+	if !ok || sec < 0 {
+		return value.Nil, fmt.Errorf("PLAYER.SETJUMPBUFFER: seconds must be >= 0")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETJUMPBUFFER: call PLAYER.CREATE first")
+	}
+	if err := m.char.SetCharacterJumpBuffer(ch, sec); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerSetAirControl(args []value.Value) (value.Value, error) {
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.SETAIRCONTROL: not available on this platform")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.SETAIRCONTROL expects (entity, scale#)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.SETAIRCONTROL: invalid entity")
+	}
+	s, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETAIRCONTROL: scale must be numeric")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETAIRCONTROL: call PLAYER.CREATE first")
+	}
+	if err := m.char.SetCharacterAirControl(ch, s); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerSetGroundControl(args []value.Value) (value.Value, error) {
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.SETGROUNDCONTROL: not available on this platform")
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("PLAYER.SETGROUNDCONTROL expects (entity, scale#)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.SETGROUNDCONTROL: invalid entity")
+	}
+	s, ok := args[1].ToFloat()
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETGROUNDCONTROL: scale must be numeric")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETGROUNDCONTROL: call PLAYER.CREATE first")
+	}
+	if err := m.char.SetCharacterGroundControl(ch, s); err != nil {
 		return value.Nil, err
 	}
 	return value.Nil, nil
@@ -869,10 +968,132 @@ func (m *Module) playerSwim(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("PLAYER.SWIM: call PLAYER.CREATE first")
 	}
 	on := buoy > 1e-9 || drag > 1e-9
+	if m.swimManual == nil {
+		m.swimManual = make(map[int64]bool)
+	}
+	m.swimManual[id] = on
 	if err := m.char.SetCharacterSwim(ch, buoy, drag, on); err != nil {
 		return value.Nil, err
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) playerSetVelocity(args []value.Value) (value.Value, error) {
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.SETVELOCITY: not available on this platform")
+	}
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("PLAYER.SETVELOCITY expects (entity, vx#, vy#, vz#)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.SETVELOCITY: invalid entity")
+	}
+	vx, _ := args[1].ToFloat()
+	vy, _ := args[2].ToFloat()
+	vz, _ := args[3].ToFloat()
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.SETVELOCITY: call PLAYER.CREATE first")
+	}
+	if err := m.char.SetCharacterLinearVelocity(ch, vx, vy, vz); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerAddImpulse(args []value.Value) (value.Value, error) {
+	if m.char == nil {
+		return value.Nil, fmt.Errorf("PLAYER.ADDIMPULSE: not available on this platform")
+	}
+	if len(args) != 4 {
+		return value.Nil, fmt.Errorf("PLAYER.ADDIMPULSE expects (entity, dvx#, dvy#, dvz#)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.ADDIMPULSE: invalid entity")
+	}
+	ix, _ := args[1].ToFloat()
+	iy, _ := args[2].ToFloat()
+	iz, _ := args[3].ToFloat()
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.ADDIMPULSE: call PLAYER.CREATE first")
+	}
+	cvx, cvy, cvz, ok := m.char.CharacterLinearVelocity(ch)
+	if !ok {
+		return value.Nil, fmt.Errorf("PLAYER.ADDIMPULSE: internal")
+	}
+	if err := m.char.SetCharacterLinearVelocity(ch, cvx+ix, cvy+iy, cvz+iz); err != nil {
+		return value.Nil, err
+	}
+	return value.Nil, nil
+}
+
+func (m *Module) playerGetSubmergedFraction(args []value.Value) (value.Value, error) {
+	if m.h == nil || m.ent == nil || m.char == nil {
+		return value.FromFloat(0), nil
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("PLAYER.GETSUBMERGEDFACTOR expects (entity)")
+	}
+	id, ok := m.playerEntID(args[0])
+	if !ok || id < 1 {
+		return value.Nil, fmt.Errorf("PLAYER.GETSUBMERGEDFACTOR: invalid entity")
+	}
+	ch, ok := m.entToChar[id]
+	if !ok {
+		return value.FromFloat(0), nil
+	}
+	x, y, z, ok := m.ent.PlayerBridgeWorldPos(id)
+	if !ok {
+		return value.FromFloat(0), nil
+	}
+	_, fh, ok2 := m.char.CharacterCapsuleDims(ch)
+	if !ok2 {
+		fh = playerCapsuleHeight
+	}
+	mnY := float32(y) - float32(fh)*0.5
+	mxY := float32(y) + float32(fh)*0.5
+	f := mwater.EntitySubmergedFraction(m.h, mnY, mxY, float32(x), float32(z))
+	return value.FromFloat(float64(f)), nil
+}
+
+func (m *Module) playerIsSubmerged(args []value.Value) (value.Value, error) {
+	v, err := m.playerGetSubmergedFraction(args)
+	if err != nil {
+		return value.Nil, err
+	}
+	f, ok := v.ToFloat()
+	if !ok {
+		return value.FromBool(false), nil
+	}
+	return value.FromBool(f > 0.45), nil
+}
+
+func (m *Module) syncKCCAmbientWater(id int64, ch heap.Handle) {
+	if m.char == nil || m.ent == nil || m.h == nil {
+		return
+	}
+	if m.swimManual != nil && m.swimManual[id] {
+		return
+	}
+	x, y, z, ok := m.ent.PlayerBridgeWorldPos(id)
+	if !ok {
+		return
+	}
+	_, fh, ok2 := m.char.CharacterCapsuleDims(ch)
+	if !ok2 {
+		fh = playerCapsuleHeight
+	}
+	mnY := float32(y) - float32(fh)*0.5
+	mxY := float32(y) + float32(fh)*0.5
+	frac := mwater.EntitySubmergedFraction(m.h, mnY, mxY, float32(x), float32(z))
+	if frac <= 0.02 {
+		_ = m.char.SetCharacterSwim(ch, 0, 0, false)
+		return
+	}
+	_ = m.char.SetCharacterSwim(ch, float64(frac)*0.75, float64(frac)*1.85, true)
 }
 
 func (m *Module) playerSetStepOffset(args []value.Value) (value.Value, error) {

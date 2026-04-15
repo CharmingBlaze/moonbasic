@@ -307,6 +307,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`BNOT`** - args: any
 
+### BODY
+
+- **`BODY3D.LOCKAXIS`** - args: handle, int — Lock motion/rotation axes (flags: 1=X, 2=Y, 4=Z, 8=RotX, 16=RotY, 32=RotZ).
+- **`BODY3D.SETCCD`** - args: handle, bool — Enable/disable Continuous Collision Detection.
+- **`BODY3D.SETDAMPING`** - args: handle, float, float — Set linear and angular damping.
+- **`BODY3D.SETGRAVITYFACTOR`** - args: handle, float — Set gravity multiplier (0.0 = weightless).
+
 ### BODY2D
 
 - **`BODY2D.ADDCIRCLE`** - args: handle, float
@@ -492,6 +499,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.PICK`** - args: handle, float, float -> returns handle
 - **`CAMERA.POINTATENTITY`** - args: handle, int — Alias of CAMERA.LOOKATENTITY
 - **`CAMERA.PROJECT`** - args: handle, float, float, float -> returns handle — Alias of CAMERA.WORLDTOSCREEN â€” world point to screen [sx,sy]
+- **`CAMERA.RAYCASTMOUSE`** - args: handle -> returns int — Raycast from mouse through camera; returns entity id or 0.
 - **`CAMERA.ROTATE`** - args: handle, float, float, float
 - **`CAMERA.SETACTIVE`** - args: handle
 - **`CAMERA.SETFOV`** - args: handle, float
@@ -590,13 +598,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CHAR
 
 - **`CHAR.DIST`** - args: int, int -> returns float — Alias of ENTITY.DIST — distance between two entities
+- **`CHAR.GETCEILING`** - args: int -> returns bool — Alias of PLAYER.GETCEILING
 - **`CHAR.GETCOLLISIONENABLED`** - args: int -> returns bool
 - **`CHAR.GETFRICTION`** - args: int -> returns float
 - **`CHAR.GETGRAVITYSCALE`** - args: int -> returns float
 - **`CHAR.GETGROUNDSTATE`** - args: int -> returns int — Alias of PLAYER.GETGROUNDSTATE
+- **`CHAR.GETGROUNDVELOCITYX`** - args: int -> returns float
+- **`CHAR.GETGROUNDVELOCITYY`** - args: int -> returns float
+- **`CHAR.GETGROUNDVELOCITYZ`** - args: int -> returns float
 - **`CHAR.GETHEIGHT`** - args: int -> returns float
 - **`CHAR.GETISFALLING`** - args: int -> returns bool
 - **`CHAR.GETISJUMPING`** - args: int -> returns bool
+- **`CHAR.GETISSLIDING`** - args: int -> returns bool — Alias of PLAYER.GETISSLIDING
 - **`CHAR.GETLAYER`** - args: int -> returns int
 - **`CHAR.GETMASK`** - args: int -> returns int
 - **`CHAR.GETMAXSLOPE`** - args: int -> returns float
@@ -636,12 +649,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHAR.SETSLOPE`** - args: int, float — Alias of PLAYER.SETSLOPELIMIT
 - **`CHAR.SETSTEP`** - args: int, float — Alias of PLAYER.SETSTEPOFFSET / stair step-up height
 - **`CHAR.STICK`** - args: int, float — Alias of PLAYER.SETSTICKFLOOR — glue to floor within max step down (world units)
-- **`CHAR.UPDATE`** - args: float — Update kinematic character solver with delta time (Host-falling logic)
+- **`CHAR.UPDATE`** - args: float — Update kinematic character solver with delta time (legacy; prefer CHARACTERREF.UPDATE / UPDATEPHYSICS)
 
 ### CHARACTER
 
-- **`CHARACTER.CREATE`** - args: float, float, float -> returns handle — Standalone kinematic character at (x, y, z): host KCC (e.g. Windows fullruntime) assigns a virtual id (negative int). Linux+CGO: use (entity, radius, height) or position an entity first — three floats are not standalone there.
-- **`CHARACTER.CREATE`** - args: any, float, float -> returns handle — Entity-bound capsule: (visualEntity, radius, height). Linux+CGO: Jolt CharacterVirtual. Host: iterative KCC bound to the entity.
+- **`CHARACTER.CREATE`** - args: any, float, float -> returns handle — Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.
 - **`CHARACTERREF.SETFRICTION`** - args: handle, float — Kinematic sliding friction (0..1).
 - **`CHARACTERREF.SETGRAVITY`** - args: handle, float — Gravity multiplier for this character (default 1.0).
 - **`CHARACTERREF.SETPOSITION`** - args: handle, float, float, float — Teleports the character capsule to a new world position.
@@ -650,6 +662,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CHARACTERREF
 
 - **`CHARACTERREF.ADDVELOCITY`** - args: handle, float, float, float — Accumulates world-space velocity (m/s).
+- **`CHARACTERREF.GETCEILING`** - args: handle -> returns bool — True if ceiling/head contact detected on last move
+- **`CHARACTERREF.GETGROUNDVELOCITY`** - args: handle -> returns handle — Returns [vx,vy,vz] array for ground/platform velocity (same as CHARCONTROLLER.GETGROUNDVELOCITY)
+- **`CHARACTERREF.GETISSLIDING`** - args: handle -> returns bool — True on steep-ground sliding (Jolt ground state)
 - **`CHARACTERREF.GETPOSITION`** - args: handle -> returns array — Returns [x, y, z] position of the character capsule.
 - **`CHARACTERREF.GETSLOPEANGLE`** - args: handle -> returns float — Current surface normal slope angle in degrees.
 - **`CHARACTERREF.GETSPEED`** - args: handle -> returns float — Current scalar speed (m/s).
@@ -658,6 +673,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHARACTERREF.MOVE`** - args: handle, float, float, float — Translate character position by (dx, dy, dz); bypasses velocity integration.
 - **`CHARACTERREF.ONSLOPE`** - args: handle -> returns bool — True if standing on a floor steeper than epsilon.
 - **`CHARACTERREF.ONWALL`** - args: handle -> returns bool — True if colliding with vertical or steep geometry.
+- **`CHARACTERREF.SETAIRCONTROL`** - args: handle, float — Scales horizontal move input while airborne
+- **`CHARACTERREF.SETGROUNDCONTROL`** - args: handle, float — Scales horizontal move input while on ground
+- **`CHARACTERREF.SETJUMPBUFFER`** - args: handle, float — Jump buffer window (seconds) for CHARACTERREF.JUMP while airborne
 - **`CHARACTERREF.SETMAXSLOPE`** - args: handle, float — Maximum walkable slope angle in degrees.
 - **`CHARACTERREF.SETSNAPDISTANCE`** - args: handle, float — Stick-to-ground snap distance (m).
 - **`CHARACTERREF.SETSTEPHEIGHT`** - args: handle, float — Maximum height character can step up onto (m).
@@ -666,6 +684,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### CHARCONTROLLER
 
+- **`CHARACTERREF.DRAINCONTACTS`** - args: handle -> returns handle — Drain pending contact events from a KCC; returns array of contact info.
+- **`CHARACTERREF.FREE`** - args: handle — Destroy a Kinematic Character Controller.
+- **`CHARACTERREF.SETCONTACTLISTENER`** - args: handle, string — Set a callback function name to be called on KCC contact events.
 - **`CHARCONTROLLER.FREE`** - args: handle
 - **`CHARCONTROLLER.GETGROUNDNORMAL`** - args: handle -> returns handle — Ground contact normal [nx, ny, nz]; stub returns up or zero when airborne
 - **`CHARCONTROLLER.GETGROUNDVELOCITY`** - args: handle -> returns handle — Velocity projected to ground plane (Jolt CharacterVirtual.GetGroundVelocity)
@@ -2383,6 +2404,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`JOIN$`** - args: handle, string -> returns string
 
+### JOINT
+
+- **`JOINT.CREATEHINGE`** - args: handle, handle, float, float, float, float, float, float — Create a hinge joint (b1, b2, px, py, pz, ax, ay, az).
+
 ### JOINT2D
 
 - **`JOINT2D.DISTANCE`** - args: handle, handle, float, float, float, float -> returns handle
@@ -3399,18 +3424,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AERO.SETTHRUST`** - args: handle, float — Apply local Z-axis thrust power.
 - **`BODY3D.APPLYTORQUE`** - args: handle, float, float, float
 - **`BODY3D.GETANGULARVEL`** - args: handle -> returns handle
+- **`BODY3D.GETLINEARVEL`** - args: handle -> returns handle — Get linear velocity as a 3-element array (alias of BODY3D.GETVELOCITY).
 - **`BODY3D.GETMASS`** - args: handle -> returns float
 - **`BODY3D.GETVELOCITY`** - args: handle -> returns handle — Get linear velocity as a 3-element numeric array.
-- **`BODY3D.LOCKAXIS`** - args: handle, int — Locks translation/rotation for a body. axis_flags: 1=X, 2=Y, 4=Z (linear), 8, 16, 32 (angular).
 - **`BODY3D.SETANGULARVEL`** - args: handle, float, float, float
-- **`BODY3D.SETCCD`** - args: handle, bool — Enables/disables Continuous Collision Detection for fast moving objects.
-- **`BODY3D.SETDAMPING`** - args: handle, float, float — Sets linear and angular damping (air resistance).
-- **`BODY3D.SETGRAVITYFACTOR`** - args: handle, float
 - **`BODY3D.SETVELOCITY`** - args: handle, float, float, float — Set linear velocity.
+- **`BODYREF.FREE`** - args: handle — Destroy a physics body (handle method).
 - **`BODYREF.GETPOSITION`** - args: handle -> returns handle
 - **`BODYREF.GETROTATION`** - args: handle -> returns handle
 - **`BODYREF.GETVELOCITY`** - args: handle -> returns handle
 - **`BODYREF.SETVELOCITY`** - args: handle, float, float, float
+- **`DEBUG.DRAWBODY`** - args: any — Debug draw a physics body wireframe (no-op on stub builds).
+- **`DEBUG.DRAWCHARACTER`** - args: any — Debug draw a KCC capsule (no-op on stub builds).
 - **`JOINT.CREATEHINGE`** - args: handle, handle, float, float, float, float, float, float -> returns handle — Creates a hinge joint between two bodies at (px,py,pz) around axis (ax,ay,az).
 - **`JOINT.CREATEPOINT`** - args: handle, handle, float, float, float -> returns handle — Creates a point-to-point (ball and socket) joint between two bodies at (px,py,pz).
 - **`JOINT.FREE`** - args: handle — Destroys a physics joint/constraint.
@@ -3419,6 +3444,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS.BUILD`** - args: int, float — Modular building: Finalizes and commits the physics body with given mass.
 - **`PHYSICS.FORCE`** - args: int, float, float, float — Entity-First: Applies a continuous force to an entity's physics body.
 - **`PHYSICS.FRICTION`** - args: int, float — Modular building: Sets friction for a pending physics body.
+- **`PHYSICS.GETGRAVITYX`** - args: (none) -> returns float — Get gravity X (alias of PHYSICS3D.GETGRAVITYX).
+- **`PHYSICS.GETGRAVITYY`** - args: (none) -> returns float — Get gravity Y (alias of PHYSICS3D.GETGRAVITYY).
+- **`PHYSICS.GETGRAVITYZ`** - args: (none) -> returns float — Get gravity Z (alias of PHYSICS3D.GETGRAVITYZ).
 - **`PHYSICS.GRAVITY`** - args: int, float — Entity-First: Scale the gravity factor for a specific entity (e.g. 0.0 for zero-g).
 - **`PHYSICS.IMPULSE`** - args: int, float, float, float — Entity-First: Applies an instant impulse to an entity's physics body.
 - **`PHYSICS.IMPULSE`** - args: int, float, float, float — Entity-First: Applies an impulse to an entity's physics body.
@@ -3428,9 +3456,16 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS.VELOCITY`** - args: int, float, float, float — Entity-First: Sets the linear velocity of an entity's physics body.
 - **`PHYSICS.WAKE`** - args: int — Entity-First: Forces a sleeping physics body to wake up.
 - **`PHYSICS3D.DEBUGDRAW`** - args: int
+- **`PHYSICS3D.GETGRAVITYX`** - args: (none) -> returns float — Get current gravity X component.
+- **`PHYSICS3D.GETGRAVITYY`** - args: (none) -> returns float — Get current gravity Y component.
+- **`PHYSICS3D.GETGRAVITYZ`** - args: (none) -> returns float — Get current gravity Z component.
+- **`PHYSICS3D.GETMATRIXBUFFER`** - args: (none) -> returns handle — Get the shared matrix buffer for render interpolation.
+- **`PHYSICS3D.GETSCRATCHFLOAT`** - args: int -> returns float — Read a scratch float from the physics scratch buffer.
+- **`PHYSICS3D.MOUSEHIT`** - args: handle -> returns handle — Raycast from mouse through camera; returns [x,y,z] array or nil.
 - **`PHYSICS3D.ONCOLLISION`** - args: handle, handle, string
 - **`PHYSICS3D.ONCOLLISION`** - args: handle, handle, string
 - **`PHYSICS3D.PROCESSCOLLISIONS`** - args: (none)
+- **`PHYSICS3D.PROCESSCOLLISIONS`** - args: (none) — Drain pending collision events from the physics world.
 - **`PHYSICS3D.RAYCAST`** - args: float, float, float, float, float, float, float -> returns handle
 - **`PHYSICS3D.SETGRAVITY`** - args: float, float, float
 - **`PHYSICS3D.SETGRAVITY`** - args: float, float, float
@@ -3442,6 +3477,33 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS3D.STEP`** - args: (none)
 - **`PHYSICS3D.STOP`** - args: (none)
 - **`PHYSICS3D.STOP`** - args: (none)
+- **`PHYSICS3D.SYNCWASMTOPHYSREGS`** - args: int, int — Sync WASM physics view to VM registers (count, firstReg).
+- **`PICK.CAST`** - args: (none) -> returns int — Execute a raycast with current PICK settings; returns entity id or 0.
+- **`PICK.DIRECTION`** - args: float, float, float — Set ray direction for the next PICK.CAST (dx, dy, dz).
+- **`PICK.DIST`** - args: (none) -> returns float — Get distance from ray origin to last PICK hit.
+- **`PICK.ENTITY`** - args: (none) -> returns int — Get entity id of last PICK hit (0 = no hit).
+- **`PICK.FROMCAMERA`** - args: handle, float, float — Set PICK origin/direction from a camera at screen (x, y).
+- **`PICK.HIT`** - args: (none) -> returns bool — True if last PICK.CAST hit something.
+- **`PICK.LAYERMASK`** - args: int — Set collision layer bitmask filter for PICK.CAST (0 = all).
+- **`PICK.MAXDIST`** - args: float — Set maximum ray distance for PICK.CAST.
+- **`PICK.NX`** - args: (none) -> returns float — Get surface normal X of last PICK hit.
+- **`PICK.NY`** - args: (none) -> returns float — Get surface normal Y of last PICK hit.
+- **`PICK.NZ`** - args: (none) -> returns float — Get surface normal Z of last PICK hit.
+- **`PICK.ORIGIN`** - args: float, float, float — Set ray origin for the next PICK.CAST (x, y, z).
+- **`PICK.RADIUS`** - args: float — Set sphere pick radius (0 = line ray).
+- **`PICK.SCREENCAST`** - args: handle, float, float -> returns int — PICK.FROMCAMERA + PICK.CAST in one call.
+- **`PICK.X`** - args: (none) -> returns float — Get X of last PICK hit point.
+- **`PICK.Y`** - args: (none) -> returns float — Get Y of last PICK hit point.
+- **`PICK.Z`** - args: (none) -> returns float — Get Z of last PICK hit point.
+- **`SHAPE.GETDEPTH`** - args: handle -> returns float — Get shape dimension 3 (half-extent Z).
+- **`SHAPE.GETHEIGHT`** - args: handle -> returns float — Get shape dimension 2 (half-extent Y or height).
+- **`SHAPE.GETRADIUS`** - args: handle -> returns float — Get shape radius (same as SHAPE.GETWIDTH for spheres).
+- **`SHAPE.GETSIZEX`** - args: handle -> returns float — Get shape X dimension.
+- **`SHAPE.GETSIZEY`** - args: handle -> returns float — Get shape Y dimension.
+- **`SHAPE.GETSIZEZ`** - args: handle -> returns float — Get shape Z dimension.
+- **`SHAPE.GETTYPE`** - args: handle -> returns int — Get the shape type (1=Box, 2=Sphere, 3=Capsule, 4=Cylinder).
+- **`SHAPE.GETWIDTH`** - args: handle -> returns float — Get shape dimension 1 (half-extent X or radius).
+- **`SHAPEREF.FREE`** - args: handle — Destroy a collision shape.
 - **`VEHICLE.CONTROL`** - args: int, float, float, float — Update all vehicle inputs (vid, throttle, steer, brake).
 - **`VEHICLE.CREATE`** - args: int, int -> returns int — Create a vehicle controller for an entity.
 - **`VEHICLE.SETSTEER`** - args: int, float — Set vehicle steering (-1 to 1).
@@ -3452,6 +3514,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`VEHICLE.WHEELX`** - args: int, int -> returns float
 - **`VEHICLE.WHEELY`** - args: int, int -> returns float
 - **`VEHICLE.WHEELZ`** - args: int, int -> returns float
+- **`WORLD.MOUSEPICK`** - args: handle -> returns int — Alias of WORLD.MOUSETOENTITY.
+- **`WORLD.MOUSETOENTITY`** - args: handle -> returns int — Raycast from mouse through camera; returns entity id or 0.
+- **`WORLD.SETGRAVITY`** - args: float, float, float — Set world gravity vector (alias of PHYSICS3D.SETGRAVITY).
+- **`WORLD.SETUP`** - args: (none) — Initialise physics world with default gravity (-9.81).
+- **`WORLD.SETUP`** - args: float — Initialise physics world with custom Y gravity.
 
 ### PI
 
@@ -3483,6 +3550,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### PLAYER
 
+- **`PLAYER.ADDIMPULSE`** - args: int, float, float, float — Adds to KCC linear velocity (velocity delta; no separate mass impulse)
 - **`PLAYER.CREATE`** - args: int
 - **`PLAYER.CREATE`** - args: handle — Initializes a Kinematic Character Controller in the Jolt buffer.
 - **`PLAYER.CREATE`** - args: int, float, float — KCC with explicit capsule radius and height (world units)
@@ -3490,10 +3558,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.GETCAPSULEHEIGHT`** - args: int -> returns float
 - **`PLAYER.GETCAPSULERADIUS`** - args: (none) -> returns float — Alias of PLAYER.GETRADIUS ()
 - **`PLAYER.GETCAPSULERADIUS`** - args: int -> returns float
+- **`PLAYER.GETCEILING`** - args: int -> returns bool — True if last integration saw a strong ceiling contact (head bump)
 - **`PLAYER.GETCOLLISIONENABLED`** - args: int -> returns bool — Reserved; returns true
 - **`PLAYER.GETCROUCH`** - args: int -> returns bool — Stored crouch flag (capsule resize not in Jolt wrapper yet)
 - **`PLAYER.GETFOVKICK`** - args: int -> returns float — Reads stored FOV kick offset (degrees)
-- **`PLAYER.GETFRICTION`** - args: int -> returns float — Gameplay friction (CHARACTERREF.SETFRICTION); host KCC returns 0.5 stub
+- **`PLAYER.GETFRICTION`** - args: int -> returns float — Gameplay friction (CHARACTERREF.SETFRICTION)
 - **`PLAYER.GETGRAVITY`** - args: (none) -> returns float — Alias of PLAYER.GETGRAVITYSCALE (per-entity gravity scale, not world gravity)
 - **`PLAYER.GETGRAVITY`** - args: int -> returns float
 - **`PLAYER.GETGRAVITYSCALE`** - args: int -> returns float
@@ -3501,18 +3570,22 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.GETGROUNDED`** - args: int -> returns bool
 - **`PLAYER.GETGROUNDED`** - args: int, float -> returns bool — Coyote time variant (Linux+Jolt)
 - **`PLAYER.GETGROUNDSTATE`** - args: (none) -> returns int — Implicit KCC subject (see PLAYER.ISGROUNDED ())
-- **`PLAYER.GETGROUNDSTATE`** - args: int -> returns int — Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir (host KCC approximates 0 or 3)
+- **`PLAYER.GETGROUNDSTATE`** - args: int -> returns int — Jolt EGroundState: 0 OnGround, 1 OnSteepGround, 2 NotSupported, 3 InAir
+- **`PLAYER.GETGROUNDVELOCITYX`** - args: int -> returns float — Ground/platform velocity X (Jolt GetGroundVelocity)
+- **`PLAYER.GETGROUNDVELOCITYY`** - args: int -> returns float — Ground/platform velocity Y (Jolt GetGroundVelocity)
+- **`PLAYER.GETGROUNDVELOCITYZ`** - args: int -> returns float — Ground/platform velocity Z (Jolt GetGroundVelocity)
 - **`PLAYER.GETHEIGHT`** - args: int -> returns float — Capsule total height
 - **`PLAYER.GETISFALLING`** - args: int -> returns bool
 - **`PLAYER.GETISJUMPING`** - args: int -> returns bool
-- **`PLAYER.GETLAYER`** - args: int -> returns int — Reserved; returns 0
+- **`PLAYER.GETISSLIDING`** - args: int -> returns bool — True when Jolt CharacterVirtual ground state is steep/slide
+- **`PLAYER.GETLAYER`** - args: int -> returns int — KCC object layer id (Jolt CHARACTER layer = 2)
 - **`PLAYER.GETLOOKTARGET`** - args: int, float -> returns int
-- **`PLAYER.GETMASK`** - args: int -> returns int — Reserved; returns 0
+- **`PLAYER.GETMASK`** - args: int -> returns int — Bitmask of object layers (0..4); typical full mask 31
 - **`PLAYER.GETMAXSLOPE`** - args: int -> returns float — Configured max walk slope (degrees)
 - **`PLAYER.GETNEARBY`** - args: int, float, string -> returns handle
 - **`PLAYER.GETONSLOPE`** - args: (none) -> returns bool — Implicit KCC subject — steep slope (Jolt OnSteepGround)
 - **`PLAYER.GETONSLOPE`** - args: int -> returns bool — Alias of PLAYER.ISONSTEEPSLOPE
-- **`PLAYER.GETONWALL`** - args: int -> returns bool — Jolt ground state NotSupported (vertical contact); false on host KCC
+- **`PLAYER.GETONWALL`** - args: int -> returns bool — Jolt ground state NotSupported (vertical contact)
 - **`PLAYER.GETPITCH`** - args: (none) -> returns float — Alias of PLAYER.GETROTATIONPITCH ()
 - **`PLAYER.GETPITCH`** - args: int -> returns float
 - **`PLAYER.GETPOSITIONX`** - args: (none) -> returns float — Implicit KCC subject — same as Player.GetPositionX() with no args
@@ -3527,14 +3600,15 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.GETROTATIONPITCH`** - args: int -> returns float — Entity world pitch (degrees), same basis as ENTITY.ENTITYPITCH
 - **`PLAYER.GETROTATIONROLL`** - args: int -> returns float
 - **`PLAYER.GETROTATIONYAW`** - args: int -> returns float
-- **`PLAYER.GETSHAPETYPE`** - args: (none) -> returns string — Returns "capsule" for CharacterVirtual / host KCC
+- **`PLAYER.GETSHAPETYPE`** - args: (none) -> returns string — Returns "capsule" for CharacterVirtual
 - **`PLAYER.GETSHAPETYPE`** - args: int -> returns string
-- **`PLAYER.GETSLOPEANGLE`** - args: int -> returns float — Ground tilt from vertical (degrees) on walkable floor; 0 on host KCC
+- **`PLAYER.GETSLOPEANGLE`** - args: int -> returns float — Ground tilt from vertical (degrees) on walkable floor
 - **`PLAYER.GETSNAPDISTANCE`** - args: int -> returns float — Stick-to-floor max step down (positive); host uses CHAR.STICK or stepH+0.2
 - **`PLAYER.GETSPEED`** - args: (none) -> returns float — Implicit KCC subject — same as Player.GetSpeed(entity)
 - **`PLAYER.GETSPEED`** - args: int -> returns float — Scalar speed (m/s)
 - **`PLAYER.GETSTANDNORMAL`** - args: int -> returns handle — Vec3 ground/floor normal under the player (CharacterVirtual or downward ray)
 - **`PLAYER.GETSTEPHEIGHT`** - args: int -> returns float — Stair step-up height (WalkStairsStepUp Y on Jolt)
+- **`PLAYER.GETSUBMERGEDFACTOR`** - args: int -> returns float — 0..1 fraction of capsule height below WATER surface (requires WATER.* volumes)
 - **`PLAYER.GETSURFACETYPE`** - args: int -> returns string — Footstep label from downward ray hit entity metadata / Blender tag (else Default)
 - **`PLAYER.GETVELOCITY`** - args: int -> returns handle — Heap vec3 of linear velocity (CharacterVirtual); requires PLAYER.CREATE
 - **`PLAYER.GETVELOCITYX`** - args: int -> returns float — Linear velocity X (m/s); requires PLAYER.CREATE / CHAR.MAKE
@@ -3552,12 +3626,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.GETZ`** - args: (none) -> returns float — Alias of PLAYER.GETPOSITIONZ ()
 - **`PLAYER.GETZ`** - args: int -> returns float
 - **`PLAYER.GRAB`** - args: int, int — Welds target to player front each frame (target 0 releases); not a Jolt fixed constraint yet
-- **`PLAYER.ISGROUNDED`** - args: (none) -> returns bool — Implicit KCC subject: the last PLAYER.CREATE / Character.Create capsule (standalone virtual id on host)
+- **`PLAYER.ISGROUNDED`** - args: (none) -> returns bool — Implicit KCC subject: the last PLAYER.CREATE / Character.Create capsule (entity-bound Jolt KCC)
 - **`PLAYER.ISGROUNDED`** - args: int -> returns bool
 - **`PLAYER.ISGROUNDED`** - args: int, float -> returns bool — Optional coyote time (seconds): true shortly after leaving ground
 - **`PLAYER.ISMOVING`** - args: int -> returns bool — True if horizontal linear speed > ~0.05 (CharacterVirtual)
 - **`PLAYER.ISONSTEEPSLOPE`** - args: (none) -> returns bool — Implicit KCC subject (see PLAYER.ISGROUNDED ())
-- **`PLAYER.ISONSTEEPSLOPE`** - args: int -> returns bool — True if GetGroundState is OnSteepGround (Linux+Jolt); always false on host KCC
+- **`PLAYER.ISONSTEEPSLOPE`** - args: int -> returns bool — True if GetGroundState is OnSteepGround (Jolt CharacterVirtual)
+- **`PLAYER.ISSUBMERGED`** - args: int -> returns bool — True when GETSUBMERGEDFACTOR exceeds ~45%
 - **`PLAYER.ISSWIMMING`** - args: int -> returns bool — True when entity origin is inside a WATER volume column (bed..surface)
 - **`PLAYER.JUMP`** - args: int, float
 - **`PLAYER.MOVE`** - args: int, float, float
@@ -3569,9 +3644,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.NAVUPDATE`** - args: int — Advances PLAYER.NAVTO / CHAR.NAVTO toward target with soft deceleration (Linux+CGO)
 - **`PLAYER.ONTRIGGER`** - args: int, string
 - **`PLAYER.PUSH`** - args: int, int, float — Applies forward horizontal force to target entity (host ENTITY.ADDFORCE path; scaled by player mass)
+- **`PLAYER.SETAIRCONTROL`** - args: int, float — Scales horizontal PLAYER.MOVE input while airborne (1 = default)
 - **`PLAYER.SETCROUCH`** - args: int, any — Sets crouch flag (gameplay; capsule height unchanged until wrapper supports it)
 - **`PLAYER.SETFOVKICK`** - args: int, float — Stores extra FOV degrees; add Camera.SetFOV(base + Player.GetFovKick(id)) each frame
 - **`PLAYER.SETGRAVITYSCALE`** - args: int, float — Scales CharacterVirtual gravity on Y (1=default; moon-jump / low-G zones)
+- **`PLAYER.SETGROUNDCONTROL`** - args: int, float — Scales horizontal PLAYER.MOVE input while on ground (1 = default)
+- **`PLAYER.SETJUMPBUFFER`** - args: int, float — Jump buffer window (seconds) when jump pressed in air; consumed on landing
 - **`PLAYER.SETMASS`** - args: int, float — Stores gameplay mass (PLAYER.Push scaling); Jolt capsule mass is fixed at create
 - **`PLAYER.SETPADDING`** - args: int, float — Character capsule skin padding (world units, >0); rebuilds CharacterVirtual (Linux+CGO)
 - **`PLAYER.SETSLOPELIMIT`** - args: int, float — Rebuilds CharacterVirtual with MaxSlopeAngle = angle (degrees); requires PLAYER.CREATE (Linux+Jolt)
@@ -3579,11 +3657,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PLAYER.SETSTEPHEIGHT`** - args: int, float — Stores max stair/curb step height for the player entity (reserved; Jolt runtime step tuning not exposed yet)
 - **`PLAYER.SETSTEPOFFSET`** - args: int, float — Alias of PLAYER.SETSTEPHEIGHT; maps to Jolt ExtendedUpdate WalkStairsStepUp (Linux+CGO)
 - **`PLAYER.SETSTICKFLOOR`** - args: int, float — Stick-to-floor max step down (world units); Jolt CharacterVirtual ExtendedUpdateSettings (Linux+CGO)
+- **`PLAYER.SETVELOCITY`** - args: int, float, float, float — Sets KCC linear velocity (m/s); alias for CHARACTERREF.SETLINEARVELOCITY
 - **`PLAYER.SNAPTOGROUND`** - args: int, handle, float — Sets entity Y from terrain height at entity XZ + offset (PLAYER.CREATE syncs capsule on Linux+Jolt)
 - **`PLAYER.SWIM`** - args: int, float, float — Swim mode: buoyancy reduces downward gravity; drag damps horizontal motion; (0,0) disables
 - **`PLAYER.SYNCANIM`** - args: int, any
 - **`PLAYER.TELEPORT`** - args: int, float, float, float — Snaps capsule and entity to (x,y,z), clears linear velocity (no smoothing)
-- **`PLAYER.UPDATE`** - args: float — Update kinematic character solver with delta time (Host-falling logic)
+- **`PLAYER.UPDATE`** - args: float — Update kinematic character solver with delta time (legacy; prefer CHARACTERREF.UPDATE / UPDATEPHYSICS)
 
 ### PLAYER2D
 

@@ -59,11 +59,11 @@ hero.SetCollisionMesh()
 
 ## Platform Notes
 
-| Feature | Windows | Linux |
-|---------|---------|-------|
-| Automated Baking | Supported (Stub) | Supported (Jolt) |
-| Performance | Host-side optimization | Native Jolt performance |
-| Stability | Verified | High Fidelity |
+| Feature | Windows + Linux (CGO + Jolt) | Stub / no Jolt |
+|---------|-------------------------------|----------------|
+| Automated Baking | Jolt collision pipeline where enabled | Limited / errors |
+| Performance | Native Jolt | N/A |
+| Stability | Same code path on both desktop OSes | Compile-safe stubs |
 
 ---
 

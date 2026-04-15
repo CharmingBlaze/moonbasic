@@ -153,7 +153,7 @@ func (m *Module) entPhysicsAuto(args []value.Value) (value.Value, error) {
 	allowedDOFs := 0
 	if motion == jolt.MotionTypeDynamic && typ == "CAPSULE" {
 		// World-space translation + yaw only — stops capsule tipping like a bowling pin.
-		allowedDOFs = jolt.AllowedDOFsPlatformer
+		allowedDOFs = jolt.AllowedDOFsPlaneXZ
 	}
 
 	// 1. Create Builder
