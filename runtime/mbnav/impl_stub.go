@@ -50,7 +50,8 @@ func (m *Module) navGetPathTerrain(args []value.Value) (value.Value, error) {
 func (m *Module) navIsReachableTerrain(args []value.Value) (value.Value, error) {
 	return navStub("NAV.ISREACHABLE")(args)
 }
-func (m *Module) enemyFollowPath(args []value.Value) (value.Value, error) {
+func (m *Module) enemyFollowPath(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
 	return navStub("ENEMY.FOLLOWPATH")(args)
 }
 func (m *Module) pathIsValid(args []value.Value) (value.Value, error) {

@@ -2,12 +2,7 @@
 
 package input
 
-import (
-	"fmt"
-
-	"moonbasic/runtime"
-	"moonbasic/vm/value"
-)
+import "moonbasic/vm/value"
 
 const hint = "INPUT.* requires CGO: set CGO_ENABLED=1 and install a C compiler, then rebuild"
 
@@ -25,8 +20,8 @@ func (m *Module) inKeyReleased(args []value.Value) (value.Value, error) {
 	return value.FromBool(false), nil
 }
 
-func (m *Module) inGetKeyName(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return rt.RetString(""), nil
+func (m *Module) inGetKeyName(args []value.Value) (value.Value, error) {
+	return value.Nil, nil
 }
 
 func (m *Module) inGetInactivity(args []value.Value) (value.Value, error) {

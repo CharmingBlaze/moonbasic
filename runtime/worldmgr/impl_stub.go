@@ -46,7 +46,7 @@ func worldPreload(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 }
 
 func worldStatus(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return rt.RetString("stubs-only")
+	return value.Nil, nil
 }
 
 func worldIsReady(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

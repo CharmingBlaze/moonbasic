@@ -5,13 +5,11 @@ package input
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
 
-func (m *Module) movement2D(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	_ = rt
+func (m *Module) movement2D(args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("INPUT.MOVEMENT2D: heap not bound")
 	}

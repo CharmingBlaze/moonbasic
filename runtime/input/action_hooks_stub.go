@@ -23,5 +23,17 @@ func (actionQuery) gamepadAxis(pad, axis int32) float32 {
 	_, _ = pad, axis
 	return 0
 }
+func (actionQuery) mousePressed(btn int32) bool {
+	_ = btn
+	return false
+}
+func (actionQuery) mouseDown(btn int32) bool {
+	_ = btn
+	return false
+}
+func (actionQuery) mouseReleased(btn int32) bool {
+	_ = btn
+	return false
+}
 
 func actionQueries() actionQuery { return actionQuery{} }

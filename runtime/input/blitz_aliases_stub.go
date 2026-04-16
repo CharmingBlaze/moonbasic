@@ -3,7 +3,6 @@
 package input
 
 import (
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
@@ -32,10 +31,10 @@ func (m *Module) inKeyUp(args []value.Value) (value.Value, error) { return value
 
 func (m *Module) inAxis(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
 
-func (m *Module) inputMouseDelta(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return allocInputTuple2(nil, 0, 0)
+func (m *Module) inputMouseDelta(args []value.Value) (value.Value, error) {
+	return value.Nil, nil
 }
 
-func (m *Module) inputMoveDir(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return allocInputTuple2(nil, 0, 0)
+func (m *Module) inputMoveDir(args []value.Value) (value.Value, error) {
+	return value.Nil, nil
 }
