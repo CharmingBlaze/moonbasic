@@ -1,71 +1,72 @@
 ; MoonBASIC Jet Demo
 ; Aerodynamics: AERO lift/thrust/drag on a BODY3D
 ; W/S thrust, Arrows pitch, A/D roll, Q/E yaw, ESC quit
+; Run: go run -tags fullruntime . --run examples/demo_jet.mb
 
-Window.Open(1280, 720, "MoonBASIC Jet Demo")
-Window.SetFPS(60)
+WINDOW.OPEN(1280, 720, "MoonBASIC Jet Demo")
+WINDOW.SETFPS(60)
 
-Physics3D.Start()
-Physics3D.SetGravity(0, -9.81, 0)
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -9.81, 0)
 
 ; --- Ground ---
-bf = Body3D.Create("STATIC")
-Body3D.AddBox(bf, 100, 0.5, 100)
-ground = Body3D.Commit(bf, 0, 0, 0)
+bf = BODY3D.CREATE("STATIC")
+bf.ADDBOX(100, 0.5, 100)
+ground = bf.COMMIT(0, 0, 0)
 
 ; --- Jet ---
-bj = Body3D.Create("DYNAMIC")
-Body3D.AddBox(bj, 0.8, 0.3, 2.5)
-jet = Body3D.Commit(bj, 0, 1, 0)
-Body3D.SetDamping(jet, 0.02, 0.4)
-Body3D.SetCCD(jet, TRUE)
-Body3D.SetGravityFactor(jet, 1.0)
+bj = BODY3D.CREATE("DYNAMIC")
+bj.ADDBOX(0.8, 0.3, 2.5)
+jet = bj.COMMIT(0, 1, 0)
+jet.SETDAMPING(0.02, 0.4)
+jet.SETCCD(TRUE)
+jet.SETGRAVITYFACTOR(1.0)
 
-AERO.SETLIFT(jet, 0.008)
-AERO.SETDRAG(jet, 0.003)
+jet.SETLIFT(0.008)
+jet.SETDRAG(0.003)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 thrust = 0.0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()
 
     ; Throttle
-    IF Input.KeyDown(KEY_W) THEN thrust = MATH.MIN(60, thrust + 30 * dt)
-    IF Input.KeyDown(KEY_S) THEN thrust = MATH.MAX(0, thrust - 40 * dt)
-    AERO.SETTHRUST(jet, thrust)
+    IF INPUT.KEYDOWN(KEY_W) THEN thrust = MATH.MIN(60, thrust + 30 * dt)
+    IF INPUT.KEYDOWN(KEY_S) THEN thrust = MATH.MAX(0, thrust - 40 * dt)
+    jet.SETTHRUST(thrust)
 
     ; Pitch / Roll / Yaw
-    IF Input.KeyDown(KEY_UP)   THEN Body3D.ApplyTorque(jet, -8, 0, 0)
-    IF Input.KeyDown(KEY_DOWN) THEN Body3D.ApplyTorque(jet, 8, 0, 0)
-    IF Input.KeyDown(KEY_A)    THEN Body3D.ApplyTorque(jet, 0, 0, 5)
-    IF Input.KeyDown(KEY_D)    THEN Body3D.ApplyTorque(jet, 0, 0, -5)
-    IF Input.KeyDown(KEY_Q)    THEN Body3D.ApplyTorque(jet, 0, 3, 0)
-    IF Input.KeyDown(KEY_E)    THEN Body3D.ApplyTorque(jet, 0, -3, 0)
+    IF INPUT.KEYDOWN(KEY_UP)   THEN jet.APPLYTORQUE(-8, 0, 0)
+    IF INPUT.KEYDOWN(KEY_DOWN) THEN jet.APPLYTORQUE(8, 0, 0)
+    IF INPUT.KEYDOWN(KEY_A)    THEN jet.APPLYTORQUE(0, 0, 5)
+    IF INPUT.KEYDOWN(KEY_D)    THEN jet.APPLYTORQUE(0, 0, -5)
+    IF INPUT.KEYDOWN(KEY_Q)    THEN jet.APPLYTORQUE(0, 3, 0)
+    IF INPUT.KEYDOWN(KEY_E)    THEN jet.APPLYTORQUE(0, -3, 0)
 
-    Physics3D.Step()
+    PHYSICS3D.STEP()
 
-    jx = Body3D.X(jet) : jy = Body3D.Y(jet) : jz = Body3D.Z(jet)
-    Camera.SetOrbit(cam, jx, jy, jz, 0.4, 0.2, 16.0)
+    jx, jy, jz = BODY3D.GETPOS(jet)
+    cam.SETORBIT(jx, jy, jz, 0.4, 0.2, 16.0)
 
-    vel = Body3D.GetVelocity(jet)
+    vel = jet.GETVELOCITY()
     spd = MATH.SQRT(vel(1)*vel(1) + vel(2)*vel(2) + vel(3)*vel(3))
 
     ; --- Render ---
-    Render.Clear(40, 70, 120)
-    cam.Begin()
-        Draw3D.Plane(0, 0, 0, 200, 200, 50, 80, 50, 255)
-        Draw3D.Cube(jx, jy, jz, 1.6, 0.6, 5.0, 180, 180, 200, 255)
-        IF thrust > 5 THEN Draw3D.Sphere(jx, jy, jz+2.5, 0.3, 255, 150, 50, 200)
-        Draw3D.Grid(40, 2.0)
-    cam.End()
+    RENDER.CLEAR(40, 70, 120)
+    cam.BEGIN()
+        DRAW3D.PLANE(0, 0, 0, 200, 200, 50, 80, 50, 255)
+        DRAW3D.CUBE(jx, jy, jz, 1.6, 0.6, 5.0, 180, 180, 200, 255)
+        IF thrust > 5 THEN DRAW3D.SPHERE(jx, jy, jz+2.5, 0.3, 255, 150, 50, 200)
+        DRAW3D.GRID(40, 2.0)
+    cam.END()
 
-    Draw.Text("W/S Thrust  Arrows Pitch  A/D Roll  Q/E Yaw", 10, 10, 20, 255, 255, 255, 255)
-    Draw.Text("Thrust: " + STR(INT(thrust)) + "  Speed: " + STR(INT(spd)) + "  Alt: " + STR(INT(jy)) + "m", 10, 36, 18, 255, 220, 100, 255)
-    Render.Frame()
+    DRAW.TEXT("W/S Thrust  Arrows Pitch  A/D Roll  Q/E Yaw", 10, 10, 20, 255, 255, 255, 255)
+    DRAW.TEXT("Thrust: " + STR(INT(thrust)) + "  Speed: " + STR(INT(spd)) + "  Alt: " + STR(INT(jy)) + "m", 10, 36, 18, 255, 220, 100, 255)
+    RENDER.FRAME()
 WEND
 
-Body3D.Free(jet)
-Body3D.Free(ground)
-Physics3D.Stop()
-Window.Close()
+jet.FREE()
+ground.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

@@ -38,7 +38,6 @@
     },
     {
       "key": "SYSTEM.MONITOR",
-      "args": [],
       "description": "Toggle the system performance monitor (FPS, RAM).",
       "namespace": "debug"
     },
@@ -64,8 +63,7 @@
       "returns": "string"
     },
     {
-      "key": "CLS",
-      "args": []
+      "key": "CLS"
     },
     {
       "key": "LOCATE",
@@ -87,10 +85,21 @@
       ]
     },
     {
+      "key": "STR",
+      "args": [
+        "any"
+      ],
+      "returns": "string",
+      "description": "Convert a value to string (canonical; same as legacy STR$)."
+    },
+    {
       "key": "STR$",
       "args": [
         "any"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "STR",
+      "description": "DEPRECATED alias of STR. Use STR(...)."
     },
     {
       "key": "INT",
@@ -364,28 +373,22 @@
       ]
     },
     {
-      "key": "PI",
-      "args": []
+      "key": "PI"
     },
     {
-      "key": "MATH.PI",
-      "args": []
+      "key": "MATH.PI"
     },
     {
-      "key": "TAU",
-      "args": []
+      "key": "TAU"
     },
     {
-      "key": "MATH.TAU",
-      "args": []
+      "key": "MATH.TAU"
     },
     {
-      "key": "E",
-      "args": []
+      "key": "E"
     },
     {
-      "key": "MATH.E",
-      "args": []
+      "key": "MATH.E"
     },
     {
       "key": "CLAMP",
@@ -451,7 +454,7 @@
         "float"
       ],
       "returns": "float",
-      "description": "Alias of CURVE — current + (target-current)/divisor (divisor clamped to >= 1)"
+      "description": "Alias of CURVE — current + (target-current)/divisor (divisor clamped to \u003e= 1)"
     },
     {
       "key": "MOVE.TOWARD",
@@ -1033,7 +1036,6 @@
     },
     {
       "key": "RND",
-      "args": [],
       "description": "RND() float in [0,1); RND(n) int in [0,n-1]; RND(lo,hi) inclusive int range."
     },
     {
@@ -1070,8 +1072,7 @@
       "description": "Same as RAND"
     },
     {
-      "key": "MATH.RND",
-      "args": []
+      "key": "MATH.RND"
     },
     {
       "key": "MATH.RND",
@@ -1115,8 +1116,7 @@
       ]
     },
     {
-      "key": "RANDOMIZE",
-      "args": []
+      "key": "RANDOMIZE"
     },
     {
       "key": "RANDOMIZE",
@@ -1139,6 +1139,7 @@
         "any",
         "any"
       ],
+      "deprecated_of": "IIF",
       "description": "Inline conditional returning a string; both branches evaluated"
     },
     {
@@ -1402,25 +1403,64 @@
       ]
     },
     {
+      "key": "LEFT",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
       "key": "LEFT$",
       "args": [
         "string",
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "LEFT"
+    },
+    {
+      "key": "RIGHT",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "string"
     },
     {
       "key": "RIGHT$",
       "args": [
         "string",
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "RIGHT"
+    },
+    {
+      "key": "MID",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "MID",
+      "args": [
+        "string",
+        "int",
+        "int"
+      ],
+      "returns": "string"
     },
     {
       "key": "MID$",
       "args": [
         "string",
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "MID"
     },
     {
       "key": "MID$",
@@ -1428,28 +1468,72 @@
         "string",
         "int",
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "MID"
+    },
+    {
+      "key": "UPPER",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
     },
     {
       "key": "UPPER$",
       "args": [
         "string"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "UPPER"
+    },
+    {
+      "key": "LOWER",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
     },
     {
       "key": "LOWER$",
       "args": [
         "string"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "LOWER"
+    },
+    {
+      "key": "TRIM",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
     },
     {
       "key": "TRIM$",
       "args": [
         "string"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "TRIM"
+    },
+    {
+      "key": "LTRIM",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
     },
     {
       "key": "LTRIM$",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "LTRIM"
+    },
+    {
+      "key": "RTRIM",
       "args": [
         "string"
       ],
@@ -1460,12 +1544,29 @@
       "args": [
         "string"
       ],
+      "returns": "string",
+      "deprecated_of": "RTRIM"
+    },
+    {
+      "key": "SPACE",
+      "args": [
+        "int"
+      ],
       "returns": "string"
     },
     {
       "key": "SPACE$",
       "args": [
         "int"
+      ],
+      "returns": "string",
+      "deprecated_of": "SPACE"
+    },
+    {
+      "key": "STRING",
+      "args": [
+        "int",
+        "string"
       ],
       "returns": "string"
     },
@@ -1475,10 +1576,28 @@
         "int",
         "string"
       ],
+      "returns": "string",
+      "deprecated_of": "STRING"
+    },
+    {
+      "key": "LSET",
+      "args": [
+        "string",
+        "int"
+      ],
       "returns": "string"
     },
     {
       "key": "LSET$",
+      "args": [
+        "string",
+        "int"
+      ],
+      "returns": "string",
+      "deprecated_of": "LSET"
+    },
+    {
+      "key": "RSET",
       "args": [
         "string",
         "int"
@@ -1491,7 +1610,8 @@
         "string",
         "int"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "RSET"
     },
     {
       "key": "CONTAINS",
@@ -1501,12 +1621,23 @@
       ]
     },
     {
+      "key": "REPLACE",
+      "args": [
+        "string",
+        "string",
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
       "key": "REPLACE$",
       "args": [
         "string",
         "string",
         "string"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "REPLACE"
     },
     {
       "key": "INSTR",
@@ -1540,7 +1671,7 @@
       "returns": "bool"
     },
     {
-      "key": "SPLIT$",
+      "key": "SPLIT",
       "args": [
         "string",
         "string"
@@ -1548,7 +1679,16 @@
       "returns": "handle"
     },
     {
-      "key": "JOIN$",
+      "key": "SPLIT$",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "handle",
+      "deprecated_of": "SPLIT"
+    },
+    {
+      "key": "JOIN",
       "args": [
         "handle",
         "string"
@@ -1556,9 +1696,36 @@
       "returns": "string"
     },
     {
+      "key": "JOIN$",
+      "args": [
+        "handle",
+        "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "JOIN"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
       "key": "INTERP$",
       "args": [
         "string",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any",
         "any"
       ],
       "returns": "string"
@@ -1570,62 +1737,13 @@
         "any",
         "any"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "INTERP"
     },
     {
-      "key": "INTERP$",
+      "key": "INTERP",
       "args": [
         "string",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
         "any",
         "any",
         "any"
@@ -1638,8 +1756,15 @@
         "string",
         "any",
         "any",
-        "any",
-        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
         "any",
         "any",
         "any",
@@ -1654,6 +1779,40 @@
         "any",
         "any",
         "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
         "any",
         "any",
         "any",
@@ -1665,6 +1824,373 @@
     },
     {
       "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string"
+    },
+    {
+      "key": "STRING.INTERP$",
+      "args": [
+        "string",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any",
+        "any"
+      ],
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
+    },
+    {
+      "key": "STRING.INTERP",
       "args": [
         "string",
         "any",
@@ -1684,114 +2210,6 @@
       "key": "STRING.INTERP$",
       "args": [
         "string",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any",
-        "any"
-      ],
-      "returns": "string"
-    },
-    {
-      "key": "STRING.INTERP$",
-      "args": [
-        "string",
         "any",
         "any",
         "any",
@@ -1803,7 +2221,8 @@
         "any",
         "any"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "STRING.INTERP"
     },
     {
       "key": "DEBUG.PRINT",
@@ -1925,11 +2344,27 @@
         "any",
         "any"
       ]
+    },
+    {
+      "key": "REVERSE",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
     },
     {
       "key": "REVERSE$",
       "args": [
         "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "REVERSE"
+    },
+    {
+      "key": "REPEAT",
+      "args": [
+        "string",
+        "int"
       ],
       "returns": "string"
     },
@@ -1939,7 +2374,16 @@
         "string",
         "int"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "REPEAT"
+    },
+    {
+      "key": "COUNT",
+      "args": [
+        "string",
+        "string"
+      ],
+      "returns": "int"
     },
     {
       "key": "COUNT$",
@@ -1947,7 +2391,8 @@
         "string",
         "string"
       ],
-      "returns": "int"
+      "returns": "int",
+      "deprecated_of": "COUNT"
     },
     {
       "key": "ISALPHA",
@@ -1971,10 +2416,28 @@
       "returns": "bool"
     },
     {
+      "key": "FORMAT",
+      "args": [
+        "any",
+        "string"
+      ],
+      "returns": "string",
+      "description": "Format a value with a printf-style pattern (canonical; same as legacy FORMAT$)."
+    },
+    {
       "key": "FORMAT$",
       "args": [
         "any",
         "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "FORMAT",
+      "description": "DEPRECATED alias of FORMAT. Use FORMAT(value, pattern)."
+    },
+    {
+      "key": "CHR",
+      "args": [
+        "int"
       ],
       "returns": "string"
     },
@@ -1982,7 +2445,9 @@
       "key": "CHR$",
       "args": [
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "CHR"
     },
     {
       "key": "ASC",
@@ -1991,23 +2456,49 @@
       ]
     },
     {
+      "key": "BIN",
+      "args": [
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
       "key": "BIN$",
       "args": [
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "BIN"
+    },
+    {
+      "key": "HEX",
+      "args": [
+        "int"
+      ],
+      "returns": "string"
     },
     {
       "key": "HEX$",
       "args": [
         "int"
-      ]
+      ],
+      "returns": "string",
+      "deprecated_of": "HEX"
+    },
+    {
+      "key": "OCT",
+      "args": [
+        "int"
+      ],
+      "returns": "string"
     },
     {
       "key": "OCT$",
       "args": [
         "int"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "OCT"
     },
     {
       "key": "WINDOW.OPEN",
@@ -2035,6 +2526,13 @@
       ]
     },
     {
+      "key": "WINDOW.SETMSAA",
+      "args": [
+        "int"
+      ],
+      "description": "MSAA sample count hint before/during window use (2+ enables GPU MSAA); Easy Mode alias: SetMSAA"
+    },
+    {
       "key": "WINDOW.SETLOADINGMODE",
       "args": [
         "bool"
@@ -2043,17 +2541,14 @@
     },
     {
       "key": "WINDOW.LOADINGMODE",
-      "args": [],
       "returns": "bool",
       "description": "Current loading-mode flag from WINDOW.SETLOADINGMODE"
     },
     {
-      "key": "WINDOW.CLOSE",
-      "args": []
+      "key": "WINDOW.CLOSE"
     },
     {
-      "key": "WINDOW.SHOULDCLOSE",
-      "args": []
+      "key": "WINDOW.SHOULDCLOSE"
     },
     {
       "key": "WINDOW.SETTITLE",
@@ -2091,7 +2586,7 @@
       "args": [
         "int"
       ],
-      "description": "Pre-window-open MSAA sample hint (alias of WINDOW.SETMSAA); 2+ enables GPU MSAA hint"
+      "description": "Alias of WINDOW.SETMSAA — MSAA sample hint; 2+ enables GPU MSAA hint"
     },
     {
       "key": "SetSSAO",
@@ -2116,36 +2611,30 @@
     },
     {
       "key": "WINDOW.WIDTH",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "WINDOW.HEIGHT",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "WINDOW.GETFPS",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "WINDOW.ISFULLSCREEN",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
     {
       "key": "WINDOW.TOGGLEFULLSCREEN",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "WINDOW.ISRESIZED",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
@@ -2162,7 +2651,8 @@
         "int",
         "int"
       ],
-      "description": "Deprecated alias of WINDOW.SETPOS — set window client-area position in screen pixels"
+      "description": "DEPRECATED alias of WINDOW.SETPOS. Use WINDOW.SETPOS. Deprecated alias of WINDOW.SETPOS — set window client-area position in screen pixels",
+      "deprecated_of": "WINDOW.SETPOS"
     },
     {
       "key": "WINDOW.SETSIZE",
@@ -2172,16 +2662,13 @@
       ]
     },
     {
-      "key": "WINDOW.MINIMIZE",
-      "args": []
+      "key": "WINDOW.MINIMIZE"
     },
     {
-      "key": "WINDOW.MAXIMIZE",
-      "args": []
+      "key": "WINDOW.MAXIMIZE"
     },
     {
-      "key": "WINDOW.RESTORE",
-      "args": []
+      "key": "WINDOW.RESTORE"
     },
     {
       "key": "WINDOW.SETTARGETFPS",
@@ -2191,31 +2678,26 @@
     },
     {
       "key": "GAME.SCREENW",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.SCREENH",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.SCREENCX",
-      "args": [],
       "returns": "float",
       "phase": "rendering"
     },
     {
       "key": "GAME.SCREENCY",
-      "args": [],
       "returns": "float",
       "phase": "rendering"
     },
     {
       "key": "GAME.DT",
-      "args": [],
       "returns": "float",
       "phase": "rendering"
     },
@@ -2228,19 +2710,16 @@
     },
     {
       "key": "GAME.GETTIMESCALE",
-      "args": [],
       "returns": "float",
       "description": "Current time scale (0 stored reads as 1 for delta)"
     },
     {
       "key": "GAME.FPS",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.ENDGAME",
-      "args": [],
       "phase": "rendering"
     },
     {
@@ -2259,8 +2738,8 @@
         "float"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Sphere vs box top: landing centre Y or 0.0 if no landing"
+      "description": "Sphere vs box top: landing centre Y or 0.0 if no landing",
+      "phase": "any"
     },
     {
       "key": "LANDBOXES",
@@ -2279,8 +2758,8 @@
         "any"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Best BOXTOPLAND snap Y over count boxes (parallel float arrays)"
+      "description": "Best BOXTOPLAND snap Y over count boxes (parallel float arrays)",
+      "phase": "any"
     },
     {
       "key": "LANDBOX",
@@ -2299,8 +2778,8 @@
         "any"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias of LANDBOXES"
+      "description": "Alias of LANDBOXES",
+      "phase": "any"
     },
     {
       "key": "PLAYER.MOVERELATIVE",
@@ -2312,48 +2791,41 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "any",
-      "description": "MOVESTEPX/Z combined — 2-float array [dx,dz]; ERASE when done"
+      "description": "MOVESTEPX/Z combined — 2-float array [dx,dz]; ERASE when done",
+      "phase": "any"
     },
     {
       "key": "GAME.MX",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.MY",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.MOUSEX",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.MOUSEY",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.MDX",
-      "args": [],
       "returns": "float",
       "phase": "rendering"
     },
     {
       "key": "GAME.MDY",
-      "args": [],
       "returns": "float",
       "phase": "rendering"
     },
     {
       "key": "GAME.MWHEEL",
-      "args": [],
       "returns": "float",
       "phase": "rendering"
     },
@@ -2415,31 +2887,26 @@
     },
     {
       "key": "GAME.MLEFT",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
     {
       "key": "GAME.MRIGHT",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
     {
       "key": "GAME.MMIDDLE",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
     {
       "key": "GAME.MLEFTPRESSED",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
     {
       "key": "GAME.MRIGHTPRESSED",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
@@ -2469,13 +2936,11 @@
     },
     {
       "key": "GAME.KEYCHAR",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
     {
       "key": "GAME.ANYKEY",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
@@ -2520,12 +2985,10 @@
     },
     {
       "key": "WINDOW.GETPOSITIONX",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "WINDOW.GETPOSITIONY",
-      "args": [],
       "returns": "int"
     },
     {
@@ -2536,7 +2999,6 @@
     },
     {
       "key": "WINDOW.GETMONITORCOUNT",
-      "args": [],
       "returns": "int"
     },
     {
@@ -2569,12 +3031,10 @@
     },
     {
       "key": "WINDOW.GETSCALEDPIX",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "WINDOW.GETSCALEDPIY",
-      "args": [],
       "returns": "float"
     },
     {
@@ -2669,8 +3129,7 @@
       "phase": "rendering"
     },
     {
-      "key": "RENDER.CLEAR",
-      "args": []
+      "key": "RENDER.CLEAR"
     },
     {
       "key": "RENDER.CLEAR",
@@ -2696,22 +3155,20 @@
       ]
     },
     {
-      "key": "RENDER.FRAME",
-      "args": []
+      "key": "RENDER.FRAME"
     },
     {
       "key": "RENDER.BEGIN3D",
       "args": [
         "handle"
       ],
-      "phase": "rendering",
-      "description": "Alias for CAMERA.BEGIN: 3D camera heap handle from CAMERA.CREATE or CreateCamera (deprecated alias CAMERA.MAKE)"
+      "description": "Alias for CAMERA.BEGIN: 3D camera heap handle from CAMERA.CREATE or CreateCamera (deprecated alias CAMERA.MAKE)",
+      "phase": "rendering"
     },
     {
       "key": "RENDER.END3D",
-      "args": [],
-      "phase": "rendering",
-      "description": "Alias for CAMERA.END (no arguments)"
+      "description": "Alias for CAMERA.END (no arguments)",
+      "phase": "rendering"
     },
     {
       "key": "RENDER.SETFPS",
@@ -2720,28 +3177,22 @@
       ]
     },
     {
-      "key": "RENDER.BEGINFRAME",
-      "args": []
+      "key": "RENDER.BEGINFRAME"
     },
     {
-      "key": "RENDER.ENDFRAME",
-      "args": []
+      "key": "RENDER.ENDFRAME"
     },
     {
-      "key": "RENDER.BEGINMODE2D",
-      "args": []
+      "key": "RENDER.BEGINMODE2D"
     },
     {
-      "key": "RENDER.ENDMODE2D",
-      "args": []
+      "key": "RENDER.ENDMODE2D"
     },
     {
-      "key": "RENDER.BEGINMODE3D",
-      "args": []
+      "key": "RENDER.BEGINMODE3D"
     },
     {
-      "key": "RENDER.ENDMODE3D",
-      "args": []
+      "key": "RENDER.ENDMODE3D"
     },
     {
       "key": "RENDER.BEGINSHADER",
@@ -2750,8 +3201,7 @@
       ]
     },
     {
-      "key": "RENDER.ENDSHADER",
-      "args": []
+      "key": "RENDER.ENDSHADER"
     },
     {
       "key": "RENDER.DRAWFPS",
@@ -2800,8 +3250,7 @@
       ]
     },
     {
-      "key": "RENDER.CLEARSCISSOR",
-      "args": []
+      "key": "RENDER.CLEARSCISSOR"
     },
     {
       "key": "RENDER.SETWIREFRAME",
@@ -3099,6 +3548,41 @@
       ]
     },
     {
+      "key": "DECAL.GETPOS",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Returns [x, y, z] position of decal"
+    },
+    {
+      "key": "DECAL.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Returns [p, y, r] rotation of decal"
+    },
+    {
+      "key": "DECAL.GETSIZE",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Returns [w, h] size of decal"
+    },
+    {
+      "key": "DECAL.SETPOSITION",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "DEPRECATED alias of DECAL.SETPOS.",
+      "deprecated_of": "DECAL.SETPOS"
+    },
+    {
       "key": "DECAL.DRAW",
       "args": [
         "handle"
@@ -3106,7 +3590,6 @@
     },
     {
       "key": "NAV.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -3204,7 +3687,6 @@
     },
     {
       "key": "NOISE.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "any"
     },
@@ -3605,7 +4087,6 @@
     },
     {
       "key": "STEER.GROUPMAKE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -3690,7 +4171,6 @@
     },
     {
       "key": "BTREE.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -3735,18 +4215,15 @@
       ]
     },
     {
-      "key": "CAMERA.CREATE",
-      "args": []
+      "key": "CAMERA.CREATE"
     },
     {
       "key": "CAM",
-      "args": [],
       "returns": "handle",
       "description": "Short Blitz-style camera alias; same as CAMERA.CREATE (deprecated name: CAMERA.MAKE)"
     },
     {
       "key": "CAMERA.CREATE",
-      "args": [],
       "returns": "handle",
       "description": "Returns a Camera3D heap handle (canonical; deprecated alias: CAMERA.MAKE)"
     },
@@ -3759,7 +4236,6 @@
     },
     {
       "key": "LIGHT.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -3872,11 +4348,36 @@
       "returns": "array"
     },
     {
+      "key": "LIGHT.GETROT",
+      "args": [
+        "handle"
+      ],
+      "returns": "array",
+      "description": "Returns [p, y, r] Euler rotation of the light"
+    },
+    {
+      "key": "LIGHT.GETINTENSITY",
+      "args": [
+        "handle"
+      ],
+      "returns": "float"
+    },
+    {
       "key": "LIGHT.GETCOLOR",
       "args": [
         "handle"
       ],
       "returns": "array"
+    },
+    {
+      "key": "LIGHT.SETROT",
+      "args": [
+        "handle",
+        "float",
+        "float",
+        "float"
+      ],
+      "description": "Sets light orientation using Euler angles (pitch, yaw, roll)"
     },
     {
       "key": "LIGHT.SETCOLOR",
@@ -3911,7 +4412,9 @@
         "float",
         "float",
         "float"
-      ]
+      ],
+      "description": "DEPRECATED alias of LIGHT.SETPOS. Use LIGHT.SETPOS. ",
+      "deprecated_of": "LIGHT.SETPOS"
     },
     {
       "key": "LIGHT.SETPOS",
@@ -4186,7 +4689,9 @@
         "float",
         "float"
       ],
-      "phase": "rendering"
+      "description": "DEPRECATED alias of MODEL.SETPOS. Use MODEL.SETPOS. ",
+      "phase": "rendering",
+      "deprecated_of": "MODEL.SETPOS"
     },
     {
       "key": "MODEL.CREATEINSTANCED",
@@ -4442,12 +4947,21 @@
       "returns": "bool"
     },
     {
-      "key": "MODEL.ANIMNAME$",
+      "key": "MODEL.ANIMNAME",
       "args": [
         "handle",
         "int"
       ],
       "returns": "string"
+    },
+    {
+      "key": "MODEL.ANIMNAME$",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "returns": "string",
+      "deprecated_of": "MODEL.ANIMNAME"
     },
     {
       "key": "MODEL.CHILDCOUNT",
@@ -4738,7 +5252,6 @@
     },
     {
       "key": "PARTICLE.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -5014,7 +5527,6 @@
     },
     {
       "key": "PARTICLE3D.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -5424,8 +5936,8 @@
         "int",
         "int"
       ],
-      "phase": "rendering",
-      "description": "Spritesheet layout: columns x rows of equal frames"
+      "description": "Spritesheet layout: columns x rows of equal frames",
+      "phase": "rendering"
     },
     {
       "key": "TEXTURE.SETFRAME",
@@ -5433,8 +5945,8 @@
         "handle",
         "int"
       ],
-      "phase": "rendering",
-      "description": "Select atlas frame index (0-based)"
+      "description": "Select atlas frame index (0-based)",
+      "phase": "rendering"
     },
     {
       "key": "TEXTURE.LOADANIM",
@@ -5444,8 +5956,8 @@
         "int"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "TEXTURE.LOAD + SETGRID in one call"
+      "description": "TEXTURE.LOAD + SETGRID in one call",
+      "phase": "rendering"
     },
     {
       "key": "TEXTURE.PLAY",
@@ -5454,8 +5966,8 @@
         "float",
         "bool"
       ],
-      "phase": "rendering",
-      "description": "Auto-advance atlas frames; call TEXTURE.TICKALL each frame"
+      "description": "Auto-advance atlas frames; call TEXTURE.TICKALL each frame",
+      "phase": "rendering"
     },
     {
       "key": "TEXTURE.STOPANIM",
@@ -5466,9 +5978,8 @@
     },
     {
       "key": "TEXTURE.TICKALL",
-      "args": [],
-      "phase": "rendering",
-      "description": "Advance all playing atlas animations (optional dt via overload)"
+      "description": "Advance all playing atlas animations (optional dt via overload)",
+      "phase": "rendering"
     },
     {
       "key": "TEXTURE.TICKALL",
@@ -5484,8 +5995,8 @@
         "float",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Source-rectangle scroll speeds for sampled UVs"
+      "description": "Source-rectangle scroll speeds for sampled UVs",
+      "phase": "rendering"
     },
     {
       "key": "TEXTURE.SETDISTORTION",
@@ -5493,8 +6004,8 @@
         "handle",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Shader-side distortion amount hint"
+      "description": "Shader-side distortion amount hint",
+      "phase": "rendering"
     },
     {
       "key": "LOADTEXTURE",
@@ -5585,7 +6096,6 @@
     },
     {
       "key": "RENDER.CLEARCACHE",
-      "args": [],
       "phase": "rendering"
     },
     {
@@ -5684,7 +6194,6 @@
     },
     {
       "key": "RENDERTARGET.END",
-      "args": [],
       "phase": "rendering"
     },
     {
@@ -6083,17 +6592,14 @@
       ]
     },
     {
-      "key": "MATERIAL.CREATEDEFAULT",
-      "args": []
+      "key": "MATERIAL.CREATEDEFAULT"
     },
     {
       "key": "MATERIAL.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
       "key": "MATERIAL.CREATEPBR",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -6235,16 +6741,17 @@
       "phase": "any"
     },
     {
-      "key": "PHYSICS3D.START",
-      "args": []
+      "key": "PHYSICS3D.START"
     },
     {
-      "key": "PHYSICS3D.STOP",
-      "args": []
+      "key": "PHYSICS3D.STOP"
     },
     {
-      "key": "PHYSICS3D.STEP",
-      "args": []
+      "key": "PHYSICS3D.STEP"
+    },
+    {
+      "key": "PHYSICS3D.UPDATE",
+      "description": "Advance the 3D physics simulation (same implementation as PHYSICS3D.STEP; optional frame dt# like STEP)"
     },
     {
       "key": "PHYSICS3D.SETGRAVITY",
@@ -6267,24 +6774,6 @@
       "args": [
         "int"
       ]
-    },
-    {
-      "key": "AUDIO.PLAY",
-      "args": [
-        "any"
-      ]
-    },
-    {
-      "key": "AUDIO.STOP",
-      "args": []
-    },
-    {
-      "key": "AUDIO.PAUSE",
-      "args": []
-    },
-    {
-      "key": "AUDIO.RESUME",
-      "args": []
     },
     {
       "key": "INPUT.KEYDOWN",
@@ -6311,8 +6800,8 @@
         "any"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Two-key axis: -1, 0, or 1 (negKey vs posKey)"
+      "description": "Two-key axis: -1, 0, or 1 (negKey vs posKey)",
+      "phase": "any"
     },
     {
       "key": "INPUT.AXISDEG",
@@ -6323,8 +6812,8 @@
         "float"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) — radians this frame"
+      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) — radians this frame",
+      "phase": "any"
     },
     {
       "key": "INPUT.ORBIT",
@@ -6335,8 +6824,8 @@
         "float"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias of INPUT.AXISDEG — orbit / yaw delta this frame"
+      "description": "Alias of INPUT.AXISDEG — orbit / yaw delta this frame",
+      "phase": "any"
     },
     {
       "key": "INPUT.MOVEMENT2D",
@@ -6347,8 +6836,8 @@
         "any"
       ],
       "returns": "handle",
-      "phase": "any",
-      "description": "2-float array [forward, strafe] from two Axis pairs; ERASE when done"
+      "description": "2-float array [forward, strafe] from two Axis pairs; ERASE when done",
+      "phase": "any"
     },
     {
       "key": "INPUT.GETKEYNAME",
@@ -6356,7 +6845,6 @@
         "int"
       ],
       "returns": "string",
-      "pure": true,
       "phase": "any"
     },
     {
@@ -6432,12 +6920,10 @@
       "phase": "any"
     },
     {
-      "key": "INPUT.MOUSEX",
-      "args": []
+      "key": "INPUT.MOUSEX"
     },
     {
-      "key": "INPUT.MOUSEY",
-      "args": []
+      "key": "INPUT.MOUSEY"
     },
     {
       "key": "INPUT.MOUSEDOWN",
@@ -6454,43 +6940,37 @@
     },
     {
       "key": "INPUT.MOUSEDELTAX",
-      "args": [],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "INPUT.MOUSEDX",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias of INPUT.MOUSEDELTAX"
+      "description": "Alias of INPUT.MOUSEDELTAX",
+      "phase": "any"
     },
     {
       "key": "INPUT.MOUSEDELTAY",
-      "args": [],
       "returns": "float",
       "phase": "any"
     },
     {
       "key": "INPUT.MOUSEDY",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias of INPUT.MOUSEDELTAY"
+      "description": "Alias of INPUT.MOUSEDELTAY",
+      "phase": "any"
     },
     {
       "key": "INPUT.MOUSEWHEEL",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias of INPUT.MOUSEWHEELMOVE"
+      "description": "Alias of INPUT.MOUSEWHEELMOVE",
+      "phase": "any"
     },
     {
       "key": "MouseWheel",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias of INPUT.MOUSEWHEELMOVE (Input.MouseWheel() style)"
+      "description": "Alias of INPUT.MOUSEWHEELMOVE (Input.MouseWheel() style)",
+      "phase": "any"
     },
     {
       "key": "INPUT.KEYDOWN",
@@ -6510,7 +6990,6 @@
     },
     {
       "key": "INPUT.MOUSEWHEELMOVE",
-      "args": [],
       "returns": "float",
       "phase": "any"
     },
@@ -6547,7 +7026,6 @@
     },
     {
       "key": "INPUT.TOUCHCOUNT",
-      "args": [],
       "returns": "int"
     },
     {
@@ -6600,28 +7078,22 @@
       "returns": "int"
     },
     {
-      "key": "CURSOR.SHOW",
-      "args": []
+      "key": "CURSOR.SHOW"
     },
     {
-      "key": "CURSOR.HIDE",
-      "args": []
+      "key": "CURSOR.HIDE"
     },
     {
-      "key": "CURSOR.ISHIDDEN",
-      "args": []
+      "key": "CURSOR.ISHIDDEN"
     },
     {
-      "key": "CURSOR.ISONSCREEN",
-      "args": []
+      "key": "CURSOR.ISONSCREEN"
     },
     {
-      "key": "CURSOR.ENABLE",
-      "args": []
+      "key": "CURSOR.ENABLE"
     },
     {
-      "key": "CURSOR.DISABLE",
-      "args": []
+      "key": "CURSOR.DISABLE"
     },
     {
       "key": "CURSOR.SET",
@@ -6642,36 +7114,28 @@
       ]
     },
     {
-      "key": "GESTURE.GETDETECTED",
-      "args": []
+      "key": "GESTURE.GETDETECTED"
     },
     {
-      "key": "GESTURE.GETHOLDDURATION",
-      "args": []
+      "key": "GESTURE.GETHOLDDURATION"
     },
     {
-      "key": "GESTURE.GETDRAGVECTORX",
-      "args": []
+      "key": "GESTURE.GETDRAGVECTORX"
     },
     {
-      "key": "GESTURE.GETDRAGVECTORY",
-      "args": []
+      "key": "GESTURE.GETDRAGVECTORY"
     },
     {
-      "key": "GESTURE.GETDRAGANGLE",
-      "args": []
+      "key": "GESTURE.GETDRAGANGLE"
     },
     {
-      "key": "GESTURE.GETPINCHVECTORX",
-      "args": []
+      "key": "GESTURE.GETPINCHVECTORX"
     },
     {
-      "key": "GESTURE.GETPINCHVECTORY",
-      "args": []
+      "key": "GESTURE.GETPINCHVECTORY"
     },
     {
-      "key": "GESTURE.GETPINCHANGLE",
-      "args": []
+      "key": "GESTURE.GETPINCHANGLE"
     },
     {
       "key": "IMAGE.LOAD",
@@ -6695,8 +7159,8 @@
         "string"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Glob files matching prefix (e.g. assets/water_*.png) sorted by name"
+      "description": "Glob files matching prefix (e.g. assets/water_*.png) sorted by name",
+      "phase": "rendering"
     },
     {
       "key": "IMAGE.LOADGIF",
@@ -6704,8 +7168,8 @@
         "string"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Animated GIF to ImageSequence (cumulative frames)"
+      "description": "Animated GIF to ImageSequence (cumulative frames)",
+      "phase": "rendering"
     },
     {
       "key": "IMAGE.CREATEBLANK",
@@ -7146,8 +7610,7 @@
       ]
     },
     {
-      "key": "TIME.DELTA",
-      "args": []
+      "key": "TIME.DELTA"
     },
     {
       "key": "TIME.DELTA",
@@ -7165,31 +7628,25 @@
       "phase": "any"
     },
     {
-      "key": "TIME.GET",
-      "args": []
+      "key": "TIME.GET"
     },
     {
-      "key": "SYSTEM.EXIT",
-      "args": []
+      "key": "SYSTEM.EXIT"
     },
     {
       "key": "SYSTEM.CPUNAME",
-      "args": [],
       "returns": "string"
     },
     {
       "key": "SYSTEM.GPUNAME",
-      "args": [],
       "returns": "string"
     },
     {
       "key": "SYSTEM.TOTALMEMORY",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "SYSTEM.FREEMEMORY",
-      "args": [],
       "returns": "int"
     },
     {
@@ -7221,7 +7678,6 @@
     },
     {
       "key": "SYSTEM.GETCLIPBOARD",
-      "args": [],
       "returns": "string"
     },
     {
@@ -7232,28 +7688,23 @@
     },
     {
       "key": "CLIPBOARD.GETIMAGE",
-      "args": [],
       "returns": "handle",
       "phase": "any"
     },
     {
       "key": "SYSTEM.LOCALE",
-      "args": [],
       "returns": "string"
     },
     {
       "key": "SYSTEM.USERNAME",
-      "args": [],
       "returns": "string"
     },
     {
       "key": "SYSTEM.ISDEBUGBUILD",
-      "args": [],
       "returns": "bool"
     },
     {
       "key": "SYSTEM.VERSION",
-      "args": [],
       "returns": "string",
       "description": "MoonBasic release string (e.g. 1.0.0-GOLD); informational only."
     },
@@ -7308,8 +7759,7 @@
       ]
     },
     {
-      "key": "DEBUG.WATCHCLEAR",
-      "args": []
+      "key": "DEBUG.WATCHCLEAR"
     },
     {
       "key": "DEBUG.ASSERT",
@@ -7319,8 +7769,7 @@
       ]
     },
     {
-      "key": "DEBUG.BREAKPOINT",
-      "args": []
+      "key": "DEBUG.BREAKPOINT"
     },
     {
       "key": "DEBUG.LOG",
@@ -7348,29 +7797,23 @@
       ]
     },
     {
-      "key": "DEBUG.PROFILEREPORT",
-      "args": []
+      "key": "DEBUG.PROFILEREPORT"
     },
     {
-      "key": "DEBUG.STACKTRACE",
-      "args": []
+      "key": "DEBUG.STACKTRACE"
     },
     {
-      "key": "DEBUG.HEAPSTATS",
-      "args": []
+      "key": "DEBUG.HEAPSTATS"
     },
     {
-      "key": "DEBUG.GCSTATS",
-      "args": []
+      "key": "DEBUG.GCSTATS"
     },
     {
       "key": "DEBUG.DUMPHEAP",
-      "args": [],
       "description": "Professional: Scan all active handles and print to diagnostics."
     },
     {
       "key": "DEBUG.LISTCOMMANDS",
-      "args": [],
       "description": "Professional: List all registered built-in commands."
     },
     {
@@ -7455,14 +7898,6 @@
         "any",
         "any"
       ]
-    },
-    {
-      "key": "AUDIO.INIT",
-      "args": []
-    },
-    {
-      "key": "AUDIO.CLOSE",
-      "args": []
     },
     {
       "key": "AUDIOSTREAM.CREATE",
@@ -7675,6 +8110,39 @@
         "int",
         "int"
       ],
+      "phase": "rendering"
+    },
+    {
+      "key": "DRAW.TEXTEX",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "phase": "rendering"
+    },
+    {
+      "key": "DRAW.TEXTFONT",
+      "args": [
+        "handle",
+        "string",
+        "float",
+        "float",
+        "float",
+        "float",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "description": "Same handler as DRAW.TEXTEX — DrawTextEx with a loaded FONT.* handle",
       "phase": "rendering"
     },
     {
@@ -8351,8 +8819,8 @@
         "handle"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias of RAY.HITMODEL_HIT — ray vs loaded MODEL mesh union"
+      "description": "Alias of RAY.HITMODEL_HIT — ray vs loaded MODEL mesh union",
+      "phase": "any"
     },
     {
       "key": "RAY.INTERSECTSMODEL_DISTANCE",
@@ -8429,8 +8897,8 @@
         "float"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "2D ray vs circle — hit?"
+      "description": "2D ray vs circle — hit?",
+      "phase": "any"
     },
     {
       "key": "RAY2D.HITCIRCLE_DISTANCE",
@@ -8444,8 +8912,8 @@
         "float"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Distance along ray to hit (0 if miss)"
+      "description": "Distance along ray to hit (0 if miss)",
+      "phase": "any"
     },
     {
       "key": "RAY2D.HITCIRCLE_POINTX",
@@ -8488,8 +8956,8 @@
         "float"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "2D ray vs axis-aligned rect (minx,miny,maxx,maxy)"
+      "description": "2D ray vs axis-aligned rect (minx,miny,maxx,maxy)",
+      "phase": "any"
     },
     {
       "key": "RAY2D.HITRECT_DISTANCE",
@@ -8549,8 +9017,8 @@
         "float"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "2D ray vs segment (x1,y1)-(x2,y2)"
+      "description": "2D ray vs segment (x1,y1)-(x2,y2)",
+      "phase": "any"
     },
     {
       "key": "RAY2D.HITSEGMENT_DISTANCE",
@@ -8734,7 +9202,6 @@
     },
     {
       "key": "TRANSFORM.IDENTITY",
-      "args": [],
       "returns": "handle",
       "phase": "any"
     },
@@ -8845,7 +9312,6 @@
     },
     {
       "key": "MAT4.IDENTITY",
-      "args": [],
       "returns": "handle",
       "phase": "any"
     },
@@ -9555,7 +10021,6 @@
     },
     {
       "key": "QUAT.IDENTITY",
-      "args": [],
       "returns": "handle",
       "phase": "any"
     },
@@ -9710,8 +10175,8 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "any",
-      "description": "COLOR.HSV(index, total) — evenly spaced hues on the wheel"
+      "description": "COLOR.HSV(index, total) — evenly spaced hues on the wheel",
+      "phase": "any"
     },
     {
       "key": "COLOR.FROMHSV",
@@ -10115,8 +10580,8 @@
         "string"
       ],
       "returns": "string",
-      "phase": "any",
-      "description": "Resolve localPath relative to the running executable directory (absolute paths unchanged)"
+      "description": "Resolve localPath relative to the running executable directory (absolute paths unchanged)",
+      "phase": "any"
     },
     {
       "key": "RES.EXISTS",
@@ -10124,8 +10589,8 @@
         "string"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "True if path exists on disk (same idea as UTIL.FILEEXISTS)"
+      "description": "True if path exists on disk (same idea as UTIL.FILEEXISTS)",
+      "phase": "any"
     },
     {
       "key": "UTIL.ISDIR",
@@ -10229,24 +10694,20 @@
         "string"
       ],
       "returns": "bool",
-      "pure": true,
       "phase": "any"
     },
     {
       "key": "UTIL.ISFILEDROPPED",
-      "args": [],
       "returns": "bool",
       "phase": "any"
     },
     {
       "key": "UTIL.GETDROPPEDFILES",
-      "args": [],
       "returns": "string",
       "phase": "any"
     },
     {
       "key": "UTIL.CLEARDROPPEDFILES",
-      "args": [],
       "phase": "any"
     },
     {
@@ -10273,32 +10734,26 @@
     },
     {
       "key": "FONT.DRAWDEFAULT",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "GUI.ENABLE",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "GUI.DISABLE",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "GUI.LOCK",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "GUI.UNLOCK",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "GUI.ISLOCKED",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
@@ -10318,7 +10773,6 @@
     },
     {
       "key": "GUI.GETSTATE",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
@@ -10412,7 +10866,6 @@
     },
     {
       "key": "GUI.GETTEXTSIZE",
-      "args": [],
       "returns": "int",
       "phase": "rendering"
     },
@@ -10424,10 +10877,15 @@
       "phase": "rendering"
     },
     {
-      "key": "GUI.THEMENAMES$",
-      "args": [],
+      "key": "GUI.THEMENAMES",
       "returns": "string",
       "phase": "rendering"
+    },
+    {
+      "key": "GUI.THEMENAMES$",
+      "returns": "string",
+      "phase": "rendering",
+      "deprecated_of": "GUI.THEMENAMES"
     },
     {
       "key": "GUI.LOADSTYLE",
@@ -10438,7 +10896,6 @@
     },
     {
       "key": "GUI.LOADDEFAULTSTYLE",
-      "args": [],
       "phase": "rendering"
     },
     {
@@ -10725,10 +11182,15 @@
       "phase": "rendering"
     },
     {
-      "key": "GUI.VALUEBOXFLOATTEXT$",
-      "args": [],
+      "key": "GUI.VALUEBOXFLOATTEXT",
       "returns": "string",
       "phase": "rendering"
+    },
+    {
+      "key": "GUI.VALUEBOXFLOATTEXT$",
+      "returns": "string",
+      "phase": "rendering",
+      "deprecated_of": "GUI.VALUEBOXFLOATTEXT"
     },
     {
       "key": "GUI.SLIDER",
@@ -10956,10 +11418,15 @@
       "phase": "rendering"
     },
     {
-      "key": "GUI.TEXTINPUTLAST$",
-      "args": [],
+      "key": "GUI.TEXTINPUTLAST",
       "returns": "string",
       "phase": "rendering"
+    },
+    {
+      "key": "GUI.TEXTINPUTLAST$",
+      "returns": "string",
+      "phase": "rendering",
+      "deprecated_of": "GUI.TEXTINPUTLAST"
     },
     {
       "key": "GUI.GRID",
@@ -10978,12 +11445,10 @@
     },
     {
       "key": "GUI.ENABLETOOLTIP",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "GUI.DISABLETOOLTIP",
-      "args": [],
       "phase": "rendering"
     },
     {
@@ -11137,7 +11602,9 @@
         "float",
         "float"
       ],
-      "phase": "rendering"
+      "description": "DEPRECATED alias of SPRITE.SETPOS. Use SPRITE.SETPOS. ",
+      "phase": "rendering",
+      "deprecated_of": "SPRITE.SETPOS"
     },
     {
       "key": "SPRITE.DEFANIM",
@@ -11169,8 +11636,8 @@
         "handle",
         "int"
       ],
-      "phase": "rendering",
-      "description": "Manual frame index (strip / DEFANIM); stops SPRITE.PLAY range playback"
+      "description": "Manual frame index (strip / DEFANIM); stops SPRITE.PLAY range playback",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.PLAY",
@@ -11181,8 +11648,8 @@
         "float",
         "bool"
       ],
-      "phase": "rendering",
-      "description": "Animate frames start..end at speed (frames/sec); call SPRITE.UPDATEANIM with Time.Delta()"
+      "description": "Animate frames start..end at speed (frames/sec); call SPRITE.UPDATEANIM with Time.Delta()",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.SETORIGIN",
@@ -11191,8 +11658,8 @@
         "float",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Pivot offset in pixels (subtracted from draw position)"
+      "description": "Pivot offset in pixels (subtracted from draw position)",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.GETSCALE",
@@ -11200,8 +11667,8 @@
         "handle"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Returns [sx, sy, 1] scale factors (2D draw uses DrawTexturePro)"
+      "description": "Returns [sx, sy, 1] scale factors (2D draw uses DrawTexturePro)",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.SETSCALE",
@@ -11218,8 +11685,8 @@
         "handle"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Returns [0, 0, roll] radians (2D screen rotation)"
+      "description": "Returns [0, 0, roll] radians (2D screen rotation)",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.SETROT",
@@ -11227,8 +11694,8 @@
         "handle",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Sets rotation in radians (CCW)"
+      "description": "Sets rotation in radians (CCW)",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.GETCOLOR",
@@ -11236,8 +11703,8 @@
         "handle"
       ],
       "returns": "array",
-      "phase": "rendering",
-      "description": "RGBA as floats (A channel 0–255)"
+      "description": "RGBA as floats (A channel 0–255)",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.SETCOLOR",
@@ -11282,8 +11749,8 @@
         "handle",
         "handle"
       ],
-      "phase": "rendering",
-      "description": "True if the two sprites' drawn quads overlap (same scale, origin, and rotation as SPRITE.DRAW / DrawTexturePro; SAT on quad corners)."
+      "description": "True if the two sprites' drawn quads overlap (same scale, origin, and rotation as SPRITE.DRAW / DrawTexturePro; SAT on quad corners).",
+      "phase": "rendering"
     },
     {
       "key": "SPRITECOLLIDE",
@@ -11291,8 +11758,8 @@
         "handle",
         "handle"
       ],
-      "phase": "rendering",
-      "description": "Alias of SPRITE.HIT."
+      "description": "Alias of SPRITE.HIT.",
+      "phase": "rendering"
     },
     {
       "key": "SPRITE.POINTHIT",
@@ -11301,8 +11768,8 @@
         "float",
         "float"
       ],
-      "phase": "rendering",
-      "description": "True if (x,y) lies inside the sprite's drawn quad (same space as SPRITE.DRAW position plus SETPOS offsets)."
+      "description": "True if (x,y) lies inside the sprite's drawn quad (same space as SPRITE.DRAW position plus SETPOS offsets).",
+      "phase": "rendering"
     },
     {
       "key": "PARTICLE2D.DRAW",
@@ -11383,7 +11850,6 @@
     },
     {
       "key": "SPRITEBATCH.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -11428,7 +11894,6 @@
     },
     {
       "key": "SPRITEGROUP.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -11715,7 +12180,6 @@
     },
     {
       "key": "LIGHT2D.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -11794,7 +12258,6 @@
     },
     {
       "key": "TRANSITION.ISDONE",
-      "args": [],
       "returns": "bool",
       "phase": "rendering"
     },
@@ -11864,12 +12327,10 @@
     },
     {
       "key": "SCENE.DRAW",
-      "args": [],
       "phase": "rendering"
     },
     {
       "key": "SCENE.CURRENT",
-      "args": [],
       "returns": "string",
       "phase": "rendering"
     },
@@ -11930,7 +12391,6 @@
     },
     {
       "key": "TWEEN.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "any"
     },
@@ -12127,7 +12587,9 @@
         "float",
         "float"
       ],
-      "phase": "rendering"
+      "description": "DEPRECATED alias of CAMERA.SETPOS. Use CAMERA.SETPOS. ",
+      "phase": "rendering",
+      "deprecated_of": "CAMERA.SETPOS"
     },
     {
       "key": "CAMERA.SETTARGET",
@@ -12270,7 +12732,6 @@
     },
     {
       "key": "CAMERA.END",
-      "args": [],
       "phase": "rendering"
     },
     {
@@ -12307,8 +12768,8 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Screen (x,y) to world ray — alias of CAMERA.GETRAY / PICK"
+      "description": "Screen (x,y) to world ray — alias of CAMERA.GETRAY / PICK",
+      "phase": "rendering"
     },
     {
       "key": "CAMERA.GETVIEWRAY",
@@ -12548,12 +13009,11 @@
         "handle",
         "any"
       ],
-      "phase": "rendering",
-      "description": "0/1 or perspective/orthographic — alias-friendly CAMERA.SETPROJECTION"
+      "description": "0/1 or perspective/orthographic — alias-friendly CAMERA.SETPROJECTION",
+      "phase": "rendering"
     },
     {
-      "key": "CAMERA2D.BEGIN",
-      "args": []
+      "key": "CAMERA2D.BEGIN"
     },
     {
       "key": "CAMERA2D.BEGIN",
@@ -12563,12 +13023,10 @@
       "phase": "rendering"
     },
     {
-      "key": "CAMERA2D.END",
-      "args": []
+      "key": "CAMERA2D.END"
     },
     {
       "key": "CAMERA2D.CREATE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -12724,7 +13182,6 @@
     },
     {
       "key": "CAMERA.GETACTIVE",
-      "args": [],
       "returns": "handle",
       "phase": "rendering"
     },
@@ -12778,16 +13235,13 @@
     },
     {
       "key": "BODY3D.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
-      "key": "JOLT.INIT",
-      "args": []
+      "key": "JOLT.INIT"
     },
     {
-      "key": "JOLT.SHUTDOWN",
-      "args": []
+      "key": "JOLT.SHUTDOWN"
     },
     {
       "key": "JOLT.STEP",
@@ -12804,16 +13258,13 @@
       ]
     },
     {
-      "key": "JOLT.BODYCREATESTATIC",
-      "args": []
+      "key": "JOLT.BODYCREATESTATIC"
     },
     {
-      "key": "JOLT.BODYCREATEDYNAMIC",
-      "args": []
+      "key": "JOLT.BODYCREATEDYNAMIC"
     },
     {
-      "key": "JOLT.BODYCREATEKINEMATIC",
-      "args": []
+      "key": "JOLT.BODYCREATEKINEMATIC"
     },
     {
       "key": "JOLT.SHAPEBOX",
@@ -12910,20 +13361,16 @@
       ]
     },
     {
-      "key": "RAYLIB.CLOSEWINDOW",
-      "args": []
+      "key": "RAYLIB.CLOSEWINDOW"
     },
     {
-      "key": "RAYLIB.WINDOWSHOULDCLOSE",
-      "args": []
+      "key": "RAYLIB.WINDOWSHOULDCLOSE"
     },
     {
-      "key": "RAYLIB.BEGINFRAME",
-      "args": []
+      "key": "RAYLIB.BEGINFRAME"
     },
     {
-      "key": "RAYLIB.ENDFRAME",
-      "args": []
+      "key": "RAYLIB.ENDFRAME"
     },
     {
       "key": "RAYLIB.CLEARBACKGROUND",
@@ -13067,8 +13514,7 @@
       ]
     },
     {
-      "key": "RAYLIB.ENDSHADERMODE",
-      "args": []
+      "key": "RAYLIB.ENDSHADERMODE"
     },
     {
       "key": "RAYLIB.SETCAMERAMODE",
@@ -13085,20 +13531,16 @@
       ]
     },
     {
-      "key": "RAYLIB.GETFRAMEBUFFERWIDTH",
-      "args": []
+      "key": "RAYLIB.GETFRAMEBUFFERWIDTH"
     },
     {
-      "key": "RAYLIB.GETFRAMEBUFFERHEIGHT",
-      "args": []
+      "key": "RAYLIB.GETFRAMEBUFFERHEIGHT"
     },
     {
-      "key": "RAYLIB.GETTIME",
-      "args": []
+      "key": "RAYLIB.GETTIME"
     },
     {
-      "key": "RAYLIB.GETFPS",
-      "args": []
+      "key": "RAYLIB.GETFPS"
     },
     {
       "key": "RAYLIB.SETTARGETFPS",
@@ -13125,12 +13567,10 @@
       ]
     },
     {
-      "key": "RAYLIB.GETMOUSEX",
-      "args": []
+      "key": "RAYLIB.GETMOUSEX"
     },
     {
-      "key": "RAYLIB.GETMOUSEY",
-      "args": []
+      "key": "RAYLIB.GETMOUSEY"
     },
     {
       "key": "RAYLIB.ISMOUSEBUTTONDOWN",
@@ -13139,12 +13579,10 @@
       ]
     },
     {
-      "key": "ENET.INITIALIZE",
-      "args": []
+      "key": "ENET.INITIALIZE"
     },
     {
-      "key": "ENET.DEINITIALIZE",
-      "args": []
+      "key": "ENET.DEINITIALIZE"
     },
     {
       "key": "ENET.CREATEHOST",
@@ -13225,8 +13663,7 @@
       ]
     },
     {
-      "key": "PHYSICS3D.PROCESSCOLLISIONS",
-      "args": []
+      "key": "PHYSICS3D.PROCESSCOLLISIONS"
     },
     {
       "key": "PHYSICS3D.RAYCAST",
@@ -13332,12 +13769,10 @@
       ]
     },
     {
-      "key": "PHYSICS.START",
-      "args": []
+      "key": "PHYSICS.START"
     },
     {
-      "key": "PHYSICS.STOP",
-      "args": []
+      "key": "PHYSICS.STOP"
     },
     {
       "key": "PHYSICS.SETGRAVITY",
@@ -13483,7 +13918,9 @@
         "float",
         "float",
         "float"
-      ]
+      ],
+      "description": "DEPRECATED alias of BODY3D.SETPOS. Use BODY3D.SETPOS. ",
+      "deprecated_of": "BODY3D.SETPOS"
     },
     {
       "key": "BODY3D.GETPOS",
@@ -13630,8 +14067,8 @@
         "handle",
         "int"
       ],
-      "namespace": "body",
-      "description": "Lock motion/rotation axes (flags: 1=X, 2=Y, 4=Z, 8=RotX, 16=RotY, 32=RotZ)."
+      "description": "Lock motion/rotation axes (flags: 1=X, 2=Y, 4=Z, 8=RotX, 16=RotY, 32=RotZ).",
+      "namespace": "body"
     },
     {
       "key": "BODY3D.SETGRAVITYFACTOR",
@@ -13639,8 +14076,8 @@
         "handle",
         "float"
       ],
-      "namespace": "body",
-      "description": "Set gravity multiplier (0.0 = weightless)."
+      "description": "Set gravity multiplier (0.0 = weightless).",
+      "namespace": "body"
     },
     {
       "key": "BODY3D.SETDAMPING",
@@ -13649,8 +14086,8 @@
         "float",
         "float"
       ],
-      "namespace": "body",
-      "description": "Set linear and angular damping."
+      "description": "Set linear and angular damping.",
+      "namespace": "body"
     },
     {
       "key": "BODY3D.SETCCD",
@@ -13658,8 +14095,8 @@
         "handle",
         "bool"
       ],
-      "namespace": "body",
-      "description": "Enable/disable Continuous Collision Detection."
+      "description": "Enable/disable Continuous Collision Detection.",
+      "namespace": "body"
     },
     {
       "key": "JOINT.CREATEHINGE",
@@ -13714,7 +14151,6 @@
     },
     {
       "key": "PHYSICS2D.START",
-      "args": [],
       "phase": "init"
     },
     {
@@ -13723,12 +14159,11 @@
         "float",
         "float"
       ],
-      "phase": "init",
-      "description": "Optional initial gravity (gx#, gy#); same effect as SETGRAVITY after start."
+      "description": "Optional initial gravity (gx#, gy#); same effect as SETGRAVITY after start.",
+      "phase": "init"
     },
     {
-      "key": "PHYSICS2D.STOP",
-      "args": []
+      "key": "PHYSICS2D.STOP"
     },
     {
       "key": "PHYSICS2D.SETGRAVITY",
@@ -13751,8 +14186,7 @@
       ]
     },
     {
-      "key": "PHYSICS2D.STEP",
-      "args": []
+      "key": "PHYSICS2D.STEP"
     },
     {
       "key": "PHYSICS2D.ONCOLLISION",
@@ -13763,8 +14197,7 @@
       ]
     },
     {
-      "key": "PHYSICS2D.PROCESSCOLLISIONS",
-      "args": []
+      "key": "PHYSICS2D.PROCESSCOLLISIONS"
     },
     {
       "key": "BODY2D.CREATE",
@@ -13948,7 +14381,6 @@
     },
     {
       "key": "PHYSICS2D.GETDEBUGSEGMENTS",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -14018,7 +14450,9 @@
         "float",
         "float",
         "float"
-      ]
+      ],
+      "description": "DEPRECATED alias of CHARCONTROLLER.SETPOS. Use CHARCONTROLLER.SETPOS. ",
+      "deprecated_of": "CHARCONTROLLER.SETPOS"
     },
     {
       "key": "CHARCONTROLLER.GETPOS",
@@ -14196,7 +14630,6 @@
     },
     {
       "key": "PLAYER.ISGROUNDED",
-      "args": [],
       "returns": "bool",
       "description": "Implicit KCC subject: the last PLAYER.CREATE / Character.Create capsule (entity-bound Jolt KCC)"
     },
@@ -14272,7 +14705,6 @@
     },
     {
       "key": "PLAYER.GETGROUNDSTATE",
-      "args": [],
       "returns": "int",
       "description": "Implicit KCC subject (see PLAYER.ISGROUNDED ())"
     },
@@ -14286,7 +14718,6 @@
     },
     {
       "key": "PLAYER.ISONSTEEPSLOPE",
-      "args": [],
       "returns": "bool",
       "description": "Implicit KCC subject (see PLAYER.ISGROUNDED ())"
     },
@@ -14300,7 +14731,6 @@
     },
     {
       "key": "PLAYER.GETPOSITIONX",
-      "args": [],
       "returns": "float",
       "description": "Implicit KCC subject — same as Player.GetPositionX() with no args"
     },
@@ -14314,7 +14744,6 @@
     },
     {
       "key": "PLAYER.GETPOSITIONY",
-      "args": [],
       "returns": "float",
       "description": "Implicit KCC subject"
     },
@@ -14328,7 +14757,6 @@
     },
     {
       "key": "PLAYER.GETPOSITIONZ",
-      "args": [],
       "returns": "float",
       "description": "Implicit KCC subject"
     },
@@ -14386,7 +14814,6 @@
     },
     {
       "key": "PLAYER.GETSPEED",
-      "args": [],
       "returns": "float",
       "description": "Implicit KCC subject — same as Player.GetSpeed(entity)"
     },
@@ -14400,7 +14827,6 @@
     },
     {
       "key": "PLAYER.GETONSLOPE",
-      "args": [],
       "returns": "bool",
       "description": "Implicit KCC subject — steep slope (Jolt OnSteepGround)"
     },
@@ -14515,7 +14941,6 @@
     },
     {
       "key": "PLAYER.GETX",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETPOSITIONX () — implicit KCC subject"
     },
@@ -14529,7 +14954,6 @@
     },
     {
       "key": "PLAYER.GETY",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETPOSITIONY ()"
     },
@@ -14542,7 +14966,6 @@
     },
     {
       "key": "PLAYER.GETZ",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETPOSITIONZ ()"
     },
@@ -14555,7 +14978,6 @@
     },
     {
       "key": "PLAYER.GETPITCH",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETROTATIONPITCH ()"
     },
@@ -14568,7 +14990,6 @@
     },
     {
       "key": "PLAYER.GETYAW",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETROTATIONYAW ()"
     },
@@ -14581,7 +15002,6 @@
     },
     {
       "key": "PLAYER.GETROLL",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETROTATIONROLL ()"
     },
@@ -14594,7 +15014,6 @@
     },
     {
       "key": "PLAYER.GETGROUNDED",
-      "args": [],
       "returns": "bool",
       "description": "Alias of PLAYER.ISGROUNDED ()"
     },
@@ -14616,7 +15035,6 @@
     },
     {
       "key": "PLAYER.GETGRAVITY",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETGRAVITYSCALE (per-entity gravity scale, not world gravity)"
     },
@@ -14629,7 +15047,6 @@
     },
     {
       "key": "PLAYER.GETCAPSULERADIUS",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETRADIUS ()"
     },
@@ -14642,7 +15059,6 @@
     },
     {
       "key": "PLAYER.GETCAPSULEHEIGHT",
-      "args": [],
       "returns": "float",
       "description": "Alias of PLAYER.GETHEIGHT ()"
     },
@@ -14655,7 +15071,6 @@
     },
     {
       "key": "PLAYER.GETSHAPETYPE",
-      "args": [],
       "returns": "string",
       "description": "Returns \"capsule\" for CharacterVirtual"
     },
@@ -15146,7 +15561,7 @@
         "int",
         "float"
       ],
-      "description": "Character capsule skin padding (world units, >0); rebuilds CharacterVirtual (Linux+CGO)"
+      "description": "Character capsule skin padding (world units, \u003e0); rebuilds CharacterVirtual (Linux+CGO)"
     },
     {
       "key": "PLAYER.MOVEWITHCAMERA",
@@ -15188,12 +15603,34 @@
     {
       "key": "CHARACTER.CREATE",
       "args": [
+        "any"
+      ],
+      "returns": "handle",
+      "description": "Entity-bound capsule with default dimensions (0.4, 1.0). Linux/Windows fullruntime with CGO+Jolt.",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTER.CREATE",
+      "args": [
         "any",
         "float",
         "float"
       ],
       "returns": "handle",
-      "description": "Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.",
+      "description": "Entity-bound capsule: (visualEntity, radius, height).",
+      "namespace": "Character"
+    },
+    {
+      "key": "CHARACTER.CREATE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "World-positioned capsule: (radius, height, x, y, z). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.",
       "namespace": "Character"
     },
     {
@@ -15216,7 +15653,8 @@
         "float"
       ],
       "description": "DEPRECATED alias of CHARACTERREF.SETPOS. Use CHARACTERREF.SETPOS.",
-      "namespace": "Character"
+      "namespace": "Character",
+      "deprecated_of": "CHARACTERREF.SETPOS"
     },
     {
       "key": "CHARACTERREF.SETSETTING",
@@ -15481,7 +15919,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of BODYREF.SETPOS. Use BODYREF.SETPOS."
+      "description": "DEPRECATED alias of BODYREF.SETPOS. Use BODYREF.SETPOS.",
+      "deprecated_of": "BODYREF.SETPOS"
     },
     {
       "key": "BODYREF.SETROTATION",
@@ -15920,7 +16359,7 @@
         "int"
       ],
       "returns": "bool",
-      "description": "True if horizontal linear speed > ~0.05 (CharacterVirtual)"
+      "description": "True if horizontal linear speed \u003e ~0.05 (CharacterVirtual)"
     },
     {
       "key": "PLAYER.SETJUMPBUFFER",
@@ -16028,12 +16467,10 @@
     },
     {
       "key": "NET.START",
-      "args": [],
       "phase": "init"
     },
     {
-      "key": "NET.STOP",
-      "args": []
+      "key": "NET.STOP"
     },
     {
       "key": "NET.CREATESERVER",
@@ -16045,7 +16482,6 @@
     },
     {
       "key": "NET.CREATECLIENT",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -16156,17 +16592,14 @@
     },
     {
       "key": "NETREADSTRING",
-      "args": [],
       "returns": "string"
     },
     {
       "key": "NETREADINT",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "NETREADFLOAT",
-      "args": [],
       "returns": "float"
     },
     {
@@ -16268,8 +16701,7 @@
       ]
     },
     {
-      "key": "SERVER.STOP",
-      "args": []
+      "key": "SERVER.STOP"
     },
     {
       "key": "SERVER.ONCONNECT",
@@ -16316,8 +16748,7 @@
       ]
     },
     {
-      "key": "CLIENT.STOP",
-      "args": []
+      "key": "CLIENT.STOP"
     },
     {
       "key": "CLIENT.ONCONNECT",
@@ -16664,12 +17095,10 @@
       ]
     },
     {
-      "key": "EVENT.RECSTART",
-      "args": []
+      "key": "EVENT.RECSTART"
     },
     {
-      "key": "EVENT.RECSTOP",
-      "args": []
+      "key": "EVENT.RECSTOP"
     },
     {
       "key": "EVENT.REPLAY",
@@ -16679,12 +17108,10 @@
     },
     {
       "key": "EVENT.RECPLAYING",
-      "args": [],
       "returns": "bool"
     },
     {
       "key": "EVENT.ISPLAYING",
-      "args": [],
       "returns": "bool"
     },
     {
@@ -16736,7 +17163,6 @@
     },
     {
       "key": "JSON.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -16924,7 +17350,8 @@
         "handle",
         "string"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "ARRAYJOINS"
     },
     {
       "key": "ARRAYFREE",
@@ -16939,12 +17366,10 @@
       ]
     },
     {
-      "key": "FREE.ALL",
-      "args": []
+      "key": "FREE.ALL"
     },
     {
-      "key": "ARGC",
-      "args": []
+      "key": "ARGC"
     },
     {
       "key": "ASSERT",
@@ -17035,14 +17460,24 @@
       ]
     },
     {
+      "key": "COMMAND"
+    },
+    {
       "key": "COMMAND$",
-      "args": []
+      "deprecated_of": "COMMAND"
+    },
+    {
+      "key": "COMMAND",
+      "args": [
+        "int"
+      ]
     },
     {
       "key": "COMMAND$",
       "args": [
         "int"
-      ]
+      ],
+      "deprecated_of": "COMMAND"
     },
     {
       "key": "COPYFILE",
@@ -17082,16 +17517,21 @@
       ]
     },
     {
+      "key": "DATE"
+    },
+    {
       "key": "DATE$",
-      "args": []
+      "deprecated_of": "DATE"
+    },
+    {
+      "key": "DATETIME"
     },
     {
       "key": "DATETIME$",
-      "args": []
+      "deprecated_of": "DATETIME"
     },
     {
-      "key": "DAY",
-      "args": []
+      "key": "DAY"
     },
     {
       "key": "DELETEDIR",
@@ -17118,10 +17558,17 @@
       ]
     },
     {
-      "key": "ENVIRON$",
+      "key": "ENVIRON",
       "args": [
         "string"
       ]
+    },
+    {
+      "key": "ENVIRON$",
+      "args": [
+        "string"
+      ],
+      "deprecated_of": "ENVIRON"
     },
     {
       "key": "EOF",
@@ -17130,20 +17577,16 @@
       ]
     },
     {
-      "key": "ERR",
-      "args": []
+      "key": "ERR"
     },
     {
-      "key": "ERRFILE$",
-      "args": []
+      "key": "ERRFILE$"
     },
     {
-      "key": "ERRLINE",
-      "args": []
+      "key": "ERRLINE"
     },
     {
-      "key": "ERRMSG$",
-      "args": []
+      "key": "ERRMSG$"
     },
     {
       "key": "FILEEXISTS",
@@ -17164,21 +17607,43 @@
       ]
     },
     {
-      "key": "GETDIR$",
-      "args": []
+      "key": "GETDIR"
     },
     {
-      "key": "GETDIRS$",
+      "key": "GETDIR$",
+      "deprecated_of": "GETDIR"
+    },
+    {
+      "key": "GETDIRS",
       "args": [
         "string"
       ]
     },
     {
-      "key": "GETDROPPEDFILES",
-      "args": []
+      "key": "GETDIRS$",
+      "args": [
+        "string"
+      ],
+      "deprecated_of": "GETDIRS"
+    },
+    {
+      "key": "GETDROPPEDFILES"
+    },
+    {
+      "key": "GETFILEEXT",
+      "args": [
+        "string"
+      ]
     },
     {
       "key": "GETFILEEXT$",
+      "args": [
+        "string"
+      ],
+      "deprecated_of": "GETFILEEXT"
+    },
+    {
+      "key": "GETFILENAME",
       "args": [
         "string"
       ]
@@ -17187,10 +17652,24 @@
       "key": "GETFILENAME$",
       "args": [
         "string"
+      ],
+      "deprecated_of": "GETFILENAME"
+    },
+    {
+      "key": "GETFILENAMENOEXT",
+      "args": [
+        "string"
       ]
     },
     {
       "key": "GETFILENAMENOEXT$",
+      "args": [
+        "string"
+      ],
+      "deprecated_of": "GETFILENAMENOEXT"
+    },
+    {
+      "key": "GETFILEPATH",
       "args": [
         "string"
       ]
@@ -17199,13 +17678,21 @@
       "key": "GETFILEPATH$",
       "args": [
         "string"
+      ],
+      "deprecated_of": "GETFILEPATH"
+    },
+    {
+      "key": "GETFILES",
+      "args": [
+        "string"
       ]
     },
     {
       "key": "GETFILES$",
       "args": [
         "string"
-      ]
+      ],
+      "deprecated_of": "GETFILES"
     },
     {
       "key": "GETFILEMODTIME",
@@ -17220,8 +17707,7 @@
       ]
     },
     {
-      "key": "HOUR",
-      "args": []
+      "key": "HOUR"
     },
     {
       "key": "ISHANDLE",
@@ -17230,8 +17716,7 @@
       ]
     },
     {
-      "key": "ISFILEDROPPED",
-      "args": []
+      "key": "ISFILEDROPPED"
     },
     {
       "key": "ISNULL",
@@ -17259,46 +17744,88 @@
       ]
     },
     {
-      "key": "MILLISECOND",
-      "args": []
+      "key": "MILLISECOND"
     },
     {
-      "key": "MINUTE",
-      "args": []
+      "key": "MINUTE"
+    },
+    {
+      "key": "MKDOUBLE",
+      "args": [
+        "any"
+      ],
+      "returns": "handle"
     },
     {
       "key": "MKDOUBLE$",
       "args": [
         "any"
-      ]
+      ],
+      "returns": "handle",
+      "deprecated_of": "MKDOUBLE"
+    },
+    {
+      "key": "MKFLOAT",
+      "args": [
+        "any"
+      ],
+      "returns": "handle"
     },
     {
       "key": "MKFLOAT$",
       "args": [
         "any"
-      ]
+      ],
+      "returns": "handle",
+      "deprecated_of": "MKFLOAT"
+    },
+    {
+      "key": "MKINT",
+      "args": [
+        "any"
+      ],
+      "returns": "handle"
     },
     {
       "key": "MKINT$",
       "args": [
         "any"
-      ]
+      ],
+      "returns": "handle",
+      "deprecated_of": "MKINT"
+    },
+    {
+      "key": "MKLONG",
+      "args": [
+        "any"
+      ],
+      "returns": "handle"
     },
     {
       "key": "MKLONG$",
       "args": [
         "any"
-      ]
+      ],
+      "returns": "handle",
+      "deprecated_of": "MKLONG"
+    },
+    {
+      "key": "MKSHORT",
+      "args": [
+        "any"
+      ],
+      "returns": "handle"
     },
     {
       "key": "MKSHORT$",
       "args": [
         "any"
-      ]
+      ],
+      "returns": "handle",
+      "deprecated_of": "MKSHORT"
     },
     {
-      "key": "MONTH",
-      "args": []
+      "key": "MONTH"
     },
     {
       "key": "MOVEFILE",
@@ -17332,14 +17859,20 @@
       ]
     },
     {
-      "key": "QUIT",
-      "args": []
+      "key": "QUIT"
+    },
+    {
+      "key": "READALLTEXT",
+      "args": [
+        "string"
+      ]
     },
     {
       "key": "READALLTEXT$",
       "args": [
         "string"
-      ]
+      ],
+      "deprecated_of": "READALLTEXT"
     },
     {
       "key": "READBYTE",
@@ -17348,10 +17881,17 @@
       ]
     },
     {
+      "key": "READFILE",
+      "args": [
+        "any"
+      ]
+    },
+    {
       "key": "READFILE$",
       "args": [
-        "handle"
-      ]
+        "any"
+      ],
+      "deprecated_of": "READFILE"
     },
     {
       "key": "READFLOAT",
@@ -17372,11 +17912,19 @@
       ]
     },
     {
-      "key": "READSTRING$",
+      "key": "READSTRING",
       "args": [
         "handle",
         "int"
       ]
+    },
+    {
+      "key": "READSTRING$",
+      "args": [
+        "handle",
+        "int"
+      ],
+      "deprecated_of": "READSTRING"
     },
     {
       "key": "RENAMEFILE",
@@ -17400,8 +17948,7 @@
       ]
     },
     {
-      "key": "SECOND",
-      "args": []
+      "key": "SECOND"
     },
     {
       "key": "SLEEP",
@@ -17410,8 +17957,7 @@
       ]
     },
     {
-      "key": "STOP",
-      "args": []
+      "key": "STOP"
     },
     {
       "key": "THROW",
@@ -17421,20 +17967,20 @@
       ]
     },
     {
-      "key": "TICKCOUNT",
-      "args": []
+      "key": "TICKCOUNT"
+    },
+    {
+      "key": "TIME"
     },
     {
       "key": "TIME$",
-      "args": []
+      "deprecated_of": "TIME"
     },
     {
-      "key": "TIMER",
-      "args": []
+      "key": "TIMER"
     },
     {
-      "key": "TIMESTAMP",
-      "args": []
+      "key": "TIMESTAMP"
     },
     {
       "key": "TRACE",
@@ -17511,8 +18057,7 @@
       ]
     },
     {
-      "key": "YEAR",
-      "args": []
+      "key": "YEAR"
     },
     {
       "key": "DRAW.CIRCLE",
@@ -17993,8 +18538,8 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Logical XZ tactical grid (width x depth cells, cell size)"
+      "description": "Logical XZ tactical grid (width x depth cells, cell size)",
+      "phase": "rendering"
     },
     {
       "key": "GRID.FREE",
@@ -18031,8 +18576,8 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Array handle [ix, iz]"
+      "description": "Array handle [ix, iz]",
+      "phase": "rendering"
     },
     {
       "key": "GRID.DRAW",
@@ -18063,8 +18608,8 @@
         "int",
         "int"
       ],
-      "phase": "rendering",
-      "description": "Move entity to cell center (optional Y from GRID.FOLLOWTERRAIN)"
+      "description": "Move entity to cell center (optional Y from GRID.FOLLOWTERRAIN)",
+      "phase": "rendering"
     },
     {
       "key": "GRID.GETPATH",
@@ -18076,8 +18621,8 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Packed path [ix0,iz0, ix1,iz1, ...] or empty"
+      "description": "Packed path [ix0,iz0, ix1,iz1, ...] or empty",
+      "phase": "rendering"
     },
     {
       "key": "GRID.FOLLOWTERRAIN",
@@ -18085,8 +18630,8 @@
         "handle",
         "handle"
       ],
-      "phase": "rendering",
-      "description": "Bake per-cell Y from terrain height"
+      "description": "Bake per-cell Y from terrain height",
+      "phase": "rendering"
     },
     {
       "key": "GRID.PLACEENTITY",
@@ -18106,8 +18651,8 @@
         "float"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Cell under mouse ray on XZ plane; [-1,-1] if miss"
+      "description": "Cell under mouse ray on XZ plane; [-1,-1] if miss",
+      "phase": "rendering"
     },
     {
       "key": "GRID.GETNEIGHBORS",
@@ -18118,8 +18663,8 @@
         "int"
       ],
       "returns": "handle",
-      "phase": "rendering",
-      "description": "Entity IDs occupying cells in Chebyshev radius"
+      "description": "Entity IDs occupying cells in Chebyshev radius",
+      "phase": "rendering"
     },
     {
       "key": "FLAT",
@@ -18315,6 +18860,14 @@
       ]
     },
     {
+      "key": "AUDIO.INIT",
+      "phase": "init"
+    },
+    {
+      "key": "AUDIO.CLOSE",
+      "phase": "init"
+    },
+    {
       "key": "AUDIO.PLAY",
       "args": [
         "handle"
@@ -18479,7 +19032,6 @@
     },
     {
       "key": "SKY.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -18531,7 +19083,6 @@
     },
     {
       "key": "WEATHER.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -18618,7 +19169,6 @@
     },
     {
       "key": "WIND.GETSTRENGTH",
-      "args": [],
       "returns": "float"
     },
     {
@@ -18667,89 +19217,87 @@
     },
     {
       "key": "TIME.GET",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "TIME.DELTA",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "TIME.GETFPS",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "TIMER",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "TICKCOUNT",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "MilliSecs",
-      "args": [],
       "returns": "float",
       "description": "Milliseconds since Raylib init (CGO); monotonic wall ms on stub builds"
     },
     {
       "key": "YEAR",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "MONTH",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "DAY",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "HOUR",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "MINUTE",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "SECOND",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "MILLISECOND",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "TIMESTAMP",
-      "args": [],
       "returns": "float"
     },
     {
+      "key": "DATE",
+      "returns": "string"
+    },
+    {
       "key": "DATE$",
-      "args": [],
+      "returns": "string",
+      "deprecated_of": "DATE"
+    },
+    {
+      "key": "TIME",
       "returns": "string"
     },
     {
       "key": "TIME$",
-      "args": [],
+      "returns": "string",
+      "deprecated_of": "TIME"
+    },
+    {
+      "key": "DATETIME",
       "returns": "string"
     },
     {
       "key": "DATETIME$",
-      "args": [],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "DATETIME"
     },
     {
       "key": "UTIL.DELETEFILE",
@@ -18787,7 +19335,6 @@
     },
     {
       "key": "UTIL.GETDIR",
-      "args": [],
       "returns": "string"
     },
     {
@@ -18812,11 +19359,19 @@
       "returns": "bool"
     },
     {
-      "key": "READALLTEXT$",
+      "key": "READALLTEXT",
       "args": [
         "string"
       ],
       "returns": "string"
+    },
+    {
+      "key": "READALLTEXT$",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "READALLTEXT"
     },
     {
       "key": "MAKEDIR",
@@ -18833,7 +19388,22 @@
       "returns": "bool"
     },
     {
+      "key": "GETFILEEXT",
+      "args": [
+        "string"
+      ],
+      "returns": "string"
+    },
+    {
       "key": "GETFILEEXT$",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "GETFILEEXT"
+    },
+    {
+      "key": "GETFILENAME",
       "args": [
         "string"
       ],
@@ -18844,10 +19414,26 @@
       "args": [
         "string"
       ],
+      "returns": "string",
+      "deprecated_of": "GETFILENAME"
+    },
+    {
+      "key": "GETFILENAMENOEXT",
+      "args": [
+        "string"
+      ],
       "returns": "string"
     },
     {
       "key": "GETFILENAMENOEXT$",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "GETFILENAMENOEXT"
+    },
+    {
+      "key": "GETFILEPATH",
       "args": [
         "string"
       ],
@@ -18858,7 +19444,8 @@
       "args": [
         "string"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "GETFILEPATH"
     },
     {
       "key": "GETFILESIZE",
@@ -18875,11 +19462,19 @@
       "returns": "int"
     },
     {
-      "key": "GETFILES$",
+      "key": "GETFILES",
       "args": [
         "string"
       ],
       "returns": "string"
+    },
+    {
+      "key": "GETFILES$",
+      "args": [
+        "string"
+      ],
+      "returns": "string",
+      "deprecated_of": "GETFILES"
     },
     {
       "key": "DELETEFILE",
@@ -18927,8 +19522,19 @@
       "returns": "bool"
     },
     {
+      "key": "GETDIR",
+      "returns": "string"
+    },
+    {
       "key": "GETDIR$",
-      "args": [],
+      "returns": "string",
+      "deprecated_of": "GETDIR"
+    },
+    {
+      "key": "GETDIRS",
+      "args": [
+        "string"
+      ],
       "returns": "string"
     },
     {
@@ -18936,7 +19542,8 @@
       "args": [
         "string"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "GETDIRS"
     },
     {
       "key": "TABLE.CREATE",
@@ -19116,7 +19723,9 @@
         "handle",
         "float",
         "float"
-      ]
+      ],
+      "description": "DEPRECATED alias of LIGHT2D.SETPOS. Use LIGHT2D.SETPOS. ",
+      "deprecated_of": "LIGHT2D.SETPOS"
     },
     {
       "key": "RENDER.SET2DAMBIENT",
@@ -19318,8 +19927,8 @@
         "handle",
         "handle"
       ],
-      "phase": "rendering",
-      "description": "Apply CPU image as terrain diffuse + splat sample; rebuilds loaded chunk meshes"
+      "description": "Apply CPU image as terrain diffuse + splat sample; rebuilds loaded chunk meshes",
+      "phase": "rendering"
     },
     {
       "key": "TERRAIN.APPLYTILES",
@@ -19329,8 +19938,8 @@
         "int"
       ],
       "returns": "int",
-      "phase": "rendering",
-      "description": "Copy template entity to each non-empty tile on layer 0; returns count placed"
+      "description": "Copy template entity to each non-empty tile on layer 0; returns count placed",
+      "phase": "rendering"
     },
     {
       "key": "TERRAIN.APPLYTILES",
@@ -19341,8 +19950,8 @@
         "int"
       ],
       "returns": "int",
-      "phase": "rendering",
-      "description": "Same as 3-arg form with explicit tile layer index"
+      "description": "Same as 3-arg form with explicit tile layer index",
+      "phase": "rendering"
     },
     {
       "key": "CHUNK.GENERATE",
@@ -19419,7 +20028,6 @@
     },
     {
       "key": "WORLD.STATUS",
-      "args": [],
       "returns": "string"
     },
     {
@@ -19446,7 +20054,6 @@
     },
     {
       "key": "STOPWATCH.NEW",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -19482,7 +20089,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of TIMER.CREATE. Use TIMER.CREATE."
+      "description": "DEPRECATED alias of TIMER.CREATE. Use TIMER.CREATE.",
+      "deprecated_of": "TIMER.CREATE"
     },
     {
       "key": "TIMER.NEW",
@@ -19670,8 +20278,7 @@
       "phase": "rendering"
     },
     {
-      "key": "SCENE.CLEARSCENE",
-      "args": []
+      "key": "SCENE.CLEARSCENE"
     },
     {
       "key": "SCENE.SAVESCENE",
@@ -19686,8 +20293,7 @@
       ]
     },
     {
-      "key": "ENTITY.CLEARSCENE",
-      "args": []
+      "key": "ENTITY.CLEARSCENE"
     },
     {
       "key": "ENTITY.SAVESCENE",
@@ -19749,7 +20355,6 @@
     },
     {
       "key": "ENTITY.CREATE",
-      "args": [],
       "returns": "int"
     },
     {
@@ -19788,7 +20393,8 @@
         "float",
         "any"
       ],
-      "description": "Deprecated alias of ENTITY.SETPOS — set world or local position"
+      "description": "DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS. Deprecated alias of ENTITY.SETPOS — set world or local position",
+      "deprecated_of": "ENTITY.SETPOS"
     },
     {
       "key": "ENTITY.POSITION",
@@ -20165,14 +20771,12 @@
       ]
     },
     {
-      "key": "ENTITY.DRAWALL",
-      "args": []
+      "key": "ENTITY.DRAWALL"
     },
     {
       "key": "DrawEntities",
-      "args": [],
-      "phase": "rendering",
-      "description": "Alias for ENTITY.DRAWALL: draw all entities in the scene graph (no arguments)"
+      "description": "Alias for ENTITY.DRAWALL: draw all entities in the scene graph (no arguments)",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.DRAW",
@@ -20186,8 +20790,8 @@
       "args": [
         "int"
       ],
-      "phase": "rendering",
-      "description": "Draw one entity (same as ENTITY.DRAW)"
+      "description": "Draw one entity (same as ENTITY.DRAW)",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.LOADANIMATIONS",
@@ -20291,8 +20895,8 @@
         "float",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)"
+      "description": "Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.SETDETAILTEXTURE",
@@ -20300,8 +20904,8 @@
         "int",
         "handle"
       ],
-      "phase": "rendering",
-      "description": "Bind secondary map as MATERIAL_MAP_NORMAL for blending/detail"
+      "description": "Bind secondary map as MATERIAL_MAP_NORMAL for blending/detail",
+      "phase": "rendering"
     },
     {
       "key": "MATERIAL.SETUVSCROLL",
@@ -20310,8 +20914,8 @@
         "float",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Alias of ENTITY.SCROLLMATERIAL (mesh material 0)"
+      "description": "Alias of ENTITY.SCROLLMATERIAL (mesh material 0)",
+      "phase": "rendering"
     },
     {
       "key": "MATERIAL.SETSECONDARYTEXTURE",
@@ -20319,8 +20923,8 @@
         "int",
         "handle"
       ],
-      "phase": "rendering",
-      "description": "Alias of ENTITY.SETDETAILTEXTURE"
+      "description": "Alias of ENTITY.SETDETAILTEXTURE",
+      "phase": "rendering"
     },
     {
       "key": "MATERIAL.BULKASSIGN",
@@ -20373,9 +20977,25 @@
       ]
     },
     {
+      "key": "ENTITY.ANIMNAME",
+      "args": [
+        "any",
+        "int"
+      ],
+      "returns": "string"
+    },
+    {
       "key": "ENTITY.ANIMNAME$",
       "args": [
-        "int",
+        "any",
+        "int"
+      ],
+      "returns": "string",
+      "deprecated_of": "ENTITY.ANIMNAME"
+    },
+    {
+      "key": "ENTITY.CURRENTANIM",
+      "args": [
         "any"
       ],
       "returns": "string"
@@ -20383,9 +21003,10 @@
     {
       "key": "ENTITY.CURRENTANIM$",
       "args": [
-        "int"
+        "any"
       ],
-      "returns": "string"
+      "returns": "string",
+      "deprecated_of": "ENTITY.CURRENTANIM"
     },
     {
       "key": "LEVEL.SETROOT",
@@ -20471,7 +21092,6 @@
     },
     {
       "key": "LEVEL.AUTOCOLLIDE",
-      "args": [],
       "description": "Scans all active entities and automatically creates static mesh collisions for those marked as static with models."
     },
     {
@@ -20531,8 +21151,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Args: (entity#, forward#, right#, up#). Move along entity local axes from pitch/yaw (same as MOVEENTITY / ENTITY.MOVE). For world-space offset use TranslateEntity(entity#, dx#, dy#, dz#)."
+      "description": "Args: (entity#, forward#, right#, up#). Move along entity local axes from pitch/yaw (same as MOVEENTITY / ENTITY.MOVE). For world-space offset use TranslateEntity(entity#, dx#, dy#, dz#).",
+      "phase": "any"
     },
     {
       "key": "TranslateEntity",
@@ -20542,15 +21162,14 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Args: (entity#, dx#, dy#, dz#). World-space position delta; same as ENTITY.TRANSLATE / ENTITY.TRANSLATEENTITY."
+      "description": "Args: (entity#, dx#, dy#, dz#). World-space position delta; same as ENTITY.TRANSLATE / ENTITY.TRANSLATEENTITY.",
+      "phase": "any"
     },
     {
       "key": "CreatePivot",
-      "args": [],
       "returns": "int",
-      "phase": "any",
-      "description": "Create empty transform node (entity#) for parenting; invisible, no mesh"
+      "description": "Create empty transform node (entity#) for parenting; invisible, no mesh",
+      "phase": "any"
     },
     {
       "key": "ENTITY.LINKPHYSBUFFER",
@@ -20558,16 +21177,16 @@
         "int",
         "int"
       ],
-      "phase": "any",
-      "description": "Bind entity# to Jolt shared matrix slot index (use BODY3D.BUFFERINDEX on the body)"
+      "description": "Bind entity# to Jolt shared matrix slot index (use BODY3D.BUFFERINDEX on the body)",
+      "phase": "any"
     },
     {
       "key": "ENTITY.CLEARPHYSBUFFER",
       "args": [
         "int"
       ],
-      "phase": "any",
-      "description": "Remove physics matrix buffer binding from entity#"
+      "description": "Remove physics matrix buffer binding from entity#",
+      "phase": "any"
     },
     {
       "key": "ENTITY.COLLISIONLAYER",
@@ -20575,8 +21194,8 @@
         "int",
         "int"
       ],
-      "phase": "any",
-      "description": "Reserved 0..31 layer id for future Jolt bitmask filtering (stored on entity)"
+      "description": "Reserved 0..31 layer id for future Jolt bitmask filtering (stored on entity)",
+      "phase": "any"
     },
     {
       "key": "EntityCollisionLayer",
@@ -20584,8 +21203,8 @@
         "int",
         "int"
       ],
-      "phase": "any",
-      "description": "Alias for ENTITY.COLLISIONLAYER"
+      "description": "Alias for ENTITY.COLLISIONLAYER",
+      "phase": "any"
     },
     {
       "key": "ENTITY.SETCOLLISIONGROUP",
@@ -20593,8 +21212,8 @@
         "int",
         "int"
       ],
-      "phase": "any",
-      "description": "Alias for ENTITY.COLLISIONLAYER (collision group / layer 0..31)"
+      "description": "Alias for ENTITY.COLLISIONLAYER (collision group / layer 0..31)",
+      "phase": "any"
     },
     {
       "key": "EntitySetCollisionGroup",
@@ -20602,8 +21221,8 @@
         "int",
         "int"
       ],
-      "phase": "any",
-      "description": "Alias for ENTITY.SETCOLLISIONGROUP"
+      "description": "Alias for ENTITY.SETCOLLISIONGROUP",
+      "phase": "any"
     },
     {
       "key": "ENTITY.CHECKCOLLISION",
@@ -20612,8 +21231,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "True if two entities had a Jolt contact last step (same as EntityCollided)"
+      "description": "True if two entities had a Jolt contact last step (same as EntityCollided)",
+      "phase": "any"
     },
     {
       "key": "EntityCheckCollision",
@@ -20622,8 +21241,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias for ENTITY.CHECKCOLLISION"
+      "description": "Alias for ENTITY.CHECKCOLLISION",
+      "phase": "any"
     },
     {
       "key": "ENTITY.RAYCAST",
@@ -20637,8 +21256,8 @@
         "float"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Jolt ray cast; returns first hit entity# or 0 (same query path as PHYSICS3D/PICK)"
+      "description": "Jolt ray cast; returns first hit entity# or 0 (same query path as PHYSICS3D/PICK)",
+      "phase": "any"
     },
     {
       "key": "EntityRaycast",
@@ -20652,8 +21271,8 @@
         "float"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Alias for ENTITY.RAYCAST"
+      "description": "Alias for ENTITY.RAYCAST",
+      "phase": "any"
     },
     {
       "key": "ENTITY.GETGROUNDNORMAL",
@@ -20661,8 +21280,8 @@
         "int"
       ],
       "returns": "handle",
-      "phase": "any",
-      "description": "World ground normal under entity (CharacterVirtual if PLAYER.CREATE; else short downward Jolt ray)"
+      "description": "World ground normal under entity (CharacterVirtual if PLAYER.CREATE; else short downward Jolt ray)",
+      "phase": "any"
     },
     {
       "key": "EntityGetGroundNormal",
@@ -20670,8 +21289,8 @@
         "int"
       ],
       "returns": "handle",
-      "phase": "any",
-      "description": "Alias for ENTITY.GETGROUNDNORMAL"
+      "description": "Alias for ENTITY.GETGROUNDNORMAL",
+      "phase": "any"
     },
     {
       "key": "ENTITY.APPLYIMPULSE",
@@ -20681,8 +21300,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Same as ENTITY.ADDFORCE / ApplyEntityImpulse (velocity change; not Jolt BodyInterface impulse until exposed)"
+      "description": "Same as ENTITY.ADDFORCE / ApplyEntityImpulse (velocity change; not Jolt BodyInterface impulse until exposed)",
+      "phase": "any"
     },
     {
       "key": "EntityApplyImpulse",
@@ -20692,8 +21311,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Alias for ENTITY.APPLYIMPULSE"
+      "description": "Alias for ENTITY.APPLYIMPULSE",
+      "phase": "any"
     },
     {
       "key": "ENTITY.CANSEE",
@@ -20704,8 +21323,8 @@
         "float"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Vision cone (degrees) + max distance + unobstructed Jolt ray to target"
+      "description": "Vision cone (degrees) + max distance + unobstructed Jolt ray to target",
+      "phase": "any"
     },
     {
       "key": "EntityCanSee",
@@ -20716,8 +21335,8 @@
         "float"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias for ENTITY.CANSEE"
+      "description": "Alias for ENTITY.CANSEE",
+      "phase": "any"
     },
     {
       "key": "ENTITY.GETCLOSESTWITHTAG",
@@ -20727,8 +21346,8 @@
         "string"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Nearest entity within radius matching name/tag glob (same rules as PLAYER.GETNEARBY)"
+      "description": "Nearest entity within radius matching name/tag glob (same rules as PLAYER.GETNEARBY)",
+      "phase": "any"
     },
     {
       "key": "EntityGetClosestWithTag",
@@ -20738,24 +21357,24 @@
         "string"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Alias for ENTITY.GETCLOSESTWITHTAG"
+      "description": "Alias for ENTITY.GETCLOSESTWITHTAG",
+      "phase": "any"
     },
     {
       "key": "ENTITY.PUSHOUTOFGEOMETRY",
       "args": [
         "int"
       ],
-      "phase": "any",
-      "description": "Best-effort depenetration: nudges entity world Y up slightly"
+      "description": "Best-effort depenetration: nudges entity world Y up slightly",
+      "phase": "any"
     },
     {
       "key": "EntityPushOutOfGeometry",
       "args": [
         "int"
       ],
-      "phase": "any",
-      "description": "Alias for ENTITY.PUSHOUTOFGEOMETRY"
+      "description": "Alias for ENTITY.PUSHOUTOFGEOMETRY",
+      "phase": "any"
     },
     {
       "key": "ENTITY.HASTAG",
@@ -20764,8 +21383,8 @@
         "string"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Glob match on Blender tag or entity name only (stricter than ENTITY.ISTYPE)"
+      "description": "Glob match on Blender tag or entity name only (stricter than ENTITY.ISTYPE)",
+      "phase": "any"
     },
     {
       "key": "EntityHasTag",
@@ -20774,8 +21393,8 @@
         "string"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias for ENTITY.HASTAG"
+      "description": "Alias for ENTITY.HASTAG",
+      "phase": "any"
     },
     {
       "key": "ENTITY.INFRUSTUM",
@@ -20783,8 +21402,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "True if entity AABB intersects active CAMERA.BEGIN frustum (same as ENTITY.INVIEW without passing camera)"
+      "description": "True if entity AABB intersects active CAMERA.BEGIN frustum (same as ENTITY.INVIEW without passing camera)",
+      "phase": "any"
     },
     {
       "key": "EntityInFrustum",
@@ -20792,8 +21411,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias for ENTITY.INFRUSTUM"
+      "description": "Alias for ENTITY.INFRUSTUM",
+      "phase": "any"
     },
     {
       "key": "CHECK.INVIEW",
@@ -20801,8 +21420,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Same frustum test as ENTITY.INFRUSTUM (active CAMERA.BEGIN)"
+      "description": "Same frustum test as ENTITY.INFRUSTUM (active CAMERA.BEGIN)",
+      "phase": "any"
     },
     {
       "key": "ENTITY.ISSUBMERGED",
@@ -20810,8 +21429,8 @@
         "int"
       ],
       "returns": "float",
-      "phase": "any",
-      "description": "Fraction 0..1 of entity vertical extent below water surface (any overlapping WATER volume)"
+      "description": "Fraction 0..1 of entity vertical extent below water surface (any overlapping WATER volume)",
+      "phase": "any"
     },
     {
       "key": "ENTITY.SETBUOYANCY",
@@ -20836,8 +21455,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Unobstructed Jolt ray from observer eye to target (no FOV); sensors still occlude until filtered"
+      "description": "Unobstructed Jolt ray from observer eye to target (no FOV); sensors still occlude until filtered",
+      "phase": "any"
     },
     {
       "key": "EntityLineOfSight",
@@ -20846,8 +21465,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias for ENTITY.LINEOFSIGHT"
+      "description": "Alias for ENTITY.LINEOFSIGHT",
+      "phase": "any"
     },
     {
       "key": "ENTITY.GETOVERLAPCOUNT",
@@ -20856,8 +21475,8 @@
         "string"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Counts tagged entities whose pivot lies in zone entity world AABB (sphere prefilter)"
+      "description": "Counts tagged entities whose pivot lies in zone entity world AABB (sphere prefilter)",
+      "phase": "any"
     },
     {
       "key": "EntityGetOverlapCount",
@@ -20866,8 +21485,8 @@
         "string"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Alias for ENTITY.GETOVERLAPCOUNT"
+      "description": "Alias for ENTITY.GETOVERLAPCOUNT",
+      "phase": "any"
     },
     {
       "key": "ENTITY.ANIMATETOWARD",
@@ -20878,8 +21497,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE"
+      "description": "Linear world lerp over duration (seconds); advanced in ENTITY.UPDATE",
+      "phase": "any"
     },
     {
       "key": "EntityAnimateToward",
@@ -20890,8 +21509,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Alias for ENTITY.ANIMATETOWARD"
+      "description": "Alias for ENTITY.ANIMATETOWARD",
+      "phase": "any"
     },
     {
       "key": "EntityCollided",
@@ -20900,8 +21519,8 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "True if two entities had a Jolt contact since last PHYSICS3D.STEP (Linux+CGO; link via ENTITY.LINKPHYSBUFFER)"
+      "description": "True if two entities had a Jolt contact since last PHYSICS3D.STEP (Linux+CGO; link via ENTITY.LINKPHYSBUFFER)",
+      "phase": "any"
     },
     {
       "key": "ENTITYPHYSICSTOUCH",
@@ -20910,64 +21529,56 @@
         "int"
       ],
       "returns": "bool",
-      "phase": "any",
-      "description": "Alias for EntityCollided"
+      "description": "Alias for EntityCollided",
+      "phase": "any"
     },
     {
       "key": "CollisionNX",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "World normal X from last successful EntityCollided query this frame"
+      "description": "World normal X from last successful EntityCollided query this frame",
+      "phase": "any"
     },
     {
       "key": "CollisionNY",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "World normal Y from last successful EntityCollided query"
+      "description": "World normal Y from last successful EntityCollided query",
+      "phase": "any"
     },
     {
       "key": "CollisionNZ",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "World normal Z from last successful EntityCollided query"
+      "description": "World normal Z from last successful EntityCollided query",
+      "phase": "any"
     },
     {
       "key": "CollisionPX",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Contact point X (shape query) after last EntityCollided"
+      "description": "Contact point X (shape query) after last EntityCollided",
+      "phase": "any"
     },
     {
       "key": "CollisionPY",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Contact point Y after last EntityCollided"
+      "description": "Contact point Y after last EntityCollided",
+      "phase": "any"
     },
     {
       "key": "CollisionPZ",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Contact point Z after last EntityCollided"
+      "description": "Contact point Z after last EntityCollided",
+      "phase": "any"
     },
     {
       "key": "CollisionY",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Alias for CollisionPY (contact Y)"
+      "description": "Alias for CollisionPY (contact Y)",
+      "phase": "any"
     },
     {
       "key": "CollisionForce",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Penetration-depth proxy for impact strength (not true Jolt impulse on this path)"
+      "description": "Penetration-depth proxy for impact strength (not true Jolt impulse on this path)",
+      "phase": "any"
     },
     {
       "key": "CountCollisions",
@@ -20975,8 +21586,8 @@
         "int"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Count Jolt contact pairs involving entity# this frame (distinct from COUNTCOLLISIONS legacy hits)"
+      "description": "Count Jolt contact pairs involving entity# this frame (distinct from COUNTCOLLISIONS legacy hits)",
+      "phase": "any"
     },
     {
       "key": "PICK.ORIGIN",
@@ -20985,8 +21596,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Stage ray origin for PICK.CAST (Linux+CGO Jolt)"
+      "description": "Stage ray origin for PICK.CAST (Linux+CGO Jolt)",
+      "phase": "any"
     },
     {
       "key": "PICK.DIRECTION",
@@ -20995,39 +21606,38 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Stage ray direction; length is max travel unless PICK.MAXDIST set"
+      "description": "Stage ray direction; length is max travel unless PICK.MAXDIST set",
+      "phase": "any"
     },
     {
       "key": "PICK.MAXDIST",
       "args": [
         "float"
       ],
-      "phase": "any",
-      "description": "Optional max ray length (normalize direction then scale)"
+      "description": "Optional max ray length (normalize direction then scale)",
+      "phase": "any"
     },
     {
       "key": "PICK.LAYERMASK",
       "args": [
         "int"
       ],
-      "phase": "any",
-      "description": "Bit i accepts ENTITY.COLLISIONLAYER i; 0 accepts all"
+      "description": "Bit i accepts ENTITY.COLLISIONLAYER i; 0 accepts all",
+      "phase": "any"
     },
     {
       "key": "PICK.RADIUS",
       "args": [
         "float"
       ],
-      "phase": "any",
-      "description": "Reserved; non-zero returns error until sphere pick exists"
+      "description": "Reserved; non-zero returns error until sphere pick exists",
+      "phase": "any"
     },
     {
       "key": "PICK.CAST",
-      "args": [],
       "returns": "int",
-      "phase": "any",
-      "description": "Run Jolt raycast from staged params; returns entity# or 0"
+      "description": "Run Jolt raycast from staged params; returns entity# or 0",
+      "phase": "any"
     },
     {
       "key": "PICK.FROMCAMERA",
@@ -21036,8 +21646,8 @@
         "float",
         "float"
       ],
-      "phase": "any",
-      "description": "Stage ray from camera handle and screen pixels (sets default MAXDIST if unset)"
+      "description": "Stage ray from camera handle and screen pixels (sets default MAXDIST if unset)",
+      "phase": "any"
     },
     {
       "key": "PICK.SCREENCAST",
@@ -21047,78 +21657,68 @@
         "float"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "FROMCAMERA then CAST; returns entity# or 0"
+      "description": "FROMCAMERA then CAST; returns entity# or 0",
+      "phase": "any"
     },
     {
       "key": "PICK.X",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Last pick hit world X"
+      "description": "Last pick hit world X",
+      "phase": "any"
     },
     {
       "key": "PICK.Y",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Last pick hit world Y"
+      "description": "Last pick hit world Y",
+      "phase": "any"
     },
     {
       "key": "PICK.Z",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Last pick hit world Z"
+      "description": "Last pick hit world Z",
+      "phase": "any"
     },
     {
       "key": "PICK.NX",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Last pick surface normal X"
+      "description": "Last pick surface normal X",
+      "phase": "any"
     },
     {
       "key": "PICK.NY",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Last pick surface normal Y"
+      "description": "Last pick surface normal Y",
+      "phase": "any"
     },
     {
       "key": "PICK.NZ",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Last pick surface normal Z"
+      "description": "Last pick surface normal Z",
+      "phase": "any"
     },
     {
       "key": "PICK.ENTITY",
-      "args": [],
       "returns": "int",
-      "phase": "any",
-      "description": "Entity# from last pick (linked BODY3D only)"
+      "description": "Entity# from last pick (linked BODY3D only)",
+      "phase": "any"
     },
     {
       "key": "PICK.DIST",
-      "args": [],
       "returns": "float",
-      "phase": "any",
-      "description": "Distance along ray to last hit"
+      "description": "Distance along ray to last hit",
+      "phase": "any"
     },
     {
       "key": "PICK.HIT",
-      "args": [],
       "returns": "bool",
-      "phase": "any",
-      "description": "Whether last PICK.CAST / SCREENCAST hit"
+      "description": "Whether last PICK.CAST / SCREENCAST hit",
+      "phase": "any"
     },
     {
       "key": "CreateCube",
-      "args": [],
       "returns": "int",
-      "phase": "any",
-      "description": "Default 1x1x1 axis-aligned box; returns entity#"
+      "description": "Default 1x1x1 axis-aligned box; returns entity#",
+      "phase": "any"
     },
     {
       "key": "CreateCube",
@@ -21126,8 +21726,8 @@
         "int"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "1x1x1 box parented to entity# (parent entity id)"
+      "description": "1x1x1 box parented to entity# (parent entity id)",
+      "phase": "any"
     },
     {
       "key": "CreateCube",
@@ -21137,8 +21737,8 @@
         "float"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Box with width, height, depth (no parent)"
+      "description": "Box with width, height, depth (no parent)",
+      "phase": "any"
     },
     {
       "key": "CreateCube",
@@ -21149,12 +21749,11 @@
         "float"
       ],
       "returns": "int",
-      "phase": "any",
-      "description": "Box (w,h,d) parented to entity#"
+      "description": "Box (w,h,d) parented to entity#",
+      "phase": "any"
     },
     {
       "key": "ENTITY.CREATEENTITY",
-      "args": [],
       "returns": "int"
     },
     {
@@ -21244,31 +21843,26 @@
     },
     {
       "key": "CREATECAMERA",
-      "args": [],
       "returns": "handle",
       "description": "Blitz-style: forwards to CAMERA.CREATE (3D heap camera)"
     },
     {
       "key": "CREATELIGHT",
-      "args": [],
       "returns": "handle",
       "description": "Blitz-style: forwards to LIGHT.CREATE (same as deprecated LIGHT.MAKE)"
     },
     {
       "key": "MOUSEDX",
-      "args": [],
       "returns": "float",
       "description": "Easy Mode: MOUSE.DX(MOUSE())"
     },
     {
       "key": "MOUSEDY",
-      "args": [],
       "returns": "float",
       "description": "Easy Mode: MOUSE.DY(MOUSE())"
     },
     {
       "key": "MOUSEWHEEL",
-      "args": [],
       "returns": "float",
       "description": "Easy Mode: MOUSE.WHEEL(MOUSE())"
     },
@@ -21336,19 +21930,16 @@
     },
     {
       "key": "MOUSEX",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: Get absolute mouse X coordinate"
     },
     {
       "key": "MOUSEY",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: Get absolute mouse Y coordinate"
     },
     {
       "key": "MOUSEZ",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: Get mouse wheel movement"
     },
@@ -21444,7 +22035,6 @@
     },
     {
       "key": "CREATEEMITTER",
-      "args": [],
       "returns": "handle",
       "description": "Easy Mode: Create a 3D particle emitter"
     },
@@ -21535,7 +22125,6 @@
     },
     {
       "key": "FPS",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: Get current frames per second"
     },
@@ -21670,9 +22259,8 @@
     },
     {
       "key": "UPDATEPHYSICS",
-      "args": [],
       "returns": "void",
-      "description": "Easy Mode: ENTITY.UPDATE(Time.Delta); best-effort WORLD.UPDATE, PHYSICS2D.STEP, PHYSICS3D.STEP"
+      "description": "Easy Mode: ENTITY.UPDATE(Time.Delta); best-effort WORLD.UPDATE, PHYSICS2D.STEP, PHYSICS3D.UPDATE (same as PHYSICS3D.STEP)"
     },
     {
       "key": "RESETENTITY",
@@ -21740,13 +22328,11 @@
     },
     {
       "key": "SCREENWIDTH",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: Get window width"
     },
     {
       "key": "SCREENHEIGHT",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: Get window height"
     },
@@ -21760,7 +22346,6 @@
     },
     {
       "key": "MILLISECS",
-      "args": [],
       "returns": "int",
       "description": "Blitz-style: TIME.MILLIS()"
     },
@@ -21834,7 +22419,6 @@
     },
     {
       "key": "CREATECAMERA2D",
-      "args": [],
       "returns": "handle",
       "description": "Easy Mode: forwards to CAMERA2D.CREATE (same as deprecated CAMERA2D.MAKE)"
     },
@@ -21947,7 +22531,6 @@
     },
     {
       "key": "NETMSG$",
-      "args": [],
       "returns": "string",
       "description": "Easy Mode: NET.GETEVENTPACKET$()"
     },
@@ -22060,7 +22643,6 @@
     },
     {
       "key": "CUBE",
-      "args": [],
       "returns": "handle",
       "description": "Blitz-style static box entity (1×1×1); use CUBE(w,h,d) for dimensions — ENTITYREF handle"
     },
@@ -22085,7 +22667,6 @@
     },
     {
       "key": "CREATECUBE",
-      "args": [],
       "returns": "int",
       "description": "Easy Mode: ENTITY.CREATECUBE(1, 1, 1)"
     },
@@ -22627,6 +23208,14 @@
       "key": "ENTITY.PARENT",
       "args": [
         "int",
+        "int"
+      ],
+      "description": "Attach child entity to parent (optional third arg: global preserve world position; default true)"
+    },
+    {
+      "key": "ENTITY.PARENT",
+      "args": [
+        "int",
         "int",
         "any"
       ]
@@ -22854,8 +23443,8 @@
         "float"
       ],
       "returns": "int",
-      "phase": "rendering",
-      "description": "Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)"
+      "description": "Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.CREATESPRITE",
@@ -22874,8 +23463,8 @@
         "int",
         "int"
       ],
-      "phase": "rendering",
-      "description": "Set atlas frame on billboard bound to a TEXTURE object"
+      "description": "Set atlas frame on billboard bound to a TEXTURE object",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.SETANIMATION",
@@ -22884,8 +23473,8 @@
         "handle",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps"
+      "description": "Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.SETANIMATION",
@@ -22904,8 +23493,8 @@
         "int",
         "float"
       ],
-      "phase": "rendering",
-      "description": "Second arg 0 clears image-sequence animation"
+      "description": "Second arg 0 clears image-sequence animation",
+      "phase": "rendering"
     },
     {
       "key": "ENTITY.DELTAX",
@@ -23488,7 +24077,6 @@
         "float"
       ],
       "returns": "float",
-      "pure": true,
       "description": "Exponential smoothing: current toward target using (1-exp(-smoothHz*dt)); for orbit angles"
     },
     {
@@ -23500,12 +24088,10 @@
     },
     {
       "key": "INPUT.MOUSEXSPEED",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "INPUT.MOUSEDELTA",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -23518,17 +24104,14 @@
     },
     {
       "key": "INPUT.MOUSEYSPEED",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "INPUT.JOYX",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "INPUT.JOYY",
-      "args": [],
       "returns": "float"
     },
     {
@@ -23555,22 +24138,18 @@
     },
     {
       "key": "GAME.MOUSEXSPEED",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "GAME.MOUSEYSPEED",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "GAME.JOYX",
-      "args": [],
       "returns": "float"
     },
     {
       "key": "GAME.JOYY",
-      "args": [],
       "returns": "float"
     },
     {
@@ -23582,7 +24161,6 @@
     },
     {
       "key": "DRAWCUBE",
-      "args": [],
       "description": "Immediate-mode 3D box wrapper; use .Pos/.Size/.Color/.Draw (see DRAW_WRAPPERS.md)"
     },
     {
@@ -23603,7 +24181,6 @@
     },
     {
       "key": "MOUSE",
-      "args": [],
       "returns": "handle",
       "description": "Singleton mouse input facade handle"
     },
@@ -23616,7 +24193,6 @@
     },
     {
       "key": "KEY",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -23629,7 +24205,6 @@
     },
     {
       "key": "MOVER",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -23670,7 +24245,6 @@
     },
     {
       "key": "PLAYER2D.CREATE",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -23819,7 +24393,6 @@
     },
     {
       "key": "DRAWRING2",
-      "args": [],
       "returns": "handle"
     },
     {
@@ -24062,7 +24635,6 @@
     },
     {
       "key": "NAV.CREATE",
-      "args": [],
       "returns": "int",
       "description": "Create a new navigation grid handle."
     },
@@ -24260,37 +24832,30 @@
     },
     {
       "key": "SHADER_PBR_LIT",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "SHADER_PS1_RETRO",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "SHADER_CEL_STYLED",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "SHADER_WATER_PROCEDURAL",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "PP_BLOOM",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "PP_CRT_SCANLINES",
-      "args": [],
       "returns": "int"
     },
     {
       "key": "PP_PIXELATE",
-      "args": [],
       "returns": "int"
     },
     {
@@ -24320,7 +24885,7 @@
         "float"
       ],
       "returns": "bool",
-      "description": "True if 3D distance between entities is <= maxDistance (simple sphere check; not Jolt physics)."
+      "description": "True if 3D distance between entities is \u003c= maxDistance (simple sphere check; not Jolt physics)."
     },
     {
       "key": "ENTITY.LOOKAT",
@@ -24804,7 +25369,6 @@
     },
     {
       "key": "INPUT.GETINACTIVITY",
-      "args": [],
       "returns": "float",
       "description": "Returns time in seconds since the last user interaction.",
       "namespace": "input"
@@ -24996,8 +25560,8 @@
         "int"
       ],
       "returns": "int",
-      "namespace": "physics3d",
-      "description": "Create a vehicle controller for an entity."
+      "description": "Create a vehicle controller for an entity.",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.SETWHEEL",
@@ -25009,8 +25573,8 @@
         "float",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Configure a wheel (vid, idx, ox, oy, oz, radius)."
+      "description": "Configure a wheel (vid, idx, ox, oy, oz, radius).",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.SETTUNING",
@@ -25021,8 +25585,8 @@
         "float",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Tune suspension (vid, spring, damp, maxSpeed, steerSpeed)."
+      "description": "Tune suspension (vid, spring, damp, maxSpeed, steerSpeed).",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.SETSTEER",
@@ -25030,8 +25594,8 @@
         "int",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Set vehicle steering (-1 to 1)."
+      "description": "Set vehicle steering (-1 to 1).",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.SETTHROTTLE",
@@ -25039,8 +25603,8 @@
         "int",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Set vehicle throttle (-1 to 1)."
+      "description": "Set vehicle throttle (-1 to 1).",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.CONTROL",
@@ -25050,16 +25614,16 @@
         "float",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Update all vehicle inputs (vid, throttle, steer, brake)."
+      "description": "Update all vehicle inputs (vid, throttle, steer, brake).",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.STEP",
       "args": [
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Step all vehicle simulations by dt."
+      "description": "Step all vehicle simulations by dt.",
+      "namespace": "physics3d"
     },
     {
       "key": "VEHICLE.WHEELX",
@@ -25094,8 +25658,8 @@
         "handle",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Set lift coefficient for a physics body."
+      "description": "Set lift coefficient for a physics body.",
+      "namespace": "physics3d"
     },
     {
       "key": "AERO.SETTHRUST",
@@ -25103,8 +25667,8 @@
         "handle",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Apply local Z-axis thrust power."
+      "description": "Apply local Z-axis thrust power.",
+      "namespace": "physics3d"
     },
     {
       "key": "AERO.SETDRAG",
@@ -25112,8 +25676,8 @@
         "handle",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Apply air resistance coefficient."
+      "description": "Apply air resistance coefficient.",
+      "namespace": "physics3d"
     },
     {
       "key": "BODY3D.GETVELOCITY",
@@ -25121,8 +25685,8 @@
         "handle"
       ],
       "returns": "handle",
-      "namespace": "physics3d",
-      "description": "Get linear velocity as a 3-element numeric array."
+      "description": "Get linear velocity as a 3-element numeric array.",
+      "namespace": "physics3d"
     },
     {
       "key": "BODY3D.SETVELOCITY",
@@ -25132,8 +25696,8 @@
         "float",
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Set linear velocity."
+      "description": "Set linear velocity.",
+      "namespace": "physics3d"
     },
     {
       "key": "BODY3D.GETANGULARVEL",
@@ -25197,31 +25761,27 @@
     },
     {
       "key": "PHYSICS3D.GETGRAVITYX",
-      "args": [],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get current gravity X component."
+      "description": "Get current gravity X component.",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS3D.GETGRAVITYY",
-      "args": [],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get current gravity Y component."
+      "description": "Get current gravity Y component.",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS3D.GETGRAVITYZ",
-      "args": [],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get current gravity Z component."
+      "description": "Get current gravity Z component.",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS3D.GETMATRIXBUFFER",
-      "args": [],
       "returns": "handle",
-      "namespace": "physics3d",
-      "description": "Get the shared matrix buffer for render interpolation."
+      "description": "Get the shared matrix buffer for render interpolation.",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS3D.SYNCWASMTOPHYSREGS",
@@ -25229,8 +25789,8 @@
         "int",
         "int"
       ],
-      "namespace": "physics3d",
-      "description": "Sync WASM physics view to VM registers (count, firstReg)."
+      "description": "Sync WASM physics view to VM registers (count, firstReg).",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS3D.GETSCRATCHFLOAT",
@@ -25238,43 +25798,39 @@
         "int"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Read a scratch float from the physics scratch buffer."
+      "description": "Read a scratch float from the physics scratch buffer.",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS.GETGRAVITYX",
-      "args": [],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get gravity X (alias of PHYSICS3D.GETGRAVITYX)."
+      "description": "Get gravity X (alias of PHYSICS3D.GETGRAVITYX).",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS.GETGRAVITYY",
-      "args": [],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get gravity Y (alias of PHYSICS3D.GETGRAVITYY)."
+      "description": "Get gravity Y (alias of PHYSICS3D.GETGRAVITYY).",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS.GETGRAVITYZ",
-      "args": [],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get gravity Z (alias of PHYSICS3D.GETGRAVITYZ)."
+      "description": "Get gravity Z (alias of PHYSICS3D.GETGRAVITYZ).",
+      "namespace": "physics3d"
     },
     {
       "key": "WORLD.SETUP",
-      "args": [],
-      "namespace": "physics3d",
-      "description": "Initialise physics world with default gravity (-9.81)."
+      "description": "Initialise physics world with default gravity (-9.81).",
+      "namespace": "physics3d"
     },
     {
       "key": "WORLD.SETUP",
       "args": [
         "float"
       ],
-      "namespace": "physics3d",
-      "description": "Initialise physics world with custom Y gravity."
+      "description": "Initialise physics world with custom Y gravity.",
+      "namespace": "physics3d"
     },
     {
       "key": "BODY3D.GETLINEARVEL",
@@ -25282,8 +25838,8 @@
         "handle"
       ],
       "returns": "handle",
-      "namespace": "physics3d",
-      "description": "Get linear velocity as a 3-element array (alias of BODY3D.GETVELOCITY)."
+      "description": "Get linear velocity as a 3-element array (alias of BODY3D.GETVELOCITY).",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETTYPE",
@@ -25291,8 +25847,8 @@
         "handle"
       ],
       "returns": "int",
-      "namespace": "physics3d",
-      "description": "Get the shape type (1=Box, 2=Sphere, 3=Capsule, 4=Cylinder)."
+      "description": "Get the shape type (1=Box, 2=Sphere, 3=Capsule, 4=Cylinder).",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETWIDTH",
@@ -25300,8 +25856,8 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape dimension 1 (half-extent X or radius)."
+      "description": "Get shape dimension 1 (half-extent X or radius).",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETHEIGHT",
@@ -25309,8 +25865,8 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape dimension 2 (half-extent Y or height)."
+      "description": "Get shape dimension 2 (half-extent Y or height).",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETDEPTH",
@@ -25318,8 +25874,8 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape dimension 3 (half-extent Z)."
+      "description": "Get shape dimension 3 (half-extent Z).",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETRADIUS",
@@ -25327,8 +25883,8 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape radius (same as SHAPE.GETWIDTH for spheres)."
+      "description": "Get shape radius (same as SHAPE.GETWIDTH for spheres).",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETSIZEX",
@@ -25336,8 +25892,8 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape X dimension."
+      "description": "Get shape X dimension.",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETSIZEY",
@@ -25345,8 +25901,8 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape Y dimension."
+      "description": "Get shape Y dimension.",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPE.GETSIZEZ",
@@ -25354,40 +25910,40 @@
         "handle"
       ],
       "returns": "float",
-      "namespace": "physics3d",
-      "description": "Get shape Z dimension."
+      "description": "Get shape Z dimension.",
+      "namespace": "physics3d"
     },
     {
       "key": "SHAPEREF.FREE",
       "args": [
         "handle"
       ],
-      "namespace": "physics3d",
-      "description": "Destroy a collision shape."
+      "description": "Destroy a collision shape.",
+      "namespace": "physics3d"
     },
     {
       "key": "BODYREF.FREE",
       "args": [
         "handle"
       ],
-      "namespace": "physics3d",
-      "description": "Destroy a physics body (handle method)."
+      "description": "Destroy a physics body (handle method).",
+      "namespace": "physics3d"
     },
     {
       "key": "DEBUG.DRAWCHARACTER",
       "args": [
         "any"
       ],
-      "namespace": "physics3d",
-      "description": "Debug draw a KCC capsule (no-op on stub builds)."
+      "description": "Debug draw a KCC capsule (no-op on stub builds).",
+      "namespace": "physics3d"
     },
     {
       "key": "DEBUG.DRAWBODY",
       "args": [
         "any"
       ],
-      "namespace": "physics3d",
-      "description": "Debug draw a physics body wireframe (no-op on stub builds)."
+      "description": "Debug draw a physics body wireframe (no-op on stub builds).",
+      "namespace": "physics3d"
     },
     {
       "key": "PHYSICS3D.MOUSEHIT",
@@ -25395,8 +25951,8 @@
         "handle"
       ],
       "returns": "handle",
-      "namespace": "physics3d",
-      "description": "Raycast from mouse through camera; returns [x,y,z] array or nil."
+      "description": "Raycast from mouse through camera; returns [x,y,z] array or nil.",
+      "namespace": "physics3d"
     },
     {
       "key": "CAMERA.RAYCASTMOUSE",
@@ -25404,16 +25960,16 @@
         "handle"
       ],
       "returns": "int",
-      "namespace": "camera",
-      "description": "Raycast from mouse through camera; returns entity id or 0."
+      "description": "Raycast from mouse through camera; returns entity id or 0.",
+      "namespace": "camera"
     },
     {
       "key": "CHARACTERREF.FREE",
       "args": [
         "handle"
       ],
-      "namespace": "charcontroller",
-      "description": "Destroy a Kinematic Character Controller."
+      "description": "Destroy a Kinematic Character Controller.",
+      "namespace": "charcontroller"
     },
     {
       "key": "CHARACTERREF.DRAINCONTACTS",
@@ -25421,8 +25977,8 @@
         "handle"
       ],
       "returns": "handle",
-      "namespace": "charcontroller",
-      "description": "Drain pending contact events from a KCC; returns array of contact info."
+      "description": "Drain pending contact events from a KCC; returns array of contact info.",
+      "namespace": "charcontroller"
     },
     {
       "key": "CHARACTERREF.SETCONTACTLISTENER",
@@ -25430,8 +25986,8 @@
         "handle",
         "string"
       ],
-      "namespace": "charcontroller",
-      "description": "Set a callback function name to be called on KCC contact events."
+      "description": "Set a callback function name to be called on KCC contact events.",
+      "namespace": "charcontroller"
     },
     {
       "key": "DECAL.SETPOSITION",
@@ -25441,7 +25997,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of DECAL.SETPOS. Use DECAL.SETPOS."
+      "description": "DEPRECATED alias of DECAL.SETPOS. Use DECAL.SETPOS.",
+      "deprecated_of": "DECAL.SETPOS"
     },
     {
       "key": "NAVAGENT.SETPOSITION",
@@ -25451,7 +26008,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of NAVAGENT.SETPOS. Use NAVAGENT.SETPOS."
+      "description": "DEPRECATED alias of NAVAGENT.SETPOS. Use NAVAGENT.SETPOS.",
+      "deprecated_of": "NAVAGENT.SETPOS"
     },
     {
       "key": "INSTANCE.SETPOSITION",
@@ -25462,7 +26020,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of INSTANCE.SETPOS. Use INSTANCE.SETPOS."
+      "description": "DEPRECATED alias of INSTANCE.SETPOS. Use INSTANCE.SETPOS.",
+      "deprecated_of": "INSTANCE.SETPOS"
     },
     {
       "key": "PARTICLE.SETPOSITION",
@@ -25472,8 +26031,9 @@
         "float",
         "float"
       ],
+      "description": "DEPRECATED alias of PARTICLE.SETPOS. Use PARTICLE.SETPOS.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of PARTICLE.SETPOS. Use PARTICLE.SETPOS."
+      "deprecated_of": "PARTICLE.SETPOS"
     },
     {
       "key": "PARTICLE3D.SETPOSITION",
@@ -25483,8 +26043,9 @@
         "float",
         "float"
       ],
+      "description": "DEPRECATED alias of PARTICLE3D.SETPOS. Use PARTICLE3D.SETPOS.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of PARTICLE3D.SETPOS. Use PARTICLE3D.SETPOS."
+      "deprecated_of": "PARTICLE3D.SETPOS"
     },
     {
       "key": "BODY2D.SETPOSITION",
@@ -25493,7 +26054,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of BODY2D.SETPOS. Use BODY2D.SETPOS."
+      "description": "DEPRECATED alias of BODY2D.SETPOS. Use BODY2D.SETPOS.",
+      "deprecated_of": "BODY2D.SETPOS"
     },
     {
       "key": "WATER.SETPOSITION",
@@ -25503,7 +26065,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of WATER.SETPOS. Use WATER.SETPOS."
+      "description": "DEPRECATED alias of WATER.SETPOS. Use WATER.SETPOS.",
+      "deprecated_of": "WATER.SETPOS"
     },
     {
       "key": "TERRAIN.SETPOSITION",
@@ -25513,7 +26076,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of TERRAIN.SETPOS. Use TERRAIN.SETPOS."
+      "description": "DEPRECATED alias of TERRAIN.SETPOS. Use TERRAIN.SETPOS.",
+      "deprecated_of": "TERRAIN.SETPOS"
     },
     {
       "key": "PLAYER2D.SETPOSITION",
@@ -25522,7 +26086,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of PLAYER2D.SETPOS. Use PLAYER2D.SETPOS."
+      "description": "DEPRECATED alias of PLAYER2D.SETPOS. Use PLAYER2D.SETPOS.",
+      "deprecated_of": "PLAYER2D.SETPOS"
     },
     {
       "key": "NAVAGENT.SETPOSITION",
@@ -25532,7 +26097,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of NAVAGENT.SETPOS. Use NAVAGENT.SETPOS. Set the agent's world-space position: (handle, x#, y#, z#)"
+      "description": "DEPRECATED alias of NAVAGENT.SETPOS. Use NAVAGENT.SETPOS. Set the agent's world-space position: (handle, x#, y#, z#)",
+      "deprecated_of": "NAVAGENT.SETPOS"
     },
     {
       "key": "DECAL.MAKE",
@@ -25540,20 +26106,21 @@
         "handle"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of DECAL.CREATE. Use DECAL.CREATE."
+      "description": "DEPRECATED alias of DECAL.CREATE. Use DECAL.CREATE.",
+      "deprecated_of": "DECAL.CREATE"
     },
     {
       "key": "NAV.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of NAV.CREATE. Use NAV.CREATE."
+      "description": "DEPRECATED alias of NAV.CREATE. Use NAV.CREATE.",
+      "deprecated_of": "NAV.CREATE"
     },
     {
       "key": "NOISE.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of NOISE.CREATE. Use NOISE.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of NOISE.CREATE. Use NOISE.CREATE."
+      "deprecated_of": "NOISE.CREATE"
     },
     {
       "key": "NOISE.MAKEPERLIN",
@@ -25562,8 +26129,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of NOISE.CREATEPERLIN. Use NOISE.CREATEPERLIN.",
       "phase": "any",
-      "description": "DEPRECATED alias of NOISE.CREATEPERLIN. Use NOISE.CREATEPERLIN."
+      "deprecated_of": "NOISE.CREATEPERLIN"
     },
     {
       "key": "NOISE.MAKESIMPLEX",
@@ -25572,8 +26140,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of NOISE.CREATESIMPLEX. Use NOISE.CREATESIMPLEX.",
       "phase": "any",
-      "description": "DEPRECATED alias of NOISE.CREATESIMPLEX. Use NOISE.CREATESIMPLEX."
+      "deprecated_of": "NOISE.CREATESIMPLEX"
     },
     {
       "key": "NOISE.MAKEFRACTAL",
@@ -25584,8 +26153,9 @@
         "string"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of NOISE.CREATEFRACTAL. Use NOISE.CREATEFRACTAL.",
       "phase": "any",
-      "description": "DEPRECATED alias of NOISE.CREATEFRACTAL. Use NOISE.CREATEFRACTAL."
+      "deprecated_of": "NOISE.CREATEFRACTAL"
     },
     {
       "key": "NOISE.MAKECELLULAR",
@@ -25595,8 +26165,9 @@
         "string"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of NOISE.CREATECELLULAR. Use NOISE.CREATECELLULAR.",
       "phase": "any",
-      "description": "DEPRECATED alias of NOISE.CREATECELLULAR. Use NOISE.CREATECELLULAR."
+      "deprecated_of": "NOISE.CREATECELLULAR"
     },
     {
       "key": "NOISE.MAKEDOMAINWARP",
@@ -25606,8 +26177,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of NOISE.CREATEDOMAINWARP. Use NOISE.CREATEDOMAINWARP.",
       "phase": "any",
-      "description": "DEPRECATED alias of NOISE.CREATEDOMAINWARP. Use NOISE.CREATEDOMAINWARP."
+      "deprecated_of": "NOISE.CREATEDOMAINWARP"
     },
     {
       "key": "NAVAGENT.MAKE",
@@ -25615,24 +26187,25 @@
         "handle"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of NAVAGENT.CREATE. Use NAVAGENT.CREATE."
+      "description": "DEPRECATED alias of NAVAGENT.CREATE. Use NAVAGENT.CREATE.",
+      "deprecated_of": "NAVAGENT.CREATE"
     },
     {
       "key": "BTREE.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of BTREE.CREATE. Use BTREE.CREATE."
+      "description": "DEPRECATED alias of BTREE.CREATE. Use BTREE.CREATE.",
+      "deprecated_of": "BTREE.CREATE"
     },
     {
       "key": "CAMERA.MAKE",
-      "args": [],
-      "description": "DEPRECATED alias of CAMERA.CREATE. Use CAMERA.CREATE."
+      "description": "DEPRECATED alias of CAMERA.CREATE. Use CAMERA.CREATE.",
+      "deprecated_of": "CAMERA.CREATE"
     },
     {
       "key": "CAMERA.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of CAMERA.CREATE. Returns a Camera3D heap handle."
+      "description": "DEPRECATED alias of CAMERA.CREATE. Returns a Camera3D heap handle.",
+      "deprecated_of": "CAMERA.CREATE"
     },
     {
       "key": "LIGHT.MAKE",
@@ -25640,13 +26213,14 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE."
+      "description": "DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE.",
+      "deprecated_of": "LIGHT.CREATE"
     },
     {
       "key": "LIGHT.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE."
+      "description": "DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE.",
+      "deprecated_of": "LIGHT.CREATE"
     },
     {
       "key": "LIGHT.MAKEPOINT",
@@ -25660,7 +26234,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of LIGHT.CREATEPOINT. Use LIGHT.CREATEPOINT. Point light at (x,y,z) with RGB (0–255 or 0–1) and intensity (energy)"
+      "description": "DEPRECATED alias of LIGHT.CREATEPOINT. Use LIGHT.CREATEPOINT. Point light at (x,y,z) with RGB (0–255 or 0–1) and intensity (energy)",
+      "deprecated_of": "LIGHT.CREATEPOINT"
     },
     {
       "key": "LIGHT.MAKEDIRECTIONAL",
@@ -25674,7 +26249,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of LIGHT.CREATEDIRECTIONAL. Use LIGHT.CREATEDIRECTIONAL. Directional light: direction vector (dx,dy,dz), RGB, energy — direction is normalized"
+      "description": "DEPRECATED alias of LIGHT.CREATEDIRECTIONAL. Use LIGHT.CREATEDIRECTIONAL. Directional light: direction vector (dx,dy,dz), RGB, energy — direction is normalized",
+      "deprecated_of": "LIGHT.CREATEDIRECTIONAL"
     },
     {
       "key": "LIGHT.MAKESPOT",
@@ -25692,7 +26268,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of LIGHT.CREATESPOT. Use LIGHT.CREATESPOT. Spot: position, target point, RGB, outer cone degrees, energy"
+      "description": "DEPRECATED alias of LIGHT.CREATESPOT. Use LIGHT.CREATESPOT. Spot: position, target point, RGB, outer cone degrees, energy",
+      "deprecated_of": "LIGHT.CREATESPOT"
     },
     {
       "key": "TERRAIN.MAKE",
@@ -25700,7 +26277,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of TERRAIN.CREATE. Use TERRAIN.CREATE."
+      "description": "DEPRECATED alias of TERRAIN.CREATE. Use TERRAIN.CREATE.",
+      "deprecated_of": "TERRAIN.CREATE"
     },
     {
       "key": "MODEL.MAKE",
@@ -25708,8 +26286,9 @@
         "handle"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of MODEL.CREATE. Use MODEL.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of MODEL.CREATE. Use MODEL.CREATE."
+      "deprecated_of": "MODEL.CREATE"
     },
     {
       "key": "MODEL.MAKECAPSULE",
@@ -25718,7 +26297,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MODEL.CREATECAPSULE. Use MODEL.CREATECAPSULE. EntityRef capsule primitive (radius#, height#); draw matches Jolt capsule when using ENTITY.ADDPHYSICS capsule"
+      "description": "DEPRECATED alias of MODEL.CREATECAPSULE. Use MODEL.CREATECAPSULE. EntityRef capsule primitive (radius#, height#); draw matches Jolt capsule when using ENTITY.ADDPHYSICS capsule",
+      "deprecated_of": "MODEL.CREATECAPSULE"
     },
     {
       "key": "MODEL.MAKEBOX",
@@ -25728,7 +26308,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MODEL.CREATEBOX. Use MODEL.CREATEBOX."
+      "description": "DEPRECATED alias of MODEL.CREATEBOX. Use MODEL.CREATEBOX.",
+      "deprecated_of": "MODEL.CREATEBOX"
     },
     {
       "key": "MODEL.MAKEBOX",
@@ -25739,7 +26320,8 @@
         "bool"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MODEL.CREATEBOX. Use MODEL.CREATEBOX."
+      "description": "DEPRECATED alias of MODEL.CREATEBOX. Use MODEL.CREATEBOX.",
+      "deprecated_of": "MODEL.CREATEBOX"
     },
     {
       "key": "MODEL.MAKEINSTANCED",
@@ -25748,7 +26330,8 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MODEL.CREATEINSTANCED. Use MODEL.CREATEINSTANCED."
+      "description": "DEPRECATED alias of MODEL.CREATEINSTANCED. Use MODEL.CREATEINSTANCED.",
+      "deprecated_of": "MODEL.CREATEINSTANCED"
     },
     {
       "key": "INSTANCE.MAKEINSTANCED",
@@ -25757,7 +26340,8 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of INSTANCE.CREATEINSTANCED. Use INSTANCE.CREATEINSTANCED."
+      "description": "DEPRECATED alias of INSTANCE.CREATEINSTANCED. Use INSTANCE.CREATEINSTANCED.",
+      "deprecated_of": "INSTANCE.CREATEINSTANCED"
     },
     {
       "key": "INSTANCE.MAKE",
@@ -25766,21 +26350,22 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of INSTANCE.CREATE. Use INSTANCE.CREATE."
+      "description": "DEPRECATED alias of INSTANCE.CREATE. Use INSTANCE.CREATE.",
+      "deprecated_of": "INSTANCE.CREATE"
     },
     {
       "key": "PARTICLE.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of PARTICLE.CREATE. Use PARTICLE.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of PARTICLE.CREATE. Use PARTICLE.CREATE."
+      "deprecated_of": "PARTICLE.CREATE"
     },
     {
       "key": "PARTICLE3D.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of PARTICLE3D.CREATE. Use PARTICLE3D.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of PARTICLE3D.CREATE. Use PARTICLE3D.CREATE."
+      "deprecated_of": "PARTICLE3D.CREATE"
     },
     {
       "key": "RENDERTARGET.MAKE",
@@ -25789,8 +26374,9 @@
         "int"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of RENDERTARGET.CREATE. Use RENDERTARGET.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of RENDERTARGET.CREATE. Use RENDERTARGET.CREATE."
+      "deprecated_of": "RENDERTARGET.CREATE"
     },
     {
       "key": "MESH.MAKEPOLY",
@@ -25798,7 +26384,8 @@
         "int",
         "float"
       ],
-      "description": "DEPRECATED alias of MESH.CREATEPOLY. Use MESH.CREATEPOLY."
+      "description": "DEPRECATED alias of MESH.CREATEPOLY. Use MESH.CREATEPOLY.",
+      "deprecated_of": "MESH.CREATEPOLY"
     },
     {
       "key": "MESH.MAKEPLANE",
@@ -25808,7 +26395,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE."
+      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE.",
+      "deprecated_of": "MESH.CREATEPLANE"
     },
     {
       "key": "MESH.MAKEPLANE",
@@ -25819,7 +26407,8 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE. Alias of MESH.MAKEPLANE — procedural plane mesh handle"
+      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE. Alias of MESH.MAKEPLANE — procedural plane mesh handle",
+      "deprecated_of": "MESH.CREATEPLANE"
     },
     {
       "key": "MESH.MAKECUBE",
@@ -25828,7 +26417,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of MESH.CREATECUBE. Use MESH.CREATECUBE."
+      "description": "DEPRECATED alias of MESH.CREATECUBE. Use MESH.CREATECUBE.",
+      "deprecated_of": "MESH.CREATECUBE"
     },
     {
       "key": "MESH.MAKESPHERE",
@@ -25837,7 +26427,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATESPHERE. Use MESH.CREATESPHERE."
+      "description": "DEPRECATED alias of MESH.CREATESPHERE. Use MESH.CREATESPHERE.",
+      "deprecated_of": "MESH.CREATESPHERE"
     },
     {
       "key": "MESH.MAKECUBE",
@@ -25847,7 +26438,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MESH.CREATECUBE. Use MESH.CREATECUBE. Alias of MESH.MAKECUBE"
+      "description": "DEPRECATED alias of MESH.CREATECUBE. Use MESH.CREATECUBE. Alias of MESH.MAKECUBE",
+      "deprecated_of": "MESH.CREATECUBE"
     },
     {
       "key": "MESH.MAKESPHERE",
@@ -25857,7 +26449,8 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MESH.CREATESPHERE. Use MESH.CREATESPHERE. Alias of MESH.MAKESPHERE"
+      "description": "DEPRECATED alias of MESH.CREATESPHERE. Use MESH.CREATESPHERE. Alias of MESH.MAKESPHERE",
+      "deprecated_of": "MESH.CREATESPHERE"
     },
     {
       "key": "MESH.MAKECYLINDER",
@@ -25866,7 +26459,8 @@
         "float",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATECYLINDER. Use MESH.CREATECYLINDER."
+      "description": "DEPRECATED alias of MESH.CREATECYLINDER. Use MESH.CREATECYLINDER.",
+      "deprecated_of": "MESH.CREATECYLINDER"
     },
     {
       "key": "MESH.MAKECONE",
@@ -25875,7 +26469,8 @@
         "float",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATECONE. Use MESH.CREATECONE."
+      "description": "DEPRECATED alias of MESH.CREATECONE. Use MESH.CREATECONE.",
+      "deprecated_of": "MESH.CREATECONE"
     },
     {
       "key": "MESH.MAKETORUS",
@@ -25885,7 +26480,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATETORUS. Use MESH.CREATETORUS."
+      "description": "DEPRECATED alias of MESH.CREATETORUS. Use MESH.CREATETORUS.",
+      "deprecated_of": "MESH.CREATETORUS"
     },
     {
       "key": "MESH.MAKEKNOT",
@@ -25895,7 +26491,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATEKNOT. Use MESH.CREATEKNOT."
+      "description": "DEPRECATED alias of MESH.CREATEKNOT. Use MESH.CREATEKNOT.",
+      "deprecated_of": "MESH.CREATEKNOT"
     },
     {
       "key": "MESH.MAKEHEIGHTMAP",
@@ -25905,7 +26502,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of MESH.CREATEHEIGHTMAP. Use MESH.CREATEHEIGHTMAP."
+      "description": "DEPRECATED alias of MESH.CREATEHEIGHTMAP. Use MESH.CREATEHEIGHTMAP.",
+      "deprecated_of": "MESH.CREATEHEIGHTMAP"
     },
     {
       "key": "MESH.MAKECUBICMAP",
@@ -25915,7 +26513,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of MESH.CREATECUBICMAP. Use MESH.CREATECUBICMAP."
+      "description": "DEPRECATED alias of MESH.CREATECUBICMAP. Use MESH.CREATECUBICMAP.",
+      "deprecated_of": "MESH.CREATECUBICMAP"
     },
     {
       "key": "MESH.MAKECAPSULE",
@@ -25925,7 +26524,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of MESH.CREATECAPSULE. Use MESH.CREATECAPSULE."
+      "description": "DEPRECATED alias of MESH.CREATECAPSULE. Use MESH.CREATECAPSULE.",
+      "deprecated_of": "MESH.CREATECAPSULE"
     },
     {
       "key": "MESH.MAKECUSTOM",
@@ -25934,24 +26534,25 @@
         "handle"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of MESH.CREATECUSTOM. Use MESH.CREATECUSTOM."
+      "description": "DEPRECATED alias of MESH.CREATECUSTOM. Use MESH.CREATECUSTOM.",
+      "deprecated_of": "MESH.CREATECUSTOM"
     },
     {
       "key": "MATERIAL.MAKEDEFAULT",
-      "args": [],
-      "description": "DEPRECATED alias of MATERIAL.CREATEDEFAULT. Use MATERIAL.CREATEDEFAULT."
+      "description": "DEPRECATED alias of MATERIAL.CREATEDEFAULT. Use MATERIAL.CREATEDEFAULT.",
+      "deprecated_of": "MATERIAL.CREATEDEFAULT"
     },
     {
       "key": "MATERIAL.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of MATERIAL.CREATE. Use MATERIAL.CREATE."
+      "description": "DEPRECATED alias of MATERIAL.CREATE. Use MATERIAL.CREATE.",
+      "deprecated_of": "MATERIAL.CREATE"
     },
     {
       "key": "MATERIAL.MAKEPBR",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of MATERIAL.CREATEPBR. Use MATERIAL.CREATEPBR."
+      "description": "DEPRECATED alias of MATERIAL.CREATEPBR. Use MATERIAL.CREATEPBR.",
+      "deprecated_of": "MATERIAL.CREATEPBR"
     },
     {
       "key": "IMAGE.MAKEBLANK",
@@ -25959,7 +26560,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of IMAGE.CREATEBLANK. Use IMAGE.CREATEBLANK."
+      "description": "DEPRECATED alias of IMAGE.CREATEBLANK. Use IMAGE.CREATEBLANK.",
+      "deprecated_of": "IMAGE.CREATEBLANK"
     },
     {
       "key": "IMAGE.MAKEBLANK",
@@ -25971,7 +26573,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of IMAGE.CREATEBLANK. Use IMAGE.CREATEBLANK."
+      "description": "DEPRECATED alias of IMAGE.CREATEBLANK. Use IMAGE.CREATEBLANK.",
+      "deprecated_of": "IMAGE.CREATEBLANK"
     },
     {
       "key": "IMAGE.MAKE",
@@ -25979,7 +26582,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of IMAGE.CREATE. Use IMAGE.CREATE."
+      "description": "DEPRECATED alias of IMAGE.CREATE. Use IMAGE.CREATE.",
+      "deprecated_of": "IMAGE.CREATE"
     },
     {
       "key": "IMAGE.MAKE",
@@ -25991,14 +26595,16 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of IMAGE.CREATE. Use IMAGE.CREATE."
+      "description": "DEPRECATED alias of IMAGE.CREATE. Use IMAGE.CREATE.",
+      "deprecated_of": "IMAGE.CREATE"
     },
     {
       "key": "IMAGE.MAKECOPY",
       "args": [
         "handle"
       ],
-      "description": "DEPRECATED alias of IMAGE.CREATECOPY. Use IMAGE.CREATECOPY."
+      "description": "DEPRECATED alias of IMAGE.CREATECOPY. Use IMAGE.CREATECOPY.",
+      "deprecated_of": "IMAGE.CREATECOPY"
     },
     {
       "key": "IMAGE.MAKETEXT",
@@ -26010,7 +26616,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of IMAGE.CREATETEXT. Use IMAGE.CREATETEXT."
+      "description": "DEPRECATED alias of IMAGE.CREATETEXT. Use IMAGE.CREATETEXT.",
+      "deprecated_of": "IMAGE.CREATETEXT"
     },
     {
       "key": "AUDIOSTREAM.MAKE",
@@ -26020,8 +26627,9 @@
         "int"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of AUDIOSTREAM.CREATE. Use AUDIOSTREAM.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of AUDIOSTREAM.CREATE. Use AUDIOSTREAM.CREATE."
+      "deprecated_of": "AUDIOSTREAM.CREATE"
     },
     {
       "key": "RAY.MAKE",
@@ -26034,8 +26642,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of RAY.CREATE. Use RAY.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of RAY.CREATE. Use RAY.CREATE."
+      "deprecated_of": "RAY.CREATE"
     },
     {
       "key": "BBOX.MAKE",
@@ -26048,8 +26657,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of BBOX.CREATE. Use BBOX.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of BBOX.CREATE. Use BBOX.CREATE."
+      "deprecated_of": "BBOX.CREATE"
     },
     {
       "key": "BSPHERE.MAKE",
@@ -26060,8 +26670,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of BSPHERE.CREATE. Use BSPHERE.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of BSPHERE.CREATE. Use BSPHERE.CREATE."
+      "deprecated_of": "BSPHERE.CREATE"
     },
     {
       "key": "VEC3.MAKE",
@@ -26071,8 +26682,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of VEC3.CREATE. Use VEC3.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of VEC3.CREATE. Use VEC3.CREATE."
+      "deprecated_of": "VEC3.CREATE"
     },
     {
       "key": "VEC2.MAKE",
@@ -26081,8 +26693,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of VEC2.CREATE. Use VEC2.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of VEC2.CREATE. Use VEC2.CREATE."
+      "deprecated_of": "VEC2.CREATE"
     },
     {
       "key": "MEM.MAKE",
@@ -26090,8 +26703,9 @@
         "int"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of MEM.CREATE. Use MEM.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of MEM.CREATE. Use MEM.CREATE."
+      "deprecated_of": "MEM.CREATE"
     },
     {
       "key": "RAND.MAKE",
@@ -26099,8 +26713,9 @@
         "int"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of RAND.CREATE. Use RAND.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of RAND.CREATE. Use RAND.CREATE."
+      "deprecated_of": "RAND.CREATE"
     },
     {
       "key": "UTIL.MAKEDIRECTORY",
@@ -26108,8 +26723,9 @@
         "string"
       ],
       "returns": "bool",
+      "description": "DEPRECATED alias of UTIL.CREATEDIRECTORY. Use UTIL.CREATEDIRECTORY.",
       "phase": "any",
-      "description": "DEPRECATED alias of UTIL.CREATEDIRECTORY. Use UTIL.CREATEDIRECTORY."
+      "deprecated_of": "UTIL.CREATEDIRECTORY"
     },
     {
       "key": "PARTICLE2D.MAKE",
@@ -26121,22 +26737,23 @@
         "int"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of PARTICLE2D.CREATE. Use PARTICLE2D.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of PARTICLE2D.CREATE. Use PARTICLE2D.CREATE."
+      "deprecated_of": "PARTICLE2D.CREATE"
     },
     {
       "key": "SPRITEBATCH.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of SPRITEBATCH.CREATE. Use SPRITEBATCH.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of SPRITEBATCH.CREATE. Use SPRITEBATCH.CREATE."
+      "deprecated_of": "SPRITEBATCH.CREATE"
     },
     {
       "key": "SPRITEGROUP.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of SPRITEGROUP.CREATE. Use SPRITEGROUP.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of SPRITEGROUP.CREATE. Use SPRITEGROUP.CREATE."
+      "deprecated_of": "SPRITEGROUP.CREATE"
     },
     {
       "key": "SPRITELAYER.MAKE",
@@ -26144,8 +26761,9 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of SPRITELAYER.CREATE. Use SPRITELAYER.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of SPRITELAYER.CREATE. Use SPRITELAYER.CREATE."
+      "deprecated_of": "SPRITELAYER.CREATE"
     },
     {
       "key": "SPRITEUI.MAKE",
@@ -26155,15 +26773,16 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of SPRITEUI.CREATE. Use SPRITEUI.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of SPRITEUI.CREATE. Use SPRITEUI.CREATE."
+      "deprecated_of": "SPRITEUI.CREATE"
     },
     {
       "key": "LIGHT2D.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of LIGHT2D.CREATE. Use LIGHT2D.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of LIGHT2D.CREATE. Use LIGHT2D.CREATE."
+      "deprecated_of": "LIGHT2D.CREATE"
     },
     {
       "key": "POOL.MAKE",
@@ -26172,35 +26791,37 @@
         "int"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of POOL.CREATE. Use POOL.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of POOL.CREATE. Use POOL.CREATE."
+      "deprecated_of": "POOL.CREATE"
     },
     {
       "key": "TWEEN.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of TWEEN.CREATE. Use TWEEN.CREATE.",
       "phase": "any",
-      "description": "DEPRECATED alias of TWEEN.CREATE. Use TWEEN.CREATE."
+      "deprecated_of": "TWEEN.CREATE"
     },
     {
       "key": "CAMERA2D.MAKE",
-      "args": [],
       "returns": "handle",
+      "description": "DEPRECATED alias of CAMERA2D.CREATE. Use CAMERA2D.CREATE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of CAMERA2D.CREATE. Use CAMERA2D.CREATE."
+      "deprecated_of": "CAMERA2D.CREATE"
     },
     {
       "key": "BODY3D.MAKE",
       "args": [
         "string"
       ],
-      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE."
+      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE.",
+      "deprecated_of": "BODY3D.CREATE"
     },
     {
       "key": "BODY3D.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE."
+      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE.",
+      "deprecated_of": "BODY3D.CREATE"
     },
     {
       "key": "ENET.MAKEHOST",
@@ -26211,7 +26832,8 @@
         "int",
         "int"
       ],
-      "description": "DEPRECATED alias of ENET.CREATEHOST. Use ENET.CREATEHOST."
+      "description": "DEPRECATED alias of ENET.CREATEHOST. Use ENET.CREATEHOST.",
+      "deprecated_of": "ENET.CREATEHOST"
     },
     {
       "key": "BODY3D.MAKE",
@@ -26219,7 +26841,8 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE."
+      "description": "DEPRECATED alias of BODY3D.CREATE. Use BODY3D.CREATE.",
+      "deprecated_of": "BODY3D.CREATE"
     },
     {
       "key": "JOINT.MAKEHINGE",
@@ -26233,7 +26856,8 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of JOINT.CREATEHINGE. Use JOINT.CREATEHINGE. Create a hinge joint (b1, b2, px, py, pz, ax, ay, az)."
+      "description": "DEPRECATED alias of JOINT.CREATEHINGE. Use JOINT.CREATEHINGE. Create a hinge joint (b1, b2, px, py, pz, ax, ay, az).",
+      "deprecated_of": "JOINT.CREATEHINGE"
     },
     {
       "key": "JOINT.MAKEHINGE",
@@ -26249,7 +26873,8 @@
       ],
       "returns": "handle",
       "description": "DEPRECATED alias of JOINT.CREATEHINGE. Use JOINT.CREATEHINGE. Creates a hinge joint between two bodies at (px,py,pz) around axis (ax,ay,az).",
-      "namespace": "physics3d"
+      "namespace": "physics3d",
+      "deprecated_of": "JOINT.CREATEHINGE"
     },
     {
       "key": "JOINT.MAKEPOINT",
@@ -26262,7 +26887,8 @@
       ],
       "returns": "handle",
       "description": "DEPRECATED alias of JOINT.CREATEPOINT. Use JOINT.CREATEPOINT. Creates a point-to-point (ball and socket) joint between two bodies at (px,py,pz).",
-      "namespace": "physics3d"
+      "namespace": "physics3d",
+      "deprecated_of": "JOINT.CREATEPOINT"
     },
     {
       "key": "BODY2D.MAKE",
@@ -26270,7 +26896,8 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of BODY2D.CREATE. Use BODY2D.CREATE."
+      "description": "DEPRECATED alias of BODY2D.CREATE. Use BODY2D.CREATE.",
+      "deprecated_of": "BODY2D.CREATE"
     },
     {
       "key": "CHARCONTROLLER.MAKE",
@@ -26282,14 +26909,16 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of CHARCONTROLLER.CREATE. Use CHARCONTROLLER.CREATE."
+      "description": "DEPRECATED alias of CHARCONTROLLER.CREATE. Use CHARCONTROLLER.CREATE.",
+      "deprecated_of": "CHARCONTROLLER.CREATE"
     },
     {
       "key": "PLAYER.MAKE",
       "args": [
         "int"
       ],
-      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE."
+      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE.",
+      "deprecated_of": "PLAYER.CREATE"
     },
     {
       "key": "PLAYER.MAKE",
@@ -26298,14 +26927,16 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE. KCC with explicit capsule radius and height (world units)"
+      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE. KCC with explicit capsule radius and height (world units)",
+      "deprecated_of": "PLAYER.CREATE"
     },
     {
       "key": "CHAR.MAKE",
       "args": [
         "int"
       ],
-      "description": "DEPRECATED alias of CHAR.CREATE. Use CHAR.CREATE. Alias of PLAYER.CREATE: (entity) or (entity, radius#, height#); allocates Jolt CharacterVirtual and clears scripted gravity/velocity for stable KCC (Linux+CGO)"
+      "description": "DEPRECATED alias of CHAR.CREATE. Use CHAR.CREATE. Alias of PLAYER.CREATE: (entity) or (entity, radius#, height#); allocates Jolt CharacterVirtual and clears scripted gravity/velocity for stable KCC (Linux+CGO)",
+      "deprecated_of": "CHAR.CREATE"
     },
     {
       "key": "CHAR.MAKE",
@@ -26314,7 +26945,18 @@
         "float",
         "float"
       ],
-      "description": "DEPRECATED alias of CHAR.CREATE. Use CHAR.CREATE. Alias of PLAYER.CREATE(entity, radius#, height#)"
+      "description": "DEPRECATED alias of CHAR.CREATE. Use CHAR.CREATE. Alias of PLAYER.CREATE(entity, radius#, height#)",
+      "deprecated_of": "CHAR.CREATE"
+    },
+    {
+      "key": "CHARACTER.MAKE",
+      "args": [
+        "any"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. Entity-bound capsule with default dimensions (0.4, 1.0). Linux/Windows fullruntime with CGO+Jolt.",
+      "namespace": "Character",
+      "deprecated_of": "CHARACTER.CREATE"
     },
     {
       "key": "CHARACTER.MAKE",
@@ -26325,7 +26967,22 @@
       ],
       "returns": "handle",
       "description": "DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.",
-      "namespace": "Character"
+      "namespace": "Character",
+      "deprecated_of": "CHARACTER.CREATE"
+    },
+    {
+      "key": "CHARACTER.MAKE",
+      "args": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+      ],
+      "returns": "handle",
+      "description": "DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. World-positioned capsule: (radius, height, x, y, z). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.",
+      "namespace": "Character",
+      "deprecated_of": "CHARACTER.CREATE"
     },
     {
       "key": "SHAPE.MAKEBOX",
@@ -26335,7 +26992,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of SHAPE.CREATEBOX. Use SHAPE.CREATEBOX. Creates a Jolt Box shape for collision geometry."
+      "description": "DEPRECATED alias of SHAPE.CREATEBOX. Use SHAPE.CREATEBOX. Creates a Jolt Box shape for collision geometry.",
+      "deprecated_of": "SHAPE.CREATEBOX"
     },
     {
       "key": "SHAPE.MAKESPHERE",
@@ -26343,7 +27001,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of SHAPE.CREATESPHERE. Use SHAPE.CREATESPHERE. Creates a Jolt Sphere shape."
+      "description": "DEPRECATED alias of SHAPE.CREATESPHERE. Use SHAPE.CREATESPHERE. Creates a Jolt Sphere shape.",
+      "deprecated_of": "SHAPE.CREATESPHERE"
     },
     {
       "key": "SHAPE.MAKECAPSULE",
@@ -26352,7 +27011,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of SHAPE.CREATECAPSULE. Use SHAPE.CREATECAPSULE. Creates a Jolt Capsule shape: (radius, height)."
+      "description": "DEPRECATED alias of SHAPE.CREATECAPSULE. Use SHAPE.CREATECAPSULE. Creates a Jolt Capsule shape: (radius, height).",
+      "deprecated_of": "SHAPE.CREATECAPSULE"
     },
     {
       "key": "SHAPE.MAKECYLINDER",
@@ -26361,7 +27021,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of SHAPE.CREATECYLINDER. Use SHAPE.CREATECYLINDER. Creates a Jolt Cylinder shape: (radius, height)."
+      "description": "DEPRECATED alias of SHAPE.CREATECYLINDER. Use SHAPE.CREATECYLINDER. Creates a Jolt Cylinder shape: (radius, height).",
+      "deprecated_of": "SHAPE.CREATECYLINDER"
     },
     {
       "key": "KINEMATIC.MAKE",
@@ -26369,7 +27030,8 @@
         "handle"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of KINEMATIC.CREATE. Use KINEMATIC.CREATE. Creates a Kinematic Body from a shape handle."
+      "description": "DEPRECATED alias of KINEMATIC.CREATE. Use KINEMATIC.CREATE. Creates a Kinematic Body from a shape handle.",
+      "deprecated_of": "KINEMATIC.CREATE"
     },
     {
       "key": "STATIC.MAKE",
@@ -26377,7 +27039,8 @@
         "handle"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of STATIC.CREATE. Use STATIC.CREATE. Creates a Static Body (environment) from a shape handle."
+      "description": "DEPRECATED alias of STATIC.CREATE. Use STATIC.CREATE. Creates a Static Body (environment) from a shape handle.",
+      "deprecated_of": "STATIC.CREATE"
     },
     {
       "key": "TRIGGER.MAKE",
@@ -26385,7 +27048,8 @@
         "handle"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of TRIGGER.CREATE. Use TRIGGER.CREATE. Creates a Trigger Body (non-solid sensor) from a shape handle."
+      "description": "DEPRECATED alias of TRIGGER.CREATE. Use TRIGGER.CREATE. Creates a Trigger Body (non-solid sensor) from a shape handle.",
+      "deprecated_of": "TRIGGER.CREATE"
     },
     {
       "key": "CONTROLLER.MAKE",
@@ -26397,7 +27061,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of CONTROLLER.CREATE. Use CONTROLLER.CREATE."
+      "description": "DEPRECATED alias of CONTROLLER.CREATE. Use CONTROLLER.CREATE.",
+      "deprecated_of": "CONTROLLER.CREATE"
     },
     {
       "key": "NET.MAKESERVER",
@@ -26406,13 +27071,14 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of NET.CREATESERVER. Use NET.CREATESERVER."
+      "description": "DEPRECATED alias of NET.CREATESERVER. Use NET.CREATESERVER.",
+      "deprecated_of": "NET.CREATESERVER"
     },
     {
       "key": "NET.MAKECLIENT",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of NET.CREATECLIENT. Use NET.CREATECLIENT."
+      "description": "DEPRECATED alias of NET.CREATECLIENT. Use NET.CREATECLIENT.",
+      "deprecated_of": "NET.CREATECLIENT"
     },
     {
       "key": "PACKET.MAKE",
@@ -26420,7 +27086,8 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of PACKET.CREATE. Use PACKET.CREATE."
+      "description": "DEPRECATED alias of PACKET.CREATE. Use PACKET.CREATE.",
+      "deprecated_of": "PACKET.CREATE"
     },
     {
       "key": "LOBBY.MAKE",
@@ -26429,13 +27096,14 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of LOBBY.CREATE. Use LOBBY.CREATE."
+      "description": "DEPRECATED alias of LOBBY.CREATE. Use LOBBY.CREATE.",
+      "deprecated_of": "LOBBY.CREATE"
     },
     {
       "key": "JSON.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of JSON.CREATE. Use JSON.CREATE."
+      "description": "DEPRECATED alias of JSON.CREATE. Use JSON.CREATE.",
+      "deprecated_of": "JSON.CREATE"
     },
     {
       "key": "GRID.MAKE",
@@ -26445,20 +27113,21 @@
         "float"
       ],
       "returns": "handle",
+      "description": "DEPRECATED alias of GRID.CREATE. Use GRID.CREATE. Logical XZ tactical grid (width x depth cells, cell size)",
       "phase": "rendering",
-      "description": "DEPRECATED alias of GRID.CREATE. Use GRID.CREATE. Logical XZ tactical grid (width x depth cells, cell size)"
+      "deprecated_of": "GRID.CREATE"
     },
     {
       "key": "SKY.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of SKY.CREATE. Use SKY.CREATE."
+      "description": "DEPRECATED alias of SKY.CREATE. Use SKY.CREATE.",
+      "deprecated_of": "SKY.CREATE"
     },
     {
       "key": "WEATHER.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of WEATHER.CREATE. Use WEATHER.CREATE."
+      "description": "DEPRECATED alias of WEATHER.CREATE. Use WEATHER.CREATE.",
+      "deprecated_of": "WEATHER.CREATE"
     },
     {
       "key": "WATER.MAKE",
@@ -26470,7 +27139,8 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of WATER.CREATE. Use WATER.CREATE."
+      "description": "DEPRECATED alias of WATER.CREATE. Use WATER.CREATE.",
+      "deprecated_of": "WATER.CREATE"
     },
     {
       "key": "TABLE.MAKE",
@@ -26478,7 +27148,8 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of TABLE.CREATE. Use TABLE.CREATE."
+      "description": "DEPRECATED alias of TABLE.CREATE. Use TABLE.CREATE.",
+      "deprecated_of": "TABLE.CREATE"
     },
     {
       "key": "WATER.MAKE",
@@ -26490,7 +27161,8 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of WATER.CREATE. Use WATER.CREATE. x, z, width, depth, water level (Y); same plane as WATER.MAKE"
+      "description": "DEPRECATED alias of WATER.CREATE. Use WATER.CREATE. x, z, width, depth, water level (Y); same plane as WATER.MAKE",
+      "deprecated_of": "WATER.CREATE"
     },
     {
       "key": "TERRAIN.MAKE",
@@ -26500,13 +27172,14 @@
         "float"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of TERRAIN.CREATE. Use TERRAIN.CREATE."
+      "description": "DEPRECATED alias of TERRAIN.CREATE. Use TERRAIN.CREATE.",
+      "deprecated_of": "TERRAIN.CREATE"
     },
     {
       "key": "ENTITY.MAKE",
-      "args": [],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATE. Use ENTITY.CREATE."
+      "description": "DEPRECATED alias of ENTITY.CREATE. Use ENTITY.CREATE.",
+      "deprecated_of": "ENTITY.CREATE"
     },
     {
       "key": "ENTITY.MAKEBOX",
@@ -26516,7 +27189,8 @@
         "float"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATEBOX. Use ENTITY.CREATEBOX."
+      "description": "DEPRECATED alias of ENTITY.CREATEBOX. Use ENTITY.CREATEBOX.",
+      "deprecated_of": "ENTITY.CREATEBOX"
     },
     {
       "key": "ENTITY.MAKEBOX",
@@ -26524,20 +27198,22 @@
         "float"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATEBOX. Use ENTITY.CREATEBOX. Uniform cube: size# used for width, height, and depth (alias ENTITY.CREATECUBE)"
+      "description": "DEPRECATED alias of ENTITY.CREATEBOX. Use ENTITY.CREATEBOX. Uniform cube: size# used for width, height, and depth (alias ENTITY.CREATECUBE)",
+      "deprecated_of": "ENTITY.CREATEBOX"
     },
     {
       "key": "TRIGGER.MAKEFROMENTITY",
       "args": [
         "int"
       ],
-      "description": "DEPRECATED alias of TRIGGER.CREATEFROMENTITY. Use TRIGGER.CREATEFROMENTITY."
+      "description": "DEPRECATED alias of TRIGGER.CREATEFROMENTITY. Use TRIGGER.CREATEFROMENTITY.",
+      "deprecated_of": "TRIGGER.CREATEFROMENTITY"
     },
     {
       "key": "ENTITY.MAKEENTITY",
-      "args": [],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATEENTITY. Use ENTITY.CREATEENTITY."
+      "description": "DEPRECATED alias of ENTITY.CREATEENTITY. Use ENTITY.CREATEENTITY.",
+      "deprecated_of": "ENTITY.CREATEENTITY"
     },
     {
       "key": "ENTITY.MAKECUBE",
@@ -26547,7 +27223,8 @@
         "float"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATECUBE. Use ENTITY.CREATECUBE."
+      "description": "DEPRECATED alias of ENTITY.CREATECUBE. Use ENTITY.CREATECUBE.",
+      "deprecated_of": "ENTITY.CREATECUBE"
     },
     {
       "key": "ENTITY.MAKESPHERE",
@@ -26556,7 +27233,8 @@
         "int"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE."
+      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE.",
+      "deprecated_of": "ENTITY.CREATESPHERE"
     },
     {
       "key": "ENTITY.MAKESPHERE",
@@ -26564,7 +27242,8 @@
         "float"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE. Radius only — default 16 segments"
+      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE. Radius only — default 16 segments",
+      "deprecated_of": "ENTITY.CREATESPHERE"
     },
     {
       "key": "ENTITY.MAKECYLINDER",
@@ -26574,7 +27253,8 @@
         "int"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATECYLINDER. Use ENTITY.CREATECYLINDER."
+      "description": "DEPRECATED alias of ENTITY.CREATECYLINDER. Use ENTITY.CREATECYLINDER.",
+      "deprecated_of": "ENTITY.CREATECYLINDER"
     },
     {
       "key": "ENTITY.MAKEPLANE",
@@ -26582,7 +27262,8 @@
         "float"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATEPLANE. Use ENTITY.CREATEPLANE."
+      "description": "DEPRECATED alias of ENTITY.CREATEPLANE. Use ENTITY.CREATEPLANE.",
+      "deprecated_of": "ENTITY.CREATEPLANE"
     },
     {
       "key": "ENTITY.MAKEMESH",
@@ -26590,7 +27271,8 @@
         "any"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATEMESH. Use ENTITY.CREATEMESH. Procedural mesh: optional parentEntity#; use AddVertex/UpdateMesh"
+      "description": "DEPRECATED alias of ENTITY.CREATEMESH. Use ENTITY.CREATEMESH. Procedural mesh: optional parentEntity#; use AddVertex/UpdateMesh",
+      "deprecated_of": "ENTITY.CREATEMESH"
     },
     {
       "key": "ENTITY.MAKESPRITE",
@@ -26598,7 +27280,8 @@
         "string"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE."
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE.",
+      "deprecated_of": "ENTITY.CREATESPRITE"
     },
     {
       "key": "ENTITY.MAKESPRITE",
@@ -26607,7 +27290,8 @@
         "int"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE."
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE.",
+      "deprecated_of": "ENTITY.CREATESPRITE"
     },
     {
       "key": "ENTITY.MAKESPRITE",
@@ -26617,8 +27301,9 @@
         "float"
       ],
       "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE. Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)",
       "phase": "rendering",
-      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE. Billboard from TEXTURE handle (atlas / TEXTURE.LOADANIM)"
+      "deprecated_of": "ENTITY.CREATESPRITE"
     },
     {
       "key": "ENTITY.MAKESPRITE",
@@ -26629,8 +27314,9 @@
         "int"
       ],
       "returns": "int",
+      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE.",
       "phase": "rendering",
-      "description": "DEPRECATED alias of ENTITY.CREATESPRITE. Use ENTITY.CREATESPRITE."
+      "deprecated_of": "ENTITY.CREATESPRITE"
     },
     {
       "key": "ENTITY.MAKESURFACE",
@@ -26638,19 +27324,20 @@
         "int"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of ENTITY.CREATESURFACE. Use ENTITY.CREATESURFACE."
+      "description": "DEPRECATED alias of ENTITY.CREATESURFACE. Use ENTITY.CREATESURFACE.",
+      "deprecated_of": "ENTITY.CREATESURFACE"
     },
     {
       "key": "PLAYER2D.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of PLAYER2D.CREATE. Use PLAYER2D.CREATE."
+      "description": "DEPRECATED alias of PLAYER2D.CREATE. Use PLAYER2D.CREATE.",
+      "deprecated_of": "PLAYER2D.CREATE"
     },
     {
       "key": "NAV.MAKE",
-      "args": [],
       "returns": "int",
-      "description": "DEPRECATED alias of NAV.CREATE. Use NAV.CREATE. Create a new navigation grid handle."
+      "description": "DEPRECATED alias of NAV.CREATE. Use NAV.CREATE. Create a new navigation grid handle.",
+      "deprecated_of": "NAV.CREATE"
     },
     {
       "key": "NAVAGENT.MAKE",
@@ -26658,14 +27345,16 @@
         "int"
       ],
       "returns": "int",
-      "description": "DEPRECATED alias of NAVAGENT.CREATE. Use NAVAGENT.CREATE. Create a navigation agent for the specified grid handle."
+      "description": "DEPRECATED alias of NAVAGENT.CREATE. Use NAVAGENT.CREATE. Create a navigation agent for the specified grid handle.",
+      "deprecated_of": "NAVAGENT.CREATE"
     },
     {
       "key": "PLAYER.MAKE",
       "args": [
         "handle"
       ],
-      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE. Initializes a Kinematic Character Controller in the Jolt buffer."
+      "description": "DEPRECATED alias of PLAYER.CREATE. Use PLAYER.CREATE. Initializes a Kinematic Character Controller in the Jolt buffer.",
+      "deprecated_of": "PLAYER.CREATE"
     },
     {
       "key": "TRIGGER.MAKEZONE",
@@ -26679,7 +27368,8 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of TRIGGER.CREATEZONE. Use TRIGGER.CREATEZONE. Creates non-blocking zone firing hit tags."
+      "description": "DEPRECATED alias of TRIGGER.CREATEZONE. Use TRIGGER.CREATEZONE. Creates non-blocking zone firing hit tags.",
+      "deprecated_of": "TRIGGER.CREATEZONE"
     },
     {
       "key": "VEHICLE.MAKE",
@@ -26688,20 +27378,20 @@
         "int"
       ],
       "returns": "int",
+      "description": "DEPRECATED alias of VEHICLE.CREATE. Use VEHICLE.CREATE. Create a vehicle controller for an entity.",
       "namespace": "physics3d",
-      "description": "DEPRECATED alias of VEHICLE.CREATE. Use VEHICLE.CREATE. Create a vehicle controller for an entity."
+      "deprecated_of": "VEHICLE.CREATE"
     },
     {
       "key": "CLOUD.CREATE",
-      "args": [],
       "returns": "handle",
       "description": "Procedural cloud volume handle (CPU-side; coverage via CLOUD.SETCOVERAGE)."
     },
     {
       "key": "CLOUD.MAKE",
-      "args": [],
       "returns": "handle",
-      "description": "DEPRECATED alias of CLOUD.CREATE. Use CLOUD.CREATE."
+      "description": "DEPRECATED alias of CLOUD.CREATE. Use CLOUD.CREATE.",
+      "deprecated_of": "CLOUD.CREATE"
     },
     {
       "key": "CLOUD.FREE",
@@ -26747,7 +27437,8 @@
         "string"
       ],
       "returns": "handle",
-      "description": "DEPRECATED alias of BIOME.CREATE. Use BIOME.CREATE."
+      "description": "DEPRECATED alias of BIOME.CREATE. Use BIOME.CREATE.",
+      "deprecated_of": "BIOME.CREATE"
     },
     {
       "key": "BIOME.FREE",

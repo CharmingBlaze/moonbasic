@@ -54,58 +54,55 @@ These map closely to **`CharacterVirtual`** on **Linux + CGO**. On the **stub** 
 ## Full Example
 
 ```basic
-Window.Open(960, 540, "Character Controller")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "Character Controller")
+WINDOW.SETFPS(60)
 
-; 1. Start Physics
-Physics3D.Start()
-Physics3D.SetGravity(0, -10, 0)
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -10, 0)
 
-; Setup camera and floor
-cam = CreateCamera()
-cam.SetTarget(0, 5, 0)
-floor_def = Body3D.Make("static")
-Body3D.AddBox(floor_def, 100, 1, 100)
-floor_body = Body3D.Commit(floor_def, 0, 0, 0)
-floor_mesh = Mesh.MakeCube(100, 1, 100)
-mat = Material.MakeDefault()
+cam = CAMERA.CREATE()
+cam.SETTARGET(0, 5, 0)
 
-; 2. Create Controller
+floorDef = BODY3D.CREATE("STATIC")
+BODY3D.ADDBOX(floorDef, 50, 0.5, 50)
+floorBody = BODY3D.COMMIT(floorDef, 0, 0, 0)
+floorMesh = MESH.CREATECUBE(100, 1, 100)
+mat = MATERIAL.CREATEDEFAULT()
+
 player = CHARCONTROLLER.CREATE(0.5, 2.0, 0, 5, 0)
-player_mesh = Mesh.MakeCapsule(0.5, 2.0, 16, 16)
+playerMesh = MESH.CREATECAPSULE(0.5, 2.0, 16, 16)
 
-WHILE NOT Window.ShouldClose()
-    Physics3D.Step()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    PHYSICS3D.UPDATE()
 
-    ; 3. Update controller from input
-    speed = 5.0 * Time.Delta()
+    speed = 5.0 * TIME.DELTA()
     dx = 0
     dz = 0
-    IF Input.KeyDown(KEY_W) THEN dz = -speed
-    IF Input.KeyDown(KEY_S) THEN dz = speed
-    IF Input.KeyDown(KEY_A) THEN dx = -speed
-    IF Input.KeyDown(KEY_D) THEN dx = speed
+    IF INPUT.KEYDOWN(KEY_W) THEN dz = -speed
+    IF INPUT.KEYDOWN(KEY_S) THEN dz = speed
+    IF INPUT.KEYDOWN(KEY_A) THEN dx = -speed
+    IF INPUT.KEYDOWN(KEY_D) THEN dx = speed
     CHARCONTROLLER.MOVE(player, dx, 0, dz)
 
-    ; 4. Synchronize visuals
     player_x = CHARCONTROLLER.X(player)
     player_y = CHARCONTROLLER.Y(player)
     player_z = CHARCONTROLLER.Z(player)
-    cam.SetPos(player_x, player_y + 10, player_z + 15)
-    cam.SetTarget(player_x, player_y, player_z)
+    cam.SETPOS(player_x, player_y + 10, player_z + 15)
+    cam.SETTARGET(player_x, player_y, player_z)
 
-    player_transform = Transform.Translation(player_x, player_y, player_z)
+    playerTx = TRANSFORM.TRANSLATION(player_x, player_y, player_z)
 
-    Render.Clear(20, 30, 40)
-    cam.Begin()
-        Mesh.Draw(floor_mesh, mat, Body3D.GetMatrix(floor_body))
-        Mesh.Draw(player_mesh, mat, player_transform)
-        Draw.Grid(100, 1.0)
-    cam.End()
-    Render.Frame()
+    RENDER.CLEAR(20, 30, 40)
+    RENDER.Begin3D(cam)
+        MESH.DRAW(floorMesh, mat, TRANSFORM.TRANSLATION(0, 0, 0))
+        MESH.DRAW(playerMesh, mat, playerTx)
+        DRAW.GRID(100, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
 CHARCONTROLLER.FREE(player)
-Physics3D.Stop()
-Window.Close()
+BODY3D.FREE(floorBody)
+PHYSICS3D.STOP()
+WINDOW.CLOSE()
 ```

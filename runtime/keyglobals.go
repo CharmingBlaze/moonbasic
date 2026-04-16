@@ -24,6 +24,7 @@ func SeedInputKeyGlobals(globals map[string]value.Value) {
 	globals["KEY_D"] = value.FromInt(68)
 	globals["KEY_Q"] = value.FromInt(81)
 	globals["KEY_E"] = value.FromInt(69)
+	globals["KEY_G"] = value.FromInt(71)
 	globals["KEY_I"] = value.FromInt(73)
 	globals["KEY_K"] = value.FromInt(75)
 	globals["KEY_F1"] = value.FromInt(290)

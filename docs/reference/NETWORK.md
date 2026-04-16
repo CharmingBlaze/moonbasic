@@ -105,62 +105,65 @@ Frees the event handle. **You must call this for every event you receive.**
 
 ```basic
 ; server.mb
-Net.Start()
-server = Net.CreateServer(1234, 32)
+NET.START()
+server = NET.CREATESERVER(1234, 32)
 
 PRINT "Server started on port 1234..."
 
 WHILE TRUE
-    Net.Update(server)
-    event = Net.Receive(server)
+    NET.UPDATE(server)
+    event = NET.RECEIVE(server)
     WHILE event
-        SELECT Event.Type(event)
-            CASE EVENT_CONNECT
-                PRINT "A client connected!"
-            CASE EVENT_DISCONNECT
-                PRINT "A client disconnected."
-            CASE EVENT_RECEIVE
-                PRINT "Got message: " + Event.Data(event)
-                Net.Broadcast(server, 0, "Message received!", TRUE)
-        ENDSELECT
-        Event.Free(event)
-        event = Net.Receive(server)
+        et = EVENT.TYPE(event)
+        IF et = 1 THEN
+            PRINT "A client connected!"
+        ENDIF
+        IF et = 2 THEN
+            PRINT "A client disconnected."
+        ENDIF
+        IF et = 3 THEN
+            PRINT "Got message: " + EVENT.DATA(event)
+            NET.BROADCAST(server, 0, "Message received!", TRUE)
+        ENDIF
+        EVENT.FREE(event)
+        event = NET.RECEIVE(server)
     WEND
 WEND
 
-Net.Stop()
+NET.STOP()
 ```
 
 ## Client Example
 
 ```basic
 ; client.mb
-Window.Open(400, 200, "Net Client")
-Net.Start()
-client = Net.CreateClient()
-server_peer = Net.Connect(client, "127.0.0.1", 1234)
+WINDOW.OPEN(400, 200, "Net Client")
+NET.START()
+client = NET.CREATECLIENT()
+server_peer = NET.CONNECT(client, "127.0.0.1", 1234)
 
-WHILE NOT Window.ShouldClose()
-    Net.Update(client)
-    event = Net.Receive(client)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    NET.UPDATE(client)
+    event = NET.RECEIVE(client)
     WHILE event
-        IF Event.Type(event) = EVENT_RECEIVE THEN
-            PRINT "Message from server: " + Event.Data(event)
+        IF EVENT.TYPE(event) = 3 THEN
+            ; 1 = connect, 2 = disconnect, 3 = receive (see Event.Type below)
+            PRINT "Message from server: " + EVENT.DATA(event)
         ENDIF
-        Event.Free(event)
-        event = Net.Receive(client)
+        EVENT.FREE(event)
+        event = NET.RECEIVE(client)
     WEND
 
-    IF Input.KeyPressed(KEY_SPACE) THEN
-        Peer.Send(server_peer, 0, "Hello from the client!", TRUE)
+    IF INPUT.KEYPRESSED(KEY_SPACE) THEN
+        PEER.SEND(server_peer, 0, "Hello from the client!", TRUE)
     ENDIF
 
-    Render.Clear(20,20,20)
-    Render.Frame()
+    RENDER.CLEAR(20, 20, 20)
+    RENDER.FRAME()
 WEND
 
-Net.Stop()
-Window.Close()
+NET.STOP()
+WINDOW.CLOSE()
 ```
 
 ---

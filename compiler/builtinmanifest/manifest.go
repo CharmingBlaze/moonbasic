@@ -31,6 +31,8 @@ type Command struct {
 	Namespace string `json:"namespace,omitempty"`
 	Stub      string `json:"stub,omitempty"`
 	Desc      string `json:"description,omitempty"`
+	// DeprecatedOf is set when this row is a legacy alias (e.g. STR$ → STR).
+	DeprecatedOf string `json:"deprecated_of,omitempty"`
 }
 
 // Table maps canonical command keys to one or more overloads (different arities).
@@ -38,9 +40,10 @@ type Table struct {
 	Commands map[string][]Command
 }
 
-// Key builds the lookup key for a namespace and method (already uppercased by lexer/parser).
+// Key builds the lookup key for a namespace and method. Identifiers are case-insensitive; the
+// manifest stores SCREAMING_SNAKE_CASE keys, so ns and method are normalized to uppercase here.
 func Key(ns, method string) string {
-	return ns + "." + method
+	return strings.ToUpper(strings.TrimSpace(ns)) + "." + strings.ToUpper(strings.TrimSpace(method))
 }
 
 // LookupArity returns the overload whose arity matches argc, or false if none.
@@ -112,6 +115,21 @@ func (t *Table) HasArityExact(globalName string, argc int) bool {
 	ovs := t.Commands[k]
 	for _, c := range ovs {
 		if len(c.Args) == argc {
+			return true
+		}
+	}
+	return false
+}
+
+// IsDeprecatedAlias reports whether key exists only as a deprecated manifest alias
+// (at least one overload has DeprecatedOf set).
+func (t *Table) IsDeprecatedAlias(key string) bool {
+	if t == nil || t.Commands == nil {
+		return false
+	}
+	k := NormalizeCommand(key)
+	for _, c := range t.Commands[k] {
+		if strings.TrimSpace(c.DeprecatedOf) != "" {
 			return true
 		}
 	}

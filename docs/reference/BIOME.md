@@ -1,30 +1,50 @@
-# Biomes (`BIOME.*`)
+# Biome Commands
 
 Lightweight **temperature / humidity** state (`TagBiome`) for driving ambience or future terrain/weather blending. **CGO** required.
 
----
+Biomes **do not** replace **`SCATTER.APPLY`**, **`TERRAIN.FILLPERLIN`**, or **`WEATHER.*`** — combine them in your loop or data layer.
 
-## `Biome.Create(name$)` → handle (canonical; deprecated `Biome.Make()` / `BIOME.MAKE`)
+Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-Creates a biome descriptor (registry **`BIOME.CREATE`**).
+## Core Workflow
 
----
-
-## `Biome.Free(biome)`
-
-Frees the handle.
+Create a biome with **`BIOME.CREATE(name)`**, tune **`BIOME.SETTEMP`** and **`BIOME.SETHUMIDITY`**, and read the values where your gameplay or ambience system needs them.
 
 ---
 
-## `Biome.SetTemp(biome, t)` / `Biome.SetHumidity(biome, h)`
+### `BIOME.CREATE(name)`
 
-Sets normalized or arbitrary scales (see runtime) for **temperature** and **humidity**.
+Creates a biome descriptor. **`name`** is a string label. **`BIOME.MAKE`** is a deprecated alias. Returns a **handle**.
 
 ---
 
-## Notes
+### `BIOME.FREE(biome)`
 
-Biomes **do not** duplicate **`Scatter.Apply`** or **`Terrain.FillPerlin`** — combine them in your game loop or data layer.
+Frees the biome handle.
+
+---
+
+### `BIOME.SETTEMP(biome, t)`
+
+Sets temperature (see runtime: manifest describes **celsius** scale).
+
+---
+
+### `BIOME.SETHUMIDITY(biome, h)`
+
+Sets humidity **0–1** (normalized).
+
+---
+
+## Full Example
+
+```basic
+biome = BIOME.CREATE("forest")
+BIOME.SETTEMP(biome, 18.0)
+BIOME.SETHUMIDITY(biome, 0.65)
+; ... drive audio, foliage, or weather from biome ...
+BIOME.FREE(biome)
+```
 
 ---
 

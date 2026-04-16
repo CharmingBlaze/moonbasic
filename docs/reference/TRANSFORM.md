@@ -1,10 +1,10 @@
 # Transform — 3D transform matrices
 
-**`Transform.*`** is the recommended API for **4×4 transformation matrices**: where a mesh sits in the world (position, rotation, scale) and how you combine those into one matrix for `Mesh.Draw`.
+**`Transform.*`** (registry **`TRANSFORM.*`**) is the recommended API for **4×4 transformation matrices**: where a mesh sits in the world (position, rotation, scale) and how you combine those into one matrix for **`MESH.DRAW`**.
 
 The name matches what game engines call a **transform**—not raw “linear algebra,” and not easy to confuse with **`Material.*`** (shaders/textures) or **`MATRIX.*`** (other engine handles).
 
-Every 3D object is drawn with a transform handle. `Body3D.GetMatrix()` and related APIs return the same kind of handle, which you can pass straight to `Mesh.Draw`.
+Every 3D object is drawn with a transform handle. Build one from **`TRANSFORM.TRANSLATION`** / **`TRANSFORM.ROTATION`** / **`TRANSFORM.MULTIPLY`**, or use **`CAMERA.GETMATRIX`** / **`MAT4.*`** where applicable — there is no **`BODY3D.GETMATRIX`**; use **`BODY3D.GETPOS`** + **`BODY3D.GETROT`** for rigid bodies (see [PHYSICS3D.md](PHYSICS3D.md)).
 
 ---
 
@@ -40,36 +40,38 @@ Releases the matrix from the heap and frees its memory.
 
 ## Full example: spinning cube
 
+Registry keys: **`TRANSFORM.*`**, **`MESH.*`**, **`MATERIAL.*`**, **`RENDER.Begin3D`**, **`DRAW.GRID`**, **`TIME.DELTA`**. The material map index **`0`** is albedo (**`MATERIAL_MAP_ALBEDO`** at runtime when globals are seeded).
+
 ```basic
-Window.Open(960, 540, "Transform demo")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "Transform demo")
+WINDOW.SETFPS(60)
 
-cam = CreateCamera()
-cam.SetPos(0, 3, 10)
-cam.SetTarget(0, 0, 0)
-cam.SetFOV(45)
+cam = CAMERA.CREATE()
+cam.SETPOS(0, 3, 10)
+cam.SETTARGET(0, 0, 0)
+cam.SETFOV(45)
 
-cube = Mesh.MakeCube(2, 2, 2)
-mat  = Material.MakeDefault()
-Material.SetColor(mat, MATERIAL_MAP_ALBEDO, 100, 180, 255, 255)
+cube = MESH.CREATECUBE(2, 2, 2)
+mat = MATERIAL.CREATEDEFAULT()
+MATERIAL.SETCOLOR(mat, 0, 100, 180, 255, 255)
 
-xform = Transform.Identity()
+xform = TRANSFORM.IDENTITY()
 angle = 0.0
 
-WHILE NOT Window.ShouldClose()
-    angle = angle + 1.2 * Time.Delta()
-    Transform.SetRotation(xform, angle * 0.5, angle, angle * 0.3)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    angle = angle + 1.2 * TIME.DELTA()
+    TRANSFORM.SETROTATION(xform, angle * 0.5, angle, angle * 0.3)
 
-    Render.Clear(12, 14, 22)
-    cam.Begin()
-        Mesh.Draw(cube, mat, xform)
-        Draw.Grid(20, 1.0)
-    cam.End()
-    Render.Frame()
+    RENDER.CLEAR(12, 14, 22)
+    RENDER.Begin3D(cam)
+        MESH.DRAW(cube, mat, xform)
+        DRAW.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
-Transform.Free(xform)
-Window.Close()
+TRANSFORM.FREE(xform)
+WINDOW.CLOSE()
 ```
 
 ---

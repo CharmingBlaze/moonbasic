@@ -8,7 +8,7 @@ moonBASIC is a high-performance, Go-powered game scripting language designed for
 ### Phase A: Compiler & VM Reconstruction (COMPLETED)
 The following foundational components have been successfully refactored and verified:
 
-1.  **The First Law (Case Agnosticism)**: Lexer and SymTable normalize all identifiers and keywords to UPPERCASE.
+1.  **The First Law (Case Agnosticism)**: Source is case-insensitive; the lexer keeps **lowercase** canonical identifier/keyword spellings, SymTable uppercases **symbol** keys for lookup, and the manifest/registry use **uppercase** dotted command names.
 2.  **Modular Pipeline Library**: All orchestration logic has been extracted from `main.go` into `compiler/pipeline`. This allows the engine to be embedded without CLI dependencies.
 3.  **Modular Code Generation**: The generator is split into specialized sub-handlers:
     - `codegen.go` (Base)

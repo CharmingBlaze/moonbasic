@@ -176,7 +176,7 @@ func (p *Parser) parseStmtAfterIdent(name string, line, col int) (ast.Stmt, erro
 				return arena.Make(p.ar, ast.NamespaceAssignNode{NS: name, Method: field, Args: args, Expr: rhs, Line: line, Col: col}), nil
 			}
 			if p.sym.IsVar(name) {
-				return arena.Make(p.ar, ast.HandleCallStmt{Receiver: name, Method: field, Args: args, Line: line, Col: col}), nil
+				return arena.Make(p.ar, ast.HandleCallStmt{Receiver: arena.Make(p.ar, ast.IdentNode{Name: name, Line: line, Col: col}), Method: field, Args: args, Line: line, Col: col}), nil
 			}
 			return arena.Make(p.ar, ast.NamespaceCallStmt{NS: name, Method: field, Args: args, Line: line, Col: col}), nil
 		default:

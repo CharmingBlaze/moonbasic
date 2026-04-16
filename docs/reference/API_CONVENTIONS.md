@@ -1,6 +1,8 @@
 # API conventions — consistent object commands
 
-moonBASIC registers commands as **`NAMESPACE.ACTION`** (uppercase, dot). In source you can write **`Object.Method`** style; the lexer folds names for lookup (see [PROGRAMMING.md](../PROGRAMMING.md)). This page describes **recommended verbs** so similar concepts look alike across types (`Load`, `SetPos`, `Scale`, `Rotate`, …).
+**Directive:** [API Standardization Directive](../API_STANDARDIZATION_DIRECTIVE.md) (CREATE vs MAKE, SETPOS, universal handle methods, phased rollout).
+
+moonBASIC registers commands as **`NAMESPACE.ACTION`** (uppercase, dot). In source you can write **`Object.Method`** style; names are matched case-insensitively and resolve to those registry keys (see [PROGRAMMING.md](../PROGRAMMING.md)). This page describes **recommended verbs** so similar concepts look alike across types (`Load`, `SetPos`, `Scale`, `Rotate`, …).
 
 ---
 
@@ -15,6 +17,7 @@ moonBASIC registers commands as **`NAMESPACE.ACTION`** (uppercase, dot). In sour
 | Set **uniform scale** | `*.SETSCALE` | Use when the type exposes scaling (e.g. instances); not every handle has this yet |
 | Set **rotation** | `*.SETROT`, `*.LOOKAT`, or `TRANSFORM.*` | Cameras often use **`LOOKAT`** / **`SETTARGET`**; models may use matrix / texture-stage rotates — see per-type docs |
 | Draw / step | `*.DRAW`, `*.UPDATE`, … | Namespace-specific |
+| Advance **3D physics** (Jolt) | `PHYSICS3D.UPDATE`, `PHYSICS3D.STEP` | Same implementation; optional frame **`dt`** — see [PHYSICS3D.md](PHYSICS3D.md) |
 
 **Aliases:** The manifest may register migration aliases (for example `*.MAKE*` and `*.SETPOSITION`). Prefer canonical **`CREATE`** and **`SETPOS`** in all new code.
 

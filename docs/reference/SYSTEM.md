@@ -1,85 +1,100 @@
-# System Commands
+# System (`SYSTEM.*`, `ARGC`, `COMMAND`, `SystemProperty`)
 
 Commands for interacting with the operating system and environment.
 
----
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`** where applicable; Easy Mode (`System.Exit`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
 
-## Program Control
-
-### `System.Exit()`
-
-Terminates the program immediately with the specified exit code. This is a hard exit; `Window.Close()` is preferred for a clean shutdown.
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
 
 ---
 
-## Host Environment
+## Program control
 
-### `System.Version()`
+### `SYSTEM.EXIT([code])`
 
-Returns the MoonBasic release label (e.g., `"1.0.0-GOLD"`). This value is useful for logging and debugging purposes.
-
-### `System.OS()`
-
-Returns a string identifying the operating system (`"windows"`, `"linux"`, `"darwin"`, etc.). This can be used to implement platform-specific behavior or optimizations.
-
-### `System.Arch()`
-
-Returns the CPU architecture (`"amd64"`, `"arm64"`, etc.). This can be used to implement architecture-specific optimizations or workarounds.
-
-### `System.Env(name)`
-
-Returns the value of an environment variable as a string, or `""` if not set. This allows scripts to interact with the environment and access external configuration.
-
-### `System.OpenURL(url)`
-
-Opens a URL in the user's default web browser. This can be used to provide links to documentation, tutorials, or other online resources.
-
-### `System.ClipboardSetText(text)`
-
-Sets the OS clipboard text. This can be used to provide a simple way to copy text to the clipboard.
-
-### `System.ClipboardGetText()`
-
-Returns the current OS clipboard text. This can be used to retrieve text from the clipboard and process it in the script.
+Terminates the program immediately with the given exit code (when supported). Prefer **`WINDOW.CLOSE()`** for a normal graphics shutdown when a window is open.
 
 ---
 
-## Command Line Arguments
+## Host environment
 
-These commands allow you to read arguments passed to your script when it was run from the terminal.
+### `SYSTEM.VERSION()`
 
-### `System.Args()`
+Returns the MoonBasic release label (e.g. `"1.0.0-GOLD"`). Useful for logging and debugging.
 
-Returns a string array handle containing command-line arguments. This allows scripts to parse and process command-line arguments.
+### `SystemProperty(key)`
 
-### `System.IsCGO()`
+Returns a small set of OS/runtime facts keyed by **`key`** (string). Examples: **`"os"`** / **`"os_name"`** → OS id (`"windows"`, `"linux"`, …); **`"arch"`** → CPU architecture (`"amd64"`, `"arm64"`, …); **`"cpu_cores"`**, **`"compiler"`**, etc. Unknown keys return **`""`**.
 
-Returns `TRUE` if the current build has CGO enabled (required for most 3D/GPU features). If `FALSE`, most 3D and physics commands will be unavailable or return errors.
+### `SYSTEM.CPUNAME()` / `SYSTEM.GPUNAME()`
+
+CPU model string and primary GPU name (best-effort; may be **`"(unavailable)"`** on some setups).
+
+### `SYSTEM.TOTALMEMORY()` / `SYSTEM.FREEMEMORY()`
+
+Host RAM totals (bytes), via the same probes as the runtime host module.
+
+### `SYSTEM.GETENV(name)` / `SYSTEM.SETENV(name, value)`
+
+Read or set an environment variable. Aliases: **`ENVIRON`**, **`ENVIRON$`** (same arity as **`SYSTEM.GETENV`**).
+
+### `SYSTEM.OPENURL(url)`
+
+Opens a URL in the system default browser.
+
+### `SYSTEM.GETCLIPBOARD()` / `SYSTEM.SETCLIPBOARD(text)`
+
+Read or write the OS text clipboard.
+
+### `SYSTEM.LOCALE()` / `SYSTEM.USERNAME()`
+
+Current locale hint and current username (best-effort).
+
+### `SYSTEM.ISDEBUGBUILD()`
+
+**`TRUE`** when the build or environment indicates a development/debug configuration (see runtime for exact rules).
+
+### `SYSTEM.EXECUTE(cmdline)`
+
+Runs a shell command (`cmd /C` on Windows, `sh -c` elsewhere). Returns an exit code on success; errors may surface as runtime errors.
 
 ---
 
-## Full Example: Command Line Parser
+## Command-line arguments
 
-Save this script as `args_test.mb` and run it from your terminal like this:
-`moonbasic args_test.mb hello world --version`
+### `ARGC()`
+
+Returns the number of host arguments available to the script (see **`COMMAND`**).
+
+### `COMMAND([index])`
+
+With **no** arguments, returns the full command line as one string. With **`index`**, returns the **`index`**-th argument (0-based), or **`""`** if out of range.
+
+---
+
+## Full Example: command-line parser
+
+Save as `args_test.mb` and run, e.g. `moonbasic args_test.mb hello world --version`:
 
 ```basic
-PRINT "moonBASIC Argument Parser"
-PRINT "-------------------------"
+PRINT("moonBASIC argument parser")
+PRINT("-------------------------")
 
 arg_count = ARGC()
-PRINT "Arguments received: " + STR(arg_count)
+PRINT("Arguments received: " + STR(arg_count))
 
 IF arg_count > 0 THEN
     FOR i = 0 TO arg_count - 1
         arg = COMMAND(i)
-        PRINT "Arg " + STR(i) + ": " + arg
+        PRINT("Arg " + STR(i) + ": " + arg)
 
         IF arg = "--version" THEN
-            PRINT "Version flag detected!"
+            PRINT("Version flag detected!")
         ENDIF
     NEXT
 ELSE
-    PRINT "No arguments were provided."
+    PRINT("No arguments were provided.")
 ENDIF
+
+PRINT("OS: " + SystemProperty("os") + "  arch: " + SystemProperty("arch"))
 ```

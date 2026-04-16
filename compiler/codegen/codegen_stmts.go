@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"moonbasic/compiler/ast"
+	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/compiler/symtable"
 	"moonbasic/vm/opcode"
 )
@@ -406,7 +407,7 @@ func (g *CodeGen) emitNamespaceCallStmt(ch *opcode.Chunk, n *ast.NamespaceCallSt
 
 	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
-	idx := ch.AddName(n.NS + "." + n.Method)
+	idx := ch.AddName(builtinmanifest.NormalizeCommand(n.NS + "." + n.Method))
 	// Statements don't use the result, but builtins expect a Dst. We provide temporary.
 	dst := g.allocReg()
 	operand := (int32(len(n.Args)) << 24) | idx
@@ -471,7 +472,7 @@ func (g *CodeGen) emitFieldAssign(ch *opcode.Chunk, n *ast.FieldAssignNode) {
 
 func (g *CodeGen) emitHandleCallStmt(ch *opcode.Chunk, n *ast.HandleCallStmt) {
 	g.nextReg = g.baseReg
-	recReg := g.emitLoadNamed(ch, n.Receiver, n.Line)
+	recReg := g.emitExpr(ch, n.Receiver)
 	argStart := g.emitArgsStable(ch, n.Args, n.Line)
 
 	midx := ch.AddName(n.Method)

@@ -44,7 +44,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         theme = "terminal"
     ENDIF
 
-    GUI.LABEL(56, 104, 680, 22, "Current: " + theme + "  text size=" + STR$(GUI.GETTEXTSIZE()))
+    GUI.LABEL(56, 104, 680, 22, "Current: " + theme + "  text size=" + STR(GUI.GETTEXTSIZE()))
 
     IF GUI.BUTTON(56, 140, 200, 32, "Sample button") THEN
         ; no-op

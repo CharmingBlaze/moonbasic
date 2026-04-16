@@ -227,12 +227,14 @@ func registerColorAndDialogs(m *Module, reg runtime.Registrar) {
 		}
 		return rt.RetInt(int64(btn)), nil
 	})
-	reg.Register("GUI.TEXTINPUTLAST", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	guiTextInputLast := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("GUI.TEXTINPUTLAST expects 0 arguments (after GUI.TEXTINPUTBOX)")
 		}
 		return rt.RetString(lastTextInputBuf), nil
-	})
+	}
+	reg.Register("GUI.TEXTINPUTLAST", "gui", guiTextInputLast)
+	reg.Register("GUI.TEXTINPUTLAST$", "gui", guiTextInputLast)
 	reg.Register("GUI.GRID", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 8 {
 			return value.Nil, fmt.Errorf("GUI.GRID expects (x,y,w,h, text, spacing, subdivs, cellHandle)")

@@ -1,5 +1,7 @@
 # Entity commands
 
+**Style:** New scripts should prefer **`ENTITY.SETPOS`**, **`ENTITY.DRAWALL`**, **`WINDOW.*`**, **`RENDER.*`** — see the [API Standardization Directive](../API_STANDARDIZATION_DIRECTIVE.md) and [STYLE_GUIDE.md](../../STYLE_GUIDE.md). Sections below still show **Blitz / Easy Mode** names (`Entity.Position`, `Window.Open`, …) where those facades exist for migration.
+
 moonBASIC **entities** are lightweight **integer ids** (handles to rows in the host entity store—not heavy “OOP objects”). **`ENTITY.*`** is the canonical prefix; **PascalCase** **`Entity.*`** names in this doc are **facade aliases** where registered (see [`entity_blitz_facade_cgo.go`](../../runtime/mbentity/entity_blitz_facade_cgo.go)). **CGO** builds link the full implementation; see [`runtime/mbentity/`](../../runtime/mbentity/).
 
 **Scene vs level:** **`SCENE.*`** is for **game scene** switching (**mbscene**). Loading glTF levels uses **`LEVEL.LOAD`** / **`LEVEL.FINDENTITY`** (or **`ENTITY.FIND`** by name)—not **`Scene.FindEntity`**.
@@ -64,26 +66,25 @@ Shorthand for reading/writing coordinates directly from the entity store. These 
 
 ### Creating and Moving an Entity
 ```basic
-Window.Open(1280, 720, "Entity Example")
-Physics3D.Start()
+WINDOW.OPEN(1280, 720, "Entity Example")
+cam = CAMERA.CREATE()
 
-; Create a cube
-cube = Entity.CreateCube(2.0)
-Entity.Position(cube, 0, 5, 0)
+; Create a cube (w, h, d); SETPOS last arg = world-space when parented
+cube = ENTITY.CREATECUBE(2, 2, 2)
+ENTITY.SETPOS(cube, 0, 5, 0, TRUE)
 
-WHILE NOT Window.ShouldClose()
-    ; Spin the cube
-    Entity.Turn(cube, 0, 1.0, 0)
-    
-    Render.Clear(0, 0, 0)
-    Camera.Begin(cam)
-        DrawEntities()
-    Camera.End()
-    Render.Frame()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    ENTITY.TURN(cube, 0, 1.0, 0)
+
+    RENDER.CLEAR(0, 0, 0)
+    RENDER.Begin3D(cam)
+        ENTITY.DRAWALL()
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
-Entity.Free(cube)
-Window.Close()
+ENTITY.FREE(cube)
+WINDOW.CLOSE()
 ```
 
 ## Quick links
@@ -96,11 +97,11 @@ Window.Close()
 
 ## Modern Blitz-style shorthands
 
-- **`UpdatePhysics()`** — same as **`UPDATEPHYSICS`** (blitzengine): one call per frame for **`ENTITY.UPDATE(Time.Delta)`** plus best-effort world / 2D / 3D simulation steps; then **`Render.Clear`** → **`RENDER.Begin3D`** / **`DrawEntities`** / **`RENDER.End3D`** → **`Render.Frame`**.
+- **`UPDATEPHYSICS`** / **`UpdatePhysics()`** — blitzengine bundle: one call per frame for **`ENTITY.UPDATE(TIME.DELTA)`** plus best-effort player / world / 2D / 3D steps (**`PHYSICS3D.UPDATE`** = **`STEP`**). Your draw pass stays **`RENDER.CLEAR`** → **`RENDER.Begin3D`** / **`ENTITY.DRAWALL`** / **`RENDER.END3D`** → **`RENDER.FRAME`**.
 - **`DrawEntities()`** — same as **`ENTITY.DRAWALL`** (scene graph draw pass).
 - **`CreatePivot()`** — empty transform node (invisible, for parenting).
 - **`CreateCube(...)`** — `CreateCube()` / `CreateCube(w,h,d)` / `CreateCube(parent)` / `CreateCube(parent, w,h,d)`; see [`entity_blitz_cgo.go`](../../runtime/mbentity/entity_blitz_cgo.go).
-- **Jolt (Linux+CGO):** **`ENTITY.LINKPHYSBUFFER(entity, bufferIndex)`** ties an entity to a **`BODY3D`** matrix slot (from **`BODY3D.BUFFERINDEX`**). After **`PHYSICS3D.STEP`**, translation from the shared buffer updates the entity pose. **`ENTITY.CLEARPHYSBUFFER(entity)`** removes the link.
+- **Jolt (Linux+CGO):** **`ENTITY.LINKPHYSBUFFER(entity, bufferIndex)`** ties an entity to a **`BODY3D`** matrix slot (from **`BODY3D.BUFFERINDEX`**). After **`PHYSICS3D.UPDATE`** / **`PHYSICS3D.STEP`**, translation from the shared buffer updates the entity pose. **`ENTITY.CLEARPHYSBUFFER(entity)`** removes the link.
 - **Traffic cop (Jolt-linked entities):** **`ENTITY.ADDPHYSICS`** / **`ENTITY.PHYSICS`** marks the entity **physics-driven** (scripted gravity/velocity integration in **`ENTITY.UPDATE`** is skipped). **`ENTITY.SETPOS`** (canonical) / deprecated **`ENTITY.SETPOSITION`**, or dot **`Pos`**, also teleports the **Jolt** body so meshes do not rubber-band. **`ENTITY.MOVE`** sets **linear velocity** on the body; **`ENTITY.PUSH`** applies an **impulse**. Grounding for **`ENTITY.GROUNDED`** / **`IsGrounded`** uses a short downward ray after the physics sync. See **`examples/mario64/modern_blitz_hop.mb`**.
 
 ## Jolt collision groups, queries, and AI helpers (Linux + **`PHYSICS3D.START`**)
@@ -108,7 +109,7 @@ Window.Close()
 | Command | Purpose |
 |--------|---------|
 | **`ENTITY.SETCOLLISIONGROUP(id, group)`** | Alias of **`ENTITY.COLLISIONLAYER`** — stores **0..31** for **`PICK.LAYERMASK`** / future simulation filtering. |
-| **`ENTITY.CHECKCOLLISION(a, b)`** | Same as **`EntityCollided`** — **`true`** if the pair had a Jolt contact since the last **`PHYSICS3D.STEP`** (requires **`ENTITY.LINKPHYSBUFFER`** on both sides where applicable). |
+| **`ENTITY.CHECKCOLLISION(a, b)`** | Same as **`EntityCollided`** — **`true`** if the pair had a Jolt contact since the last **`PHYSICS3D.UPDATE`** / **`STEP`** (requires **`ENTITY.LINKPHYSBUFFER`** on both sides where applicable). |
 | **`ENTITY.RAYCAST(ox, oy, oz, dx, dy, dz, maxDist)`** → **entity** | First hit entity along the ray segment (**Jolt** query path shared with **`PICK.*`** / **`PickCastEntityID`**). Returns **0** if none. |
 | **`ENTITY.GETGROUNDNORMAL(id)`** → **vec3 handle** | With **`PLAYER.CREATE`**, uses **`CharacterVirtual.GetGroundNormal`**; otherwise a short downward Jolt ray. Fallback normal **`(0,1,0)`** if no hit. |
 | **`ENTITY.APPLYIMPULSE(id, fx, fy, fz)`** | Same as **`ENTITY.ADDFORCE`** / **`ApplyEntityImpulse`** (host velocity integration). Not **`BodyInterface::AddImpulse`** until the Jolt C wrapper exposes it. |
@@ -134,7 +135,7 @@ These globals mirror Blitz-style names; canonical forms are **`ENTITY.*`** / **`
 - **Use case:** convenient one-call position reads in game loops.
 
 ```basic
-px, py, pz = Entity.GetPos(player)
+px, py, pz = ENTITY.GETPOS(player)
 ```
 
 `ENTITY.GETPOSITION(entity)` remains available and returns a vec3 handle for the handle-based vector API.

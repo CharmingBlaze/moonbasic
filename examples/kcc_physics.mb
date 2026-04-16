@@ -1,18 +1,19 @@
 ; MoonBASIC Example: KCC Integrated Physics
-; This example uses the CHARACTERREF namespace for integrated character physics.
-; The engine handles gravity, slopes, and collision resolution in Update().
+; This example uses the CHARACTER namespace for integrated character physics.
+; The engine handles gravity, slopes, and collision resolution in UPDATE().
+; Run: go run -tags fullruntime . --run examples/kcc_physics.mb
 
-Window.Open(1280, 720, "KCC Integrated Physics")
-Physics3D.Start()
-Physics3D.SetGravity(0, -20.0, 0)
+WINDOW.OPEN(1280, 720, "KCC Integrated Physics")
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -20.0, 0)
 
 ; Create character using handle-based API
-; CHARACTER.CREATE with 3 floats creates a character at (x,y,z) with default radius/height.
-char = Character.Create(0.0, 5.0, 0.0)
+; CHARACTER.CREATE(radius, height, x, y, z)
+char = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     dt = Time.Delta()
     
     ; Input: Horizontal velocity
@@ -20,41 +21,29 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     vz = 0.0
     speed = 10.0
     
-    IF Input.KeyDown(KEY_W) THEN vz = vz - speed
-    IF Input.KeyDown(KEY_S) THEN vz = vz + speed
-    IF Input.KeyDown(KEY_A) THEN vx = vx - speed
-    IF Input.KeyDown(KEY_D) THEN vx = vx + speed
+    IF INPUT.KEYDOWN(KEY_W) THEN vz = -speed
+    IF INPUT.KEYDOWN(KEY_S) THEN vz = speed
+    IF INPUT.KEYDOWN(KEY_A) THEN vx = -speed
+    IF INPUT.KEYDOWN(KEY_D) THEN vx = speed
     
-    ; Apply horizontal velocity (Update will handle vertical gravity)
-    char.SetVelocity(vx, 0.0, vz) ; Note: passing 0 for Y keeps its current integrated velocity if we use CHARACTERREF behavior
-    ; Actually, SetVelocity overwrites the whole vector. 
-    ; For jumping and gravity to feel right, we should usually manage horizontal velocity and let the engine accumulate Y,
-    ; or read current Y first.
-    
-    cvx = 0.0
-    cvy = 0.0
-    cvz = 0.0
-    ; Let's get current velocity to preserve Y (gravity)
-    vArr = char.GetLinearVel() ; Returns [vx, vy, vz]
-    char.SetVelocity(vx, vArr(2), vz)
+    ; Preserve gravity velocity
+    vArr = char.GETLINEARVEL()
+    char.SETVELOCITY(vx, vArr(2), vz)
 
     ; Jump
-    IF char.IsGrounded() AND Input.KeyDown(KEY_SPACE) THEN
-        char.Jump(12.0)
+    IF char.ISGROUNDED() AND INPUT.KEYDOWN(KEY_SPACE) THEN
+        char.JUMP(12.0)
     ENDIF
     
     ; Integrate one step
-    char.Update()
+    char.UPDATE()
     
-    ; Get position for rendering and camera
-    pArr = char.GetPosition()
-    px = pArr(1)
-    py = pArr(2)
-    pz = pArr(3)
+    ; Position for camera
+    px, py, pz = CHARACTERREF.GETPOSITION(char)
     
-    Camera.SetOrbit(cam, px, py, pz, 0.4, 0.3, 12.0)
+    CAMERA.SETORBIT(cam, px, py, pz, 0.4, 0.3, 12.0)
     
-    Render.Clear(50, 60, 80)
+    RENDER.CLEAR(50, 60, 80)
     cam.Begin()
         Draw3D.Plane(0, 0, 0, 100, 100, 40, 50, 60, 255)
         Draw3D.Grid(50, 1.0)
@@ -66,12 +55,12 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         Draw3D.Cube(0.0, 0.5, -10.0, 5.0, 1.0, 5.0, 150, 150, 150, 255)
     cam.End()
     
-    Draw.Text("WASD: Move   SPACE: Jump   ESC: Quit", 10, 10, 20, 255, 255, 255, 255)
-    Draw.Text("Grounded: " + STR(char.IsGrounded()), 10, 40, 18, 200, 255, 200, 255)
+    Draw.Text("WASD Move  SPACE Jump  ESC Quit", 10, 10, 20, 255, 255, 255, 255)
+    Draw.Text("Grounded: " + STR(char.ISGROUNDED()), 10, 40, 18, 200, 255, 200, 255)
     
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-CharController.Free(char)
-Physics3D.Stop()
-Window.Close()
+char.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

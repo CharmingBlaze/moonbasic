@@ -1,8 +1,8 @@
 ; Star Road v4 — spiral platforms, collect 5 gold stars (distance pickup), Mario-style hop.
 ; Run: CGO_ENABLED=1 go run . examples/mario64/main_v4.mb
 
-Window.Open(1024, 576, "moonBASIC — Star Road v4")
-Window.SetFPS(60)
+WINDOW.OPEN(1024, 576, "moonBASIC — Star Road v4")
+WINDOW.SETFPS(60)
 
 CONST MOUSE_ORBIT_SENS = 0.0055
 CONST MOVE_SPEED = 11.0
@@ -21,7 +21,7 @@ TYPE Platform
     R, G, B
 ENDTYPE
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(56)
 
 px = 0.0
@@ -59,14 +59,14 @@ NEXT
 score = 0
 courseDone = FALSE
 
-WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     dt = DT()
 
-    camYaw = camYaw + FLOAT(Input.MouseDeltaX()) * MOUSE_ORBIT_SENS
-    camYaw = camYaw + Input.Orbit(KEY_Q, KEY_E, 77.0, dt)
+    camYaw = camYaw + FLOAT(INPUT.MOUSEDELTAX()) * MOUSE_ORBIT_SENS
+    camYaw = camYaw + INPUT.ORBIT(KEY_Q, KEY_E, 77.0, dt)
 
-    f = Input.Axis(KEY_S, KEY_W)
-    s = Input.Axis(KEY_A, KEY_D)
+    f = INPUT.AXIS(KEY_S, KEY_W)
+    s = INPUT.AXIS(KEY_A, KEY_D)
     px = CLAMP(px + MOVESTEPX(camYaw, f, s, MOVE_SPEED, dt), -20.0, 24.0)
     pz = CLAMP(pz + MOVESTEPZ(camYaw, f, s, MOVE_SPEED, dt), -18.0, 26.0)
 
@@ -107,9 +107,9 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
         IF score >= STAR_N THEN courseDone = TRUE
     ENDIF
 
-    Camera.OrbitAround(cam, px, py + 0.2, pz, camYaw, CAM_DIST, CAM_HEIGHT)
+    CAMERA.ORBITAROUND(cam, px, py + 0.2, pz, camYaw, CAM_DIST, CAM_HEIGHT)
 
-    Render.Clear(135, 185, 235)
+    RENDER.CLEAR(135, 185, 235)
     cam.Begin()
         Draw3D.Plane(0.0, 0.0, 0.0, 56.0, 56.0, 70, 140, 95, 255)
         Draw3D.Grid(28, 1.0)
@@ -130,14 +130,14 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
     cam.End()
 
     Draw.Text("WASD move   Mouse/Q-E orbit   SPACE jump   Collect 5 stars   ESC", 48, 10, 16, 255, 255, 255, 255)
-    Draw.Text("Stars: " + STR$(score) + " / " + STR$(STAR_N), 16, 34, 20, 255, 240, 120, 255)
+    Draw.Text("Stars: " + STR(score) + " / " + STR(STAR_N), 16, 34, 20, 255, 240, 120, 255)
     Draw.Text(IIF(ong, "Ground", "Air"), 16, 58, 16, IIF(ong, 100, 255), IIF(ong, 255, 200), IIF(ong, 140, 120), 255)
     IF courseDone THEN
         Draw.Text("Course clear! You are a super star!", 200, 280, 28, 255, 255, 100, 255)
     ENDIF
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 ERASE(plat)
-Camera.Free(cam)
-Window.Close()
+CAMERA.FREE(cam)
+WINDOW.CLOSE()

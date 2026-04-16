@@ -81,3 +81,23 @@ func TestSetPosHasSetPositionAlias(t *testing.T) {
 	}
 }
 
+func TestPhysics3DUpdateMirrorsStepInManifest(t *testing.T) {
+	tbl := Default()
+	stepOVs := tbl.Commands["PHYSICS3D.STEP"]
+	upOVs := tbl.Commands["PHYSICS3D.UPDATE"]
+	if len(stepOVs) == 0 {
+		t.Fatal("missing PHYSICS3D.STEP in manifest")
+	}
+	if len(upOVs) == 0 {
+		t.Fatal("missing PHYSICS3D.UPDATE in manifest")
+	}
+	if len(stepOVs) != len(upOVs) {
+		t.Fatalf("PHYSICS3D.UPDATE overload count %d != PHYSICS3D.STEP %d", len(upOVs), len(stepOVs))
+	}
+	for i := range stepOVs {
+		if len(stepOVs[i].Args) != len(upOVs[i].Args) {
+			t.Fatalf("overload %d: STEP args %v vs UPDATE args %v", i, stepOVs[i].Args, upOVs[i].Args)
+		}
+	}
+}
+

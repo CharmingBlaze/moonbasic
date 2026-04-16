@@ -1,74 +1,71 @@
-# Texture Atlas Commands
+# Texture atlas (`ATLAS.*`, `SPRITE.*`)
 
-Commands for working with texture atlases, which are large images containing many smaller sub-images or sprites. This is an efficient way to manage 2D assets.
+Texture **atlases** are large images containing many smaller sub-images or sprites—efficient for 2D asset management.
+
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Atlas.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
 
 ## Core Workflow
 
-1.  **Create an Atlas**: Use a tool like TexturePacker to pack your individual sprite images into a single sheet and export a `.json` data file (in the "JSON (Array)" format).
-2.  **Load Atlas**: Use `Atlas.Load()` with both the image sheet and the JSON data file.
-3.  **Get Sprites**: Use `Atlas.GetSprite()` to retrieve handles to individual sprites from the atlas by their original filename.
-4.  **Use Sprites**: Use the sprite handles with `Sprite.Draw()` and other sprite commands.
-5.  **Free Atlas**: Call `Atlas.Free()` when you are done to unload the texture and all associated sprite data.
+1. **Pack:** Use a tool like TexturePacker to pack sprites into one sheet and export a `.json` data file (e.g. “JSON (Array)” format).
+2. **Load:** **`ATLAS.LOAD(imagePath, jsonPath)`** — returns an atlas handle.
+3. **Sprites:** **`ATLAS.GETSPRITE(atlasHandle, spriteName)`** — handles for each packed filename.
+4. **Draw:** **`SPRITE.DRAW(spriteHandle, x, y)`** (and other **`SPRITE.*`** commands as needed).
+5. **Free:** **`ATLAS.FREE(atlasHandle)`** when done.
 
 ---
 
-### `Atlas.Load(imagePath, jsonPath)`
-
+### `ATLAS.LOAD(imagePath, jsonPath)`
 Loads a texture atlas from an image and a JSON data file. Returns a handle to the atlas.
 
-- `imagePath`: The path to the atlas texture sheet (e.g., `.png`).
-- `jsonPath`: The path to the JSON data file.
+- `imagePath`: Path to the atlas texture sheet (e.g. `.png`).
+- `jsonPath`: Path to the JSON data file.
 
 ---
 
-### `Atlas.GetSprite(atlasHandle, spriteName)`
-
+### `ATLAS.GETSPRITE(atlasHandle, spriteName)`
 Retrieves a handle to a single sprite within the atlas.
 
-- `atlasHandle`: The handle of the loaded atlas.
-- `spriteName`: The original filename of the sprite as it was packed into the atlas (e.g., `"player.png"`).
+- `atlasHandle`: Handle of the loaded atlas.
+- `spriteName`: Original filename of the sprite as packed (e.g. `"player.png"`).
 
 ---
 
-### `Atlas.Free(atlasHandle)`
-
+### `ATLAS.FREE(atlasHandle)`
 Frees the atlas texture and all associated sprite data.
 
 ---
 
 ## See also
 
-- [SPRITE.md](SPRITE.md) — **`Sprite.Draw`**, strip frames, **`Anim.*`**
+- [SPRITE.md](SPRITE.md) — **`SPRITE.DRAW`**, strip frames, **`ANIM.*`**
 - [IMAGE.md](IMAGE.md) — CPU images before GPU upload
 
 ---
 
 ## Full Example
 
-Assume you have `game_atlas.png` and `game_atlas.json`, and that the atlas contains `player.png` and `enemy.png`.
+Assume `game_atlas.png` and `game_atlas.json`, with sprites named `player.png` and `enemy.png`.
 
 ```basic
-Window.Open(800, 600, "Texture Atlas Example")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "Texture Atlas Example")
+WINDOW.SETFPS(60)
 
-; 1. Load the atlas
-my_atlas = Atlas.Load("game_atlas.png", "game_atlas.json")
+my_atlas = ATLAS.LOAD("game_atlas.png", "game_atlas.json")
 
-; 2. Get individual sprite handles
-player_sprite = Atlas.GetSprite(my_atlas, "player.png")
-enemy_sprite = Atlas.GetSprite(my_atlas, "enemy.png")
+player_sprite = ATLAS.GETSPRITE(my_atlas, "player.png")
+enemy_sprite = ATLAS.GETSPRITE(my_atlas, "enemy.png")
 
-WHILE NOT Window.ShouldClose()
-    Render.Clear(20, 20, 20)
-    Camera2D.Begin()
-        ; 3. Use the sprite handles to draw
-        Sprite.Draw(player_sprite, 100, 250)
-        Sprite.Draw(enemy_sprite, 400, 250)
-    Camera2D.End()
-    Render.Frame()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(20, 20, 20)
+    CAMERA2D.BEGIN()
+        SPRITE.DRAW(player_sprite, 100, 250)
+        SPRITE.DRAW(enemy_sprite, 400, 250)
+    CAMERA2D.END()
+    RENDER.FRAME()
 WEND
 
-; 4. Free the entire atlas
-Atlas.Free(my_atlas)
-Window.Close()
+ATLAS.FREE(my_atlas)
+WINDOW.CLOSE()
 ```

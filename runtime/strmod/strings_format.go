@@ -72,31 +72,37 @@ func registerStringsFormat(r runtime.Registrar) {
 		}
 	})
 
-	r.Register("MKSHORT", "core", mkFixedLE(2, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
+	mkShort := mkFixedLE(2, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return err
 		}
 		binary.LittleEndian.PutUint16(b, uint16(int16(n)))
 		return nil
-	}))
-	r.Register("MKINT", "core", mkFixedLE(4, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
+	})
+	r.Register("MKSHORT", "core", mkShort)
+	r.Register("MKSHORT$", "core", mkShort)
+	mkInt := mkFixedLE(4, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return err
 		}
 		binary.LittleEndian.PutUint32(b, uint32(int32(n)))
 		return nil
-	}))
-	r.Register("MKLONG", "core", mkFixedLE(8, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
+	})
+	r.Register("MKINT", "core", mkInt)
+	r.Register("MKINT$", "core", mkInt)
+	mkLong := mkFixedLE(8, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)
 		if err != nil {
 			return err
 		}
 		binary.LittleEndian.PutUint64(b, uint64(n))
 		return nil
-	}))
-	r.Register("MKFLOAT", "core", mkFixedLE(4, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
+	})
+	r.Register("MKLONG", "core", mkLong)
+	r.Register("MKLONG$", "core", mkLong)
+	mkFloat := mkFixedLE(4, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		f, ok := args[0].ToFloat()
 		if !ok {
 			if args[0].Kind == value.KindInt {
@@ -109,8 +115,10 @@ func registerStringsFormat(r runtime.Registrar) {
 		}
 		binary.LittleEndian.PutUint32(b, math.Float32bits(float32(f)))
 		return nil
-	}))
-	r.Register("MKDOUBLE", "core", mkFixedLE(8, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
+	})
+	r.Register("MKFLOAT", "core", mkFloat)
+	r.Register("MKFLOAT$", "core", mkFloat)
+	mkDouble := mkFixedLE(8, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		f, ok := args[0].ToFloat()
 		if !ok {
 			if args[0].Kind == value.KindInt {
@@ -123,7 +131,9 @@ func registerStringsFormat(r runtime.Registrar) {
 		}
 		binary.LittleEndian.PutUint64(b, math.Float64bits(f))
 		return nil
-	}))
+	})
+	r.Register("MKDOUBLE", "core", mkDouble)
+	r.Register("MKDOUBLE$", "core", mkDouble)
 
 	r.Register("CVSHORT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {

@@ -169,6 +169,9 @@ var helpMap = map[string]string{
 	"MOUSEHIT":       "(button#)             - 1 if button was pressed this frame.",
 	"MOUSEX":         "()                    - Current screen mouse X.",
 	"MOUSEY":         "()                    - Current screen mouse Y.",
-	"STR$":           "(value)               - Convert value to string.",
+	"STR":            "(value)               - Convert value to string.",
+	"STR$":           "(value)               - Deprecated alias of STR.",
+	"FORMAT":         "(value, pattern)    - Sprintf-style format to string.",
+	"FORMAT$":        "(value, pattern)    - Deprecated alias of FORMAT.",
 	"Window.Open":    "(w, h, title$)       - Initialize display.",
 }

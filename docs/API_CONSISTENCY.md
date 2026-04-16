@@ -195,11 +195,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AUDIO.LISTENERCAMERA`** - args: handle
 - **`AUDIO.LOADMUSIC`** - args: string -> returns handle
 - **`AUDIO.LOADSOUND`** - args: string -> returns handle
-- **`AUDIO.PAUSE`** - args: (none)
 - **`AUDIO.PAUSE`** - args: handle
 - **`AUDIO.PLAY`** - args: handle
-- **`AUDIO.PLAY`** - args: any
-- **`AUDIO.RESUME`** - args: (none)
 - **`AUDIO.RESUME`** - args: handle
 - **`AUDIO.SEEKMUSIC`** - args: handle, float
 - **`AUDIO.SETMASTERVOLUME`** - args: float
@@ -208,7 +205,6 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`AUDIO.SETSOUNDPAN`** - args: handle, float
 - **`AUDIO.SETSOUNDPITCH`** - args: handle, float
 - **`AUDIO.SETSOUNDVOLUME`** - args: handle, float
-- **`AUDIO.STOP`** - args: (none)
 - **`AUDIO.STOP`** - args: handle
 - **`AUDIO.UPDATEMUSIC`** - args: handle
 
@@ -290,9 +286,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`BCOUNT`** - args: any
 
+### BIN
+
+- **`BIN`** - args: int -> returns string
+
 ### BIN$
 
-- **`BIN$`** - args: int
+- **`BIN$`** - args: int -> returns string
 
 ### BIOME
 
@@ -377,7 +377,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`BODY3D.SETLINEARVEL`** - args: handle, float, float, float
 - **`BODY3D.SETMASS`** - args: handle, float
 - **`BODY3D.SETPOS`** - args: handle, float, float, float
-- **`BODY3D.SETPOSITION`** - args: handle, float, float, float
+- **`BODY3D.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of BODY3D.SETPOS. Use BODY3D.SETPOS.
 - **`BODY3D.SETRESTITUTION`** - args: handle, float
 - **`BODY3D.SETROT`** - args: handle, float, float, float
 - **`BODY3D.SETSCALE`** - args: handle, float, float, float — Scales collision shape for primitive bodies built via ADDBOX/ADDSPHERE/ADDCAPSULE or SHAPE.CREATE*; not supported for mesh (ADDMESH)
@@ -525,7 +525,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA.SETORBITLIMITS`** - args: handle, float, float, float, float — Clamp pitch (radians) and orbit distance for CAMERA.ORBIT (entity).
 - **`CAMERA.SETORBITSPEED`** - args: handle, float, float — Mouse drag sensitivity and mouse wheel zoom scale for orbit-follow.
 - **`CAMERA.SETPOS`** - args: handle, float, float, float
-- **`CAMERA.SETPOSITION`** - args: handle, float, float, float
+- **`CAMERA.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of CAMERA.SETPOS. Use CAMERA.SETPOS.
 - **`CAMERA.SETPROJECTION`** - args: handle, int
 - **`CAMERA.SETRANGE`** - args: handle, float, float
 - **`CAMERA.SETTARGET`** - args: handle, float, float, float
@@ -671,8 +671,12 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### CHARACTER
 
-- **`CHARACTER.CREATE`** - args: any, float, float -> returns handle — Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.
+- **`CHARACTER.CREATE`** - args: any -> returns handle — Entity-bound capsule with default dimensions (0.4, 1.0). Linux/Windows fullruntime with CGO+Jolt.
+- **`CHARACTER.CREATE`** - args: any, float, float -> returns handle — Entity-bound capsule: (visualEntity, radius, height).
+- **`CHARACTER.CREATE`** - args: float, float, float, float, float -> returns handle — World-positioned capsule: (radius, height, x, y, z). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.
+- **`CHARACTER.MAKE`** - args: any -> returns handle — DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. Entity-bound capsule with default dimensions (0.4, 1.0). Linux/Windows fullruntime with CGO+Jolt.
 - **`CHARACTER.MAKE`** - args: any, float, float -> returns handle — DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. Entity-bound capsule: (visualEntity, radius, height). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.
+- **`CHARACTER.MAKE`** - args: float, float, float, float, float -> returns handle — DEPRECATED alias of CHARACTER.CREATE. Use CHARACTER.CREATE. World-positioned capsule: (radius, height, x, y, z). Windows/Linux fullruntime with CGO+Jolt: Jolt CharacterVirtual.
 - **`CHARACTERREF.SETFRICTION`** - args: handle, float — Kinematic sliding friction (0..1).
 - **`CHARACTERREF.SETGRAVITY`** - args: handle, float — Gravity multiplier for this character (default 1.0).
 - **`CHARACTERREF.SETPOS`** - args: handle, float, float, float — Teleports the character capsule to a new world position.
@@ -719,7 +723,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHARCONTROLLER.MAKE`** - args: float, float, float, float, float -> returns handle — DEPRECATED alias of CHARCONTROLLER.CREATE. Use CHARCONTROLLER.CREATE.
 - **`CHARCONTROLLER.MOVE`** - args: handle, float, float, float
 - **`CHARCONTROLLER.SETPOS`** - args: handle, float, float, float
-- **`CHARCONTROLLER.SETPOSITION`** - args: handle, float, float, float
+- **`CHARCONTROLLER.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of CHARCONTROLLER.SETPOS. Use CHARCONTROLLER.SETPOS.
 - **`CHARCONTROLLER.TELEPORT`** - args: handle, float, float, float — Snap capsule to (x,y,z) and clear linear velocity
 - **`CHARCONTROLLER.X`** - args: handle -> returns float
 - **`CHARCONTROLLER.Y`** - args: handle -> returns float
@@ -743,9 +747,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHOOSE`** - args: any, any, any, any, any, any, any, any, any, any, any
 - **`CHOOSE`** - args: any, any, any, any, any, any, any, any, any, any, any, any
 
+### CHR
+
+- **`CHR`** - args: int -> returns string
+
 ### CHR$
 
-- **`CHR$`** - args: int
+- **`CHR$`** - args: int -> returns string
 
 ### CHUNK
 
@@ -830,6 +838,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`COLORPRINT`** - args: int, int, int, string — Print colored text to console
 
+### COMMAND
+
+- **`COMMAND`** - args: (none)
+- **`COMMAND`** - args: int
+
 ### COMMAND$
 
 - **`COMMAND$`** - args: (none)
@@ -875,6 +888,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### COSD
 
 - **`COSD`** - args: any
+
+### COUNT
+
+- **`COUNT`** - args: string, string -> returns int
 
 ### COUNT$
 
@@ -1055,10 +1072,20 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DATA.MD5`** - args: string -> returns string
 - **`DATA.SHA1`** - args: string -> returns string
 
+### DATE
+
+- **`DATE`** - args: (none)
+- **`DATE`** - args: (none) -> returns string
+
 ### DATE$
 
 - **`DATE$`** - args: (none)
 - **`DATE$`** - args: (none) -> returns string
+
+### DATETIME
+
+- **`DATETIME`** - args: (none)
+- **`DATETIME`** - args: (none) -> returns string
 
 ### DATETIME$
 
@@ -1116,9 +1143,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DECAL.CREATE`** - args: handle -> returns handle
 - **`DECAL.DRAW`** - args: handle
 - **`DECAL.FREE`** - args: handle
+- **`DECAL.GETPOS`** - args: handle -> returns array — Returns [x, y, z] position of decal
+- **`DECAL.GETROT`** - args: handle -> returns array — Returns [p, y, r] rotation of decal
+- **`DECAL.GETSIZE`** - args: handle -> returns array — Returns [w, h] size of decal
 - **`DECAL.MAKE`** - args: handle -> returns handle — DEPRECATED alias of DECAL.CREATE. Use DECAL.CREATE.
 - **`DECAL.SETLIFETIME`** - args: handle, float
 - **`DECAL.SETPOS`** - args: handle, float, float, float
+- **`DECAL.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of DECAL.SETPOS.
 - **`DECAL.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of DECAL.SETPOS. Use DECAL.SETPOS.
 - **`DECAL.SETSIZE`** - args: handle, float, float
 
@@ -1187,6 +1218,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`DRAW.RING`** - args: float, float, float, float, float, float, int, int, int, int, int
 - **`DRAW.RINGLINES`** - args: float, float, float, float, float, float, int, int, int, int, int
 - **`DRAW.TEXT`** - args: string, int, int, int, int, int, int, int
+- **`DRAW.TEXTEX`** - args: handle, string, float, float, float, float, int, int, int, int
+- **`DRAW.TEXTFONT`** - args: handle, string, float, float, float, float, int, int, int, int — Same handler as DRAW.TEXTEX — DrawTextEx with a loaded FONT.* handle
 - **`DRAW.TEXTURE`** - args: handle, int, int, int, int, int, int
 - **`DRAW.TEXTURENPATCH`** - args: handle, int, int, int, int, int, int, int, int, int, int, int, int
 - **`DRAW.TRIANGLE`** - args: float, float, float, float, float, float, int, int, int, int
@@ -1363,7 +1396,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.ANIMCOUNT`** - args: int -> returns int
 - **`ENTITY.ANIMINDEX`** - args: int -> returns int
 - **`ENTITY.ANIMLENGTH`** - args: int -> returns float
-- **`ENTITY.ANIMNAME$`** - args: int, any -> returns string
+- **`ENTITY.ANIMNAME`** - args: any, int -> returns string
+- **`ENTITY.ANIMNAME$`** - args: any, int -> returns string
 - **`ENTITY.ANIMTIME`** - args: int -> returns float
 - **`ENTITY.APPLYGRAVITY`** - args: int, float, float
 - **`ENTITY.APPLYIMPULSE`** - args: int, float, float, float — Same as ENTITY.ADDFORCE / ApplyEntityImpulse (velocity change; not Jolt BodyInterface impulse until exposed)
@@ -1409,7 +1443,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.CREATESPRITE`** - args: handle, float, float, int -> returns int
 - **`ENTITY.CREATESURFACE`** - args: int -> returns handle
 - **`ENTITY.CROSSFADE`** - args: int, any, float
-- **`ENTITY.CURRENTANIM$`** - args: int -> returns string
+- **`ENTITY.CURRENTANIM`** - args: any -> returns string
+- **`ENTITY.CURRENTANIM$`** - args: any -> returns string
 - **`ENTITY.DELTAX`** - args: int, int -> returns float
 - **`ENTITY.DELTAY`** - args: int, int -> returns float
 - **`ENTITY.DELTAZ`** - args: int, int -> returns float
@@ -1514,6 +1549,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.OUTLINE`** - args: int, float, handle — Apply a highlighted outline effect to a model.
 - **`ENTITY.P`** - args: int -> returns float — Easy Mode: Get Pitch of entity
 - **`ENTITY.P`** - args: int, float — Easy Mode: Set Pitch of entity
+- **`ENTITY.PARENT`** - args: int, int — Attach child entity to parent (optional third arg: global preserve world position; default true)
 - **`ENTITY.PARENT`** - args: int, int, any
 - **`ENTITY.PARENTCLEAR`** - args: int
 - **`ENTITY.PATROL`** - args: handle, handle, float — Loops an entity across a WAYPOINT array handle at speed.
@@ -1548,8 +1584,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SCALE`** - args: int, float, float, float
 - **`ENTITY.SCROLLMATERIAL`** - args: int, float, float — Add (du,dv) to material 0 scroll (same as MODEL.SCROLLTEXTURE)
 - **`ENTITY.SENDMESSAGE`** - args: int, string
-- **`ENTITY.SETANIMATION`** - args: int, handle, float — Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps
 - **`ENTITY.SETANIMATION`** - args: int, int, float — Second arg 0 clears image-sequence animation
+- **`ENTITY.SETANIMATION`** - args: int, handle, float — Cycle IMAGE.LOADSEQUENCE/LOADGIF frames onto sprite texture at fps
 - **`ENTITY.SETANIMATION`** - args: int, handle, float, bool
 - **`ENTITY.SETANIMFRAME`** - args: int, float
 - **`ENTITY.SETANIMINDEX`** - args: int, any
@@ -1566,7 +1602,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`ENTITY.SETMASS`** - args: int, float
 - **`ENTITY.SETNAME`** - args: int, any
 - **`ENTITY.SETPOS`** - args: int, float, float, float, any
-- **`ENTITY.SETPOSITION`** - args: int, float, float, float, any — Deprecated alias of ENTITY.SETPOS — set world or local position
+- **`ENTITY.SETPOSITION`** - args: int, float, float, float, any — DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS. Deprecated alias of ENTITY.SETPOS — set world or local position
 - **`ENTITY.SETROTATION`** - args: int, float, float, float, any — Absolute pitch/yaw/roll degrees — alias of ENTITY.ROTATEENTITY
 - **`ENTITY.SETSHADER`** - args: handle, int — Binds an active Shader Library component to the entity.
 - **`ENTITY.SETSHADER`** - args: int, handle
@@ -1723,6 +1759,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`ENTZ`** - args: int -> returns float
 - **`ENTZ`** - args: handle -> returns float — Shorthand: ENTITYZ(ent)
+
+### ENVIRON
+
+- **`ENVIRON`** - args: string
 
 ### ENVIRON$
 
@@ -1970,9 +2010,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`FONT.LOAD`** - args: string
 - **`FONT.LOADBDF`** - args: string, int
 
+### FORMAT
+
+- **`FORMAT`** - args: any, string -> returns string — Format a value with a printf-style pattern (canonical; same as legacy FORMAT$).
+
 ### FORMAT$
 
-- **`FORMAT$`** - args: any, string -> returns string
+- **`FORMAT$`** - args: any, string -> returns string — DEPRECATED alias of FORMAT. Use FORMAT(value, pattern).
 
 ### FPS
 
@@ -2061,10 +2105,20 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`GETCOLLISIONENTITY`** - args: handle, int -> returns handle — Easy Mode: Get handle of Nth collision
 
+### GETDIR
+
+- **`GETDIR`** - args: (none)
+- **`GETDIR`** - args: (none) -> returns string
+
 ### GETDIR$
 
 - **`GETDIR$`** - args: (none)
 - **`GETDIR$`** - args: (none) -> returns string
+
+### GETDIRS
+
+- **`GETDIRS`** - args: string
+- **`GETDIRS`** - args: string -> returns string
 
 ### GETDIRS$
 
@@ -2074,6 +2128,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### GETDROPPEDFILES
 
 - **`GETDROPPEDFILES`** - args: (none)
+
+### GETFILEEXT
+
+- **`GETFILEEXT`** - args: string
+- **`GETFILEEXT`** - args: string -> returns string
 
 ### GETFILEEXT$
 
@@ -2085,20 +2144,40 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GETFILEMODTIME`** - args: string
 - **`GETFILEMODTIME`** - args: string -> returns int
 
+### GETFILENAME
+
+- **`GETFILENAME`** - args: string
+- **`GETFILENAME`** - args: string -> returns string
+
 ### GETFILENAME$
 
 - **`GETFILENAME$`** - args: string
 - **`GETFILENAME$`** - args: string -> returns string
+
+### GETFILENAMENOEXT
+
+- **`GETFILENAMENOEXT`** - args: string
+- **`GETFILENAMENOEXT`** - args: string -> returns string
 
 ### GETFILENAMENOEXT$
 
 - **`GETFILENAMENOEXT$`** - args: string
 - **`GETFILENAMENOEXT$`** - args: string -> returns string
 
+### GETFILEPATH
+
+- **`GETFILEPATH`** - args: string
+- **`GETFILEPATH`** - args: string -> returns string
+
 ### GETFILEPATH$
 
 - **`GETFILEPATH$`** - args: string
 - **`GETFILEPATH$`** - args: string -> returns string
+
+### GETFILES
+
+- **`GETFILES`** - args: string
+- **`GETFILES`** - args: string -> returns string
 
 ### GETFILES$
 
@@ -2204,8 +2283,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GUI.TABBAR`** - args: float, float, float, float, string, handle -> returns int
 - **`GUI.TEXTBOX`** - args: float, float, float, float, string, int, bool -> returns string
 - **`GUI.TEXTINPUTBOX`** - args: float, float, float, float, string, string, string, string, int, handle -> returns int
+- **`GUI.TEXTINPUTLAST`** - args: (none) -> returns string
 - **`GUI.TEXTINPUTLAST$`** - args: (none) -> returns string
 - **`GUI.THEMEAPPLY`** - args: string
+- **`GUI.THEMENAMES`** - args: (none) -> returns string
 - **`GUI.THEMENAMES$`** - args: (none) -> returns string
 - **`GUI.TOGGLE`** - args: float, float, float, float, string, bool -> returns bool
 - **`GUI.TOGGLEGROUP`** - args: float, float, float, float, string -> returns int
@@ -2214,6 +2295,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`GUI.UNLOCK`** - args: (none)
 - **`GUI.VALUEBOX`** - args: float, float, float, float, string, int, int, int, bool -> returns int
 - **`GUI.VALUEBOXFLOAT`** - args: float, float, float, float, string, float, string, bool -> returns float
+- **`GUI.VALUEBOXFLOATTEXT`** - args: (none) -> returns string
 - **`GUI.VALUEBOXFLOATTEXT$`** - args: (none) -> returns string
 - **`GUI.WINDOWBOX`** - args: float, float, float, float, string -> returns bool
 
@@ -2234,9 +2316,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`HELP`** - args: string — Live Discovery: Show arguments and description for any command.
 
+### HEX
+
+- **`HEX`** - args: int -> returns string
+
 ### HEX$
 
-- **`HEX$`** - args: int
+- **`HEX$`** - args: int -> returns string
 
 ### HIDEENTITY
 
@@ -2415,6 +2501,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`INT`** - args: any
 
+### INTERP
+
+- **`INTERP`** - args: string, any -> returns string
+- **`INTERP`** - args: string, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any, any, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any, any, any, any, any, any -> returns string
+- **`INTERP`** - args: string, any, any, any, any, any, any, any, any, any, any -> returns string
+
 ### INTERP$
 
 - **`INTERP$`** - args: string, any -> returns string
@@ -2459,6 +2558,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### ISTYPE
 
 - **`ISTYPE`** - args: any, string
+
+### JOIN
+
+- **`JOIN`** - args: handle, string -> returns string
 
 ### JOIN$
 
@@ -2568,9 +2671,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`LANDBOXES`** - args: float, float, float, float, float, any, any, any, any, any, any, any -> returns float — Best BOXTOPLAND snap Y over count boxes (parallel float arrays)
 
+### LEFT
+
+- **`LEFT`** - args: string, int -> returns string
+
 ### LEFT$
 
-- **`LEFT$`** - args: string, int
+- **`LEFT$`** - args: string, int -> returns string
 
 ### LEN
 
@@ -2609,7 +2716,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`LIGHT.FREE`** - args: handle
 - **`LIGHT.GETCOLOR`** - args: handle -> returns array
 - **`LIGHT.GETDIR`** - args: handle -> returns array
+- **`LIGHT.GETINTENSITY`** - args: handle -> returns float
 - **`LIGHT.GETPOS`** - args: handle -> returns array
+- **`LIGHT.GETROT`** - args: handle -> returns array — Returns [p, y, r] Euler rotation of the light
 - **`LIGHT.ISENABLED`** - args: handle -> returns int
 - **`LIGHT.MAKE`** - args: (none) -> returns handle — DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE.
 - **`LIGHT.MAKE`** - args: string -> returns handle — DEPRECATED alias of LIGHT.CREATE. Use LIGHT.CREATE.
@@ -2623,8 +2732,9 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`LIGHT.SETINTENSITY`** - args: handle, float
 - **`LIGHT.SETOUTERCONE`** - args: handle, float
 - **`LIGHT.SETPOS`** - args: handle, float, float, float
-- **`LIGHT.SETPOSITION`** - args: handle, float, float, float
+- **`LIGHT.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of LIGHT.SETPOS. Use LIGHT.SETPOS.
 - **`LIGHT.SETRANGE`** - args: handle, float
+- **`LIGHT.SETROT`** - args: handle, float, float, float — Sets light orientation using Euler angles (pitch, yaw, roll)
 - **`LIGHT.SETSHADOW`** - args: handle, bool
 - **`LIGHT.SETSHADOWBIAS`** - args: handle, float
 - **`LIGHT.SETSTATE`** - args: handle, bool — Alias of LIGHT.ENABLE
@@ -2640,7 +2750,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`LIGHT2D.SETCOLOR`** - args: handle, int, int, int, int
 - **`LIGHT2D.SETINTENSITY`** - args: handle, float
 - **`LIGHT2D.SETPOS`** - args: handle, float, float
-- **`LIGHT2D.SETPOSITION`** - args: handle, float, float
+- **`LIGHT2D.SETPOSITION`** - args: handle, float, float — DEPRECATED alias of LIGHT2D.SETPOS. Use LIGHT2D.SETPOS.
 - **`LIGHT2D.SETRADIUS`** - args: handle, float
 
 ### LINE3D
@@ -2708,13 +2818,25 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`LOG2`** - args: any
 
+### LOWER
+
+- **`LOWER`** - args: string -> returns string
+
 ### LOWER$
 
-- **`LOWER$`** - args: string
+- **`LOWER$`** - args: string -> returns string
+
+### LSET
+
+- **`LSET`** - args: string, int -> returns string
 
 ### LSET$
 
 - **`LSET$`** - args: string, int -> returns string
+
+### LTRIM
+
+- **`LTRIM`** - args: string -> returns string
 
 ### LTRIM$
 
@@ -2953,10 +3075,15 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MESH.UPLOAD`** - args: handle, bool
 - **`MESH.VERTEXCOUNT`** - args: handle -> returns int
 
+### MID
+
+- **`MID`** - args: string, int -> returns string
+- **`MID`** - args: string, int, int -> returns string
+
 ### MID$
 
-- **`MID$`** - args: string, int
-- **`MID$`** - args: string, int, int
+- **`MID$`** - args: string, int -> returns string
+- **`MID$`** - args: string, int, int -> returns string
 
 ### MILLISECOND
 
@@ -2976,31 +3103,52 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MINUTE`** - args: (none)
 - **`MINUTE`** - args: (none) -> returns int
 
+### MKDOUBLE
+
+- **`MKDOUBLE`** - args: any -> returns handle
+
 ### MKDOUBLE$
 
-- **`MKDOUBLE$`** - args: any
+- **`MKDOUBLE$`** - args: any -> returns handle
+
+### MKFLOAT
+
+- **`MKFLOAT`** - args: any -> returns handle
 
 ### MKFLOAT$
 
-- **`MKFLOAT$`** - args: any
+- **`MKFLOAT$`** - args: any -> returns handle
+
+### MKINT
+
+- **`MKINT`** - args: any -> returns handle
 
 ### MKINT$
 
-- **`MKINT$`** - args: any
+- **`MKINT$`** - args: any -> returns handle
+
+### MKLONG
+
+- **`MKLONG`** - args: any -> returns handle
 
 ### MKLONG$
 
-- **`MKLONG$`** - args: any
+- **`MKLONG$`** - args: any -> returns handle
+
+### MKSHORT
+
+- **`MKSHORT`** - args: any -> returns handle
 
 ### MKSHORT$
 
-- **`MKSHORT$`** - args: any
+- **`MKSHORT$`** - args: any -> returns handle
 
 ### MODEL
 
 - **`MODEL.ADDCHILD`** - args: handle, handle
 - **`MODEL.ANIMCOUNT`** - args: handle -> returns int
 - **`MODEL.ANIMDONE`** - args: handle -> returns bool
+- **`MODEL.ANIMNAME`** - args: handle, int -> returns string
 - **`MODEL.ANIMNAME$`** - args: handle, int -> returns string
 - **`MODEL.ATTACHTO`** - args: handle, handle
 - **`MODEL.CHILDCOUNT`** - args: handle -> returns int
@@ -3070,7 +3218,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`MODEL.SETMETAL`** - args: handle, float
 - **`MODEL.SETMODELMESHMATERIAL`** - args: handle, int, int
 - **`MODEL.SETPOS`** - args: handle, float, float, float
-- **`MODEL.SETPOSITION`** - args: handle, float, float, float
+- **`MODEL.SETPOSITION`** - args: handle, float, float, float — DEPRECATED alias of MODEL.SETPOS. Use MODEL.SETPOS.
 - **`MODEL.SETRECEIVESHADOW`** - args: handle, bool
 - **`MODEL.SETROT`** - args: handle, float, float, float
 - **`MODEL.SETROUGH`** - args: handle, float
@@ -3344,6 +3492,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`NOISE.SETTYPE`** - args: handle, string
 - **`NOISE.SETWEIGHTEDSTRENGTH`** - args: handle, float
 
+### OCT
+
+- **`OCT`** - args: int -> returns string
+
 ### OCT$
 
 - **`OCT$`** - args: int -> returns string
@@ -3576,6 +3728,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`PHYSICS3D.STEP`** - args: (none)
 - **`PHYSICS3D.STOP`** - args: (none)
 - **`PHYSICS3D.SYNCWASMTOPHYSREGS`** - args: int, int — Sync WASM physics view to VM registers (count, firstReg).
+- **`PHYSICS3D.UPDATE`** - args: (none) — Advance the 3D physics simulation (same implementation as PHYSICS3D.STEP; optional frame dt# like STEP)
 - **`SHAPE.GETDEPTH`** - args: handle -> returns float — Get shape dimension 3 (half-extent Z).
 - **`SHAPE.GETHEIGHT`** - args: handle -> returns float — Get shape dimension 2 (half-extent Y or height).
 - **`SHAPE.GETRADIUS`** - args: handle -> returns float — Get shape radius (same as SHAPE.GETWIDTH for spheres).
@@ -3996,6 +4149,11 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RAYLIB.UPDATECAMERA`** - args: handle, int
 - **`RAYLIB.WINDOWSHOULDCLOSE`** - args: (none)
 
+### READALLTEXT
+
+- **`READALLTEXT`** - args: string
+- **`READALLTEXT`** - args: string -> returns string
+
 ### READALLTEXT$
 
 - **`READALLTEXT$`** - args: string
@@ -4005,9 +4163,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`READBYTE`** - args: handle
 
+### READFILE
+
+- **`READFILE`** - args: any
+
 ### READFILE$
 
-- **`READFILE$`** - args: handle
+- **`READFILE$`** - args: any
 
 ### READFLOAT
 
@@ -4020,6 +4182,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### READSHORT
 
 - **`READSHORT`** - args: handle
+
+### READSTRING
+
+- **`READSTRING`** - args: handle, int
 
 ### READSTRING$
 
@@ -4088,13 +4254,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RENDERTARGET.MAKE`** - args: int, int -> returns handle — DEPRECATED alias of RENDERTARGET.CREATE. Use RENDERTARGET.CREATE.
 - **`RENDERTARGET.TEXTURE`** - args: handle -> returns handle
 
+### REPEAT
+
+- **`REPEAT`** - args: string, int -> returns string
+
 ### REPEAT$
 
 - **`REPEAT$`** - args: string, int -> returns string
 
+### REPLACE
+
+- **`REPLACE`** - args: string, string, string -> returns string
+
 ### REPLACE$
 
-- **`REPLACE$`** - args: string, string, string
+- **`REPLACE$`** - args: string, string, string -> returns string
 
 ### RES
 
@@ -4105,13 +4279,21 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`RESETENTITY`** - args: handle -> returns void — Easy Mode: Reset entity velocity and collision state
 
+### REVERSE
+
+- **`REVERSE`** - args: string -> returns string
+
 ### REVERSE$
 
 - **`REVERSE$`** - args: string -> returns string
 
+### RIGHT
+
+- **`RIGHT`** - args: string, int -> returns string
+
 ### RIGHT$
 
-- **`RIGHT$`** - args: string, int
+- **`RIGHT$`** - args: string, int -> returns string
 
 ### RND
 
@@ -4172,9 +4354,17 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`RPC.CALLTO`** - args: handle, string, any, any, any, any, any, any
 - **`RPC.CALLTO`** - args: handle, string, any, any, any, any, any, any, any
 
+### RSET
+
+- **`RSET`** - args: string, int -> returns string
+
 ### RSET$
 
 - **`RSET$`** - args: string, int -> returns string
+
+### RTRIM
+
+- **`RTRIM`** - args: string -> returns string
 
 ### RTRIM$
 
@@ -4362,6 +4552,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 - **`SOUNDVOLUME`** - args: handle, float -> returns void — Easy Mode: Set sound volume (0-1)
 
+### SPACE
+
+- **`SPACE`** - args: int -> returns string
+
 ### SPACE$
 
 - **`SPACE$`** - args: int -> returns string
@@ -4378,6 +4572,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### SPHERECOLLIDE
 
 - **`SPHERECOLLIDE`** - args: handle, float -> returns void — Easy Mode: Set entity to use sphere collision with given radius
+
+### SPLIT
+
+- **`SPLIT`** - args: string, string -> returns handle
 
 ### SPLIT$
 
@@ -4404,7 +4602,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`SPRITE.SETFRAME`** - args: handle, int — Manual frame index (strip / DEFANIM); stops SPRITE.PLAY range playback
 - **`SPRITE.SETORIGIN`** - args: handle, float, float — Pivot offset in pixels (subtracted from draw position)
 - **`SPRITE.SETPOS`** - args: handle, float, float
-- **`SPRITE.SETPOSITION`** - args: handle, float, float
+- **`SPRITE.SETPOSITION`** - args: handle, float, float — DEPRECATED alias of SPRITE.SETPOS. Use SPRITE.SETPOS.
 - **`SPRITE.SETROT`** - args: handle, float — Sets rotation in radians (CCW)
 - **`SPRITE.SETSCALE`** - args: handle, float, float
 - **`SPRITE.UPDATEANIM`** - args: handle, float
@@ -4502,12 +4700,27 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`STOPWATCH.NEW`** - args: (none) -> returns handle
 - **`STOPWATCH.RESET`** - args: handle
 
+### STR
+
+- **`STR`** - args: any -> returns string — Convert a value to string (canonical; same as legacy STR$).
+
 ### STR$
 
-- **`STR$`** - args: any
+- **`STR$`** - args: any -> returns string — DEPRECATED alias of STR. Use STR(...).
 
 ### STRING
 
+- **`STRING`** - args: int, string -> returns string
+- **`STRING.INTERP`** - args: string, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any, any, any, any, any, any -> returns string
+- **`STRING.INTERP`** - args: string, any, any, any, any, any, any, any, any, any, any -> returns string
 - **`STRING.INTERP$`** - args: string, any -> returns string
 - **`STRING.INTERP$`** - args: string, any, any -> returns string
 - **`STRING.INTERP$`** - args: string, any, any, any -> returns string
@@ -4558,7 +4771,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### SetMSAA
 
-- **`SetMSAA`** - args: int — Pre-window-open MSAA sample hint (alias of WINDOW.SETMSAA); 2+ enables GPU MSAA hint
+- **`SetMSAA`** - args: int — Alias of WINDOW.SETMSAA — MSAA sample hint; 2+ enables GPU MSAA hint
 
 ### SetPostProcess
 
@@ -4716,6 +4929,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### TIME
 
+- **`TIME`** - args: (none)
+- **`TIME`** - args: (none) -> returns string
 - **`TIME.DELTA`** - args: (none)
 - **`TIME.DELTA`** - args: (none) -> returns float
 - **`TIME.DELTA`** - args: float, float -> returns float
@@ -4793,9 +5008,13 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`TRIGGER.MAKEFROMENTITY`** - args: int — DEPRECATED alias of TRIGGER.CREATEFROMENTITY. Use TRIGGER.CREATEFROMENTITY.
 - **`TRIGGER.MAKEZONE`** - args: float, float, float, float, float, float, string -> returns handle — DEPRECATED alias of TRIGGER.CREATEZONE. Use TRIGGER.CREATEZONE. Creates non-blocking zone firing hit tags.
 
+### TRIM
+
+- **`TRIM`** - args: string -> returns string
+
 ### TRIM$
 
-- **`TRIM$`** - args: string
+- **`TRIM$`** - args: string -> returns string
 
 ### TURNCAMERA
 
@@ -4839,15 +5058,19 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### UPDATEPHYSICS
 
-- **`UPDATEPHYSICS`** - args: (none) -> returns void — Easy Mode: ENTITY.UPDATE(Time.Delta); best-effort WORLD.UPDATE, PHYSICS2D.STEP, PHYSICS3D.STEP
+- **`UPDATEPHYSICS`** - args: (none) -> returns void — Easy Mode: ENTITY.UPDATE(Time.Delta); best-effort WORLD.UPDATE, PHYSICS2D.STEP, PHYSICS3D.UPDATE (same as PHYSICS3D.STEP)
 
 ### UPDW
 
 - **`UPDW`** - args: float — Shorthand: ENTITY.UPDATE(dt) — use ENTITY.UPDATE in scripts
 
+### UPPER
+
+- **`UPPER`** - args: string -> returns string
+
 ### UPPER$
 
-- **`UPPER$`** - args: string
+- **`UPPER$`** - args: string -> returns string
 
 ### UTIL
 
@@ -5046,9 +5269,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WINDOW.SETMAXSIZE`** - args: int, int
 - **`WINDOW.SETMINSIZE`** - args: int, int
 - **`WINDOW.SETMONITOR`** - args: int
+- **`WINDOW.SETMSAA`** - args: int — MSAA sample count hint before/during window use (2+ enables GPU MSAA); Easy Mode alias: SetMSAA
 - **`WINDOW.SETOPACITY`** - args: float
 - **`WINDOW.SETPOS`** - args: int, int
-- **`WINDOW.SETPOSITION`** - args: int, int — Deprecated alias of WINDOW.SETPOS — set window client-area position in screen pixels
+- **`WINDOW.SETPOSITION`** - args: int, int — DEPRECATED alias of WINDOW.SETPOS. Use WINDOW.SETPOS. Deprecated alias of WINDOW.SETPOS — set window client-area position in screen pixels
 - **`WINDOW.SETSIZE`** - args: int, int
 - **`WINDOW.SETSTATE`** - args: int
 - **`WINDOW.SETTARGETFPS`** - args: int

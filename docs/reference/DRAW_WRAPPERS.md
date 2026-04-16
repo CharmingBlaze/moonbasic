@@ -8,7 +8,7 @@ This reference describes the **optional** heap-backed wrappers around long-argum
 
 ## Naming: `CUBE()` vs `DRAWCUBE()`
 
-Identifiers are uppercased at parse time, so **`Cube()`** and **`CUBE()`** are the same.
+Identifiers are case-insensitive, so **`Cube()`** and **`CUBE()`** are the same.
 
 | Global | Meaning |
 |--------|---------|
@@ -35,7 +35,7 @@ Constructors allocate a handle; methods dispatch to registry keys **`DRAWPRIM3D.
 | **`DRAWRAY`** | **`.SetRay(rayArrayHandle)`** (6 floats: origin + direction). |
 | **`DRAWLINE3D`**, **`DRAWPOINT3D`** | Line: **`.P2`**-style via **`.EndPoint`**; set endpoints with **`.Pos`** / **`.EndPoint`**. |
 | **`DRAWGRID3D`** | Optional **`(slices, spacing)`**. |
-| **`DRAWBILLBOARD(tex)`**, **`DRAWBILLBOARDREC(tex)`** | **`.SetTexture`**, **`.SrcTex`** for rec variant; **inside `Camera.Begin`/`End`**. |
+| **`DRAWBILLBOARD(tex)`**, **`DRAWBILLBOARDREC(tex)`** | **`.SetTexture`**, **`.SrcTex`** for rec variant; **inside `RENDER.BEGIN3D`/`END3D`** (or **`CAMERA.BEGIN`/`END`**). |
 
 ### Shared methods (3D)
 

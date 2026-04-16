@@ -1,5 +1,7 @@
 # Getting Started with moonBASIC
 
+**API style:** Prefer **`NAMESPACE.ACTION`** (`WINDOW.OPEN`, `TIME.DELTA`, `INPUT.KEYDOWN`, …) in new programs — see [STYLE_GUIDE.md](../STYLE_GUIDE.md) and [DOC_STYLE_GUIDE.md](DOC_STYLE_GUIDE.md). Some sections below still show **Easy Mode** (`Window.Open`, `CreateCamera`, …) for readability; they compile to the same registry keys.
+
 ## What you need
 
 - **Windows x64** or **Linux x64** — project docs and contributor workflows assume **Windows first**, **Linux** second for parity checks ([DEVELOPER.md](DEVELOPER.md#platform-priority-windows-then-linux)).
@@ -103,17 +105,17 @@ From source without installing binaries: `go run -tags fullruntime ./cmd/moonrun
 Create `window.mb`:
 
 ```basic
-Window.Open(960, 540, "Hello Window")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "Hello Window")
+WINDOW.SETFPS(60)
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    Render.Clear(30, 40, 60)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(30, 40, 60)
     ; Default bitmap font — no .ttf file required
-    Draw.Text("Press ESC or close the window", 260, 260, 20, 255, 255, 255, 255)
-    Render.Frame()
+    DRAW.TEXT("Press ESC or close the window", 260, 260, 20, 255, 255, 255, 255)
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 Run it with the **game runtime** (plain `moonbasic` only compiles to `.mbc`):
@@ -126,7 +128,7 @@ If you build from source: `go build -tags fullruntime -o moonrun ./cmd/moonrun`,
 
 You should see a dark blue window with white text. Press the window's close button to exit.
 
-If opening the window fails (invalid size, unavailable display, etc.), the runtime prints a short message to **stderr** and the process exits—you do not need `IF NOT Window.Open …` in every program. Use **`Window.CanOpen`** only when you must choose a fallback resolution or show your own error without opening.
+If opening the window fails (invalid size, unavailable display, etc.), the runtime prints a short message to **stderr** and the process exits—you do not need `IF NOT WINDOW.OPEN …` in every program. Use **`WINDOW.CANOPEN`** only when you must choose a fallback resolution or show your own error without opening.
 
 ---
 
@@ -136,53 +138,53 @@ moonBASIC games follow a simple pattern:
 
 ```basic
 ; 1. Setup — runs once
-Window.Open(800, 600, "My Game")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "My Game")
+WINDOW.SETFPS(60)
 
 player_x = 400
 player_y = 300
 
 ; 2. Loop — runs every frame until the window is closed
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt = Time.Delta()         ; seconds since last frame
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()         ; seconds since last frame
 
     ; Update
-    IF Input.KeyDown(KEY_RIGHT) THEN player_x = player_x + 200 * dt
-    IF Input.KeyDown(KEY_LEFT)  THEN player_x = player_x - 200 * dt
-    IF Input.KeyDown(KEY_DOWN)  THEN player_y = player_y + 200 * dt
-    IF Input.KeyDown(KEY_UP)    THEN player_y = player_y - 200 * dt
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN player_x = player_x + 200 * dt
+    IF INPUT.KEYDOWN(KEY_LEFT)  THEN player_x = player_x - 200 * dt
+    IF INPUT.KEYDOWN(KEY_DOWN)  THEN player_y = player_y + 200 * dt
+    IF INPUT.KEYDOWN(KEY_UP)    THEN player_y = player_y - 200 * dt
 
     ; Draw
-    Render.Clear(20, 30, 40)
-    Draw.Rectangle(INT(player_x) - 16, INT(player_y) - 16, 32, 32, 100, 200, 255, 255)
-    Render.Frame()
+    RENDER.CLEAR(20, 30, 40)
+    DRAW.RECTANGLE(INT(player_x) - 16, INT(player_y) - 16, 32, 32, 100, 200, 255, 255)
+    RENDER.FRAME()
 WEND
 
 ; 3. Cleanup
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 Key concepts:
 
 | Concept | Explanation |
 |---|---|
-| `Window.ShouldClose()` | Returns `TRUE` when the player clicks the X or presses Alt+F4. |
-| `Input.KeyDown(KEY_ESCAPE)` | Common way to exit demos with the keyboard. |
-| `Time.Delta()` | Seconds since last frame. Multiply speeds by this for frame-rate-independent movement. |
-| `Render.Clear(r, g, b)` | Clears the screen to a color. Always call this first in the loop. |
-| `Render.Frame()` | Shows what was drawn. Always call this last in the loop. |
-| `Draw.Rectangle(x, y, w, h, r, g, b, a)` | Draws a filled colored rectangle. |
-| `Input.KeyDown(KEY_*)` | Returns `TRUE` while a key is held. |
+| **`WINDOW.SHOULDCLOSE()`** | Returns `TRUE` when the player clicks the X or presses Alt+F4. |
+| **`INPUT.KEYDOWN(KEY_ESCAPE)`** | Common way to exit demos with the keyboard. |
+| **`TIME.DELTA()`** | Seconds since last frame. Multiply speeds by this for frame-rate-independent movement. |
+| **`RENDER.CLEAR(r, g, b)`** | Clears the screen to a color. Always call this first in the loop. |
+| **`RENDER.FRAME()`** | Shows what was drawn. Always call this last in the loop. |
+| **`DRAW.RECTANGLE(x, y, w, h, r, g, b, a)`** | Draws a filled colored rectangle. |
+| **`INPUT.KEYDOWN(KEY_*)`** | Returns `TRUE` while a key is held. |
 
 ---
 
 ## Adding a 3D Camera
 
-For 3D scenes, wrap your drawing commands in `cam.Begin()` / `cam.End()`:
+For 3D scenes, use **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`** (or **`CAMERA.BEGIN`/`CAMERA.END`**). The snippet below uses **Easy Mode** handle helpers (`cam.Begin`, `Mesh.Draw`, …) as in many examples; registry equivalents are [CAMERA](reference/CAMERA.md), [DRAW3D](reference/DRAW3D.md).
 
 ```basic
-Window.Open(960, 540, "3D Cube")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "3D Cube")
+WINDOW.SETFPS(60)
 
 cam = CreateCamera()
 cam.SetPos(0, 3, 8)
@@ -194,41 +196,43 @@ mat  = Material.MakeDefault()
 xform = Transform.Identity()
 angle = 0.0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    angle = angle + 1.5 * Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    angle = angle + 1.5 * TIME.DELTA()
     Transform.SetRotation(xform, angle, angle * 0.7, 0)
 
-    Render.Clear(12, 14, 22)
+    RENDER.CLEAR(12, 14, 22)
     cam.Begin()
         Mesh.Draw(cube, mat, xform)
         Draw3D.Grid(20, 1.0)
     cam.End()
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 Mesh.Free(cube)
 Material.Free(mat)
 Transform.Free(xform)
 Camera.Free(cam)
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 ---
 
 ## Modern Blitz-style 3D (CGO)
 
-This pattern uses **global aliases** (`Graphics3D`, `CreateCamera`, `LoadMesh`, `RENDER.Begin3D`, `UpdatePhysics`, …) on top of the same engine as `Window.*` / `ENTITY.*`.
+This pattern uses **global aliases** (`Graphics3D`, `CreateCamera`, `LoadMesh`, **`RENDER.BEGIN3D`**, `UpdatePhysics`, …) on top of the same engine as **`WINDOW.*`** / **`ENTITY.*`**.
 
-- **Resolution is your choice** — `Window.Open(w, h, …)` accepts any reasonable size (720p, 1080p, 1440p, 4K, …). You must **`Window.Open`** before **`Graphics3D`**: the latter **only resizes** the client area (omit **`Graphics3D`** if the open size is already what you want).
-- **`SetMSAA`**: best-effort; for some drivers MSAA is fixed at **`Window.Open`** — see [WINDOW](reference/WINDOW.md) / [BUILDING](BUILDING.md).
+- **Resolution is your choice** — **`WINDOW.OPEN(w, h, …)`** accepts any reasonable size (720p, 1080p, 1440p, 4K, …). You must **`WINDOW.OPEN`** before **`Graphics3D`**: the latter **only resizes** the client area (omit **`Graphics3D`** if the open size is already what you want).
+- **`SetMSAA`**: best-effort; for some drivers MSAA is fixed at **`WINDOW.OPEN`** — see [WINDOW](reference/WINDOW.md) / [BUILDING](BUILDING.md).
 - **`SetSSAO` / PBR / lights**: need **CGO Raylib**; stubs return errors on non-graphical builds.
-- **`UpdatePhysics`** (same as **`UPDATEPHYSICS`**) runs **`ENTITY.UPDATE(Time.Delta)`** and best-effort **`WORLD.UPDATE`**, **`PHYSICS2D.STEP`**, **`PHYSICS3D.STEP`** (inactive worlds no-op or ignored).
-- **Frame contract**: **`UpdatePhysics`** → **`Render.Clear`** → 3D pass → **`Render.Frame`**.
+- **`UpdatePhysics`** (same as **`UPDATEPHYSICS`**) runs **`ENTITY.UPDATE(TIME.DELTA())`** and best-effort **`WORLD.UPDATE`**, **`PHYSICS2D.STEP`**, **`PHYSICS3D.STEP`** (inactive worlds no-op or ignored).
+- **Frame contract**: **`UpdatePhysics`** → **`RENDER.CLEAR`** → 3D pass → **`RENDER.FRAME`**.
+
+The sample below keeps **Blitz / Easy Mode** scene helpers (`Graphics3D`, `CreateCamera`, `LoadMesh`, …); **window and input** use **`WINDOW.*`** / **`INPUT.*`** so it matches the bullets above.
 
 ```basic
 ; Initialize world
-Window.Open(1920, 1080, "Project: High Fidelity")
-Window.SetFPS(60)
+WINDOW.OPEN(1920, 1080, "Project: High Fidelity")
+WINDOW.SETFPS(60)
 AppTitle("Project: High Fidelity")
 Graphics3D(1920, 1080)   ; optional resize (omit if Open already matched size)
 SetMSAA(4)               ; Clean edges
@@ -246,27 +250,27 @@ EntityNormalMap(car, LoadTexture("car_normals.png"))
 L_Light = CreatePointLight(car, 255, 255, 200)
 TranslateEntity(L_Light, -1, 0, 2)
 
-WHILE NOT (KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ; Modern Camera Follow logic
     CameraSmoothFollow(cam, car, 0.1)
 
     ; Physics Impulse based on modern input
-    IF KeyDown(KEY_W) THEN ApplyEntityImpulse(car, 0, 0, 500)
+    IF INPUT.KEYDOWN(KEY_W) THEN ApplyEntityImpulse(car, 0, 0, 500)
 
     UpdatePhysics()
 
     ; The Render Pass
-    Render.Clear(12, 14, 22)
-    RENDER.Begin3D(cam)
+    RENDER.CLEAR(12, 14, 22)
+    RENDER.BEGIN3D(cam)
         DrawEntities()   ; PBR, SSAO, dynamic lights (when CGO + assets load)
-    RENDER.End3D()
-    Render.Frame()
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()
 ```
 
-Place **`assets/`** paths next to your `.mb` or use paths relative to the process working directory. For manual **`PHYSICS3D.START`** + **`BODY3D`**, you can still call **`PHYSICS3D.STEP`** explicitly; **`UpdatePhysics`** already invokes it with **`Time.Delta`** when the world is active. See [PHYSICS3D](reference/PHYSICS3D.md) and [EXAMPLES](EXAMPLES.md).
+Place **`assets/`** paths next to your `.mb` or use paths relative to the process working directory. For manual **`PHYSICS3D.START`** + **`BODY3D`**, you can still call **`PHYSICS3D.STEP`** explicitly; **`UpdatePhysics`** already invokes it with **`TIME.DELTA`** when the world is active. See [PHYSICS3D](reference/PHYSICS3D.md) and [EXAMPLES](EXAMPLES.md).
 
 ---
 
@@ -293,13 +297,13 @@ The language is dynamically typed (implicit `Any`).
 Common key constants: `KEY_W`, `KEY_A`, `KEY_S`, `KEY_D`, `KEY_UP`, `KEY_DOWN`,
 `KEY_LEFT`, `KEY_RIGHT`, `KEY_SPACE`, `KEY_ESCAPE`, `KEY_ENTER`, `KEY_LSHIFT`.
 
-Use `Input.KeyDown(key)` for held, `Input.KeyPressed(key)` for first-press only.
+Use **`INPUT.KEYDOWN(key)`** for held, **`INPUT.KEYPRESSED(key)`** for first-press only.
 
 ### Mouse
 
 `MOUSE_LEFT_BUTTON`, `MOUSE_RIGHT_BUTTON`, `MOUSE_MIDDLE_BUTTON`
 
-Use `Input.MouseDown(btn)`, `Input.MouseX()`, `Input.MouseY()`.
+Use **`INPUT.MOUSEDOWN(btn)`**, **`INPUT.MOUSEX()`**, **`INPUT.MOUSEY()`**.
 
 ### Material Map Slots
 

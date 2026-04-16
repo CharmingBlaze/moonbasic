@@ -1,6 +1,6 @@
 # Blitz-style command index (moonBASIC mapping)
 
-Classic **Blitz3D / BlitzPlus** used short globals (`Graphics3D`, `CreateCube`, `Line`, …). moonBASIC is **not** a byte-compatible runtime: rendering uses **Raylib** (GPU), files and types differ, and APIs are usually **`NAMESPACE.NAME`** (identifiers are uppercased in source — see [LANGUAGE.md](../LANGUAGE.md)).
+Classic **Blitz3D / BlitzPlus** used short globals (`Graphics3D`, `CreateCube`, `Line`, …). moonBASIC is **not** a byte-compatible runtime: rendering uses **Raylib** (GPU), files and types differ, and APIs are usually **`NAMESPACE.NAME`** (identifiers are case-insensitive — see [LANGUAGE.md](../LANGUAGE.md)).
 
 This page maps **familiar Blitz names** to **implemented** moonBASIC commands, with **parity notes**. For narrative “how to think in moonBASIC”, see [BLITZ3D.md](BLITZ3D.md) and [BLITZ2025.md](BLITZ2025.md). The full registry is [`commands.json`](../../compiler/builtinmanifest/commands.json); human list: [API_CONSISTENCY.md](../API_CONSISTENCY.md).
 

@@ -180,9 +180,9 @@ func (n *NamespaceAssignNode) String() string {
 	return fmt.Sprintf("NsAssign(%s.%s, %s)", n.NS, n.Method, n.Expr.String())
 }
 
-// HandleCallStmt is handleVar.METHOD(args).
+// HandleCallStmt is receiverExpr.METHOD(args).
 type HandleCallStmt struct {
-	Receiver string
+	Receiver Expr
 	Method   string
 	Args     []Expr
 	Line     int
@@ -622,9 +622,9 @@ func (n *NamespaceCallExpr) String() string {
 	return fmt.Sprintf("%s.%s(...)", n.NS, n.Method)
 }
 
-// HandleCallExpr is recv.METHOD(args) in expression context.
+// HandleCallExpr is receiverExpr.METHOD(args) in expression context.
 type HandleCallExpr struct {
-	Receiver string
+	Receiver Expr
 	Method   string
 	Args     []Expr
 	Line     int

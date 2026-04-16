@@ -35,7 +35,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         count = 0
     ENDIF
 
-    GUI.LABEL(72, 212, 640, 40, "Count = " + STR$(count))
+    GUI.LABEL(72, 212, 640, 40, "Count = " + STR(count))
 
     GUI.LABEL(24, 472, 752, 32, "ESC to quit")
     RENDER.FRAME()

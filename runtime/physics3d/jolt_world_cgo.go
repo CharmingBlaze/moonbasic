@@ -151,14 +151,14 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 			dt = v
 		}
 	} else if len(args) > 1 {
-		return value.Nil, fmt.Errorf("PHYSICS3D.STEP expects 0 or 1 argument (dt#)")
+		return value.Nil, fmt.Errorf("PHYSICS3D.STEP/UPDATE expects 0 or 1 argument (dt#)")
 	}
 
 	joltMu.Lock()
 	ps := joltSys
 	joltMu.Unlock()
 	if ps == nil {
-		return value.Nil, mbruntime.Errorf("PHYSICS3D.STEP: physics not started")
+		return value.Nil, mbruntime.Errorf("PHYSICS3D.STEP/UPDATE: physics not started")
 	}
 
 	// Snapshot last published poses for render interpolation (translation blend).

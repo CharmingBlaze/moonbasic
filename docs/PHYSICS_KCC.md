@@ -14,15 +14,15 @@ player = CreateCapsule()
 CHAR.CREATE(player, 0.5, 2.0)
 CHAR.SETSTEP(player, 0.4)
 
-WHILE NOT Window.ShouldClose()
-    moveF = Axis(KEY_S, KEY_W)
-    moveS = Axis(KEY_A, KEY_D)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    moveF = INPUT.AXIS(KEY_S, KEY_W)
+    moveS = INPUT.AXIS(KEY_A, KEY_D)
     CHAR.MOVEWITHCAMERA(player, cam, moveF, moveS, 10.0)
     
-    IF CHAR.ISGROUNDED(player) AND KeyHit(KEY_SPACE) THEN CHAR.JUMP(player, 9.0)
+    IF CHAR.ISGROUNDED(player) AND INPUT.KEYPRESSED(KEY_SPACE) THEN CHAR.JUMP(player, 9.0)
     
-    ENTITY.UPDATE(Time.Delta())
-    Render.Frame()
+    ENTITY.UPDATE(TIME.DELTA())
+    RENDER.FRAME()
 WEND
 ```
 

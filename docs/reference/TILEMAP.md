@@ -53,10 +53,10 @@ Returns tile dimensions in pixels.
 ## Full Example: Scrolling Platformer Map
 
 ```basic
-Window.Open(960, 540, "Tilemap Demo")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "Tilemap Demo")
+WINDOW.SETFPS(60)
 
-map = Tilemap.Load("assets/maps/level1.tmx")
+map = TILEMAP.LOAD("assets/maps/level1.tmx")
 
 px = 100
 py = 100
@@ -65,51 +65,44 @@ pvy = 0
 on_ground = 0
 TILE_SIZE = 16
 
-WHILE NOT Window.ShouldClose()
-    dt = Time.Delta()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
 
-    ; --- INPUT ---
-    IF Input.KeyDown(KEY_A) THEN pvx = pvx - 400 * dt
-    IF Input.KeyDown(KEY_D) THEN pvx = pvx + 400 * dt
+    IF INPUT.KEYDOWN(KEY_A) THEN pvx = pvx - 400 * dt
+    IF INPUT.KEYDOWN(KEY_D) THEN pvx = pvx + 400 * dt
     pvx = pvx * 0.85
 
-    IF on_ground AND Input.KeyPressed(KEY_SPACE) THEN pvy = -500
+    IF on_ground AND INPUT.KEYPRESSED(KEY_SPACE) THEN pvy = -500
 
-    ; --- PHYSICS ---
     pvy = pvy + 900 * dt
     px = px + pvx * dt
     py = py + pvy * dt
 
-    ; --- TILE COLLISION ---
     on_ground = 0
 
-    ; Floor check (below feet)
     tx = INT(px / TILE_SIZE)
     ty = INT((py + 24) / TILE_SIZE)
-    IF Tilemap.IsSolid(map, tx, ty) THEN
+    IF TILEMAP.ISSOLID(map, tx, ty) THEN
         py = ty * TILE_SIZE - 24
         pvy = 0
         on_ground = 1
     ENDIF
 
-    ; Ceiling check (above head)
     ty_top = INT((py - 16) / TILE_SIZE)
-    IF Tilemap.IsSolid(map, tx, ty_top) THEN
+    IF TILEMAP.ISSOLID(map, tx, ty_top) THEN
         py = (ty_top + 1) * TILE_SIZE + 16
         pvy = 0
     ENDIF
 
-    ; --- CAMERA ---
     cam_x = INT(px) - 480
     cam_y = INT(py) - 270
 
-    ; --- DRAW ---
-    Render.Clear(40, 60, 80)
-    Tilemap.Draw(map, -cam_x, -cam_y)
-    Draw.Rectangle(INT(px) - cam_x - 8, INT(py) - cam_y - 16, 16, 28, 255, 200, 80, 255)
-    Render.Frame()
+    RENDER.CLEAR(40, 60, 80)
+    TILEMAP.DRAW(map, -cam_x, -cam_y)
+    DRAW.RECTANGLE(INT(px) - cam_x - 8, INT(py) - cam_y - 16, 16, 28, 255, 200, 80, 255)
+    RENDER.FRAME()
 WEND
 
-Tilemap.Free(map)
-Window.Close()
+TILEMAP.FREE(map)
+WINDOW.CLOSE()
 ```

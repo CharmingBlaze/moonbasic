@@ -1,54 +1,77 @@
-# Sky (`SKY.*`)
+# Sky Commands
 
 Day/night **tinted sky dome** (drawn as a large sphere) with time-of-day in **hours** and configurable **day length**. **CGO + Raylib** required.
 
+Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+Create a sky with **`SKY.CREATE()`**, configure **`SKY.SETTIME`** / **`SKY.SETDAYLENGTH`**, then each frame call **`SKY.UPDATE(sky, dt)`** and **`SKY.DRAW(sky)`**. Draw the sky **early** in the 3D pass (usually **before** opaque terrain) so depth behaves correctly.
+
 ---
 
-## `Sky.Create()` / `Sky.Make()` → handle
+### `SKY.CREATE()`
 
-**Canonical:** **`SKY.CREATE`**. Deprecated alias: **`SKY.MAKE`**. Creates a sky object with default time and day length.
+Creates a sky object with default time and day length. **`SKY.MAKE()`** is a deprecated alias.
 
 ---
 
-## `Sky.Free(sky)`
+### `SKY.FREE(sky)`
 
 Frees the sky handle.
 
 ---
 
-## `Sky.Update(sky, dt)`
+### `SKY.UPDATE(sky, dt)`
 
 Advances internal time using **`dt`** and day length.
 
 ---
 
-## `Sky.Draw(sky)`
+### `SKY.DRAW(sky)`
 
-Draws the sky **before** terrain for typical frames (call order is user-defined).
-
----
-
-## `Sky.SetTime(sky, hours)` / `Sky.SetDayLength(sky, seconds)`
-
-**`SetTime`**: 0–24 style hours. **`SetDayLength`**: real-time seconds for a full cycle.
+Draws the sky dome. Call order is user-defined, but the sky should usually be drawn **first** inside the camera block.
 
 ---
 
-## `Sky.GetTimeHours(sky)` → float
+### `SKY.SETTIME(sky, hours)` / `SKY.SETDAYLENGTH(sky, seconds)`
 
-Current simulated hour.
-
----
-
-## `Sky.IsNight(sky)` → bool
-
-**True** when the sun is below the horizon (implementation threshold).
+**`SETTIME`**: **0–24** style hours. **`SETDAYLENGTH`**: real-time **seconds** for a full day/night cycle.
 
 ---
 
-## Common mistake
+### `SKY.GETTIMEHOURS(sky)`
 
-Calling **`Sky.Draw`** after opaque terrain — the sky should usually be **first** inside the camera block so depth works as expected.
+Returns the current simulated hour (**float**).
+
+---
+
+### `SKY.ISNIGHT(sky)`
+
+Returns **`TRUE`** when the sun is below the horizon (implementation threshold).
+
+---
+
+## Full Example
+
+Minimal frame sketch (camera setup omitted):
+
+```basic
+sky = SKY.CREATE()
+SKY.SETDAYLENGTH(sky, 600.0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    SKY.UPDATE(sky, dt)
+    RENDER.CLEAR(10, 12, 18)
+    ; Begin 3D / camera, then draw sky before terrain:
+    SKY.DRAW(sky)
+    ; ... terrain, entities ...
+    RENDER.FRAME()
+WEND
+
+SKY.FREE(sky)
+```
 
 ---
 

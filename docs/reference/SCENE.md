@@ -43,14 +43,13 @@ Returns the ID string of the currently active scene.
 ## Typical loop
 
 ```basic
-Scene.SetHandlers "MYUPDATE", "MYDRAW"
-Scene.Register "LEVEL1", "LOAD_LEVEL1"
+SCENE.SETHANDLERS("MYUPDATE", "MYDRAW")
+SCENE.REGISTER("LEVEL1", "LOAD_LEVEL1")
+SCENE.LOAD("LEVEL1")
 
-Scene.Load "LEVEL1"
-
-WHILE NOT Window.ShouldClose()
-    Scene.Update(Time.Delta())
+WHILE NOT WINDOW.SHOULDCLOSE()
+    SCENE.UPDATE(TIME.DELTA())
     ; ... game rendering ...
-    Scene.Draw()
+    SCENE.DRAW()
 WEND
 ```

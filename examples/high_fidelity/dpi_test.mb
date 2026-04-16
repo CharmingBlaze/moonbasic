@@ -8,15 +8,15 @@ PRINT("Scaled DPI Y:   " + WINDOW.GETSCALEDPIY())
 WHILE NOT WINDOW.SHOULDCLOSE()
 	RENDER.CLEAR(30, 30, 50)
     
-    mx# = MOUSEX()
-    my# = MOUSEY()
+    mx = MOUSEX()
+    my = MOUSEY()
     
     ; Draw a small crosshair at mouse pos
     ; (Note: Draw.Line etc might still expect ints if they have not been updated,
     ; but the coordinates we pass will be floats.)
     
-    PRINTAT(10, 10, "Mouse X#: " + mx#)
-    PRINTAT(10, 30, "Mouse Y#: " + my#)
+    PRINTAT(10, 10, "Mouse X: " + mx)
+    PRINTAT(10, 30, "Mouse Y: " + my)
     
 	RENDER.FRAME()
 WEND

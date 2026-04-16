@@ -1,6 +1,6 @@
 ; Milestone 6: Handle-based Types Verification
 TYPE Player
-  FIELD x, y, name$
+  FIELD x, y, name
 END TYPE
 
 p = NEW(Player)

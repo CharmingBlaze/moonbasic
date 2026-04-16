@@ -4,6 +4,8 @@
 
 **2D** CPU circles use **`PARTICLE2D.*`** (see [SPRITE.md](SPRITE.md)).
 
+Narrative workflow and runnable example: [PARTICLES.md](PARTICLES.md) (**WAVE pattern** — [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md)).
+
 ---
 
 ## `PARTICLE.*` / `PARTICLE3D.*` (3D)

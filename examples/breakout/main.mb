@@ -101,7 +101,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     DRAW.RECTANGLE(INT(px), INT(py), 100, 14, 240, 248, 255, 255)
     DRAW.RECTANGLE(INT(bx) - 6, INT(by) - 6, 12, 12, 255, 255, 60, 255)
 
-    DRAW.TEXT("Score " + STR$(score), 24, 12, 22, 255, 255, 255, 255)
+    DRAW.TEXT("Score " + STR(score), 24, 12, 22, 255, 255, 255, 255)
     DRAW.TEXT("Mouse or A/D   SPACE serve / relaunch   ESC quit", 160, 510, 18, 230, 235, 245, 255)
     IF NOT alive AND broken < 40 THEN
         DRAW.TEXT("Press SPACE to serve", 340, 280, 24, 255, 245, 90, 255)

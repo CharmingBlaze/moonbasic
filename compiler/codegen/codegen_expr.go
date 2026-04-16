@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"moonbasic/compiler/ast"
+	"moonbasic/compiler/builtinmanifest"
 	"moonbasic/compiler/symtable"
 	"moonbasic/vm/opcode"
 )
@@ -147,7 +148,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 
 	case *ast.HandleCallExpr:
 		// Evaluate receiver into a register
-		recReg := g.emitExpr(ch, &ast.IdentNode{Name: n.Receiver, Line: n.Line, Col: n.Col})
+		recReg := g.emitExpr(ch, n.Receiver)
 		
 		argStart := g.emitArgsStable(ch, n.Args, n.Line)
 		midx := ch.AddName(n.Method)
@@ -238,7 +239,7 @@ func (g *CodeGen) emitExpr(ch *opcode.Chunk, e ast.Expr) uint8 {
 		}
 
 		argStart := g.emitArgsStable(ch, n.Args, n.Line)
-		idx := ch.AddName(n.NS + "." + n.Method)
+		idx := ch.AddName(builtinmanifest.NormalizeCommand(n.NS + "." + n.Method))
 		dst := g.allocReg()
 		
 		operand := (int32(len(n.Args)) << 24) | idx

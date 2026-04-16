@@ -59,7 +59,7 @@ playerEnt.Pos(0, 5, 0)
 
 hero = Character.Create(playerEnt, 0.4, 1.0)
 
-WHILE NOT Window.ShouldClose()
+WHILE NOT WINDOW.SHOULDCLOSE()
     CHARACTERREF.UPDATE(hero, TIME.DELTA())
     RENDER.FRAME()
 WEND

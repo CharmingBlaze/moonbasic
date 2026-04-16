@@ -5,14 +5,14 @@
 The **`mbgame`** module registers **DarkBASIC-style** short names and helpers: **`SCREENW`**, **`SCREENH`**, **`DT`**, **`MX`**, **`MY`**, **`ENDGAME`**, **`ELAPSED`**, **`FRAMECOUNT`**, collision and movement math, easing, noise, **`CONFIG.*`**, timers, **`GAME.*`** volume/screen flash, etc.
 
 - **Registry keys** are **one per uppercase name** — implementations live only in **`runtime/mbgame`** (do not re-register the same dotted key elsewhere).
-- Source uses **dotted** or **namespace** style where applicable; names are **case-agnostic** (normalized to uppercase).
+- Source uses **dotted** or **namespace** style where applicable; names are **case-agnostic**, while **registry** keys remain the **uppercase** names registered in **`mbgame`**.
 
 ## Input / window / time shortcuts
 
 | Spec-style name | Registry / usage | Notes |
 |-----------------|------------------|--------|
 | Screen size | **`SCREENW`**, **`SCREENH`** | Raylib render size when CGO is on. |
-| Frame delta | **`DT`** | Use with **`Time.Delta()`** pattern; **`DT`** mirrors it for short scripts. |
+| Frame delta | **`DT`** | Use with **`TIME.DELTA()`** pattern; **`DT`** mirrors it for short scripts. |
 | Mouse | **`MX`**, **`MY`**, **`MWHEEL`**, etc. | See **`INPUT.*`** for full input. |
 | Frames / time | **`FRAMECOUNT`**, **`ELAPSED`** | **`ELAPSED`** is wall seconds since module init (`t0`), not necessarily **`Time.Get`**. |
 | Exit | **`ENDGAME`** | Stops the VM (**`TerminateVM`**), not “close window then quit” alone. |
@@ -25,7 +25,7 @@ The **`mbgame`** module registers **DarkBASIC-style** short names and helpers: *
 - **[BLITZ3D.md](BLITZ3D.md)** — **`Camera.Turn`**, **`Entity.Create`**, **`KeyHit`**, **`JoyX`**, …  
 - **[GAMEHELPERS.md](GAMEHELPERS.md)** — **`BOXTOPLAND`** (sphere landing Y).  
 - **[MATH.md](MATH.md)** — **`MOVEX`**, **`MOVEZ`**, **`IIF`**, **`IIF`**.  
-- **[INPUT.md](INPUT.md)** — **`Input.Axis`**, **`Input.AxisDeg`**.  
+- **[INPUT.md](INPUT.md)** — **`INPUT.AXIS`**, **`INPUT.AXISDEG`**.  
 - **[MOVEMENT.md](MOVEMENT.md)** — **`WRAPVALUE`**, **`NEWXVALUE`**, …  
 - **[EASING.md](EASING.md)** — **`EASEIN`**, **`EASELERP`**, …  
 - **[PROCEDURAL.md](PROCEDURAL.md)** — **`PERLIN`**, **`RNDRANGE`**, …  

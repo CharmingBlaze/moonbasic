@@ -15,6 +15,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("PHYSICS3D.GETGRAVITYY", "physics3d", runtime.AdaptLegacy(m.phGetGravityY))
 	reg.Register("PHYSICS3D.GETGRAVITYZ", "physics3d", runtime.AdaptLegacy(m.phGetGravityZ))
 	reg.Register("PHYSICS3D.STEP", "physics3d", runtime.AdaptLegacy(m.phStep))
+	reg.Register("PHYSICS3D.UPDATE", "physics3d", runtime.AdaptLegacy(m.phStep))
 	reg.Register("PHYSICS3D.SETTIMESTEP", "physics3d", runtime.AdaptLegacy(m.phSetTimeStep))
 	reg.Register("PHYSICS3D.GETMATRIXBUFFER", "physics3d", runtime.AdaptLegacy(m.phGetMatrixBuffer))
 	reg.Register("PHYSICS3D.SETSUBSTEPS", "physics3d", runtime.AdaptLegacy(m.phSetSubsteps))

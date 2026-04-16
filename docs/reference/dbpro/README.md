@@ -1,6 +1,6 @@
 # DarkBASIC Professional (DBPro) → moonBASIC
 
-moonBASIC is **not** a DarkBASIC runtime. This folder maps **DBPro-style command names** to **implemented** moonBASIC APIs (usually `NAMESPACE.NAME`). Identifiers are uppercased in source — see [LANGUAGE.md](../../LANGUAGE.md).
+moonBASIC is **not** a DarkBASIC runtime. This folder maps **DBPro-style command names** to **implemented** moonBASIC APIs (usually `NAMESPACE.NAME`). Identifiers are case-insensitive — see [LANGUAGE.md](../../LANGUAGE.md).
 
 **Sources of truth**
 

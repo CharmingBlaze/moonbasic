@@ -5,4 +5,4 @@ WHILE i < ops
     acc = acc + (i - (i / 100) * 100)
     i = i + 1
 WEND
-PRINT("MOONBENCH ops=" + STR$(ops) + " acc=" + STR$(acc))
+PRINT("MOONBENCH ops=" + STR(ops) + " acc=" + STR(acc))

@@ -1,50 +1,121 @@
-# Terrain and chunks (`TERRAIN.*`, `CHUNK.*`)
+# Terrain Commands
 
-**Performance, loading mode, and chunk-size guidance:** [docs/TERRAIN.md](../TERRAIN.md).
+**`TERRAIN.*`** holds the **2D height grid** and builds **one mesh per loaded chunk** so the whole world is not a single giant mesh. **`CHUNK.*`** sets streaming distances and answers load-state queries. **[`WORLD.*`](WORLD.md)** drives the stream center and per-frame paging — terrain does not replace **`WORLD.UPDATE`**.
 
-## How this subsystem fits the open-world stack
-
-This module holds the **2D height grid** and builds **one mesh per loaded chunk** so the whole world is not a single giant draw. **[`WORLD.*`](WORLD.md)** moves the **stream center** (usually camera/player XZ) and calls into terrain so chunks **inside** the load radius get meshes and chunks **outside** the unload radius can be released. **`CHUNK.*`** adjusts streaming distances and answers questions like how many chunks are loaded.
-
-For the **architecture-level** story (terrain vs world, draw order, handles, navigation), read **§11** in [ARCHITECTURE.md](../../ARCHITECTURE.md) (*Open-world runtime* and *Conceptual overview*).
-
-Heightfield terrain with **chunked** mesh generation (Raylib **`GenMeshHeightmap`**), streaming driven by [`WORLD.*`](WORLD.md) and the terrain module’s internal center. **CGO + Raylib** required for draw and mesh build; without CGO, stubs report an error.
+**Performance, loading mode, and chunk-size guidance:** [docs/TERRAIN.md](../TERRAIN.md). **Architecture:** [ARCHITECTURE.md](../../ARCHITECTURE.md) §11 (*Open-world runtime*). **CGO + Raylib** required for mesh build/draw; stubs error without it.
 
 **Draw order:** Typically **sky → terrain → opaque props → water → weather** (see [ARCHITECTURE.md](../../ARCHITECTURE.md)).
 
----
+Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-### `Terrain.Load(path)`
-Loads heightmap image as terrain. Returns a **handle**.
+## Core Workflow
 
-### `Terrain.Free(handle)`
-Frees terrain and all chunk meshes.
+Create terrain with **`TERRAIN.CREATE(...)`** or **`TERRAIN.LOAD(path)`**, set origin/sample size (**`TERRAIN.SETPOS`**, **`TERRAIN.SETCHUNKSIZE`**), fill height (**`TERRAIN.FILLPERLIN`**, **`TERRAIN.FILLFLAT`**, …), configure **`CHUNK.SETRANGE(terrain, load, unload)`**, then each frame set the stream center via **`WORLD.SETCENTER`** / **`WORLD.UPDATE`** (see [WORLD.md](WORLD.md)). Draw with **`TERRAIN.DRAW`** inside **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`**.
 
 ---
 
-### `Terrain.GetHeight(handle, x, z)`
-Returns the height at world coordinates.
+### `TERRAIN.CREATE(...)`
 
-### `Terrain.Place(handle, id, x, z)`
+Creates procedural heightfield terrain. **`TERRAIN.MAKE`** is a deprecated alias. Several arities exist — see **`commands.json`**.
+
+---
+
+### `TERRAIN.LOAD(path)`
+
+Loads a heightmap image as terrain. Returns a **handle**.
+
+---
+
+### `TERRAIN.FREE(handle)`
+
+Frees terrain and chunk meshes.
+
+---
+
+### `TERRAIN.SETPOS(handle, x, y, z)` / `TERRAIN.SETCHUNKSIZE(handle, size)`
+
+World origin and chunk sample size (see reference for overloads).
+
+---
+
+### `TERRAIN.FILLPERLIN(handle, ...)` / `TERRAIN.FILLFLAT(handle, ...)`
+
+Procedural or flat height fill.
+
+---
+
+### `TERRAIN.GETHEIGHT(handle, x, z)` / `TERRAIN.GETSLOPE(handle, x, z)`
+
+Sample height and slope at **XZ**.
+
+---
+
+### `TERRAIN.RAISE(handle, ...)` / `TERRAIN.LOWER(handle, ...)`
+
+Brush sculpting helpers (see manifest).
+
+---
+
+### `TERRAIN.PLACE(handle, id, x, z)`
+
 Positions an entity on the terrain surface.
 
-### `Terrain.SnapY(handle, id)`
-Snaps an entity to the surface Y.
+---
+
+### `TERRAIN.SNAPY(handle, id)`
+
+Snaps an entity to the surface **Y**.
 
 ---
 
-### `Chunk.SetRange(handle, load, unload)`
-Sets paging distances for world chunks.
+### `TERRAIN.DRAW(handle)`
 
-### `Terrain.Draw(handle)`
-Renders the terrain. Must be inside `Camera.Begin()`.
+Renders terrain. Must be inside an active **3D** camera block.
 
-**Common mistake:** Confusing **chunk indices** with **world XZ** — use terrain/world docs: streaming uses world position; chunk indices are grid addresses.
+---
+
+### `CHUNK.SETRANGE(handle, load, unload)`
+
+Sets **load** / **unload** radii for chunk paging (world units).
+
+---
+
+### `CHUNK.GENERATE(handle, ix, iz)` / `CHUNK.COUNT(handle)` / `CHUNK.ISLOADED(handle, ix, iz)`
+
+Build or query chunk meshes (see manifest).
+
+---
+
+## Full Example
+
+Sketch (stream center omitted; **`cam`** is your active 3D camera handle):
+
+```basic
+terrain = TERRAIN.CREATE(128, 128, 4.0)
+TERRAIN.FILLPERLIN(terrain, 0.12, 42)
+CHUNK.SETRANGE(terrain, 120.0, 200.0)
+WORLD.SETCENTER(0, 0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    WORLD.UPDATE(dt)
+    RENDER.CLEAR(25, 35, 45)
+    ; cam = your active CAMERA.* handle
+    RENDER.BEGIN3D(cam)
+        TERRAIN.DRAW(terrain)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+TERRAIN.FREE(terrain)
+```
+
+**Common mistake:** Confusing **chunk grid indices** with **world XZ** — streaming uses world position; chunk **i, j** are grid addresses.
 
 ---
 
 ## See also
 
-- [WORLD.md](WORLD.md) — `World.SetCenter`, `World.Update`, preload
+- [WORLD.md](WORLD.md) — **`WORLD.SETCENTER`**, **`WORLD.UPDATE`**, **`WORLD.PRELOAD`**
 - [WATER.md](WATER.md) — water plane vs terrain height
 - [SCATTER.md](SCATTER.md) — foliage on terrain height

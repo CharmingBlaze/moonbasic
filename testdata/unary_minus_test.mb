@@ -1,8 +1,8 @@
 ; Unary minus sanity (parser + VM)
 PRINT(-1)
 PRINT(-1.5)
-x# = 5.0
-PRINT(-x#)
+x = 5.0
+PRINT(-x)
 PRINT(-SIN(0.0))
 PRINT(-(3 + 4))
 PRINT(-MATH.ABS(-5))

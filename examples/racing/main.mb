@@ -44,7 +44,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     DRAW.RECTANGLE(INT(cx + ca) - 10, INT(cy + sa) - 6, 20, 12, 255, 80, 80, 255)
     DRAW.RECTANGLE(INT(cx - ca) - 10, INT(cy - sa) - 6, 20, 12, 200, 200, 220, 255)
 
-    DRAW.TEXT("Lap " + STR$(lap) + "   checkpoint=" + STR$(checkpoint), 16, 12, 20, 230, 230, 240, 255)
+    DRAW.TEXT("Lap " + STR(lap) + "   checkpoint=" + STR(checkpoint), 16, 12, 20, 230, 230, 240, 255)
     DRAW.TEXT("A/D steer   W gas   S brake   ESC quit", 260, 510, 18, 190, 190, 200, 255)
     RENDER.FRAME()
 WEND

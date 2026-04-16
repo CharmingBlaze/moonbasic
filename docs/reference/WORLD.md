@@ -1,51 +1,90 @@
-# World streaming (`WORLD.*`)
+# World Commands
 
-## Role in the stack
+**`WORLD.*`** does **not** own heightmap data. It drives **which part of the terrain** stays resident: set **`WORLD.SETCENTER`** (player or camera **XZ**), call **`WORLD.UPDATE(dt)`** each frame so the bound terrain can load/unload chunks per **`CHUNK.SETRANGE`**, and use **`WORLD.PRELOAD`** for a startup burst. See [ARCHITECTURE.md](../../ARCHITECTURE.md) §11 (*Conceptual overview*).
 
-**World** does not own heightmap data. It drives **which part of the terrain** should be resident: you set **`WORLD.SETCENTER`** to the player or camera XZ, then **`WORLD.UPDATE`** once per frame so the bound terrain can load/unload **chunks** according to **`CHUNK.SETRANGE`**. Use **`WORLD.PRELOAD`** for a startup burst so the first view is filled in. See the narrative in [ARCHITECTURE.md](../../ARCHITECTURE.md) §11 (*Conceptual overview*).
+The world manager ties into the active [terrain](TERRAIN.md) module. It does **not** implement separate **`REGION.*`** file I/O — that remains future work. **CGO** required for real terrain streaming; stubs fail without it.
 
-The **world manager** ties into the active [`terrain`](TERRAIN.md) module: it updates **stream center**, runs **chunk load/unload** each frame, and exposes **preload** and **ready** queries. It does **not** implement separate `REGION.*` file I/O — that remains future work.
+Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**CGO** required for real terrain streaming; stubs fail without it.
+## Core Workflow
 
----
-
-### `World.Setup([gravity#])`
-**Easy Mode** physics entry point. Initializes global gravity and expects **`PHYSICS3D.START()`** / Jolt when using full **3D** physics (see [PHYSICS3D.md](PHYSICS3D.md)). On desktop **Windows and Linux** with **CGO + Jolt**, behavior matches the native world step. Default gravity is `-9.81`.
+Optionally **`WORLD.SETUP()`** or **`WORLD.SETUP(gravity)`** to initialize physics-world defaults (see [PHYSICS3D.md](PHYSICS3D.md) for Jolt). Each frame: **`WORLD.SETCENTER`** (or **`WORLD.SETCENTERENTITY`**), then **`WORLD.UPDATE(dt)`**. Tune streaming with **`WORLD.STREAMENABLE`**, warm caches with **`WORLD.PRELOAD`**, and poll **`WORLD.ISREADY`** / **`WORLD.STATUS`** while loading.
 
 ---
 
-### `World.Update(dt)`
-Updates world streaming and entity spatial SoA.
+### `WORLD.SETUP()` / `WORLD.SETUP(gravity)`
 
-### `World.SetCenter(x, z)` / `World.SetCenterEntity(id)`
-Sets the streaming focal point for chunks.
+Initializes the physics world with default **Y** gravity (**-9.81**) or a custom **`gravity`** value. Expects **`PHYSICS3D.START()`** / Jolt when using full **3D** physics on desktop **Windows** and **Linux** with **CGO**.
 
 ---
 
-### `World.Preload(terrain, radius)`
-Forces initial chunk loading around the center.
+### `WORLD.UPDATE(dt)`
 
-### `World.StreamEnable(toggle)`
+Updates world streaming and related state. **`dt`** is seconds (use **`TIME.DELTA()`** in the game loop).
+
+---
+
+### `WORLD.SETCENTER(x, z)` / `WORLD.SETCENTERENTITY(id)`
+
+Sets the streaming focal point for chunk paging.
+
+---
+
+### `WORLD.PRELOAD(terrain, radius)`
+
+Forces initial chunk loading around the current center.
+
+---
+
+### `WORLD.STREAMENABLE(toggle)`
+
 Enables or disables automatic chunk paging.
 
 ---
 
-### `World.IsReady(terrain)`
-Returns `TRUE` if initial chunk work is complete.
+### `WORLD.ISREADY(terrain)`
 
-### `World.Status()`
-Returns a status string for debugging.
+Returns **`TRUE`** when initial chunk work is complete enough to play.
 
 ---
 
-## `World.SetVegetation(terrain, billboard, density)`
+### `WORLD.STATUS()`
 
-Populates an internal **`SCATTER`** instance with random **XZ** samples over a fixed area and snaps **Y** to **`Terrain.GetHeight`** (same placement rule as **`Scatter.Apply`**). The **billboard** handle is **reserved** for future instanced mesh drawing; today **`Scatter.DrawAll`** uses simple debug spheres unless you extend the scatter renderer.
+Returns a debug status string.
+
+---
+
+### `WORLD.SETVEGETATION(terrain, billboard, density)`
+
+Populates an internal **`SCATTER`** sample set over terrain (**`TERRAIN.GETHEIGHT`**) with the given **density**. The **billboard** handle is reserved for future instanced drawing; **`Scatter.DrawAll`** may use simple debug spheres until extended.
+
+---
+
+## Full Example
+
+Integration sample: [`testdata/openworld_complete.mb`](../../testdata/openworld_complete.mb). Minimal sketch:
+
+```basic
+WORLD.SETUP()
+terrain = TERRAIN.CREATE(64, 64, 8.0)
+TERRAIN.FILLFLAT(terrain, 0.0)
+CHUNK.SETRANGE(terrain, 80.0, 140.0)
+WORLD.PRELOAD(terrain, 3)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    ; camX, camZ = focal point for streaming (e.g. from camera or player)
+    WORLD.SETCENTER(camX, camZ)
+    WORLD.UPDATE(dt)
+    ; ... draw terrain, entities ...
+WEND
+
+TERRAIN.FREE(terrain)
+```
 
 ---
 
 ## See also
 
-- [TERRAIN.md](TERRAIN.md) — heightfield and `Chunk.SetRange`
-- [openworld_complete.mb](../../testdata/openworld_complete.mb) — integration sample
+- [TERRAIN.md](TERRAIN.md) — heightfield and **`CHUNK.SETRANGE`**
+- [`testdata/openworld_complete.mb`](../../testdata/openworld_complete.mb)

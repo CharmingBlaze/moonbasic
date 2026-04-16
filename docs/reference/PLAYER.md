@@ -109,31 +109,34 @@ Lower-level access without entity ids: **`CHARCONTROLLER.CREATE`** (deprecated *
 ## Example (Linux)
 
 ```moonbasic
-Physics3D.Start()
-hero = Entity.Load("hero.iqm")
-Player.Create(hero)
+WINDOW.OPEN(1280, 720, "Player")
+WINDOW.SETFPS(60)
+PHYSICS3D.START()
+hero = ENTITY.LOAD("hero.iqm")
+PLAYER.CREATE(hero)
+cam = CAMERA.CREATE()
 
-WHILE Window.Open()
-    dt = Time.Delta()
-    Player.Move(hero, Input.AxisX() * 5.0, Input.AxisY() * 5.0)
-    REM Player-centric getters (implicit subject = last Player.Create):
-    REM   IF Player.GetGrounded() THEN ...
-    IF Player.IsGrounded(hero) AND Input.KeyPressed(KEY_SPACE) THEN
-        Player.Jump(hero, 6.0)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    PLAYER.MOVE(hero, INPUT.AXIS(KEY_S, KEY_W) * 5.0, INPUT.AXIS(KEY_A, KEY_D) * 5.0)
+    IF PLAYER.ISGROUNDED(hero) AND INPUT.KEYPRESSED(KEY_SPACE) THEN
+        PLAYER.JUMP(hero, 6.0)
     ENDIF
-    target = Player.GetLookTarget(hero, 3.0)
-    IF target <> 0 AND Input.KeyPressed(KEY_E) THEN
+    target = PLAYER.GETLOOKTARGET(hero, 3.0)
+    IF target <> 0 AND INPUT.KEYPRESSED(KEY_E) THEN
         fn = LEVEL.MATCHSCRIPTBIND(EntityName(target))
         REM dispatch fn in your script...
     ENDIF
-    Player.SyncAnim(hero, 0.12)
-    Begin3D()
-        Entity.Draw(hero)
-    End3D()
+    PLAYER.SYNCANIM(hero, 0.12)
+    RENDER.CLEAR(20, 24, 32)
+    RENDER.Begin3D(cam)
+        ENTITY.DRAW(hero)
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 ```
 
-Naming: use **`LEVEL.LOAD`** / **`Entity.Draw`** (or your project’s draw path), not **`Scene.Draw`**, so **`SCENE.*`** stays reserved for **mbscene** game scenes.
+Naming: use **`LEVEL.LOAD`** / **`ENTITY.DRAW`** (or your project’s draw path), not **`SCENE.DRAW`**, so **`SCENE.*`** stays reserved for **mbscene** game scenes.
 
 ---
 

@@ -24,7 +24,7 @@ nav.SetGrid(60, 60, 0.5, -15, -15) ; 30x30 area
 nav.Build()                          ; Auto-scan static world
 
 ; Create Guardian Agent
-guardianEnt = CreateCube()
+guardianEnt = ENTITY.CREATECUBE(1, 1, 1)
 SCALENT(guardianEnt, 0.6, 1.2, 0.6)
 ENTITYCOLOR(guardianEnt, 255, 100, 100, 255)
 POSENT(guardianEnt, 8, 3, 8) ; Place on Step 1
@@ -45,7 +45,7 @@ CONST MOUSE_SENSITIVITY = 0.005
 CONST RAD_TO_DEG = 57.2957795
 
 ; Initialize Camera
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.fov(60)
 
 ; Initialize Player (standalone Character.Create → implicit KCC subject for Player.Get* with no args)
@@ -77,30 +77,30 @@ TYPE Platform
 ENDTYPE
 
 DIM plats AS Platform(5)
-plats(1) = Platform(CreateCube(), 100, 200, 100) ; Floor
+plats(1) = Platform(ENTITY.CREATECUBE(1, 1, 1), 100, 200, 100) ; Floor
 SCALENT(plats(1).ent, 30, 1, 30)
 POSENT(plats(1).ent, 0, 0, 0)
-floorShape = Shape.CreateBox(15, 0.5, 15)
+floorShape = SHAPE.CREATEBOX(15, 0.5, 15)
 floorBody = Static.Create(floorShape)
 floorBody.SetPos(0, 0, 0)
 
-plats(2) = Platform(CreateCube(), 150, 150, 255) ; Step 1
+plats(2) = Platform(ENTITY.CREATECUBE(1, 1, 1), 150, 150, 255) ; Step 1
 SCALENT(plats(2).ent, 4, 1, 4)
 POSENT(plats(2).ent, 8, 2, 8)
-stepShape = Shape.CreateBox(2, 0.5, 2)
+stepShape = SHAPE.CREATEBOX(2, 0.5, 2)
 step1Body = Static.Create(stepShape)
 step1Body.SetPos(8, 2, 8)
 
-plats(3) = Platform(CreateCube(), 255, 150, 150) ; Step 2
+plats(3) = Platform(ENTITY.CREATECUBE(1, 1, 1), 255, 150, 150) ; Step 2
 SCALENT(plats(3).ent, 4, 1, 4)
 POSENT(plats(3).ent, 12, 4, 12)
 step2Body = Static.Create(stepShape)
 step2Body.SetPos(12, 4, 12)
 
-plats(4) = Platform(CreateCube(), 255, 255, 100) ; Goal
+plats(4) = Platform(ENTITY.CREATECUBE(1, 1, 1), 255, 255, 100) ; Goal
 SCALENT(plats(4).ent, 6, 1, 6)
 POSENT(plats(4).ent, 16, 6, 16)
-goalShape = Shape.CreateBox(3, 0.5, 3)
+goalShape = SHAPE.CREATEBOX(3, 0.5, 3)
 goalBody = Static.Create(goalShape)
 goalBody.SetPos(16, 6, 16)
 ; Batch 6: Set Goal to be semi-transparent
@@ -110,10 +110,10 @@ ENTITYALPHA(plats(4).ent, 0.6)
 DIM starEnts AS HANDLE(5)
 DIM starActive(5)
 FOR i = 1 TO 5
-    starEnts(i) = CreateSphere()
+    starEnts(i) = ENTITY.CREATESPHERE(0.5)
     SCALENT(starEnts(i), 0.4, 0.4, 0.4)
     POSENT(starEnts(i), RAND(-15, 15), 2.5 + RND(0, 3), RAND(-15, 15))
-    EntityColor(starEnts(i), 255, 255, 0, 255)
+    ENTITY.COLOR(starEnts(i), 255, 255, 0, 255)
     starActive(i) = 1
 NEXT
 
@@ -190,12 +190,14 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         agent.MoveTo(px0, py0, pz0)
     ENDIF
     agent.Update(dt)
-    POSENT(guardianEnt, agent.X(), agent.Y(), agent.Z())
+    ax, ay, az = NAVAGENT.GETPOS(agent)
+    POSENT(guardianEnt, ax, ay, az)
 
     ; 3. Automatic World Simulation
     ENTITY.UPDATE(dt)
     hero.Update(dt)
-    POSENT(playerEnt, hero.X(), hero.Y(), hero.Z())
+    hx, hy, hz = CHARACTERREF.GETPOSITION(hero)
+    POSENT(playerEnt, hx, hy, hz)
 
     ; 4. Jumping — after hero.Update so GetGrounded reflects this frame's contact
     IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN hero.Jump(JUMP_FORCE)

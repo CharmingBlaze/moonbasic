@@ -18,8 +18,8 @@ BODY3D.ACTIVATE(ballBody)
 gBuf = BODY3D.BUFFERINDEX(groundBody)
 bBuf = BODY3D.BUFFERINDEX(ballBody)
 
-groundEnt = CreateCube()
-ballEnt = CreateSphere()
+groundEnt = ENTITY.CREATECUBE(1, 1, 1)
+ballEnt = ENTITY.CREATESPHERE(0.5)
 ENTITY.LINKPHYSBUFFER(groundEnt, gBuf)
 ENTITY.LINKPHYSBUFFER(ballEnt, bBuf)
 

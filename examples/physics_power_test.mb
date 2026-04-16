@@ -1,22 +1,25 @@
 ; Physics Power Verification
-; This script tests the new VEHICLE, AERO, and BODY3D commands.
+; This script tests the v1.0 standardized physics and vehicle API.
+; Run: go run -tags fullruntime . --run examples/physics_power_test.mb
 
+WINDOW.OPEN(640, 480, "Physics Power Test")
 CLS
 PRINT "Starting Physics Verification..."
 
 ; 1. Body and Aero Setup
 shape = SHAPE.CREATEBOX(1, 1, 1)
-body = BODY3D.CREATE("DYNAMIC")
-BODY3D.ADDBOX(body, 1, 1, 1)
-bh = BODY3D.COMMIT(body, 0, 10, 0)
+bf = BODY3D.CREATE("DYNAMIC")
+bf.ADDBOX(1, 1, 1)
+bh = bf.COMMIT(0, 10, 0)
 
-AERO.SETLIFT(bh, 0.5)
-AERO.SETTHRUST(bh, 10.0)
-PRINT "Aero configured."
+bh.SETLIFT(0.5)
+bh.SETTHRUST(10.0)
+PRINT "Aero configured via handle methods."
 
 ; 2. Vehicle Setup
-hero = ENTITY.CREATE("HERO")
-vid = VEHICLE.CREATE(hero, 4)
+hero = ENTITY.CREATE()
+vid = hero.CREATEVEHICLE(4)
+; Using the vehicle handle for configuration
 VEHICLE.SETWHEEL(vid, 0, -1, -0.5, 1, 0.4)
 VEHICLE.SETWHEEL(vid, 1, 1, -0.5, 1, 0.4)
 VEHICLE.SETWHEEL(vid, 2, -1, -0.5, -1, 0.4)
@@ -36,5 +39,6 @@ PRINT "Body Mass: ", mass
 vel = bh.GETVELOCITY()
 PRINT "Body Velocity Array Handle: ", vel
 
-PRINT "Verification Complete (Syntax Check)."
+PRINT "Verification Complete (Syntax Check OK)."
+WINDOW.CLOSE()
 END

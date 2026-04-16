@@ -1,8 +1,14 @@
-# Light and shadow (3D)
+# Light and shadow (`LIGHT.*`, `RENDER.SETAMBIENT`, `RENDER.SETSHADOWMAPSIZE`)
 
-moonBASIC exposes **3D** lights as small **CPU-side handles** (`TypeName` `Light`). The built-in **PBR + shadow** path uses a **single directional** light for diffuse shading and **one shadow-casting light** at a time. Registry keys use **dots and uppercase** (e.g. **`LIGHT.CREATE`**, deprecated **`LIGHT.MAKE`**); the tables below show both **PascalCase** names (as in specs) and the **canonical keys**.
+moonBASIC exposes **3D** lights as small **CPU-side handles**. The built-in **PBR + shadow** path uses a **single directional** light for diffuse shading and **one shadow-casting light** at a time.
+
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Light.Make`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings).
 
 **Engine-style constructors (`LIGHT.CREATEPOINT`, `CREATEDIRECTIONAL`, `CREATESPOT`, …):** [CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md).
+
+Registry keys use **dots and uppercase** (e.g. **`LIGHT.CREATE`**, deprecated **`LIGHT.MAKE`**).
 
 **GPU / memory**
 
@@ -13,50 +19,49 @@ For **2D** lighting, use **`LIGHT2D.*`** and **`RENDER.SET2DAMBIENT`** — see [
 
 ---
 
-### `Light.Make(type)`
-Creates a new light source of the specified type. Returns a **handle** to the light.
-- `type`: The type of light: `"directional"`, `"point"`, or `"spot"`.
+### `LIGHT.CREATE(type)`
+Creates a new light source of the specified type. Returns a **handle** to the light. **`type`**: `"directional"`, `"point"`, or `"spot"`. **`LIGHT.MAKE`** is a **deprecated** alias of **`LIGHT.CREATE`**.
 
-### `Light.Free(handle)`
+### `LIGHT.FREE(handle)`
 Unloads the light and frees its resources.
 
 ---
 
-### `Light.SetPos(handle, x, y, z)`
-Sets the world position of a point or spot light.
+### `LIGHT.SETPOS(handle, x, y, z)`
+Sets the world position of a point or spot light. (Canonical; deprecated **`LIGHT.SETPOSITION`**.)
 
-### `Light.SetDir(handle, x, y, z)`
+### `LIGHT.SETDIR(handle, x, y, z)`
 Sets the direction vector for a directional or spot light.
 
 ---
 
-### `Light.SetColor(handle, r, g, b [, a])`
+### `LIGHT.SETCOLOR(handle, r, g, b [, a])`
 Sets the color and intensity of the light (0-255). The optional alpha component multiplies the overall light strength.
 
-### `Light.SetRange(handle, range)`
+### `LIGHT.SETRANGE(handle, range)`
 Sets the maximum distance at which the light has an effect (for point and spot lights).
 
 ---
 
-### `Light.SetShadow(handle, toggle)`
+### `LIGHT.SETSHADOW(handle, toggle)`
 Enables or disables shadow casting for the light. Only **one** shadow-casting light is supported at a time.
 
-### `Light.SetInnerCone(handle, degrees)` / `Light.SetOuterCone(handle, degrees)`
+### `LIGHT.SETINNERCONE(handle, degrees)` / `LIGHT.SETOUTERCONE(handle, degrees)`
 Sets the inner and outer half-cone angles for spotlights in degrees.
 
-### `Light.SetTarget(handle, x, y, z)`
+### `LIGHT.SETTARGET(handle, x, y, z)`
 Sets the world point the **orthographic shadow camera** looks at. Correctly framing your scene in this volume is required for shadows.
 
 ---
 
-### Render.SetAmbient
+### `RENDER.SETAMBIENT`
 
 ```basic
 RENDER.SETAMBIENT(r, g, b)
 RENDER.SETAMBIENT(r, g, b, a)
 ```
 
-**3D PBR** hemispheric ambient tint (per-channel multiplier on albedo). Components may be **0.0–1.0** or **0–255** (values &gt; 1 are normalized as 8-bit). With **four** arguments, **`a`** scales **all three** RGB channels together (useful for global ambient strength).
+**3D PBR** hemispheric ambient tint (per-channel multiplier on albedo). Components may be **0.0–1.0** or **0–255** (values > 1 are normalized as 8-bit). With **four** arguments, **`a`** scales **all three** RGB channels together (useful for global ambient strength).
 
 **Parameters**
 
@@ -72,11 +77,11 @@ RENDER.SETAMBIENT(0.05, 0.06, 0.08)
 RENDER.SETAMBIENT(13, 15, 20, 255)
 ```
 
-**See also:** `RENDER.SETSHADOWMAPSIZE`, [MODEL.md](MODEL.md)
+**See also:** **`RENDER.SETSHADOWMAPSIZE`**, [MODEL.md](MODEL.md)
 
 ---
 
-### Render.SetShadowMapSize
+### `RENDER.SETSHADOWMAPSIZE`
 
 ```basic
 RENDER.SETSHADOWMAPSIZE(size)

@@ -16,17 +16,17 @@ Sky.SetDayLength(sky, 30)
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
-    Sky.Update(sky, dt#)
+    Sky.Update(sky, dt)
 
     Render.Clear(20, 20, 30)
 
-    cam = CreateCamera()
+    cam = CAMERA.CREATE()
 
-    Camera.SetPos(cam, 0, 5, 10)
+    CAMERA.SETPOS(cam, 0, 5, 10)
 
-    Camera.SetTarget(cam, 0, 0, 0)
+    CAMERA.SETTARGET(cam, 0, 0, 0)
 
     cam.Begin()
 
@@ -36,9 +36,9 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     cam.End()
 
-    Camera.Free(cam)
+    CAMERA.FREE(cam)
 
-    Draw.Text("Hours " + FORMAT$(Sky.GetTimeHours(sky), "%.1f"), 8, 8, 16, 255, 255, 255, 255)
+    Draw.Text("Hours " + FORMAT(Sky.GetTimeHours(sky), "%.1f"), 8, 8, 16, 255, 255, 255, 255)
 
     Render.Frame()
 

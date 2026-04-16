@@ -1,14 +1,16 @@
 # Program / runtime
 
-| Designed | moonBASIC | Notes |
-|----------|------------|-------|
-| **AppTitle(title)** | **`Window.SetTitle()`** | Updates the window title. |
-| **SetFPS(fps)** | **`Window.SetFPS()`** | Sets the target frame rate. |
-| **DeltaTime()** | **`Time.Delta()`** | Seconds since last frame. |
-| **TimeMs()** | **`Time.TickCount()`** | Total runtime in milliseconds. |
-| **Date()** | **`Date()`** | Formatted date string. |
-| **Time()** | **`Time()`** | Formatted time string. |
-| **Sleep(ms)** | **`Sleep()`** | Alias for `Wait()`. |
-| **End()** | **`EndGame()`** | Terminates the VM and program. |
+**Conventions:** [STYLE_GUIDE.md](../../../STYLE_GUIDE.md), [API_CONVENTIONS.md](../API_CONVENTIONS.md).
 
-See [blitz-engine.md](blitz-engine.md) for all flat Blitz-style globals registered by the engine facade.
+| Designed | Registry (use in new examples) | Notes |
+|----------|-------------------------------|-------|
+| **AppTitle(title)** | **`WINDOW.SETTITLE(title)`** | |
+| **SetFPS(fps)** | **`WINDOW.SETFPS(fps)`** | |
+| **DeltaTime()** | **`TIME.DELTA()`** | Seconds since last frame (or **`DT()`**). |
+| **TimeMs()** | **`TICKCOUNT()`** | Milliseconds since start (see [TIME.md](../TIME.md)). |
+| **Date()** | **`DATE()`** | Wall-clock helpers vary — see manifest. |
+| **Time()** | **`TIME()`** | |
+| **Sleep(ms)** | **`SLEEP`** / **`WAIT`** | Per your build’s aliases. |
+| **End()** | **`ENDGAME`** | Stops the VM where registered. |
+
+See [blitz-engine.md](blitz-engine.md) for flat Blitz-style globals on the engine facade.

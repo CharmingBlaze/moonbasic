@@ -24,7 +24,7 @@ func (v *VM) CallUserFunction(name string, args []value.Value) (ret value.Value,
 	if v.Program == nil {
 		return value.Nil, fmt.Errorf("no program loaded")
 	}
-	key := strings.ToUpper(strings.TrimSpace(name))
+	key := strings.ToLower(strings.TrimSpace(name))
 	chunk, ok := v.Program.Functions[key]
 	if !ok {
 		err = fmt.Errorf("undefined function: %s", key)

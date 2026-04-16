@@ -156,12 +156,14 @@ func registerThemeCommands(m *Module, reg runtime.Registrar) {
 		}
 		return value.Nil, nil
 	})
-	reg.Register("GUI.THEMENAMES", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	guiThemeNames := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("GUI.THEMENAMES expects 0 arguments")
 		}
 		return rt.RetString(joinThemeNamesForDocs()), nil
-	})
+	}
+	reg.Register("GUI.THEMENAMES", "gui", guiThemeNames)
+	reg.Register("GUI.THEMENAMES$", "gui", guiThemeNames)
 }
 
 // joinThemeNamesForDocs returns names accepted by GUI.THEMEAPPLY, semicolon-separated (for scripts / UI).

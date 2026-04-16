@@ -1,82 +1,49 @@
 # Documentation Style Guide
 
-All moonBASIC command reference documents should follow this standardized structure to ensure clarity and consistency.
+Command and module **reference** pages use a single **page shape** (the **WAVE pattern**). API naming still follows [STYLE_GUIDE.md](../STYLE_GUIDE.md): **registry-first** **`NAMESPACE.ACTION`** in headings and examples unless the page is explicitly about Easy Mode compatibility.
 
-## Header
-Use a Level 1 heading with the module name.
-`# [Namespace] Commands`
-
-## Description
-A brief one-sentence description of the module's purpose.
-
-## Core Workflow (Optional)
-If the module requires a specific sequence of calls (e.g., Init -> Loop -> Close), include a numbered list and a concise code example.
-
-## Command Blocks
-Group commands by sub-topic using Level 2 headings.
-
-### Signatures
-- Use Level 3 headings for each command signature.
-- **PascalCase** naming: `Module.Command()`.
-- **Parentheses**: Always include `()` even if there are no arguments.
-- **Parameters**: List parameter names clearly within the parentheses.
-
-### Explanations
-- Provide a concise description of what the command does.
-- Use bullet points for parameter descriptions if there are multiple.
-- Include short code snippets for usage where helpful.
-
-## Visual Separators
-Use horizontal rules `---` between major logical groups of commands.
-
-## Example Document Structure
-
-```markdown
-# Module Commands
-
-Commands for managing [feature].
-
-## Core Workflow
-
-1. **Initialize**: Call `Module.Init()`.
-2. **Main Loop**: Use `Module.Update()`.
-3. **Cleanup**: Call `Module.Close()`.
-
-```basic
-Module.Init()
-WHILE NOT Window.ShouldClose()
-    Module.Update()
-WEND
-Module.Close()
-\```
+**Live example:** [reference/WAVE.md](reference/WAVE.md) — use it as the structural template when writing or revising docs.
 
 ---
 
-## Management
+## Page shape (WAVE pattern)
 
-### `Module.Init(param1, param2)`
-Initializes the system.
-- `param1`: Description.
-- `param2`: Description.
+1. **Title** — `# [Topic] Commands` (or `# [Namespace] Commands`).
+2. **Purpose** — One sentence under the title: what this module is for.
+3. **`## Core Workflow`** — Short prose (or a short numbered list if the call order is strict). Explain the typical path (load → edit → export, init → loop → close, etc.).
+4. **`---`** — Separator after the workflow section (and before the first command).
+5. **Each command** — Repeat this block:
+   - `### `signatureWithBackticks`` — Full call as it appears in source (registry style preferred: **`WAVE.LOAD(path)`** not `Wave.Load`).
+   - One short paragraph: what it returns or does.
+   - If parameters need detail, use a bullet list: `- \`paramName\`: explanation` (plain names; no Blitz **`#` / `$` / `?` / `%`** suffixes).
+   - `---` — Separator before the next command (including the last command before **Full Example**).
+6. **`## Full Example`** — One sentence describing what the program demonstrates, then a single fenced **`basic`** block with **`;`** comments and realistic cleanup.
 
-### `Module.Close()`
-Releases all resources.
+Do **not** bury the only runnable sample in the middle of the page unless you also keep a **Full Example** at the end for copy-paste.
 
 ---
 
-## Operations
+## Signatures and naming
 
-### `Module.DoAction(id, amount)`
-Performs a specific action.
-```
+- **Headings:** Level-3 headings are the **signature** in backticks: `### `MODULE.ACTION(arg1, arg2)``.
+- **Parentheses:** Use `()` when there are no arguments.
+- **Registry-first:** Prefer **`AUDIO.INIT()`**, **`WAVE.LOAD(path)`**, **`WAVE.FREE(handle)`** in new/edited reference pages — same layout as [WAVE.md](reference/WAVE.md), different spelling. Easy Mode dotted names belong in a compatibility note or alias table, not as the only documented form.
+
+---
+
+## Visual rhythm
+
+- Use **`---`** between **every** command entry (and after **Core Workflow** before the first command) so long pages stay scannable.
+- Keep each command’s body short; move edge cases to the narrative reference or a second example.
 
 ---
 
 ## Platform ordering (project policy)
 
-When a reference page compares **Windows** and **Linux**, list **Windows** first and **Linux** second (tables, columns, and sentences). Exception: a page that is **only** about Linux-only internals (e.g. Jolt wiring) may omit Windows or mention it second. Rationale: [DEVELOPER.md](DEVELOPER.md#platform-priority-windows-then-linux).
+When a reference page compares **Windows** and **Linux**, list **Windows** first and **Linux** second (tables, columns, and sentences). Exception: a page that is **only** about Linux-only internals may omit Windows or mention it second. Rationale: [DEVELOPER.md](DEVELOPER.md#platform-priority-windows-then-linux).
 
 ---
 
-## Final Consistency Check
-Always verify signatures against `compiler/builtinmanifest/commands.json` before finalizing documentation.
+## Consistency check
+
+Verify signatures against `compiler/builtinmanifest/commands.json` before finalizing documentation.

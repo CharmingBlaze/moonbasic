@@ -39,7 +39,7 @@ moonBASIC keeps the render loop in **`RENDER.FRAME`**, **`CAMERA.Begin`/`End`**,
 | Idea | moonBASIC |
 |------|-----------|
 | Manual frame | **`SPRITE.SETFRAME(sprite, frameIndex)`** — clamps to the strip from **`SPRITE.DEFANIM`**. |
-| Range playback | **`SPRITE.PLAY(sprite, start, end, speed, loop)`** — **speed** is frames per second; each frame call **`SPRITE.UPDATEANIM(sprite, Time.Delta())`**. |
+| Range playback | **`SPRITE.PLAY(sprite, start, end, speed, loop)`** — **speed** is frames per second; each frame call **`SPRITE.UPDATEANIM(sprite, TIME.DELTA())`**. |
 | Pivot | **`SPRITE.SETORIGIN(sprite, ox, oy)`** — offset in pixels (applied when drawing). |
 | Named states / atlas FSM | **`ANIM.DEFINE`**, **`ANIM.UPDATE`**, etc. (see **`SPRITE`** / animation docs). |
 

@@ -14,9 +14,9 @@ This document defines the **Ground Truth** for the moonBASIC compiler and runtim
 ---
 
 ### 1. The First Law: Case Agnosticism
-- **Rule**: Every keyword and identifier in moonBASIC is case-agnostic.
-- **Implementation**: The Lexer and Symbol Table **MUST** unconditionally normalize all tokens to **UPPERCASE**. 
-- **Validation**: Any `strings.ToLower` in the pipeline is a bug unless it is inside a string literal.
+- **Rule**: Every keyword and identifier in moonBASIC is case-agnostic in source.
+- **Implementation**: The lexer records **canonical lowercase** `Lit` text for identifiers and keywords (keyword matching still uses an uppercase view of the scanned letters). The **symbol table** uppercases names for variable/function lookup. Built-in **`NAMESPACE.NAME`** resolution uses **uppercase** manifest/registry keys (`NormalizeCommand`, etc.). String literal contents are not case-normalized.
+- **Validation**: Do not assume every compiler stage uses the same casing; follow each subsystem (AST names lowercase; symtable keys uppercase; registry keys uppercase).
 
 ---
 

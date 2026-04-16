@@ -162,6 +162,7 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	reg.RegisterModule(mbplayer.NewModule())
 	reg.RegisterModule(mbgame.NewModule())
 	reg.RegisterModule(mbblitz.NewModule())
+	wireReadFileDispatch(reg)
 	// mbentity must register after blitz: Registry.Call uppercases names, so CreateSphere → CREATESPHERE
 	// and would otherwise be overwritten by Blitz's legacy CREATESPHERE (segments, parent) handler.
 	reg.RegisterModule(mbentity.NewModule())
@@ -174,6 +175,22 @@ func setupRegistry(reg *runtime.Registry, h *heap.Store, opts Options) {
 	wireWorldModules(reg)
 	wireGridEntity(reg)
 	wireTerrainEntity(reg)
+}
+
+// wireReadFileDispatch re-registers READFILE after blitzengine so streaming handle reads and
+// path-based whole-file reads share one name (see mbfile.Module.ReadFileDispatch).
+func wireReadFileDispatch(reg *runtime.Registry) {
+	var f *mbfile.Module
+	for _, m := range reg.Modules {
+		if x, ok := m.(*mbfile.Module); ok {
+			f = x
+			break
+		}
+	}
+	if f == nil {
+		return
+	}
+	reg.Register("READFILE", "file", f.ReadFileDispatch)
 }
 
 func wireGridEntity(reg *runtime.Registry) {

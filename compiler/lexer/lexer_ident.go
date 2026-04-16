@@ -48,19 +48,19 @@ func (l *Lexer) lexIdent() (token.Token, error) {
 
 	raw := b.String()
 	upper := strings.ToUpper(raw)
-	kw := token.LookupKeyword(upper)
-	if upper == "END" && kw == token.END {
+	if upper == "END" && token.LookupKeyword(upper) == token.END {
 		return l.expandEndKeyword(startLine, startCol)
 	}
 	tt := token.LookupKeyword(upper)
-	canonical := internLit(l, upper)
+	// Canonical identifier spelling is lowercase (case-insensitive language; lexer folds to lower).
+	canonical := internLit(l, strings.ToLower(raw))
 	if tt == token.IDENT {
 		return token.Token{Type: token.IDENT, Lit: canonical, Line: startLine, Col: startCol}, nil
 	}
 	return token.Token{Type: tt, Lit: canonical, Line: startLine, Col: startCol}, nil
 }
 
-// scanIdentUpper reads an identifier (with suffix) without END expansion; returns uppercase lit.
+// scanIdentUpper reads an identifier (with suffix) without END expansion; returns uppercase for END/ENDIF keyword matching.
 func (l *Lexer) scanIdentUpper() string {
 	var b strings.Builder
 	for !l.eof() && isIdentCont(l.peek()) {
@@ -82,27 +82,27 @@ func (l *Lexer) expandEndKeyword(startLine, startCol int) (token.Token, error) {
 	l.skipSpacesTabs()
 	if l.eof() || l.peek() == '\n' {
 		l.restore(saved)
-		return token.Token{Type: token.END, Lit: internLit(l, "END"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.END, Lit: internLit(l, "end"), Line: startLine, Col: startCol}, nil
 	}
 	if !isIdentStart(l.peek()) {
 		l.restore(saved)
-		return token.Token{Type: token.END, Lit: internLit(l, "END"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.END, Lit: internLit(l, "end"), Line: startLine, Col: startCol}, nil
 	}
 	next := l.scanIdentUpper()
 	switch next {
 	case "IF":
-		return token.Token{Type: token.ENDIF, Lit: internLit(l, "ENDIF"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.ENDIF, Lit: internLit(l, "endif"), Line: startLine, Col: startCol}, nil
 	case "FUNCTION":
-		return token.Token{Type: token.ENDFUNCTION, Lit: internLit(l, "ENDFUNCTION"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.ENDFUNCTION, Lit: internLit(l, "endfunction"), Line: startLine, Col: startCol}, nil
 	case "WHILE":
-		return token.Token{Type: token.WEND, Lit: internLit(l, "WEND"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.WEND, Lit: internLit(l, "wend"), Line: startLine, Col: startCol}, nil
 	case "SELECT":
-		return token.Token{Type: token.ENDSELECT, Lit: internLit(l, "ENDSELECT"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.ENDSELECT, Lit: internLit(l, "endselect"), Line: startLine, Col: startCol}, nil
 	case "TYPE":
-		return token.Token{Type: token.ENDTYPE, Lit: internLit(l, "ENDTYPE"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.ENDTYPE, Lit: internLit(l, "endtype"), Line: startLine, Col: startCol}, nil
 	default:
 		l.restore(saved)
-		return token.Token{Type: token.END, Lit: internLit(l, "END"), Line: startLine, Col: startCol}, nil
+		return token.Token{Type: token.END, Lit: internLit(l, "end"), Line: startLine, Col: startCol}, nil
 	}
 }
 

@@ -18,7 +18,7 @@ PRINT(i)
 FOR i = 1 TO 3
 FOR j = 1 TO 3
 IF j = 2 THEN EXIT FOR
-PRINT(STR$(i) + "," + STR$(j))
+PRINT(STR(i) + "," + STR(j))
 NEXT
 NEXT
 

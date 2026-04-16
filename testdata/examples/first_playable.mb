@@ -7,15 +7,15 @@
 ; This sample uses simulated gravity so it runs without Jolt/WASM.
 
 WINDOW.OPEN(800, 600, "moonBASIC first playable")
-rectX# = 400
-rectY# = 50
-velY# = 0
+rectX = 400
+rectY = 50
+velY = 0
 WHILE NOT WINDOW.SHOULDCLOSE()
     RENDER.CLEAR(20, 24, 35)
-    velY# = velY# + 0.25
-    rectY# = rectY# + velY#
-    IF rectY# > 520 THEN rectY# = 520: velY# = velY# * -0.55
-    DRAW.RECTANGLE(rectX# - 40, rectY#, 80, 40, 0, 200, 255, 255)
+    velY = velY + 0.25
+    rectY = rectY + velY
+    IF rectY > 520 THEN rectY = 520: velY = velY * -0.55
+    DRAW.RECTANGLE(rectX - 40, rectY, 80, 40, 0, 200, 255, 255)
     RENDER.FRAME()
 WEND
 WINDOW.CLOSE()

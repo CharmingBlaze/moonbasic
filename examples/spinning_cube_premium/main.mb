@@ -1,48 +1,48 @@
 ; moonBASIC Premium Spinning Cube Demo
-; Uses "Easy Mode" API and entity system for high-performance rendering.
+; Uses Namespace.Method (CAMERA / ENTITY / LIGHT) and the entity system for rendering.
 
 ; 1. Setup the environment
-Window.Open(1280, 720, "moonBASIC - Spinning Cube Premium")
-Window.SetFPS(60)
+WINDOW.OPEN(1280, 720, "moonBASIC - Spinning Cube Premium")
+WINDOW.SETFPS(60)
 
 ; 2. Create the camera
-cam = CreateCamera()
-Camera.SetPos(cam, 0, 4, 10)
-Camera.SetTarget(cam, 0, 0, 0)
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 4, 10)
+CAMERA.SETTARGET(cam, 0, 0, 0)
 
 ; 3. Create a light so the cube is beautifully shaded
 ; (dx, dy, dz, r, g, b, energy)
-sun = Light.CreateDirectional(-0.5, -1.0, -0.2, 255, 250, 240, 1.2)
+sun = LIGHT.CREATEDIRECTIONAL(-0.5, -1.0, -0.2, 255, 250, 240, 1.2)
 
 ; 4. Create the cube using the entity system (SoA backed)
-cube = Entity.CreateCube(2, 2, 2)
-Entity.Color(cube, 255, 120, 40) ; A nice orange
+cube = ENTITY.CREATECUBE(2, 2, 2)
+ENTITY.COLOR(cube, 255, 120, 40) ; A nice orange
 
 f_count = 0
 
 ; 5. Main Loop
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     dt = Time.Delta()
     
     ; Rotate the cube (20, 15, 10) for a slower, more premium feel
-    Entity.Rotate(cube, 20 * dt, 15 * dt, 10 * dt)
+    ENTITY.ROTATE(cube, 20 * dt, 15 * dt, 10 * dt)
     
     ; Clear to a cinematic dark blue gradient-like background
-    Render.Clear(18, 22, 32)
+    RENDER.CLEAR(18, 22, 32)
     
     ; 3D Pass
-    Camera.Begin(cam)
-        Entity.DrawAll()
+    CAMERA.BEGIN(cam)
+        ENTITY.DRAWALL()
         Draw3D.Grid(20, 1.0)
-    Camera.End()
+    CAMERA.END()
     
     ; UI Pass
     Draw.Text("moonBASIC Premium Demo", 20, 20, 24, 255, 255, 255, 255)
     Draw.Text("Spinning Cube (SoA Entity System)", 20, 55, 16, 200, 200, 200, 255)
     Draw.Text("Press ESC to quit", 20, 80, 14, 150, 150, 150, 255)
     
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 PRINT("Exiting demo...")
-Window.Close()
+WINDOW.CLOSE()

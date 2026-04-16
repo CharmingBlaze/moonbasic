@@ -1,16 +1,16 @@
 Window.Open(1024, 768, "Draw 3D Test")
 Window.SetFPS(60)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetPos(5, 5, 10)
 cam.SetTarget(0, 0, 0)
 cam.SetFOV(60)
 
-angle# = 0.0
+angle = 0.0
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
-    angle# = angle# + 20 * dt#
+    dt = Time.Delta()
+    angle = angle + 20 * dt
 
     Render.Clear(20, 20, 30)
     cam.Begin()

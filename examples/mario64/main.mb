@@ -1,12 +1,12 @@
 ; Simple third-person hop: ground, floating blocks, orbit camera (no skybox, no entity graph).
 ; Run (full runtime): go run -tags fullruntime . --run examples/mario64/main.mb
 
-Window.Open(960, 540, "moonBASIC — simple 3D hop")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "moonBASIC — simple 3D hop")
+WINDOW.SETFPS(60)
 ; Hide the OS cursor during play; restore before close. See docs/reference/INPUT.md (Cursor).
 CURSOR.HIDE()
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(55)
 
 ; Player: capsule/sphere center (px, py, pz), radius pr
@@ -26,14 +26,14 @@ orbitHavePrev = FALSE
 orbitPx = 0.0
 orbitPy = 0.0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ; Begin frame before sampling mouse — raylib polls input inside BeginDrawing (first RENDER.CLEAR).
-    Render.Clear(72, 92, 140)
+    RENDER.CLEAR(72, 92, 140)
     dt = Time.Delta()
     IF dt > 0.05 THEN dt = 0.05
 
     ; Orbit: drag with RMB/LMB/MMB — screen position delta (MOUSEDELTA is often 0 on Windows with visible cursor).
-    orbitGrab = Input.MouseDown(0) OR Input.MouseDown(1) OR Input.MouseDown(2)
+    orbitGrab = INPUT.MOUSEDOWN(0) OR INPUT.MOUSEDOWN(1) OR INPUT.MOUSEDOWN(2)
     IF orbitGrab THEN
         mx = FLOAT(INPUT.MOUSEX())
         my = FLOAT(INPUT.MOUSEY())
@@ -51,8 +51,8 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     cd = cd - mw * 0.9
     IF cd < 2.5 THEN cd = 2.5
     IF cd > 24.0 THEN cd = 24.0
-    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.35 * dt
-    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.35 * dt
+    IF INPUT.KEYDOWN(KEY_Q) THEN camYaw = camYaw - 1.35 * dt
+    IF INPUT.KEYDOWN(KEY_E) THEN camYaw = camYaw + 1.35 * dt
 
     fwdX = 0.0 - MATH.SIN(camYaw)
     fwdZ = 0.0 - MATH.COS(camYaw)
@@ -61,10 +61,10 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     f = 0.0
     s = 0.0
-    IF Input.KeyDown(KEY_W) THEN f = f + 1.0
-    IF Input.KeyDown(KEY_S) THEN f = f - 1.0
-    IF Input.KeyDown(KEY_A) THEN s = s - 1.0
-    IF Input.KeyDown(KEY_D) THEN s = s + 1.0
+    IF INPUT.KEYDOWN(KEY_W) THEN f = f + 1.0
+    IF INPUT.KEYDOWN(KEY_S) THEN f = f - 1.0
+    IF INPUT.KEYDOWN(KEY_A) THEN s = s - 1.0
+    IF INPUT.KEYDOWN(KEY_D) THEN s = s + 1.0
 
     px = px + (fwdX * f + rigX * s) * moveSpd * dt
     pz = pz + (fwdZ * f + rigZ * s) * moveSpd * dt
@@ -74,7 +74,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     IF pz < -17.0 THEN pz = -17.0
     IF pz > 22.0 THEN pz = 22.0
 
-    IF ong AND Input.KeyDown(KEY_SPACE) THEN pvy = 10.5
+    IF ong AND INPUT.KEYDOWN(KEY_SPACE) THEN pvy = 10.5
     pvy = pvy - 26.0 * dt
     py = py + pvy * dt
 
@@ -121,7 +121,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         ong = TRUE
     ENDIF
 
-    Camera.SetOrbit(cam, px, py + 0.2, pz, camYaw, camPitch, cd)
+    CAMERA.SETORBIT(cam, px, py + 0.2, pz, camYaw, camPitch, cd)
 
     cam.Begin()
         Draw3D.Plane(0.0, 0.0, 0.0, 48.0, 48.0, 55, 78, 120, 255)
@@ -149,9 +149,9 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     ELSE
         Draw.Text("Air", 16, 36, 16, 255, 220, 130, 255)
     ENDIF
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 CURSOR.SHOW()
-Camera.Free(cam)
-Window.Close()
+CAMERA.FREE(cam)
+WINDOW.CLOSE()

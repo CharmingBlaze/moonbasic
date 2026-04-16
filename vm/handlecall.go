@@ -26,6 +26,8 @@ func normalizeHandleMethod(mn string) string {
 		return "SETFOV"
 	case "LOOK":
 		return "LOOKAT"
+	case "FREE", "DESTROY", "DELETE":
+		return "FREE"
 	default:
 		return mn
 	}
@@ -44,7 +46,7 @@ func handleCallRegistryPrefix(tag uint16) string {
 		return "INSTANCE."
 	case heap.TagMatrix:
 		return "TRANSFORM."
-	case heap.TagPhysicsBody:
+	case heap.TagPhysicsBody, heap.TagPhysicsBuilder:
 		return "BODY3D."
 	case heap.TagBody2D:
 		return "PHYSICS2D."
@@ -74,6 +76,8 @@ func handleCallRegistryPrefix(tag uint16) string {
 		return "ATLAS."
 	case heap.TagCharController:
 		return "CHARACTERREF."
+	case heap.TagEntityRef:
+		return "ENTITY."
 	case heap.TagShape:
 		return "SHAPEREF."
 	case heap.TagKinematicBody:
@@ -171,10 +175,14 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "VEHICLE.SETSTEER", true, true
 		case "SETTHROTTLE", "THROTTLE":
 			return "VEHICLE.SETTHROTTLE", true, true
+		case "CREATEVEHICLE":
+			return "VEHICLE.CREATE", true, true
 		case "SETLIFT":
 			return "AERO.SETLIFT", true, true
 		case "SETTHRUST":
 			return "AERO.SETTHRUST", true, true
+		case "CREATECHARACTER":
+			return "CHARACTER.CREATE", true, true
 		}
 	case heap.TagCamera2D:
 		switch mn {
@@ -228,23 +236,41 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "BODY3D.GETVELOCITY", true, true
 		case "GETMASS", "MASS":
 			return "BODY3D.GETMASS", true, true
-		case "ADDFORCE", "FORCE":
+		case "SETLIFT":
+			return "AERO.SETLIFT", true, true
+		case "SETTHRUST":
+			return "AERO.SETTHRUST", true, true
+		case "SETDRAG":
+			return "AERO.SETDRAG", true, true
+		case "SETTORQUE", "APPLYTORQUE":
+			return "BODY3D.APPLYTORQUE", true, true
+		case "ADDFORCE", "FORCE", "APPLYFORCE":
 			return "BODY3D.ADDFORCE", true, true
 		case "ADDIMPULSE", "IMPULSE":
 			return "BODY3D.ADDIMPULSE", true, true
+		case "SETGRAVITYFACTOR":
+			return "BODY3D.SETGRAVITYFACTOR", true, true
+		case "SETDAMPING":
+			return "BODY3D.SETDAMPING", true, true
+		case "SETFRICTION":
+			return "BODY3D.SETFRICTION", true, true
+		case "SETCCD":
+			return "BODY3D.SETCCD", true, true
+		case "SETRESTITUTION", "SETBOUNCE":
+			return "BODY3D.SETRESTITUTION", true, true
 		case "FREE":
 			return "BODY3D.FREE", true, true
 		}
 	case heap.TagBody2D:
 		switch mn {
 		case "SETPOS":
-			return "PHYSICS2D.SETBODYPOSITION", true, true
+			return "BODY2D.SETPOS", true, true
 		case "SETROT":
 			return "BODY2D.SETROT", true, true
 		case "SETVELOCITY", "SETVEL":
-			return "PHYSICS2D.SETBODYLINEARVELOCITY", true, true
+			return "BODY2D.SETVEL", true, true
 		case "FREE":
-			return "PHYSICS2D.DESTROYBODY", true, true
+			return "BODY2D.FREE", true, true
 		}
 	case heap.TagPeer:
 		switch mn {
@@ -728,79 +754,161 @@ func handleCallDispatch(tag uint16, method string, argCount int) (registryKey st
 	switch tag {
 	case heap.TagCamera:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "CAMERA.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
-			return "CAMERA.GETROT", true, true
+		case "SETROT", "ROT":
+			return "CAMERA.GETROT", true, true // Uses CAMERA.GETROT if it exists, otherwise CAMERA.GETYAW?
+		case "SETFOV", "FOV":
+			return "CAMERA.GETFOV", true, true
 		}
 	case heap.TagModel, heap.TagLODModel:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "MODEL.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "MODEL.GETROT", true, true
 		case "SETSCALE", "SCALE":
 			return "MODEL.GETSCALE", true, true
+		case "SETCOLOR", "COL":
+			return "MODEL.GETCOLOR", true, true
+		case "SETALPHA", "ALPHA":
+			return "MODEL.GETALPHA", true, true
 		}
 	case heap.TagInstancedModel:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "INSTANCE.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "INSTANCE.GETROT", true, true
 		case "SETSCALE", "SCALE":
 			return "INSTANCE.GETSCALE", true, true
 		}
-	case heap.TagPhysicsBody:
+	case heap.TagPhysicsBody, heap.TagPhysicsBuilder:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "BODY3D.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "BODY3D.GETROT", true, true
 		case "SETSCALE", "SCALE":
 			return "BODY3D.GETSCALE", true, true
+		case "SETVEL", "LINEARVEL", "SETLINEARVEL":
+			return "BODY3D.GETLINEARVEL", true, true
+		case "SETANGVEL", "ANGVEL":
+			return "BODY3D.GETANGVEL", true, true
+		case "SETDAMPING":
+			return "BODY3D.SETDAMPING", false, false
+		case "SETCCD":
+			return "BODY3D.SETCCD", false, false
+		case "SETFRICTION":
+			return "BODY3D.SETFRICTION", false, false
+		case "SETRESTITUTION", "SETBOUNCE":
+			return "BODY3D.SETRESTITUTION", false, false
+		case "ADDBOX":
+			return "BODY3D.ADDBOX", false, false
+		case "ADDSPHERE":
+			return "BODY3D.ADDSPHERE", false, false
+		case "ADDCAPSULE":
+			return "BODY3D.ADDCAPSULE", false, false
+		case "ADDMESH":
+			return "BODY3D.ADDMESH", false, false
+		case "COMMIT":
+			return "BODY3D.COMMIT", false, false
+		case "GETMASS":
+			return "BODY3D.GETMASS", true, true
+		case "SETLIFT":
+			return "AERO.SETLIFT", true, true
+		case "SETTHRUST":
+			return "AERO.SETTHRUST", true, true
+		case "SETDRAG":
+			return "AERO.SETDRAG", true, true
+		case "SETGRAVITYFACTOR":
+			return "BODY3D.SETGRAVITYFACTOR", true, true
+		case "X":
+			return "BODY3D.X", true, true
+		case "Y":
+			return "BODY3D.Y", true, true
+		case "Z":
+			return "BODY3D.Z", true, true
+		case "FREE":
+			return "BODY3D.FREE", true, true
 		}
 	case heap.TagBody2D:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "BODY2D.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "BODY2D.GETROT", true, true
+		case "SETVELOCITY", "VEL":
+			return "BODY2D.GETVELOCITY", true, true
 		}
 	case heap.TagCharController:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "CHARACTERREF.GETPOSITION", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "CHARACTERREF.GETROT", true, true
+		case "SETVELOCITY", "VEL", "LINEARVEL", "GETLINEARVEL":
+			return "CHARACTERREF.GETVELOCITY", true, true
+		case "MOVE":
+			return "CHARACTERREF.MOVE", false, false
+		case "ISGROUNDED", "GROUNDED":
+			return "CHARACTERREF.ISGROUNDED", false, false
+		case "X":
+			return "CHARCONTROLLER.X", true, true
+		case "Y":
+			return "CHARCONTROLLER.Y", true, true
+		case "Z":
+			return "CHARCONTROLLER.Z", true, true
+		case "SETMAXSLOPE":
+			return "CHARACTERREF.SETMAXSLOPE", true, true
+		case "SETSTEPHEIGHT":
+			return "CHARACTERREF.SETSTEPHEIGHT", true, true
+		case "SETSNAPDISTANCE":
+			return "CHARACTERREF.SETSNAPDISTANCE", true, true
+		case "SETJUMPBUFFER":
+			return "CHARACTERREF.SETJUMPBUFFER", true, true
+		case "SETAIRCONTROL":
+			return "CHARACTERREF.SETAIRCONTROL", true, true
+		case "SETGROUNDCONTROL":
+			return "CHARACTERREF.SETGROUNDCONTROL", true, true
+		case "FREE":
+			return "CHARACTERREF.FREE", true, true
 		}
 	case heap.TagEntityRef:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "ENTITY.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "ENTITY.GETROT", true, true
 		case "SETSCALE", "SCALE":
 			return "ENTITY.GETSCALE", true, true
 		case "SETCOLOR", "COLOR", "COL":
 			return "ENTITY.GETCOLOR", true, true
-		case "SETALPHA", "ALPHA", "A":
+		case "SETALPHA", "ALPHA":
 			return "ENTITY.GETALPHA", true, true
+		case "CREATEVEHICLE":
+			return "BODY3D.CREATEVEHICLE", false, false
+		case "SETTHROTTLE":
+			return "VEHICLE.SETTHROTTLE", false, false
+		case "SETSTEER":
+			return "VEHICLE.SETSTEER", false, false
 		}
 	case heap.TagLight:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "LIGHT.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT", "SETDIR", "DIR":
 			return "LIGHT.GETDIR", true, true
-		case "SETCOLOR", "COLOR", "COL":
+		case "SETCOLOR", "COL":
 			return "LIGHT.GETCOLOR", true, true
+		case "SETINTENSITY":
+			return "LIGHT.GETINTENSITY", true, true
 		}
 	case heap.TagSprite:
 		switch mn {
-		case "SETPOS", "SETPOSITION", "POS", "POSITION":
+		case "SETPOS", "POS":
 			return "SPRITE.GETPOS", true, true
-		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
+		case "SETROT", "ROT":
 			return "SPRITE.GETROT", true, true
 		case "SETSCALE", "SCALE":
 			return "SPRITE.GETSCALE", true, true
@@ -817,6 +925,8 @@ func handleCallDispatch(tag uint16, method string, argCount int) (registryKey st
 			return "PARTICLE.GETCOLOR", true, true
 		case "SETALPHA", "ALPHA", "A":
 			return "PARTICLE.GETALPHA", true, true
+		case "SETVELOCITY", "VEL":
+			return "PARTICLE.GETVELOCITY", true, true
 		}
 	case heap.TagNavAgent:
 		switch mn {
@@ -845,6 +955,36 @@ func handleCallDispatch(tag uint16, method string, argCount int) (registryKey st
 			return "BODYREF.GETPOSITION", true, true
 		case "SETROT", "SETROTATION", "ROTATION", "ROTATE", "ROT":
 			return "BODYREF.GETROTATION", true, true
+		}
+	case heap.TagTerrain:
+		switch mn {
+		case "SETPOS", "POS":
+			return "TERRAIN.GETPOS", true, true
+		}
+	case heap.TagWater:
+		switch mn {
+		case "SETPOS", "POS":
+			return "WATER.GETPOS", true, true
+		}
+	case heap.TagDecal:
+		switch mn {
+		case "SETPOS", "POS":
+			return "DECAL.GETPOS", true, true
+		}
+	case heap.TagTexture:
+		switch mn {
+		case "GETSIZE":
+			return "TEXTURE.GETSIZE", true, true
+		}
+	case heap.TagNav:
+		switch mn {
+		case "FREE":
+			return "NAV.FREE", true, true
+		}
+	case heap.TagPath:
+		switch mn {
+		case "FREE":
+			return "PATH.FREE", true, true
 		}
 	}
 	return handleCallBuiltin(tag, method)
@@ -922,6 +1062,10 @@ func HandleCallSuggestions(tag uint16) []string {
 		out = []string{"DX", "DY", "Wheel", "Down", "Pressed", "Released", "Hit", "Up", "Axis", "Button"}
 	case heap.TagMoverFacade:
 		out = []string{"MoveXZ", "MoveStepX", "MoveStepZ", "Land", "MoveRel", "Free"}
+	case heap.TagNav:
+		out = []string{"AddObstacle", "AddTerrain", "Build", "DebugDraw", "FindPath", "Free", "SetGrid"}
+	case heap.TagNavAgent:
+		out = []string{"ApplyForce", "Free", "IsAtDestination", "MoveTo", "Pos", "Rot", "SetMaxForce", "SetPos", "SetPosition", "SetSpeed", "Update", "X", "Y", "Z"}
 	default:
 		return nil
 	}

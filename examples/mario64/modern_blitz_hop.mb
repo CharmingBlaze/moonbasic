@@ -14,16 +14,16 @@
 ;
 ; Full KCC runtime: Linux + CGO + Jolt. On Windows, compile/check works; run KCC on Linux/WSL.
 
-Window.Open(1280, 720, "moonBASIC 64")
-Window.SetFPS(60)
+WINDOW.OPEN(1280, 720, "moonBASIC 64")
+WINDOW.SETFPS(60)
 
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(60)
 
-hero = Model.CreateCapsule(0.4, 1.0)
+hero = MODEL.CREATECAPSULE(0.4, 1.0)
 hero.Pos(0, 5, 0)
 hero.Color(255, 60, 60)
 
@@ -32,7 +32,7 @@ CHAR.SETSTEP(hero, 0.3)
 CHAR.SETSLOPE(hero, 45.0)
 CHAR.STICK(hero, 0.5)
 
-floor = Model.CreateBox(100, 2, 100)
+floor = MODEL.CREATEBOX(100, 2, 100)
 floor.Pos(0, -1, 0)
 floor.Color(60, 200, 90)
 ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
@@ -40,10 +40,10 @@ ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
 cam.Orbit(hero, 12.0)
 hero.SetRot(0, cam.Yaw(), 0)
 
-WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 
-    fwd = Input.Axis(KEY_S, KEY_W)
-    side = Input.Axis(KEY_A, KEY_D)
+    fwd = INPUT.AXIS(KEY_S, KEY_W)
+    side = INPUT.AXIS(KEY_A, KEY_D)
     CHAR.MOVEWITHCAMERA(hero, cam, fwd, side, 10.0)
     NAV.UPDATE(hero)
 
@@ -67,4 +67,4 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
     RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()

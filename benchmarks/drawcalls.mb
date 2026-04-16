@@ -19,4 +19,4 @@ WHILE f < frames
 WEND
 Window.Close()
 fd = frames * 208
-PRINT("MOONBENCH frames=" + STR$(frames) + " draws=" + STR$(fd))
+PRINT("MOONBENCH frames=" + STR(frames) + " draws=" + STR(fd))

@@ -19,7 +19,7 @@ func registerStringsInterp(r runtime.Registrar) {
 		}
 		n := len(args) - 1
 		if n > 10 {
-			return value.Value{}, runtime.Errorf("INTERP$: at most 10 placeholders {0}..{9}")
+			return value.Value{}, runtime.Errorf("INTERP: at most 10 placeholders {0}..{9}")
 		}
 		pairs := make([]string, 0, n*2)
 		for i := 0; i < n; i++ {

@@ -1,6 +1,8 @@
-# Game helpers (collision and patterns)
+# Game helper commands
 
 Small built-ins and idioms that keep gameplay code short without a full physics engine.
+
+Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — topic sections (**`BOXTOPLAND`**, orbit deltas, **`PLAYER2D`**) rather than one namespace; use **`###`** per major builtin where it helps scanning.
 
 ---
 
@@ -47,7 +49,7 @@ Same math as **`MOVESTEPX`** and **`MOVESTEPZ`** combined. **Free** the returned
 
 ## Simple physics without a physics engine
 
-Gravity and integration are only a few lines. Keep **`dt`** from **`Time.Delta()`** or **`DT()`** (both are **clamped** by default so tab-switch spikes do not explode simulation).
+Gravity and integration are only a few lines. Keep **`dt`** from **`TIME.DELTA()`** or **`DT()`** (both are **clamped** by default so tab-switch spikes do not explode simulation).
 
 ```basic
 CONST GRAVITY = -26.0
@@ -64,19 +66,19 @@ IF pos_y < radius THEN
 ENDIF
 ```
 
-For **one-shot** actions (jump, shoot), use **`Input.KeyPressed`** or the flat **`KEYPRESSED`** helper, not **`KeyDown`** / **`KEYDOWN`**, which fire every frame the key is held.
+For **one-shot** actions (jump, shoot), use **`INPUT.KEYPRESSED`** or the flat **`KEYPRESSED`** helper, not **`INPUT.KEYDOWN`**, which is **TRUE** every frame the key is held.
 
-See also: [INPUT.md](INPUT.md) (keyboard table), [CAMERA.md](CAMERA.md) (`Camera.OrbitAround` for third-person orbit).
+See also: [INPUT.md](INPUT.md) (keyboard table), [CAMERA.md](CAMERA.md) (**`CAMERA.ORBITAROUND`** for third-person orbit).
 
 ---
 
 ## Third-person orbit input (`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`)
 
-These **`GAME.*`** helpers (short names without the `GAME.` prefix also work) wrap **right-mouse drag** and **mouse wheel** together with the same **Q/E yaw** math as **`Input.Orbit`**. They return **plain floats** each frame — **no heap handles**, nothing to **`ERASE`**. Use them to update your **`camYaw`**, **`camPitch`**, and **`camDist`**, then call **`Camera.SetOrbit`** (or **`Camera.OrbitAround`**) yourself.
+These **`GAME.*`** helpers (short names without the `GAME.` prefix also work) wrap **right-mouse drag** and **mouse wheel** together with the same **Q/E yaw** math as **`INPUT.ORBIT`**. They return **plain floats** each frame — **no heap handles**, nothing to **`ERASE`**. Use them to update your **`camYaw`**, **`camPitch`**, and **`camDist`**, then call **`CAMERA.SETORBIT`** (or **`CAMERA.ORBITAROUND`**) yourself.
 
 | Command | Returns | Meaning |
 |--------|---------|--------|
-| **`ORBITYAWDELTA(dt, mouseSens, negKey, posKey, degPerSec)`** | radians | **Keyboard:** same as **`Input.Orbit(negKey, posKey, degPerSec, dt)`** (degrees/sec → radians). **Mouse:** if **right button** is down, adds **`MDX * mouseSens`** (typically `mouseSens` ≈ `0.004`–`0.006`). |
+| **`ORBITYAWDELTA(dt, mouseSens, negKey, posKey, degPerSec)`** | radians | **Keyboard:** same as **`INPUT.ORBIT(negKey, posKey, degPerSec, dt)`** (degrees/sec → radians). **Mouse:** if **right button** is down, adds **`MDX * mouseSens`** (typically `mouseSens` ≈ `0.004`–`0.006`). |
 | **`ORBITPITCHDELTA(mouseSens)`** | radians | If **right button** is down: **`-MDY * mouseSens`**. Otherwise **`0`**. |
 | **`ORBITDISTDELTA(wheelScale)`** | world units | **`-MWHEEL * wheelScale`** — add to your orbit distance (scroll **up** moves the eye **closer** when **`wheelScale`** is positive). |
 
@@ -88,10 +90,10 @@ Typical frame (see **`examples/mario64/main_orbit_simple.mb`**):
 camYaw = camYaw + ORBITYAWDELTA(dt, 0.0048, KEY_Q, KEY_E, 72.0)
 camPitch = camPitch + ORBITPITCHDELTA(0.0048)
 camDist = camDist + ORBITDISTDELTA(0.85)
-; … clamp pitch & dist, then Camera.SetOrbit(cam, tx, ty, tz, camYaw, camPitch, camDist)
+; … clamp pitch & dist, then CAMERA.SETORBIT(cam, tx, ty, tz, camYaw, camPitch, camDist)
 ```
 
-That example is structured for reading **top to bottom**: one **`CONST`** block (world bounds, orbit tuning, colours), parallel **`DIM`** rows for **`LANDBOXES`**, a single loop section for input → physics → **`Camera.SetOrbit`** → draw, then **`ERASE ALL`** (see [MEMORY.md](../MEMORY.md)).
+That example is structured for reading **top to bottom**: one **`CONST`** block (world bounds, orbit tuning, colours), parallel **`DIM`** rows for **`LANDBOXES`**, a single loop section for input → physics → **`CAMERA.SETORBIT`** → draw, then **`ERASE ALL`** (see [MEMORY.md](../MEMORY.md)).
 
 **Memory:** no allocations — see [MEMORY.md](../MEMORY.md) (game orbit helpers).
 
@@ -116,7 +118,7 @@ Camera **yaw** is still a script variable (e.g. **`camYaw`**). The camera handle
 |--------|---------|------|
 | **`CAMERA.TURNLEFT cam, amount`** | **float** (radians) | **`-abs(amount)`** — add to **`camYaw`** to turn left. |
 | **`CAMERA.TURNRIGHT cam, amount`** | **float** (radians) | **`+abs(amount)`** — add to **`camYaw`** to turn right. |
-| **`CAMERA.ORBITCAMERA cam, mouseSens, keyDegPerSec, dt`** | **float** (radians) | Same as **`FLOAT(Input.MouseDeltaX()) * mouseSens + Input.Orbit(KEY_Q, KEY_E, keyDegPerSec, dt)`** — add the result to **`camYaw`** each frame. |
+| **`CAMERA.ORBITCAMERA cam, mouseSens, keyDegPerSec, dt`** | **float** (radians) | Same as **`FLOAT(INPUT.MOUSEDELTAX()) * mouseSens + INPUT.ORBIT(KEY_Q, KEY_E, keyDegPerSec, dt)`** — add the result to **`camYaw`** each frame. |
 
 Example:
 
@@ -126,8 +128,8 @@ PLAYER2D.SETPOS(p, 0.0, 0.0)
 CLAMPENTITY2D(p, -17.0, 17.0, -17.0, 22.0)
 
 camYaw = camYaw + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS, 77.0, dt)
-f = Input.Axis(KEY_S, KEY_W)
-s = Input.Axis(KEY_A, KEY_D)
+f = INPUT.AXIS(KEY_S, KEY_W)
+s = INPUT.AXIS(KEY_A, KEY_D)
 MOVEENTITY2D(p, camYaw, f, s, MOVE_SPEED, dt)
 KEEPPLAYERINBOUNDS(p)
 px = PLAYER2D.GETX(p)

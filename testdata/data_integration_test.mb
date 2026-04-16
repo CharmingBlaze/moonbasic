@@ -1,9 +1,9 @@
 ; JSON <-> CSV bridges
 j = JSON.PARSESTRING("[{\"a\":1,\"b\":\"x\"},{\"a\":2,\"b\":\"y\"}]")
-s$ = JSON.TOCSV(j)
-PRINT(s$)
+csvStr = JSON.TOCSV(j)
+PRINT(csvStr)
 JSON.FREE(j)
-c = CSV.FROMSTRING(s$)
+c = CSV.FROMSTRING(csvStr)
 j2 = CSV.TOJSON(c)
 PRINT(JSON.TOSTRING(j2))
 JSON.FREE(j2)

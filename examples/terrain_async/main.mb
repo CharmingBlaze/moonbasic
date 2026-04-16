@@ -23,9 +23,9 @@ CONST GRID_SLICES = 36
 CONST GRID_STEP = 2.2
 
 SetMSAA(0)
-Window.Open(1280, 720, "moonBASIC - async terrain (LOD swap)")
+WINDOW.OPEN(1280, 720, "moonBASIC - async terrain (LOD swap)")
 WINDOW.SETLOADINGMODE(TRUE)
-Window.SetFPS(60)
+WINDOW.SETFPS(60)
 
 terrain = Terrain.Create(TW, TW)
 Terrain.FillPerlin(terrain, 0.032, 50.0)
@@ -36,13 +36,13 @@ World.SetCenter(TCX, TCZ)
 World.StreamEnable(TRUE)
 World.Preload(terrain, PRELOAD_R)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(56)
 
-player = CreateSphere()
-ScaleEntity(player, PLAYER_R, PLAYER_R, PLAYER_R)
-EntityColor(player, 80, 210, 255, 255)
-PositionEntity(player, TCX, PLAYER_R + 0.45, TCZ, TRUE)
+player = ENTITY.CREATESPHERE(0.5)
+ENTITY.SCALE(player, PLAYER_R, PLAYER_R, PLAYER_R)
+ENTITY.COLOR(player, 80, 210, 255, 255)
+ENTITY.SETPOS(player, TCX, PLAYER_R + 0.45, TCZ, TRUE)
 
 camYaw = 0.0
 camPitch = 0.26
@@ -50,13 +50,13 @@ cd = 12.0
 ready = 0
 spinTick = 0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    Render.Clear(40, 58, 82)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(40, 58, 82)
     dt = Time.Delta(0.0167, 0.05)
 
     dx = INPUT.MOUSEDELTAX()
     dy = INPUT.MOUSEDELTAY()
-    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+    IF INPUT.MOUSEDOWN(ORBIT_MOUSE_BTN) THEN
         camYaw = camYaw + dx * ORBIT_YAW_SENS
         camPitch = camPitch - dy * ORBIT_PITCH_SENS
     ENDIF
@@ -64,15 +64,15 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     mw = MouseWheel()
     cd = cd - mw * ZOOM_WHEEL
     cd = CLAMP(cd, DIST_MIN, DIST_MAX)
-    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.05 * dt
-    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.05 * dt
+    IF INPUT.KEYDOWN(KEY_Q) THEN camYaw = camYaw - 1.05 * dt
+    IF INPUT.KEYDOWN(KEY_E) THEN camYaw = camYaw + 1.05 * dt
 
     fwd = 0.0
     side = 0.0
-    IF Input.KeyDown(KEY_W) THEN fwd = fwd + 1.0
-    IF Input.KeyDown(KEY_S) THEN fwd = fwd - 1.0
-    IF Input.KeyDown(KEY_D) THEN side = side + 1.0
-    IF Input.KeyDown(KEY_A) THEN side = side - 1.0
+    IF INPUT.KEYDOWN(KEY_W) THEN fwd = fwd + 1.0
+    IF INPUT.KEYDOWN(KEY_S) THEN fwd = fwd - 1.0
+    IF INPUT.KEYDOWN(KEY_D) THEN side = side + 1.0
+    IF INPUT.KEYDOWN(KEY_A) THEN side = side - 1.0
     IF fwd <> 0.0 OR side <> 0.0 THEN
         mag = MATH.SQRT(fwd * fwd + side * side)
         fwd = fwd / mag
@@ -82,17 +82,14 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         spd = MOVE_SPD * dt
         stepX = (sy * fwd + cy * side) * spd
         stepZ = (cy * fwd - sy * side) * spd
-        px = Entity.X(player)
-        py = Entity.Y(player)
-        pz = Entity.Z(player)
-        Entity.SetPos(player, px + stepX, py, pz + stepZ, TRUE)
+        px, py, pz = ENTITY.GETPOS(player)
+        ENTITY.SETPOS(player, px + stepX, py, pz + stepZ, TRUE)
     ENDIF
 
-    px = Entity.X(player)
-    pz = Entity.Z(player)
+    px, py, pz = ENTITY.GETPOS(player)
     px = CLAMP(px, 3.0, FLOAT(TW) - 3.0)
     pz = CLAMP(pz, 3.0, FLOAT(TW) - 3.0)
-    Entity.SetPos(player, px, Entity.Y(player), pz, TRUE)
+    ENTITY.SETPOS(player, px, py, pz, TRUE)
 
     World.SetCenter(px, pz)
     World.Update(dt)
@@ -108,11 +105,12 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         Terrain.SnapY(terrain, player, PLAYER_R)
     ELSE
         py = PLAYER_R + 0.45
-        Entity.SetPos(player, Entity.X(player), py, Entity.Z(player), TRUE)
+        px, pz = ENTITY.GETXZ(player)
+        ENTITY.SETPOS(player, px, py, pz, TRUE)
     ENDIF
 
     ENTITY.UPDATE(dt)
-    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+    CAMERA.ORBITENTITY(cam, player, camYaw, camPitch, cd)
 
     RENDER.Begin3D(cam)
         IF ready = 0 THEN
@@ -121,7 +119,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         ELSE
             Terrain.Draw(terrain)
         ENDIF
-        DrawEntities()
+        ENTITY.DRAWALL()
     RENDER.END3D()
 
     IF ready = 0 THEN
@@ -138,10 +136,10 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         Draw.Text("Heightfield ready — FLAT swapped for TERRAIN.DRAW", 16, 14, 17, 230, 250, 255, 255)
         Draw.Text("WASD   RMB orbit   ESC", 16, 38, 14, 200, 220, 245, 255)
     ENDIF
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-FreeEntity(player)
+ENTITY.FREE(player)
 Terrain.Free(terrain)
-Camera.Free(cam)
-Window.Close()
+CAMERA.FREE(cam)
+WINDOW.CLOSE()

@@ -13,7 +13,7 @@ Classic Blitz3D drove the frame with **Flip**, **RenderWorld**, and **UpdateWorl
 | Blitz3D | moonBASIC / Raylib |
 |---------|---------------------|
 | **Flip** | **`RENDER.FRAME`** — presents the back buffer (call once at end of each frame after all drawing). |
-| **RenderWorld** | After **`RENDER.CLEAR`**: **`CAMERA.Begin(cam)`** … **`ENTITY.DRAWALL`** (and any **`DRAW3D.*`**) … **`CAMERA.End(cam)`**, or **`RENDER.Begin3D(cam)`** / **`RENDER.End3D()`** — then 2D HUD with **`CAMERA2D.Begin()`** … **`CAMERA2D.End()`** if needed. |
+| **RenderWorld** | After **`RENDER.CLEAR`**: **`RENDER.BEGIN3D(cam)`** … **`ENTITY.DRAWALL`** (and any **`DRAW3D.*`**) … **`RENDER.END3D()`** (same as **`CAMERA.BEGIN`/`CAMERA.END`**) — then 2D HUD with **`CAMERA2D.BEGIN()`** … **`CAMERA2D.END()`** if needed. |
 | **UpdateWorld** | **`ENTITY.UPDATE(dt)`** with **`dt = TIME.DELTA()`** (or **`DT()`**) — steps entities, collision discovery, particles tied to the entity system, etc. Optional **`UPDATEPHYSICS`** bundles **`ENTITY.UPDATE`** + world/physics steps. |
 
 **Note:** **`FlipMesh`** (mesh winding) is unrelated to **Flip** — see [MESH.md](MESH.md) / entity mesh helpers.
@@ -24,16 +24,16 @@ Classic Blitz3D drove the frame with **Flip**, **RenderWorld**, and **UpdateWorl
 
 | Blitz3D idea | moonBASIC |
 |--------------|-----------|
-| **`Graphics3D width, height, depth`** | **`Window.Open(w, h, title)`** — depth is handled by the 3D camera / Z-buffer, not a third dimension argument. |
-| **`AmbientLight` / `CameraClsMode`** | **`Render.Clear(r,g,b)`** before **`Camera.Begin`**; sky colour is your clear. |
-| **`CreateCamera` / orbit the view** | **`cam = CreateCamera()`** (→ **`CAMERA.CREATE`**) then **`Camera.SetOrbit`** or **`Camera.Orbit`** (same math — see [CAMERA.md](CAMERA.md)). Third-person yaw/pitch/distance helpers: **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** ([GAMEHELPERS.md](GAMEHELPERS.md)). |
+| **`Graphics3D width, height, depth`** | **`WINDOW.OPEN(w, h, title)`** — depth is handled by the 3D camera / Z-buffer, not a third dimension argument. |
+| **`AmbientLight` / `CameraClsMode`** | **`RENDER.CLEAR(r,g,b)`** before **`RENDER.BEGIN3D(cam)`** (or **`CAMERA.BEGIN`**); sky colour is your clear. |
+| **`CreateCamera` / orbit the view** | **`cam = CreateCamera()`** (→ **`CAMERA.CREATE`**) then **`CAMERA.SETORBIT`** or **`CAMERA.ORBIT`** (same math — see [CAMERA.md](CAMERA.md)). Third-person yaw/pitch/distance helpers: **`ORBITYAWDELTA`**, **`ORBITPITCHDELTA`**, **`ORBITDISTDELTA`** ([GAMEHELPERS.md](GAMEHELPERS.md)). |
 | **`WireCube` / `Cube` (immediate)** | Short globals **`WIRECUBE`** / **`BOX`** (same as **`DRAW3D.CUBEWIRES`** / **`DRAW3D.CUBE`**) — see [DRAW3D.md](DRAW3D.md). Optional OOP-style **`DRAWCUBE()`** / **`DRAWSPHERE()`** wrappers: [DRAW_WRAPPERS.md](DRAW_WRAPPERS.md) (distinct from **`CUBE()`** entities). |
 | **`MoveEntity` / `PositionEntity`** | **`Entity.MoveEntity`** / **`Entity.PositionEntity`** for **entity ids**; **dot-syntax** on **`CUBE`/`SPHERE`** handles below; for raw floats + **`LANDBOXES`** / **`LANDBOX`**, see **`examples/mario64/main_orbit_simple.mb`**. |
 | **`KeyHit` / `KeyDown`** | Flat **`KEYHIT(key)`** / **`KEYDOWN(key)`** (also **`GAME.KEYHIT`** / **`GAME.KEYDOWN`**). |
 | **`MouseXSpeed()` / `MouseYSpeed()`** | **`MOUSEXSPEED`** / **`MOUSEYSPEED`** or **`MDX`** / **`MDY`**. |
-| **`EndGraphics`** | **`Window.Close()`** after **`ERASE ALL`** if you used VM handles — [MEMORY.md](../MEMORY.md). |
+| **`EndGraphics`** | **`WINDOW.CLOSE()`** after **`ERASE ALL`** if you used VM handles — [MEMORY.md](../MEMORY.md). |
 
-**Reference sketch** (immediate-mode 3D + orbit, no entities): [`examples/mario64/main_orbit_simple.mb`](../../examples/mario64/main_orbit_simple.mb) — **`DT`**, **`KEYHIT`**, **`BOX`**, **`WIRECUBE`**, **`FLAT`**, **`GRID3`**, **`Camera.SetOrbit`**, **`ERASE ALL`**.
+**Reference sketch** (immediate-mode 3D + orbit, no entities): [`examples/mario64/main_orbit_simple.mb`](../../examples/mario64/main_orbit_simple.mb) — **`DT`**, **`KEYHIT`**, **`BOX`**, **`WIRECUBE`**, **`FLAT`**, **`GRID3`**, **`CAMERA.SETORBIT`**, **`ERASE ALL`**.
 
 ---
 
@@ -102,7 +102,7 @@ See [CAMERA.md](CAMERA.md) for full **`CAMERA.*`** reference.
 | **`Camera.Orbit(cam, entity, dist)`** | **Entity** orbit-follow: internal yaw/pitch/distance + input (see [CAMERA.md](CAMERA.md)). |
 | **`Camera.Orbit(cam, tx, ty, tz, yaw, pitch, dist)`** | Same arguments as **`Camera.SetOrbit`** — explicit spherical orbit (**7-arg** overload). |
 | **`Camera.Zoom(cam, amount)`** | Adds **amount** to vertical FOV (**degrees**), clamped **10–120**. |
-| **`Camera.Follow(cam, tx, ty, tz, yaw, dist, height, smooth)`** | Third-person follow: camera lerps behind **(tx,ty,tz)** on **XZ** at **yaw**, fixed world **height** for the eye, target lerps toward the subject. **`smooth`** is blended with frame time (~`smooth×8×dt` cap 1). Uses **`Time.Delta`** internally. |
+| **`Camera.Follow(cam, tx, ty, tz, yaw, dist, height, smooth)`** | Third-person follow: camera lerps behind **(tx,ty,tz)** on **XZ** at **yaw**, fixed world **height** for the eye, target lerps toward the subject. **`smooth`** is blended with frame time (~`smooth×8×dt` cap 1). Uses **`TIME.DELTA`** internally (registry **`CAMERA.FOLLOW`**). |
 | **`Camera.FollowEntity(cam, entity, dist, height, smooth)`** | Same as **`Follow`**, but target position and **yaw** come from an **entity** id (see below). |
 | **`Camera.OrbitEntity(cam, entity, yaw, pitch, dist)`** | Orbits the camera around the entity’s **world** position using the same math as **`Camera.SetOrbit`** (see [CAMERA.md](CAMERA.md)). |
 

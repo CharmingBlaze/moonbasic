@@ -18,5 +18,21 @@
     "prefix": "mbsetpos",
     "body": "${1:NAMESPACE}.SETPOS(${2:handle}, ${3:x}, ${4:y}, ${5:z})",
     "description": "Canonical namespace position setter"
+  },
+  "MoonBASIC 3D frame (RENDER + camera)": {
+    "prefix": "mbframe3d",
+    "body": [
+      "RENDER.CLEAR(${1:12}, ${2:14}, ${3:22})",
+      "RENDER.Begin3D(${4:cam})",
+      "    ${5:ENTITY.DRAWALL()}",
+      "RENDER.END3D()",
+      "RENDER.FRAME()"
+    ],
+    "description": "Clear → Begin3D(cam) → scene draw → End3D → present"
+  },
+  "MoonBASIC physics step": {
+    "prefix": "mbphys3d",
+    "body": "PHYSICS3D.UPDATE(${1:})",
+    "description": "PHYSICS3D.UPDATE (alias of STEP); optional frame dt"
   }
 }

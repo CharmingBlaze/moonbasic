@@ -1,121 +1,135 @@
 # Audio Commands
 
-Commands for loading and playing sound and music.
+Load and play **sound effects** and **streaming music** through Raylib. **CGO** builds required for full audio (see [BUILDING.md](../BUILDING.md)).
 
-## Device Management
+Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-### `Audio.Init()`
+## Core Workflow
 
-Initializes the audio device. This must be called before any other audio commands.
+**`AUDIO.INIT()`** once at startup → **`AUDIO.LOADSOUND`** / **`AUDIO.LOADMUSIC`** → each frame **`AUDIO.UPDATEMUSIC`** for music → **`AUDIO.PLAY`** / **`AUDIO.STOP`** as needed → **`SOUND.FREE`** / **`MUSIC.FREE`**, then **`AUDIO.CLOSE()`** before exit.
 
-### `Audio.Close()`
-
-Closes the audio device and releases all audio resources.
+For **spatial** pan/falloff, call **`AUDIO.LISTENERCAMERA(cam)`** each frame before **`EmitSound(sound, entity)`** (flat global — see manifest). **`Listener(cam)`** is an alias of **`AUDIO.LISTENERCAMERA`**. **`Load3DSound(path)`** loads the same buffers as **`AUDIO.LOADSOUND`** for scripts pairing listener + emit.
 
 ---
 
-## Sound Effects
+### `AUDIO.INIT()`
 
-Sounds are loaded completely into memory, making them fast to play. Ideal for short, repeatable effects like jumps or explosions.
-
-### `Audio.LoadSound(path)`
-
-Loads a sound effect from a file (e.g., `.wav`, `.ogg`). Returns a **sound handle**.
-
-### Spatial / Blitz-style 3D helpers
-
-- **`Listener(cameraHandle)`** / **`Audio.ListenerCamera()`** — sets the virtual listener from a **`CreateCamera()`** / **`CAMERA.CREATE`** handle (position + horizontal forward; deprecated **`Camera.Make()`**). Call **each frame** before **`Entity.EmitSound()`** so pan and falloff stay correct.
-- **`Load3DSound(path)`** — same buffers as **`Audio.LoadSound()`**; the “3D” path is for scripts that pair it with **`Listener`** + **`Entity.EmitSound()`**.
-- **`Entity.EmitSound(sound, entity)`** — plays once with **quadratic distance falloff** (max distance ≈ 80 world units) and **stereo pan** from the horizontal angle to the source. Restores each sound’s last **`Audio.SetSoundVolume()`** / **`Audio.SetSoundPan()`** after the play call.
-- **`Audio.SoundVolume()`** / **`Audio.SoundPitch()`** — aliases of **`Audio.SetSoundVolume()`** / **`Audio.SetSoundPitch()`**.
-
-Raylib does not expose a full OpenAL-style HRTF; this is a lightweight **pan + attenuation** model.
-
-### `Audio.Play(handle)`
-
-Plays a loaded sound effect. Multiple instances of the same sound can overlap.
-
-### `Audio.Stop(handle)`
-
-Stops playback of a sound or music handle.
-
-### `Audio.PlayVarySound(sound, minPitch, maxPitch)`
-
-Picks a **uniform random** pitch between **`minPitch`** and **`maxPitch`**, applies it with **`Audio.SetSoundPitch()`**, then plays the sound. Pitch stays on the sound object until changed again.
-
-### `Audio.PlayRndSound(sound1, sound2, ...)`
-
-Plays **one** of the given sound handles, chosen uniformly at random (two to four overloads are listed in the manifest). All arguments must be **sound** handles.
-
-### `Sound.Free(handle)`
-
-Unloads a sound effect from memory and releases its heap slot.
+Initializes the audio device. Call before other **`AUDIO.*`** / **`SOUND.*`** / **`MUSIC.*`** commands.
 
 ---
 
-## Music
+### `AUDIO.CLOSE()`
 
-Music is streamed from the file on disk, which uses less memory. Ideal for long background tracks.
+Closes the device and releases audio resources.
 
-### `Audio.LoadMusic(path)`
+---
 
-Loads a music file for streaming (e.g., `.mp3`, `.ogg`). Returns a **music handle**.
+## Sound effects
 
-### `Audio.UpdateMusic(handle)`
+### `AUDIO.LOADSOUND(path)`
 
-Updates the music stream buffer. **Must be called every frame** for music to play correctly.
+Loads a short sound (**`.wav`**, **`.ogg`**, …) into memory. Returns a **sound handle**.
 
-### `Audio.Play(handle)`
+---
 
-Starts playing a music track.
+### `AUDIO.PLAY(handle)` / `AUDIO.STOP(handle)` / `AUDIO.PAUSE(handle)` / `AUDIO.RESUME(handle)`
 
-### `Audio.Stop(handle)` / `Audio.Pause(handle)` / `Audio.Resume(handle)`
+Playback control (sounds and music share **`AUDIO.PLAY`** where the manifest overloads allow).
 
-Controls music playback.
+---
 
-### `Music.Free(handle)`
+### `AUDIO.SETSOUNDVOLUME(handle, v)` / `AUDIO.SETSOUNDPITCH(handle, p)` / `AUDIO.SETSOUNDPAN(handle, pan)`
 
-Unloads a music stream and releases its resources.
+Per-sound mix. Flat aliases **`SoundVolume`**, **`SoundPitch`** map to these.
+
+---
+
+### `SOUND.FREE(handle)`
+
+Unloads a sound and releases its heap slot.
+
+---
+
+### `AUDIO.LISTENERCAMERA(cam)` / `Listener(cam)`
+
+Sets the spatial listener from a **3D** camera handle (**`CAMERA.CREATE`**). Call **each frame** before **`EmitSound`** so pan and falloff stay correct.
+
+---
+
+### `Load3DSound(path)`
+
+Same buffers as **`AUDIO.LOADSOUND`**; naming reflects use with **`Listener`** + **`EmitSound`** (see manifest description).
+
+---
+
+### `EmitSound(sound, entity)`
+
+Plays once with distance falloff and stereo pan (see runtime). Requires a valid **entity** id and an up-to-date listener.
+
+---
+
+## Music (streaming)
+
+### `AUDIO.LOADMUSIC(path)`
+
+Returns a **music handle** (streamed from disk).
+
+---
+
+### `AUDIO.UPDATEMUSIC(handle)`
+
+**Must be called every frame** while music should advance.
+
+---
+
+### `AUDIO.SETMUSICVOLUME(handle, v)` / `AUDIO.SETMUSICPITCH(handle, p)` / `AUDIO.GETMUSICLENGTH(handle)` / `AUDIO.GETMUSICTIME(handle)` / `AUDIO.SEEKMUSIC(handle, t)`
+
+Streaming controls — see [API_CONSISTENCY.md](../API_CONSISTENCY.md) for arities.
+
+---
+
+### `MUSIC.FREE(handle)`
+
+Unloads a music stream.
 
 ---
 
 ## Full Example
 
-This example assumes you have `jump.wav` and `theme.mp3` in the same directory.
+This example assumes **`jump.wav`** and **`theme.mp3`** next to the program.
 
 ```basic
-Window.Open(800, 600, "Audio Example")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "Audio Example")
+WINDOW.SETFPS(60)
 
-; 1. Initialize audio
-Audio.Init()
+AUDIO.INIT()
 
-; 2. Load assets
-jump_sfx = Audio.LoadSound("jump.wav")
-bg_music = Audio.LoadMusic("theme.mp3")
+jumpSfx = AUDIO.LOADSOUND("jump.wav")
+bgMusic = AUDIO.LOADMUSIC("theme.mp3")
+AUDIO.PLAY(bgMusic)
 
-; 3. Play music
-Audio.Play(bg_music)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    AUDIO.UPDATEMUSIC(bgMusic)
 
-WHILE NOT Window.ShouldClose()
-    ; 4. Update music stream every frame
-    Audio.UpdateMusic(bg_music)
-
-    ; Play sound on key press
-    IF Input.KeyPressed(KEY_SPACE) THEN
-        Audio.Play(jump_sfx)
+    IF INPUT.KEYPRESSED(KEY_SPACE) THEN
+        AUDIO.PLAY(jumpSfx)
     ENDIF
 
-    Render.Clear(40, 40, 40)
-    Camera2D.Begin()
-        Draw.Text("Press SPACE to play a sound!", 190, 200, 20, 255, 255, 255, 255)
-    Camera2D.End()
-    Render.Frame()
+    RENDER.CLEAR(40, 40, 40)
+    CAMERA2D.BEGIN()
+        DRAW.TEXT("Press SPACE to play a sound!", 190, 200, 20, 255, 255, 255, 255)
+    CAMERA2D.END()
+    RENDER.FRAME()
 WEND
 
-; 5. Cleanup
-Sound.Free(jump_sfx)
-Music.Free(bg_music)
-Audio.Close()
-Window.Close()
+SOUND.FREE(jumpSfx)
+MUSIC.FREE(bgMusic)
+AUDIO.CLOSE()
+WINDOW.CLOSE()
 ```
+
+---
+
+## See also
+
+- [WAVE.md](WAVE.md) — raw **`WAVE.*`** samples → **`SOUND.FROMWAVE`**

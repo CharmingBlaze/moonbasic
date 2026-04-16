@@ -2,57 +2,64 @@
 
 A **model** is a Raylib **`Model`**: meshes, materials, optional animation data, and a root transform. Registry keys use **dots and uppercase** (e.g. `MODEL.LOAD`). This page matches the **current** runtime, not legacy PascalCase-only docs.
 
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Model.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+
 **Requires CGO.** See **[MESH.md](MESH.md)** for raw **`MESH.*`** geometry.
 
 ---
 
-### `Model.Load(path)`
+### `MODEL.LOAD(path)`
 Loads a 3D model file (glTF, GLB, OBJ, IQM, B3D). Returns a **model handle**.
 
-### `Model.Make(mesh)` / `Model.Create(mesh)`
+### `MODEL.MAKE(mesh)` / `MODEL.CREATE(mesh)`
 Builds a model from an existing **`Mesh`** handle. The model takes ownership of the mesh GPU data. Prefer registry **`MODEL.CREATE`** (canonical); **`MODEL.MAKE`** is a deprecated alias.
 
 ---
 
-### `Model.Draw(handle)`
-Draws the model using its root transform. Call between **`Camera.Begin()`** and **`Camera.End()`** for 3D rendering.
+### `MODEL.DRAW(handle)`
+Draws the model using its root transform. Call between **`RENDER.BEGIN3D(cam)`** and **`RENDER.END3D()`** (active 3D camera **`cam`**) for 3D rendering.
 
-### `Model.SetPos(handle, x, y, z)`
+### `MODEL.SETPOS(handle, x, y, z)` (canonical; deprecated `MODEL.SETPOSITION`)
 Sets the model's root transform to a specific world position.
 
-### `Model.SetRot(handle, pitch, yaw, roll)`
+### `MODEL.SETROT(handle, pitch, yaw, roll)`
 Sets the model's absolute Euler rotation in **radians**.
 
-### `Model.SetScale(handle, sx, sy, sz)`
+### `MODEL.SETSCALE(handle, sx, sy, sz)`
 Sets the non-uniform scale of the model.
 
 ---
 
-### `Model.SetMaterial(handle, index, mat)`
+### `MODEL.SETMATERIAL(handle, index, mat)`
 Replaces a specific material slot in the model with a **`Material`** handle.
 
-### `Model.Free(handle)`
+### `MODEL.FREE(handle)`
 Unloads the model and its associated meshes/materials from memory and frees the heap slot.
 
 ---
 
-## Example (Load and Draw)
+## Full Example (load and draw)
 
 ```basic
-Window.Open(1280, 720, "Model Example")
-mdl = Model.Load("assets/character.glb")
-Model.SetPos(mdl, 0, 0, 0)
+WINDOW.OPEN(1280, 720, "Model Example")
+WINDOW.SETFPS(60)
+cam = CAMERA.CREATE()
 
-WHILE NOT Window.ShouldClose()
-    Render.Clear(20, 20, 20)
-    Camera.Begin(cam)
-        Model.Draw(mdl)
-    Camera.End()
-    Render.Frame()
+mdl = MODEL.LOAD("assets/character.glb")
+MODEL.SETPOS(mdl, 0, 0, 0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(20, 20, 20)
+    RENDER.BEGIN3D(cam)
+        MODEL.DRAW(mdl)
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
-Model.Free(mdl)
-Window.Close()
+MODEL.FREE(mdl)
+WINDOW.CLOSE()
 ```
 
 ---

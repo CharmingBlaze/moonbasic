@@ -24,6 +24,7 @@ func registerAll(m *Module, r runtime.Registrar) {
 	r.Register("ARRAYSPLICE", "array", m.arraySplice)
 	r.Register("ARRAYSLICE", "array", m.arraySlice)
 	r.Register("ARRAYJOINS", "array", m.arrayJoins)
+	r.Register("ARRAYJOINS$", "array", m.arrayJoins)
 	r.Register("ARRAYFREE", "array", m.arrayFree)
 	r.Register("ERASE", "array", m.arrayFree)
 	r.Register("FREE.ALL", "array", m.freeAll)

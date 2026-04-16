@@ -2,6 +2,8 @@
 
 Generated as part of the full directive rollout. Use this as a reference point for regressions.
 
+**Normative roadmap:** [API_STANDARDIZATION_DIRECTIVE.md](API_STANDARDIZATION_DIRECTIVE.md)
+
 ## Canonical API policy (compiler-enforced manifest tests)
 
 - Every `*.CREATE*` command entry has a matching deprecated `*.MAKE*` alias (same arity) with deprecation text.
@@ -25,7 +27,7 @@ See [reference/UNIVERSAL_HANDLE_METHODS.md](reference/UNIVERSAL_HANDLE_METHODS.m
 - API naming: `docs/reference/API_CONVENTIONS.md`
 - Easy Mode scope: `docs/EASY_MODE.md`
 - Migration: `docs/MIGRATION_CREATE_FROM_MAKE.md`
-- Language (case folding): `docs/LANGUAGE.md`
+- Language (case insensitivity): `docs/LANGUAGE.md`
 
 ## Regenerating API consistency
 

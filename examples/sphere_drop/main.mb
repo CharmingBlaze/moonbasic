@@ -3,7 +3,6 @@
 ;
 ; Run from repo root (needs Jolt + CGO, fullruntime):
 ;   go run -tags fullruntime . --run examples/sphere_drop/main.mb
-; Windows: set CGO_ENABLED=1 and MinGW gcc on PATH; build Jolt .a first if linking fails (see docs/JOLT_WINDOWS_PARITY.md).
 
 CONST MAX_BALLS = 48
 CONST BALL_R = 0.35
@@ -23,37 +22,33 @@ CONST ZOOM_WHEEL = 0.9
 CONST DIST_MIN = 4.0
 CONST DIST_MAX = 28.0
 
-SetMSAA(0)
-Window.Open(1280, 720, "moonBASIC — sphere drop (3D physics)")
-Window.SetFPS(60)
+RENDER.SETMSAA(FALSE)
+WINDOW.OPEN(1280, 720, "moonBASIC — sphere drop (3D physics)")
+WINDOW.SETFPS(60)
 CURSOR.SHOW()
 
-Physics3D.Start()
-Physics3D.SetGravity(0, -18.0, 0)
-Physics3D.SetSubsteps(4)
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -18.0, 0)
+PHYSICS3D.SETSUBSTEPS(4)
 
-; Static platform (top surface near y=0)
-floorDef = Body3D.Create("STATIC")
-Body3D.AddBox(floorDef, PLAT_HX, PLAT_HY, PLAT_HZ)
-floorBody = Body3D.Commit(floorDef, 0.0, -PLAT_HY, 0.0)
-floorBuf = Body3D.BufferIndex(floorBody)
+; Static platform
+floorDef = BODY3D.CREATE("STATIC")
+floorDef.ADDBOX(PLAT_HX, PLAT_HY, PLAT_HZ)
+floorBody = floorDef.COMMIT(0.0, -PLAT_HY, 0.0)
 
-floorEnt = CreateCube()
-ScaleEntity(floorEnt, PLAT_HX * 2.0, PLAT_HY * 2.0, PLAT_HZ * 2.0)
-PositionEntity(floorEnt, 0.0, -PLAT_HY, 0.0, TRUE)
-EntityColor(floorEnt, 90, 95, 110, 255)
-ENTITY.LINKPHYSBUFFER(floorEnt, floorBuf)
+floorEnt = ENTITY.CREATECUBE(1, 1, 1)
+floorEnt.SETSCALE(PLAT_HX * 2.0, PLAT_HY * 2.0, PLAT_HZ * 2.0)
+floorEnt.SETPOS(0.0, -PLAT_HY, 0.0)
+floorEnt.SETCOLOR(90, 95, 110, 255)
+floorEnt.LINKPHYSBUFFER(floorBody.BUFFERINDEX())
 
-; CreateSphere returns entity# (int), not a heap handle.
-DIM ballEnt AS INTEGER(MAX_BALLS)
-DIM ballBody AS HANDLE(MAX_BALLS)
+; Ball Storage (typed handle arrays: name AS HANDLE(dim) — not DIM name(dim) AS …)
+ballEnt AS HANDLE(MAX_BALLS)
+ballBody AS HANDLE(MAX_BALLS)
 DIM ballActive(MAX_BALLS)
-FOR i = 1 TO MAX_BALLS
-    ballActive(i) = 0
-NEXT i
 
-cam = CreateCamera()
-cam.SetFOV(56)
+cam = CAMERA.CREATE()
+cam.SETFOV(56)
 
 camYaw = 0.45
 camPitch = 0.35
@@ -62,15 +57,14 @@ orbitHavePrev = 0
 orbitPx = 0.0
 orbitPy = 0.0
 lmbWasDown = 0
-
 colorIdx = 0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    Render.Clear(32, 38, 52)
-    dt = Time.Delta(0.0167, 0.05)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(32, 38, 52)
+    dt = TIME.DELTA(0.0167, 0.05)
 
-    ; Orbit camera (right mouse drag)
-    IF Input.MouseDown(ORBIT_BTN) THEN
+    ; Orbit camera
+    IF INPUT.MOUSEDOWN(ORBIT_BTN) THEN
         mx = FLOAT(INPUT.MOUSEX())
         my = FLOAT(INPUT.MOUSEY())
         IF orbitHavePrev = 1 THEN
@@ -87,40 +81,34 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     mw = INPUT.MOUSEWHEELMOVE()
     cdist = cdist - mw * ZOOM_WHEEL
     cdist = CLAMP(cdist, DIST_MIN, DIST_MAX)
-    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.1 * dt
-    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.1 * dt
+    IF INPUT.KEYDOWN(KEY_Q) THEN camYaw = camYaw - 1.1 * dt
+    IF INPUT.KEYDOWN(KEY_E) THEN camYaw = camYaw + 1.1 * dt
 
-    ; Left click: spawn a new ball above the table
-    ; Use explicit edge detection (down now, not down last frame) for robust click detection.
-    lmbDown = 0
-    IF Input.MouseDown(LEFT_BTN) THEN lmbDown = 1
-    spawnNow = 0
-    IF lmbDown = 1 AND lmbWasDown = 0 THEN spawnNow = 1
-    IF INPUT.KEYHIT(KEY_SPACE) THEN spawnNow = 1
-    IF spawnNow = 1 THEN
+    ; Spawn Logic
+    lmbDown = INPUT.MOUSEDOWN(LEFT_BTN)
+    IF (lmbDown AND NOT lmbWasDown) OR INPUT.KEYHIT(KEY_SPACE) THEN
         spawnDone = 0
         FOR i = 1 TO MAX_BALLS
-            IF spawnDone = 0 AND ballActive(i) = 0 THEN
-                ; Click-to-world spawn: cast mouse ray against plane y=0 (0*x + 1*y + 0*z + 0 = 0).
-                ; If no plane hit (should be rare), fall back to in-platform random spawn.
-                pickArr = Camera.MouseRay(cam)
-                pickRay = RAY.CREATE(pickArr(1), pickArr(2), pickArr(3), pickArr(4), pickArr(5), pickArr(6))
+            IF NOT spawnDone AND NOT ballActive(i) THEN
+                pickRay = cam.MOUSERAY()
                 sx = (FLOAT(RND(0, 1000)) / 1000.0 - 0.5) * 8.0
                 sz = (FLOAT(RND(0, 1000)) / 1000.0 - 0.5) * 8.0
-                IF RAY.HITPLANE_HIT(pickRay, 0.0, 1.0, 0.0, 0.0) THEN
-                    sx = RAY.HITPLANE_POINTX(pickRay, 0.0, 1.0, 0.0, 0.0)
-                    sz = RAY.HITPLANE_POINTZ(pickRay, 0.0, 1.0, 0.0, 0.0)
+                IF pickRay.HITPLANE(0.0, 1.0, 0.0, 0.0) THEN
+                    sx = pickRay.POINTX()
+                    sz = pickRay.POINTZ()
                     sx = CLAMP(sx, -PLAT_HX + BALL_R, PLAT_HX - BALL_R)
                     sz = CLAMP(sz, -PLAT_HZ + BALL_R, PLAT_HZ - BALL_R)
                 ENDIF
-                RAY.FREE(pickRay)
-                bdef = Body3D.Create("DYNAMIC")
-                Body3D.AddSphere(bdef, BALL_R)
-                bh = Body3D.Commit(bdef, sx, SPAWN_Y, sz)
-                Body3D.SetRestitution(bh, 0.15)
-                Body3D.SetFriction(bh, 0.6)
-                Body3D.Activate(bh)
-                be = CreateSphere(BALL_R, SEGS)
+                pickRay.FREE()
+                
+                bdef = BODY3D.CREATE("DYNAMIC")
+                bdef.ADDSPHERE(BALL_R)
+                bh = bdef.COMMIT(sx, SPAWN_Y, sz)
+                bh.SETBOUNCE(0.15)
+                bh.SETFRICTION(0.6)
+                bh.ACTIVATE()
+                
+                be = ENTITY.CREATESPHERE(BALL_R, SEGS)
                 colorIdx = colorIdx + 1
                 tcol = colorIdx * 47
                 cr = 80 + tcol - INT(tcol / 175) * 175
@@ -128,9 +116,9 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
                 cg = 60 + tcol - INT(tcol / 195) * 195
                 tcol = colorIdx * 73
                 cb = 100 + tcol - INT(tcol / 155) * 155
-                EntityColor(be, cr, cg, cb, 255)
-                buf = Body3D.BufferIndex(bh)
-                ENTITY.LINKPHYSBUFFER(be, buf)
+                be.SETCOLOR(cr, cg, cb)
+                
+                be.LINKPHYSBUFFER(bh.BUFFERINDEX())
                 ballEnt(i) = be
                 ballBody(i) = bh
                 ballActive(i) = 1
@@ -140,62 +128,57 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     ENDIF
     lmbWasDown = lmbDown
 
-    ; Keep floor centered (defensive). Avoid forcing floor velocity every frame; that can
-    ; destabilize contact manifolds and cause jittery spin on resting spheres.
-    Body3D.SetPos(floorBody, 0.0, -PLAT_HY, 0.0)
+    ; Simulation
+    PHYSICS3D.STEP()
 
-    ; Single step per frame keeps simulation speed/energy stable.
-    Physics3D.Step()
-
-    ; Remove balls that fell off the platform (or dropped into the void)
+    ; Cleanup Logic (assign arr(i) to locals before handle methods — statement form does not allow arr(i).METHOD())
     FOR i = 1 TO MAX_BALLS
-        IF ballActive(i) = 1 THEN
-            ex = Entity.X(ballEnt(i))
-            ey = Entity.Y(ballEnt(i))
-            ez = Entity.Z(ballEnt(i))
-            kill = 0
-            IF ey < -2.5 THEN kill = 1
-            IF ABS(ex) > EDGE_KILL THEN kill = 1
-            IF ABS(ez) > EDGE_KILL THEN kill = 1
-            IF kill = 1 THEN
-                ENTITY.CLEARPHYSBUFFER(ballEnt(i))
-                Body3D.Free(ballBody(i))
-                FreeEntity(ballEnt(i))
+        IF ballActive(i) THEN
+            be = ballEnt(i)
+            bh = ballBody(i)
+            ex, ey, ez = ENTITY.GETPOS(be)
+            IF ey < -2.5 OR ABS(ex) > EDGE_KILL OR ABS(ez) > EDGE_KILL THEN
+                be.CLEARPHYSBUFFER()
+                bh.FREE()
+                be.FREE()
                 ballActive(i) = 0
             ENDIF
         ENDIF
     NEXT i
 
-    ; Orbit around center of table
-    Camera.SetOrbit(cam, 0.0, 0.35, 0.0, camYaw, camPitch, cdist)
-
-    cam.Begin()
+    ; Rendering
+    cam.SETORBIT(0.0, 0.35, 0.0, camYaw, camPitch, cdist)
+    cam.BEGIN()
         Draw3D.Grid(24, 1.0)
-        DrawEntities()
-    cam.End()
+        ENTITY.DRAWALL()
+    cam.END()
 
     alive = 0
     FOR i = 1 TO MAX_BALLS
-        IF ballActive(i) = 1 THEN alive = alive + 1
+        IF ballActive(i) THEN alive = alive + 1
     NEXT i
     Draw.Text("LMB or SPACE spawn sphere   RMB drag orbit   wheel zoom   Q/E yaw   ESC quit", 10, 10, 17, 220, 230, 245, 255)
     Draw.Text("Active balls: " + STR(alive), 10, 32, 17, 180, 230, 160, 255)
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
+; Cleanup
 FOR i = 1 TO MAX_BALLS
-    IF ballActive(i) = 1 THEN
-        ENTITY.CLEARPHYSBUFFER(ballEnt(i))
-        Body3D.Free(ballBody(i))
-        FreeEntity(ballEnt(i))
+    IF ballActive(i) THEN
+        be = ballEnt(i)
+        bh = ballBody(i)
+        be.CLEARPHYSBUFFER()
+        bh.FREE()
+        be.FREE()
     ENDIF
 NEXT i
 
-ENTITY.CLEARPHYSBUFFER(floorEnt)
-Body3D.Free(floorBody)
-FreeEntity(floorEnt)
+floorEnt.CLEARPHYSBUFFER()
+floorBody.FREE()
+floorEnt.FREE()
 
-Physics3D.Stop()
+PHYSICS3D.STOP()
 CURSOR.SHOW()
-Camera.Free(cam)
-Window.Close()
+cam.FREE()
+WINDOW.CLOSE()
+

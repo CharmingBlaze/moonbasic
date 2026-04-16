@@ -3,4 +3,4 @@ i = 0
 WHILE i < ops
     i = i + 1
 WEND
-PRINT("MOONBENCH note=models_placeholder ops=" + STR$(ops))
+PRINT("MOONBENCH note=models_placeholder ops=" + STR(ops))

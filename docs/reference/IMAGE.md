@@ -1,48 +1,52 @@
-# Image (CPU) — `Image.*` / `IMAGE.*`
+# Image (`IMAGE.*`)
 
-**CPU-side** pixel buffers (Raylib `Image`): read, mutate, save. **Not** GPU textures (`Texture.*`). Typical pipeline: **`IMAGE.CREATE`** (canonical) or deprecated **`IMAGE.MAKE`** / **`IMAGE.LOAD`** → optional edits → **`TEXTURE.FROMIMAGE`** → **`DRAW.TEXTURE`** on the main framebuffer → free when done.
+**CPU-side** pixel buffers (Raylib `Image`): read, mutate, save. **Not** GPU textures (`TEXTURE.*`). Typical pipeline: **`IMAGE.CREATE`** (canonical) or deprecated **`IMAGE.MAKE`** / **`IMAGE.LOAD`** → optional edits → **`TEXTURE.FROMIMAGE`** → **`DRAW.TEXTURE`** on the main framebuffer → free when done.
 
-**Requires CGO** and Raylib (same as `Draw.*`, `Texture.*`).
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Image.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
 
-Registry keys use **dots and uppercase** (e.g. **`IMAGE.CREATE`**). PascalCase names below match docs/spec style.
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+
+**Requires CGO** and Raylib (same as **`DRAW.*`**, **`TEXTURE.*`**).
+
+Registry keys use **dots and uppercase** (e.g. **`IMAGE.CREATE`**). In source, the **`Image`** namespace maps to the same commands (`Image.Load` → `IMAGE.LOAD`).
 
 ---
 
-### `Image.Load(path)`
+### `IMAGE.LOAD(path)`
 Loads an image from disk (PNG, JPG, BMP, etc.). Returns a **handle**.
 
-### `Image.Make(w, h [, r, g, b, a])`
-Creates a new CPU image. If RGBA components are provided, fills the image with that color (0-255).
+### `IMAGE.CREATE(w, h [, r, g, b, a])`
+Creates a new CPU image. If RGBA components are provided, fills the image with that color (0-255). **`IMAGE.MAKE`** is a **deprecated** alias of **`IMAGE.CREATE`**.
 
-### `Image.Free(handle)`
+### `IMAGE.FREE(handle)`
 Releases the heap slot and unloads the image memory.
 
 ---
 
-### `Image.Width(handle)` / `Image.Height(handle)`
+### `IMAGE.WIDTH(handle)` / `IMAGE.HEIGHT(handle)`
 Returns the integer pixel dimensions of the image.
 
-### `Image.Resize(handle, w, h)`
+### `IMAGE.RESIZE(handle, w, h)`
 Resizes the image in memory using bilinear scaling.
 
-### `Image.Export(handle, path)`
+### `IMAGE.EXPORT(handle, path)`
 Saves the image to a file. The format is determined by the file extension.
 
 ---
 
-### `Image.DrawPixel(handle, x, y, r, g, b, a)`
+### `IMAGE.DRAWPIXEL(handle, x, y, r, g, b, a)`
 Draws a single pixel on the image at `(x, y)`.
 
-### `Image.DrawRect(handle, x, y, w, h, r, g, b, a)`
+### `IMAGE.DRAWRECT(handle, x, y, w, h, r, g, b, a)`
 Draws a filled rectangle on the image.
 
 ---
 
-## Example: composite → texture → draw
+## Full Example (composite → texture → draw)
 
 ```basic
-Window.Open(640, 480, "Image to texture")
-Window.SetFPS(60)
+WINDOW.OPEN(640, 480, "Image to texture")
+WINDOW.SETFPS(60)
 
 a = IMAGE.CREATE(128, 128)
 IMAGE.CLEAR(a, 40, 40, 50, 255)
@@ -53,14 +57,14 @@ IMAGE.FREE(b)
 tex = TEXTURE.FROMIMAGE(a)
 IMAGE.FREE(a)
 
-WHILE NOT Window.ShouldClose()
-    Render.Clear(20, 24, 32)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(20, 24, 32)
     DRAW.TEXTURE(tex, 200, 160, 255, 255, 255, 255)
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 TEXTURE.FREE(tex)
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 ---

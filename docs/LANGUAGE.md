@@ -8,8 +8,6 @@ For **built-in APIs** (window, draw, time, files, …), how to structure a game 
 
 ## Variables and Types
 
-## Variables and Types
-
 Variables are created when you first assign a value to them. Their type is determined implicitly by the value assigned.
 
 | Type      | Example                  |
@@ -21,7 +19,9 @@ Variables are created when you first assign a value to them. Their type is deter
 
 The language is dynamically typed; a variable can hold any value (implicit `Any` type).
 
-**Case insensitivity:** Language keywords and built-in command names (for example `Namespace.Method` / `NAMESPACE.METHOD`) are matched **without regard to letter case**. Prefer a consistent style in new code; see [STYLE_GUIDE.md](../STYLE_GUIDE.md).
+**No `#` / `$` / `?` / `%` suffixes:** moonBASIC does not use Blitz-style suffix characters on identifiers (`name#`, `name$`, etc.). Use normal names and typing rules above; see [STYLE_GUIDE.md](../STYLE_GUIDE.md).
+
+**Case insensitivity:** Keywords, variables, functions, and built-in command names are matched **without regard to letter case** — `score`, `Score`, and `SCORE` are the same identifier; `Window.Open` and `WINDOW.open` are the same call. Prefer a consistent style in new code; see [STYLE_GUIDE.md](../STYLE_GUIDE.md). Implementation detail only: the lexer records a normalized spelling for names; commands and symbols are matched against the manifest and VM using the usual **uppercase** dotted registry keys — you do not need to type those keys yourself in source.
 
 ### Scope
 
@@ -251,9 +251,9 @@ Example — main file pulls in a menu module:
 ```basic
 INCLUDE "menu.mb"
 
-Window.Open(800, 600, "Game")
+WINDOW.OPEN(800, 600, "Game")
 ; ... rest of main ...
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 Where `menu.mb` might define shared functions or data used by the main game.

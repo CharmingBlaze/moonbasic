@@ -22,7 +22,7 @@ type Parser struct {
 	sym     *symtable.Table
 	curLine string
 	ar      *arena.Arena
-	// FuncName is the enclosing FUNCTION name (uppercase), or "" at module scope.
+	// FuncName is the enclosing FUNCTION name (canonical lowercase from lexer), or "" at module scope.
 	FuncName string
 }
 

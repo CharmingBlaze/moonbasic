@@ -54,4 +54,5 @@ Commands registered from the manifest without a native body may return:
 ## Related docs
 
 - [API_CONSISTENCY.md](./API_CONSISTENCY.md) — naming conventions and full command listing (generated).
+- Authoring reference pages: [DOC_STYLE_GUIDE.md](./DOC_STYLE_GUIDE.md), [STYLE_GUIDE.md](../STYLE_GUIDE.md).
 - Roadmap and phases: [ROADMAP.md](./ROADMAP.md).

@@ -32,13 +32,13 @@ func TestLexReferenceProgram(t *testing.T) {
 	if len(toks) < 100 {
 		t.Fatalf("expected many tokens, got %d", len(toks))
 	}
-	if toks[0].Type != token.IDENT || toks[0].Lit != "WINDOW" {
+	if toks[0].Type != token.IDENT || toks[0].Lit != "window" {
 		t.Fatalf("first token: %+v", toks[0])
 	}
 	if toks[1].Type != token.DOT {
 		t.Fatal()
 	}
-	if toks[2].Type != token.IDENT || toks[2].Lit != "OPEN" {
+	if toks[2].Type != token.IDENT || toks[2].Lit != "open" {
 		t.Fatal()
 	}
 	// Find WHILE
@@ -55,7 +55,7 @@ func TestLexReferenceProgram(t *testing.T) {
 	// dt name (no suffix)
 	foundDt := false
 	for _, tk := range toks {
-		if tk.Type == token.IDENT && tk.Lit == "DT" {
+		if tk.Type == token.IDENT && tk.Lit == "dt" {
 			foundDt = true
 			break
 		}
@@ -107,7 +107,7 @@ func TestEndBare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if t3.Type != token.IDENT || t3.Lit != "PRINT" {
+	if t3.Type != token.IDENT || t3.Lit != "print" {
 		t.Fatalf("got %v", t3)
 	}
 }

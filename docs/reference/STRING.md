@@ -4,9 +4,10 @@ Commands for manipulating and querying strings.
 
 ## Core Concepts
 
--   **Type Inference**: Variables do not require suffixes. The compiler infers the type from the context or the first assignment.
+-   **Type Inference**: Variables do not require suffixes. moonBASIC does **not** use Blitz-style **`#` / `$` / `?` / `%`** on names; infer types from assignment or use `DIM` / `AS` ([STYLE_GUIDE.md](../../STYLE_GUIDE.md)).
 -   **Concatenation**: Use the `+` operator to join strings: `"Hello " + "World"`.
--   **Conversion**: Use `STR(number)` to convert a number to a string, and `VAL(string)` to convert a string to a number.
+-   **Conversion**: Use **`STR(value)`** to convert a value to a string, and **`FORMAT(value, pattern)`** for printf-style formatting (manifest canonical). Legacy **`STR$`** / **`FORMAT$`** are deprecated aliases (same runtime).
+-   **Slice / search / binary helpers**: Prefer **`LEFT`**, **`RIGHT`**, **`MID`**, **`TRIM`**, **`SPLIT`**, **`JOIN`**, **`HEX`**, **`BIN`**, **`OCT`**, **`MKINT`**, … — each has a legacy **`…$`** alias in the manifest. See [API_CONSISTENCY.md](../API_CONSISTENCY.md).
 
 ---
 

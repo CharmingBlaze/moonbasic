@@ -225,37 +225,41 @@ func (p *Parser) parsePostfixChain(base ast.Expr) (ast.Expr, error) {
 				base = arena.Make(p.ar, ast.IndexExpr{Base: base, Index: args, Line: p.cur().Line, Col: p.cur().Col})
 			}
 		case token.DOT:
+			line, col := p.cur().Line, p.cur().Col
 			p.advance()
 			meth, err := p.expectIdent()
 			if err != nil {
 				return nil, err
 			}
-			switch id := base.(type) {
-			case *ast.IdentNode:
-				if p.cur().Type == token.LPAREN {
-					args, err := p.parseArgList()
-					if err != nil {
-						return nil, err
-					}
+			if p.cur().Type == token.LPAREN {
+				args, err := p.parseArgList()
+				if err != nil {
+					return nil, err
+				}
+				if id, ok := base.(*ast.IdentNode); ok {
 					if p.sym.IsVar(id.Name) {
-						base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: id.Name, Method: meth, Args: args, Line: id.Line, Col: id.Col})
+						base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: base, Method: meth, Args: args, Line: line, Col: col})
 					} else {
-						base = arena.Make(p.ar, ast.NamespaceCallExpr{NS: id.Name, Method: meth, Args: args, Line: id.Line, Col: id.Col})
+						base = arena.Make(p.ar, ast.NamespaceCallExpr{NS: id.Name, Method: meth, Args: args, Line: line, Col: col})
 					}
 				} else {
-					base = arena.Make(p.ar, ast.FieldAccessNode{Object: id.Name, Field: meth, Line: id.Line, Col: id.Col})
+					// Chained call: (anything).meth()
+					base = arena.Make(p.ar, ast.HandleCallExpr{Receiver: base, Method: meth, Args: args, Line: line, Col: col})
 				}
-			case *ast.IndexExpr:
-				arrID, ok := id.Base.(*ast.IdentNode)
-				if !ok {
-					return nil, p.failf("indexed field access requires a named array")
+			} else {
+				// No parens -> field access or array element field access
+				switch id := base.(type) {
+				case *ast.IdentNode:
+					base = arena.Make(p.ar, ast.FieldAccessNode{Object: id.Name, Field: meth, Line: line, Col: col})
+				case *ast.IndexExpr:
+					arrID, ok := id.Base.(*ast.IdentNode)
+					if !ok {
+						return nil, p.failf("indexed field access requires a named array")
+					}
+					base = arena.Make(p.ar, ast.IndexFieldExpr{Array: arrID.Name, Index: id.Index, Field: meth, Line: line, Col: col})
+				default:
+					return nil, p.failf("field access requires identifier or array index expression")
 				}
-				if p.cur().Type == token.LPAREN {
-					return nil, p.failf("cannot call method on array element (use a variable)")
-				}
-				base = arena.Make(p.ar, ast.IndexFieldExpr{Array: arrID.Name, Index: id.Index, Field: meth, Line: id.Line, Col: id.Col})
-			default:
-				return nil, p.failf("field access requires identifier or array index expression")
 			}
 		default:
 			return base, nil

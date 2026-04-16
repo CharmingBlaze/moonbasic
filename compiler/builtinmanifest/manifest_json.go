@@ -15,14 +15,15 @@ type jsonRoot struct {
 }
 
 type jsonCommand struct {
-	Key       string   `json:"key"`
-	Args      []string `json:"args"`
-	Returns   string   `json:"returns,omitempty"`
-	Pure      bool     `json:"pure,omitempty"`
-	Phase     string   `json:"phase,omitempty"`
-	Namespace string   `json:"namespace,omitempty"`
-	Stub      string   `json:"stub,omitempty"`
-	Description string `json:"description,omitempty"`
+	Key           string   `json:"key"`
+	Args          []string `json:"args"`
+	Returns       string   `json:"returns,omitempty"`
+	Pure          bool     `json:"pure,omitempty"`
+	Phase         string   `json:"phase,omitempty"`
+	Namespace     string   `json:"namespace,omitempty"`
+	Stub          string   `json:"stub,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	DeprecatedOf  string   `json:"deprecated_of,omitempty"`
 }
 
 func parseArgKind(s string) (ArgKind, error) {
@@ -65,14 +66,15 @@ func ParseJSON(data []byte) (*Table, error) {
 			args[i] = k
 		}
 		cmd := Command{
-			Key:       key,
-			Args:      args,
-			Returns:   jc.Returns,
-			Pure:      jc.Pure,
-			Phase:     jc.Phase,
-			Namespace: jc.Namespace,
-			Stub:      jc.Stub,
-			Desc:      jc.Description,
+			Key:          key,
+			Args:         args,
+			Returns:      jc.Returns,
+			Pure:         jc.Pure,
+			Phase:        jc.Phase,
+			Namespace:    jc.Namespace,
+			Stub:         jc.Stub,
+			Desc:         jc.Description,
+			DeprecatedOf: strings.TrimSpace(jc.DeprecatedOf),
 		}
 		t.Commands[key] = append(t.Commands[key], cmd)
 	}

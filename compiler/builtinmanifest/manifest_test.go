@@ -94,3 +94,40 @@ func TestMakeAliasDeprecationMatchesCanonicalKeys(t *testing.T) {
 		}
 	}
 }
+
+func TestDeprecatedOfJSONRoundTrip(t *testing.T) {
+	tbl := Default()
+	if !tbl.IsDeprecatedAlias("STR$") {
+		t.Fatal("IsDeprecatedAlias(STR$) want true")
+	}
+	if tbl.IsDeprecatedAlias("STR") {
+		t.Fatal("IsDeprecatedAlias(STR) want false")
+	}
+	if !tbl.IsDeprecatedAlias("READALLTEXT$") {
+		t.Fatal("IsDeprecatedAlias(READALLTEXT$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("READFILE$") {
+		t.Fatal("IsDeprecatedAlias(READFILE$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("READSTRING$") {
+		t.Fatal("IsDeprecatedAlias(READSTRING$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("ARRAYJOINS$") {
+		t.Fatal("IsDeprecatedAlias(ARRAYJOINS$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("MODEL.ANIMNAME$") {
+		t.Fatal("IsDeprecatedAlias(MODEL.ANIMNAME$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("GUI.THEMENAMES$") {
+		t.Fatal("IsDeprecatedAlias(GUI.THEMENAMES$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("ENTITY.ANIMNAME$") {
+		t.Fatal("IsDeprecatedAlias(ENTITY.ANIMNAME$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("GUI.VALUEBOXFLOATTEXT$") {
+		t.Fatal("IsDeprecatedAlias(GUI.VALUEBOXFLOATTEXT$) want true")
+	}
+	if !tbl.IsDeprecatedAlias("GUI.TEXTINPUTLAST$") {
+		t.Fatal("IsDeprecatedAlias(GUI.TEXTINPUTLAST$) want true")
+	}
+}

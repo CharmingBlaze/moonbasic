@@ -41,7 +41,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.CLEAR(25, 30, 45)
     DRAW.RECTANGLE(300, 200, 200, 160, 80, 120, 60, 255)
     DRAW.RECTANGLE(px, py, 18, 18, 255, 210, 120, 255)
-    DRAW.TEXT("Gold " + STR$(gold) + "   WASD   ESC quit", 220, 12, 20, 240, 240, 250, 255)
+    DRAW.TEXT("Gold " + STR(gold) + "   WASD   ESC quit", 220, 12, 20, 240, 240, 250, 255)
     DRAW.TEXT("Green = treasure (once per visit)", 250, 570, 16, 180, 200, 180, 255)
     RENDER.FRAME()
 WEND

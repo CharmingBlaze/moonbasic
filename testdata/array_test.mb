@@ -2,9 +2,9 @@ DIM arr(5)
 FOR i = 1 TO 5
 arr(i) = (i - 1) * 10
 NEXT i
-t = STR$(INT(arr(1)))
+t = STR(INT(arr(1)))
 FOR j = 2 TO 5
-t = t + "," + STR$(INT(arr(j)))
+t = t + "," + STR(INT(arr(j)))
 NEXT j
 PRINT(t)
 

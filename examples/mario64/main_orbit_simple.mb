@@ -4,14 +4,14 @@
 ;
 ;  What this file is for
 ;    Blitz-style “immediate mode” 3D (BOX / WIRECUBE / FLAT / GRID3) + spherical
-;    orbit (Camera.SetOrbit), walk on cam yaw, jump, LANDBOXES, ERASE ALL.
+;    orbit (CAMERA.SETORBIT), walk on cam yaw, jump, LANDBOXES, ERASE ALL.
 ;    See docs/reference/BLITZ3D.md for the Blitz → moonBASIC map.
 ;
 ;  Read the source top → bottom in this order
 ;    1) CONST blocks — physics, orbit, palette, floor/grid/player mesh
 ;    2) Camera + state — scalars only (no extra heap for orbit deltas)
 ;    3) DIM platform rows — parallel arrays (required shape for LANDBOXES)
-;    4) WHILE loop — input → physics → Camera.SetOrbit → draw → HUD
+;    4) WHILE loop — input → physics → CAMERA.SETORBIT → draw → HUD
 ;    5) ERASE ALL — see MEMORY.md
 ;
 ;  One frame, in order (the WHILE body)
@@ -32,7 +32,7 @@
 ;  Docs (short map)
 ;    Blitz3D-style map:           docs/reference/BLITZ3D.md
 ;    Orbit deltas (float-only):  docs/reference/GAMEHELPERS.md
-;    Camera.SetOrbit / Orbit:     docs/reference/CAMERA.md (Orbit = SetOrbit alias)
+;    CAMERA.SETORBIT / Orbit:     docs/reference/CAMERA.md (Orbit = SetOrbit alias)
 ;    3D shortcuts (BOX, WIRECUBE, FLAT, …): docs/reference/DRAW3D.md
 ;    ERASE ALL / FREE.ALL:        docs/MEMORY.md
 ;
@@ -41,8 +41,8 @@
 ;
 ; =============================================================================
 
-Window.Open(960, 540, "Blitz-style orbit hop")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "Blitz-style orbit hop")
+WINDOW.SETFPS(60)
 
 ; --- physics & world ---------------------------------------------------------
 ; --- physics & world ---------------------------------------------------------
@@ -91,7 +91,7 @@ CONST P_CAP_RAD = 0.38
 CONST P_HEAD_RAD = 0.24
 CONST P_HEAD_YOFF = 0.72
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(CAM_FOV)
 
 px = 0.0
@@ -117,7 +117,7 @@ plx(0) = 0.0 : ply(0) = 1.2 : plz(0) = 5.0
 plw(0) = 3.0 : plh(0) = 0.35 : pld(0) = 3.0
 pr(0) = C_BOX_R : pg(0) = C_BOX_G : pb(0) = C_BOX_B
 
-WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     dt = DT()
 
     ; ----- orbit (GAME.* deltas are floats — no ERASE) ------------------------
@@ -127,9 +127,9 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
     camPitch = CLAMP(camPitch, PITCH_MIN, PITCH_MAX)
     camDist = CLAMP(camDist, DIST_MIN, DIST_MAX)
 
-    ; ----- walk — MOVESTEP* uses the same camYaw as Camera.SetOrbit below -----
-    fwd = Input.Axis(KEY_S, KEY_W)
-    side = Input.Axis(KEY_A, KEY_D)
+    ; ----- walk — MOVESTEP* uses the same camYaw as CAMERA.SETORBIT below -----
+    fwd = INPUT.AXIS(KEY_S, KEY_W)
+    side = INPUT.AXIS(KEY_A, KEY_D)
     px = CLAMP(px + MOVESTEPX(camYaw, fwd, side, MOVE_SPEED, dt), WORLD_X0, WORLD_X1)
     pz = CLAMP(pz + MOVESTEPZ(camYaw, fwd, side, MOVE_SPEED, dt), WORLD_Z0, WORLD_Z1)
 
@@ -151,10 +151,10 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
         ong = TRUE
     ENDIF
 
-    Camera.SetOrbit(cam, px, py + CAM_TARGET_YOFF, pz, camYaw, camPitch, camDist)
+    CAMERA.SETORBIT(cam, px, py + CAM_TARGET_YOFF, pz, camYaw, camPitch, camDist)
 
     ; ----- draw (Clear = background; Begin/End = 3D) --------------------------
-    Render.Clear(C_SKY_R, C_SKY_G, C_SKY_B)
+    RENDER.CLEAR(C_SKY_R, C_SKY_G, C_SKY_B)
     cam.Begin()
         ; --- world (Blitz-style short names — see DRAW3D.md / BLITZ3D.md) ---
         FLAT(0.0, 0.0, 0.0, FLOOR_HALF * 2.0, FLOOR_HALF * 2.0, C_GRASS_R, C_GRASS_G, C_GRASS_B, 255)
@@ -169,8 +169,8 @@ WHILE NOT (KEYDOWN(KEY_ESCAPE) OR Window.ShouldClose())
     Draw.Text("Blitz-style orbit hop", 36, 12, 18, 250, 252, 255, 255)
     Draw.Text("Q/E · R-drag · wheel · WASD · Space · Esc", 36, 36, 14, 200, 215, 235, 255)
     Draw.Text(IIF(ong, "Ground", "Air"), 36, 58, 15, IIF(ong, 140, 255), IIF(ong, 255, 200), IIF(ong, 190, 140), 255)
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 ERASE ALL
-Window.Close()
+WINDOW.CLOSE()

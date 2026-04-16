@@ -6,16 +6,16 @@ This guide explains how **built-in commands** fit together, how to structure pro
 
 ## 1. Commands are `NAMESPACE.NAME`
 
-Built-ins look like method calls: `Window.Open(...)`, `Draw.Rectangle(...)`, `TIME.DELTA()`.
+Built-ins look like method calls. Prefer registry style: `WINDOW.OPEN(...)`, `DRAW.RECTANGLE(...)`, `TIME.DELTA()` — Easy Mode (`Window.Open`, …) is the same keys; see [EASY_MODE.md](EASY_MODE.md).
 
-The lexer **folds names to uppercase** for lookup. These are the same call:
+You can write **any mix of upper and lower case** in source — it does not matter for the language. (Internally the compiler picks a single spelling for names; built-in calls still match the manifest’s **uppercase** `NAMESPACE.NAME` keys.) These are the same call:
 
 - `Window.Open` → `WINDOW.OPEN`
 - `draw.rectangle` → `DRAW.RECTANGLE`
 
 Use whatever style reads best; examples in the repo often use **Mixed.Case** for namespaces.
 
-**Consistent verbs across types** (`Load` / `SetPos` / `Free`, when to use `Make` vs `Load`, and how rotation differs for cameras vs models): see [API conventions](reference/API_CONVENTIONS.md).
+**Consistent verbs across types** (`Load` / `SetPos` / `Free`, `CREATE` vs deprecated `MAKE`, and how rotation differs for cameras vs models): see [API conventions](reference/API_CONVENTIONS.md) and the [API Standardization Directive](API_STANDARDIZATION_DIRECTIVE.md).
 
 ---
 
@@ -28,12 +28,12 @@ Commands are **type-checked** against the manifest (`compiler/builtinmanifest/co
 | Integer | `score`, literal `10` | `ARRAYLEN(arr)` |
 | Float | `x`, `1.5` | `MATH.SIN(angle)` |
 | String | `msg`, `"hi"` | `FILE.OPEN(path, "r")` |
-| Boolean | `ok`, `TRUE` / `FALSE` | `Input.KeyDown(KEY_SPACE)` |
+| Boolean | `ok`, `TRUE` / `FALSE` | `INPUT.KEYDOWN(KEY_SPACE)` |
 | Handle | value from `Load`, `Make`, etc. | `Mesh.Draw(mesh, mat, transform)` |
 
 Numeric **widening** is allowed where the manifest marks alternatives (many APIs accept int or float for coordinates).
 
-Variable types are determined implicitly by assignment (e.g. `speed = 5.5` makes it a float). Suffixes (`$` string, `#` float, `?` bool) are supported for legacy code but are no longer recommended for modern style — see [LANGUAGE.md](LANGUAGE.md).
+Variable types are determined implicitly by assignment (e.g. `speed = 5.5` makes it a float). moonBASIC **does not** use Blitz-style **`#` / `$` / `?` / `%`** suffixes on names — use plain identifiers and `DIM` / `AS` where you need explicit typing; see [STYLE_GUIDE.md](../STYLE_GUIDE.md) and [LANGUAGE.md](LANGUAGE.md).
 
 ---
 
@@ -42,44 +42,44 @@ Variable types are determined implicitly by assignment (e.g. `speed = 5.5` makes
 Almost all graphical programs follow this shape:
 
 ```basic
-Window.Open(960, 540, "Title")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "Title")
+WINDOW.SETFPS(60)
 
 ; setup handles, load assets, set variables
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()
 
     ; --- update (physics, input, AI) ---
 
     ; --- draw ---
-    Render.Clear(r, g, b)
+    RENDER.CLEAR(r, g, b)
     ; optional: Camera2D.Begin() / Camera2D.End() for screen-space 2D
-    ; optional: Camera.Begin(cam) / Camera.End() or RENDER.Begin3D(cam) / RENDER.End3D() for 3D
-    Draw.Rectangle(...)
-    Render.Frame()
+    ; optional: Camera.Begin(cam) / Camera.End() or RENDER.BEGIN3D(cam) / RENDER.END3D() for 3D
+    DRAW.RECTANGLE(...)
+    RENDER.FRAME()
 WEND
 
 ; free heap handles (fonts, meshes, textures) if you loaded any
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 Rules of thumb:
 
-- **`Render.Clear`** — first drawing call each frame (or after `Camera2D.Begin` / `Camera.Begin`, depending on your pipeline).
-- **`Render.Frame`** — last call each frame; swaps / presents the buffer.
-- **`Time.Delta()`** — seconds since last frame; multiply speeds by `dt` for **frame-rate-independent** motion.
-- **`Window.ShouldClose()`** — true when the user closes the window.
-- **`Input.KeyDown(KEY_ESCAPE)`** — common explicit quit.
+- **`RENDER.CLEAR`** — first drawing call each frame (or after `Camera2D.Begin` / `Camera.Begin`, depending on your pipeline).
+- **`RENDER.FRAME`** — last call each frame; swaps / presents the buffer.
+- **`TIME.DELTA()`** — seconds since last frame; multiply speeds by `dt` for **frame-rate-independent** motion.
+- **`WINDOW.SHOULDCLOSE()`** — true when the user closes the window.
+- **`INPUT.KEYDOWN(KEY_ESCAPE)`** — common explicit quit.
 
-moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell. For Blitz-style entity graphs, **`UpdatePhysics()`** (alias **`UPDATEPHYSICS`**) bundles **`ENTITY.UPDATE(Time.Delta)`** with optional world / physics steps — see [GETTING_STARTED](GETTING_STARTED.md) (**Modern Blitz-style 3D**).
+moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell. For Blitz-style entity graphs, **`UpdatePhysics()`** (alias **`UPDATEPHYSICS`**) bundles **`ENTITY.UPDATE(TIME.DELTA())`** with optional world / physics steps — see [GETTING_STARTED](GETTING_STARTED.md) (**Modern Blitz-style 3D**).
 
 ---
 
 ## 4. 2D vs 3D drawing
 
-- **Screen-space 2D** (pixels): **`Camera2D.Begin()`** … **`Camera2D.End()`** (identity camera) or pass a handle from **`Camera2D.Create()`** (deprecated **`Camera2D.MAKE`**) (see [RENDER](reference/RENDER.md), [CAMERA](reference/CAMERA.md)). There is no `Render.BeginMode2D` builtin.
-- **3D**: create `cam = CreateCamera()` (or **`CAMERA.CREATE()`**), configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc., or use **`RENDER.Begin3D(cam)`** / **`RENDER.End3D()`** (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
+- **Screen-space 2D** (pixels): **`Camera2D.Begin()`** … **`Camera2D.End()`** (identity camera) or pass a handle from **`Camera2D.Create()`** (deprecated **`Camera2D.MAKE`**) (see [RENDER](reference/RENDER.md), [CAMERA](reference/CAMERA.md)). **`RENDER.BEGINMODE2D`** / **`RENDER.ENDMODE2D`** are the Raylib mode pair when you need that stack (see [SPRITE](reference/SPRITE.md)).
+- **3D**: create `cam = CreateCamera()` (or **`CAMERA.CREATE()`**), configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc., or use **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`** (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
 
 Some 3D helpers are also registered under `DRAW.*` (e.g. `Draw.Grid` inside a camera block).
 
@@ -87,9 +87,9 @@ Some 3D helpers are also registered under `DRAW.*` (e.g. `Draw.Grid` inside a ca
 
 ## 5. Text without shipping a font file
 
-`Draw.Text(text, x, y, size, r, g, b, a)` uses Raylib’s **default font** — no `.ttf` path required. Use this in small demos and HUD.
+`DRAW.TEXT(text, x, y, size, r, g, b, a)` uses Raylib’s **default font** — no `.ttf` path required. Use this in small demos and HUD.
 
-For a **custom** font, `Font.Load(path)` returns a handle; draw with `Draw.TextEx` / `Draw.TextFont` style APIs (see [FONT](reference/FONT.md)). The repo **does not** ship `.ttf` files under `assets/`; add your own or rely on `Draw.Text`.
+For a **custom** font, `Font.Load(path)` returns a handle; draw with **`DRAW.TEXTEX`** / font-aware APIs (see [FONT](reference/FONT.md)). The repo **does not** ship `.ttf` files under `assets/`; add your own or rely on **`DRAW.TEXT`**.
 
 ---
 
@@ -155,9 +155,9 @@ For a **custom** font, `Font.Load(path)` returns a handle; draw with `Draw.TextE
 
 Use this alongside the loop in **§3**:
 
-- **Motion and animation** — Multiply speeds by **`Time.Delta()`** so gameplay stays consistent when FPS changes.
-- **2D physics** — Call **`Physics2D.Step()`** once per frame in the common case; set **`Physics2D.SetStep(dt)`** to match that step (e.g. `1/60` with **`Window.SetFPS(60)`**). Tune cost vs stability with **`Physics2D.SetIterations`** — see [PHYSICS2D.md](reference/PHYSICS2D.md).
-- **Heap handles** — Call **`*.Free`** for textures, fonts, sounds, and other handles when you are done, especially in long sessions or when reloading assets. **`Window.Close`** and process shutdown still run **`Heap.FreeAll`** as a safety net — see [MEMORY.md](MEMORY.md).
+- **Motion and animation** — Multiply speeds by **`TIME.DELTA()`** so gameplay stays consistent when FPS changes.
+- **2D physics** — Call **`Physics2D.Step()`** once per frame in the common case; set **`Physics2D.SetStep(dt)`** to match that step (e.g. `1/60` with **`WINDOW.SETFPS(60)`**). Tune cost vs stability with **`Physics2D.SetIterations`** — see [PHYSICS2D.md](reference/PHYSICS2D.md).
+- **Heap handles** — Call **`*.Free`** for textures, fonts, sounds, and other handles when you are done, especially in long sessions or when reloading assets. **`WINDOW.CLOSE`** and process shutdown still run **`Heap.FreeAll`** as a safety net — see [MEMORY.md](MEMORY.md).
 - **Churn** — Avoid creating many new handles or large temporary work every frame when you can reuse values or keep allocations outside the inner loop.
 - **Assets** — Prefer texture sizes and counts appropriate for the target resolution; fewer draw state changes usually help.
 - **Platform** — On **Windows**, **`CGO_ENABLED=0`** builds need **`raylib.dll`** on the DLL search path. Full **`Physics3D`** (Jolt) is only on **Linux** with CGO today — see **§7**.

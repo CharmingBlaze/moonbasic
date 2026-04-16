@@ -22,21 +22,21 @@ World.Preload(t, 3)
 
 
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 
-Camera.SetPos(cam, 128, 120, 200)
+CAMERA.SETPOS(cam, 128, 120, 200)
 
-Camera.SetTarget(cam, 128, 0, 128)
+CAMERA.SETTARGET(cam, 128, 0, 128)
 
 
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
     World.SetCenter(128 + SINRAD(Time.Get()) * 30, 128 + COSRAD(Time.Get()) * 30)
 
-    World.Update(dt#)
+    World.Update(dt)
 
     Render.Clear(40, 50, 70)
 
@@ -54,7 +54,7 @@ WEND
 
 
 
-Camera.Free(cam)
+CAMERA.FREE(cam)
 
 Terrain.Free(t)
 

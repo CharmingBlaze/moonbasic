@@ -68,26 +68,26 @@ Returns Euler's number (2.71828...). Alias: `E()`.
 ## Full Example: Circular Motion
 
 ```basic
-Window.Open(800, 600, "Math Example: Circular Motion")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "Math Example: Circular Motion")
+WINDOW.SETFPS(60)
 
 angle = 0.0
 radius = 150.0
 center_x = 400
 center_y = 300
 
-WHILE NOT Window.ShouldClose()
-    angle = angle + 2.0 * Time.Delta()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    angle = angle + 2.0 * TIME.DELTA()
 
-    x = center_x + INT(Math.Cos(angle) * radius)
-    y = center_y + INT(Math.Sin(angle) * radius)
+    x = center_x + INT(MATH.COS(angle) * radius)
+    y = center_y + INT(MATH.SIN(angle) * radius)
 
-    Render.Clear(20, 20, 20)
-    Draw.Rectangle(x - 15, y - 15, 30, 30, 200, 50, 150, 255)
-    Render.Frame()
+    RENDER.CLEAR(20, 20, 20)
+    DRAW.RECTANGLE(x - 15, y - 15, 30, 30, 200, 50, 150, 255)
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 ---
@@ -95,10 +95,10 @@ Window.Close()
 ## Full Example: Randomized Star Field
 
 ```basic
-Window.Open(800, 600, "Star Field")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "Star Field")
+WINDOW.SETFPS(60)
 
-Math.Randomize  ; Seed from system clock
+RANDOMIZE
 
 CONST STAR_COUNT = 200
 DIM sx(STAR_COUNT)
@@ -106,21 +106,21 @@ DIM sy(STAR_COUNT)
 DIM ss(STAR_COUNT)
 
 FOR i = 1 TO STAR_COUNT
-    sx(i) = Math.Rnd(800)
-    sy(i) = Math.Rnd(600)
-    ss(i) = Math.Rnd(3) + 1
+    sx(i) = MATH.RND(800)
+    sy(i) = MATH.RND(600)
+    ss(i) = MATH.RND(3) + 1
 NEXT
 
-WHILE NOT Window.ShouldClose()
-    Render.Clear(0, 0, 10)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(0, 0, 10)
     FOR i = 1 TO STAR_COUNT
-        bright = 150 + Math.Rnd(105)
-        Draw.Rectangle(sx(i), sy(i), ss(i), ss(i), bright, bright, bright, 255)
+        bright = 150 + MATH.RND(105)
+        DRAW.RECTANGLE(sx(i), sy(i), ss(i), ss(i), bright, bright, bright, 255)
     NEXT
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 ---

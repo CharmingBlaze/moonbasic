@@ -39,7 +39,9 @@ func registerEntityUnifiedModelAPI(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.RAYHIT", "entity", runtime.AdaptLegacy(m.entRayHit))
 	r.Register("ENTITY.POINTAT", "entity", runtime.AdaptLegacy(m.entPointEntity))
 	r.Register("ENTITY.ANIMNAME", "entity", m.entAnimNameAt)
+	r.Register("ENTITY.ANIMNAME$", "entity", m.entAnimNameAt)
 	r.Register("ENTITY.CURRENTANIM", "entity", m.entCurrentAnimName)
+	r.Register("ENTITY.CURRENTANIM$", "entity", m.entCurrentAnimName)
 }
 
 func (m *Module) entLoadAnimationsExternal(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

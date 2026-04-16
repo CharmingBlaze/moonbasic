@@ -4,69 +4,78 @@ A collection of beginner-friendly building blocks for common game patterns.
 
 ---
 
-## Entity Verbs
+## Entity verbs
 
-### `Entity.Distance(a, b)`
-Returns the 3D world distance between two entities.
+### `ENTITY.DISTANCE(a, b)` / `ENTITY.DIST` / `ENTITY.DISTANCETO(a, b)`
 
-### `Entity.DistanceXZ(a, b)`
-Returns the distance between two entities on the XZ plane (ignoring height).
+Returns the **3D** world distance between two entities (numeric **entity#** or **EntityRef** handle). **`ENTITY.DISTANCETO`** is the same distance; **`ENTITY.DIST`** is a short alias.
 
----
+### Horizontal (XZ) distance
 
-### `Entity.Within(a, b, radius)`
-Returns `TRUE` if entity `b` is within a 3D `radius` of entity `a`.
-
-### `Entity.WithinXZ(a, b, radius)`
-Returns `TRUE` if entity `b` is within a 2D `radius` of entity `a` on the XZ plane.
+There is no separate **XZ-only** built-in. Use **`ENTITY.GETPOS`** on both entities and compare on **X/Z**, or use **`ENTITY.WITHINRADIUS`** when a **3D** sphere test is acceptable.
 
 ---
 
-### `Entity.MoveToward(id, target, speed)`
-Moves an entity toward a target position or another entity at a specific speed.
+### `ENTITY.WITHINRADIUS(a, b, radius)`
 
-### `Entity.TurnToward(id, target, speed)`
-Smoothly rotates an entity to face a target point or entity.
-
-### `Entity.LookAt(id, x, y, z)`
-Instantly makes an entity face a world position.
+Returns **`TRUE`** if entity **`b`** is within **3D** **`radius`** of entity **`a`** (center-to-center sphere test).
 
 ---
 
-## World Helpers
+### `ENTITY.MOVETOWARD(id, target, speed)` / `ENTITY.MOVETOWARD(id, x, z, speed)`
 
-### `World.GetGroundY(x, z)`
-Returns the terrain height at the specified world coordinates.
+Moves an entity toward a **target entity** or a world **(x, z)** on the ground plane at **`speed`**.
 
-### `World.Raycast(ox, oy, oz, dx, dy, dz, max)`
-Returns the ID of the first entity hit by a ray, or `0` if none.
+### `ENTITY.TURNTOWARD(id, targetX, targetZ, turnSpeed)`
+
+Smoothly rotates an entity to face a world **(x, z)** position at **`turnSpeed`**.
+
+### `ENTITY.LOOKAT(id, x, z)`
+
+Instantly makes an entity face a world **(x, z)** position.
 
 ---
 
-## Character & Camera
+## World / terrain
 
-### `Entity.MoveWithCamera(id, cam, f, s, speed)`
+### `TERRAIN.GETHEIGHT(terrain, x, z)`
+
+Returns the terrain surface height at world **(x, z)** for a loaded heightmap terrain **handle** (see [TERRAIN.md](TERRAIN.md)).
+
+### `ENTITY.RAYCAST(ox, oy, oz, dx, dy, dz, maxDist)`
+
+Physics ray cast (Jolt path when linked); returns the first hit **entity#** or **`0`**. Same family as **`PHYSICS3D.RAYCAST`** / picking — see [ENTITY.md](ENTITY.md) and [PHYSICS3D.md](PHYSICS3D.md).
+
+---
+
+## Character and camera
+
+### `ENTITY.MOVEWITHCAMERA(id, cam, forward, strafe, speed)`
+
 Moves an entity relative to the camera's orientation (WASD style).
 
-### `Camera.Orbit(cam, id, dist)`
-Sets up a third-person orbit camera around an entity.
+### `CAMERA.ORBITENTITY(cam, entity, yaw, pitch, dist)`
+
+Sets up a third-person orbit camera around an entity (see runtime **`CAMERA.ORBITENTITY`** — **yaw**, **pitch**, **dist** in radians / world units).
 
 ---
 
 ## Examples
 
-### Proximity Trigger
+### Proximity trigger
+
 ```basic
-IF Entity.WithinXZ(player, door, 2.0) THEN
-    Entity.TurnToward(door, player, 5.0)
+px, py, pz = ENTITY.GETPOS(player)
+IF ENTITY.WITHINRADIUS(player, door, 2.0) THEN
+    ENTITY.TURNTOWARD(door, px, pz, 5.0)
     PRINT "Door opening..."
 ENDIF
 ```
 
-### Camera-Relative Movement
-```basic
-f = Input.Axis(KEY_S, KEY_W)
-s = Input.Axis(KEY_A, KEY_D)
-Entity.MoveWithCamera(player, mainCam, f, s, 10.0)
-```
+### Camera-relative movement
 
+```basic
+f = INPUT.AXIS(KEY_S, KEY_W)
+s = INPUT.AXIS(KEY_A, KEY_D)
+ENTITY.MOVEWITHCAMERA(player, mainCam, f, s, 10.0)
+```

@@ -1,8 +1,8 @@
 ops = 800000
 i = 0
-acc# = 0
+acc = 0
 WHILE i < ops
-    acc# = acc# + MATH.SQR(FLOAT((i / 16) + 1))
+    acc = acc + MATH.SQR(FLOAT((i / 16) + 1))
     i = i + 1
 WEND
-PRINT("MOONBENCH note=physics_math ops=" + STR$(ops))
+PRINT("MOONBENCH note=physics_math ops=" + STR(ops))

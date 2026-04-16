@@ -4,7 +4,7 @@
 |----------|------------|----------------|
 | **Physics3D.Start()** | **`PHYSICS3D.START`** | Initializes the 3D physics world. **Linux + CGO + jolt-go** only. |
 | **Physics3D.Stop()** | **`PHYSICS3D.STOP`** | Shuts down the simulation and frees resources. |
-| **Physics3D.Step()** | **`PHYSICS3D.STEP`** | Advances simulation (call once per frame). |
+| **Physics3D.Step()** / **Physics3D.Update()** | **`PHYSICS3D.STEP`** / **`PHYSICS3D.UPDATE`** | Same implementation — advance simulation once per frame (optional **`dt`**). Prefer **`UPDATE`** in new scripts. |
 | **Physics3D.SetGravity(x, y, z)** | **`PHYSICS3D.SETGRAVITY`** | Sets the global gravity vector. |
 | **Body3D.Create(type)** | **`BODY3D.CREATE`** (deprecated **`BODY3D.MAKE`**) | Creates a body definition (`"static"`, `"dynamic"`, `"kinematic"`). |
 | **Body3D.AddBox(def, w, h, d)** | **`BODY3D.ADDBOX`** | Adds a box collision shape to the definition. |

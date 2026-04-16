@@ -26,6 +26,7 @@ func (m *Module) registerHost(reg runtime.Registrar) {
 	reg.Register("SYSTEM.FREEMEMORY", "system", m.sysFreeMemory)
 	reg.Register("SYSTEM.GETENV", "system", m.sysGetenv)
 	reg.Register("ENVIRON", "system", m.sysGetenv)
+	reg.Register("ENVIRON$", "system", m.sysGetenv)
 	reg.Register("SYSTEM.SETENV", "system", m.sysSetenv)
 	reg.Register("SYSTEM.EXECUTE", "system", m.sysExecute)
 	reg.Register("SYSTEM.OPENURL", "system", m.sysOpenURL)

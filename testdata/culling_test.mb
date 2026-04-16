@@ -11,46 +11,46 @@ World.StreamEnable(TRUE)
 World.Preload(terrain, 3)
 
 objN = 120
-DIM ox#(objN)
-DIM oy#(objN)
-DIM oz#(objN)
-DIM orad#(objN)
+DIM ox(objN)
+DIM oy(objN)
+DIM oz(objN)
+DIM orad(objN)
 
 RANDOMIZE(12345)
 FOR i = 0 TO objN - 1
-    ox#(i) = RNDF(10, 246)
-    oz#(i) = RNDF(10, 246)
-    oy#(i) = Terrain.GetHeight(terrain, ox#(i), oz#(i)) + 1.5
-    orad#(i) = RNDF(0.8, 3.0)
+    ox(i) = RNDF(10, 246)
+    oz(i) = RNDF(10, 246)
+    oy(i) = Terrain.GetHeight(terrain, ox(i), oz(i)) + 1.5
+    orad(i) = RNDF(0.8, 3.0)
 NEXT
 
 Cull.SetMaxDistance(400)
 
-cam = CreateCamera()
-Camera.SetPos(cam, 128, 55, 200)
-Camera.SetTarget(cam, 128, 20, 128)
-Camera.SetFOV(cam, 70)
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 128, 55, 200)
+CAMERA.SETTARGET(cam, 128, 20, 128)
+CAMERA.SETFOV(cam, 70)
 
-cx# = 128
-cz# = 200
+cx = 128
+cz = 200
 show? = TRUE
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
+    dt = Time.Delta()
     IF Input.KeyPressed(KEY_F1) THEN
         show? = NOT show?
     ENDIF
 
-    IF Input.KeyDown(KEY_W) THEN cz# = cz# - 50 * dt#
-    IF Input.KeyDown(KEY_S) THEN cz# = cz# + 50 * dt#
-    IF Input.KeyDown(KEY_A) THEN cx# = cx# - 50 * dt#
-    IF Input.KeyDown(KEY_D) THEN cx# = cx# + 50 * dt#
+    IF Input.KeyDown(KEY_W) THEN cz = cz - 50 * dt
+    IF Input.KeyDown(KEY_S) THEN cz = cz + 50 * dt
+    IF Input.KeyDown(KEY_A) THEN cx = cx - 50 * dt
+    IF Input.KeyDown(KEY_D) THEN cx = cx + 50 * dt
 
-    Camera.SetPos(cam, cx#, 55, cz#)
-    Camera.SetTarget(cam, cx#, 25, cz# - 35)
+    CAMERA.SETPOS(cam, cx, 55, cz)
+    CAMERA.SETTARGET(cam, cx, 25, cz - 35)
 
-    World.SetCenter(cx#, cz#)
-    World.Update(dt#)
+    World.SetCenter(cx, cz)
+    World.Update(dt)
 
     Cull.StatsReset()
 
@@ -61,8 +61,8 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
         drawn = 0
         FOR i = 0 TO objN - 1
-            IF Cull.InRange(ox#(i), oy#(i), oz#(i), 400) AND Cull.SphereVisible(ox#(i), oy#(i), oz#(i), orad#(i)) THEN
-                Draw3D.Sphere(ox#(i), oy#(i), oz#(i), orad#(i), 255, 120, 60, 255)
+            IF Cull.InRange(ox(i), oy(i), oz(i), 400) AND Cull.SphereVisible(ox(i), oy(i), oz(i), orad(i)) THEN
+                Draw3D.Sphere(ox(i), oy(i), oz(i), orad(i), 255, 120, 60, 255)
                 drawn = drawn + 1
             ENDIF
         NEXT
@@ -76,23 +76,23 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         tot = Cull.StatsTotal()
         vis = Cull.StatsVisible()
         cul = Cull.StatsCulled()
-        Draw.Text("Tested " + STR$(tot) + "  Vis " + STR$(vis) + "  Cul " + STR$(cul) + "  Drawn " + STR$(drawn), 12, 38, 15, 220, 220, 200, 255)
-        Draw.Text("Chunks " + STR$(Chunk.Count(terrain)) + "  FPS " + STR$(TIME.GETFPS()), 12, 58, 14, 200, 200, 200, 255)
+        Draw.Text("Tested " + STR(tot) + "  Vis " + STR(vis) + "  Cul " + STR(cul) + "  Drawn " + STR(drawn), 12, 38, 15, 220, 220, 200, 255)
+        Draw.Text("Chunks " + STR(Chunk.Count(terrain)) + "  FPS " + STR(TIME.GETFPS()), 12, 58, 14, 200, 200, 200, 255)
         IF tot > 0 THEN
-            prog# = vis * 1.0 / tot
-            DRAW.PROGRESSBAR(12, 82, 280, 14, prog#, 80, 200, 120, 255)
+            prog = vis * 1.0 / tot
+            DRAW.PROGRESSBAR(12, 82, 280, 14, prog, 80, 200, 120, 255)
         ENDIF
     ENDIF
 
     Render.Frame()
 WEND
 
-ERASE(ox#)
-ERASE(oy#)
-ERASE(oz#)
-ERASE(orad#)
+ERASE(ox)
+ERASE(oy)
+ERASE(oz)
+ERASE(orad)
 Terrain.Free(terrain)
-Camera.Free(cam)
+CAMERA.FREE(cam)
 Window.Close()
 
 PRINT("culling_test OK")

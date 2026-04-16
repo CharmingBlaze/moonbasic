@@ -1,73 +1,75 @@
 ; kcc_buoyancy.mb - Professional KCC Buoyancy Example
 ; Demonstrates floating, drag, and swim mode.
+; Run: go run -tags fullruntime . --run examples/kcc_buoyancy.mb
 
 WINDOW.OPEN(1280, 720, "MoonBASIC KCC Buoyancy")
 PHYSICS3D.START()
 
-; Pool floor volume (half 25, 5, 25)
+; Pool floor volume
 poolDef = BODY3D.CREATE("STATIC")
-BODY3D.ADDBOX(poolDef, 25, 5, 25)
-poolBody = BODY3D.COMMIT(poolDef, 0, -5, 0)
+poolDef.ADDBOX(25, 5, 25)
+poolBody = poolDef.COMMIT(0, -5, 0)
 
-; Initialize character
-radius = 0.4
-height = 1.8
-char = CHARCONTROLLER.CREATE(0, 5, 0, radius, height)
+; Initialize character: (radius, height, x, y, z)
+char = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
 
 cam = CAMERA.CREATE()
-CAMERA.SETMODE(cam, 1)
+cam.SETMODE(1)
 
 PRINT("KCC Buoyancy Demo")
 PRINT("The character will enter the water at Y below 2")
 
 WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    
     ; Movement
     vx = 0 : vz = 0
-    IF KEYDOWN(KEY_UP) THEN vz = 4
-    IF KEYDOWN(KEY_DOWN) THEN vz = -4
+    IF INPUT.KEYDOWN(KEY_UP) THEN vz = 4
+    IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -4
     
-    ; Check for water region (Y < 2m)
+    ; Logic
     px, py, pz = CHARACTERREF.GETPOSITION(char)
+    
     IF py < 2 THEN
         ; Entering water
-        CHARACTERREF.SETSETTING(char, "SWIMMODE", 1)
-        CHARACTERREF.SETSETTING(char, "BUOYANCY", 0.8) ; 80 percent gravity cancelled
-        CHARACTERREF.SETSETTING(char, "DRAG", 2.0)     ; Slow down linear movement
+        char.SETSETTING("SWIMMODE", 1)
+        char.SETSETTING("BUOYANCY", 0.8) ; 80 percent gravity cancelled
+        char.SETSETTING("DRAG", 2.0)     ; Slow down linear movement
         
         ; Swim up
-        IF KEYDOWN(KEY_SPACE) THEN 
-            CHARACTERREF.ADDVELOCITY(char, 0, 0.5, 0)
+        IF INPUT.KEYDOWN(KEY_SPACE) THEN 
+            v = char.GETLINEARVEL()
+            char.SETVELOCITY(v(1), v(2) + 0.5, v(3))
         ENDIF
     ELSE
         ; Out of water
-        CHARACTERREF.SETSETTING(char, "SWIMMODE", 0)
+        char.SETSETTING("SWIMMODE", 0)
         
         ; Regular jump
-        IF INPUT.KEYPRESSED(KEY_SPACE) AND CHARACTERREF.ISGROUNDED(char) THEN
-            CHARACTERREF.JUMP(char, 6)
+        IF INPUT.KEYDOWN(KEY_SPACE) AND char.ISGROUNDED() THEN
+            char.JUMP(12.0)
         ENDIF
     ENDIF
     
-    CHARACTERREF.SETVELOCITY(char, vx, 0, vz)
-    CHARACTERREF.UPDATE(char)
+    char.SETVELOCITY(vx, 0, vz)
+    char.UPDATE()
     
     ; Sync camera
-    px, py, pz = CHARACTERREF.GETPOSITION(char)
-    CAMERA.SETPOS(cam, px, py + 1.6, pz - 8)
-    CAMERA.SETTARGET(cam, px, py + 1.2, pz)
+    cam.SETPOS(px, py + 1.6, pz - 8)
+    cam.SETTARGET(px, py + 1.2, pz)
     
     RENDER.CLEAR(40, 44, 52)
-    CAMERA.BEGIN(cam)
+    cam.BEGIN()
     PHYSICS3D.DEBUGDRAW(1)
     ; Water indicator
     IF py < 2 THEN
         DRAW.RECTANGLE(0, 0, 1280, 720, 0, 80, 255, 51)
         DRAW.TEXT("SUBMERGED", 10, 10, 30, 0, 255, 255, 255)
     ENDIF
-    CAMERA.END()
+    cam.END()
     RENDER.FRAME()
 WEND
 
-CHARCONTROLLER.FREE(char)
+char.FREE()
 PHYSICS3D.STOP()
 WINDOW.CLOSE()

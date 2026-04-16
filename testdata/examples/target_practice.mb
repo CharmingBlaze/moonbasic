@@ -4,12 +4,12 @@
 PHYSICS3D.START()
 PHYSICS3D.SETGRAVITY(0, -9.81, 0)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 
 fd = BODY3D.CREATE("static")
 BODY3D.ADDBOX(fd, 30, 1, 30)
 floorB = BODY3D.COMMIT(fd, 0, -0.5, 0)
-floorE = CreateCube()
+floorE = ENTITY.CREATECUBE(1, 1, 1)
 ENTITY.LINKPHYSBUFFER(floorE, BODY3D.BUFFERINDEX(floorB))
 ENTITY.COLLISIONLAYER(floorE, 0)
 
@@ -17,18 +17,18 @@ bd = BODY3D.CREATE("dynamic")
 BODY3D.ADDBOX(bd, 1, 1, 1)
 boxB = BODY3D.COMMIT(bd, 0, 2, -6)
 BODY3D.ACTIVATE(boxB)
-boxE = CreateCube()
+boxE = ENTITY.CREATECUBE(1, 1, 1)
 ENTITY.LINKPHYSBUFFER(boxE, BODY3D.BUFFERINDEX(boxB))
 ENTITY.COLLISIONLAYER(boxE, 1)
 
 PICK.LAYERMASK(2)
 
 FOR frame = 1 TO 600
-    PHYSICS3D.STEP(1.0 / 60.0)
+    PHYSICS3D.STEP()
     ENTITY.ROTATE(boxE, 0, 0.02, 0)
     t = PICK.SCREENCAST(cam, 400, 300)
     IF t > 0 THEN
-        PRINT "hit "; t
+        PRINT("hit ", t)
         ENTITY.FREE(t)
     ENDIF
 NEXT frame

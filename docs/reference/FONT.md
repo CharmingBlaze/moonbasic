@@ -1,25 +1,27 @@
-# Font Commands
+# Font (`FONT.*`, `DRAW.TEXTFONT`)
 
-Commands for loading and drawing with custom fonts.
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Font.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
 
 ## Core Workflow
 
-1.  **Load Font**: Use `Font.Load()` to load a `.ttf` or `.otf` file. Store the returned handle.
-2.  **Draw Text**: In the main loop, use `Draw.TextFont()` with the font handle to draw text.
-3.  **Free Font**: When you are done, call `Font.Free()` to unload the font from memory.
+1. **Load:** **`FONT.LOAD(path)`** — `.ttf` / `.otf`; store the returned handle.
+2. **Draw:** **`DRAW.TEXTFONT(handle, text, x, y, size, spacing, r, g, b, a)`** inside **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** (or your active 2D camera bracket).
+3. **Free:** **`FONT.FREE(handle)`** when done.
 
 ---
 
-### `Font.Load(path)`
+### `FONT.LOAD(path)`
 Loads a `.ttf` or `.otf` font file from disk. Returns a **font handle**.
 
-### `Font.Free(handle)`
+### `FONT.FREE(handle)`
 Unloads a font from memory and releases its heap slot.
 
 ---
 
-### `Draw.TextFont(handle, text, x, y, size, spacing, r, g, b, a)`
-Draws text using a specific font handle. This must be called within a **`Camera2D.Begin()`** / **`Camera2D.End()`** block.
+### `DRAW.TEXTFONT(handle, text, x, y, size, spacing, r, g, b, a)`
+Draws text using a specific font handle. Call within **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** (or your active 2D camera bracket).
 - `handle`: The handle of the loaded font.
 - `text`: The string to draw.
 - `x`, `y`: Screen position.
@@ -34,33 +36,28 @@ Draws text using a specific font handle. This must be called within a **`Camera2
 This example assumes you have a font file named `my_font.ttf` in the same directory as your script.
 
 ```basic
-Window.Open(800, 600, "Font Example")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "Font Example")
+WINDOW.SETFPS(60)
 
-; 1. Load the font
-my_font = Font.Load("my_font.ttf")
+myFont = FONT.LOAD("my_font.ttf")
 
-IF my_font = 0 THEN
-    PRINT "Error: Could not load my_font.ttf"
-    Window.Close()
+IF myFont = 0 THEN
+    PRINT("Error: Could not load my_font.ttf")
+    WINDOW.CLOSE()
     SYSTEM.EXIT()
 ENDIF
 
-WHILE NOT Window.ShouldClose()
-    Render.Clear(50, 60, 70)
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(50, 60, 70)
 
-    Camera2D.Begin()
-        ; 2. Draw text using the loaded font
-        Draw.TextFont(my_font, "Hello, moonBASIC!", 100, 200, 48, 2, 255, 200, 100, 255)
+    CAMERA2D.BEGIN()
+        DRAW.TEXTFONT(myFont, "Hello, moonBASIC!", 100, 200, 48, 2, 255, 200, 100, 255)
+        DRAW.TEXT("This is the default system font.", 100, 300, 20, 200, 200, 200, 255)
+    CAMERA2D.END()
 
-        ; You can still use the default font for other text
-        Draw.Text("This is the default system font.", 100, 300, 20, 200, 200, 200, 255)
-    Camera2D.End()
-
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-; 3. Free the font
-Font.Free(my_font)
-Window.Close()
+FONT.FREE(myFont)
+WINDOW.CLOSE()
 ```

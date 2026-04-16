@@ -1,89 +1,89 @@
 ; ==========================================
 ; moonBASIC 64 — Modern KCC Hop
 ; ==========================================
-; Demonstrates the "Ultimate Engine" Gameplay API.
-; Works on Windows (Software KCC) and Linux (Jolt KCC).
-;
-; cam.Orbit(entity, distance) — engine orbit: R-drag, Q/E yaw, wheel zoom (no manual MOUSEDX).
-; CHAR.MOVEWITHCAMERA — WASD in camera space.
+; Demonstrates the v1.0 standardized handle-based API.
+; Run: go run -tags fullruntime . --run examples/mario64/modern_kcc_hop.mb
 
-Window.Open(1280, 720, "moonBASIC 64 (Ultimate KCC)")
-Window.SetFPS(60)
+WINDOW.OPEN(1280, 720, "moonBASIC 64 (Ultimate KCC)")
+WINDOW.SETFPS(60)
 
 PHYSICS3D.START()
-WORLD.Gravity(0, -40, 0)
+PHYSICS3D.SETGRAVITY(0, -40, 0)
 
-cam = CreateCamera()
-cam.SetFOV(60)
+cam = CAMERA.CREATE()
+cam.SETFOV(60)
 
 ; Player Setup
-player = Model.CreateCapsule(0.4, 1.0)
-player.Pos(0, 5, 0)
-player.Color(255, 60, 60)
-CHAR.CREATE(player, 0.4, 1.0)
-CHAR.SETSTEP(player, 0.3)
-CHAR.STICK(player, 0.5)
+player = MODEL.CREATECAPSULE(0.4, 1.0)
+player.SETPOS(0, 5, 0)
+player.SETCOLOR(255, 60, 60)
+
+; Standard: CHARACTER.CREATE(entity)
+CHARACTER.CREATE(player)
+player.SETSTEPHEIGHT(0.3)
+player.SETSNAPDISTANCE(0.5)
 
 ; Floor
-floor = Model.CreateBox(100, 2, 100)
-floor.Pos(0, -1, 0)
-floor.Color(60, 200, 90)
-ENTITY.SETCOLLISIONGROUP(floor, 1)
+floor = MODEL.CREATEBOX(100, 2, 100)
+floor.SETPOS(0, -1, 0)
+floor.SETCOLOR(60, 200, 90)
+floor.SETCOLLISIONGROUP(1)
 
 ; A little stair to test steps
-stair = Model.CreateBox(4, 0.25, 4)
-stair.Pos(5, 0.1, 0)
-stair.Color(200, 256, 200) ; Tinting
-ENTITY.SETCOLLISIONGROUP(stair, 1)
+stair = MODEL.CREATEBOX(4, 0.25, 4)
+stair.SETPOS(5, 0.1, 0)
+stair.SETCOLOR(200, 255, 200)
+stair.SETCOLLISIONGROUP(1)
 
 ; Target for Navigation test
-target = Model.CreateBox(1, 1, 1)
-target.Pos(10, 0.5, 10)
-target.Color(255, 255, 0)
-ENTITY.RADIUS(target, 0.5)
-ENT.WOBBLE(target, 0.2, 5.0)
+target = MODEL.CREATEBOX(1, 1, 1)
+target.SETPOS(10, 0.5, 10)
+target.SETCOLOR(255, 255, 0)
+target.SETRADIUS(0.5)
+target.WOBBLE(0.2, 5.0)
 
-cam.Orbit(player, 12.0)
-player.SetRot(0, cam.Yaw(), 0)
+cam.SETORBIT(player, 12.0)
+player.SETROT(0, cam.YAW(), 0)
 
-While Not (KEYDOWN(KEY_ESCAPE) Or Window.ShouldClose())
-    mz = Input.Axis(KEY_S, KEY_W)
-    mx = Input.Axis(KEY_A, KEY_D)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    mz = INPUT.AXIS(KEY_S, KEY_W)
+    mx = INPUT.AXIS(KEY_A, KEY_D)
 
-    CHAR.MOVEWITHCAMERA(player, cam, mz, mx, 10.0)
-    NAV.UPDATE(player)
+    ; WASD in camera space
+    player.MOVEWITHCAMERA(cam, mz, mx, 10.0)
+    player.NAVUPDATE()
 
-    ; Player.GetGrounded() — implicit KCC subject after CHAR.CREATE
-    If KEYPRESSED(KEY_SPACE) And Player.GetGrounded() Then
-        CHAR.JUMP(player, 15.0)
-        ENTITY.SQUASH(player, 0.7, 0.2)
-    EndIf
+    ; Handle methods for life
+    IF INPUT.KEYPRESSED(KEY_SPACE) AND player.ISGROUNDED() THEN
+        player.JUMP(15.0)
+        player.SQUASH(0.7, 0.2)
+    ENDIF
 
     ; Navigation Toggle (G key)
-    If KEYPRESSED(71) Then
-        NAV.GOTO(player, 10, 10, 8.0)
-    EndIf
+    IF INPUT.KEYPRESSED(KEY_G) THEN
+        player.NAVTO(10, 10, 8.0)
+    ENDIF
 
-    UPDATEPHYSICS()
+    ; Synchronize physics
+    PHYSICS3D.UPDATE()
 
-    cam.Orbit(player, 12.0)
-    player.SetRot(0, cam.Yaw(), 0)
+    cam.SETORBIT(player, 12.0)
+    player.SETROT(0, cam.YAW(), 0)
 
-    RENDER.Clear(100, 150, 250)
-
-    cam.Begin()
+    RENDER.CLEAR(100, 150, 250)
+    cam.BEGIN()
         ENTITY.DRAWALL()
-    cam.End()
+    cam.END()
 
     DRAW.TEXT("WASD: Move · R-drag orbit · Q/E yaw · wheel zoom · SPACE: Jump · G: Nav to yellow", 10, 10, 20, 255, 255, 255, 255)
 
-    If Player.GetGrounded() Then
-        DRAW.TEXT("GROUNDED (Player.GetGrounded)", 10, 40, 18, 0, 255, 0, 255)
-    Else
+    IF player.ISGROUNDED() THEN
+        DRAW.TEXT("GROUNDED (player.ISGROUNDED)", 10, 40, 18, 0, 255, 0, 255)
+    ELSE
         DRAW.TEXT("AIRBORNE", 10, 40, 18, 255, 0, 0, 255)
-    EndIf
+    ENDIF
 
     RENDER.FRAME()
-Wend
+WEND
 
-Window.Close()
+WINDOW.CLOSE()

@@ -5,27 +5,27 @@ bg_r = 20
 bg_g = 20
 bg_b = 40
 
-px# = 400
-py# = 300
-pspeed# = 200
+px = 400
+py = 300
+pspeed = 200
 score = 0
 font = Font.Load("assets/fonts/dm_sans.ttf")
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
-    IF Input.KeyDown(KEY_W) THEN py# = py# - pspeed# * dt#
-    IF Input.KeyDown(KEY_S) THEN py# = py# + pspeed# * dt#
-    IF Input.KeyDown(KEY_A) THEN px# = px# - pspeed# * dt#
-    IF Input.KeyDown(KEY_D) THEN px# = px# + pspeed# * dt#
+    IF Input.KeyDown(KEY_W) THEN py = py - pspeed * dt
+    IF Input.KeyDown(KEY_S) THEN py = py + pspeed * dt
+    IF Input.KeyDown(KEY_A) THEN px = px - pspeed * dt
+    IF Input.KeyDown(KEY_D) THEN px = px + pspeed * dt
 
-    px# = MATH.MIN(780, MATH.MAX(0, px#))
-    py# = MATH.MIN(580, MATH.MAX(0, py#))
+    px = MATH.MIN(780, MATH.MAX(0, px))
+    py = MATH.MIN(580, MATH.MAX(0, py))
 
     score = score + 1
 
     Render.Clear(bg_r, bg_g, bg_b)
-    Draw.Rectangle(INT(px#), INT(py#), 20, 20, 100, 200, 255, 255)
+    Draw.Rectangle(INT(px), INT(py), 20, 20, 100, 200, 255, 255)
     Render.Frame()
 WEND
 

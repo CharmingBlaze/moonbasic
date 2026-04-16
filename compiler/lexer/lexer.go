@@ -1,8 +1,9 @@
 // Package lexer implements the moonBASIC tokeniser.
 //
-// All identifiers are normalised to uppercase at scan time. String literal
-// contents are never uppercased. [ and ] map to LPAREN and RPAREN. CRLF is
-// normalised to LF before scanning.
+// Identifier and keyword token text (Lit) is normalised to lowercase for a
+// canonical spelling; keyword classification uses an uppercase view of the raw
+// letters. String literal contents are not altered. [ and ] map to LPAREN and
+// RPAREN. CRLF is normalised to LF before scanning.
 //
 // Sub-files (lexer_ident.go, lexer_number.go, lexer_string.go) rely on this
 // Lexer API only:

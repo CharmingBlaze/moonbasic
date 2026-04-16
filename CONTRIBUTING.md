@@ -63,6 +63,14 @@ Before pushing Go changes, run **`bash scripts/check_builds.sh`** (or **`make ch
 
 **Ease-of-use helpers:** New pattern commands (movement, snapping, camera-relative input, etc.) should complement—not replace—existing `MATH.*` / vector primitives. Naming, tuples, and documentation expectations are summarized in [`docs/EASY_LANGUAGE.md`](docs/EASY_LANGUAGE.md).
 
+## API style (examples and docs)
+
+New scripts and documentation should follow **`Namespace.Method`** with **`CREATE`** / **`SETPOS`** (not deprecated `MAKE` / `SETPOSITION` in new material). Universal handle methods (`.pos()`, `.free()`, …) are preferred over mixing Easy Mode globals in the same file when practical.
+
+- [STYLE_GUIDE.md](STYLE_GUIDE.md) — normative patterns and chaining
+- [docs/API_STANDARDIZATION_DIRECTIVE.md](docs/API_STANDARDIZATION_DIRECTIVE.md) — roadmap and checklist
+- [docs/EASY_MODE.md](docs/EASY_MODE.md) — when global shorthands are acceptable
+
 ## Architecture
 
 High-level pipeline and layout: [ARCHITECTURE.md](ARCHITECTURE.md). Deeper contributor map: [docs/DEVELOPER.md](docs/DEVELOPER.md).

@@ -5,7 +5,7 @@
 Window.Open(960, 540, "Procedural mesh")
 Window.SetFPS(60)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 
 pyramid = CreateMesh()
 surf = CreateSurface(pyramid)

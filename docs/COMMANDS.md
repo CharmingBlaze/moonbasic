@@ -299,7 +299,7 @@ All math functions are also available as `MATH.name(...)` (e.g. `MATH.SIN`, `MAT
 
 ## Module Commands
 
-moonBASIC uses a dot-notation module system for its game engine commands. These all use the form `Module.Command(args)`. They can also be called on a handle variable: `cam = CreateCamera()` (Easy Mode → `CAMERA.CREATE`) then `cam.SetPos(0, 5, 10)` — deprecated `Camera.Make()` / `CAMERA.MAKE` still compile with a warning.
+moonBASIC uses a dot-notation module system for its game engine commands. Tables below list **registry keys** (`WINDOW.*`, `RENDER.*`, …) first; **Easy Mode** (`Window.Open`, `Render.Clear`, …) compiles to the same keys — see [STYLE_GUIDE.md](../STYLE_GUIDE.md) and [EASY_MODE.md](EASY_MODE.md). They can also be called on a handle variable: `cam = CreateCamera()` (Easy Mode → `CAMERA.CREATE`) then `cam.SetPos(0, 5, 10)` — deprecated `Camera.Make()` / `CAMERA.MAKE` still compile with a warning.
 
 > **Note:** Commands listed as `**[PARTIAL]**` or `**[MISSING]**` in this section are planned features that are not yet fully implemented.
 
@@ -309,11 +309,11 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Window.Open(w, h, title)` | Opens the window. |
-| `Window.Close()` | Closes the window and exits. |
-| `Window.ShouldClose()` | Returns `TRUE` when user requests close. |
-| `Window.SetFPS(fps)` | Sets the target frame rate. |
-| `Window.SetTitle(title)` | Updates the window title. |
+| `WINDOW.OPEN(w, h, title)` | Opens the window. |
+| `WINDOW.CLOSE()` | Closes the window and exits. |
+| `WINDOW.SHOULDCLOSE()` | Returns `TRUE` when user requests close. |
+| `WINDOW.SETFPS(fps)` | Sets the target frame rate. |
+| `WINDOW.SETTITLE(title)` | Updates the window title. |
 
 ---
 
@@ -321,10 +321,10 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Render.Clear(r, g, b, [a])` | Clears the screen. |
-| `Render.Frame()` | Presents the rendered frame. |
-| `Render.DrawFPS(x, y)` | Draws the current FPS. |
-| `Render.Width()` / `Render.Height()` | Returns framebuffer dimensions. |
+| `RENDER.CLEAR(r, g, b, [a])` | Clears the screen. |
+| `RENDER.FRAME()` | Presents the rendered frame. |
+| `RENDER.DRAWFPS(x, y)` | Draws the current FPS. |
+| `RENDER.WIDTH()` / `RENDER.HEIGHT()` | Returns framebuffer dimensions. |
 
 ---
 
@@ -333,10 +333,10 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 | Command | Description |
 |---|---|
 | `CreateCamera()` / `CAMERA.CREATE()` | Creates a 3D camera handle (deprecated: `Camera.Make()` / `CAMERA.MAKE`). |
-| `Camera.Begin(cam)` | Enters 3D mode. |
-| `Camera.End()` | Exits 3D mode. |
-| `Camera.SetPos(cam, x, y, z)` | Sets camera position. |
-| `Camera.SetTarget(cam, x, y, z)` | Sets look-at point. |
+| `CAMERA.BEGIN(cam)` | Enters 3D mode. |
+| `CAMERA.END()` | Exits 3D mode. |
+| `CAMERA.SETPOS(cam, x, y, z)` | Sets camera position. |
+| `CAMERA.SETTARGET(cam, x, y, z)` | Sets look-at point. |
 
 ---
 
@@ -344,11 +344,11 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Entity.Load(path)` | Loads a 3D model. |
-| `Entity.CreateCube(size)` | Creates a cube entity. |
-| `Entity.Position(id, x, y, z)` | Sets world position. |
-| `Entity.Turn(id, p, y, r)` | Adds rotation delta. |
-| `Entity.Free(id)` | Frees the entity. |
+| `ENTITY.LOAD(path)` | Loads a 3D model. |
+| `ENTITY.CREATECUBE(size)` | Creates a cube entity. |
+| `ENTITY.SETPOS(id, x, y, z)` | Sets world position. |
+| `ENTITY.TURN(id, p, y, r)` | Adds rotation delta. |
+| `ENTITY.FREE(id)` | Frees the entity. |
 
 ---
 
@@ -356,25 +356,23 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Draw.Rectangle(x, y, w, h, r, g, b, a)` | Filled rectangle. |
-| `Draw.RectangleRounded(...)` | Rounded rectangle. |
-| `Draw.Circle` / `Draw.Ellipse` / `Draw.Ring` / `Draw.Triangle` / `Draw.Poly` | Filled primitives (see reference for wire variants, gradients, arcs). |
-| `Draw.CircleSector` / `Draw.CircleGradient` | Sector and radial gradient. |
-| `Draw.Line` / `Draw.LineEx` / `Draw.LineBezier*` | Lines and Bézier strokes. |
-| `Draw.Spline*` | Splines from a point array + thickness + color. |
-| `Draw.Texture*` / `Draw.TextureNPatch` | Textured quads, tiling, n-patch (tint is **required** on `Draw.Texture`: 7 args). |
-| `Draw.Text` / `Draw.TextEx` / `Draw.TextFont` / `Draw.TextPro` | Text and measurement helpers. |
+| `DRAW.RECTANGLE(x, y, w, h, r, g, b, a)` | Filled rectangle. |
+| `DRAW.RECTANGLE_ROUNDED(...)` | Rounded rectangle. |
+| `DRAW.CIRCLE` / `DRAW.ELLIPSE` / `DRAW.RING` / `DRAW.TRIANGLE` / `DRAW.POLY` / `DRAW.OVAL` | Filled primitives (see reference for `*LINES` wire variants, `DRAW.ARC`, etc.). |
+| `DRAW.LINE` / `DRAW.LINEEX` / `DRAW.LINEBEZIER` | Lines and Bézier strokes. |
+| `DRAW.TEXTURE` / `DRAW.TEXTURENPATCH` / … | Textured quads, tiling, n-patch (tint is **required** on **`DRAW.TEXTURE`**: 7 args). |
+| `DRAW.TEXT` / `DRAW.TEXTEX` / `DRAW.TEXTFONT` / … | Text and measurement helpers. |
 
 ### Draw (3D) — [Reference](reference/DRAW3D.md)
 
 | Command | Description |
 |---|---|
-| `Draw3D.Grid` / `Draw.Grid` | 3D reference grid (`Camera.Begin` / `End`). |
-| `Draw3D.Line` / `Draw3D.Point` / `Draw3D.Sphere*` / `Draw3D.Cube*` / `Draw3D.Cylinder*` / `Draw3D.Capsule*` / `Draw3D.Plane` / `Draw3D.BBox` | Primitives (see reference for arities). |
+| `DRAW3D.GRID` / `Draw.Grid` | 3D reference grid (**`CAMERA.BEGIN`** / **`CAMERA.END`** or **`RENDER.BEGIN3D`** / **`RENDER.END3D`**). |
+| `DRAW3D.LINE` / `DRAW3D.POINT` / `DRAW3D.SPHERE*` / `DRAW3D.CUBE*` / `DRAW3D.CYLINDER*` / `DRAW3D.CAPSULE*` / `DRAW3D.PLANE` / `DRAW3D.BBOX` | Primitives (see reference for arities). |
 | `BOX` / `BOXW` / `WIRECUBE` / `BALL` / `BALLW` / `GRID3` / `FLAT` / `CAP` / `CAPW` | **Short global names** — same handlers as `DRAW3D.CUBE` / `CUBEWIRES` / … (`WIRECUBE` = Blitz **WireCube** — see [DRAW3D.md](reference/DRAW3D.md), [BLITZ3D.md](reference/BLITZ3D.md)). |
-| `Draw3D.Ray` | Debug-draw a ray from a 6-float array handle. |
-| `Draw3D.Billboard` / `Draw3D.BillboardRec` | Textured billboards (require active 3D camera). |
-| `Draw.Line3D` / `Draw.Sphere` / … | **`Draw.*`** aliases of the same `DRAW3D.*` handlers (see [DRAW3D.md](reference/DRAW3D.md)). |
+| `DRAW3D.RAY` | Debug-draw a ray from a 6-float array handle. |
+| `DRAW3D.BILLBOARD` / `DRAW3D.BILLBOARDREC` | Textured billboards (require active 3D camera). |
+| `DRAW3D.LINE3D` / `DRAW3D.SPHERE` / … | **`Draw.*`** aliases of the same `DRAW3D.*` handlers (see [DRAW3D.md](reference/DRAW3D.md)). |
 
 ---
 
@@ -382,9 +380,9 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Texture.Load(path)` | Loads a texture handle from disk. |
-| `Texture.Free(id)` | Unloads a texture from memory. |
-| `Texture.FromImage(id)` | Creates a texture from an Image handle. |
+| `TEXTURE.LOAD(path)` | Loads a texture handle from disk. |
+| `TEXTURE.FREE(id)` | Unloads a texture from memory. |
+| `TEXTURE.FROMIMAGE(id)` | Creates a texture from an Image handle. |
 
 ---
 
@@ -392,10 +390,10 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Image.Load(path)` | Loads a CPU pixel buffer from disk. |
-| `Image.Make(w, h)` | Creates a new blank Image handle. |
-| `Image.Free(id)` | Frees Image memory. |
-| `Image.Export(id, path)` | Saves an Image to a file. |
+| `IMAGE.LOAD(path)` | Loads a CPU pixel buffer from disk. |
+| `IMAGE.MAKE(w, h)` | Creates a new blank Image handle (see also **`IMAGE.MAKEBLANK`**). |
+| `IMAGE.FREE(id)` | Frees Image memory. |
+| `IMAGE.EXPORT(id, path)` | Saves an Image to a file. |
 
 ---
 
@@ -403,8 +401,8 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Font.Load(path)` | Loads a `.ttf` or `.otf` font file. |
-| `Font.Free(id)` | Unloads a font from memory. |
+| `FONT.LOAD(path)` | Loads a `.ttf` or `.otf` font file. |
+| `FONT.FREE(id)` | Unloads a font from memory. |
 
 ---
 
@@ -412,10 +410,10 @@ moonBASIC uses a dot-notation module system for its game engine commands. These 
 
 | Command | Description |
 |---|---|
-| `Gui.Button(label, x, y, w, h)` | Draws a clickable button. |
-| `Gui.Label(text, x, y)` | Draws a text label. |
-| `Gui.Slider(label, x, y, val, min, max)` | Draws a slider. |
-| `Gui.SetFont(id)` | Sets the active GUI font. |
+| `GUI.BUTTON(...)` | Draws a clickable button (see [GUI.md](reference/GUI.md) for arity). |
+| `GUI.LABEL(...)` | Draws a text label. |
+| `GUI.SLIDER(...)` / `GUI.SLIDERBAR(...)` | Draws a slider control. |
+| `GUI.SETFONT(id)` | Sets the active GUI font. |
 
 Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
@@ -425,12 +423,12 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Sprite.Load(path)` | Loads a sprite from disk. |
-| `Sprite.Draw(id, x, y)` | Draws a sprite at pixel coordinates. |
-| `Sprite.SetPos(id, x, y)` | Sets a float draw offset. |
-| `Sprite.Free(id)` | Frees a sprite handle. |
-| `Atlas.Load(path)` | Loads a texture atlas JSON. |
-| `Atlas.GetSprite(id, name)` | Retrieves a sprite from an atlas. |
+| `SPRITE.LOAD(path)` | Loads a sprite from disk. |
+| `SPRITE.DRAW(id, x, y)` | Draws a sprite at pixel coordinates. |
+| `SPRITE.SETPOS(id, x, y)` | Sets a float draw offset. |
+| `SPRITE.FREE(id)` | Frees a sprite handle. |
+| `ATLAS.LOAD(path)` | Loads a texture atlas JSON. |
+| `ATLAS.GETSPRITE(id, name)` | Retrieves a sprite from an atlas. |
 
 ---
 
@@ -438,12 +436,12 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `JSON.Parse(path)` | Loads a JSON file. |
-| `JSON.GetString(id, path)` | Reads a value from JSON. |
-| `CSV.Load(path)` | Loads a CSV file. |
-| `CSV.Get(id, row, col)` | Reads a cell from a CSV. |
-| `DB.Open(path)` | Opens a SQLite database. |
-| `DB.Query(id, sql)` | Runs a SQL query. |
+| `JSON.LOADFILE(path)` / `JSON.PARSE(...)` | Load or parse JSON (see reference). |
+| `JSON.GETSTRING(id, path)` | Reads a value from JSON. |
+| `CSV.LOAD(path)` | Loads a CSV file (see [CSV.md](reference/CSV.md)). |
+| `CSV.GET(id, row, col)` | Reads a cell from a CSV. |
+| `DB.OPEN(path)` | Opens a SQLite database. |
+| `DB.QUERY(db, sql [, ...params])` | Runs a SQL query (returns rows handle). |
 
 ---
 
@@ -451,17 +449,17 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Model.Load(path)` | Loads a 3D model file. |
-| `Model.Draw(handle)` | Draws a model using its root transform. |
-| `Model.SetPos(id, x, y, z)` | Sets model position. |
-| `Model.Free(handle)` | Unloads a model from memory. |
-| `Mesh.MakeCube(w, h, d)` | Creates a procedural box mesh. |
-| `Mesh.Upload(id, dynamic)` | Uploads mesh data to GPU. |
-| `Mesh.Draw(id, mat, matrix)` | Draws a single mesh. |
-| `Mesh.Free(handle)` | Unloads a mesh from memory. |
-| `Material.MakeDefault()` | Creates a default PBR material. |
-| `Material.SetTexture(id, slot, tex)` | Assigns a texture to a map slot. |
-| `Material.Free(handle)` | Frees a material. |
+| `MODEL.LOAD(path)` | Loads a 3D model file. |
+| `MODEL.DRAW(handle)` | Draws a model using its root transform. |
+| `MODEL.SETPOS(id, x, y, z)` | Sets model position. |
+| `MODEL.FREE(handle)` | Unloads a model from memory. |
+| `MESH.MAKECUBE(w, h, d)` | Creates a procedural box mesh. |
+| `MESH.UPLOAD(id, dynamic)` | Uploads mesh data to GPU. |
+| `MESH.DRAW(id, mat, matrix)` | Draws a single mesh. |
+| `MESH.FREE(handle)` | Unloads a mesh from memory. |
+| `MATERIAL.MAKEDEFAULT()` | Creates a default PBR material. |
+| `MATERIAL.SETTEXTURE(id, slot, tex)` | Assigns a texture to a map slot. |
+| `MATERIAL.FREE(handle)` | Frees a material. |
 
 ---
 
@@ -469,11 +467,11 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Physics3D.Start()` | Initializes the 3D physics world. |
-| `Physics3D.Stop()` | Shuts down the 3D physics world. |
-| `Physics3D.Step()` | Advances simulation one step. |
-| `Body3D.Make(type)` | Creates a body definition. |
-| `Body3D.Commit(def, x, y, z)` | Finalizes body into the world. |
+| `PHYSICS3D.START()` | Initializes the 3D physics world. |
+| `PHYSICS3D.STOP()` | Shuts down the 3D physics world. |
+| `PHYSICS3D.STEP()` | Advances simulation one step. |
+| `BODY3D.CREATE(...)` | Creates a body definition (see reference). |
+| `BODY3D.COMMIT(def, x, y, z)` | Finalizes body into the world. |
 
 ---
 
@@ -481,11 +479,11 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Physics2D.Start()` | Initializes the 2D physics world. |
-| `Physics2D.Stop()` | Shuts down the 2D physics world. |
-| `Physics2D.Step()` | Advances the simulation. |
-| `Body2D.Make(type)` | Creates a 2D body definition. |
-| `Body2D.Commit(def, x, y)` | Finalizes body into the world. |
+| `PHYSICS2D.START()` | Initializes the 2D physics world. |
+| `PHYSICS2D.STOP()` | Shuts down the 2D physics world. |
+| `PHYSICS2D.STEP()` | Advances the simulation. |
+| `BODY2D.CREATE(...)` | Creates a 2D body definition (see reference). |
+| `BODY2D.COMMIT(def, x, y)` | Finalizes body into the world. |
 
 ---
 
@@ -493,10 +491,10 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `CharController.Make(r, h, x, y, z)` | Creates a capsule controller. |
-| `CharController.Move(id, dx, dy, dz)` | Moves with collision detection. |
-| `CharController.IsGrounded(id)` | Returns `TRUE` if on a surface. |
-| `CharController.Free(id)` | Frees the controller. |
+| `CHARCONTROLLER.CREATE(r, h, x, y, z)` | Creates a capsule controller. |
+| `CHARCONTROLLER.MOVE(id, dx, dy, dz)` | Moves with collision detection. |
+| `CHARCONTROLLER.ISGROUNDED(id)` | Returns `TRUE` if on a surface. |
+| `CHARCONTROLLER.FREE(id)` | Frees the controller. |
 
 ---
 
@@ -504,15 +502,15 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Audio.Init()` | Initializes the audio device. |
-| `Audio.LoadSound(path)` | Loads a sound effect. |
-| `Audio.LoadMusic(path)` | Loads streaming music. |
-| `Audio.Play(handle)` | Plays a sound or music track. |
-| `Audio.UpdateMusic(handle)` | Updates music buffer (call per frame). |
-| `AudioStream.Update(handle, pcmArray)` | Pushes PCM data to the stream. |
-| `AudioStream.Play(handle)` | Starts the audio stream. |
-| `AudioStream.IsPlaying(handle)` | Returns `TRUE` if the stream is playing. |
-| `AudioStream.Free(handle)` | Frees the audio stream. |
+| `AUDIO.INIT()` | Initializes the audio device. |
+| `AUDIO.LOADSOUND(path)` | Loads a sound effect. |
+| `AUDIO.LOADMUSIC(path)` | Loads streaming music. |
+| `AUDIO.PLAY(handle)` | Plays a sound or music track. |
+| `AUDIO.UPDATEMUSIC(handle)` | Updates music buffer (call per frame). |
+| `AUDIOSTREAM.UPDATE(handle, pcmArray)` | Pushes PCM data to the stream. |
+| `AUDIOSTREAM.PLAY(handle)` | Starts the audio stream. |
+| `AUDIOSTREAM.ISPLAYING(handle)` | Returns `TRUE` if the stream is playing. |
+| `AUDIOSTREAM.FREE(handle)` | Frees the audio stream. |
 
 ---
 
@@ -520,19 +518,19 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Net.Start()` | Initializes the networking system. |
-| `Net.Stop()` | Shuts down the networking system. |
-| `Net.CreateServer(port, maxClients)` | Creates a server host. Returns a handle. |
-| `Net.CreateClient()` | Creates a client host. Returns a handle. |
-| `Net.Connect(clientHandle, address, port)` | Connects a client to a server. Returns a peer handle. |
-| `Net.Update(hostHandle)` | Processes network packets. **Call every frame.** |
-| `Net.Receive(hostHandle)` | Returns the next event handle, or `0` if none queued. |
-| `Net.Broadcast(serverHandle, channel, data, reliable)` | Sends a message to all connected clients. |
-| `Peer.Send(peerHandle, channel, data, reliable)` | Sends a message to a specific peer. |
-| `Event.Type(handle)` | Returns the event type (`EVENT_CONNECT`, `EVENT_DISCONNECT`, `EVENT_RECEIVE`). |
-| `Event.Peer(handle)` | Returns the peer associated with the event. |
-| `Event.Data(handle)` | Returns the string data of a `RECEIVE` event. |
-| `Event.Free(handle)` | Frees the event. **Must be called for every event received.** |
+| `NET.START()` | Initializes the networking system. |
+| `NET.STOP()` | Shuts down the networking system. |
+| `NET.CREATESERVER(port, maxClients)` | Creates a server host. Returns a handle. |
+| `NET.CREATECLIENT()` | Creates a client host. Returns a handle. |
+| `NET.CONNECT(clientHandle, address, port)` | Connects a client to a server. Returns a peer handle. |
+| `NET.UPDATE(hostHandle)` | Processes network packets. **Call every frame.** |
+| `NET.RECEIVE(hostHandle)` | Returns the next event handle, or `0` if none queued. |
+| `NET.BROADCAST(serverHandle, channel, data, reliable)` | Sends a message to all connected clients. |
+| `PEER.SEND(peerHandle, channel, data, reliable)` | Sends a message to a specific peer. |
+| `EVENT.TYPE(handle)` | Returns the event type (`EVENT_CONNECT`, `EVENT_DISCONNECT`, `EVENT_RECEIVE`). |
+| `EVENT.PEER(handle)` | Returns the peer associated with the event. |
+| `EVENT.DATA(handle)` | Returns the string data of a `RECEIVE` event. |
+| `EVENT.FREE(handle)` | Frees the event. **Must be called for every event received.** |
 
 ---
 
@@ -540,8 +538,8 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Time.Delta()` | Returns seconds elapsed since last frame. |
-| `Time.Get()` | Returns total seconds elapsed since start. |
+| `TIME.DELTA()` | Returns seconds elapsed since last frame. |
+| `TIME.GET()` | Returns total seconds elapsed since start. |
 
 ---
 
@@ -549,10 +547,10 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Input.KeyDown(key)` | True while a key is held. |
-| `Input.KeyPressed(key)` | True on the first frame of a press. |
-| `Input.MouseX()` / `Input.MouseY()` | Current mouse pixel coordinates. |
-| `Input.Axis(neg, pos)` | Returns -1, 0, or 1 based on keys. |
+| `INPUT.KEYDOWN(key)` | True while a key is held. |
+| `INPUT.KEYPRESSED(key)` | True on the first frame of a press. |
+| `INPUT.MOUSEX()` / `INPUT.MOUSEY()` | Current mouse pixel coordinates. |
+| `INPUT.AXIS(neg, pos)` | Returns -1, 0, or 1 based on keys. |
 
 ---
 
@@ -560,11 +558,11 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Transform.Identity()` | New identity matrix handle. |
-| `Transform.Translate(x, y, z)` | Translation matrix. |
-| `Transform.Rotate(p, y, r)` | Euler rotation matrix (radians). |
-| `Transform.Multiply(a, b)` | Combines two matrices. |
-| `Transform.Free(id)` | Frees matrix handle. |
+| `TRANSFORM.IDENTITY()` | New identity matrix handle. |
+| `TRANSFORM.TRANSLATION(x, y, z)` | Translation matrix. |
+| `TRANSFORM.ROTATION(p, y, r)` | Euler rotation matrix (radians). |
+| `TRANSFORM.MULTIPLY(a, b)` | Combines two matrices. |
+| `TRANSFORM.FREE(id)` | Frees matrix handle. |
 
 ---
 
@@ -572,8 +570,8 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Shader.Load(vs, fs)` | Loads GLSL vertex/fragment shaders. |
-| `Shader.Free(id)` | Unloads shader from GPU. |
+| `SHADER.LOAD(vs, fs)` | Loads GLSL vertex/fragment shaders. |
+| `SHADER.FREE(id)` | Unloads shader from GPU. |
 
 ---
 
@@ -581,9 +579,9 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Light.Make(type)` | Creates a light handle. |
-| `Light.SetDir(id, x, y, z)` | Sets directional light vector. |
-| `Light.Free(id)` | Frees light resource. |
+| `LIGHT.CREATE*` | Creates a light handle (point / directional / spot — see reference). |
+| `LIGHT.SETDIR(id, x, y, z)` | Sets directional light vector. |
+| `LIGHT.FREE(id)` | Frees light resource. |
 
 ---
 
@@ -591,10 +589,10 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Tilemap.Load(path)` | Loads a Tiled map handle. |
-| `Tilemap.Draw(id, x, y)` | Draws all map layers. |
-| `Tilemap.IsSolid(id, x, y)` | Collision check for tile. |
-| `Tilemap.Free(id)` | Frees tilemap. |
+| `TILEMAP.LOAD(path)` | Loads a Tiled map handle. |
+| `TILEMAP.DRAW(id, x, y)` | Draws map layers (see reference for overloads). |
+| `TILEMAP.ISSOLID(id, x, y)` / `TILEMAP.COLLISIONAT(...)` | Collision checks (see reference). |
+| `TILEMAP.FREE(id)` | Frees tilemap. |
 
 ---
 
@@ -602,47 +600,37 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 | Command | Description |
 |---|---|
-| `Particles.Make(max)` | Creates particle emitter. |
-| `Particles.Emit(id, x, y, z, n)` | Emits a burst of particles. |
-| `Particles.Free(id)` | Frees emitter. |
-| `Particle.SetEmitRate(handle, rate)` | Sets particles emitted per second. |
-| `Particle.SetLifetime(handle, min, max)` | Sets the particle lifetime range in seconds. |
-| `Particle.SetVelocity(handle, vx, vy, vz, spread)` | Sets the emission velocity and spread. |
-| `Particle.SetColor(handle, r, g, b, a)` | Sets the starting particle color. |
-| `Particle.SetColorEnd(handle, r, g, b, a)` | Sets the ending particle color (fades to this). |
-| `Particle.SetSize(handle, startSize, endSize)` | Sets the particle size over its lifetime. |
-| `Particle.SetGravity(handle, gx, gy, gz)` | Sets per-emitter gravity. |
-| `Particle.SetPos(handle, x, y, z)` | Sets the emitter position in world space. |
-| `Particle.Play(handle)` | Starts the emitter. |
-| `Particle.Update(handle, dt)` | Advances particle simulation. Call every frame. |
-| `Particle.Draw(handle)` | Draws all active particles. |
-| `Particle.Free(handle)` | Frees the particle emitter. |
+| `PARTICLE.CREATE()` | Creates particle emitter. |
+| `PARTICLE.SETEMITRATE` / `PARTICLE.SETLIFETIME` / `PARTICLE.SETVELOCITY` / … | Configure emitter (see reference). |
+| `PARTICLE.SETPOS(handle, x, y, z)` | Emitter position in world space. |
+| `PARTICLE.PLAY(handle)` / `PARTICLE.STOP(handle)` | Start or stop simulation. |
+| `PARTICLE.UPDATE(handle, dt)` | Advances simulation — call every frame. |
+| `PARTICLE.DRAW(handle)` | Draws active particles. |
+| `PARTICLE.FREE(handle)` | Frees the emitter. |
 
 ---
 
-### Open world — terrain, streaming, water, sky, weather ([TERRAIN](reference/TERRAIN.md), [WORLD](reference/WORLD.md), [WATER](reference/WATER.md), [SKY](reference/SKY.md), [CLOUD](reference/CLOUD.md), [WEATHER](reference/WEATHER.md), [SCATTER](reference/SCATTER.md), [BIOME](reference/BIOME.md), [NAVMESH](reference/NAVMESH.md))
+### Open world — terrain, streaming, water, sky, weather ([TERRAIN](reference/TERRAIN.md), [WORLD](reference/WORLD.md), [WATER](reference/WATER.md), [SKY](reference/SKY.md), [CLOUD](reference/CLOUD.md), [WEATHER](reference/WEATHER.md), [BIOME](reference/BIOME.md), [SCATTER](reference/SCATTER.md), [NAVMESH](reference/NAVMESH.md))
 
 | Command | Description |
 |---|---|
-| `Terrain.Make` / `Terrain.Free` | Create or free heightfield terrain (`TERRAIN.MAKE` overloads: 2 or 3 args). |
-| `Terrain.SetPos` / `SetChunkSize` | World origin and chunk sample size. |
-| `Terrain.FillPerlin` / `FillFlat` | Procedural or flat height fill. |
-| `Terrain.GetHeight` / `GetSlope` | Sample height and slope at XZ. |
-| `Terrain.Raise` / `Lower` | Brush sculpting. |
-| `Terrain.Draw` | Draw loaded chunk meshes. |
-| `Chunk.Generate` / `Count` / `SetRange` / `IsLoaded` | Chunk mesh build and streaming distances. |
-| `World.SetCenter` / `Update` / `StreamEnable` | Streaming focal point and per-frame tick. |
-| `World.Preload` / `Status` / `IsReady` | Preload radius and debug strings. |
-| `Water.Make` / `Free` / `SetPos` | Water plane mesh. |
-| `Water.Draw` / `Update` / `SetWaveHeight` | Render and animate waves. |
-| `Water.GetWaveY` / `GetDepth` / `IsUnder` | Surface and depth queries. |
-| `Water.SetShallowColor` / `SetDeepColor` | Water color tuning. |
-| `Sky.Make` / `Free` / `Update` / `Draw` | Day/night sky dome. |
-| `Sky.SetTime` / `SetDayLength` / `GetTimeHours` / `IsNight` | Time-of-day. |
-| `Cloud.Make` / `Free` / `Update` / `Draw` / `SetCoverage` | Cloud layer state. |
-| `Weather.Make` / `Free` / `Update` / `Draw` / `SetType` / `GetCoverage` / `GetType` | Weather controller. |
-| `Fog.Enable` / `SetNear` / `SetFar` / `SetColor` | Fog distances and color. |
-| `Wind.Set` / `GetStrength` | Wind vector and strength. |
-| `Scatter.Create` / `Free` / `Apply` / `DrawAll` | Scatter instances on terrain. |
-| `Prop.Place` / `Free` / `DrawAll` | Placed prop markers. |
-| `Biome.Make` / `Free` / `SetTemp` / `SetHumidity` | Biome parameters. |
+| `TERRAIN.CREATE` / `TERRAIN.FREE` | Create or free heightfield terrain (**`TERRAIN.MAKE`** is a deprecated alias). |
+| `TERRAIN.SETPOS` / `TERRAIN.SETCHUNKSIZE` | World origin and chunk sample size. |
+| `TERRAIN.FILLPERLIN` / `TERRAIN.FILLFLAT` | Procedural or flat height fill. |
+| `TERRAIN.GETHEIGHT` / `TERRAIN.GETSLOPE` | Sample height and slope at XZ. |
+| `TERRAIN.RAISE` / `TERRAIN.LOWER` | Brush sculpting. |
+| `TERRAIN.DRAW` | Draw loaded chunk meshes. |
+| `CHUNK.GENERATE` / `CHUNK.COUNT` / `CHUNK.SETRANGE` / `CHUNK.ISLOADED` | Chunk mesh build and streaming distances. |
+| `WORLD.SETCENTER` / `WORLD.UPDATE` / `WORLD.STREAMENABLE` | Streaming focal point and per-frame tick. |
+| `WORLD.PRELOAD` / `WORLD.STATUS` / `WORLD.ISREADY` | Preload radius and readiness. |
+| `WATER.CREATE` / `WATER.FREE` / `WATER.SETPOS` | Water plane mesh. |
+| `WATER.DRAW` / `WATER.UPDATE` / `WATER.SETWAVEHEIGHT` | Render and animate waves. |
+| `WATER.GETWAVEY` / `WATER.GETDEPTH` / `WATER.ISUNDER` | Surface and depth queries. |
+| `WATER.SETSHALLOWCOLOR` / `WATER.SETDEEPCOLOR` | Water color tuning. |
+| `SKY.CREATE` / `SKY.FREE` / `SKY.UPDATE` / `SKY.DRAW` | Day/night sky dome. |
+| `SKY.SETTIME` / `SKY.SETDAYLENGTH` / `SKY.GETTIMEHOURS` / `SKY.ISNIGHT` | Time-of-day. |
+| `CLOUD.CREATE` / `CLOUD.FREE` / `CLOUD.UPDATE` / `CLOUD.DRAW` / `CLOUD.SETCOVERAGE` | Cloud layer state. |
+| `WEATHER.CREATE` / `WEATHER.FREE` / `WEATHER.UPDATE` / `WEATHER.DRAW` / `WEATHER.SETTYPE` / `WEATHER.GETCOVERAGE` / `WEATHER.GETTYPE` | Weather controller. |
+| `FOG.ENABLE` / `FOG.SETNEAR` / `FOG.SETFAR` / `FOG.SETCOLOR` | Fog distances and color. |
+| `WIND.SET` / `WIND.GETSTRENGTH` | Wind vector and strength. |
+| `BIOME.CREATE` / `BIOME.FREE` / `BIOME.SETTEMP` / `BIOME.SETHUMIDITY` | Biome parameters. |

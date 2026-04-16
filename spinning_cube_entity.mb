@@ -13,10 +13,10 @@ ENTITY.COLOR(cube, 255, 100, 0)
 PRINT "Starting main loop..."
 
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt# = TIME.DELTA()
+    dt = TIME.DELTA()
     
     ; Rotate the cube
-    ENTITY.ROTATE(cube, 1.0 * dt#, 1.5 * dt#, 0.5 * dt#)
+    ENTITY.ROTATE(cube, 1.0 * dt, 1.5 * dt, 0.5 * dt)
     
     RENDER.CLEAR(30, 30, 40)
     

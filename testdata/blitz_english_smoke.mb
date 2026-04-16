@@ -1,21 +1,21 @@
 ; Compile-only smoke: PLAYER2D + CAMERA.ORBITCAMERA English helpers
-CONST MOUSE_ORBIT_SENS# = 0.0055
-CONST MOVE_SPEED# = 11.0
+CONST MOUSE_ORBIT_SENS = 0.0055
+CONST MOVE_SPEED = 11.0
 p = PLAYER2D.CREATE()
 PLAYER2D.SETPOS(p, 0.0, 0.0)
 CLAMPENTITY2D(p, -10.0, 10.0, -10.0, 10.0)
-cam = CreateCamera()
-camYaw# = 0.0
-dt# = 0.016
-f# = 0.0
-s# = 0.0
-camYaw# = camYaw# + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS#, 77.0, dt#)
-camYaw# = camYaw# + CAMERA.TURNLEFT(cam, 0.01)
-camYaw# = camYaw# + CAMERA.TURNRIGHT(cam, 0.02)
-MOVEENTITY2D(p, camYaw#, f#, s#, MOVE_SPEED#, dt#)
-MOVEPLAYER(p, camYaw#, f#, s#, MOVE_SPEED#, dt#)
+cam = CAMERA.CREATE()
+camYaw = 0.0
+dt = 0.016
+f = 0.0
+s = 0.0
+camYaw = camYaw + CAMERA.ORBITCAMERA(cam, MOUSE_ORBIT_SENS, 77.0, dt)
+camYaw = camYaw + CAMERA.TURNLEFT(cam, 0.01)
+camYaw = camYaw + CAMERA.TURNRIGHT(cam, 0.02)
+MOVEENTITY2D(p, camYaw, f, s, MOVE_SPEED, dt)
+MOVEPLAYER(p, camYaw, f, s, MOVE_SPEED, dt)
 KEEPPLAYERINBOUNDS(p)
-px# = PLAYER2D.GETX(p)
-pz# = PLAYER2D.GETZ(p)
+px = PLAYER2D.GETX(p)
+pz = PLAYER2D.GETZ(p)
 PLAYER2D.FREE(p)
-Camera.Free(cam)
+CAMERA.FREE(cam)

@@ -1,97 +1,97 @@
-# Sprite — `Sprite.*`, groups, layers, batch, UI, `Particle2D`, `ANIM.*`, atlas
+# Sprite (`SPRITE.*`, `SPRITEGROUP.*`, `SPRITELAYER.*`, `SPRITEBATCH.*`, `SPRITEUI.*`, `PARTICLE2D.*`, `ANIM.*`)
 
-Sprites are **GPU textures** (Raylib `Texture2D`) plus **source rectangle**, **frame layout**, and optional **`ANIM.*`** state. Drawing uses **`SPRITE.DRAW`**. When **`RENDER.BEGINMODE2D`** / **`RENDER.ENDMODE2D`** are implemented in your build, wrap draws for **Camera2D**-style views; otherwise draw directly after **`Render.Clear`** (as in **`testdata/sprite_complete_test.mb`**).
+Sprites are **GPU textures** (Raylib `Texture2D`) plus **source rectangle**, **frame layout**, and optional **`ANIM.*`** state. Drawing uses **`SPRITE.DRAW`**. When **`RENDER.BEGINMODE2D`** / **`RENDER.ENDMODE2D`** are implemented in your build, wrap draws for **Camera2D**-style views; otherwise draw directly after **`RENDER.CLEAR`** (as in **`testdata/sprite_complete_test.mb`**).
 
-**Requires CGO** (same as `Texture.*`, `Draw.*`).
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Sprite.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
 
-Registry keys use **dots and uppercase** (e.g. `SPRITE.LOAD`). This document uses **PascalCase** names aligned with specs where helpful.
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+
+**Requires CGO** (same as **`TEXTURE.*`**, **`DRAW.*`**).
+
+Registry keys use **dots and uppercase** (e.g. **`SPRITE.LOAD`**). In source, the **`Sprite`** namespace maps to the same commands (`Sprite.Load` → `SPRITE.LOAD`).
 
 **Related:** [ATLAS.md](ATLAS.md) (`ATLAS.LOAD`, `ATLAS.GETSPRITE`, `ATLAS.FREE`), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
 
-**Blitz-style “sprite collide”:** there is no separate **`Sprite.Collide`** name — use **`SPRITE.HIT`** / **`SPRITE.POINTHIT`**. Overlap uses the same **scaled** destination quad, **origin**, and **rotation** as **`SPRITE.DRAW`** (raylib **`DrawTexturePro`**), not a separate axis-aligned box. For pixel-perfect work, use **`IMAGE.*`** CPU pixels or custom overlap — see table below and [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md).
+**Blitz-style “sprite collide”:** there is no separate **`Sprite.Collide`** name — use **`SPRITE.HIT`** / **`SPRITE.POINTHIT`**. Overlap uses the same **scaled** destination quad, **origin**, and **rotation** as **`SPRITE.DRAW`** (Raylib **`DrawTexturePro`**), not a separate axis-aligned box. For pixel-perfect work, use **`IMAGE.*`** CPU pixels or custom overlap — see table below and [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md).
 
 ---
 
-### `Sprite.Load(path)`
+### `SPRITE.LOAD(path)`
 Loads an image and returns a **sprite handle**.
 
-### `Sprite.Free(handle)`
+### `SPRITE.FREE(handle)`
 Unloads the sprite and frees memory.
 
 ---
 
-### `Sprite.Draw(handle, x, y)`
+### `SPRITE.DRAW(handle, x, y)`
 Draws the current frame at pixel coordinates.
 
-### `Sprite.SetPos(handle, x, y)`
+### `SPRITE.SETPOS(handle, x, y)`
 Sets a floating-point draw offset.
 
 ---
 
-### `Sprite.DefAnim(handle, count)`
-Defines a grid animation (count is a string).
+### `SPRITE.DEFANIM(handle, count)`
+Defines a grid animation (`count` is a string).
 
-### `Sprite.UpdateAnim(handle, dt)`
+### `SPRITE.UPDATEANIM(handle, dt)`
 Advances animation frame by time.
 
 ---
 
-### `Sprite.Hit(a, b)`
-Returns `TRUE` if the two drawn quads overlap (SAT on the four corners; matches **`DrawTexturePro`** geometry).
+### `SPRITE.HIT(a, b)`
+Returns **`TRUE`** if the two drawn quads overlap (SAT on the four corners; matches **`DrawTexturePro`** geometry).
 
-### `Sprite.PointHit(handle, x, y)`
-Returns `TRUE` if **`(x, y)`** lies inside that quad in the same coordinate space as **`Sprite.Draw`**’s **`x, y`** plus **`SetPos`** offsets (inverse rotation into local frame size).
+### `SPRITE.POINTHIT(handle, x, y)`
+Returns **`TRUE`** if **`(x, y)`** lies inside that quad in the same coordinate space as **`SPRITE.DRAW`**’s **`x, y`** plus **`SETPOS`** offsets (inverse rotation into local frame size).
 
 ---
 
-## Sprite Groups
+## `SPRITEGROUP.*`
 
-### `SpriteGroup.Make()`
+### `SPRITEGROUP.CREATE()`
+Creates a new empty sprite group. Returns a handle. **`SPRITEGROUP.MAKE`** is a **deprecated** alias of **`SPRITEGROUP.CREATE`**.
 
-Creates a new empty sprite group. Returns a handle.
-
-### `SpriteGroup.Add(group, sprite)`
-
+### `SPRITEGROUP.ADD(group, sprite)`
 Adds a sprite to the group.
 
-### `SpriteGroup.Draw(group, x, y)`
-
+### `SPRITEGROUP.DRAW(group, x, y)`
 Draws all sprites in the group relative to a base position.
 
-### `SpriteGroup.Free(group)`
-
+### `SPRITEGROUP.FREE(group)`
 Frees the group object (members remain).
 
 ---
 
-## SpriteLayer.*
+## `SPRITELAYER.*`
 
 | Command | Signature | Notes |
-|---|---|---|
-| **`SPRITELAYER.CREATE`** / deprecated `SPRITELAYER.MAKE` | `(z)` → handle | **`z`** stored for your sorting; draw order is under your control. |
-| `SPRITELAYER.ADD` | `(layer, spr)` | |
-| `SPRITELAYER.CLEAR` | `(layer)` | Remove all members. |
-| `SPRITELAYER.SETZ` | `(layer, z)` | Update stored **z**. |
-| `SPRITELAYER.DRAW` | `(layer, x, y)` | Same base position semantics as group draw. |
-| `SPRITELAYER.FREE` | `(layer)` | Frees layer only. |
+|--------|-----------|--------|
+| **`SPRITELAYER.CREATE`** / deprecated **`SPRITELAYER.MAKE`** | `(z)` → handle | **`z`** stored for your sorting; draw order is under your control. |
+| **`SPRITELAYER.ADD`** | `(layer, spr)` | |
+| **`SPRITELAYER.CLEAR`** | `(layer)` | Remove all members. |
+| **`SPRITELAYER.SETZ`** | `(layer, z)` | Update stored **z**. |
+| **`SPRITELAYER.DRAW`** | `(layer, x, y)` | Same base position semantics as group draw. |
+| **`SPRITELAYER.FREE`** | `(layer)` | Frees layer only. |
 
 ---
 
-## SpriteBatch.*
+## `SPRITEBATCH.*`
 
 Records **multiple** **`(sprite, x, y)`** draws; **`SPRITEBATCH.DRAW`** executes them in order.
 
 | Command | Notes |
-|---|---|
-| **`SPRITEBATCH.CREATE`** / deprecated `SPRITEBATCH.MAKE` | `()` → handle |
-| `SPRITEBATCH.ADD` | `(batch, spr, x, y)` — **int** positions |
-| `SPRITEBATCH.CLEAR` | `(batch)` |
-| `SPRITEBATCH.DRAW` | `(batch)` |
-| `SPRITEBATCH.FREE` | `(batch)` |
+|--------|--------|
+| **`SPRITEBATCH.CREATE`** / deprecated **`SPRITEBATCH.MAKE`** | `()` → handle |
+| **`SPRITEBATCH.ADD`** | `(batch, spr, x, y)` — **int** positions |
+| **`SPRITEBATCH.CLEAR`** | `(batch)` |
+| **`SPRITEBATCH.DRAW`** | `(batch)` |
+| **`SPRITEBATCH.FREE`** | `(batch)` |
 
 ---
 
-## SpriteUI.*
+## `SPRITEUI.*`
 
 Anchored placement using **fractions of screen size** (e.g. **`0.5, 0.5`** = center).
 
@@ -101,32 +101,32 @@ SPRITEUI.DRAW(ui, SCREENW(), SCREENH())
 SPRITEUI.FREE(ui)
 ```
 
-**`SPRITEUI.FREE`** releases only the **UI wrapper**; the sprite remains.
+**`SPRITEUI.CREATE`** — **`SPRITEUI.MAKE`** is a **deprecated** alias. **`SPRITEUI.FREE`** releases only the **UI wrapper**; the sprite remains.
 
 ---
 
-## Particle2D.* (simple filled circles)
+## `PARTICLE2D.*` (simple filled circles)
 
-CPU-side **circles** (no texture). **`PARTICLE2D.CREATE(max, r, g, b, a)`** sets pool size and colour; **`EMIT`** adds particles; **`UPDATE`** integrates velocity and **`life`**; **`DRAW`** renders.
+CPU-side **circles** (no texture). **`PARTICLE2D.CREATE(max, r, g, b, a)`** sets pool size and colour; **`EMIT`** adds particles; **`UPDATE`** integrates velocity and **`life`**; **`DRAW`** renders. **`PARTICLE2D.MAKE`** is a **deprecated** alias of **`PARTICLE2D.CREATE`**.
 
 | Command | Arguments |
-|---|---|
-| `PARTICLE2D.MAKE` | `(max, r, g, b, a)` |
-| `PARTICLE2D.EMIT` | `(p, x, y, vx, vy, life)` |
-| `PARTICLE2D.UPDATE` | `(p, dt)` |
-| `PARTICLE2D.DRAW` | `(p)` |
-| `PARTICLE2D.FREE` | `(p)` |
+|--------|-----------|
+| **`PARTICLE2D.CREATE`** | `(max, r, g, b, a)` |
+| **`PARTICLE2D.EMIT`** | `(p, x, y, vx, vy, life)` |
+| **`PARTICLE2D.UPDATE`** | `(p, dt)` |
+| **`PARTICLE2D.DRAW`** | `(p)` |
+| **`PARTICLE2D.FREE`** | `(p)` |
 
 ---
 
-## ANIM.* (optional state machine)
+## `ANIM.*` (optional state machine)
 
 | Command | Purpose |
-|---|---|
-| `ANIM.DEFINE` | Named clip: first/last frame, fps, looping |
-| `ANIM.ADDTRANSITION` | Conditional clip change |
-| `ANIM.UPDATE` | Advance + evaluate transitions |
-| `ANIM.SETPARAM` | Parameters for transition conditions |
+|--------|---------|
+| **`ANIM.DEFINE`** | Named clip: first/last frame, fps, looping |
+| **`ANIM.ADDTRANSITION`** | Conditional clip change |
+| **`ANIM.UPDATE`** | Advance + evaluate transitions |
+| **`ANIM.SETPARAM`** | Parameters for transition conditions |
 
 See inline tables in earlier revisions of this file for **transition condition** syntax. Do not mix **`ANIM.UPDATE`** with **`SPRITE.UPDATEANIM`** strip advancement on the **same** sprite without understanding the interaction.
 
@@ -138,11 +138,11 @@ See **[ATLAS.md](ATLAS.md)** for **`ATLAS.LOAD`**, **`ATLAS.GETSPRITE`**, **`ATL
 
 ---
 
-## Example (strip + Mode2D)
+## Full Example (strip + Mode2D)
 
 ```basic
-Window.Open(800, 600, "Sprite strip")
-Window.SetFPS(60)
+WINDOW.OPEN(800, 600, "Sprite strip")
+WINDOW.SETFPS(60)
 
 hero = SPRITE.LOAD("sheet.png")
 SPRITE.DEFANIM(hero, "4")
@@ -151,24 +151,24 @@ SPRITE.PLAYANIM(hero, "walk")
 x = 300
 y = 250
 
-WHILE NOT Window.ShouldClose()
+WHILE NOT WINDOW.SHOULDCLOSE()
     SPRITE.SETPOS(hero, x, y)
     SPRITE.UPDATEANIM(hero, TIME.DELTA())
 
-    Render.Clear(30, 40, 50)
+    RENDER.CLEAR(30, 40, 50)
     SPRITE.DRAW(hero, 0, 0)
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
 SPRITE.FREE(hero)
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 ---
 
 ## Common mistakes
 
-- **Skipping `BeginMode2D`** when using cameras or scaled views — align with your **`Camera2D`** setup.
+- **Skipping `RENDER.BEGINMODE2D` / `RENDER.ENDMODE2D`** when using cameras or scaled views — align with your 2D camera setup.
 - **Leaking sprites** — pair **`SPRITE.LOAD`** / **`ATLAS.GETSPRITE`** with **`SPRITE.FREE`** when done (and **`ATLAS.FREE`** for the atlas).
 - **Atlas sprites** — **`SPRITE.FREE`** on an atlas sub-sprite does **not** unload the shared atlas texture (`fromAtlas` path).
 

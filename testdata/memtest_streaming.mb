@@ -11,36 +11,36 @@ World.SetCenter(64, 64)
 World.StreamEnable(TRUE)
 World.Preload(terrain, 2)
 
-cam = CreateCamera()
-Camera.SetPos(cam, 64, 40, 64)
-Camera.SetTarget(cam, 64, 0, 64)
-Camera.SetFOV(cam, 60)
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 64, 40, 64)
+CAMERA.SETTARGET(cam, 64, 0, 64)
+CAMERA.SETFOV(cam, 60)
 
-cx# = 64
-cz# = 64
+cx = 64
+cz = 64
 frames = 0
 maxFrames = 180
 
 WHILE frames < maxFrames AND NOT Window.ShouldClose()
-    dt# = Time.Delta()
-    ang# = frames * 0.04
-    cx# = 64 + Math.Cos(ang#) * 40
-    cz# = 64 + Math.Sin(ang#) * 40
-    World.SetCenter(cx#, cz#)
-    World.Update(dt#)
-    Camera.SetPos(cam, cx#, 35, cz# + 25)
-    Camera.SetTarget(cam, cx#, 12, cz#)
+    dt = Time.Delta()
+    ang = frames * 0.04
+    cx = 64 + Math.Cos(ang) * 40
+    cz = 64 + Math.Sin(ang) * 40
+    World.SetCenter(cx, cz)
+    World.Update(dt)
+    CAMERA.SETPOS(cam, cx, 35, cz + 25)
+    CAMERA.SETTARGET(cam, cx, 12, cz)
 
     Render.Clear(15, 20, 28)
     cam.Begin()
         Terrain.Draw(terrain)
     cam.End()
-    Draw.Text("streaming memtest  " + STR$(frames), 8, 8, 14, 220, 220, 200, 255)
+    Draw.Text("streaming memtest  " + STR(frames), 8, 8, 14, 220, 220, 200, 255)
     Render.Frame()
     frames = frames + 1
 WEND
 
 Terrain.Free(terrain)
-Camera.Free(cam)
+CAMERA.FREE(cam)
 Window.Close()
 PRINT("memtest_streaming OK")

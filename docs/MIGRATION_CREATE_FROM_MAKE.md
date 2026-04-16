@@ -1,6 +1,8 @@
 # Migration Guide: `MAKE` to `CREATE`
 
-MoonBASIC now standardizes creation commands on `CREATE`.
+**Roadmap:** [API_STANDARDIZATION_DIRECTIVE.md](API_STANDARDIZATION_DIRECTIVE.md)
+
+MoonBASIC standardizes creation commands on `CREATE`.
 
 ## What Changed
 
@@ -12,6 +14,9 @@ MoonBASIC now standardizes creation commands on `CREATE`.
 
 - `*.MAKE` -> `*.CREATE`
 - `*.MAKE<Type>` -> `*.CREATE<Type>`
+- `STR$(x)` -> `STR(x)` (canonical; `STR$` remains a deprecated manifest alias)
+- `FORMAT$(x, pat)` -> `FORMAT(x, pat)` (canonical; `FORMAT$` remains a deprecated manifest alias)
+- Legacy **string** globals also have **canonical names without `$`**: `LEFT`, `RIGHT`, `MID`, `LSET`, `RSET`, `SPACE`, `STRING` (repeat-char helper), `REVERSE`, `REPEAT`, `COUNT`, `REPLACE`, `TRIM`, `SPLIT`, `JOIN`, `HEX`, `BIN`, `OCT`, `CHR`, `MKINT`, `MKSHORT`, `MKLONG`, `MKFLOAT`, `MKDOUBLE` — each with a matching `*$` deprecated alias in the manifest where applicable.
 - Keep all other arguments and behavior the same.
 
 ## Common Examples

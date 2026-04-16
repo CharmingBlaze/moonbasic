@@ -34,26 +34,26 @@ CONST FLOOR_G = 124
 CONST FLOOR_B = 82
 
 SetMSAA(0)
-Window.Open(1280, 720, "moonBASIC - colored terrain")
-Window.SetFPS(60)
+WINDOW.OPEN(1280, 720, "moonBASIC - colored terrain")
+WINDOW.SETFPS(60)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(56)
 
-player = CreateSphere(PLAYER_R, SPHERE_SEG)
-EntityColor(player, 70, 210, 255, 255)
-PositionEntity(player, 0.0, PLAYER_Y, 0.0, TRUE)
+player = ENTITY.CREATESPHERE(PLAYER_R, SPHERE_SEG)
+ENTITY.COLOR(player, 70, 210, 255, 255)
+ENTITY.SETPOS(player, 0.0, PLAYER_Y, 0.0, TRUE)
 
 enemy AS HANDLE(N_ENEMY)
 FOR i = 1 TO N_ENEMY
-    enemy(i) = CreateSphere(ENEMY_R, SPHERE_SEG)
+    enemy(i) = ENTITY.CREATESPHERE(ENEMY_R, SPHERE_SEG)
     ec = COLOR.HSV(i, N_ENEMY)
-    EntityColor(enemy(i), ec)
+    ENTITY.COLOR(enemy(i), ec)
     COLOR.FREE(ec)
     ang = FLOAT(i - 1) * TWO_PI / FLOAT(N_ENEMY)
     ex = MATH.COS(ang) * SPAWN_RAD
     ez = MATH.SIN(ang) * SPAWN_RAD
-    PositionEntity(enemy(i), ex, ENEMY_Y, ez, TRUE)
+    ENTITY.SETPOS(enemy(i), ex, ENEMY_Y, ez, TRUE)
 NEXT i
 
 camYaw = 0.0
@@ -63,11 +63,11 @@ orbitHavePrev = FALSE
 orbitPx = 0.0
 orbitPy = 0.0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
-    Render.Clear(SKY_R, SKY_G, SKY_B)
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(SKY_R, SKY_G, SKY_B)
     dt = Time.Delta(0.0167, 0.05)
 
-    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+    IF INPUT.MOUSEDOWN(ORBIT_MOUSE_BTN) THEN
         mx = FLOAT(INPUT.MOUSEX())
         my = FLOAT(INPUT.MOUSEY())
         IF orbitHavePrev THEN
@@ -84,20 +84,20 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     mw = INPUT.MOUSEWHEELMOVE()
     cd = cd - mw * ZOOM_WHEEL
     cd = CLAMP(cd, DIST_MIN, DIST_MAX)
-    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.15 * dt
-    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.15 * dt
+    IF INPUT.KEYDOWN(KEY_Q) THEN camYaw = camYaw - 1.15 * dt
+    IF INPUT.KEYDOWN(KEY_E) THEN camYaw = camYaw + 1.15 * dt
 
     fwd = 0.0
     side = 0.0
-    IF Input.KeyDown(KEY_W) THEN fwd = fwd + 1.0
-    IF Input.KeyDown(KEY_S) THEN fwd = fwd - 1.0
-    IF Input.KeyDown(KEY_D) THEN side = side + 1.0
-    IF Input.KeyDown(KEY_A) THEN side = side - 1.0
+    IF INPUT.KEYDOWN(KEY_W) THEN fwd = fwd + 1.0
+    IF INPUT.KEYDOWN(KEY_S) THEN fwd = fwd - 1.0
+    IF INPUT.KEYDOWN(KEY_D) THEN side = side + 1.0
+    IF INPUT.KEYDOWN(KEY_A) THEN side = side - 1.0
     IF fwd <> 0.0 OR side <> 0.0 THEN
         mag = MATH.SQRT(fwd * fwd + side * side)
         fwd = fwd / mag
         side = side / mag
-        ; Match Camera.OrbitEntity / mario64: “into the screen” is -sin(yaw), -cos(yaw) on XZ.
+        ; Match CAMERA.ORBITENTITY / mario64: “into the screen” is -sin(yaw), -cos(yaw) on XZ.
         fwdX = 0.0 - MATH.SIN(camYaw)
         fwdZ = 0.0 - MATH.COS(camYaw)
         rigX = MATH.COS(camYaw)
@@ -105,26 +105,20 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         spd = MOVE_SPD * dt
         stepX = (fwdX * fwd + rigX * side) * spd
         stepZ = (fwdZ * fwd + rigZ * side) * spd
-        px = Entity.X(player)
-        py = Entity.Y(player)
-        pz = Entity.Z(player)
-        Entity.SetPos(player, px + stepX, py, pz + stepZ, TRUE)
+        px, py, pz = ENTITY.GETPOS(player)
+        ENTITY.SETPOS(player, px + stepX, py, pz + stepZ, TRUE)
     ENDIF
 
-    px = Entity.X(player)
-    py = Entity.Y(player)
-    pz = Entity.Z(player)
+    px, py, pz = ENTITY.GETPOS(player)
     px = CLAMP(px, -WORLD_HALF + 4.0, WORLD_HALF - 4.0)
     pz = CLAMP(pz, -WORLD_HALF + 4.0, WORLD_HALF - 4.0)
-    Entity.SetPos(player, px, PLAYER_Y, pz, TRUE)
+    ENTITY.SETPOS(player, px, PLAYER_Y, pz, TRUE)
 
-    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+    CAMERA.ORBITENTITY(cam, player, camYaw, camPitch, cd)
 
     FOR i = 1 TO N_ENEMY
-        ex = Entity.X(enemy(i))
-        ez = Entity.Z(enemy(i))
-        px = Entity.X(player)
-        pz = Entity.Z(player)
+        ex, ey, ez = ENTITY.GETPOS(enemy(i))
+        px, py, pz = ENTITY.GETPOS(player)
         ddx = px - ex
         ddz = pz - ez
         dist = MATH.SQRT(ddx * ddx + ddz * ddz)
@@ -139,7 +133,7 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         ENDIF
         ex = CLAMP(ex, -WORLD_HALF + 2.0, WORLD_HALF - 2.0)
         ez = CLAMP(ez, -WORLD_HALF + 2.0, WORLD_HALF - 2.0)
-        Entity.SetPos(enemy(i), ex, ENEMY_Y, ez, TRUE)
+        ENTITY.SETPOS(enemy(i), ex, ENEMY_Y, ez, TRUE)
 
         ddx = px - ex
         ddz = pz - ez
@@ -152,8 +146,8 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
             pz = pz + nz * push
             ex = ex - nx * push * 0.35
             ez = ez - nz * push * 0.35
-            Entity.SetPos(player, px, PLAYER_Y, pz, TRUE)
-            Entity.SetPos(enemy(i), ex, ENEMY_Y, ez, TRUE)
+            ENTITY.SETPOS(player, px, PLAYER_Y, pz, TRUE)
+            ENTITY.SETPOS(enemy(i), ex, ENEMY_Y, ez, TRUE)
         ENDIF
     NEXT i
     RENDER.Begin3D(cam)
@@ -165,15 +159,15 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
         BOX(16.0, 1.0, 10.0, 1.4, 1.0, 1.4, 90, 140, 220, 255)
         WIRECUBE(16.0, 1.0, 10.0, 1.48, 1.08, 1.48, 220, 235, 255, 140)
         BOX(0.0, 0.55, 22.0, 2.2, 0.55, 1.0, 160, 100, 200, 255)
-        DrawEntities()
+        ENTITY.DRAWALL()
     RENDER.END3D()
 
     Draw.Text("Orbit: RMB drag · wheel zoom · Q/E yaw · WASD move · ESC", 12, 10, 16, 248, 250, 255, 255)
     Draw.Text("FLAT ground + props (no TERRAIN heightfield — Iris-safe)", 12, 32, 14, 200, 210, 230, 255)
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-FREEENTITIES(enemy)
-FreeEntity(player)
-Camera.Free(cam)
-Window.Close()
+ENTITY.FREEENTITIES(enemy)
+ENTITY.FREE(player)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()

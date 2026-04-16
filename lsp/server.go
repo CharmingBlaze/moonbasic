@@ -411,6 +411,9 @@ func (s *server) completion(params json.RawMessage) any {
 	})
 	var items []any
 	for _, k := range keys {
+		if s.table.IsDeprecatedAlias(k) {
+			continue
+		}
 		suf := strings.TrimPrefix(k, nsPart+".")
 		items = append(items, map[string]any{
 			"label":      suf,

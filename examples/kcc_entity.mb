@@ -1,56 +1,56 @@
 ; kcc_entity.mb - Professional KCC Entity Binding (Easy Mode)
 ; Demonstrates attaching a KCC to a 3D model entity.
+; Run: go run -tags fullruntime . --run examples/kcc_entity.mb
 
 WINDOW.OPEN(1280, 720, "MoonBASIC KCC Easy Mode")
 PHYSICS3D.START()
 
-; Create ground (half-extents: 50, 0.5, 50 at center y = -0.5)
+; Create ground
 floorDef = BODY3D.CREATE("STATIC")
-BODY3D.ADDBOX(floorDef, 50, 0.5, 50)
-floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
-; Small obstacle (half 1, 0.2, 1 at 0, 0, 5)
+floorDef.ADDBOX(50, 0.5, 50)
+floorBody = floorDef.COMMIT(0, -0.5, 0)
+
+; Small obstacle
 obsDef = BODY3D.CREATE("STATIC")
-BODY3D.ADDBOX(obsDef, 1, 0.2, 1)
-obsBody = BODY3D.COMMIT(obsDef, 0, 0, 5)
+obsDef.ADDBOX(1, 0.2, 1)
+obsBody = obsDef.COMMIT(0, 0, 5)
 
-; Create a hero entity (placeholder)
+; Create a hero entity
 hero = ENTITY.CREATE()
-ENTITY.SETPOS(hero, 0, 2, 0, 0)
+hero.SETPOS(0, 2, 0)
 
-; Attach Professional Character Controller
-; Best Practice: Use CHAR.CREATE(entity) for automatic binding
-CHAR.CREATE(hero)
-CHAR.SETSTEP(hero, 0.5)   ; High-level step height
-CHAR.SETSLOPE(hero, 50)   ; High-level slope limit
+; Attach Character Controller: CHARACTER.CREATE(entity)
+CHARACTER.CREATE(hero)
+hero.SETSTEPHEIGHT(0.5) 
+hero.SETMAXSLOPE(50)   
 
 cam = CAMERA.CREATE()
-CAMERA.SETMODE(cam, 1)
+cam.SETMODE(1)
 
 PRINT("KCC Easy Mode Demo")
 PRINT("Character is bound to the hero entity.")
 PRINT("Use Arrows to move hero.")
 
 WHILE NOT WINDOW.SHOULDCLOSE()
-    ; Modern handle methods (priority path)
+    ; Modern handle methods
     vx = 0 : vz = 0
-    IF KEYDOWN(KEY_UP) THEN vz = 6
-    IF KEYDOWN(KEY_DOWN) THEN vz = -6
-    IF KEYDOWN(KEY_LEFT) THEN vx = -6
-    IF KEYDOWN(KEY_RIGHT) THEN vx = 6
+    IF INPUT.KEYDOWN(KEY_UP) THEN vz = 6
+    IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -6
+    IF INPUT.KEYDOWN(KEY_LEFT) THEN vx = -6
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN vx = 6
     
-    ; The player module handles sync when we use PLAYER.MOVE
     PLAYER.MOVE(hero, vx, vz)
     
     ; Sync camera
-    px, py, pz = ENTITY.GETPOSITION(hero)
-    CAMERA.SETPOS(cam, px, py + 2, pz - 10)
-    CAMERA.SETTARGET(cam, px, py + 1.2, pz)
+    px, py, pz = ENTITY.GETPOS(hero)
+    cam.SETPOS(px, py + 2, pz - 10)
+    cam.SETTARGET(px, py + 1.2, pz)
     
     RENDER.CLEAR(40, 44, 52)
-    CAMERA.BEGIN(cam)
+    cam.BEGIN()
     PHYSICS3D.DEBUGDRAW(1)
-    ENTITY.DRAW(hero)
-    CAMERA.END()
+    hero.DRAW()
+    cam.END()
     RENDER.FRAME()
 WEND
 

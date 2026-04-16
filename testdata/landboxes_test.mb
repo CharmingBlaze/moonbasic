@@ -1,15 +1,15 @@
 ; LANDBOXES — same math as repeated BOXTOPLAND; picks best (highest) snap Y
-DIM bx#(2)
-DIM by#(2)
-DIM bz#(2)
-DIM bw#(2)
-DIM bh#(2)
-DIM bd#(2)
-bx#(0) = 0.0 : by#(0) = 1.5 : bz#(0) = 0.0
-bw#(0) = 4.0 : bh#(0) = 0.4 : bd#(0) = 4.0
-bx#(1) = 100.0 : by#(1) = 2.0 : bz#(1) = 0.0
-bw#(1) = 2.0 : bh#(1) = 0.3 : bd#(1) = 2.0
-y# = LANDBOXES(0.0, 2.0, 0.0, -1.0, 0.5, bx#, by#, bz#, bw#, bh#, bd#, 2)
-PRINT(y# > 0.0)
-PRINT(FORMAT$(y#, "%.2f"))
+DIM bx(2)
+DIM by(2)
+DIM bz(2)
+DIM bw(2)
+DIM bh(2)
+DIM bd(2)
+bx(0) = 0.0 : by(0) = 1.5 : bz(0) = 0.0
+bw(0) = 4.0 : bh(0) = 0.4 : bd(0) = 4.0
+bx(1) = 100.0 : by(1) = 2.0 : bz(1) = 0.0
+bw(1) = 2.0 : bh(1) = 0.3 : bd(1) = 2.0
+y = LANDBOXES(0.0, 2.0, 0.0, -1.0, 0.5, bx, by, bz, bw, bh, bd, 2)
+PRINT(y > 0.0)
+PRINT(FORMAT(y, "%.2f"))
 PRINT("LANDBOXES test OK")

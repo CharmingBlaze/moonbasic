@@ -22,17 +22,17 @@ Water.SetDeepColor(w, 0, 40, 90, 240)
 
 WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
-    dt# = Time.Delta()
+    dt = Time.Delta()
 
-    Water.Update(dt#)
+    Water.Update(dt)
 
     Render.Clear(30, 40, 60)
 
-    cam = CreateCamera()
+    cam = CAMERA.CREATE()
 
-    Camera.SetPos(cam, 0, 8, 18)
+    CAMERA.SETPOS(cam, 0, 8, 18)
 
-    Camera.SetTarget(cam, 0, 0, 0)
+    CAMERA.SETTARGET(cam, 0, 0, 0)
 
     cam.Begin()
 
@@ -42,13 +42,13 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
 
     cam.End()
 
-    Camera.Free(cam)
+    CAMERA.FREE(cam)
 
-    wy# = Water.GetWaveY(w, 0, 0)
+    wy = Water.GetWaveY(w, 0, 0)
 
-    dp# = Water.GetDepth(w, 0, 0)
+    dp = Water.GetDepth(w, 0, 0)
 
-    Draw.Text("WaveY " + FORMAT$(wy#, "%.2f") + "  Depth pt " + FORMAT$(dp#, "%.2f"), 8, 8, 16, 255, 255, 255, 255)
+    Draw.Text("WaveY " + FORMAT(wy, "%.2f") + "  Depth pt " + FORMAT(dp, "%.2f"), 8, 8, 16, 255, 255, 255, 255)
 
     Render.Frame()
 

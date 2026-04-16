@@ -1,8 +1,8 @@
 # Modern Blitz-Style Command Surface (MoonBasic)
 
-This document lists **friendly global names** (Blitz3D-style) mapped to the **register-based VM** implementation. Names are **case-insensitive** at compile time and normalize to dotted uppercase for `NAMESPACE.METHOD` forms.
+This document lists **friendly global names** (Blitz3D-style) mapped to the **register-based VM** implementation. Names are **case-insensitive** at compile time; **`NAMESPACE.METHOD`** forms resolve to **dotted uppercase** registry keys in the manifest.
 
-For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, `RENDER.Begin3D`, `DrawEntities`, and the frame contract (`Render.Clear` / `Render.Frame`), see [GETTING_STARTED.md](../GETTING_STARTED.md) (**Modern Blitz-style 3D**) and [EXAMPLES.md](../EXAMPLES.md).
+For a **full program** that combines `Graphics3D`, `LoadMesh`, `EntityPBR`, **`RENDER.BEGIN3D`**, `DrawEntities`, and the frame contract (**`RENDER.CLEAR`** / **`RENDER.FRAME`**), see [GETTING_STARTED.md](../GETTING_STARTED.md) (**Modern Blitz-style 3D**) and [EXAMPLES.md](../EXAMPLES.md).
 
 ## Conventions
 
@@ -194,7 +194,7 @@ Canonical chunk/streaming commands remain `TERRAIN.*` / `CHUNK.*` (see [TERRAIN.
 | `MilliSecs` | `time` module — milliseconds since init |
 | `Graphics3D` | `(w,h)` or `(w,h,depth,mode)` — resize; depth reserved; mode bit0 = high-DPI hint |
 | `AppTitle` | `WINDOW.SETTITLE` |
-| `UpdatePhysics` | `UPDATEPHYSICS` — `ENTITY.UPDATE(Time.Delta)` + best-effort `WORLD.UPDATE`, `PHYSICS2D.STEP`, `PHYSICS3D.STEP` (blitzengine) |
+| `UpdatePhysics` | `UPDATEPHYSICS` — `ENTITY.UPDATE(TIME.DELTA())` + best-effort `WORLD.UPDATE`, `PHYSICS2D.STEP`, `PHYSICS3D.STEP` (blitzengine) |
 | `RENDER.BEGIN3D` / `RENDER.END3D` | Delegate to `CAMERA.BEGIN` / `CAMERA.END` |
 
 ---

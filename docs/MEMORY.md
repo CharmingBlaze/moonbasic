@@ -9,7 +9,7 @@
 
 Use this when tearing down a program or resetting a scene’s VM-backed resources in one step instead of many **`ERASE`** lines. **Do not** rely on it mid-expression: any handle temporarily on the stack for a pending operation would be cleared.
 
-**Example:** [`examples/mario64/main_orbit_simple.mb`](../examples/mario64/main_orbit_simple.mb) ends with **`ERASE ALL`** then **`Window.Close()`** after the main loop (camera + platform **`DIM`** arrays are VM handles).
+**Example:** [`examples/mario64/main_orbit_simple.mb`](../examples/mario64/main_orbit_simple.mb) ends with **`ERASE ALL`** then **`WINDOW.CLOSE()`** after the main loop (camera + platform **`DIM`** arrays are VM handles).
 
 **Not covered:** numeric **entity IDs** from **`ENTITY.***` are **not** VM heap handles — use **`ENTITY.CLEARSCENE`** / **`ENTITY.FREE`** as before. **Window**, **input**, and other non–heap-backed state are unchanged.
 
@@ -66,7 +66,7 @@ These use the same **`FREE`** / **`ERASE`** rules as other **`KindHandle`** obje
 
 ## Game orbit helpers (`ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA`)
 
-These **`GAME`** builtins return **numeric floats only** (radians or distance delta). They do **not** allocate VM heap objects — **no `ERASE`**. Pair them with your own **`camYaw` / `camPitch` / `camDist`** variables and **`Camera.SetOrbit`** (see [GAMEHELPERS.md](reference/GAMEHELPERS.md)).
+These **`GAME`** builtins return **numeric floats only** (radians or distance delta). They do **not** allocate VM heap objects — **no `ERASE`**. Pair them with your own **`camYaw` / `camPitch` / `camDist`** variables and **`CAMERA.SETORBIT`** (see [GAMEHELPERS.md](reference/GAMEHELPERS.md)).
 
 ---
 

@@ -109,7 +109,7 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 	// 1) ENTITY.UPDATE(dt) non-physics gameplay integration
 	// 2) player.Process(dt) KCC intent/update
 	// 3) WORLD/2D updates
-	// 4) PHYSICS3D.STEP(dt) final solver step + matrix sync callback into entities
+	// 4) PHYSICS3D.UPDATE(dt) (alias of PHYSICS3D.STEP) final solver step + matrix sync callback into entities
 	// Reordering this causes one-frame pose divergence for linked bodies and KCC entities.
 	reg.Register("UPDATEPHYSICS", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
@@ -129,7 +129,7 @@ func registerBlitzAPI(m *Module, reg runtime.Registrar) {
 		}
 		_, _ = call(rt, "WORLD.UPDATE", dt)
 		_, _ = call(rt, "PHYSICS2D.STEP")
-		_, _ = call(rt, "PHYSICS3D.STEP", dt)
+		_, _ = call(rt, "PHYSICS3D.UPDATE", dt)
 		return value.Nil, nil
 	})
 	reg.Register("CLEARWORLD", "blitzengine", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

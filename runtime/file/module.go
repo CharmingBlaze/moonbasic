@@ -5,6 +5,7 @@ package mbfile
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -46,7 +47,7 @@ func NewModule() *Module { return &Module{} }
 
 func (m *Module) Names() []string {
 	return []string{
-		"FILE.OPENREAD", "FILE.OPENWRITE", "FILE.CLOSE", "FILE.READLINE", "FILE.WRITE", "FILE.WRITELN", "FILE.EOF",
+		"FILE.OPENREAD", "FILE.OPENWRITE", "FILE.CLOSE", "FILE.READLINE", "FILE.READSTRING", "FILE.WRITE", "FILE.WRITELN", "FILE.EOF",
 		"FILE.SEEK", "FILE.TELL", "FILE.SIZE",
 	}
 }
@@ -67,7 +68,6 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("OPENFILE", "file", m.fileOpen)
 	flatForward := []struct{ flat, canon string }{
 		{"CLOSEFILE", "FILE.CLOSE"},
-		{"READFILE", "FILE.READLINE"},
 		{"WRITEFILE", "FILE.WRITE"},
 		{"EOF", "FILE.EOF"},
 		{"FILEPOS", "FILE.TELL"},
@@ -80,6 +80,14 @@ func (m *Module) Register(r runtime.Registrar) {
 			return m.Run(rt, canon, args...)
 		})
 	}
+	r.Register("READFILE", "file", m.ReadFileDispatch)
+	r.Register("READFILE$", "file", m.ReadFileDispatch)
+	r.Register("READSTRING", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return m.Run(rt, "FILE.READSTRING", args...)
+	})
+	r.Register("READSTRING$", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return m.Run(rt, "FILE.READSTRING", args...)
+	})
 	r.Register("WRITEFILELN", "file", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return m.Run(rt, "FILE.WRITELN", args...)
 	})
@@ -123,6 +131,8 @@ func (m *Module) Run(rt *runtime.Runtime, name string, args ...value.Value) (val
 		return m.fileClose(args...)
 	case "FILE.READLINE":
 		return m.fileReadLine(rt, args...)
+	case "FILE.READSTRING":
+		return m.fileReadString(rt, args...)
 	case "FILE.WRITE":
 		return m.fileWriteRaw(rt, args...)
 	case "FILE.WRITELN":
@@ -209,6 +219,51 @@ func (m *Module) fileReadLine(rt *runtime.Runtime, args ...value.Value) (value.V
 	line = strings.TrimSuffix(line, "\n")
 	line = strings.TrimSuffix(line, "\r")
 	return rt.RetString(line), nil
+}
+
+// ReadFileDispatch routes READFILE(handle) to a line read and READFILE(path) to whole-file text (Blitz parity).
+func (m *Module) ReadFileDispatch(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, runtime.Errorf("READFILE expects 1 argument")
+	}
+	switch args[0].Kind {
+	case value.KindHandle:
+		return m.Run(rt, "FILE.READLINE", args...)
+	case value.KindString:
+		return m.fileReadAllText(rt, args...)
+	default:
+		return value.Nil, runtime.Errorf("READFILE expects (handle) or (path string)")
+	}
+}
+
+func (m *Module) fileReadString(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, runtime.Errorf("FILE.READSTRING expects (handle, byteCount)")
+	}
+	n64, ok := args[1].ToInt()
+	if !ok || n64 < 0 {
+		return value.Nil, runtime.Errorf("FILE.READSTRING: byteCount must be a non-negative int")
+	}
+	n := int(n64)
+	if n == 0 {
+		return rt.RetString(""), nil
+	}
+	o, err := heap.Cast[*fileObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if o.rd == nil {
+		return value.Nil, fmt.Errorf("file not open for reading")
+	}
+	buf := make([]byte, n)
+	read, err := o.rd.Read(buf)
+	if err != nil && err != io.EOF {
+		return value.Nil, err
+	}
+	if read == 0 {
+		return rt.RetString(""), nil
+	}
+	return rt.RetString(string(buf[:read])), nil
 }
 
 func (m *Module) fileEOF(args ...value.Value) (value.Value, error) {

@@ -12,7 +12,7 @@
 ; g3 = WORLD.MOUSEFLOOR3D(cam3d, 0.0) ; [wx, wz] or NIL (ray parallel / behind)
 ; same as WORLD.MOUSETOFLOOR(cam3d, 0.0)
 
-; --- Jolt pick (Linux + CGO): entity# under cursor ---
+; --- Jolt pick (Linux + CGO): entity under cursor ---
 ; hitEnt = WORLD.MOUSETOENTITY(cam3d)
 ; pt = PHYSICS3D.MOUSEHIT(cam3d)      ; [x,y,z] hit point or NIL
 

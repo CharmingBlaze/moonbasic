@@ -1,6 +1,8 @@
 # MoonBASIC Easy Mode Guide
 
-MoonBASIC Easy Mode is a convenience layer that provides shorthands and property-style methods for BlitzBasic-style ergonomics.
+MoonBASIC Easy Mode is a **convenience layer only** — thin wrappers and Blitz-style globals. It is **not** the primary API; see [API_STANDARDIZATION_DIRECTIVE.md](API_STANDARDIZATION_DIRECTIVE.md) and [STYLE_GUIDE.md](../STYLE_GUIDE.md).
+
+MoonBASIC Easy Mode provides shorthands and property-style methods for BlitzBasic-style ergonomics.
 
 Canonical API documentation and new examples should use `Namespace.Method` commands first (for example `CAMERA.CREATE`, `MODEL.LOAD`, `ENTITY.SETPOS`).
 
@@ -32,7 +34,7 @@ These commands are available globally and act as thin wrappers over standard Moo
 | `MouseY()` | `INPUT.MOUSEY()` | Get mouse Y position. |
 | `MouseHit(b)` | `INPUT.MOUSEPRESSED(b)` | Check if a mouse button was clicked. |
 | `Millisecs()` | `TIME.MILLIS()` | Get milliseconds since the engine started. |
-| `UpdatePhysics()` | `UPDATEPHYSICS` | One frame tick: `ENTITY.UPDATE(Time.Delta)` + best-effort world / 2D / 3D physics steps. |
+| `UpdatePhysics()` | `UPDATEPHYSICS` | One frame tick: `ENTITY.UPDATE(TIME.DELTA())` + best-effort world / 2D / 3D physics steps. |
 
 ## 2. Property-Style Handle Methods
 

@@ -2,7 +2,7 @@
 ; Run: go run -tags fullruntime . --run examples/mario64/main_entities.mb
 ;
 ; Orbit camera (pure math, no collision): yaw/pitch/distance → spherical offset from target; camera looks at target.
-; Mouse deltas: INPUT.MOUSEXSPEED / INPUT.MOUSEYSPEED (same frame as Render.Clear). Orbit only while orbit button held.
+; Mouse deltas: INPUT.MOUSEXSPEED / INPUT.MOUSEYSPEED (same frame as RENDER.CLEAR). Orbit only while orbit button held.
 ; Wheel adjusts distance (clamped). CAMERA.ORBITENTITY applies yaw/pitch/distance + look-at.
 
 CONST TYPE_PLAYER = 1
@@ -22,77 +22,78 @@ CONST ZOOM_WHEEL = 0.9
 
 ; MSAA before OPEN (see WINDOW.SETMSAA) — smoother grid/edges; less harsh aliasing at the horizon.
 SetMSAA(4)
-Window.Open(960, 540, "moonBASIC - entity hop (entities + collisions)")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "moonBASIC - entity hop (entities + collisions)")
+WINDOW.SETFPS(60)
 
-cam = CreateCamera()
+cam = CAMERA.CREATE()
 cam.SetFOV(55)
 
 COLLISIONS(TYPE_PLAYER, TYPE_GROUND, 2, 2)
 
 ; Floor (top face slightly below Y=0 so Draw3D.Grid at Y=0 does not z-fight with this slab)
-floor = CreateCube()
-ScaleEntity(floor, 48.0, 0.5, 48.0)
-PositionEntity(floor, 0.0, -0.27, 0.0, TRUE)
-EntityType(floor, TYPE_GROUND)
+floor = ENTITY.CREATECUBE(1, 1, 1)
+ENTITY.SCALE(floor, 48.0, 0.5, 48.0)
+ENTITY.SETPOS(floor, 0.0, -0.27, 0.0, TRUE)
+ENTITY.TYPE(floor, TYPE_GROUND)
 ; Floor: distinct from sky (72,92,140) so the slab reads as terrain, not empty blue.
-EntityColor(floor, 38, 48, 72, 255)
+ENTITY.COLOR(floor, 38, 48, 72, 255)
 
 ; Shared template for platforms (type + mesh); scale/color per instance
-platProto = CreateCube()
-EntityType(platProto, TYPE_GROUND)
+platProto = ENTITY.CREATECUBE(1, 1, 1)
+ENTITY.TYPE(platProto, TYPE_GROUND)
 
-p1 = CopyEntity(platProto)
-ScaleEntity(p1, 4.0, 0.4, 4.0)
-PositionEntity(p1, 0.0, 1.5, 6.0, TRUE)
-EntityColor(p1, 255, 60, 200, 255)
+p1 = ENTITY.COPY(platProto)
+ENTITY.SCALE(p1, 4.0, 0.4, 4.0)
+ENTITY.SETPOS(p1, 0.0, 1.5, 6.0, TRUE)
+ENTITY.COLOR(p1, 255, 60, 200, 255)
 
-p2 = CopyEntity(platProto)
-ScaleEntity(p2, 2.5, 0.35, 2.5)
-PositionEntity(p2, -3.5, 2.5, 10.0, TRUE)
-EntityColor(p2, 40, 255, 230, 255)
+p2 = ENTITY.COPY(platProto)
+ENTITY.SCALE(p2, 2.5, 0.35, 2.5)
+ENTITY.SETPOS(p2, -3.5, 2.5, 10.0, TRUE)
+ENTITY.COLOR(p2, 40, 255, 230, 255)
 
-p3 = CopyEntity(platProto)
-ScaleEntity(p3, 2.0, 0.3, 2.0)
-PositionEntity(p3, 4.0, 3.2, 14.0, TRUE)
-EntityColor(p3, 120, 255, 80, 255)
+p3 = ENTITY.COPY(platProto)
+ENTITY.SCALE(p3, 2.0, 0.3, 2.0)
+ENTITY.SETPOS(p3, 4.0, 3.2, 14.0, TRUE)
+ENTITY.COLOR(p3, 120, 255, 80, 255)
 
-p4 = CopyEntity(platProto)
-ScaleEntity(p4, 3.0, 0.35, 3.0)
-PositionEntity(p4, 0.0, 4.0, 18.0, TRUE)
-EntityColor(p4, 255, 210, 60, 255)
+p4 = ENTITY.COPY(platProto)
+ENTITY.SCALE(p4, 3.0, 0.35, 3.0)
+ENTITY.SETPOS(p4, 0.0, 4.0, 18.0, TRUE)
+ENTITY.COLOR(p4, 255, 210, 60, 255)
 
-FreeEntity(platProto)
+ENTITY.FREE(platProto)
 
 ; Player root (physics sphere)
-player = CreateSphere()
-EntityRadius(player, 0.45)
-EntityType(player, TYPE_PLAYER)
-PositionEntity(player, 0.0, 1.0, 0.0, TRUE)
-EntityColor(player, 255, 95, 255, 255)
+player = ENTITY.CREATESPHERE(0.5)
+ENTITY.RADIUS(player, 0.45)
+ENTITY.TYPE(player, TYPE_PLAYER)
+ENTITY.SETPOS(player, 0.0, 1.0, 0.0, TRUE)
+ENTITY.COLOR(player, 255, 95, 255, 255)
 
 ; Visual hat (child)
-hat = CreateSphere(player)
-ScaleEntity(hat, 0.35, 0.35, 0.35)
-PositionEntity(hat, 0.0, 0.85, 0.0, FALSE)
-EntityColor(hat, 70, 255, 140, 255)
+hat = ENTITY.CREATESPHERE(0.5, 16)
+ENTITY.PARENT(hat, player)
+ENTITY.SCALE(hat, 0.35, 0.35, 0.35)
+ENTITY.SETPOS(hat, 0.0, 0.85, 0.0, FALSE)
+ENTITY.COLOR(hat, 70, 255, 140, 255)
 
-; Spherical orbit state: yaw, pitch, distance — Camera.OrbitEntity + EntityMoveCameraRelative.
+; Spherical orbit state: yaw, pitch, distance — CAMERA.ORBITENTITY + ENTITY.MOVECAMERARELATIVE.
 camYaw = 0.0
 camPitch = 0.22
 cd = 7.5
 moveSpd = 11.0
 
-WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ; RENDER.CLEAR starts the frame (BeginDrawing + input poll). Read mouse speed after this.
-    Render.Clear(72, 92, 140)
+    RENDER.CLEAR(72, 92, 140)
     dt = Time.Delta()
     IF dt <= 0.0 THEN dt = 0.0167
     IF dt > 0.05 THEN dt = 0.05
 
     dx = INPUT.MOUSEXSPEED()
     dy = INPUT.MOUSEYSPEED()
-    IF Input.MouseDown(ORBIT_MOUSE_BTN) THEN
+    IF INPUT.MOUSEDOWN(ORBIT_MOUSE_BTN) THEN
         camYaw = camYaw + dx * ORBIT_YAW_SENS
         camPitch = camPitch - dy * ORBIT_PITCH_SENS
     ENDIF
@@ -104,31 +105,31 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     IF cd < DIST_MIN THEN cd = DIST_MIN
     IF cd > DIST_MAX THEN cd = DIST_MAX
 
-    IF Input.KeyDown(KEY_Q) THEN camYaw = camYaw - 1.35 * dt
-    IF Input.KeyDown(KEY_E) THEN camYaw = camYaw + 1.35 * dt
+    IF INPUT.KEYDOWN(KEY_Q) THEN camYaw = camYaw - 1.35 * dt
+    IF INPUT.KEYDOWN(KEY_E) THEN camYaw = camYaw + 1.35 * dt
 
-    ; Orbit with current yaw before movement so EntityMoveCameraRelative matches what you see (same frame).
-    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+    ; Orbit with current yaw before movement so ENTITY.MOVECAMERARELATIVE matches what you see (same frame).
+    CAMERA.ORBITENTITY(cam, player, camYaw, camPitch, cd)
 
     f = 0.0
     s = 0.0
-    IF Input.KeyDown(KEY_W) THEN f = f + 1.0
-    IF Input.KeyDown(KEY_S) THEN f = f - 1.0
-    IF Input.KeyDown(KEY_A) THEN s = s - 1.0
-    IF Input.KeyDown(KEY_D) THEN s = s + 1.0
-    EntityMoveCameraRelative(player, f * moveSpd * dt, s * moveSpd * dt, cam)
+    IF INPUT.KEYDOWN(KEY_W) THEN f = f + 1.0
+    IF INPUT.KEYDOWN(KEY_S) THEN f = f - 1.0
+    IF INPUT.KEYDOWN(KEY_A) THEN s = s - 1.0
+    IF INPUT.KEYDOWN(KEY_D) THEN s = s + 1.0
+    ENTITY.MOVECAMERARELATIVE(player, f * moveSpd * dt, s * moveSpd * dt, cam)
 
     ENTITY.UPDATE(dt)
 
-    IF EntityGrounded(player) AND INPUT.KEYHIT(KEY_SPACE) THEN
-        ApplyEntityImpulse(player, 0.0, 10.5, 0.0)
+    IF ENTITY.GROUNDED(player) AND INPUT.KEYHIT(KEY_SPACE) THEN
+        ENTITY.ADDFORCE(player, 0.0, 10.5, 0.0)
     ENDIF
 
     ; Follow player after physics (position may have changed).
-    Camera.OrbitEntity(cam, player, camYaw, camPitch, cd)
+    CAMERA.ORBITENTITY(cam, player, camYaw, camPitch, cd)
 
     RENDER.Begin3D(cam)
-        DrawEntities()
+        ENTITY.DRAWALL()
         ; Reference grid: wider spacing + fewer divisions reduces horizon moire; Y offset clears floor slab (top ~ -0.02).
         Draw3D.Grid(14, 2.0, 0.04)
         ; Wire boxes slightly above platform centers so outlines do not z-fight with solid cubes.
@@ -139,8 +140,8 @@ WHILE NOT (Input.KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
     RENDER.END3D()
 
     Draw.Text("ENTITY hop - hold orbit btn (ORBIT_MOUSE_BTN)  wheel  Q/E  WASD  SPACE  ESC", 12, 10, 14, 245, 250, 255, 255)
-    Render.Frame()
+    RENDER.FRAME()
 WEND
 
-Camera.Free(cam)
-Window.Close()
+CAMERA.FREE(cam)
+WINDOW.CLOSE()

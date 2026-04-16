@@ -1,40 +1,37 @@
 ; kcc_tuning.mb - Professional KCC Tuning Example
 ; Demonstrates stairs climbing, slope limits, and floor snapping.
+; Run: go run -tags fullruntime . --run examples/kcc_tuning.mb
 
 WINDOW.OPEN(1280, 720, "MoonBASIC KCC Tuning")
 PHYSICS3D.START()
 
-; Ground (half 50, 0.5, 50)
+; Ground
 floorDef = BODY3D.CREATE("STATIC")
-BODY3D.ADDBOX(floorDef, 50, 0.5, 50)
-floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
+floorDef.ADDBOX(50, 0.5, 50)
+floorBody = floorDef.COMMIT(0, -0.5, 0)
 
-; Stairs (0.4m steps; half 1, 0.2, 1 per step)
+; Stairs (0.4m steps)
 FOR i = 1 TO 5
     stepDef = BODY3D.CREATE("STATIC")
-    BODY3D.ADDBOX(stepDef, 1, 0.2, 1)
-    stepBody = BODY3D.COMMIT(stepDef, 5, i * 0.4 - 0.2, -5 + i)
+    stepDef.ADDBOX(1, 0.2, 1)
+    stepBody = stepDef.COMMIT(5, i * 0.4 - 0.2, -5 + i)
 NEXT
 
-; Steep slope placeholder (axis-aligned box; no rotation until SETROTATION exists)
+; Steep slope placeholder
 slopeDef = BODY3D.CREATE("STATIC")
-BODY3D.ADDBOX(slopeDef, 5, 0.25, 5)
-hSlope1 = BODY3D.COMMIT(slopeDef, 5, 1, 5)
+slopeDef.ADDBOX(5, 0.25, 5)
+hSlope1 = slopeDef.COMMIT(5, 1, 5)
 
-; Initialize character
-radius = 0.4
-height = 1.8
-char = CHARCONTROLLER.CREATE(0, 2, 0, radius, height)
+; Initialize character: (radius, height, x, y, z)
+char = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
 
-; Apply professional tuning
-CHARACTERREF.SETSETTING(char, "MAXSLOPE", 50)     ; Cannot climb past 50 deg
-CHARACTERREF.SETSETTING(char, "STEPHEIGHT", 0.45) ; Can climb 0.4m stairs
-CHARACTERREF.SETSETTING(char, "SNAPDIST", 0.5)    ; Stick to floor when going down
-CHARACTERREF.SETSETTING(char, "MAXSTRENGTH", 100)
-CHARACTERREF.SETSETTING(char, "PADDING", 0.02)
+; Apply professional tuning via handle methods
+char.SETMAXSLOPE(50)     ; Cannot climb past 50 deg
+char.SETSTEPHEIGHT(0.45) ; Can climb 0.4m stairs
+char.SETSNAPDISTANCE(0.5) ; Stick to floor when going down
 
 cam = CAMERA.CREATE()
-CAMERA.SETMODE(cam, 1) ; First person / follow
+cam.SETMODE(1)
 
 PRINT("KCC Tuning Demo")
 PRINT("Stairs: 0.4m height (Walkable)")
@@ -43,40 +40,40 @@ PRINT("Controls: Arrows to move, Space to Jump")
 WHILE NOT WINDOW.SHOULDCLOSE()
     ; Movement logic
     vx = 0 : vz = 0
-    IF KEYDOWN(KEY_UP) THEN vz = 5
-    IF KEYDOWN(KEY_DOWN) THEN vz = -5
-    IF KEYDOWN(KEY_LEFT) THEN vx = -5
-    IF KEYDOWN(KEY_RIGHT) THEN vx = 5
+    IF INPUT.KEYDOWN(KEY_UP) THEN vz = 5
+    IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -5
+    IF INPUT.KEYDOWN(KEY_LEFT) THEN vx = -5
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN vx = 5
     
     ; Jump
-    IF INPUT.KEYPRESSED(KEY_SPACE) AND CHARACTERREF.ISGROUNDED(char) THEN
-        CHARACTERREF.JUMP(char, 6)
+    IF INPUT.KEYDOWN(KEY_SPACE) AND char.ISGROUNDED() THEN
+        char.JUMP(6)
     ENDIF
     
     ; Update character
-    CHARACTERREF.SETVELOCITY(char, vx, 0, vz) ; Integrator handles horizontal
-    CHARACTERREF.UPDATE(char)
+    char.SETVELOCITY(vx, 0, vz)
+    char.UPDATE()
     
     ; Sync camera
     px, py, pz = CHARACTERREF.GETPOSITION(char)
-    CAMERA.SETPOS(cam, px, py + 1.6, pz - 5)
-    CAMERA.SETTARGET(cam, px, py + 1.6, pz + 10)
+    cam.SETPOS(px, py + 1.6, pz - 5)
+    cam.SETTARGET(px, py + 1.6, pz + 10)
     
     RENDER.CLEAR(40, 44, 52)
-    CAMERA.BEGIN(cam)
+    cam.BEGIN()
     PHYSICS3D.DEBUGDRAW(1)
     ; UI info
-    gnd = CHARACTERREF.ISGROUNDED(char)
+    gnd = char.ISGROUNDED()
     IF gnd THEN
         DRAW.TEXT("Grounded: yes", 10, 10, 20, 0, 255, 0, 255)
     ELSE
         DRAW.TEXT("Grounded: no", 10, 10, 20, 255, 200, 200, 255)
     ENDIF
     DRAW.TEXT("Move on stairs and slope to test KCC", 10, 35, 18, 255, 255, 255, 255)
-    CAMERA.END()
+    cam.END()
     RENDER.FRAME()
 WEND
 
-CHARCONTROLLER.FREE(char)
+char.FREE()
 PHYSICS3D.STOP()
 WINDOW.CLOSE()

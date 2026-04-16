@@ -8,11 +8,11 @@ Commands for creating and controlling a 3D physics simulation using Jolt Physics
 
 ## Core Workflow
 
-1.  **Initialize**: Start the physics world with `Physics3D.Start()`.
-2.  **Create Bodies**: Define and create physics bodies (`Body3D.Make`, `Body3D.AddShape`, `Body3D.Commit`).
-3.  **Update**: Advance the simulation each frame with `Physics3D.Step()`.
-4.  **Synchronize**: Use `Body3D.GetMatrix()` to update the transforms of your visual objects.
-5.  **Cleanup**: Shut down the world with `Physics3D.Stop()` when done.
+1.  **Initialize**: Start the physics world with **`PHYSICS3D.START`** (alias: `Physics3D.Start()`).
+2.  **Create Bodies**: Define and create physics bodies (**`BODY3D.CREATE`**, **`ADDBOX`** / …, **`COMMIT`**).
+3.  **Update**: Advance the simulation each frame with **`PHYSICS3D.UPDATE`** or **`PHYSICS3D.STEP`** — same implementation (optional frame **`dt#`**). Prefer **`UPDATE`** in new scripts for clarity.
+4.  **Synchronize**: Use **`BODY3D`** getters / entity links to match visuals (see [PHYSICS.md](../PHYSICS.md)).
+5.  **Cleanup**: Shut down with **`PHYSICS3D.STOP`** when done.
 
 ---
 
@@ -26,8 +26,8 @@ Shuts down the physics simulation and frees all associated resources.
 
 ---
 
-### `Physics3D.Step()`
-Advances the physics simulation by one step. Call once per frame.
+### `PHYSICS3D.STEP` / `PHYSICS3D.UPDATE`
+Advances the physics simulation by one step. Call once per frame (same handler; **`UPDATE`** is the preferred name in the [API standardization directive](../API_STANDARDIZATION_DIRECTIVE.md)).
 
 ### `Physics3D.SetGravity(x, y, z)`
 Sets the global gravity vector for the physics world.
@@ -51,8 +51,9 @@ Teleports a physics body to a new world position.
 ### `Body3D.SetLinearVel(handle, vx, vy, vz)`
 Directly sets the linear velocity of a dynamic body.
 
-### `Body3D.GetMatrix(handle)`
-Returns a handle to the body's transformation matrix for visual synchronization.
+### `BODY3D.GETPOS` / `BODY3D.GETROT` (visual sync)
+
+There is no **`BODY3D.GETMATRIX`** builtin. For **`MESH.DRAW`**, combine **`TRANSFORM.TRANSLATION`** with **`TRANSFORM.ROTATION`** (Euler from **`GETROT`**, radians) via **`TRANSFORM.MULTIPLY`**, or link an **entity** with **`ENTITY.LINKPHYSBUFFER`** and draw through **`ENTITY.DRAWALL`** / **`ENTITY.DRAW`**.
 
 ### `Body3D.Free(handle)`
 Removes a body from the simulation and frees its memory.
@@ -141,7 +142,7 @@ Run **`PHYSICS3D.STEP`** each frame, then:
 | **`CollisionForce`** | Uses penetration depth as a cheap impact proxy (not a true post-solve impulse). |
 | **`CountCollisions(e)`** | Number of distinct overlapping **other** entities for `e` this frame (separate from legacy **`COUNTCOLLISIONS`**). |
 
-**Ordering:** Collision events are collected **at the end of** `PHYSICS3D.STEP` (after matrix sync). Call **`EntityCollided`** in your game loop **after** stepping physics.
+**Ordering:** Collision events are collected **at the end of** **`PHYSICS3D.UPDATE`** / **`PHYSICS3D.STEP`** (after matrix sync). Call **`EntityCollided`** in your game loop **after** stepping physics.
 
 **Ghost entities:** **`ENTITY.FREE`** / **`ENTITY.CLEARPHYSBUFFER`** unregister the bridge so freed ids are not reported.
 
@@ -154,53 +155,48 @@ Run **`PHYSICS3D.STEP`** each frame, then:
 ## Full Example: Falling Cube
 
 ```basic
-Window.Open(960, 540, "3D Physics Example")
-Window.SetFPS(60)
+WINDOW.OPEN(960, 540, "3D Physics Example")
+WINDOW.SETFPS(60)
 
-; 1. Initialize Physics World
-Physics3D.Start()
-Physics3D.SetGravity(0, -10, 0)
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -10, 0)
 
-; Setup camera
-cam = CreateCamera()
-cam.SetPos(0, 10, 20)
-cam.SetTarget(0, 0, 0)
+cam = CAMERA.CREATE()
+cam.SETPOS(0, 10, 20)
+cam.SETTARGET(0, 0, 0)
 
-; 2. Create a static floor body
-floor_def = Body3D.Make("static")
-Body3D.AddBox(floor_def, 50, 1, 50)
-floor_body = Body3D.Commit(floor_def, 0, -1, 0)
+; Floor (half-extents for ADDBOX; mesh full size for draw)
+floorDef = BODY3D.CREATE("STATIC")
+BODY3D.ADDBOX(floorDef, 25, 0.5, 25)
+floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
 
-; 3. Create a dynamic cube body
-cube_def = Body3D.Make("dynamic")
-Body3D.AddBox(cube_def, 2, 2, 2)
-cube_body = Body3D.Commit(cube_def, 0, 15, 0)
-Body3D.SetMass(cube_body, 1.0)
+cubeDef = BODY3D.CREATE("DYNAMIC")
+BODY3D.ADDBOX(cubeDef, 1, 1, 1)
+cubeBody = BODY3D.COMMIT(cubeDef, 0, 15, 0)
+BODY3D.SETMASS(cubeBody, 1.0)
 
-; Create visual meshes to match the physics shapes
-floor_mesh = Mesh.MakeCube(50, 1, 50)
-cube_mesh = Mesh.MakeCube(2, 2, 2)
-default_mat = Material.MakeDefault()
+floorMesh = MESH.CREATECUBE(50, 1, 50)
+cubeMesh = MESH.CREATECUBE(2, 2, 2)
+defaultMat = MATERIAL.CREATEDEFAULT()
 
-WHILE NOT Window.ShouldClose()
-    ; 4. Update the physics simulation
-    Physics3D.Step()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    PHYSICS3D.UPDATE()
 
-    Render.Clear(10, 20, 40)
-    cam.Begin()
-        ; 5. Synchronize visuals with physics
-        floor_matrix = Body3D.GetMatrix(floor_body)
-        cube_matrix = Body3D.GetMatrix(cube_body)
+    cx, cy, cz = BODY3D.GETPOS(cubeBody)
+    cp, cyaw, cr = BODY3D.GETROT(cubeBody)
+    cubeXform = TRANSFORM.MULTIPLY(TRANSFORM.TRANSLATION(cx, cy, cz), TRANSFORM.ROTATION(cp, cyaw, cr))
 
-        Mesh.Draw(floor_mesh, default_mat, floor_matrix)
-        Mesh.Draw(cube_mesh, default_mat, cube_matrix)
-
-        Draw.Grid(100, 1.0)
-    cam.End()
-    Render.Frame()
+    RENDER.CLEAR(10, 20, 40)
+    RENDER.Begin3D(cam)
+        MESH.DRAW(floorMesh, defaultMat, TRANSFORM.TRANSLATION(0, -0.5, 0))
+        MESH.DRAW(cubeMesh, defaultMat, cubeXform)
+        DRAW.GRID(100, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
-; 6. Cleanup
-Physics3D.Stop()
-Window.Close()
+BODY3D.FREE(floorBody)
+BODY3D.FREE(cubeBody)
+PHYSICS3D.STOP()
+WINDOW.CLOSE()
 ```

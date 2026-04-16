@@ -133,11 +133,10 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 		return ccMakeLegacy(m, args)
 	}))
 	reg.Register("CHARACTER.CREATE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
-		if len(args) == 3 && args[0].Kind != value.KindHandle {
-			return ccMake(m, args)
+		if len(args) == 1 || len(args) == 3 {
+			return ccMakeLegacy(m, args)
 		}
-		// Overload: CHARACTER.CREATE(entity, r, h)
-		return ccMakeLegacy(m, args)
+		return ccMake(m, args)
 	}))
 	// CHARCONTROLLER.* — Jolt CharacterVirtual helpers (same behavior as cc* below).
 	reg.Register("CHARCONTROLLER.CREATE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccMake(m, args) }))
@@ -1511,16 +1510,32 @@ func (m *Module) DrainCharacterContactsForFanIn(h heap.Handle) []jolt.CharacterC
 	return co.cv.DrainContactQueue(256)
 }
 
+// LinkCharacterToEntity is reserved for wiring a CharacterVirtual handle to a scene entity id (visual sync hooks).
+// Currently a no-op; gameplay uses existing PLAYER/CHARACTERREF paths when the capsule is created with an entity.
+func (m *Module) LinkCharacterToEntity(h heap.Handle, entityID int64) error {
+	_, _ = h, entityID
+	return nil
+}
+
 func ccMakeLegacy(m *Module, args []value.Value) (value.Value, error) {
-	if len(args) < 3 {
-		return value.Nil, fmt.Errorf("CHARACTER.CREATE(entity, r, h) needs 3 args")
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("CHARACTER.CREATE(entity) needs at least 1 arg")
 	}
-	r, _ := args[1].ToFloat()
-	h_val, _ := args[2].ToFloat()
+	r := 0.4
+	h_val := 1.0
+	if len(args) >= 3 {
+		r, _ = args[1].ToFloat()
+		h_val, _ = args[2].ToFloat()
+	}
 	// Legacy call: default strength 100, backoff 0.05
 	h, err := createCharacterVirtualFromParams(m, r, h_val, 0, 0, 0, 50, 0.02, 100.0, 0.05)
 	if err != nil {
 		return value.Nil, err
+	}
+	// Bind to entity if arg0 is present
+	eid, _ := args[0].ToInt()
+	if eid > 0 {
+		_ = m.LinkCharacterToEntity(h, eid)
 	}
 	return value.FromHandle(h), nil
 }

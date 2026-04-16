@@ -70,6 +70,14 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("DELETEDIR", "util", m.utilDeleteDir)
 	r.Register("GETDIR", "util", m.utilGetWd)
 	r.Register("GETDIRS", "util", m.utilGetDirSubdirs)
+	r.Register("GETDIR$", "util", m.utilGetWd)
+	r.Register("GETDIRS$", "util", m.utilGetDirSubdirs)
+	r.Register("READALLTEXT$", "util", m.utilLoadText)
+	r.Register("GETFILEEXT$", "util", m.utilGetFileExt)
+	r.Register("GETFILENAME$", "util", m.utilGetFileName)
+	r.Register("GETFILENAMENOEXT$", "util", m.utilGetFileNameNoExt)
+	r.Register("GETFILEPATH$", "util", m.utilGetFilePath)
+	r.Register("GETFILES$", "util", m.utilGetDirFiles)
 
 	m.registerDroppedFiles(r)
 }

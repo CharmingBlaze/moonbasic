@@ -70,10 +70,12 @@ moonBASIC is completely and unconditionally case agnostic. This means:
   - Every identifier, keyword, command name, namespace name, method
     name, variable name, function name, type name, field name, and
     constant name is treated as identical regardless of capitalisation
-  - The lexer calls strings.ToUpper() on every identifier token at
-    scan time before any other processing
-  - The symbol table, dispatch table, keyword map, and alias table
-    all store and look up keys in uppercase only
+  - The lexer stores canonical lowercase identifier/keyword spellings
+    (`Lit`); keyword resolution compares an uppercase view of the scanned
+    letters
+  - The symbol table stores and looks up variable/function keys in
+    uppercase; built-in dispatch uses uppercase dotted `NAMESPACE.NAME`
+    keys from the manifest
   - String literal CONTENTS are the only thing never uppercased
   - There is no "convention" the compiler enforces — the programmer
     can write in any style they prefer and the compiler accepts it
@@ -90,8 +92,8 @@ moonBASIC is completely and unconditionally case agnostic. This means:
     "DRAW.TEXT"       → "DRAW.TEXT"
     "math.sin"        → "MATH.SIN"
 
-  Implementation in the lexer — one line, no exceptions:
-    ident = strings.ToUpper(rawIdent)
+  Implementation: see `compiler/lexer/lexer_ident.go` (`strings.ToLower`
+  for canonical `Lit`; `LookupKeyword` uses `strings.ToUpper(raw)`).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SYNTAX SPECIFICATION — THE LAW
@@ -106,7 +108,6 @@ PARENTHESES — NON-NEGOTIABLE:
   CORRECT:  Render.Frame()
   CORRECT:  model = Model.Load("robot.mdl")
   CORRECT:  IF Input.KeyDown(KEY_W) THEN Camera.Move(0, 0, 0.1)
-  CORRECT:  y# = Terrain.Height(Camera.X(), Camera.Z())
   CORRECT:  window.open(1280, 720, "My Game")
   CORRECT:  render.frame()
   WRONG:    Window.Open 1280, 720, "My Game"
@@ -124,8 +125,9 @@ PARENTHESES — NON-NEGOTIABLE:
 
 NAMESPACE DOT-CALL SYNTAX:
   Commands belong to namespaces separated by a dot.
-  The entire command including namespace is uppercased by the lexer.
-  The programmer can write it in any capitalisation they choose.
+  Names are case-insensitive in source; resolution maps to uppercase
+  dotted registry keys (see `builtinmanifest.NormalizeCommand` / manifest).
+  The programmer can write any capitalisation they choose.
 
   Defined namespaces:
     WINDOW      RENDER      CAMERA      CAMERA2D
@@ -139,27 +141,17 @@ NAMESPACE DOT-CALL SYNTAX:
     TWEEN       NAV         JSON
 
   Global commands with no namespace:
-    PRINT(v)   INPUT(prompt$)   DIM arr(n)   INCLUDE "file.mbc"
-    STR$(v)    INT(v)           FLOAT(v)     LEN(s$)
+    PRINT(v)   INPUT(prompt)   DIM arr(n)   INCLUDE "file.mbc"
+    STR(v)     INT(v)          FLOAT(v)     LEN(s)
 
-VARIABLE SUFFIXES:
-  score    = 0        ; INT    — plain, no suffix
-  speed#   = 3.14     ; FLOAT  — # suffix
-  name$    = "player" ; STRING — $ suffix
-  alive?   = TRUE     ; BOOL   — ? suffix, TRUE/FALSE/NULL
-
-  Suffixes participate fully in case agnosticism:
-    y# and Y# are identical — stored internally as "Y#"
-    name$ and NAME$ are identical — stored as "NAME$"
-    alive? and ALIVE? are identical — stored as "ALIVE?"
-
-  The suffix is consumed as part of the identifier token
-  by the lexer before uppercasing.
-
-  Implementation alignment (symbols):
-  Treat **`NAME` and `NAME#` / `NAME$` / `NAME?` as distinct identifiers**
-  (suffix is part of the unique string), matching classic Blitz-style typing.
-  The lexer still uppercases the **whole** token (e.g. `y#` → `Y#`).
+NAME SUFFIXES (`#` `$` `?` `%`):
+  moonBASIC **does not** use Blitz-style suffix characters on identifiers in
+  source. Use plain names, implicit typing, **`DIM` / `AS`**, and
+  **`Namespace.Method`** (see [STYLE_GUIDE.md](../../../STYLE_GUIDE.md)).
+  The lexer treats **`#` `$` `?`** as separate punctuation tokens when they
+  appear; **`%`** is not a name suffix in moonBASIC. Legacy registry keys in
+  **`commands.json`** may still contain **`$`**; that is not the scripting
+  style for new code.
 
 ARRAY ACCESS:
   Both () and [] are valid array index syntax.
@@ -573,7 +565,7 @@ LEXER SPECIFICATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Token types required:
-  TOK_IDENT         identifier or keyword — always uppercase after scan
+  TOK_IDENT         identifier or keyword — canonical lowercase `Lit` (see `lexer_ident.go`)
   TOK_INTEGER       42  -42
   TOK_FLOAT         3.14  -3.14
   TOK_STRING        "hello world"
@@ -583,9 +575,9 @@ Token types required:
   TOK_COMMA         ,
   TOK_COLON         :
   TOK_DOT           .
-  TOK_HASH          #  float suffix
-  TOK_DOLLAR        $  string suffix
-  TOK_QUESTION      ?  bool suffix
+  TOK_HASH          #  (punctuation; not merged into `TOK_IDENT` in the current lexer)
+  TOK_DOLLAR        $  (punctuation)
+  TOK_QUESTION      ?  (punctuation)
   TOK_ASSIGN        =  in assignment context
   TOK_PLUS          +
   TOK_MINUS         -
@@ -631,17 +623,16 @@ Lexer rules — implement exactly in this order:
       The string scanner never calls the comment handler so semicolons
       inside string literals are always literal characters.
   5.  [ emits TOK_LPAREN. ] emits TOK_RPAREN. No further processing.
-  6.  Identifier scanning:
+  6.  Identifier scanning (see `compiler/lexer/lexer_ident.go`):
         a. Entry condition: current byte is [A-Za-z_]
         b. Collect bytes while [A-Za-z0-9_]
-        c. Check the next byte for suffix:
-             # → append "#" to raw string and advance
-             $ → append "$" to raw string and advance
-             ? → append "?" to raw string and advance
-        d. Call strings.ToUpper() on the complete string with suffix
-        e. Look up the uppercase string in the keyword map
-        f. If found: emit the keyword token type with the uppercase value
-        g. If not found: emit TOK_IDENT with the uppercase value
+        c. Keyword `END` + following word may expand to `ENDIF`, `ENDFUNCTION`,
+           `WEND`, `ENDSELECT`, or `ENDTYPE` (see END rules below).
+        d. Otherwise: `LookupKeyword(strings.ToUpper(raw))`; canonical `Lit` is
+           `strings.ToLower(raw)` for keywords and identifiers.
+        e. If keyword: emit that keyword type with canonical `Lit`.
+        f. If not a keyword: emit `TOK_IDENT` with canonical `Lit`.
+        (No trailing `#` / `$` / `?` is consumed here — those are separate tokens.)
   7.  Number scanning:
         a. Entry condition: current byte is [0-9] or '-' followed by [0-9]
         b. Collect digits
@@ -718,9 +709,9 @@ Call disambiguation in expression context:
   TOK_IDENT (no following paren)                 → IdentNode (variable)
   Known builtin name without following paren     → PARSE ERROR with hint
 
-AST node types required:
+AST node types required (see `compiler/ast/ast.go` — actual structs may differ):
   ProgramNode        statements []Node, functions []FunctionDefNode
-  AssignNode         name string, suffix string, expr Node
+  AssignNode         name string, expr Node
   FieldAssignNode    object string, field string, expr Node
   CallStmtNode       name string, args []Node
   NamespaceCallStmtNode  ns string, method string, args []Node
@@ -728,7 +719,7 @@ AST node types required:
   NamespaceCallExprNode  ns string, method string, args []Node
   BinopNode          op string, left Node, right Node
   UnaryNode          op string, expr Node
-  IdentNode          name string, suffix string
+  IdentNode          name string
   IntLitNode         value int64
   FloatLitNode       value float64
   StringLitNode      value string
@@ -747,7 +738,7 @@ AST node types required:
   GotoNode           label string
   GosubNode          label string
   LabelNode          name string
-  DimNode            name string, suffix string, dims []Node
+  DimNode            name, typeName, dims, … (see `ast.go`)
   IncludeNode        path string
   NewNode            typeName string
   DeleteNode         expr Node
@@ -941,7 +932,7 @@ codebase**; later steps are **Phase B** engine work.
   STEP 1:  token package — TokenType enum and Token struct
            Test: token types compile, string representations correct
 
-  STEP 2:  lexer package — full tokenizer including suffix and END rules
+  STEP 2:  lexer package — full tokenizer including END expansion rules
            Test: tokenize the canonical reference program
            Verify: every token type, value, line, and column is correct
 

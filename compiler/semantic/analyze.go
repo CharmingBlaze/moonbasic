@@ -84,7 +84,7 @@ func (a *Analyzer) seedBuiltinConstants() {
 	// Subset of key constants from runtime/keyglobals.go
 	keys := []string{
 		"KEY_ESCAPE", "KEY_SPACE", "KEY_W", "KEY_A", "KEY_S", "KEY_D",
-		"KEY_Q", "KEY_E", "KEY_I", "KEY_K", "KEY_LEFT", "KEY_RIGHT", "KEY_UP", "KEY_DOWN",
+		"KEY_Q", "KEY_E", "KEY_G", "KEY_I", "KEY_K", "KEY_LEFT", "KEY_RIGHT", "KEY_UP", "KEY_DOWN",
 		"KEY_1", "KEY_2", "KEY_3", "KEY_4", "KEY_5", "KEY_6",
 		"KEY_F1", "KEY_F2", "KEY_F3", "KEY_F4", "KEY_F5", "KEY_F6", "KEY_F7", "KEY_F8", "KEY_F9", "KEY_F10", "KEY_F11", "KEY_F12",
 		"GAMEPAD_AXIS_LEFT_X", "GAMEPAD_AXIS_LEFT_Y",
@@ -245,8 +245,8 @@ func (a *Analyzer) walkStmtExprs(s ast.Stmt) error {
 			}
 		}
 	case *ast.HandleCallStmt:
-		if !a.isAssigned(n.Receiver) {
-			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Receiver), "Assign a value to the variable before calling methods on it.")
+		if err := a.checkExprCalls(n.Receiver); err != nil {
+			return err
 		}
 		for _, e := range n.Args {
 			if err := a.checkExprCalls(e); err != nil {
@@ -446,8 +446,8 @@ func (a *Analyzer) checkExprCalls(e ast.Expr) error {
 			}
 		}
 	case *ast.HandleCallExpr:
-		if !a.isAssigned(n.Receiver) {
-			return a.typeError(n.Line, n.Col, fmt.Sprintf("use of unassigned variable %s", n.Receiver), "Assign a value to the variable before calling methods on it.")
+		if err := a.checkExprCalls(n.Receiver); err != nil {
+			return err
 		}
 		for _, arg := range n.Args {
 			if err := a.checkExprCalls(arg); err != nil {

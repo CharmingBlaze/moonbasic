@@ -32,7 +32,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     GUI.LABEL(20, 132, 520, 20, "Tabs: active index in DIM array (see GUI.md for list strings)")
     tabClose = GUI.TABBAR(20, 152, 420, 28, "Stats;Audio;Debug", tabs)
 
-    GUI.LABEL(20, 200, 620, 22, "Active tab index = " + STR$(INT(tabs(0))) + "   volume = " + STR$(INT(volume)) + "   tabClose code = " + STR$(tabClose))
+    GUI.LABEL(20, 200, 620, 22, "Active tab index = " + STR(INT(tabs(0))) + "   volume = " + STR(INT(volume)) + "   tabClose code = " + STR(tabClose))
 
     DRAW.TEXT("ESC quit", 16, 500, 16, 160, 160, 170, 255)
     RENDER.FRAME()

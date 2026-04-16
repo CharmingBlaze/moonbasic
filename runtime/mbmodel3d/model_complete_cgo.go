@@ -629,7 +629,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		}
 		return value.FromInt(int64(len(o.anims))), nil
 	}))
-	reg.Register("MODEL.ANIMNAME", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	modelAnimName := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -645,7 +645,9 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.ANIMNAME: invalid index")
 		}
 		return rt.RetString(o.anims[idx].GetName()), nil
-	})
+	}
+	reg.Register("MODEL.ANIMNAME", "model", modelAnimName)
+	reg.Register("MODEL.ANIMNAME$", "model", modelAnimName)
 	reg.Register("MODEL.ADDCHILD", "model", runtime.AdaptLegacy(stubModel("MODEL.ADDCHILD: use MODEL.ATTACHTO")))
 	reg.Register("MODEL.REMOVECHILD", "model", runtime.AdaptLegacy(stubModel("MODEL.REMOVECHILD: use MODEL.DETACH")))
 	reg.Register("MODEL.GETCHILD", "model", runtime.AdaptLegacy(stubModel("MODEL.GETCHILD: not implemented")))

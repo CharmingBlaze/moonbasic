@@ -1,111 +1,100 @@
-# Window Commands
+# Window (`WINDOW.*`)
 
-Commands for managing the application window.
+**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Window.Open`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
 
-## Core Workflow
+**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
 
-A typical moonBASIC application follows this structure:
+## Core workflow
 
-1.  **Open a window**: Call `Window.Open(width, height, title)` at the very beginning.
-2.  **Set properties**: Configure FPS, title, etc.
-3.  **Main loop**: Use a `WHILE NOT Window.ShouldClose()` loop to keep the application running.
-4.  **Close window**: Call `Window.Close()` after the loop exits.
+1. **Open:** **`WINDOW.OPEN(width, height, title)`** at startup.
+2. **Configure:** **`WINDOW.SETFPS`**, **`WINDOW.SETTITLE`**, …
+3. **Loop:** **`WHILE NOT WINDOW.SHOULDCLOSE()`**
+4. **Shutdown:** **`WINDOW.CLOSE()`**
+
+## Full Example
 
 ```basic
-; 1. Open window
-Window.Open(1280, 720, "My Game")
+WINDOW.OPEN(1280, 720, "My Game")
+WINDOW.SETFPS(60)
 
-; 2. Set properties
-Window.SetFPS(60)
-
-; 3. Main loop
-WHILE NOT Window.ShouldClose()
-    ; Update and draw your game here
-    Render.Clear(0,0,0)
-    Render.Frame()
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(0, 0, 0)
+    RENDER.FRAME()
 WEND
 
-; 4. Close window
-Window.Close()
+WINDOW.CLOSE()
 ```
 
 ---
 
-## Window Management
+## Window management
 
-### `Window.Open(width, height, title)` 
+### `WINDOW.OPEN(width, height, title)`
+Opens the window (**client** width/height in pixels) and title bar text.
 
-Opens the application window with specified width, height, and title string.
+### `WINDOW.CLOSE()`
+Closes the window and tears down the host.
 
--   `width`, `height`: The dimensions of the window's client area in pixels.
--   `title`: The text to display in the window's title bar.
+### `WINDOW.SHOULDCLOSE()`
+Returns **`TRUE`** when the user asked to close (title bar / Alt+F4 / etc.).
 
-### `Window.Close()` 
+### `WINDOW.SETFPS(fps)` / `WINDOW.SETTARGETFPS(fps)`
+Target frame rate (**`SETTARGETFPS`** is the paired name in the manifest where both exist).
 
-Closes the window and terminates the application.
+---
 
-### `Window.ShouldClose()` 
+## Appearance and position
 
-Returns `TRUE` if the user has requested to close the window.
-
-### `Window.SetFPS(fps)` 
-
-Sets the target frames per second.
-
--   `fps`: The target FPS value (e.g., 30, 60, 144).
-
-### `Window.SetTargetFPS(fps)` 
-
-Alias for `Window.SetFPS(fps)`.
-
-## Appearance & Position
-
-### `Window.SetTitle(title)` 
-
-Updates the window title at runtime.
-
--   `title`: The new title to display.
+### `WINDOW.SETTITLE(title)`
+Runtime title change.
 
 ```basic
 score = 100
-Window.SetTitle("My Game | Score: " + STR$(score))
+WINDOW.SETTITLE("My Game | Score: " + STR(score))
 ```
 
-### `Window.SetPosition(x, y)` 
+### `WINDOW.SETPOSITION(x, y)`
+Screen position of the window’s top-left corner.
 
-Sets the position of the top-left corner of the window on the screen.
+### `WINDOW.SETICON(filePath)`
+Loads a window icon (square **`.png`** recommended, e.g. 64×64).
 
-### `Window.SetIcon(filePath)` 
+### `WINDOW.SETOPACITY(alpha)`
+Window transparency.
 
-Sets the window's icon from an image file. Best results with a square `.png` file (e.g., 64x64).
+### `WINDOW.SETSIZE(w, h)`
+Resizes the client area (pixels).
 
--   `filePath`: Path to the image file.
+### `WINDOW.GETPOSITIONX()` / `WINDOW.GETPOSITIONY()`
+Current screen position of the top-left corner.
 
-### `Window.SetOpacity(alpha)` 
-
-Sets the window's transparency.
-
-### `Window.SetSize(w, h)` 
-
-Resizes the window to the specified dimensions in pixels.
-
-### `Window.GetPositionX()` / `Window.GetPositionY()` 
-
-Returns the current screen position of the top-left corner of the window.
-
-### `Window.DPISCALE()` 
-
-Returns the global DPI scale factor (float64) for high-DPI displays.
+### `WINDOW.DPISCALE()`
+Global DPI scale factor for high-DPI displays.
 
 ---
 
-### `Window.GetMonitorCount()` 
+## Monitors
 
-Returns the number of connected monitors.
+### `WINDOW.GETMONITORCOUNT()`
+Number of connected monitors.
 
-### `Window.GetMonitorWidth(monitor)` / `Window.GetMonitorHeight(monitor)` 
+### `WINDOW.GETMONITORWIDTH(monitor)` / `WINDOW.GETMONITORHEIGHT(monitor)`
+Pixel size of the given monitor index (**0** = primary).
 
-Returns the width or height of the specified monitor in pixels.
+---
 
--   `monitor`: The monitor index (0 for the primary monitor).
+## Easy Mode name map (compatibility only)
 
+| Facade | Registry |
+|--------|----------|
+| `Window.Open` | `WINDOW.OPEN` |
+| `Window.Close` | `WINDOW.CLOSE` |
+| `Window.ShouldClose` | `WINDOW.SHOULDCLOSE` |
+| `Window.SetFPS` | `WINDOW.SETFPS` |
+| `Window.SetTitle` | `WINDOW.SETTITLE` |
+| `Window.SetPosition` | `WINDOW.SETPOSITION` |
+| `Window.SetIcon` | `WINDOW.SETICON` |
+| `Window.SetOpacity` | `WINDOW.SETOPACITY` |
+| `Window.SetSize` | `WINDOW.SETSIZE` |
+| `Window.GetPositionX` / `GetPositionY` | `WINDOW.GETPOSITIONX` / `WINDOW.GETPOSITIONY` |
+| `Window.DPIScale` | `WINDOW.DPISCALE` |

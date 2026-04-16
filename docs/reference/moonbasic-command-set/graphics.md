@@ -1,12 +1,14 @@
 # Graphics (window + frame)
 
-| Designed | moonBASIC | Notes |
-|----------|------------|-------|
-| **Graphics(w, h)** | **`Window.Open()`** | Opens the application window. |
-| **Graphics3D(w, h)** | **`Window.Open()`** | Same as Graphics. |
-| **AppTitle(title)** | **`Window.SetTitle()`** | Updates the window title. |
-| **SetFPS(fps)** | **`Window.SetFPS()`** | Sets the target frame rate. |
-| **Flip()** | **`Render.Frame()`** | Presents the rendered frame (swap buffers). |
-| **Cls()** | **`Render.Clear()`** | Clears the screen buffers. |
-| **SetClearColor(r, g, b)** | **`Render.SetClearColor()`** | |
-| **SetVSync(on)** | **`Window.SetFlag()`** | Use `FLAG_VSYNC_HINT`. |
+**Conventions:** [STYLE_GUIDE.md](../../../STYLE_GUIDE.md), [API_CONVENTIONS.md](../API_CONVENTIONS.md). Use **`WINDOW.*`** / **`RENDER.*`** registry keys in new examples.
+
+| Designed | Registry (use in new examples) | Notes |
+|----------|-------------------------------|-------|
+| **Graphics(w, h)** | **`WINDOW.OPEN(w, h, title)`** | Third arg is title string. |
+| **Graphics3D(w, h)** | **`WINDOW.OPEN`** | Same window path; 3D is camera/render state. |
+| **AppTitle(title)** | **`WINDOW.SETTITLE(title)`** | |
+| **SetFPS(fps)** | **`WINDOW.SETFPS(fps)`** | |
+| **Flip()** | **`RENDER.FRAME()`** | Presents the frame (swap buffers). |
+| **Cls()** | **`RENDER.CLEAR(r, g, b)`** | Background clear each frame. |
+| **SetClearColor(r, g, b)** | Use **`RENDER.CLEAR`** each frame, or Raylib **`RAYLIB.CLEARBACKGROUND`** if exposed | Per manifest / host. |
+| **SetVSync(on)** | **`WINDOW.SETFLAG`** with vsync hint | See **`WINDOW.*`** / Raylib flags. |

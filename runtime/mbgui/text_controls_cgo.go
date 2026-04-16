@@ -117,10 +117,12 @@ func registerTextControls(m *Module, reg runtime.Registrar) {
 		lastValueBoxFloatS = buf
 		return rt.RetFloat(float64(v)), nil
 	})
-	reg.Register("GUI.VALUEBOXFLOATTEXT", "gui", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	guiValueBoxFloatText := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 0 {
 			return value.Nil, fmt.Errorf("GUI.VALUEBOXFLOATTEXT expects 0 arguments (call after GUI.VALUEBOXFLOAT in the same frame)")
 		}
 		return rt.RetString(lastValueBoxFloatS), nil
-	})
+	}
+	reg.Register("GUI.VALUEBOXFLOATTEXT", "gui", guiValueBoxFloatText)
+	reg.Register("GUI.VALUEBOXFLOATTEXT$", "gui", guiValueBoxFloatText)
 }

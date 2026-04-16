@@ -20,7 +20,7 @@ func TestFoldTurnEntityGroupedThirdArg(t *testing.T) {
 	}
 	FoldConstants(prog)
 	cs := prog.Stmts[0].(*ast.CallStmtNode)
-	if cs.Name != "TURNENTITY" {
+	if cs.Name != "turnentity" {
 		t.Fatalf("command name: got %q", cs.Name)
 	}
 	if len(cs.Args) != 4 {
@@ -45,11 +45,11 @@ func TestParseBareDrawEntitiesEqualsDrawEntitiesParens(t *testing.T) {
 		t.Fatalf("stmts: %d", len(prog.Stmts))
 	}
 	a, ok := prog.Stmts[0].(*ast.CallStmtNode)
-	if !ok || a.Name != "DRAWENTITIES" || len(a.Args) != 0 {
+	if !ok || a.Name != "drawentities" || len(a.Args) != 0 {
 		t.Fatalf("stmt0: %#v", prog.Stmts[0])
 	}
 	b, ok := prog.Stmts[1].(*ast.CallStmtNode)
-	if !ok || b.Name != "DRAWENTITIES" || len(b.Args) != 0 {
+	if !ok || b.Name != "drawentities" || len(b.Args) != 0 {
 		t.Fatalf("stmt1: %#v", prog.Stmts[1])
 	}
 }

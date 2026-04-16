@@ -21,7 +21,7 @@ func TestParseReference(t *testing.T) {
 	if len(prog.Stmts) < 10 {
 		t.Fatalf("expected many top-level stmts, got %d", len(prog.Stmts))
 	}
-	if len(prog.Functions) != 1 || prog.Functions[0].Name != "ONLAND" {
+	if len(prog.Functions) != 1 || prog.Functions[0].Name != "onland" {
 		t.Fatalf("functions: %+v", prog.Functions)
 	}
 }

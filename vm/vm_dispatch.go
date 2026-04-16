@@ -389,6 +389,23 @@ func (v *VM) doCallHandle(i opcode.Instruction) error {
 		return v.runtimeError(v.formatHandleCallError(tag, typeName, methodName, callKey, mapped, err))
 	}
 
+	// Method Chaining: If it's a "SET" method and result is Nil, return receiver handle (hVal)
+	// This enables h.pos(x,y,z).rot(p,y,r).col(r,g,b)
+	if res.Kind == value.KindNil {
+		upperMethod := strings.ToUpper(methodName)
+		if strings.HasPrefix(upperMethod, "SET") {
+			res = hVal
+		} else {
+			// Also allow universal method names without SET prefix for chaining if they are setters (argCount > 0)
+			switch upperMethod {
+			case "POS", "ROT", "SCALE", "COL", "COLOR", "ALPHA", "A", "SIZE", "FREE":
+				if argCount > 0 {
+					res = hVal
+				}
+			}
+		}
+	}
+
 	v.setReg(i.Dst, res)
 	return nil
 }

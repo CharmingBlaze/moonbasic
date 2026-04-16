@@ -1,46 +1,45 @@
 ; Blitz-style 3D template (CGO Raylib + entity graph). Use any window size — not limited to 4K.
-; Requires asset files if you uncomment mesh loads; otherwise CreateCube smoke test.
+; Requires asset files if you uncomment mesh loads; otherwise ENTITY.CREATECUBE smoke test.
 ; See docs/GETTING_STARTED.md — "Modern Blitz-style 3D"
 
 ; Initialize world (1080p example; use 1280x720, 2560x1440, etc. as you like)
-Window.Open(1920, 1080, "Project: High Fidelity")
-Window.SetFPS(60)
-AppTitle("Project: High Fidelity")
-Graphics3D(1920, 1080)   ; optional resize if you opened at another size
-SetMSAA(4)             ; Clean edges
+WINDOW.OPEN(1920, 1080, "Project: High Fidelity")
+WINDOW.SETFPS(60)
+WINDOW.SETSIZE(1920, 1080)   ; optional resize if you opened at another size (was Graphics3D)
+WINDOW.SETMSAA(4)            ; MSAA sample hint
 
 ; Setup Scene
-cam = CreateCamera()
-SetSSAO(TRUE)            ; Modern shadows
+cam = CAMERA.CREATE()
+EFFECT.SSAO(TRUE)            ; Modern shadows
 
 ; Minimal scene if glTF not present (replace with LoadMesh when you have assets):
-car = CreateCube()
+car = ENTITY.CREATECUBE(1, 1, 1)
 EntityPBR(car, 0.9, 0.1)
 
 ; Load a high-poly PBR model when file exists:
 ; car = LoadMesh("supercar.gltf")
 ; EntityNormalMap(car, LoadTexture("car_normals.png"))
 
-; Attach dynamic headlights
+; Attach dynamic headlights (Easy Mode helper — parents light to entity; see LIGHT.CREATEPOINT for raw lights)
 L_Light = CreatePointLight(car, 255, 255, 200)
-TranslateEntity(L_Light, -1, 0, 2)
+ENTITY.TRANSLATE(L_Light, -1, 0, 2)
 
-WHILE NOT (KeyDown(KEY_ESCAPE) OR Window.ShouldClose())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ; Modern Camera Follow logic
     CameraSmoothFollow(cam, car, 0.1)
 
     ; Physics Impulse based on modern input
-    IF KeyDown(KEY_W) THEN ApplyEntityImpulse(car, 0, 0, 500)
+    IF INPUT.KEYDOWN(KEY_W) THEN ENTITY.ADDFORCE(car, 0, 0, 500)
 
     ; Entity graph + optional WORLD / Physics2D / Physics3D
-    UpdatePhysics()
+    UPDATEPHYSICS()
 
     ; The Render Pass
-    Render.Clear(12, 14, 22)
+    RENDER.CLEAR(12, 14, 22)
     RENDER.Begin3D(cam)
-        DrawEntities()
-    RENDER.End3D()
-    Render.Frame()
+        ENTITY.DRAWALL()
+    RENDER.END3D()
+    RENDER.FRAME()
 WEND
 
-Window.Close()
+WINDOW.CLOSE()
