@@ -18,25 +18,25 @@ func (m *Module) inHidePointer(args []value.Value) (value.Value, error) { return
 func (m *Module) inShowPointer(args []value.Value) (value.Value, error) { return value.Nil, nil }
 
 func (m *Module) blitzMouseDown(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzMouseHit(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzKeyDown(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzKeyHit(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzGetJoy(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzJoyDown(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzJoyHit(rt interface{}, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 func (m *Module) blitzJoyX(rt interface{}, args ...value.Value) (value.Value, error) {
 	return value.FromFloat(0), nil

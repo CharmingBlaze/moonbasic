@@ -1,3 +1,5 @@
+//go:build cgo || (windows && !cgo)
+
 // Package mbentity registers Blitz3D-style ENTITY.* helpers (lightweight transforms + simple physics).
 package mbentity
 

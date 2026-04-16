@@ -5,7 +5,6 @@ package water
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
@@ -50,7 +49,7 @@ func (m *Module) wGetDepth(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) wIsUnder(args []value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func (m *Module) wSetShallow(args []value.Value) (value.Value, error) {

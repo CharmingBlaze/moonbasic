@@ -7,7 +7,7 @@ import (
 	"moonbasic/vm/value"
 )
 
-func (m *Module) inKeyHit(args []value.Value) (value.Value, error) { return value.False, nil }
+func (m *Module) inKeyHit(args []value.Value) (value.Value, error) { return value.FromBool(false), nil }
 
 func (m *Module) inMouseXSpeed(args []value.Value) (value.Value, error) {
 	return value.FromFloat(0), nil
@@ -21,14 +21,14 @@ func (m *Module) inJoyX(args []value.Value) (value.Value, error) { return value.
 func (m *Module) inJoyY(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
 
 func (m *Module) inJoyButton(args []value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func (m *Module) inMouseWheel(args []value.Value) (value.Value, error) {
 	return value.FromFloat(0), nil
 }
 
-func (m *Module) inKeyUp(args []value.Value) (value.Value, error) { return value.False, nil }
+func (m *Module) inKeyUp(args []value.Value) (value.Value, error) { return value.FromBool(false), nil }
 
 func (m *Module) inAxis(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
 

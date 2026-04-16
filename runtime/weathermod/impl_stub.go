@@ -5,7 +5,6 @@ package weathermod
 import (
 	"fmt"
 
-	"moonbasic/runtime"
 	"moonbasic/vm/value"
 )
 
@@ -34,7 +33,7 @@ func (m *Module) wGetCoverage(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) wGetType(args []value.Value) (value.Value, error) {
-	return value.FromString("clear"), nil
+	return value.FromInt(0), nil
 }
 
 func (m *Module) fogEnable(args []value.Value) (value.Value, error) {

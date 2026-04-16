@@ -14,10 +14,6 @@ const hint = "AUDIO.* requires CGO: set CGO_ENABLED=1 and install a C compiler, 
 func raylibAudioOpen()  {}
 func raylibAudioClose() {}
 
-func (m *Module) Register(r runtime.Registrar) {
-	// Handled by Register in register.go (untagged)
-}
-
 func (m *Module) audioInit(args []value.Value) (value.Value, error) {
 	return value.Nil, fmt.Errorf("AUDIO.INIT: %s", hint)
 }
@@ -72,8 +68,8 @@ func (m *Module) setSoundPan(args []value.Value) (value.Value, error)    { retur
 func (m *Module) setMusicVolume(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) setMusicPitch(args []value.Value) (value.Value, error)  { return value.Nil, nil }
 func (m *Module) setMasterVolume(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) isSoundPlaying(args []value.Value) (value.Value, error)  { return value.False, nil }
-func (m *Module) isMusicPlaying(args []value.Value) (value.Value, error)  { return value.False, nil }
+func (m *Module) isSoundPlaying(args []value.Value) (value.Value, error)  { return value.FromBool(false), nil }
+func (m *Module) isMusicPlaying(args []value.Value) (value.Value, error)  { return value.FromBool(false), nil }
 func (m *Module) getMusicLength(args []value.Value) (value.Value, error)  { return value.FromFloat(0), nil }
 func (m *Module) getMusicTime(args []value.Value) (value.Value, error)    { return value.FromFloat(0), nil }
 func (m *Module) seekMusic(args []value.Value) (value.Value, error)      { return value.Nil, nil }
@@ -91,8 +87,8 @@ func (m *Module) soundLoad3D(rt *runtime.Runtime, args ...value.Value) (value.Va
 
 func (m *Module) streamMake(args []value.Value) (value.Value, error)      { return value.Nil, nil }
 func (m *Module) streamUpdate(args []value.Value) (value.Value, error)    { return value.Nil, nil }
-func (m *Module) streamIsReady(args []value.Value) (value.Value, error)   { return value.False, nil }
-func (m *Module) streamIsPlaying(args []value.Value) (value.Value, error) { return value.False, nil }
+func (m *Module) streamIsReady(args []value.Value) (value.Value, error)   { return value.FromBool(false), nil }
+func (m *Module) streamIsPlaying(args []value.Value) (value.Value, error) { return value.FromBool(false), nil }
 func (m *Module) streamPlay(args []value.Value) (value.Value, error)      { return value.Nil, nil }
 func (m *Module) streamPause(args []value.Value) (value.Value, error)     { return value.Nil, nil }
 func (m *Module) streamResume(args []value.Value) (value.Value, error)    { return value.Nil, nil }
@@ -114,7 +110,6 @@ func (m *Module) waveExport(rt *runtime.Runtime, args ...value.Value) (value.Val
 func (m *Module) waveFree(args []value.Value) (value.Value, error) { return value.Nil, nil }
 
 func (m *Module) soundFromWave(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) soundFree(args []value.Value) (value.Value, error)     { return value.Nil, nil }
 
 func (m *Module) soundPlay3D(args []value.Value) (value.Value, error)   { return value.Nil, nil }
 func (m *Module) soundAttach(args []value.Value) (value.Value, error)   { return value.Nil, nil }

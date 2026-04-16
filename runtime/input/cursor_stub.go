@@ -22,11 +22,11 @@ func (m *Module) cursorHide(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) cursorIsHidden(args []value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func (m *Module) cursorIsOnScreen(args []value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func (m *Module) cursorEnable(args []value.Value) (value.Value, error) {
@@ -38,7 +38,7 @@ func (m *Module) cursorDisable(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) cursorIsEnabled(args []value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func (m *Module) cursorSet(args []value.Value) (value.Value, error) {

@@ -50,7 +50,7 @@ func worldStatus(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 }
 
 func worldIsReady(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func worldSetVegetation(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

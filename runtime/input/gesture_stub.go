@@ -14,7 +14,7 @@ func (m *Module) gestureEnable(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) gestureIsDetected(args []value.Value) (value.Value, error) {
-	return value.False, nil
+	return value.FromBool(false), nil
 }
 
 func (m *Module) gestureGetDetected(args []value.Value) (value.Value, error) {
