@@ -6,7 +6,7 @@ Low-level **heap handle** API around a **capsule character controller**. On **Li
 
 For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound, Jolt on desktop CGO), see [CHARACTER.md](CHARACTER.md). For **`PLAYER.*`** / **`CHAR.*`**, see [PLAYER.md](PLAYER.md) and [KCC.md](KCC.md).
 
-## Core workflow
+## Core Workflow
 
 1. **`PHYSICS3D.START()`** (or **`WORLD.SETUP()`**) and set world gravity as needed.
 2. **`CHARCONTROLLER.CREATE(radius#, height#, x#, y#, z#)`** → controller **handle**.
@@ -16,38 +16,107 @@ For **`CHARACTER.CREATE`** / **`CHARACTERREF.*`** (entity-bound, Jolt on desktop
 
 ---
 
-## Creation and lifetime
+## Creation and Lifetime
 
-| Command | Notes |
-|--------|--------|
-| **`CHARCONTROLLER.CREATE(radius#, height#, x#, y#, z#)`** | Capsule at world position; returns **handle**. Linux+Jolt requires an active **`PHYSICS3D`** session (`CHARCONTROLLER: PHYSICS3D not started` otherwise). |
-| **`CHARCONTROLLER.FREE(handle)`** | Releases heap slot; Linux tears down Jolt **`CharacterVirtual`** safely before physics shutdown. |
+### `CHARCONTROLLER.CREATE(radius, height, x, y, z)` 
 
----
+Creates a capsule controller at world position `(x, y, z)`. Returns a **handle**. Requires an active `PHYSICS3D` session on Linux+Jolt (`CHARCONTROLLER: PHYSICS3D not started` otherwise). Alias: `CHARCONTROLLER.MAKE` (deprecated).
 
-## Pose and motion
-
-| Command | Notes |
-|--------|--------|
-| **`CHARCONTROLLER.SETPOS(handle, x#, y#, z#)`** (canonical); deprecated **`CHARCONTROLLER.SETPOSITION`** | Set world position (then internal update). |
-| **`CHARCONTROLLER.MOVE(handle, dx#, dy#, dz#)`** | Apply displacement; collisions resolved via Jolt extended update (Linux) or stub slide (other OS). |
-| **`CHARCONTROLLER.TELEPORT(handle, x#, y#, z#)`** | Snap to position and **clear linear velocity** (useful for spawn / cutscenes). |
-| **`CHARCONTROLLER.GETPOS(handle)`** | **Array handle** `[x, y, z]`. |
-| **`CHARCONTROLLER.X(handle)`** / **`.Y`** / **`.Z`** | Scalar world components. |
+- *Handle shortcut*: n/a — use returned handle directly
 
 ---
 
-## Ground and velocity (Jolt-rich)
+### `CHARCONTROLLER.FREE(handle)` 
 
-These map closely to **`CharacterVirtual`** on **Linux + CGO**. On the **stub** path, values are approximated so gameplay code can stay portable.
+Releases the heap slot and tears down the Jolt `CharacterVirtual` safely before physics shutdown.
 
-| Command | Returns | Meaning |
-|--------|---------|---------|
-| **`CHARCONTROLLER.ISGROUNDED(handle)`** | `bool` | Supported floor under the capsule. |
-| **`CHARCONTROLLER.GROUNDSTATE(handle)`** | `int` | Jolt **`EGroundState`**: **0** OnGround, **1** OnSteepGround, **2** NotSupported, **3** InAir. Stub: **0** or **3** only. |
-| **`CHARCONTROLLER.GETLINEARVEL(handle)`** | `[vx, vy, vz]` array | World linear velocity. |
-| **`CHARCONTROLLER.GETGROUNDVELOCITY(handle)`** | `[vx, vy, vz]` array | **`GetGroundVelocity()`** — velocity clamped to the ground plane (Jolt). Stub: horizontal components when grounded. |
-| **`CHARCONTROLLER.GETGROUNDNORMAL(handle)`** | `[nx, ny, nz]` array | Contact normal under the capsule; stub returns **up** when grounded else **zero**. |
+- *Handle shortcut*: `ctrl.free()`
+
+---
+
+## Position
+
+### `CHARCONTROLLER.SETPOS(handle, x, y, z)` 
+
+Sets world position and triggers an internal update. Alias: `CHARCONTROLLER.SETPOSITION` (deprecated).
+
+- *Handle shortcut*: `ctrl.setPos(x, y, z)`
+
+---
+
+### `CHARCONTROLLER.GETPOS(handle)` 
+
+Returns current world position as a `[x, y, z]` array handle.
+
+- *Handle shortcut*: `ctrl.getPos()`
+
+---
+
+### `CHARCONTROLLER.X(handle)` / `CHARCONTROLLER.Y(handle)` / `CHARCONTROLLER.Z(handle)` 
+
+Returns the individual X, Y, or Z world coordinate as a scalar float.
+
+---
+
+### `CHARCONTROLLER.TELEPORT(handle, x, y, z)` 
+
+Snaps to position and **clears linear velocity**. Useful for spawn points and cutscene transitions.
+
+- *Handle shortcut*: `ctrl.teleport(x, y, z)`
+
+---
+
+## Motion
+
+### `CHARCONTROLLER.MOVE(handle, dx, dy, dz)` 
+
+Applies a displacement this frame. Collisions resolved via Jolt extended update (Linux+CGO) or stub slide (other builds).
+
+- *Handle shortcut*: `ctrl.move(dx, dy, dz)`
+
+---
+
+## Ground & Velocity
+
+These map to `CharacterVirtual` on **Windows/Linux + CGO**. On stub builds, values are approximated for portable gameplay code.
+
+### `CHARCONTROLLER.ISGROUNDED(handle)` 
+
+Returns `TRUE` when the capsule has a supported floor beneath it.
+
+- *Handle shortcut*: `ctrl.isGrounded()`
+
+---
+
+### `CHARCONTROLLER.GROUNDSTATE(handle)` 
+
+Returns Jolt `EGroundState`: `0` OnGround, `1` OnSteepGround, `2` NotSupported, `3` InAir. Stub: `0` or `3` only.
+
+- *Handle shortcut*: `ctrl.groundState()`
+
+---
+
+### `CHARCONTROLLER.GETLINEARVEL(handle)` 
+
+Returns world linear velocity as a `[vx, vy, vz]` array handle.
+
+- *Handle shortcut*: `ctrl.getLinearVel()`
+
+---
+
+### `CHARCONTROLLER.GETGROUNDVELOCITY(handle)` 
+
+Returns velocity of the ground surface under the capsule as a `[vx, vy, vz]` array handle. Stub: horizontal components when grounded.
+
+- *Handle shortcut*: `ctrl.getGroundVelocity()`
+
+---
+
+### `CHARCONTROLLER.GETGROUNDNORMAL(handle)` 
+
+Returns the contact normal under the capsule as a `[nx, ny, nz]` array handle. Stub: up-vector when grounded, zero otherwise.
+
+- *Handle shortcut*: `ctrl.getGroundNormal()`
 
 ---
 
@@ -106,3 +175,12 @@ BODY3D.FREE(floorBody)
 PHYSICS3D.STOP()
 WINDOW.CLOSE()
 ```
+
+---
+
+## See also
+
+- [CHARACTER.md](CHARACTER.md) — `CHARACTER.CREATE` entity-bound controller (`CHARACTERREF.*`)
+- [PHYSICS3D.md](PHYSICS3D.md) — world setup, gravity, `BODY3D.*`
+- [KCC.md](KCC.md) — `CHAR.*` / `PLAYER.*` gameplay layer
+- [PLAYER.md](PLAYER.md) — `PLAYER.CREATE`, swim, nav

@@ -1,44 +1,61 @@
-# Transform — 3D transform matrices
+# Transform Commands
 
-**`Transform.*`** (registry **`TRANSFORM.*`**) is the recommended API for **4×4 transformation matrices**: where a mesh sits in the world (position, rotation, scale) and how you combine those into one matrix for **`MESH.DRAW`**.
+4×4 transformation matrices for positioning, rotating, and scaling 3D objects.
 
-The name matches what game engines call a **transform**—not raw “linear algebra,” and not easy to confuse with **`Material.*`** (shaders/textures) or **`MATRIX.*`** (other engine handles).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-Every 3D object is drawn with a transform handle. Build one from **`TRANSFORM.TRANSLATION`** / **`TRANSFORM.ROTATION`** / **`TRANSFORM.MULTIPLY`**, or use **`CAMERA.GETMATRIX`** / **`MAT4.*`** where applicable — there is no **`BODY3D.GETMATRIX`**; use **`BODY3D.GETPOS`** + **`BODY3D.GETROT`** for rigid bodies (see [PHYSICS3D.md](PHYSICS3D.md)).
+## Core Workflow
+
+1. Create a matrix with `TRANSFORM.IDENTITY`, `TRANSFORM.TRANSLATION`, `TRANSFORM.ROTATION`, or `TRANSFORM.SCALE`.
+2. Combine with `TRANSFORM.MULTIPLY`.
+3. Pass to `MESH.DRAW` or other 3D commands.
+4. Free with `TRANSFORM.FREE`.
+
+For legacy `MAT4.*` naming see [MAT4.md](MAT4.md).
 
 ---
 
-### `Transform.Identity()`
+### `TRANSFORM.IDENTITY()` 
 Returns a new identity matrix handle.
 
-### `Transform.Translate(x, y, z)`
-Returns a translation matrix handle. Alias: `Transform.Translation()`.
+---
 
-### `Transform.Rotate(p, y, r)`
-Returns a rotation matrix handle from Euler angles in **radians**. Alias: `Transform.Rotation()`.
+### `TRANSFORM.TRANSLATION(x, y, z)` 
+Returns a translation matrix handle.
 
-### `Transform.Scale(sx, sy, sz)`
+---
+
+### `TRANSFORM.ROTATION(pitch, yaw, roll)` 
+Returns a rotation matrix from Euler angles.
+
+---
+
+### `TRANSFORM.SCALE(sx, sy, sz)` 
 Returns a non-uniform scale matrix handle.
 
 ---
 
-### `Transform.Multiply(a, b)`
-Returns a new matrix handle representing the product of two matrices.
+### `TRANSFORM.MULTIPLY(a, b)` 
+Returns the product of two matrices as a new handle.
 
-### `Transform.Invert(handle)`
+---
+
+### `TRANSFORM.INVERSE(handle)` 
 Returns the inverse of the given matrix.
 
-### `Transform.Transpose(handle)`
+---
+
+### `TRANSFORM.TRANSPOSE(handle)` 
 Returns the transpose of the given matrix.
 
 ---
 
-### `Transform.Free(handle)`
-Releases the matrix from the heap and frees its memory.
+### `TRANSFORM.FREE(handle)` 
+Releases the matrix from the heap.
 
 ---
 
-## Full example: spinning cube
+## Full Example
 
 Registry keys: **`TRANSFORM.*`**, **`MESH.*`**, **`MATERIAL.*`**, **`RENDER.Begin3D`**, **`DRAW.GRID`**, **`TIME.DELTA`**. The material map index **`0`** is albedo (**`MATERIAL_MAP_ALBEDO`** at runtime when globals are seeded).
 
@@ -76,6 +93,3 @@ WINDOW.CLOSE()
 
 ---
 
-## Legacy: `Mat4.*`
-
-Older samples use **`Mat4.*`** with names like **`FromTranslation`**. That API is still supported; see [MAT4.md](MAT4.md) for the exact spellings. New code should prefer **`Transform.*`**.

@@ -18,6 +18,11 @@ func (m *Module) registerRayBuiltins(reg runtime.Registrar) {
 	reg.Register("RAY.MAKE", "collision", runtime.AdaptLegacy(m.rayMake))
 	reg.Register("RAY.CREATE", "collision", runtime.AdaptLegacy(m.rayCreate))
 	reg.Register("RAY.FREE", "collision", runtime.AdaptLegacy(m.rayFree))
+	reg.Register("RAY.SETPOS", "collision", runtime.AdaptLegacy(m.raySetPos))
+	reg.Register("RAY.SETPOSITION", "collision", runtime.AdaptLegacy(m.raySetPos))
+	reg.Register("RAY.SETDIR", "collision", runtime.AdaptLegacy(m.raySetDir))
+	reg.Register("RAY.GETPOS", "collision", runtime.AdaptLegacy(m.rayGetPos))
+	reg.Register("RAY.GETDIR", "collision", runtime.AdaptLegacy(m.rayGetDir))
 
 	rayCollisionScalars(reg, "RAY.HITSPHERE", 5, func(args []value.Value) (rl.RayCollision, error) {
 		if err := m.requireHeap(); err != nil {
@@ -217,4 +222,74 @@ func (m *Module) rayFree(args []value.Value) (value.Value, error) {
 	}
 	m.h.Free(heap.Handle(args[0].IVal))
 	return value.Nil, nil
+}
+
+func (m *Module) raySetPos(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("RAY.SETPOS expects (handle, x, y, z)")
+	}
+	o, err := heap.Cast[*rayObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("RAY.SETPOS: %w", err)
+	}
+	x, ok1 := argF(args[1])
+	y, ok2 := argF(args[2])
+	z, ok3 := argF(args[3])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("RAY.SETPOS: components must be numeric")
+	}
+	o.r.Position = rl.Vector3{X: x, Y: y, Z: z}
+	return args[0], nil
+}
+
+func (m *Module) raySetDir(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("RAY.SETDIR expects (handle, x, y, z)")
+	}
+	o, err := heap.Cast[*rayObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("RAY.SETDIR: %w", err)
+	}
+	x, ok1 := argF(args[1])
+	y, ok2 := argF(args[2])
+	z, ok3 := argF(args[3])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("RAY.SETDIR: components must be numeric")
+	}
+	o.r.Direction = rl.Vector3{X: x, Y: y, Z: z}
+	return args[0], nil
+}
+
+func (m *Module) rayGetPos(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("RAY.GETPOS expects ray handle")
+	}
+	o, err := heap.Cast[*rayObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("RAY.GETPOS: %w", err)
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.r.Position.X, o.r.Position.Y, o.r.Position.Z)
+}
+
+func (m *Module) rayGetDir(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("RAY.GETDIR expects ray handle")
+	}
+	o, err := heap.Cast[*rayObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("RAY.GETDIR: %w", err)
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.r.Direction.X, o.r.Direction.Y, o.r.Direction.Z)
 }

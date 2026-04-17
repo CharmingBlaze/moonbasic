@@ -137,14 +137,14 @@ func (m *Module) Run(rt *runtime.Runtime, name string, args ...value.Value) (val
 		return m.fileWriteRaw(rt, args...)
 	case "FILE.WRITELN":
 		return m.fileWriteLine(rt, args...)
-	case "FILE.EOF":
-		return m.fileEOF(args...)
 	case "FILE.SEEK":
 		return m.fileSeek(args...)
-	case "FILE.TELL":
+	case "FILE.TELL", "FILE.GETPOS":
 		return m.fileTell(args...)
-	case "FILE.SIZE":
+	case "FILE.SIZE", "FILE.GETSIZE":
 		return m.fileSize(args...)
+	case "FILE.EOF", "FILE.GETEOF":
+		return m.fileEOF(args...)
 	}
 	return value.Nil, runtime.Errorf("unknown file command: %s", name)
 }
@@ -306,7 +306,7 @@ func (m *Module) fileSeek(args ...value.Value) (value.Value, error) {
 	if o.wr != nil {
 		o.wr.Reset(o.f)
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) fileTell(args ...value.Value) (value.Value, error) {

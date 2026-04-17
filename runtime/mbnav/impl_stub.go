@@ -114,6 +114,12 @@ func (m *Module) agentGetPos(args []value.Value) (value.Value, error) {
 func (m *Module) agentGetRot(args []value.Value) (value.Value, error) {
 	return navStub("NAVAGENT.GETROT")(args)
 }
+func (m *Module) agentGetSpeed(args []value.Value) (value.Value, error) {
+	return navStub("NAVAGENT.GETSPEED")(args)
+}
+func (m *Module) agentGetMaxForce(args []value.Value) (value.Value, error) {
+	return navStub("NAVAGENT.GETMAXFORCE")(args)
+}
 func (m *Module) steerGroupMake(args []value.Value) (value.Value, error) {
 	return navStub("STEER.GROUPMAKE")(args)
 }

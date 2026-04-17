@@ -130,7 +130,7 @@ func (m *Module) poolSetFactory(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, fmt.Errorf("POOL.SETFACTORY: empty function name")
 	}
 	o.factory = fn
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) poolSetReset(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -153,7 +153,7 @@ func (m *Module) poolSetReset(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("POOL.SETRESET: empty function name")
 	}
 	o.reset = fn
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (o *poolObj) runFactory() (heap.Handle, error) {
@@ -206,7 +206,7 @@ func (m *Module) poolPrewarm(args []value.Value) (value.Value, error) {
 		}
 		o.free = append(o.free, h)
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) poolGet(args []value.Value) (value.Value, error) {
@@ -275,7 +275,7 @@ func (m *Module) poolReturn(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	o.free = append(o.free, hv)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) poolFreePool(args []value.Value) (value.Value, error) {

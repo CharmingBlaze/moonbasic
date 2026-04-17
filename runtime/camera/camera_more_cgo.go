@@ -52,7 +52,7 @@ func (m *Module) camSetRange(args []value.Value) (value.Value, error) {
 	o.useClip = true
 	o.clipNear = float64(near)
 	o.clipFar = float64(far)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camSetActive(args []value.Value) (value.Value, error) {
@@ -67,7 +67,7 @@ func (m *Module) camSetActive(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	m.lastActive3D = h
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camGetActive(args []value.Value) (value.Value, error) {
@@ -99,7 +99,7 @@ func (m *Module) camSetFPSMode(args []value.Value) (value.Value, error) {
 	o.fpsMode = true
 	o.fpsSensitivity = s
 	rl.DisableCursor()
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camClearFPSMode(args []value.Value) (value.Value, error) {
@@ -116,7 +116,7 @@ func (m *Module) camClearFPSMode(args []value.Value) (value.Value, error) {
 	}
 	o.fpsMode = false
 	rl.EnableCursor()
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camUpdateFPS(args []value.Value) (value.Value, error) {
@@ -132,12 +132,12 @@ func (m *Module) camUpdateFPS(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if !o.fpsMode {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	c := o.cam
 	rl.UpdateCamera(&c, rl.CameraFirstPerson)
 	o.cam = c
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dFollow(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -169,7 +169,7 @@ func (m *Module) cam2dFollow(rt *runtime.Runtime, args ...value.Value) (value.Va
 	t.X += (sx - t.X) * speed * dt
 	t.Y += (sy - t.Y) * speed * dt
 	o.cam.Target = t
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dZoomToMouse(args []value.Value) (value.Value, error) {
@@ -194,7 +194,7 @@ func (m *Module) cam2dZoomToMouse(args []value.Value) (value.Value, error) {
 	after := rl.GetScreenToWorld2D(mp, o.cam)
 	o.cam.Target.X += before.X - after.X
 	o.cam.Target.Y += before.Y - after.Y
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dZoomIn(args []value.Value) (value.Value, error) {
@@ -213,7 +213,7 @@ func (m *Module) cam2dZoomIn(args []value.Value) (value.Value, error) {
 	if o.cam.Zoom <= 0.01 {
 		o.cam.Zoom = 0.01
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dZoomOut(args []value.Value) (value.Value, error) {
@@ -232,7 +232,7 @@ func (m *Module) cam2dZoomOut(args []value.Value) (value.Value, error) {
 	if o.cam.Zoom <= 0.01 {
 		o.cam.Zoom = 0.01
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dRotation(args []value.Value) (value.Value, error) {

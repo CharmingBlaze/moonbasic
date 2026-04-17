@@ -6,6 +6,16 @@ High-level commands inspired by Blitz3D naming. **3D camera** and **entity** nat
 
 ---
 
+## Core Workflow
+
+This page is a compatibility alias reference. Blitz-style names map directly to moonBASIC registry commands:
+
+1. Use **`Camera.Make()`** / **`CAMERA.CREATE`** → position → begin/end render pair.
+2. Use **`Entity.Turn()`** / **`Entity.Move()`** each frame.
+3. Drive the loop with **`RENDER.CLEAR`** → **`RENDER.BEGIN3D`** → **`ENTITY.DRAWALL`** → **`RENDER.END3D`** → **`RENDER.FRAME`**.
+
+---
+
 ## Raylib render pipeline (replaces Blitz **Flip** / **RenderWorld** / **UpdateWorld**)
 
 Classic Blitz3D drove the frame with **Flip**, **RenderWorld**, and **UpdateWorld**. moonBASIC targets **Raylib**: you control **when** the GPU draws and **which** camera is active. Those three Blitz entrypoints are **not** separate builtins — use the following instead:
@@ -116,7 +126,7 @@ Lightweight **integer ids** (not heap handles). **Platforms**: **`Entity.CreateB
 
 Optional **`global`** arguments (where documented) use **`TRUE`/`FALSE`** or **`1`/`0`**: when **`TRUE`**, position/rotation/translation are interpreted or applied in **world** space vs parent-local space (see parenting).
 
-### Creation
+### Creation 
 
 | Command | Purpose |
 |--------|---------|
@@ -129,7 +139,9 @@ Optional **`global`** arguments (where documented) use **`TRUE`/`FALSE`** or **`
 | **`Entity.LoadMesh(path)`** | **`rl.LoadModel`**: static model for drawing; animations are **not** loaded (use **`LoadAnimatedMesh`**). |
 | **`Entity.LoadAnimatedMesh(path)`** | Loads model plus **`LoadModelAnimations`** (Raylib 5.x); animation is advanced in **`Entity.Update`** when **`Entity.Animate`** sets a non-zero speed. |
 
-### Transforms (MoonBASIC names)
+---
+
+### Transforms (MoonBASIC names) 
 
 | Command | Purpose |
 |--------|---------|
@@ -140,7 +152,9 @@ Optional **`global`** arguments (where documented) use **`TRUE`/`FALSE`** or **`
 | **`Entity.Translate` / `TranslateEntity(id, dx, dy, dz [, global])`** | World-space delta (optional **`global`** flag matches Blitz overloads). |
 | **`Entity.Scale(id, sx, sy, sz)`** | Non-uniform scale. |
 
-### Getters
+---
+
+### Getters 
 
 | Command | Purpose |
 |--------|---------|
@@ -148,14 +162,18 @@ Optional **`global`** arguments (where documented) use **`TRUE`/`FALSE`** or **`
 | **`Entity.EntityPitch` / `Yaw` / `Roll(id [, global])`** | Orientation (**radians**). |
 | **`Entity.GetPosition(id)`** | **`Vec3`** handle for world centre. |
 
-### Hierarchy
+---
+
+### Hierarchy 
 
 | Command | Purpose |
 |--------|---------|
 | **`Entity.Parent(child, parent [, global])`** | Parent **child** to **parent** (integer id **0** clears). |
 | **`Entity.ParentClear(child)`** | Detach from parent. |
 
-### Visuals (drawing / materials)
+---
+
+### Visuals (drawing / materials) 
 
 Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted by **`Entity.Order`** when set). **`Entity.Texture`** accepts a texture **handle** from **`Texture.Load`** (or **0** to clear).
 
@@ -163,7 +181,9 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 |--------|---------|
 | **`Entity.Color`**, **`Alpha`**, **`Shininess`**, **`Texture`**, **`FX`**, **`Blend`**, **`Order`** | Material-style fields for drawn entities. |
 
-### Collision and hit data
+---
+
+### Collision and hit data 
 
 | Command | Purpose |
 |--------|---------|
@@ -178,7 +198,9 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 | **`Entity.Distance(a, b)`** | Distance between **world** positions. |
 | **`Entity.TFormVector` / `TFormVector(x,y,z, src, dst)`** | Direction in **`src`** local space → **3-float array handle** in **`dst`** local space (see [ENTITY.md](ENTITY.md)). |
 
-### Physics helpers
+---
+
+### Physics helpers 
 
 | Command | Purpose |
 |--------|---------|
@@ -189,19 +211,25 @@ Static primitives and loaded models participate in **`Entity.DrawAll`** (sorted 
 | **`Entity.MoveRelative`**, **`Entity.ApplyGravity`**, **`Entity.Grounded`** | Convenience wrappers (**`Grounded`** ↔ internal **`onGround`**). |
 | **`Entity.SetMass`**, **`SetFriction`**, **`SetBounce`** | Used in collision response. |
 
-### Pointing
+---
+
+### Pointing 
 
 | **`Entity.PointEntity(id, targetId)`** | Aim **+Z** toward another entity’s **world** position (yaw; pitch flattened for stability). |
 | **`Entity.AlignToVector(id, vx, vy, vz, axis)`** | Align local **+Z** to a **world** direction (**axis** reserved / simplified). |
 
-### Animation
+---
+
+### Animation 
 
 | Command | Purpose |
 |--------|---------|
 | **`Entity.Animate(id [, mode, speed])`** | **`speed`** **0** = frozen (use **`SetAnimTime`** only); non-zero = advance in **`Update`**. |
 | **`Entity.SetAnimTime`**, **`AnimTime`**, **`AnimLength`** | Frame index / clip length (Raylib **`ModelAnimation.FrameCount`** when loaded). |
 
-### Management
+---
+
+### Management 
 
 | **`Entity.Hide`**, **`Show`**, **`Free`**, **`Copy`**, **`SetName`**, **`Find`** | Visibility, unload (**`UnloadModel`** + animations), duplicate (**reload** from path for models), registry by **case-insensitive** name. |
 
@@ -222,9 +250,49 @@ Axis and button indices follow **Raylib** (`GamepadAxis*`, `GamepadButton*`).
 
 ---
 
-## Related
+## Full Example
 
-- [BLITZ2025.md](BLITZ2025.md) — wider Blitz-style name map (scene files, groups, **`PHYSICS.*`** aliases, file/JSON helpers)  
-- [CAMERA.md](CAMERA.md) — full camera API  
-- [INPUT.md](INPUT.md) — keyboard, mouse, gamepad actions  
-- [COLLISION.md](COLLISION.md) — **`BOXTOPLAND`**, overlap tests  
+Blitz3D-style spin demo: load a mesh, orbit a camera, drive with keyboard input.
+
+```basic
+WINDOW.OPEN(960, 540, "Blitz3D Style")
+WINDOW.SETFPS(60)
+
+cam = Camera.Make()
+Camera.SetPos(cam, 0, 4, -10)
+Camera.SetTarget(cam, 0, 0, 0)
+
+cube = Entity.CreateCube(2.0)
+Entity.SetPos(cube, 0, 0, 0)
+
+yaw = 0.0
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = DT()
+    IF KeyDown(KEY_LEFT)  THEN yaw = yaw - 90 * dt
+    IF KeyDown(KEY_RIGHT) THEN yaw = yaw + 90 * dt
+    Entity.SetRotation(cube, 0, yaw, 0)
+    Entity.Update(dt)
+
+    RENDER.CLEAR(15, 20, 35)
+    RENDER.BEGIN3D(cam)
+        Entity.DrawAll()
+        DRAW3D.GRID(10, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+Entity.Free(cube)
+Camera.Free(cam)
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [BLITZ2025.md](BLITZ2025.md) — wider Blitz-style name map (scene files, groups, **`PHYSICS.*`** aliases, file/JSON helpers)
+- [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md) — curated essential list
+- [CAMERA.md](CAMERA.md) — full camera API
+- [INPUT.md](INPUT.md) — keyboard, mouse, gamepad actions
+- [COLLISION.md](COLLISION.md) — **`BOXTOPLAND`**, overlap tests

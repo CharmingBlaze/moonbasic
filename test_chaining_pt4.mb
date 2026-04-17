@@ -1,0 +1,43 @@
+; Phase 4 Standardization Test
+; Tests fluent API and property symmetry for Models, Lights, Sprites, and Physics
+
+; 1. Light Standardization
+l = LIGHT.CREATE().pos(10, 20, 30).intensity(2.5).shadow(1)
+lp = l.pos()
+PRINT("Light Pos: ", lp.x, lp.y, lp.z)
+PRINT("Light Intensity: ", l.intensity())
+PRINT("Light Shadow: ", l.shadow())
+
+; 2. Model Standardization
+mesh = MESH.CREATECUBE(1, 1, 1)
+m = MODEL.CREATE(mesh).pos(0, 5, 0).scale(2, 2, 2).color(255, 128, 0, 255).alpha(0.5)
+mp = m.pos()
+ms = m.scale()
+PRINT("Model Pos: ", mp.y)
+PRINT("Model Scale: ", ms.x)
+PRINT("Model Alpha: ", m.alpha())
+
+; 3. Sprite Standardization
+; Note: SPRITE.LOAD requires a file, but we can test syntax with --check even if file missing
+s = SPRITE.LOAD("test.png").pos(100, 100).scale(0.5, 0.5).alpha(0.8)
+PRINT("Sprite Alpha: ", s.alpha())
+
+; 4. Physics 3D Standardization
+PHYSICS.START()
+b3 = BODY3D.MAKE("dynamic").pos(0, 10, 0).vel(0, -1, 0)
+b3p = b3.pos()
+b3v = b3.vel()
+PRINT("Body3D Pos: ", b3p.y)
+PRINT("Body3D Vel: ", b3v.y)
+PRINT("Body3D Friction: ", b3.friction())
+
+; 5. Physics 2D Standardization
+PHYSICS2D.START()
+b2 = BODY2D.MAKE("dynamic").pos(5, 5).vel(2, 0)
+b2p = b2.pos()
+b2v = b2.vel()
+PRINT("Body2D Pos: ", b2p.x)
+PRINT("Body2D Vel: ", b2v.x)
+PRINT("Body2D Friction: ", b2.friction())
+
+PRINT("Phase 4 Test Complete.")

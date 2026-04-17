@@ -12,13 +12,13 @@ For **spatial** pan/falloff, call **`AUDIO.LISTENERCAMERA(cam)`** each frame bef
 
 ---
 
-### `AUDIO.INIT()`
+### `AUDIO.INIT()` 
 
 Initializes the audio device. Call before other **`AUDIO.*`** / **`SOUND.*`** / **`MUSIC.*`** commands.
 
 ---
 
-### `AUDIO.CLOSE()`
+### `AUDIO.CLOSE()` 
 
 Closes the device and releases audio resources.
 
@@ -26,43 +26,43 @@ Closes the device and releases audio resources.
 
 ## Sound effects
 
-### `AUDIO.LOADSOUND(path)`
+### `AUDIO.LOADSOUND(path)` 
 
 Loads a short sound (**`.wav`**, **`.ogg`**, …) into memory. Returns a **sound handle**.
 
 ---
 
-### `AUDIO.PLAY(handle)` / `AUDIO.STOP(handle)` / `AUDIO.PAUSE(handle)` / `AUDIO.RESUME(handle)`
+### `AUDIO.PLAY(handle)` / `AUDIO.STOP(handle)` / `AUDIO.PAUSE(handle)` / `AUDIO.RESUME(handle)` 
 
 Playback control (sounds and music share **`AUDIO.PLAY`** where the manifest overloads allow).
 
 ---
 
-### `AUDIO.SETSOUNDVOLUME(handle, v)` / `AUDIO.SETSOUNDPITCH(handle, p)` / `AUDIO.SETSOUNDPAN(handle, pan)`
+### `AUDIO.SETSOUNDVOLUME(handle, v)` / `AUDIO.SETSOUNDPITCH(handle, p)` / `AUDIO.SETSOUNDPAN(handle, pan)` 
 
 Per-sound mix. Flat aliases **`SoundVolume`**, **`SoundPitch`** map to these.
 
 ---
 
-### `SOUND.FREE(handle)`
+### `SOUND.FREE(handle)` 
 
 Unloads a sound and releases its heap slot.
 
 ---
 
-### `AUDIO.LISTENERCAMERA(cam)` / `Listener(cam)`
+### `AUDIO.LISTENERCAMERA(cam)` / `Listener(cam)` 
 
 Sets the spatial listener from a **3D** camera handle (**`CAMERA.CREATE`**). Call **each frame** before **`EmitSound`** so pan and falloff stay correct.
 
 ---
 
-### `Load3DSound(path)`
+### `Load3DSound(path)` 
 
 Same buffers as **`AUDIO.LOADSOUND`**; naming reflects use with **`Listener`** + **`EmitSound`** (see manifest description).
 
 ---
 
-### `EmitSound(sound, entity)`
+### `EmitSound(sound, entity)` 
 
 Plays once with distance falloff and stereo pan (see runtime). Requires a valid **entity** id and an up-to-date listener.
 
@@ -70,25 +70,25 @@ Plays once with distance falloff and stereo pan (see runtime). Requires a valid 
 
 ## Music (streaming)
 
-### `AUDIO.LOADMUSIC(path)`
+### `AUDIO.LOADMUSIC(path)` 
 
 Returns a **music handle** (streamed from disk).
 
 ---
 
-### `AUDIO.UPDATEMUSIC(handle)`
+### `AUDIO.UPDATEMUSIC(handle)` 
 
 **Must be called every frame** while music should advance.
 
 ---
 
-### `AUDIO.SETMUSICVOLUME(handle, v)` / `AUDIO.SETMUSICPITCH(handle, p)` / `AUDIO.GETMUSICLENGTH(handle)` / `AUDIO.GETMUSICTIME(handle)` / `AUDIO.SEEKMUSIC(handle, t)`
+### `AUDIO.SETMUSICVOLUME(handle, v)` / `AUDIO.SETMUSICPITCH(handle, p)` / `AUDIO.GETMUSICLENGTH(handle)` / `AUDIO.GETMUSICTIME(handle)` / `AUDIO.SEEKMUSIC(handle, t)` 
 
 Streaming controls — see [API_CONSISTENCY.md](../API_CONSISTENCY.md) for arities.
 
 ---
 
-### `MUSIC.FREE(handle)`
+### `MUSIC.FREE(handle)` 
 
 Unloads a music stream.
 

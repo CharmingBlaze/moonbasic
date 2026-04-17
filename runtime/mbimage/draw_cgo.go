@@ -33,7 +33,7 @@ func registerImageDraw(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.DRAWPIXEL: %w", err)
 		}
 		rl.ImageDrawPixel(img, x, y, col)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.DRAWRECT", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -59,7 +59,7 @@ func registerImageDraw(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.DRAWRECT: %w", err)
 		}
 		rl.ImageDrawRectangle(img, x, y, w, h, col)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.DRAWLINE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -85,7 +85,7 @@ func registerImageDraw(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.DRAWLINE: %w", err)
 		}
 		rl.ImageDrawLine(img, x1, y1, x2, y2, col)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.DRAWCIRCLE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -110,7 +110,7 @@ func registerImageDraw(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.DRAWCIRCLE: %w", err)
 		}
 		rl.ImageDrawCircle(img, cx, cy, rad, col)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.DRAWTEXT", "image", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -139,6 +139,6 @@ func registerImageDraw(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageDrawText(img, x, y, text, fs, col)
-		return value.Nil, nil
+		return args[0], nil
 	})
 }

@@ -1,39 +1,54 @@
-# CSV tables (`CSV.*`)
+# CSV Commands
 
-The **`CSV`** namespace loads, saves, and inspects **tabular text** using Go’s [`encoding/csv`](https://pkg.go.dev/encoding/csv). Data lives on the VM heap as a **`CSV`** handle (`TagCSV`): each row is a slice of string fields.
+Load, save, query, and convert tabular CSV data.
 
-## Why this exists
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-Games and tools often exchange **spreadsheets** (loot tables, localisation, balance). CSV is a simple, diff-friendly interchange format. moonBASIC keeps **everything as strings** at the cell level so round-trips do not silently change types; convert to numbers in script when needed.
+## Core Workflow
 
-### `CSV.Load(path)`
+1. Load from disk with `CSV.LOAD` or parse a string with `CSV.FROMSTRING`.
+2. Read cells with `CSV.GET`, write with `CSV.SET`.
+3. Convert to JSON with `CSV.TOJSON` or save with `CSV.SAVE`.
+4. Free with `CSV.FREE`.
+
+---
+
+### `CSV.LOAD(path)` 
 Reads a CSV file from disk and returns a new **handle**.
 
-### `CSV.Save(handle, path)`
+---
+
+### `CSV.SAVE(handle, path)` 
 Writes the CSV table to disk as UTF-8 text.
 
-### `CSV.Free(handle)`
+---
+
+### `CSV.FREE(handle)` 
 Releases the heap object and frees memory.
 
 ---
 
-### `CSV.RowCount(handle)` / `CSV.ColCount(handle)`
+### `CSV.ROWCOUNT(handle)` / `CSV.COLCOUNT(handle)` 
 Returns the number of rows or columns. If the table is empty, column count is 0; otherwise it follows the first row's width. Note that indexing is **1-based**.
 
-### `CSV.Get(handle, row, col)`
+---
+
+### `CSV.GET(handle, row, col)` 
 Returns the cell string at the specified **1-based** index (matching typical BASIC grids).
 
-### `CSV.Set(handle, row, col, value)`
+---
+
+### `CSV.SET(handle, row, col, value)` 
 Sets the cell string at the specified **1-based** index.
 
 ---
 
-### `CSV.ToJSON(handle)`
+### `CSV.TOJSON(handle)` 
 Converts the CSV table to a JSON array handle. The first row is treated as header names; each following row becomes one object (`header -> cell string`).
 
 Use this with **`JSON.*`** for structured data (`CSV.TOJSON` → `JSON.TOCSV` for uniform arrays of objects).
 
-## Example
+## Full Example
 
 ```basic
 nl = CHR(10)

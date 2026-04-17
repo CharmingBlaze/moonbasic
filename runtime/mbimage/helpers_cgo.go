@@ -67,6 +67,31 @@ func (m *Module) getImage(args []value.Value, ix int, op string) (*rl.Image, err
 	return o.img, nil
 }
 
+// getRasterImage resolves a normal image handle or the first frame of an IMAGE.LOADSEQUENCE / IMAGE.LOADGIF handle.
+func (m *Module) getRasterImage(args []value.Value, ix int, op string) (*rl.Image, error) {
+	if ix >= len(args) || args[ix].Kind != value.KindHandle {
+		return nil, fmt.Errorf("%s: argument %d must be image handle", op, ix+1)
+	}
+	h := heap.Handle(args[ix].IVal)
+	o, errImg := heap.Cast[*imageObj](m.h, h)
+	if errImg == nil {
+		if o.img == nil {
+			return nil, fmt.Errorf("%s: %v", op, errInvalidImage)
+		}
+		return o.img, nil
+	}
+	seq, errSeq := heap.Cast[*ImageSequence](m.h, h)
+	if errSeq == nil {
+		for _, im := range seq.Frames {
+			if im != nil {
+				return im, nil
+			}
+		}
+		return nil, fmt.Errorf("%s: image sequence has no frames", op)
+	}
+	return nil, fmt.Errorf("%s: expected image or image sequence handle", op)
+}
+
 func (m *Module) allocImage(img *rl.Image, op string) (value.Value, error) {
 	if img == nil || !rl.IsImageValid(img) {
 		return value.Nil, fmt.Errorf("%s: invalid image", op)

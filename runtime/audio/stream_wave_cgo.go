@@ -44,7 +44,7 @@ func (m *Module) streamMake(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIOSTREAM.MAKE: channels must be 1 or 2")
 	}
 	s := rl.LoadAudioStream(sr, bd, ch)
-	id, err := m.h.Alloc(&audioStreamObj{s: s})
+	id, err := m.h.Alloc(&audioStreamObj{s: s, volume: 1, pitch: 1, pan: 0})
 	if err != nil {
 		rl.UnloadAudioStream(s)
 		return value.Nil, err
@@ -75,7 +75,7 @@ func (m *Module) streamUpdate(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	rl.UpdateAudioStream(o.s, buf)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) streamIsReady(args []value.Value) (value.Value, error) {
@@ -109,7 +109,7 @@ func (m *Module) streamPlay(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	rl.PlayAudioStream(o.s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) streamPause(args []value.Value) (value.Value, error) {
@@ -121,7 +121,7 @@ func (m *Module) streamPause(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	rl.PauseAudioStream(o.s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) streamResume(args []value.Value) (value.Value, error) {
@@ -133,7 +133,7 @@ func (m *Module) streamResume(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	rl.ResumeAudioStream(o.s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) streamStop(args []value.Value) (value.Value, error) {
@@ -145,7 +145,7 @@ func (m *Module) streamStop(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	rl.StopAudioStream(o.s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) streamSetVolume(args []value.Value) (value.Value, error) {
@@ -161,7 +161,19 @@ func (m *Module) streamSetVolume(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIOSTREAM.SETVOLUME: volume must be numeric")
 	}
 	rl.SetAudioStreamVolume(o.s, v)
-	return value.Nil, nil
+	o.volume = v
+	return args[0], nil
+}
+
+func (m *Module) streamGetVolume(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("AUDIOSTREAM.GETVOLUME expects stream handle")
+	}
+	o, err := m.getStream(args, 0, "AUDIOSTREAM.GETVOLUME")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.volume)), nil
 }
 
 func (m *Module) streamSetPitch(args []value.Value) (value.Value, error) {
@@ -177,7 +189,19 @@ func (m *Module) streamSetPitch(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIOSTREAM.SETPITCH: pitch must be numeric")
 	}
 	rl.SetAudioStreamPitch(o.s, v)
-	return value.Nil, nil
+	o.pitch = v
+	return args[0], nil
+}
+
+func (m *Module) streamGetPitch(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("AUDIOSTREAM.GETPITCH expects stream handle")
+	}
+	o, err := m.getStream(args, 0, "AUDIOSTREAM.GETPITCH")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.pitch)), nil
 }
 
 func (m *Module) streamSetPan(args []value.Value) (value.Value, error) {
@@ -193,7 +217,19 @@ func (m *Module) streamSetPan(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIOSTREAM.SETPAN: pan must be numeric")
 	}
 	rl.SetAudioStreamPan(o.s, v)
-	return value.Nil, nil
+	o.pan = v
+	return args[0], nil
+}
+
+func (m *Module) streamGetPan(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("AUDIOSTREAM.GETPAN expects stream handle")
+	}
+	o, err := m.getStream(args, 0, "AUDIOSTREAM.GETPAN")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.pan)), nil
 }
 
 func (m *Module) streamFree(args []value.Value) (value.Value, error) {
@@ -273,7 +309,7 @@ func (m *Module) waveCrop(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("WAVE.CROP: frame indices must be numeric")
 	}
 	rl.WaveCrop(&o.w, start, end)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) waveFormat(args []value.Value) (value.Value, error) {
@@ -291,7 +327,7 @@ func (m *Module) waveFormat(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("WAVE.FORMAT: format parameters must be numeric")
 	}
 	rl.WaveFormat(&o.w, sr, bd, ch)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) waveExport(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -310,7 +346,7 @@ func (m *Module) waveExport(rt *runtime.Runtime, args ...value.Value) (value.Val
 		return value.Nil, err
 	}
 	rl.ExportWave(o.w, path)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) waveFree(args []value.Value) (value.Value, error) {

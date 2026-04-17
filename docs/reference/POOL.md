@@ -1,47 +1,88 @@
-# Object pools (`POOL.*`)
+# Pool Commands
 
-Reuse **heap handles** produced by a **factory user function**, with optional **reset** callbacks when returning objects to the pool. Implemented in `runtime/mbpool`.
+Object pool for reusing heap handles with factory and reset callbacks, reducing allocation churn.
 
-Typical use: bullets, particles, or UI rows where allocation churn should be avoided.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Create a pool with `POOL.MAKE`.
+2. Set a factory function with `POOL.SETFACTORY` and optionally a reset with `POOL.SETRESET`.
+3. Prewarm with `POOL.PREWARM` to pre-allocate objects.
+4. Check out objects with `POOL.GET`, return them with `POOL.RETURN`.
+5. Free the pool with `POOL.FREE`.
 
 ---
 
-## Creation
-
-### `Pool.Make(name, capacity)` → handle
+### `POOL.MAKE(name, capacity)` 
 
 `capacity` must be a positive integer — maximum **checked-out** objects (`GET` fails if `busy` count would exceed `max`).
 
-### `Pool.SetFactory(pool, factoryFunctionName)` / `Pool.SetReset(pool, resetFunctionName)`
+---
 
-- **Factory** — user function invoked with **no arguments**; must return a **handle** to push into the pool or hand to the caller.
-- **Reset** — optional; called as `reset(handle)` when returning an object to the free list.
+### `POOL.SETFACTORY(poolHandle, factoryFunctionName)` 
 
-Names are resolved at `GET` / `RETURN` time via the runtime’s user invoker.
-
-### `Pool.Prewarm(pool)`
-
-Allocates up to **capacity** objects by calling the factory repeatedly and storing them in the free list. Fails if the factory is not set.
+Sets the factory function (called with no arguments, must return a handle).
 
 ---
 
-## Use
+### `POOL.SETRESET(poolHandle, resetFunctionName)` 
 
-### `Pool.Get(pool)` → handle
-
-Checks out an object: pops from **free** if any, otherwise calls **factory**. Errors if at capacity or factory unset.
-
-### `Pool.Return(pool, handle)`
-
-Moves `handle` from **busy** to **free** after optional **reset**; errors if the handle was not checked out from this pool.
-
-### `Pool.Free(pool)`
-
-Frees the pool object itself and releases all **busy** and **free** child handles via the heap.
+Sets an optional reset function called as `reset(handle)` when returning an object.
 
 ---
 
-## Contract
+### `POOL.PREWARM(poolHandle)` 
 
-- **Factory** must return a valid handle the pool may own.
-- Returning a handle the pool does not track results in an error.
+Pre-allocates up to capacity by calling the factory. Fails if no factory is set.
+
+---
+
+### `POOL.GET(poolHandle)` 
+
+Checks out an object from the pool. Pops from the free list or calls the factory. Errors if at capacity.
+
+---
+
+### `POOL.RETURN(poolHandle, objectHandle)` 
+
+Returns an object to the pool’s free list, calling reset if set.
+
+---
+
+### `POOL.FREE(poolHandle)` 
+
+Frees the pool and all its managed objects.
+
+---
+
+## Full Example
+
+This example pools bullet entities to avoid per-frame allocation.
+
+```basic
+FUNCTION MakeBullet()
+    b = ENTITY.CREATE()
+    ENTITY.SETSCALE(b, 0.1, 0.1, 0.1)
+    RETURN b
+END FUNCTION
+
+FUNCTION ResetBullet(b)
+    ENTITY.SETPOS(b, 0, -100, 0)
+END FUNCTION
+
+pool = POOL.MAKE("bullets", 50)
+POOL.SETFACTORY(pool, "MakeBullet")
+POOL.SETRESET(pool, "ResetBullet")
+POOL.PREWARM(pool)
+
+; Fire a bullet
+bullet = POOL.GET(pool)
+ENTITY.SETPOS(bullet, px, py, pz)
+
+; Return when off-screen
+POOL.RETURN(pool, bullet)
+
+; Cleanup
+POOL.FREE(pool)
+```

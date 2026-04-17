@@ -52,7 +52,7 @@ func (m *Module) modelSetTextureStage(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETTEXTURESTAGE: model has no materials")
 	}
 	rl.SetMaterialTexture(&mats[0], slot, tex)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // modelSetStageBlend writes mode into MaterialMap.Value (custom shaders often read this per map).
@@ -80,7 +80,7 @@ func (m *Module) modelSetStageBlend(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETSTAGEBLEND: model has no materials")
 	}
 	mats[0].GetMap(stage).Value = mode
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // modelSetStageScroll adds (u,v) to map.Value and material.Params[stage%4] (u into Value, v into Params slot).
@@ -111,7 +111,7 @@ func (m *Module) modelSetStageScroll(args []value.Value) (value.Value, error) {
 	mat := &mats[0]
 	mat.GetMap(stage).Value += u
 	mat.Params[stage%4] += v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // modelSetStageScale multiplies map.Value by u and Params[stage%4] scale factor by v.
@@ -145,7 +145,7 @@ func (m *Module) modelSetStageScale(args []value.Value) (value.Value, error) {
 	mat := &mats[0]
 	mat.GetMap(stage).Value *= u
 	mat.Params[stage%4] *= v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetStageRotate(args []value.Value) (value.Value, error) {
@@ -172,7 +172,7 @@ func (m *Module) modelSetStageRotate(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETSTAGEROTATE: model has no materials")
 	}
 	mats[0].GetMap(stage).Value += ang
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // modelScrollTexture adjusts material 0 Params[0], Params[1] (common UV scroll convention for custom shaders).
@@ -199,7 +199,7 @@ func (m *Module) modelScrollTexture(args []value.Value) (value.Value, error) {
 	mat := &mats[0]
 	mat.Params[0] += u
 	mat.Params[1] += v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelScaleTexture(args []value.Value) (value.Value, error) {
@@ -228,7 +228,7 @@ func (m *Module) modelScaleTexture(args []value.Value) (value.Value, error) {
 	mat := &mats[0]
 	mat.Params[2] *= u
 	mat.Params[3] *= v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelRotateTexture(args []value.Value) (value.Value, error) {
@@ -252,5 +252,5 @@ func (m *Module) modelRotateTexture(args []value.Value) (value.Value, error) {
 	}
 	mat := &mats[0]
 	mat.Params[3] += ang
-	return value.Nil, nil
+	return args[0], nil
 }

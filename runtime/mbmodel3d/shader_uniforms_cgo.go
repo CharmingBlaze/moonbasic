@@ -69,7 +69,7 @@ func (m *Module) shaderSetFloat(rt *runtime.Runtime, args ...value.Value) (value
 	}
 	m.u1[0] = v
 	rl.SetShaderValue(sh.sh, loc, m.u1, rl.ShaderUniformFloat)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) shaderSetVec2(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -85,7 +85,7 @@ func (m *Module) shaderSetVec2(rt *runtime.Runtime, args ...value.Value) (value.
 	m.u2[0] = x
 	m.u2[1] = y
 	rl.SetShaderValue(sh.sh, loc, m.u2, rl.ShaderUniformVec2)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) shaderSetVec3(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -103,7 +103,7 @@ func (m *Module) shaderSetVec3(rt *runtime.Runtime, args ...value.Value) (value.
 	m.u3[1] = y
 	m.u3[2] = z
 	rl.SetShaderValue(sh.sh, loc, m.u3, rl.ShaderUniformVec3)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) shaderSetVec4(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -123,7 +123,7 @@ func (m *Module) shaderSetVec4(rt *runtime.Runtime, args ...value.Value) (value.
 	m.u4[2] = z
 	m.u4[3] = w
 	rl.SetShaderValue(sh.sh, loc, m.u4, rl.ShaderUniformVec4)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) shaderSetInt(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -141,7 +141,7 @@ func (m *Module) shaderSetInt(rt *runtime.Runtime, args ...value.Value) (value.V
 	}
 	m.u1[0] = float32(iv)
 	rl.SetShaderValue(sh.sh, loc, m.u1, rl.ShaderUniformInt)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) shaderSetTexture(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -168,7 +168,7 @@ func (m *Module) shaderSetTexture(rt *runtime.Runtime, args ...value.Value) (val
 		return value.Nil, err
 	}
 	rl.SetShaderValueTexture(sh.sh, loc, tex)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) resolveUniform(rt *runtime.Runtime, args []value.Value, op string, want int) (*shaderObj, int32, error) {

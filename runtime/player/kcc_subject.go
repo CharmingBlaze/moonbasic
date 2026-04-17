@@ -1,6 +1,9 @@
 package player
 
-import "moonbasic/vm/value"
+import (
+	"moonbasic/vm/heap"
+	"moonbasic/vm/value"
+)
 
 // kccErrNoSubject is returned when a PLAYER.* getter is called with no arguments
 // but no implicit KCC subject was established (PLAYER.CREATE / Character.Create).
@@ -13,6 +16,12 @@ const kccErrNoSubject = "no KCC subject: pass (entity) or call PLAYER.CREATE / C
 //   - Zero arguments: lastHero after PLAYER.CREATE / CHARACTER.CREATE, if that id has a Jolt character.
 func (m *Module) kccSubjectID(args []value.Value) (int64, bool) {
 	if len(args) >= 1 {
+		// First try: handle-bound CharacterRef
+		if args[0].Kind == value.KindHandle && m.h != nil {
+			if obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal)); err == nil {
+				return obj.id, true
+			}
+		}
 		return m.playerEntID(args[0])
 	}
 	if m.lastHero == 0 {

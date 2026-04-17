@@ -1,12 +1,19 @@
-# Tactical grid (`GRID.*`)
+# Grid Commands
 
-Logical **XZ** cell storage for strategy / tile logic on top of 3D. Data lives in a **flat array** (`cells[ix + iz * width]`). **CGO + Raylib** required for **`GRID.DRAW`** and **`GRID.RAYCAST`**; without CGO, commands return an error.
+Logical XZ cell grid for strategy and tile-based gameplay on top of 3D.
 
-See also **[TERRAIN.md](TERRAIN.md)** for heightfields and **[TEXTURE.md](TEXTURE.md)** for atlas animation on entities.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Create a grid with `GRID.CREATE`.
+2. Optionally link to terrain with `GRID.FOLLOWTERRAIN`.
+3. Set cell types with `GRID.SETCELL`, snap entities with `GRID.SNAP`.
+4. Query paths with `GRID.GETPATH`, pick cells with `GRID.RAYCAST`.
+5. Draw debug overlay with `GRID.DRAW`.
+6. Free with `GRID.FREE`.
 
 ---
-
-## Commands
 
 | Command | Arguments | Returns | Notes |
 |--------|-----------|---------|--------|
@@ -25,9 +32,9 @@ See also **[TERRAIN.md](TERRAIN.md)** for heightfields and **[TEXTURE.md](TEXTUR
 
 ---
 
-## Example
+## Full Example
 
-```text
+```basic
 g = GRID.CREATE(32, 32, 2.0)
 GRID.FOLLOWTERRAIN(g, myTerrain)
 WHILE Window.Open()

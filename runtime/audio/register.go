@@ -39,6 +39,11 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("AUDIO.ISMUSICPLAYING", "audio", runtime.AdaptLegacy(m.isMusicPlaying))
 	r.Register("AUDIO.GETMUSICLENGTH", "audio", runtime.AdaptLegacy(m.getMusicLength))
 	r.Register("AUDIO.GETMUSICTIME", "audio", runtime.AdaptLegacy(m.getMusicTime))
+	r.Register("AUDIO.GETSOUNDVOLUME", "audio", runtime.AdaptLegacy(m.getSoundVolume))
+	r.Register("AUDIO.GETSOUNDPITCH", "audio", runtime.AdaptLegacy(m.getSoundPitch))
+	r.Register("AUDIO.GETSOUNDPAN", "audio", runtime.AdaptLegacy(m.getSoundPan))
+	r.Register("AUDIO.GETMUSICVOLUME", "audio", runtime.AdaptLegacy(m.getMusicVolume))
+	r.Register("AUDIO.GETMUSICPITCH", "audio", runtime.AdaptLegacy(m.getMusicPitch))
 
 	// Variety (variety_cgo.go)
 	r.Register("AUDIO.PLAYVARYSOUND", "audio", runtime.AdaptLegacy(m.audioPlayVarySound))
@@ -73,8 +78,11 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("AUDIOSTREAM.RESUME", "audio", runtime.AdaptLegacy(m.streamResume))
 	r.Register("AUDIOSTREAM.STOP", "audio", runtime.AdaptLegacy(m.streamStop))
 	r.Register("AUDIOSTREAM.SETVOLUME", "audio", runtime.AdaptLegacy(m.streamSetVolume))
+	r.Register("AUDIOSTREAM.GETVOLUME", "audio", runtime.AdaptLegacy(m.streamGetVolume))
 	r.Register("AUDIOSTREAM.SETPITCH", "audio", runtime.AdaptLegacy(m.streamSetPitch))
+	r.Register("AUDIOSTREAM.GETPITCH", "audio", runtime.AdaptLegacy(m.streamGetPitch))
 	r.Register("AUDIOSTREAM.SETPAN", "audio", runtime.AdaptLegacy(m.streamSetPan))
+	r.Register("AUDIOSTREAM.GETPAN", "audio", runtime.AdaptLegacy(m.streamGetPan))
 	r.Register("AUDIOSTREAM.FREE", "audio", runtime.AdaptLegacy(m.streamFree))
 
 	// Waves (stream_wave_cgo.go)

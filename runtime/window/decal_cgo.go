@@ -10,6 +10,7 @@ import (
 
 	"moonbasic/runtime"
 	mbdraw "moonbasic/runtime/draw"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -35,8 +36,12 @@ func (m *Module) registerDecalCommands(r runtime.Registrar) {
 	r.Register("DECAL.MAKE", "decal", m.decalMake)
 	r.Register("DECAL.FREE", "decal", m.decalFree)
 	r.Register("DECAL.SETPOS", "decal", m.decalSetPos)
+	r.Register("DECAL.GETPOS", "decal", m.decalGetPos)
 	r.Register("DECAL.SETSIZE", "decal", m.decalSetSize)
+	r.Register("DECAL.GETSIZE", "decal", m.decalGetSize)
 	r.Register("DECAL.SETLIFETIME", "decal", m.decalSetLifetime)
+	r.Register("DECAL.GETLIFETIME", "decal", m.decalGetLifetime)
+	r.Register("DECAL.GETROT", "decal", m.decalGetRot)
 	r.Register("DECAL.DRAW", "decal", m.decalDraw)
 }
 
@@ -125,7 +130,22 @@ func (m *Module) decalSetPos(rt *runtime.Runtime, args ...value.Value) (value.Va
 		}
 	}
 	d.pos = rl.Vector3{X: xf, Y: yf, Z: zf}
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) decalGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("DECAL.GETPOS expects decal handle")
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.GETPOS")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(store, d.pos.X, d.pos.Y, d.pos.Z)
 }
 
 func (m *Module) decalSetSize(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -159,7 +179,22 @@ func (m *Module) decalSetSize(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("DECAL.SETSIZE: size must be positive")
 	}
 	d.sx, d.sy = wf, hf
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) decalGetSize(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("DECAL.GETSIZE expects decal handle")
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.GETSIZE")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec2Value(store, d.sx, d.sy)
 }
 
 func (m *Module) decalSetLifetime(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -187,7 +222,37 @@ func (m *Module) decalSetLifetime(rt *runtime.Runtime, args ...value.Value) (val
 	}
 	d.life = sec
 	d.age = 0
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) decalGetLifetime(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("DECAL.GETLIFETIME expects decal handle")
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.GETLIFETIME")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(d.life)), nil
+}
+
+// decalGetRot returns [0,0,0]; the decal object has no stored rotation (2D screen-space quad).
+func (m *Module) decalGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("DECAL.GETROT expects decal handle")
+	}
+	if _, err := m.getDecal(store, args, 0, "DECAL.GETROT"); err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(store, 0, 0, 0)
 }
 
 func (m *Module) decalDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -229,5 +294,5 @@ func (m *Module) decalDraw(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	tint := color.RGBA{R: 255, G: 255, B: 255, A: alpha}
 	src := rl.NewRectangle(0, 0, float32(tex.Width), float32(tex.Height))
 	rl.DrawBillboardRec(cam, tex, src, d.pos, rl.NewVector2(d.sx, d.sy), tint)
-	return value.Nil, nil
+	return args[0], nil
 }

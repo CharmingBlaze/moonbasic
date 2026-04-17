@@ -60,7 +60,7 @@ func (m *Module) terrainModifyHeight(rt *runtime.Runtime, args ...value.Value) (
 	for i := range obj.Chunks {
 		obj.Chunks[i].Dirty = true
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func maxFloatTerrain(a, b float32) float32 {
@@ -180,5 +180,5 @@ func (m *Module) terrainShadingStub(rt *runtime.Runtime, args ...value.Value) (v
 		return value.Nil, fmt.Errorf("TerrainShading expects (terrain, state)")
 	}
 	_, _ = rt, args
-	return value.Nil, nil
+	return args[0], nil
 }

@@ -18,19 +18,25 @@ Commands for creating multiplayer games using ENet.
 
 ## Host Management
 
-### `Net.Start()` / `Net.Stop()`
+### `NET.START()` / `NET.STOP()` 
 
 Initializes and shuts down the entire networking system.
 
-### `Net.CreateServer(port, maxClients)`
+---
+
+### `NET.CREATESERVER(port, maxClients)` 
 
 Creates a server host that listens for incoming connections.
 
-### `Net.CreateClient()`
+---
+
+### `NET.CREATECLIENT()` 
 
 Creates a client host.
 
-### `Net.Connect(clientHandle, address, port)`
+---
+
+### `NET.CONNECT(clientHandle, address, port)` 
 
 Connects a client to a server. Returns a handle to the server peer.
 
@@ -38,19 +44,25 @@ Connects a client to a server. Returns a handle to the server peer.
 
 ## Communication
 
-### `Net.Update(hostHandle)`
+### `NET.UPDATE(hostHandle)` 
 
 This must be called every frame to process network packets.
 
-### `Net.Receive(hostHandle)`
+---
+
+### `NET.RECEIVE(hostHandle)` 
 
 Retrieves the next available network event. Returns an event handle, or `0` if no events are waiting. You should call this in a loop until it returns `0`.
 
-### `Net.Broadcast(serverHandle, channel, data, reliable)`
+---
+
+### `NET.BROADCAST(serverHandle, channel, data, reliable)` 
 
 (Server-only) Sends a message to every connected client.
 
-### `Peer.Send(peerHandle, channel, data, reliable)`
+---
+
+### `PEER.SEND(peerHandle, channel, data, reliable)` 
 
 Sends a message to a specific peer.
 
@@ -80,22 +92,28 @@ Threading: **`Net.Update`** / **`Net.Receive`** should run on the **same thread*
 
 When `Net.Receive()` returns a valid event handle, you must inspect it and then free it.
 
-### `Event.Type(eventHandle)`
+### `EVENT.TYPE(eventHandle)` 
 
 Returns the type of event:
 - `EVENT_CONNECT`: A client connected (server-side) or the connection was successful (client-side).
 - `EVENT_DISCONNECT`: A peer disconnected.
 - `EVENT_RECEIVE`: Data was received.
 
-### `Event.Peer(eventHandle)`
+---
+
+### `EVENT.PEER(eventHandle)` 
 
 Returns the handle of the peer associated with the event.
 
-### `Event.Data(eventHandle)`
+---
+
+### `EVENT.DATA(eventHandle)` 
 
 For a `RECEIVE` event, this returns the string data that was sent.
 
-### `Event.Free(eventHandle)`
+---
+
+### `EVENT.FREE(eventHandle)` 
 
 Frees the event handle. **You must call this for every event you receive.**
 
@@ -172,7 +190,7 @@ WINDOW.CLOSE()
 
 The same ENet stack also exposes **opinionated** helpers in `runtime/net/mp_high_cgo.go`: a hosted **server tick**, **client tick**, **JSON RPC** over a dedicated channel, and **in-memory lobby** objects. These require **CGO** and a bound heap where noted.
 
-### `SERVER.*` (dedicated host)
+### `SERVER.*` (dedicated host) 
 
 | Command | Purpose |
 |---------|---------|
@@ -184,7 +202,9 @@ The same ENet stack also exposes **opinionated** helpers in `runtime/net/mp_high
 | `Server.SetTickRate(hz)` | Sets broadcast tick rate for sync flush inside `Server.Tick`. |
 | `Server.Tick(dt)` | Runs `Net.Update`, drains events, accumulates time, and periodically **broadcasts** transform sync packets. |
 
-### `CLIENT.*`
+---
+
+### `CLIENT.*` 
 
 | Command | Purpose |
 |---------|---------|
@@ -193,7 +213,9 @@ The same ENet stack also exposes **opinionated** helpers in `runtime/net/mp_high
 | `Client.OnConnect` / `Client.OnMessage` / `Client.OnSync` | Set user function names for connection, generic messages, and **sync** payloads (`Client.OnSync` receives decoded transform updates). |
 | `Client.Tick(dt)` | `Net.Update` + event drain for the client host. |
 
-### `RPC.*` — JSON remote calls
+---
+
+### `RPC.*` — JSON remote calls 
 
 Wire format is `MBRPC1:` + JSON `{"f":"FUNCNAME","a":[...]}` sent on **channel 2** (`chRPC`), **reliable**.
 
@@ -205,7 +227,9 @@ Wire format is `MBRPC1:` + JSON `{"f":"FUNCNAME","a":[...]}` sent on **channel 2
 
 Arguments are encoded as JSON numbers, strings, bools, or **handle ids as floats** (see `valueToJSONArg`). On the **server**, the callee receives **extra trailing peer handle** when your handler is invoked from `handleRPCPacket`.
 
-### `LOBBY.*` — local lobby descriptors
+---
+
+### `LOBBY.*` — local lobby descriptors 
 
 Lightweight **heap** objects for matchmaking metadata (not network discovery by itself):
 
@@ -221,3 +245,54 @@ Lightweight **heap** objects for matchmaking metadata (not network discovery by 
 | `Lobby.Join(lobby)` | Calls `Client.Connect` with `Lobby`’s host/port (`SETHOST` required). |
 
 For the lower-level **`Net.*` / `Peer.*` / `Event.*`** workflow, see the sections above.
+
+---
+
+## Full Example
+
+Minimal server that echoes a message back to all connected clients.
+
+```basic
+; Run two instances: one with arg "server", one with "client"
+NET.START()
+
+IF ARG(1) = "server" THEN
+    host = NET.CREATESERVER(7777, 32)
+    PRINT "Server listening on 7777"
+    WHILE NOT WINDOW.SHOULDCLOSE()
+        NET.UPDATE(host)
+        WHILE NET.RECEIVE(host)
+            IF EVENT.TYPE() = NET_RECEIVE THEN
+                msg = EVENT.READSTRING()
+                NET.BROADCAST(host, 0, "echo: " + msg, TRUE)
+            END IF
+        WEND
+        WINDOW.POLL()
+    WEND
+    NET.STOP(host)
+ELSE
+    client = NET.CREATECLIENT()
+    NET.CONNECT(client, "127.0.0.1", 7777)
+    NET.SEND(client, 0, "hello", TRUE)
+    WHILE NOT WINDOW.SHOULDCLOSE()
+        NET.UPDATE(client)
+        WHILE NET.RECEIVE(client)
+            IF EVENT.TYPE() = NET_RECEIVE THEN
+                PRINT EVENT.READSTRING()
+            END IF
+        WEND
+        WINDOW.POLL()
+    WEND
+    NET.STOP(client)
+END IF
+
+NET.SHUTDOWN()
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [moonbasic-command-set/network-enet.md](moonbasic-command-set/network-enet.md) — full registry map
+- [moonbasic-command-set/network-helpers.md](moonbasic-command-set/network-helpers.md) — `NETSEND*` / `NETREAD*` helpers

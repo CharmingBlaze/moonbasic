@@ -16,25 +16,25 @@ Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern** where 
 
 ## `NAV.*` — navigation grid
 
-### `NAV.MAKE()`
+### `NAV.MAKE()` 
 
 Creates a nav grid handle with a default **64×64** cell layout. Call **`NAV.SETGRID`** before serious use.
 
 ---
 
-### `NAV.FREE(nav)`
+### `NAV.FREE(nav)` 
 
 Frees the nav object.
 
 ---
 
-### `NAV.SETGRID(nav, gw, gh, cellSize, originX, originZ)`
+### `NAV.SETGRID(nav, gw, gh, cellSize, originX, originZ)` 
 
 Resizes the grid: **`gw`**/**`gh`** are tile counts (**1–4096**), **`cellSize`** is world units per cell (**> 0**), **`(originX, originZ)`** is the world origin of cell **`(0,0)`**. Clears blocked flags and marks the nav **not built** until **`NAV.BUILD`**.
 
 ---
 
-### `NAV.ADDTERRAIN(nav, modelHandle)` / `NAV.ADDOBSTACLE(nav, modelHandle)`
+### `NAV.ADDTERRAIN(nav, modelHandle)` / `NAV.ADDOBSTACLE(nav, modelHandle)` 
 
 Uses the model’s **axis-aligned bounding box** in world space:
 
@@ -43,13 +43,13 @@ Uses the model’s **axis-aligned bounding box** in world space:
 
 ---
 
-### `NAV.BUILD(nav)`
+### `NAV.BUILD(nav)` 
 
 Marks the nav data ready (sets the internal **built** flag). Call after editing terrain/obstacles and before path queries.
 
 ---
 
-### `NAV.FINDPATH(nav, sx, sy, sz, tx, ty, tz)`
+### `NAV.FINDPATH(nav, sx, sy, sz, tx, ty, tz)` 
 
 Runs A* on the grid from start to target world position. Returns a **`Path`** handle (may be invalid if no path). Call **`PATH.FREE`** when done.
 
@@ -57,25 +57,25 @@ Runs A* on the grid from start to target world position. Returns a **`Path`** ha
 
 ## `PATH.*` — path result
 
-### `PATH.ISVALID(path)` → bool
+### `PATH.ISVALID(path)` → bool 
 
 Whether the search produced a usable path.
 
 ---
 
-### `PATH.NODECOUNT(path)` → int
+### `PATH.NODECOUNT(path)` → int 
 
 Number of waypoints (**0** if invalid).
 
 ---
 
-### `PATH.NODEX(path, index)` / `PATH.NODEY(path, index)` / `PATH.NODEZ(path, index)`
+### `PATH.NODEX(path, index)` / `PATH.NODEY(path, index)` / `PATH.NODEZ(path, index)` 
 
 World coordinates of waypoint **`index`** (**0**-based). Errors if the index is out of range.
 
 ---
 
-### `PATH.FREE(path)`
+### `PATH.FREE(path)` 
 
 Releases the path handle.
 
@@ -119,19 +119,19 @@ Steering helpers return **`VEC3`**-style handles (three floats) meant to be comb
 
 ## `BTREE.*` — behavior tree (user functions)
 
-### `BTREE.CREATE()` / `BTREE.FREE(bt)`
+### `BTREE.CREATE()` / `BTREE.FREE(bt)` 
 
 Allocates a tree whose root is a **sequence** node. **`BTREE.MAKE`** is a deprecated alias of **`BTREE.CREATE`**.
 
 ---
 
-### `BTREE.SEQUENCE(bt)` → handle
+### `BTREE.SEQUENCE(bt)` → handle 
 
 Returns the same handle (reserved for fluent style; the runtime keeps a single root sequence).
 
 ---
 
-### `BTREE.ADDCONDITION(bt, functionName)` / `BTREE.ADDACTION(bt, functionName)`
+### `BTREE.ADDCONDITION(bt, functionName)` / `BTREE.ADDACTION(bt, functionName)` 
 
 Appends a child to the root **sequence**. On **`BTREE.RUN`**, children run in order:
 
@@ -140,7 +140,7 @@ Appends a child to the root **sequence**. On **`BTREE.RUN`**, children run in or
 
 ---
 
-### `BTREE.RUN(bt, agentHandle, dt)`
+### `BTREE.RUN(bt, agentHandle, dt)` 
 
 Walks the tree; **`dt`** is reserved. User functions are resolved via the VM’s user-function invoker (same mechanism as **`SCENE.*`** loaders).
 

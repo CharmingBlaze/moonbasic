@@ -193,6 +193,28 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.GETISSLIDING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetIsSliding(m, args) }))
 	reg.Register("CHARACTERREF.GETCEILING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetCeiling(m, args) }))
 	reg.Register("CHARACTERREF.GETGROUNDVELOCITY", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return ccGetGroundVel(m, args) }))
+
+	reg.Register("CHARACTERREF.GETGRAVITY", "charcontroller", runtime.AdaptLegacy(m.ccGetGravity))
+	reg.Register("CHARACTERREF.GETMAXSLOPE", "charcontroller", runtime.AdaptLegacy(m.ccGetMaxSlope))
+	reg.Register("CHARACTERREF.GETSTEPHEIGHT", "charcontroller", runtime.AdaptLegacy(m.ccGetStepHeight))
+	reg.Register("CHARACTERREF.GETSNAPDISTANCE", "charcontroller", runtime.AdaptLegacy(m.ccGetSnapDist))
+	reg.Register("CHARACTERREF.GETFRICTION", "charcontroller", runtime.AdaptLegacy(m.ccGetFriction))
+	reg.Register("CHARACTERREF.GETJUMPBUFFER", "charcontroller", runtime.AdaptLegacy(m.ccGetJumpBuffer))
+	reg.Register("CHARACTERREF.GETAIRCONTROL", "charcontroller", runtime.AdaptLegacy(m.ccGetAirControl))
+	reg.Register("CHARACTERREF.GETGROUNDCONTROL", "charcontroller", runtime.AdaptLegacy(m.ccGetGroundControl))
+}
+
+func (m *Module) ccGetGravity(args []value.Value) (value.Value, error) { return ccGetGravity(m, args) }
+func (m *Module) ccGetMaxSlope(args []value.Value) (value.Value, error) { return ccGetMaxSlope(m, args) }
+func (m *Module) ccGetStepHeight(args []value.Value) (value.Value, error) {
+	return ccGetStepHeight(m, args)
+}
+func (m *Module) ccGetSnapDist(args []value.Value) (value.Value, error)    { return ccGetSnapDist(m, args) }
+func (m *Module) ccGetFriction(args []value.Value) (value.Value, error)    { return ccGetFriction(m, args) }
+func (m *Module) ccGetJumpBuffer(args []value.Value) (value.Value, error)  { return ccGetJumpBuffer(m, args) }
+func (m *Module) ccGetAirControl(args []value.Value) (value.Value, error)  { return ccGetAirControl(m, args) }
+func (m *Module) ccGetGroundControl(args []value.Value) (value.Value, error) {
+	return ccGetGroundControl(m, args)
 }
 
 func ccSetJumpBuffer(m *Module, args []value.Value) (value.Value, error) {
@@ -206,7 +228,7 @@ func ccSetJumpBuffer(m *Module, args []value.Value) (value.Value, error) {
 	if err := m.SetCharacterJumpBuffer(heap.Handle(args[0].IVal), sec); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccSetAirControl(m *Module, args []value.Value) (value.Value, error) {
@@ -220,7 +242,7 @@ func ccSetAirControl(m *Module, args []value.Value) (value.Value, error) {
 	if err := m.SetCharacterAirControl(heap.Handle(args[0].IVal), s); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccSetGroundControl(m *Module, args []value.Value) (value.Value, error) {
@@ -234,7 +256,7 @@ func ccSetGroundControl(m *Module, args []value.Value) (value.Value, error) {
 	if err := m.SetCharacterGroundControl(heap.Handle(args[0].IVal), s); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccGetIsSliding(m *Module, args []value.Value) (value.Value, error) {
@@ -292,6 +314,18 @@ func (m *Module) SetCharacterRestitution(h heap.Handle, bounce float64) error {
 	}
 	co.charBounce = float32(bounce)
 	return nil
+}
+
+// CharacterRestitution returns gameplay bounciness set via CHARACTERREF.SETBOUNCE/SETBOUNCINESS.
+func (m *Module) CharacterRestitution(h heap.Handle) (float64, bool) {
+	if m.h == nil {
+		return 0, false
+	}
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return 0, false
+	}
+	return float64(co.charBounce), true
 }
 
 // SetCharacterFriction stores a gameplay friction factor (CHARACTERREF.SETFRICTION / player bridge).
@@ -443,7 +477,7 @@ func ccSetPos(m *Module, args []value.Value) (value.Value, error) {
 	}
 	co.cv.SetPosition(jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
 	m.extendedUpdateChar(co, m.kccDt())
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccMove(m *Module, args []value.Value) (value.Value, error) {
@@ -482,7 +516,7 @@ func ccMove(m *Module, args []value.Value) (value.Value, error) {
 		Z: p.Z + float32(dz),
 	})
 	m.extendedUpdateChar(co, m.kccDt())
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccAxis(m *Module, args []value.Value, axis int) (value.Value, error) {
@@ -697,7 +731,7 @@ func ccTeleportScript(m *Module, args []value.Value) (value.Value, error) {
 	if err := m.CharacterTeleport(heap.Handle(args[0].IVal), x, y, z); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // AllocCharacter creates a Jolt CharacterVirtual (used by runtime/player).
@@ -1005,6 +1039,16 @@ func (m *Module) SetCharacterPadding(h heap.Handle, pad float32) (heap.Handle, e
 	return m.RecreateCharacterWithSlope(h, float64(co.capRadius), float64(co.capFullH), float64(co.maxSlopeDeg))
 }
 
+
+// CharacterPadding returns the current CharacterPadding (skin width).
+func (m *Module) CharacterPadding(h heap.Handle) (float32, bool) {
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil || co.cv == nil {
+		return 0, false
+	}
+	return co.charPad, true
+}
+
 func ccSetSetting(m *Module, args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, fmt.Errorf("CHARACTERREF.SETSETTING: heap not bound")
@@ -1066,7 +1110,7 @@ func ccSetContactListener(m *Module, args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CHARACTERREF.SETCONTACTLISTENER: invalid handle")
 	}
 	co.cv.SetContactListenerEnabled(args[1].IVal != 0)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccDrainContacts(m *Module, args []value.Value) (value.Value, error) {
@@ -1552,7 +1596,7 @@ func ccSetVel(m *Module, args []value.Value) (value.Value, error) {
 	vy, _ := args[2].ToFloat()
 	vz, _ := args[3].ToFloat()
 	co.cv.SetLinearVelocity(jolt.Vec3{X: float32(vx), Y: float32(vy), Z: float32(vz)})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccAddVel(m *Module, args []value.Value) (value.Value, error) {
@@ -1571,7 +1615,7 @@ func ccAddVel(m *Module, args []value.Value) (value.Value, error) {
 	v.Y += float32(vy)
 	v.Z += float32(vz)
 	co.cv.SetLinearVelocity(v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccJump(m *Module, args []value.Value) (value.Value, error) {
@@ -1586,7 +1630,7 @@ func ccJump(m *Module, args []value.Value) (value.Value, error) {
 	v := co.cv.GetLinearVelocity()
 	v.Y = float32(j)
 	co.cv.SetLinearVelocity(v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccUpdate(m *Module, args []value.Value) (value.Value, error) {
@@ -1599,7 +1643,7 @@ func ccUpdate(m *Module, args []value.Value) (value.Value, error) {
 	}
 	dt := m.kccDt()
 	m.extendedUpdateChar(co, dt)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccOnSlope(m *Module, args []value.Value) (value.Value, error) {
@@ -1654,7 +1698,7 @@ func ccSetGravity(m *Module, args []value.Value) (value.Value, error) {
 	co, _ := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
 	g, _ := args[1].ToFloat()
 	co.gravityScale = float32(g)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccSetFriction(m *Module, args []value.Value) (value.Value, error) {
@@ -1673,7 +1717,7 @@ func ccSetFriction(m *Module, args []value.Value) (value.Value, error) {
 		f = 2
 	}
 	co.charFriction = float32(f)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccSetMaxSlope(m *Module, args []value.Value) (value.Value, error) {
@@ -1683,7 +1727,7 @@ func ccSetMaxSlope(m *Module, args []value.Value) (value.Value, error) {
 	co, _ := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
 	angle, _ := args[1].ToFloat()
 	co.maxSlopeDeg = float32(angle)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccSetStepHeight(m *Module, args []value.Value) (value.Value, error) {
@@ -1693,7 +1737,7 @@ func ccSetStepHeight(m *Module, args []value.Value) (value.Value, error) {
 	co, _ := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
 	h, _ := args[1].ToFloat()
 	co.extUpdate.WalkStairsStepUp = jolt.Vec3{Y: float32(h)}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func ccSetSnapDist(m *Module, args []value.Value) (value.Value, error) {
@@ -1703,5 +1747,93 @@ func ccSetSnapDist(m *Module, args []value.Value) (value.Value, error) {
 	co, _ := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
 	d, _ := args[1].ToFloat()
 	co.extUpdate.StickToFloorStepDown = jolt.Vec3{Y: -float32(d)}
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func ccGetGravity(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(0), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(1), nil
+	}
+	return value.FromFloat(float64(co.gravityScale)), nil
+}
+
+func ccGetMaxSlope(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(0), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(45), nil
+	}
+	return value.FromFloat(float64(co.maxSlopeDeg)), nil
+}
+
+func ccGetStepHeight(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(0), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(float64(co.extUpdate.WalkStairsStepUp.Y)), nil
+}
+
+func ccGetSnapDist(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(0), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(float64(-co.extUpdate.StickToFloorStepDown.Y)), nil
+}
+
+func ccGetFriction(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(0.5), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0.5), nil
+	}
+	return value.FromFloat(float64(co.charFriction)), nil
+}
+
+func ccGetJumpBuffer(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(0.1), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0.1), nil
+	}
+	return value.FromFloat(float64(co.jumpBufferSec)), nil
+}
+
+func ccGetAirControl(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(1), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(1), nil
+	}
+	return value.FromFloat(float64(co.airControl)), nil
+}
+
+func ccGetGroundControl(m *Module, args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.FromFloat(1), nil
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(1), nil
+	}
+	return value.FromFloat(float64(co.groundControl)), nil
 }

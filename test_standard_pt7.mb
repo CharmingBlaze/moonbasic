@@ -1,0 +1,40 @@
+; Phase 7 Verification: Camera and Light Module Standardization
+
+PRINT("--- Phase 7: Camera & Light ---")
+
+; 1. Test Camera Standardization
+cam = CAMERA.CREATE()
+PRINT("Camera created: " + STR(cam))
+
+; Test setters (separate lines due to parser statement limitations)
+cam.SETPOS(0, 10, -20)
+cam.SETTARGET(0, 0, 0)
+cam.SETFOV(60)
+PRINT("Camera updated: " + STR(cam))
+
+; Test property access
+PrintCamPos = cam.POS()
+PRINT("Cam Pos Y: " + STR(PrintCamPos.Y()))
+PRINT("Cam FOV: " + STR(cam.FOV()))
+PrintCamUp = cam.UP()
+PRINT("Cam Up Y: " + STR(PrintCamUp.Y()))
+PRINT("Cam Projection: " + STR(cam.PROJECTION()))
+
+; 2. Test Light Standardization
+light = LIGHT.CREATE("point")
+PRINT("Light created: " + STR(light))
+
+; Test setters
+light.SETPOS(10, 20, 10)
+light.SETCOLOR(255, 200, 150)
+light.SETINTENSITY(2.5)
+PRINT("Light updated: " + STR(light))
+
+; Test property access
+PrintLightPos = light.POS()
+PRINT("Light Pos X: " + STR(PrintLightPos.X()))
+PRINT("Light Intensity: " + STR(light.INTENSITY()))
+PRINT("Light Enabled: " + STR(light.ENABLED()))
+PRINT("Light Range: " + STR(light.RANGE()))
+
+PRINT("--- Camera & Light Verification Complete ---")

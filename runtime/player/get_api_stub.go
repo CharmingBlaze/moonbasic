@@ -100,4 +100,18 @@ func registerPlayerCharGetAPI(m *Module, reg runtime.Registrar) {
 	reg.Register("CHAR.GETCAPSULERADIUS", "player", stubGet)
 	reg.Register("CHAR.GETCAPSULEHEIGHT", "player", stubGet)
 	reg.Register("CHAR.GETSHAPETYPE", "player", stubGet)
+
+	reg.Register("CHARACTERREF.GETPOSITION", "player", stubGet)
+	reg.Register("CHARACTERREF.GETSPEED", "player", stubGet)
+	reg.Register("CHARACTERREF.ISGROUNDED", "player", stubGet)
+	reg.Register("CHARACTERREF.GETSLOPEANGLE", "player", stubGet)
+	reg.Register("CHARACTERREF.GETMAXSLOPE", "player", stubGet)
+	reg.Register("CHARACTERREF.GETSTEPHEIGHT", "player", stubGet)
+	reg.Register("CHARACTERREF.GETSNAPDISTANCE", "player", stubGet)
+	reg.Register("CHARACTERREF.GETGRAVITY", "player", stubGet)
+	reg.Register("CHARACTERREF.GETFRICTION", "player", stubGet)
+	reg.Register("CHARACTERREF.GETISSLIDING", "player", stubGet)
+	reg.Register("CHARACTERREF.GETCEILING", "player", stubGet)
+	reg.Register("CHARACTERREF.GETPADDING", "player", stubGet)
+	reg.Register("CHARACTERREF.GETGROUNDVELOCITY", "player", stubGet)
 }

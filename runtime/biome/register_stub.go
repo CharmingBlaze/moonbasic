@@ -19,5 +19,11 @@ func registerBiome(m *Module, r runtime.Registrar) {
 	r.Register("BIOME.MAKE", "biome", h("BIOME.MAKE"))
 	r.Register("BIOME.FREE", "biome", h("BIOME.FREE"))
 	r.Register("BIOME.SETTEMP", "biome", h("BIOME.SETTEMP"))
+	r.Register("BIOME.GETTEMP", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromFloat(0), nil
+	})
 	r.Register("BIOME.SETHUMIDITY", "biome", h("BIOME.SETHUMIDITY"))
+	r.Register("BIOME.GETHUMIDITY", "biome", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return value.FromFloat(0), nil
+	})
 }

@@ -105,6 +105,17 @@ func (m *Module) registerCameraExtras(reg runtime.Registrar) {
 	reg.Register("CAMERA.SETORBITLIMITS", "camera", runtime.AdaptLegacy(m.camSetOrbitLimits))
 	reg.Register("CAMERA.SETORBITSPEED", "camera", runtime.AdaptLegacy(m.camSetOrbitSpeed))
 	reg.Register("CAMERA.SETORBITKEYSPEED", "camera", runtime.AdaptLegacy(m.camSetOrbitKeySpeed))
+	reg.Register("CAMERA.GETFOV", "camera", runtime.AdaptLegacy(m.camGetFov))
+	reg.Register("CAMERA.GETUP", "camera", runtime.AdaptLegacy(m.camGetUp))
+	reg.Register("CAMERA.GETPROJECTION", "camera", runtime.AdaptLegacy(m.camGetProjection))
+
+	// Additional aliases for manifest compatibility
+	reg.Register("CAMERA.FOV", "camera", runtime.AdaptLegacy(m.camGetFov))
+	reg.Register("CAMERA.POS", "camera", runtime.AdaptLegacy(m.camGetPos))
+	reg.Register("CAMERA.PROJECTION", "camera", runtime.AdaptLegacy(m.camGetProjection))
+	reg.Register("CAMERA.ROT", "camera", runtime.AdaptLegacy(m.camGetRot))
+	reg.Register("CAMERA.TARGET", "camera", runtime.AdaptLegacy(m.camGetTarget))
+	reg.Register("CAMERA.UP", "camera", runtime.AdaptLegacy(m.camGetUp))
 }
 
 func (m *Module) camGetPos(args []value.Value) (value.Value, error) {
@@ -222,7 +233,7 @@ func (m *Module) camSetOrbit(args []value.Value) (value.Value, error) {
 	pz := float32(float64(tz) + cy*hdist)
 	o.cam.Position = rl.Vector3{X: px, Y: py, Z: pz}
 	o.cam.Target = rl.Vector3{X: tx, Y: ty, Z: tz}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // ApplySetOrbit applies the same math as CAMERA.SETORBIT (exported for ENTITY CAMERA.ORBITENTITY).
@@ -292,7 +303,7 @@ func (m *Module) camOrbitAround(args []value.Value) (value.Value, error) {
 	pz := float32(float64(tz) + cyaw*float64(dist))
 	o.cam.Position = rl.Vector3{X: px, Y: cy, Z: pz}
 	o.cam.Target = rl.Vector3{X: tx, Y: ty, Z: tz}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camOrbitAroundDeg(args []value.Value) (value.Value, error) {
@@ -325,7 +336,7 @@ func (m *Module) camOrbitAroundDeg(args []value.Value) (value.Value, error) {
 	pz := float32(float64(tz) + cyaw*float64(dist))
 	o.cam.Position = rl.Vector3{X: px, Y: camY, Z: pz}
 	o.cam.Target = rl.Vector3{X: tx, Y: ty, Z: tz}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camSetUp(args []value.Value) (value.Value, error) {
@@ -347,7 +358,7 @@ func (m *Module) camSetUp(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.SETUP: up vector must be numeric")
 	}
 	o.cam.Up = rl.Vector3{X: ux, Y: uy, Z: uz}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camFree(args []value.Value) (value.Value, error) {
@@ -361,4 +372,60 @@ func (m *Module) camFree(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.Nil, nil
+}
+
+func (m *Module) camGetFov(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA.GETFOV: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA.GETFOV expects camera handle")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.GETFOV: invalid handle")
+	}
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.cam.Fovy)), nil
+}
+
+func (m *Module) camGetUp(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA.GETUP: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA.GETUP expects camera handle")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.GETUP: invalid handle")
+	}
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	u := o.cam.Up
+	return mbmatrix.AllocVec3Value(m.h, u.X, u.Y, u.Z)
+}
+
+func (m *Module) camGetProjection(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA.GETPROJECTION: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA.GETPROJECTION expects camera handle")
+	}
+	h, ok := argHandle(args[0])
+	if !ok {
+		return value.Nil, fmt.Errorf("CAMERA.GETPROJECTION: invalid handle")
+	}
+	o, err := heap.Cast[*camObj](m.h, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	// Raylib: 0 = Perspective, 1 = Orthographic
+	return value.FromInt(int64(o.cam.Projection)), nil
 }

@@ -26,6 +26,13 @@ func (m *Module) registerWindowMetricsCommands(reg runtime.Registrar) {
 	// Global shorthands (Easy Mode)
 	reg.Register("SCREENWIDTH", "window", runtime.AdaptLegacy(m.wWidth))
 	reg.Register("SCREENHEIGHT", "window", runtime.AdaptLegacy(m.wHeight))
+
+	// GAME.* aliases for manifest compatibility
+	reg.Register("GAME.FPS", "window", runtime.AdaptLegacy(m.wGetFPS))
+	reg.Register("GAME.SCREENW", "window", runtime.AdaptLegacy(m.wWidth))
+	reg.Register("GAME.SCREENH", "window", runtime.AdaptLegacy(m.wHeight))
+	reg.Register("GAME.SCREENCX", "window", runtime.AdaptLegacy(m.wScreenCX))
+	reg.Register("GAME.SCREENCY", "window", runtime.AdaptLegacy(m.wScreenCY))
 }
 
 func (m *Module) wWidth(args []value.Value) (value.Value, error) {
@@ -71,6 +78,26 @@ func (m *Module) rRenderHeight(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromFloat(float64(rl.GetRenderHeight())), nil
+}
+
+func (m *Module) wScreenCX(args []value.Value) (value.Value, error) {
+	if err := m.requireOpen("GAME.SCREENCX"); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("GAME.SCREENCX expects 0 arguments")
+	}
+	return value.FromFloat(float64(rl.GetScreenWidth()) / 2), nil
+}
+
+func (m *Module) wScreenCY(args []value.Value) (value.Value, error) {
+	if err := m.requireOpen("GAME.SCREENCY"); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("GAME.SCREENCY expects 0 arguments")
+	}
+	return value.FromFloat(float64(rl.GetScreenHeight()) / 2), nil
 }
 
 func (m *Module) wGetFPS(args []value.Value) (value.Value, error) {

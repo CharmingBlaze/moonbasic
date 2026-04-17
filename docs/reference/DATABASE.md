@@ -1,10 +1,17 @@
-# SQLite databases (`DB.*`, `ROWS.*`)
+# Database Commands
 
-The **`DB`** namespace opens **SQLite** databases through [`database/sql`](https://pkg.go.dev/database/sql) and **[`github.com/mattn/go-sqlite3`](https://github.com/mattn/go-sqlite3)**. This requires **CGO** at build time (same toolchain you use for Raylib). When **`CGO_ENABLED=0`** or no C compiler is available, **`runtime/dbmod`** registers **stubs** that return a clear error for every command.
+SQLite database access: open, query, execute, transactions, and prepared statements.
 
-## Why SQLite
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-SQLite gives you **durable**, **queryable** storage (saves, inventories, analytics) without a separate server process. Parameters use **`?`** placeholders and map to trailing moonBASIC arguments (see overload rows in **`commands.json`**).
+## Core Workflow
+
+1. Open a database with `DB.OPEN` (file path or `":memory:"`).
+2. Execute DDL/DML with `DB.EXEC`, query with `DB.QUERY`.
+3. Iterate results with `ROWS.NEXT` / `ROWS.GETSTRING` / `ROWS.GETINT`.
+4. Close results with `ROWS.CLOSE`, database with `DB.CLOSE`.
+
+Requires **CGO**. See also [CSV_DATABASE.md](CSV_DATABASE.md).
 
 ## Handles
 
@@ -17,40 +24,52 @@ SQLite gives you **durable**, **queryable** storage (saves, inventories, analyti
 
 `Free()` on heap objects is **idempotent**. Closing a **`DB`** rolls back an open transaction and closes all cached statements.
 
-### `DB.Open(path)`
+### `DB.OPEN(path)` 
 Opens a SQLite database file. Use `":memory:"` for an in-memory database. Returns a **database handle**.
 
-### `DB.Close(db)`
+---
+
+### `DB.CLOSE(db)` 
 Closes the database and releases all associated resources.
 
 ---
 
-### `DB.Query(db, sql [, ...params])`
+### `DB.QUERY(db, sql [, ...params])` 
 Executes a `SELECT` query and returns a **Rows** handle. Supports bound parameters for safe queries.
 
-### `DB.Exec(db, sql [, ...params])`
+---
+
+### `DB.EXEC(db, sql [, ...params])` 
 Executes a SQL statement (e.g., `CREATE`, `INSERT`, `UPDATE`) with optional bound parameters.
 
 ---
 
-### `Rows.Next(rows)`
+### `ROWS.NEXT(rows)` 
 Advances to the next row in the result set. Returns `FALSE` when no more rows are available.
 
-### `Rows.GetString(rows, column)` / `Rows.GetInt(...)`
+---
+
+### `ROWS.GETSTRING(rows, column)` / `ROWS.GETINT(...)` 
 Returns the value of the specified column (**1-based** index) for the current row.
 
-### `Rows.Close(rows)`
+---
+
+### `ROWS.CLOSE(rows)` 
 Closes the result set and frees associated memory.
 
 ---
 
-### `DB.Begin(db)`
+### `DB.BEGIN(db)` 
 Starts a SQL transaction and returns a **TX** handle.
 
-### `DB.Commit(tx)` / `DB.Rollback(tx)`
+---
+
+### `DB.COMMIT(tx)` / `DB.ROLLBACK(tx)` 
 Finalizes the transaction by committing changes or rolling them back, then frees the handle.
 
 Freed **`TX`** handles roll back if not yet committed.
+
+---
 
 ## Prepared statements
 
@@ -60,13 +79,22 @@ Freed **`TX`** handles roll back if not yet committed.
 | `DB.STMTEXEC(stmt, ...params)` | Executes the statement. Under an active transaction, uses `tx.Stmt`. |
 | `DB.STMTCLOSE(stmt)` | Marks the handle freed; underlying `sql.Stmt` stays cached on the DB. |
 
-## Example
+## Full Example
+
+Create a table, insert a row, query it, and iterate results.
 
 ```basic
 db = DB.OPEN(":memory:")
-DB.EXEC(db, "CREATE TABLE t (id INTEGER PRIMARY KEY, v TEXT)")
-DB.EXEC(db, "INSERT INTO t (v) VALUES (?)", "ok")
-PRINT(DB.LASTINSERTID(db))
+DB.EXEC(db, "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT, score INT)")
+DB.EXEC(db, "INSERT INTO items (name, score) VALUES (?, ?)", "sword", 42)
+DB.EXEC(db, "INSERT INTO items (name, score) VALUES (?, ?)", "shield", 30)
+
+rows = DB.QUERY(db, "SELECT name, score FROM items ORDER BY score DESC")
+WHILE ROWS.NEXT(rows)
+    PRINT ROWS.GETSTRING(rows, "name") + " : " + STR(ROWS.GETINT(rows, "score"))
+WEND
+ROWS.CLOSE(rows)
+
 DB.CLOSE(db)
 ```
 

@@ -2,15 +2,23 @@
 
 This page ties together **projectiles**, **2D rope/bridge chains**, **3D lights + ambient**, and what we **do not** simulate as full cloth/soft-body yet.
 
+## Core Workflow
+
+- **Rope:** `PHYSICS2D.CREATDROPE(x1, y1, x2, y2, segments, mode)` → array of `BODY2D` handles → step with `PHYSICS2D.STEP`.
+- **Lights:** `LIGHT.CREATE(type)` → set position/direction/color → `RENDER.SETAMBIENT` for fill.
+- **Projectiles:** `ENTITY.SHOOT(prefab, speed, lifetime)` → cleaned up automatically after lifetime.
+
 ---
 
 ## Projectiles
 
-### 3D — `Entity.Shoot()`
+### 3D — `Entity.Shoot()` 
 
 `Entity.Shoot(prefab, speed, lifetime [, shape])` clones the prefab, clears duplicated physics, aligns to the shooter, builds a **Jolt** body with **CCD** (continuous collision), sets velocity along **pitch/yaw**, and uses **`Entity.DestroyAfter()`**. See [PROJECTILES.md](PROJECTILES.md).
 
-### 2D — `Body2D.Shoot()`
+---
+
+### 2D — `Body2D.Shoot()` 
 
 `Body2D.Shoot(shooter, speed, lifetime [, radius])` spawns a **Box2D** dynamic circle with **`SetBullet(true)`** for tunneling resistance, velocity along the shooter **angle**, and an internal **`Body2D.Free()`** schedule.
 
@@ -31,16 +39,20 @@ Free **every** body handle from the array when you are done (joints are destroye
 
 ## Lighting
 
-### Ambient
+### Ambient 
 
 - **`Render.SetAmbient(r, g, b [, a])`** — hemispheric-style **ambient tint** for the shared **PBR** path.
 - **`World.SetAmbient(r, g, b [, a])`** — **alias**, same overloads (reads like “global lighting” in tutorials).
 
-### Directional sun + extras
+---
+
+### Directional sun + extras 
 
 Constructors such as **`Light.Make("directional")`**, **`Light.Make("point")`**, **`Light.Make("spot")`** allocate **CPU light objects**. The **stock PBR fragment shader** in this repo shades with **one directional** vector plus **ambient**; see [LIGHT.md](LIGHT.md) and [CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md) for how sun + shadow interact.
 
-### Parenting a light to an entity
+---
+
+### Parenting a light to an entity 
 
 - **`Light.SetParent(light, id)`** — for **point** and **spot** lights, **world position** follows the entity each frame. **Spot direction** is not automatically aligned to the camera; update direction or targets in script if you want a flashlight cone to track view yaw.
 
@@ -59,8 +71,54 @@ When/if a dedicated **`Entity.AttachCape()`**-style command lands, it would wrap
 
 ---
 
+## Full Example
+
+A 2D rope bridge between two anchor points with a lit background.
+
+```basic
+WINDOW.OPEN(800, 600, "Rope + Light")
+WINDOW.SETFPS(60)
+
+PHYSICS2D.START()
+PHYSICS2D.SETGRAVITY(0, 400)
+
+; Rope bridging x=100 to x=700 at y=200
+rope = PHYSICS2D.CREATEROPE(100, 200, 700, 200, 12, "bridge")
+
+sun = LIGHT.CREATE("directional")
+LIGHT.SETDIR(sun, -0.5, -1.0, 0)
+LIGHT.SETCOLOR(sun, 255, 240, 200, 255)
+RENDER.SETAMBIENT(40, 40, 60, 255)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    PHYSICS2D.STEP()
+    RENDER.CLEAR(10, 15, 30)
+    CAMERA2D.BEGIN()
+        ; draw rope links
+        FOR i = 0 TO ARRAY.LEN(rope) - 1
+            bx = INT(BODY2D.X(rope(i)))
+            by = INT(BODY2D.Y(rope(i)))
+            DRAW.CIRCLE(bx, by, 4, 180, 140, 80, 255)
+        NEXT i
+    CAMERA2D.END()
+    RENDER.FRAME()
+WEND
+
+; free all rope body handles
+FOR i = 0 TO ARRAY.LEN(rope) - 1
+    BODY2D.FREE(rope(i))
+NEXT i
+LIGHT.FREE(sun)
+PHYSICS2D.STOP()
+WINDOW.CLOSE()
+```
+
+---
+
 ## See also
 
-- [GAMEHELPERS.md](GAMEHELPERS.md) — overview table  
-- [PHYSICS2D.md](PHYSICS2D.md), [PHYSICS3D.md](PHYSICS3D.md)  
-- [LIGHT.md](LIGHT.md), [PROJECTILES.md](PROJECTILES.md)
+- [GAMEHELPERS.md](GAMEHELPERS.md) — overview table
+- [PHYSICS2D.md](PHYSICS2D.md) — Box2D joints and bodies
+- [PHYSICS3D.md](PHYSICS3D.md) — 3D rigid body simulation
+- [LIGHT.md](LIGHT.md) — 3D lighting handles
+- [PROJECTILES.md](PROJECTILES.md) — `Entity.Shoot` / `Body2D.Shoot`

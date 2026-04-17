@@ -106,7 +106,7 @@ func (m *Module) Register(r runtime.Registrar) {
 		"PhysicsCollisionPX", "PhysicsCollisionPY", "PhysicsCollisionPZ", "PhysicsCollisionY", "PhysicsCollisionForce",
 		"PhysicsContactCount",
 		"CountCollisions",
-		"ENTITY.CREATECONE", "CreateCone",
+		"ENTITY.CREATECONE", "ENTITY.MAKECONE", "CreateCone",
 		"GetParent", "EntityParent", "FindChild", "GetChild", "CountChildren",
 		"CopyEntity", "FreeEntity", "EntityPick", "Collisions", "CollisionEntity",
 		"EntityColor", "EntityAlpha", "EntityShininess", "EntityTexture",

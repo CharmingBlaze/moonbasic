@@ -66,7 +66,7 @@ func (m *Module) rtBegin(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("RENDERTARGET.BEGIN: %w", err)
 	}
 	rl.BeginTextureMode(o.RT)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) rtEnd(args []value.Value) (value.Value, error) {

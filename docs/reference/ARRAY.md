@@ -2,7 +2,7 @@
 
 Commands for creating and manipulating arrays.
 
-## Core Concepts
+## Core Workflow
 
 - **Declaration**: Arrays are declared with `DIM` or typed declaration syntax `name AS Type(...)`.
 - **Indexing**: Arrays are **1-based**. `DIM a(10)` uses indices `1..10`.
@@ -14,7 +14,7 @@ Commands for creating and manipulating arrays.
 
 ## Declaration Syntax
 
-### Classic `DIM`
+### Classic `DIM` 
 
 ```basic
 DIM scores(10)
@@ -22,7 +22,9 @@ DIM grid(20, 15)
 DIM names(5)
 ```
 
-### Typed declaration (preferred)
+---
+
+### Typed declaration (preferred) 
 
 ```basic
 enemies AS INTEGER(100)
@@ -30,7 +32,9 @@ grid AS INTEGER(10, 10)
 map AS INTEGER(10, 10, 5)
 ```
 
-### Arrays of user `TYPE`
+---
+
+### Arrays of user `TYPE` 
 
 ```basic
 TYPE Enemy
@@ -83,28 +87,54 @@ For multidimensional arrays, `.length` returns dimension 1 size.
 
 See [MEMORY.md](../MEMORY.md).
 
-### `Array.Make(size)`
+### `ARRAY.MAKE(size)` 
 Creates a new 1D numeric array on the heap. Returns an **array handle**.
 
-### `Array.Len(handle)`
+---
+
+### `ARRAY.LEN(handle)` 
 Returns the number of elements in the array.
 
-### `Array.Get(handle, index)` / `Array.Set(handle, index, value)`
+---
+
+### `ARRAY.GET(handle, index)` / `ARRAY.SET(handle, index, value)` 
 Reads or writes a value at a specific **0-indexed** position.
 
 ---
 
-### `Array.Free(handle)`
+### `ARRAY.FREE(handle)` 
 Releases the heap array and frees its memory.
 
-### `Array.Fill(handle, value)`
+---
+
+### `ARRAY.FILL(handle, value)` 
 Fills all elements of the array with a single numeric value.
 
-### `Array.Sort(handle)`
+---
+
+### `ARRAY.SORT(handle)` 
 Sorts the elements of a 1D array in ascending order.
 
 ---
 
-## 2D and 3D Arrays
+### `ARRAY.MAKE2D(rows, cols)` / `ARRAY.MAKE3D(d, h, w)` 
 
-Use `Array.Make2D(rows, cols)` and `Array.Make3D(d, h, w)` for multi-dimensional numeric data. Indexing is **0-based**.
+Creates multi-dimensional numeric arrays. Indexing is **0-based**.
+
+---
+
+## Full Example
+
+This example creates an array, fills and sorts it.
+
+```basic
+a = ARRAY.MAKE(5)
+FOR i = 0 TO 4
+    ARRAY.SET(a, i, RND(100))
+NEXT
+ARRAY.SORT(a)
+FOR i = 0 TO ARRAY.LEN(a) - 1
+    PRINT ARRAY.GET(a, i)
+NEXT
+ARRAY.FREE(a)
+```

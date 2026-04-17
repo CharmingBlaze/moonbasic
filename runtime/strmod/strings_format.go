@@ -12,7 +12,7 @@ import (
 )
 
 func registerStringsFormat(r runtime.Registrar) {
-	r.Register("BIN", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	binFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("BIN expects 1 argument")
 		}
@@ -21,8 +21,11 @@ func registerStringsFormat(r runtime.Registrar) {
 			return value.Value{}, err
 		}
 		return rt.RetString(strconv.FormatInt(n, 2)), nil
-	})
-	r.Register("HEX", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("BIN", "core", binFn)
+	r.Register("BIN$", "core", binFn)
+
+	hexFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("HEX expects 1 argument")
 		}
@@ -31,8 +34,11 @@ func registerStringsFormat(r runtime.Registrar) {
 			return value.Value{}, err
 		}
 		return rt.RetString(strings.ToUpper(strconv.FormatInt(n, 16))), nil
-	})
-	r.Register("OCT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("HEX", "core", hexFn)
+	r.Register("HEX$", "core", hexFn)
+
+	octFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("OCT expects 1 argument")
 		}
@@ -41,8 +47,11 @@ func registerStringsFormat(r runtime.Registrar) {
 			return value.Value{}, err
 		}
 		return rt.RetString(strconv.FormatInt(n, 8)), nil
-	})
-	r.Register("FORMAT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("OCT", "core", octFn)
+	r.Register("OCT$", "core", octFn)
+
+	formatFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 || args[1].Kind != value.KindString {
 			return value.Value{}, runtime.Errorf("FORMAT expects (v, pattern)")
 		}
@@ -70,7 +79,9 @@ func registerStringsFormat(r runtime.Registrar) {
 		default:
 			return rt.RetString(fmt.Sprintf(pat, v.String())), nil
 		}
-	})
+	}
+	r.Register("FORMAT", "core", formatFn)
+	r.Register("FORMAT$", "core", formatFn)
 
 	mkShort := mkFixedLE(2, func(b []byte, rt *runtime.Runtime, args []value.Value) error {
 		n, err := rt.ArgInt(args, 0)

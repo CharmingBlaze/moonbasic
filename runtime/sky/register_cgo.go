@@ -84,7 +84,7 @@ func skyUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 			o.Time--
 		}
 	}
-	return value.Nil, nil
+	return value.FromHandle(h), nil
 }
 
 func skyDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -105,7 +105,7 @@ func skyDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	rl.DrawSphere(rl.Vector3{}, 220, col)
 	rl.EnableDepthTest()
 	rl.EnableBackfaceCulling()
-	return value.Nil, nil
+	return value.FromHandle(h), nil
 }
 
 func skySetTime(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -125,7 +125,7 @@ func skySetTime(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Valu
 		return value.Nil, err
 	}
 	o.Time = float32(t)
-	return value.Nil, nil
+	return value.FromHandle(h), nil
 }
 
 func skySetDayLength(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -145,7 +145,7 @@ func skySetDayLength(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, err
 	}
 	o.DayLength = float32(sec)
-	return value.Nil, nil
+	return value.FromHandle(h), nil
 }
 
 func skyGetTimeHours(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

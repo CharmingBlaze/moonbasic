@@ -10,24 +10,60 @@ import (
 )
 
 func registerAll(m *Module, r runtime.Registrar) {
+	r.Register("ARRAY.CREATE", "array", m.arrayCreate)
+	r.Register("ARRAY.MAKE", "array", m.arrayCreate)
+	r.Register("ARRAY.LEN", "array", m.arrayLen)
+	r.Register("ARRAY.FILL", "array", m.arrayFill)
+	r.Register("ARRAY.COPY", "array", m.arrayCopy)
+	r.Register("ARRAY.SORT", "array", m.arraySort)
+	r.Register("ARRAY.REVERSE", "array", m.arrayReverse)
+	r.Register("ARRAY.FIND", "array", m.arrayFind)
+	r.Register("ARRAY.CONTAINS", "array", m.arrayContains)
+	r.Register("ARRAY.PUSH", "array", m.arrayPush)
+	r.Register("ARRAY.POP", "array", m.arrayPop)
+	r.Register("ARRAY.SHIFT", "array", m.arrayShift)
+	r.Register("ARRAY.UNSHIFT", "array", m.arrayUnshift)
+	r.Register("ARRAY.SPLICE", "array", m.arraySplice)
+	r.Register("ARRAY.SLICE", "array", m.arraySlice)
+	r.Register("ARRAY.JOINS", "array", m.arrayJoins)
+	r.Register("ARRAY.FREE", "array", m.arrayFree)
+
+	// Legacy/Alias support
 	r.Register("ARRAYLEN", "array", m.arrayLen)
 	r.Register("ARRAYFILL", "array", m.arrayFill)
-	r.Register("ARRAYCOPY", "array", m.arrayCopy)
-	r.Register("ARRAYSORT", "array", m.arraySort)
-	r.Register("ARRAYREVERSE", "array", m.arrayReverse)
-	r.Register("ARRAYFIND", "array", m.arrayFind)
-	r.Register("ARRAYCONTAINS", "array", m.arrayContains)
 	r.Register("ARRAYPUSH", "array", m.arrayPush)
-	r.Register("ARRAYPOP", "array", m.arrayPop)
-	r.Register("ARRAYSHIFT", "array", m.arrayShift)
-	r.Register("ARRAYUNSHIFT", "array", m.arrayUnshift)
-	r.Register("ARRAYSPLICE", "array", m.arraySplice)
-	r.Register("ARRAYSLICE", "array", m.arraySlice)
+	r.Register("ERASE", "array", m.arrayFree)
+	r.Register("FREE.ALL", "array", m.freeAll)
+
+	// Flat aliases (manifest compatibility)
 	r.Register("ARRAYJOINS", "array", m.arrayJoins)
 	r.Register("ARRAYJOINS$", "array", m.arrayJoins)
 	r.Register("ARRAYFREE", "array", m.arrayFree)
-	r.Register("ERASE", "array", m.arrayFree)
-	r.Register("FREE.ALL", "array", m.freeAll)
+	r.Register("ARRAY.GETLEN", "array", m.arrayLen)
+	r.Register("ARRAY.GETSIZE", "array", m.arrayLen)
+}
+
+func (m *Module) arrayCreate(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("ARRAY.CREATE expects 1 argument (size)")
+	}
+	sz, ok := args[0].ToInt()
+	if !ok {
+		return value.Nil, fmt.Errorf("ARRAY.CREATE: size must be numeric")
+	}
+	if sz < 0 {
+		return value.Nil, fmt.Errorf("ARRAY.CREATE: size cannot be negative")
+	}
+	// Default to Float array for general usage
+	arr, err := heap.NewArray([]int64{sz})
+	if err != nil {
+		return value.Nil, err
+	}
+	h, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func (m *Module) getArr(v value.Value, op string) (*heap.Array, error) {
@@ -113,7 +149,7 @@ func (m *Module) arrayFill(rt *runtime.Runtime, args ...value.Value) (value.Valu
 			return value.Nil, err
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) arrayCopy(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -131,7 +167,7 @@ func (m *Module) arrayCopy(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	if err := dst.CopyFrom(src); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[1], nil
 }
 
 func (m *Module) arraySort(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -165,7 +201,7 @@ func (m *Module) arraySort(rt *runtime.Runtime, args ...value.Value) (value.Valu
 			return value.Nil, err
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) arrayReverse(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -177,7 +213,7 @@ func (m *Module) arrayReverse(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	a.Reverse()
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) arrayFind(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -257,7 +293,7 @@ func (m *Module) arrayPush(rt *runtime.Runtime, args ...value.Value) (value.Valu
 		if !ok {
 			return value.Nil, fmt.Errorf("ARRAYPUSH: numeric value expected")
 		}
-		return value.Nil, a.Push1D(f, 0, false)
+		return args[0], a.Push1D(f, 0, false)
 	}
 }
 
@@ -318,7 +354,7 @@ func (m *Module) arrayUnshift(rt *runtime.Runtime, args ...value.Value) (value.V
 		if args[1].Kind != value.KindString {
 			return value.Nil, fmt.Errorf("ARRAYUNSHIFT: string array expects string")
 		}
-		return value.Nil, a.Unshift1D(0, int32(args[1].IVal))
+		return args[0], a.Unshift1D(0, int32(args[1].IVal))
 	case heap.ArrayKindBool:
 		b := value.Truthy(args[1], rt.Prog.StringTable, rt.Heap)
 		f := 0.0
@@ -367,7 +403,7 @@ func (m *Module) arraySplice(rt *runtime.Runtime, args ...value.Value) (value.Va
 	if !ok {
 		return value.Nil, fmt.Errorf("ARRAYSPLICE: count must be numeric")
 	}
-	return value.Nil, a.Splice1D(pos, cnt)
+	return args[0], a.Splice1D(pos, cnt)
 }
 
 func (m *Module) arraySlice(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

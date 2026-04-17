@@ -8,6 +8,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/value"
 )
 
@@ -126,4 +127,46 @@ func registerImageQuery(m *Module, reg runtime.Registrar) {
 	reg.Register("IMAGE.GETBBOXY", "image", runtime.AdaptLegacy(bboxComponent(1)))
 	reg.Register("IMAGE.GETBBOXW", "image", runtime.AdaptLegacy(bboxComponent(2)))
 	reg.Register("IMAGE.GETBBOXH", "image", runtime.AdaptLegacy(bboxComponent(3)))
+
+	reg.Register("IMAGE.GETWIDTH", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("IMAGE.GETWIDTH expects image handle")
+		}
+		img, err := m.getRasterImage(args, 0, "IMAGE.GETWIDTH")
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromInt(int64(img.Width)), nil
+	}))
+
+	reg.Register("IMAGE.GETHEIGHT", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("IMAGE.GETHEIGHT expects image handle")
+		}
+		img, err := m.getRasterImage(args, 0, "IMAGE.GETHEIGHT")
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromInt(int64(img.Height)), nil
+	}))
+
+	reg.Register("IMAGE.GETSIZE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("IMAGE.GETSIZE expects image handle")
+		}
+		img, err := m.getRasterImage(args, 0, "IMAGE.GETSIZE")
+		if err != nil {
+			return value.Nil, err
+		}
+		return mbmatrix.AllocVec2Value(m.h, float32(img.Width), float32(img.Height))
+	}))
 }

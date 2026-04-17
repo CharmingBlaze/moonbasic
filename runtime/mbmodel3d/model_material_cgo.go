@@ -43,7 +43,7 @@ func registerModelMaterial(m *Module, reg runtime.Registrar) {
 		mats[matIdx] = matObj.mat
 		matObj.mat = rl.Material{}
 		matObj.moved = true
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.SETMATERIALTEXTURE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -77,7 +77,7 @@ func registerModelMaterial(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.SETMATERIALTEXTURE: material index out of range")
 		}
 		rl.SetMaterialTexture(&mats[matIdx], slot, tex)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.SETMATERIALSHADER", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -104,7 +104,7 @@ func registerModelMaterial(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.SETMATERIALSHADER: material index out of range")
 		}
 		mats[matIdx].Shader = shObj.sh
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.SETMODELMESHMATERIAL", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -124,6 +124,6 @@ func registerModelMaterial(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.SETMODELMESHMATERIAL: meshId and materialId must be numeric")
 		}
 		rl.SetModelMeshMaterial(&modObj.model, meshID, matID)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 }

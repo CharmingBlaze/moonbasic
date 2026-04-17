@@ -10,6 +10,7 @@ import (
 
 	"moonbasic/runtime"
 	"moonbasic/runtime/mbimage"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -17,6 +18,9 @@ import (
 func registerTexturePropCmds(m *Module, r runtime.Registrar) {
 	r.Register("TEXTURE.WIDTH", "texture", runtime.AdaptLegacy(m.texWidth))
 	r.Register("TEXTURE.HEIGHT", "texture", runtime.AdaptLegacy(m.texHeight))
+	r.Register("TEXTURE.GETWIDTH", "texture", runtime.AdaptLegacy(m.texWidth))
+	r.Register("TEXTURE.GETHEIGHT", "texture", runtime.AdaptLegacy(m.texHeight))
+	r.Register("TEXTURE.GETSIZE", "texture", runtime.AdaptLegacy(m.texGetSize))
 	r.Register("TEXTUREWIDTH", "texture", runtime.AdaptLegacy(m.texWidth))   // Blitz-style flat alias
 	r.Register("TEXTUREHEIGHT", "texture", runtime.AdaptLegacy(m.texHeight)) // Blitz-style flat alias
 	r.Register("TEXTURE.SETFILTER", "texture", runtime.AdaptLegacy(m.texSetFilter))
@@ -40,6 +44,14 @@ func (m *Module) texHeight(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromInt(int64(t.Height)), nil
+}
+
+func (m *Module) texGetSize(args []value.Value) (value.Value, error) {
+	t, err := m.tex2D(args, "TEXTURE.GETSIZE")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec2Value(m.h, float32(t.Width), float32(t.Height))
 }
 
 func (m *Module) texSetDefaultFilter(args []value.Value) (value.Value, error) {

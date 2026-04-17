@@ -18,35 +18,43 @@ Export your maps in `.tmx` format (XML), place the tileset image next to the
 
 ---
 
-### `Tilemap.Load(path)`
+### `TILEMAP.LOAD(path)` 
 Loads a Tiled `.tmx` file and its associated tileset image. Returns a **tilemap handle**.
 
-### `Tilemap.Free(handle)`
+---
+
+### `TILEMAP.FREE(handle)` 
 Unloads the tilemap texture and frees all associated data from memory.
 
 ---
 
-### `Tilemap.Draw(handle, offsetX, offsetY)`
+### `TILEMAP.DRAW(handle, offsetX, offsetY)` 
 Draws all tile layers of the map, shifted by a pixel offset. Use the offset to implement scrolling.
 
-### `Tilemap.IsSolid(handle, tileX, tileY)`
+---
+
+### `TILEMAP.ISSOLID(handle, tileX, tileY)` 
 Returns `TRUE` if the tile at grid position `(tileX, tileY)` has collision. Collision data is loaded from a layer named `"collision"` in the Tiled map.
 
 ---
 
-### `Tilemap.GetTile(handle, layerName, tileX, tileY)`
+### `TILEMAP.GETTILE(handle, layerName, tileX, tileY)` 
 Returns the tile GID (global ID) at a specific grid position on a named layer. Returns `0` for empty tiles.
 
-### `Tilemap.SetTile(handle, layerName, x, y, id)`
+---
+
+### `TILEMAP.SETTILE(handle, layerName, x, y, id)` 
 Changes a tile in a layer at runtime. Set `id = 0` to erase.
 
 ---
 
-### `Tilemap.Width(handle)` / `Tilemap.Height(handle)`
+### `TILEMAP.WIDTH(handle)` / `TILEMAP.HEIGHT(handle)` 
 Returns map dimensions in tiles.
 
-### `Tilemap.TileWidth(handle)` / `Tilemap.TileHeight(handle)`
-Returns tile dimensions in pixels.
+---
+
+### `TILEMAP.SETTILESIZE(handle, w, h)` 
+Overrides the tile pixel dimensions loaded from the `.tmx` file.
 
 ---
 

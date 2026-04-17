@@ -25,6 +25,15 @@ The following foundational components have been successfully refactored and veri
 ### Phase B: Engine Core & Native Modules (ACTIVE)
 The goal for Phase B is to implement the actual implementation of engine commands (Window, Render, Physics, Audio).
 
+#### Handle method chaining (API consistency)
+- **Rule:** Builtins that mutate an object through a leading **handle** argument should return that handle on success (`args[0]`) so scripts can chain: `cam = CAMERA.CREATE().pos(0, 10, 20).look(0, 0, 0).fov(60)`.
+- **Status (Part 1 — 2026-04):** `runtime/camera/raylib_cgo.go` core `CAMERA.SET*` paths already returned the handle; extended fixes landed in `camera_blitz_cgo.go`, `camera_more_cgo.go`, `orbit_follow_cgo.go`, `cam2d_cgo.go`, `blitz_extra_cgo.go` (`CAMERA.LOOKATENTITY`), plus `BODY3D.ADDMESH` / no-op physics paths in `runtime/physics3d/jolt_body3d_cgo.go`. `runtime/sprite/raylib_cgo.go`, `runtime/mblight/builtins.go`, `runtime/mbmodel3d/model_transform_cgo.go`, and `runtime/physics2d/box2d.go` body setters were already handle-chaining–friendly.
+- **Terrain:** `ModifyTerrain`, `TERRAIN.APPLYMAP`, deferred `CHUNK.GENERATE` out-of-range, and `TerrainShading` stub return the terrain handle where appropriate for chaining. `handleCallBuiltin` lists common `TERRAIN.*` operations on `TagTerrain`; `normalizeHandleMethod` maps `DETAIL`→`SETDETAIL` (zero-arg `.detail()` still resolves to `TERRAIN.GETDETAIL` via `handleCallDispatch`).
+- **Water:** `WATER.DRAW` returns the water handle (`args[0]`) for chaining with other `WATER.SET*` helpers. `vm/handlecall.go` maps `TagWater` methods (`SETPOS`, `DRAW`, `SETWAVE` / `.wave()`, colors, queries); `WATER.UPDATE(dt)` stays global (no per-handle receiver).
+- **Model / material (continued):** `MODEL.SET*` helpers in `model_render_hierarchy_cgo.go`, `model_texture_stages_cgo.go`, `model_material_cgo.go`, `material_cmds_cgo.go` (MATERIAL setters), `model_lod_cgo.go`, deferred draw paths in `model_inst_draw_cgo.go`, and early exits in `model_complete_cgo.go` (`DRAWAT`/`DRAWEX` hidden, `UPDATEANIM` no-op) now return the leading handle on success where applicable. `vm/handlecall.go` maps extended script methods on `TagModel` / `TagLODModel` (e.g. `SETCULL`, texture stages, `SETMATERIAL`, `MOVE`, `ATTACHTO`, `SETLODDISTANCES`) and `TagMaterial` (`MATERIAL.SETSHADER`, `SETTEXTURE`, …); `normalizeHandleMethod` adds short aliases (`cull`→`SETCULL`, `attach`→`ATTACHTO`, …). `vm/handlecall_chaining_test.go` covers dispatch + aliases.
+- **Intentionally not chained:** `CAMERA.END`, `CAMERA2D.END`, `MATRIX.FREE`, `BODY3D.FREE`, etc. (no receiver / destructive free).
+- **Parts 2–8** (MODEL/LIGHT getters, manifest, tests, docs): see task backlog; `vm/handlecall.go` already maps many `TagModel`, `TagLight`, `TagParticle`, `TagTerrain`, `TagInstancedModel` method names to registry keys.
+
 0.  **Raylib bootstrap (done — first slice)**:
     - [`runtime/window`](runtime/window): `WINDOW.OPEN` / `CLOSE` / `SHOULDCLOSE`, `RENDER.CLEAR` / `FRAME` with `//go:build cgo` vs stub when `CGO_ENABLED=0`.
     - Requires **CGO + C toolchain** for real graphics; see **`ARCHITECTURE.md` §9**.

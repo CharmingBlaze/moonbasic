@@ -38,7 +38,7 @@ func registerStringsSplitJoin(r runtime.Registrar) {
 		}
 		return value.FromHandle(id), nil
 	})
-	r.Register("JOIN", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	joinFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if rt.Heap == nil {
 			return value.Value{}, runtime.Errorf("JOIN: runtime heap not available")
 		}
@@ -63,5 +63,7 @@ func registerStringsSplitJoin(r runtime.Registrar) {
 			return rt.RetString(arr.JoinStrings(rt.Prog.StringTable, delim)), nil
 		}
 		return value.Value{}, runtime.Errorf("JOIN: expected StringList or string Array handle")
-	})
+	}
+	r.Register("JOIN", "core", joinFn)
+	r.Register("JOIN$", "core", joinFn)
 }

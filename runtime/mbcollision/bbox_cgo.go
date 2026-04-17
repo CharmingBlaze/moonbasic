@@ -8,6 +8,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/runtime/mbmodel3d"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -20,6 +21,10 @@ func (m *Module) registerBBoxBuiltins(reg runtime.Registrar) {
 	reg.Register("BBOX.CHECK", "collision", runtime.AdaptLegacy(m.bboxCheck))
 	reg.Register("BBOX.CHECKSPHERE", "collision", runtime.AdaptLegacy(m.bboxCheckSphere))
 	reg.Register("BBOX.FREE", "collision", runtime.AdaptLegacy(m.bboxFree))
+	reg.Register("BBOX.SETMIN", "collision", runtime.AdaptLegacy(m.bboxSetMin))
+	reg.Register("BBOX.SETMAX", "collision", runtime.AdaptLegacy(m.bboxSetMax))
+	reg.Register("BBOX.GETMIN", "collision", runtime.AdaptLegacy(m.bboxGetMin))
+	reg.Register("BBOX.GETMAX", "collision", runtime.AdaptLegacy(m.bboxGetMax))
 }
 
 func (m *Module) bboxMake(args []value.Value) (value.Value, error) {
@@ -117,4 +122,74 @@ func (m *Module) bboxFree(args []value.Value) (value.Value, error) {
 	}
 	m.h.Free(heap.Handle(args[0].IVal))
 	return value.Nil, nil
+}
+
+func (m *Module) bboxSetMin(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BBOX.SETMIN expects (handle, x, y, z)")
+	}
+	o, err := heap.Cast[*bboxObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("BBOX.SETMIN: %w", err)
+	}
+	x, ok1 := argF(args[1])
+	y, ok2 := argF(args[2])
+	z, ok3 := argF(args[3])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("BBOX.SETMIN: components must be numeric")
+	}
+	o.box.Min = rl.Vector3{X: x, Y: y, Z: z}
+	return args[0], nil
+}
+
+func (m *Module) bboxSetMax(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BBOX.SETMAX expects (handle, x, y, z)")
+	}
+	o, err := heap.Cast[*bboxObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("BBOX.SETMAX: %w", err)
+	}
+	x, ok1 := argF(args[1])
+	y, ok2 := argF(args[2])
+	z, ok3 := argF(args[3])
+	if !ok1 || !ok2 || !ok3 {
+		return value.Nil, fmt.Errorf("BBOX.SETMAX: components must be numeric")
+	}
+	o.box.Max = rl.Vector3{X: x, Y: y, Z: z}
+	return args[0], nil
+}
+
+func (m *Module) bboxGetMin(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BBOX.GETMIN expects handle")
+	}
+	o, err := heap.Cast[*bboxObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("BBOX.GETMIN: %w", err)
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.box.Min.X, o.box.Min.Y, o.box.Min.Z)
+}
+
+func (m *Module) bboxGetMax(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BBOX.GETMAX expects handle")
+	}
+	o, err := heap.Cast[*bboxObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("BBOX.GETMAX: %w", err)
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.box.Max.X, o.box.Max.Y, o.box.Max.Z)
 }

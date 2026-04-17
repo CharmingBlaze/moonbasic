@@ -1,16 +1,21 @@
-# Noise (`NOISE.*`)
+# Noise Commands
 
-moonBASIC exposes **stateful** procedural noise under the **`Noise.*`** namespace. The implementation is **pure Go** ([`runtime/procnoise`](../../runtime/procnoise)) shared with legacy globals **`PERLIN`**, **`SIMPLEX`**, **`VORONOI`**, **`FBMNOISE`** in [`runtime/mbgame`](../../runtime/mbgame) (same core at implicit seed **0**). Use **`NOISE.*`** when you need seeds, fractal settings, or fill helpers; use globals for one-off expressions.
+Stateful procedural noise generators: Perlin, Simplex, cellular, fractal, and domain warp.
 
-**Memory:** `NoiseObject` holds only Go fields. **`NOISE.FREE`** is idempotent. Native **Raylib** work happens only for **`NOISE.FILLIMAGE`** (CPU image pixels). See [`MEMORY.md`](../MEMORY.md).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-> **Common mistake:** moonBASIC is case-agnostic. A variable named `noise` becomes `NOISE` and **shadows** the `Noise.*` namespace — `Noise.MakeFractal` may be parsed as a **method call on your handle**. Use names like `ng`, `gen`, or `terrainNoise`.
+## Core Workflow
 
-**See also:** [`TERRAIN.FILLPERLIN`](../../compiler/builtinmanifest/commands.json) (heightfield fill), legacy **`PERLIN`** / **`FBMNOISE`** in mbgame.
+1. Create a generator with `NOISE.MAKE` or a convenience constructor (`NOISE.MAKEPERLIN`, `NOISE.MAKEFRACTAL`, etc.).
+2. Configure with `NOISE.SETSEED`, `NOISE.SETFREQUENCY`, `NOISE.SETOCTAVES`, etc.
+3. Sample with `NOISE.GET`, `NOISE.GET3D`, `NOISE.GETNORM`, or fill arrays/images.
+4. Free with `NOISE.FREE`.
+
+> **Naming tip:** Do not name your variable `noise` — it shadows the namespace. Use `ng`, `gen`, or `terrainNoise`.
 
 ---
 
-### Noise.Make
+### NOISE.MAKE 
 
 ```basic
 ng = Noise.Make()
@@ -32,7 +37,7 @@ Noise.Free(ng)
 
 ---
 
-### Noise.Free
+### NOISE.FREE 
 
 ```basic
 Noise.Free(ng)
@@ -48,7 +53,7 @@ Releases generator state. Safe to call twice (second is a no-op on the handle ta
 
 ---
 
-### Noise.SetType
+### NOISE.SETTYPE 
 
 ```basic
 Noise.SetType(ng, type)
@@ -65,7 +70,7 @@ Selects the algorithm **before the first sample**. `type` examples: `"perlin"`, 
 
 ---
 
-### Noise.SetSeed
+### NOISE.SETSEED 
 
 ```basic
 Noise.SetSeed(ng, seed)
@@ -82,7 +87,7 @@ Integer seed for deterministic worlds (multiplayer / replay).
 
 ---
 
-### Noise.SetFrequency
+### NOISE.SETFREQUENCY 
 
 ```basic
 Noise.SetFrequency(ng, freq)
@@ -92,7 +97,7 @@ Feature size: lower = smoother/larger hills; typical terrain `0.001`–`0.05`.
 
 ---
 
-### Noise.SetOctaves / Noise.SetLacunarity / Noise.SetGain
+### NOISE.SETOCTAVES / NOISE.SETLACUNARITY / NOISE.SETGAIN 
 
 ```basic
 Noise.SetOctaves(ng, count)
@@ -104,7 +109,7 @@ Fractal controls (used by `fractal_*` types). Defaults: octaves `3`, lacunarity 
 
 ---
 
-### Noise.SetWeightedStrength
+### NOISE.SETWEIGHTEDSTRENGTH 
 
 ```basic
 Noise.SetWeightedStrength(ng, strength)
@@ -114,7 +119,7 @@ Emphasises higher octaves when using **`fractal_fbm`** (`0` = off, `1` = strong)
 
 ---
 
-### Noise.SetPingPongStrength
+### NOISE.SETPINGPONGSTRENGTH 
 
 ```basic
 Noise.SetPingPongStrength(ng, strength)
@@ -124,7 +129,7 @@ Shapes **`fractal_pingpong`** output (default internal `2` if unset).
 
 ---
 
-### Noise.SetCellularType / SetCellularDistance / SetCellularJitter
+### NOISE.SETCELLULARTYPE / NOISE.SETCELLULARDISTANCE / NOISE.SETCELLULARJITTER 
 
 ```basic
 Noise.SetCellularType(ng, type)
@@ -136,7 +141,7 @@ Cellular / Voronoi flavour. `type` examples: `"distance"`, `"cell_value"`. Dista
 
 ---
 
-### Noise.SetDomainWarpType / Noise.SetDomainWarpAmplitude
+### NOISE.SETDOMAINWARPTYPE / NOISE.SETDOMAINWARPAMPLITUDE 
 
 ```basic
 Noise.SetDomainWarpType(ng, type)
@@ -147,7 +152,7 @@ Noise.SetDomainWarpAmplitude(ng, amp)
 
 ---
 
-### Noise.Get
+### NOISE.GET 
 
 ```basic
 h = Noise.Get(ng, x, y)
@@ -164,7 +169,7 @@ Samples **2D** noise ~`[-1,1]`. Locks configuration (no further **`Set*`**).
 
 ---
 
-### Noise.Get3D
+### NOISE.GET3D 
 
 ```basic
 h = Noise.Get3D(ng, x, y, z)
@@ -174,7 +179,7 @@ Cheap 3D field (blended planes / cellular blend). ~`[-1,1]`.
 
 ---
 
-### Noise.GetDomainWarped
+### NOISE.GETDOMAINWARPED 
 
 ```basic
 h = Noise.GetDomainWarped(ng, x, y)
@@ -184,7 +189,7 @@ Applies domain warp, then evaluates the active type (turbulent coastlines, etc.)
 
 ---
 
-### Noise.GetNorm
+### NOISE.GETNORM 
 
 ```basic
 h = Noise.GetNorm(ng, x, y)
@@ -194,7 +199,7 @@ Returns **`0..1`**: `(Get + 1) * 0.5` clamped.
 
 ---
 
-### Noise.GetTileable
+### NOISE.GETTILEABLE 
 
 ```basic
 h = Noise.GetTileable(ng, x, y, w, h)
@@ -204,7 +209,7 @@ Approximate **seamless** tiling using a torus parameterisation; `w`, `h` are til
 
 ---
 
-### Noise.FillArray
+### NOISE.FILLARRAY 
 
 ```basic
 Noise.FillArray(ng, arr, width, height, offsetX, offsetY)
@@ -216,13 +221,13 @@ Writes **`width*height`** floats into **`arr`** (numeric array), row-major. Valu
 
 ---
 
-### Noise.FillArrayNorm
+### NOISE.FILLARRAYNORM 
 
 Same as **`FillArray`**, but writes **`0..1`**.
 
 ---
 
-### Noise.FillImage
+### NOISE.FILLIMAGE 
 
 ```basic
 Noise.FillImage(ng, img, offsetX, offsetY)
@@ -232,7 +237,7 @@ Fills a greyscale **`Image`** (CPU) for debugging / textures. **Requires CGO** (
 
 ---
 
-### Noise.MakePerlin / MakeSimplex / MakeFractal / MakeCellular / MakeDomainWarp
+### NOISE.MAKEPERLIN / NOISE.MAKESIMPLEX / NOISE.MAKEFRACTAL / NOISE.MAKECELLULAR / NOISE.MAKEDOMAINWARP 
 
 ```basic
 ng = Noise.MakePerlin(seed, freq)
@@ -264,6 +269,38 @@ Noise.Free(ng)
 | `fractal_ridged` | Ridges, cliffs |
 | `cellular` + `distance` | Voronoi-style features |
 | `domain_warp` | Warped domains, turbulent blending |
+
+---
+
+## Full Example
+
+Fractal terrain heightmap sampled into a 2D display.
+
+```basic
+WINDOW.OPEN(512, 512, "Noise Demo")
+WINDOW.SETFPS(60)
+
+ng = NOISE.MAKE()
+NOISE.SETTYPE(ng, "fractal_fbm")
+NOISE.SETSEED(ng, 42)
+NOISE.SETFREQUENCY(ng, 0.005)
+NOISE.SETOCTAVES(ng, 5)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(0, 0, 0)
+    FOR y = 0 TO 511
+        FOR x = 0 TO 511
+            v = NOISE.GETNORM(ng, x, y)   ; 0.0..1.0
+            c = INT(v * 255)
+            DRAW.PIXEL(x, y, c, c, c, 255)
+        NEXT x
+    NEXT y
+    RENDER.FRAME()
+WEND
+
+NOISE.FREE(ng)
+WINDOW.CLOSE()
+```
 
 ---
 

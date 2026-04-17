@@ -10,31 +10,31 @@ Create a layer with **`CLOUD.CREATE()`**, tune **`CLOUD.SETCOVERAGE`**, then dri
 
 ---
 
-### `CLOUD.CREATE()`
+### `CLOUD.CREATE()` 
 
 Creates a cloud layer object. **`CLOUD.MAKE()`** is a deprecated alias.
 
 ---
 
-### `CLOUD.FREE(cloud)`
+### `CLOUD.FREE(cloud)` 
 
 Frees the cloud handle.
 
 ---
 
-### `CLOUD.UPDATE(cloud, dt)`
+### `CLOUD.UPDATE(cloud, dt)` 
 
 Advances simulation time.
 
 ---
 
-### `CLOUD.DRAW(cloud)`
+### `CLOUD.DRAW(cloud)` 
 
 Draw pass (may be a no-op depending on build / shader support).
 
 ---
 
-### `CLOUD.SETCOVERAGE(cloud, coverage)`
+### `CLOUD.SETCOVERAGE(cloud, coverage)` 
 
 **`coverage`** in **0–1** (clamped), affecting density/opacity where implemented.
 

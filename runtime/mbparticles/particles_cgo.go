@@ -280,7 +280,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("PARTICLE.SETTEXTURE: texture must be a handle")
 		}
 		o.texH = heap.Handle(args[1].IVal)
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setRateFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -302,7 +302,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			rate = 0
 		}
 		o.emitRate = rate
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setLifeFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -331,7 +331,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			a, b = b, a
 		}
 		o.lifeMin, o.lifeMax = a, b
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setVelFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -357,7 +357,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 		o.vx0, o.vy0, o.vz0 = vx, vy, vz
 		o.vspread = sp
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setDirFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -378,7 +378,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("PARTICLE.SETDIRECTION: values must be numeric")
 		}
 		o.vx0, o.vy0, o.vz0 = vx, vy, vz
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setSpreadFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -400,7 +400,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			sp = 0
 		}
 		o.vspread = sp
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setSpeedFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -429,7 +429,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			a, b = b, a
 		}
 		o.speedMin, o.speedMax = a, b
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setColorFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -451,7 +451,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("PARTICLE.SETCOLOR: r,g,b,a must be numeric")
 		}
 		o.sr, o.sg, o.sb, o.sa = clampU8(r0), clampU8(g0), clampU8(b0), clampU8(a0)
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setColorEndFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -473,7 +473,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("PARTICLE.SETCOLOREND: r,g,b,a must be numeric")
 		}
 		o.er, o.eg, o.eb, o.ea = clampU8(r0), clampU8(g0), clampU8(b0), clampU8(a0)
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setSizeFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -500,7 +500,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		}
 		o.sizeStartMin, o.sizeStartMax = s0, s0
 		o.sizeEndMin, o.sizeEndMax = s1, s1
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setGravFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -517,7 +517,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 				return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY: g must be numeric")
 			}
 			o.gx, o.gy, o.gz = 0, g, 0
-			return value.Nil, nil
+			return args[0], nil
 		}
 		if len(args) == 4 {
 			gx, ok1 := argFloat(args[1])
@@ -527,7 +527,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 				return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY: gx, gy, gz must be numeric")
 			}
 			o.gx, o.gy, o.gz = gx, gy, gz
-			return value.Nil, nil
+			return args[0], nil
 		}
 		return value.Nil, fmt.Errorf("PARTICLE.SETGRAVITY expects (particle, g) or (particle, gx, gy, gz)")
 	})
@@ -550,7 +550,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("PARTICLE.SETPOS: x, y, z must be numeric")
 		}
 		o.px, o.py, o.pz = x, y, z
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	getPosFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -578,15 +578,12 @@ func (m *Module) Register(reg runtime.Registrar) {
 		if err != nil {
 			return value.Nil, err
 		}
-		arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
-		if err != nil {
-			return value.Nil, err
-		}
-		arr.Floats[0] = float64(o.sr)
-		arr.Floats[1] = float64(o.sg)
-		arr.Floats[2] = float64(o.sb)
-		arr.Floats[3] = float64(o.sa)
-		id, err := m.h.Alloc(arr)
+		instance := heap.NewInstance("Color")
+		instance.SetField("r", value.FromInt(int64(o.sr)))
+		instance.SetField("g", value.FromInt(int64(o.sg)))
+		instance.SetField("b", value.FromInt(int64(o.sb)))
+		instance.SetField("a", value.FromInt(int64(o.sa)))
+		id, err := m.h.Alloc(instance)
 		if err != nil {
 			return value.Nil, err
 		}
@@ -605,6 +602,54 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		return value.FromFloat(float64(o.sa) / 255.0), nil
+	})
+
+	setAlphaFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 2 {
+			return value.Nil, fmt.Errorf("PARTICLE.SETALPHA expects (particle, a)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.SETALPHA")
+		if err != nil {
+			return value.Nil, err
+		}
+		a0, ok := argInt32(args[1])
+		if !ok {
+			return value.Nil, fmt.Errorf("PARTICLE.SETALPHA: a must be numeric")
+		}
+		o.sa = clampU8(a0)
+		return args[0], nil
+	})
+
+	getVelFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.GETVELOCITY expects (particle)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.GETVELOCITY")
+		if err != nil {
+			return value.Nil, err
+		}
+		return mbmatrix.AllocVec3Value(m.h, o.vx0, o.vy0, o.vz0)
+	})
+
+	getSizeFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("PARTICLE.GETSIZE expects (particle)")
+		}
+		o, err := m.getParticle(args, 0, "PARTICLE.GETSIZE")
+		if err != nil {
+			return value.Nil, err
+		}
+		// Matches PARTICLE.SETSIZE(start,end): lower bounds of start/end ranges (see SETSTARTSIZE/SETENDSIZE for ranges).
+		return mbmatrix.AllocVec2Value(m.h, o.sizeStartMin, o.sizeEndMin)
 	})
 
 	setBurstFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -635,7 +680,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 		for i := int64(0); i < n && len(o.parts) < maxParticles; i++ {
 			o.spawnOne()
 		}
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setBillFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -650,7 +695,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.billboard = truthy(args[1])
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	playFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -665,7 +710,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.playing = true
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	stopFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -680,7 +725,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.playing = false
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	updateFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -705,7 +750,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			dt = 0.25
 		}
 		o.update(dt)
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	drawFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -772,7 +817,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 				rl.DrawCube(pos, sz*0.5, sz*0.5, sz*0.5, color.RGBA{R: r, G: g, B: b, A: a})
 			}
 		}
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	isAliveFn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -833,7 +878,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			b = 0
 		}
 		o.sizeStartMin, o.sizeStartMax = a, b
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	setSize1Fn := runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -862,7 +907,7 @@ func (m *Module) Register(reg runtime.Registrar) {
 			b = 0
 		}
 		o.sizeEndMin, o.sizeEndMax = a, b
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	// Register all variations
@@ -909,6 +954,9 @@ func (m *Module) Register(reg runtime.Registrar) {
 	regDual(reg, "PARTICLE.GETPOS", getPosFn)
 	regDual(reg, "PARTICLE.GETCOLOR", getColorFn)
 	regDual(reg, "PARTICLE.GETALPHA", getAlphaFn)
+	regDual(reg, "PARTICLE.SETALPHA", setAlphaFn)
+	regDual(reg, "PARTICLE.GETVELOCITY", getVelFn)
+	regDual(reg, "PARTICLE.GETSIZE", getSizeFn)
 	reg.Register("EMITTERPOS", "particle", setPosFn)
 
 	regDual(reg, "PARTICLE.SETBURST", setBurstFn)

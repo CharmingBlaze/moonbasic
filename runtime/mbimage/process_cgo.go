@@ -55,7 +55,7 @@ func (m *Module) imageDrawImage(args []value.Value) (value.Value, error) {
 	srcRec := rl.Rectangle{X: sx, Y: sy, Width: sw, Height: sh}
 	dstRec := rl.Rectangle{X: dx, Y: dy, Width: dw, Height: dh}
 	rl.ImageDraw(dst, src, srcRec, dstRec, tint)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) imageDither(args []value.Value) (value.Value, error) {
@@ -78,7 +78,7 @@ func (m *Module) imageDither(args []value.Value) (value.Value, error) {
 		bpp[i] = v
 	}
 	rl.ImageDither(img, bpp[0], bpp[1], bpp[2], bpp[3])
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) imageMipmaps(args []value.Value) (value.Value, error) {
@@ -93,7 +93,7 @@ func (m *Module) imageMipmaps(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	rl.ImageMipmaps(img)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) imageFormat(args []value.Value) (value.Value, error) {
@@ -112,7 +112,7 @@ func (m *Module) imageFormat(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("IMAGE.FORMAT: format must be numeric")
 	}
 	rl.ImageFormat(img, rl.PixelFormat(f))
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) imageDrawRectLines(args []value.Value) (value.Value, error) {
@@ -140,7 +140,7 @@ func (m *Module) imageDrawRectLines(args []value.Value) (value.Value, error) {
 	}
 	rec := rl.Rectangle{X: x, Y: y, Width: w, Height: h}
 	rl.ImageDrawRectangleLines(img, rec, int(thick), tint)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) imageAlphaCrop(args []value.Value) (value.Value, error) {
@@ -159,7 +159,7 @@ func (m *Module) imageAlphaCrop(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("IMAGE.ALPHACROP: threshold must be numeric")
 	}
 	rl.ImageAlphaCrop(img, th)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) imageAlphaClear(args []value.Value) (value.Value, error) {
@@ -182,5 +182,5 @@ func (m *Module) imageAlphaClear(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("IMAGE.ALPHACLEAR: threshold must be numeric")
 	}
 	rl.ImageAlphaClear(img, c, th)
-	return value.Nil, nil
+	return args[0], nil
 }

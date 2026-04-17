@@ -70,13 +70,6 @@ func (m *Module) playerCreateInternal(args []value.Value) (int64, error) {
 	return id, nil
 }
 
-func (m *Module) playerCreate(args []value.Value) (value.Value, error) {
-	if _, err := m.playerCreateInternal(args); err != nil {
-		return value.Nil, err
-	}
-	return value.Nil, nil
-}
-
 func (m *Module) playerMove(args []value.Value) (value.Value, error) {
 	if m.char == nil || m.ent == nil {
 		return value.Nil, fmt.Errorf("PLAYER.MOVE: not available on this platform")
@@ -120,7 +113,7 @@ func (m *Module) playerMove(args []value.Value) (value.Value, error) {
 			}
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // playerCharMoveDir implements CHAR.MOVE(entity, dirX, dirZ, speed): world XZ velocity = dir * speed (typ. dir ∈ {-1,0,1}).
@@ -159,7 +152,7 @@ func (m *Module) playerCharMoveDir(args []value.Value) (value.Value, error) {
 	if ok {
 		_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // playerMoveWithCamera implements CHAR.MOVEWITHCAMERA / PLAYER.MOVEWITHCAMERA — camera XZ walk basis × input axes × speed.
@@ -206,7 +199,7 @@ func (m *Module) playerMoveWithCamera(args []value.Value) (value.Value, error) {
 	if ok {
 		_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerNavTo(args []value.Value) (value.Value, error) {
@@ -242,7 +235,7 @@ func (m *Module) playerNavTo(args []value.Value) (value.Value, error) {
 		}
 	}
 	m.kccNav[id] = &kccNavState{mode: kccNavGoto, active: true, tx: tx, tz: tz, speed: spd, arrival: arr, brake: brake}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerNavChase(args []value.Value) (value.Value, error) {
@@ -275,7 +268,7 @@ func (m *Module) playerNavChase(args []value.Value) (value.Value, error) {
 		mode: kccNavChase, active: true, chaseTarget: tid, chaseGap: gap, speed: spd,
 		arrival: 0.2, brake: 0.75,
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerNavPatrol(args []value.Value) (value.Value, error) {
@@ -306,7 +299,7 @@ func (m *Module) playerNavPatrol(args []value.Value) (value.Value, error) {
 		speed: spd, arrival: 0.2, brake: 0.75,
 		patrolToB: true,
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
@@ -352,7 +345,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 			if ok2 {
 				_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 			}
-			return value.Nil, nil
+			return args[0], nil
 		}
 	case kccNavPatrol:
 		if st.patrolToB {
@@ -377,7 +370,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 				_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 			}
 			st.patrolToB = !st.patrolToB
-			return value.Nil, nil
+			return args[0], nil
 		}
 	case kccNavGoto:
 		if dist <= st.arrival {
@@ -388,7 +381,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 				_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 			}
 			st.active = false
-			return value.Nil, nil
+			return args[0], nil
 		}
 	}
 
@@ -407,7 +400,7 @@ func (m *Module) playerNavUpdate(args []value.Value) (value.Value, error) {
 	if ok {
 		_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetPadding(args []value.Value) (value.Value, error) {
@@ -434,7 +427,7 @@ func (m *Module) playerSetPadding(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	m.entToChar[id] = newH
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerJump(args []value.Value) (value.Value, error) {
@@ -465,7 +458,7 @@ func (m *Module) playerJump(args []value.Value) (value.Value, error) {
 			_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerIsGrounded(args []value.Value) (value.Value, error) {
@@ -604,7 +597,7 @@ func (m *Module) playerSetState(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("PLAYER.SETSTATE: state must be int (use STATE_IDLE, STATE_WALKING, …)")
 	}
 	m.state[id] = int32(st)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSyncAnim(args []value.Value) (value.Value, error) {
@@ -635,7 +628,7 @@ func (m *Module) playerSyncAnim(args []value.Value) (value.Value, error) {
 	hs := mbentity.PlayerBridgeHorizontalSpeed(float32(vx), float32(vz))
 	sp := float32(hs * float32(scale))
 	_ = m.ent.PlayerBridgeSetAnimSpeed(id, sp)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetStepHeight(args []value.Value) (value.Value, error) {
@@ -658,7 +651,7 @@ func (m *Module) playerSetStepHeight(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterWalkStairsStepUp(ch, float32(h)); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetSlopeLimit(args []value.Value) (value.Value, error) {
@@ -689,7 +682,7 @@ func (m *Module) playerSetSlopeLimit(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	m.entToChar[id] = newH
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerGetGroundState(args []value.Value) (value.Value, error) {
@@ -750,9 +743,9 @@ func (m *Module) playerGetVelocity(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY expects (entity)")
 	}
-	id, ok := m.playerEntID(args[0])
+	id, ok := m.kccSubjectID(args)
 	if !ok || id < 1 {
-		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY: invalid entity")
+		return value.Nil, fmt.Errorf("PLAYER.GETVELOCITY: %s", kccErrNoSubject)
 	}
 	ch, ok := m.entToChar[id]
 	if !ok {
@@ -790,7 +783,7 @@ func (m *Module) playerTeleport(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	_ = m.ent.PlayerBridgeSetWorldPos(id, float32(x), float32(y), float32(z))
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetGravityScale(args []value.Value) (value.Value, error) {
@@ -815,7 +808,7 @@ func (m *Module) playerSetGravityScale(args []value.Value) (value.Value, error) 
 	if err := m.char.SetCharacterGravityScale(ch, sc); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerGetCrouch(args []value.Value) (value.Value, error) {
@@ -869,7 +862,7 @@ func (m *Module) playerSetCrouch(args []value.Value) (value.Value, error) {
 	if newH != ch {
 		m.entToChar[id] = newH
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetJumpBuffer(args []value.Value) (value.Value, error) {
@@ -894,7 +887,7 @@ func (m *Module) playerSetJumpBuffer(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterJumpBuffer(ch, sec); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetAirControl(args []value.Value) (value.Value, error) {
@@ -919,7 +912,7 @@ func (m *Module) playerSetAirControl(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterAirControl(ch, s); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetGroundControl(args []value.Value) (value.Value, error) {
@@ -944,7 +937,7 @@ func (m *Module) playerSetGroundControl(args []value.Value) (value.Value, error)
 	if err := m.char.SetCharacterGroundControl(ch, s); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSwim(args []value.Value) (value.Value, error) {
@@ -975,7 +968,7 @@ func (m *Module) playerSwim(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterSwim(ch, buoy, drag, on); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetVelocity(args []value.Value) (value.Value, error) {
@@ -999,7 +992,7 @@ func (m *Module) playerSetVelocity(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterLinearVelocity(ch, vx, vy, vz); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerAddImpulse(args []value.Value) (value.Value, error) {
@@ -1027,7 +1020,7 @@ func (m *Module) playerAddImpulse(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterLinearVelocity(ch, cvx+ix, cvy+iy, cvz+iz); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerGetSubmergedFraction(args []value.Value) (value.Value, error) {
@@ -1122,7 +1115,7 @@ func (m *Module) playerSetStickFloor(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterStickToFloorDown(ch, float32(down)); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerGetStandNormal(args []value.Value) (value.Value, error) {
@@ -1201,10 +1194,10 @@ func (m *Module) playerGrab(args []value.Value) (value.Value, error) {
 	}
 	if tid < 1 {
 		delete(m.grab, pid)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	m.grab[pid] = tid
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerSetMass(args []value.Value) (value.Value, error) {
@@ -1229,7 +1222,7 @@ func (m *Module) playerSetMass(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterMass(ch, mass); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerGetSurfaceType(args []value.Value) (value.Value, error) {
@@ -1268,7 +1261,7 @@ func (m *Module) playerSetFovKick(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("PLAYER.SETFOVKICK: degrees must be numeric")
 	}
 	m.fovKick[id] = deg
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) playerGetFovKick(args []value.Value) (value.Value, error) {

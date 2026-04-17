@@ -51,6 +51,15 @@ func BBoxFromArgs(s *heap.Store, h heap.Handle) (rl.BoundingBox, error) {
 }
 
 func rayCollisionScalars(reg runtime.Registrar, prefix string, nargs int, compute func([]value.Value) (rl.RayCollision, error)) {
+	// Canonical: RAY.HITSPHERE (bool)
+	reg.Register(prefix, "collision", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		c, err := compute(args)
+		if err != nil {
+			return value.Nil, err
+		}
+		return value.FromBool(c.Hit), nil
+	}))
+	// Legacy Alias: RAY.HITSPHERE_HIT (bool)
 	reg.Register(prefix+"_HIT", "collision", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		c, err := compute(args)
 		if err != nil {

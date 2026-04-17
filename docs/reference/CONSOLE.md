@@ -1,10 +1,16 @@
-# Console & Text Output Commands
+# Console Commands
 
-Commands for printing text to the console or terminal where `moonbasic` is running. These are primarily used for debugging, as graphical text is handled by `Draw.Text`.
+Text output, input prompts, and console overlay control for debugging and terminal I/O.
+
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+Use `PRINT` / `WRITE` for quick debug output. For an in-game console overlay, use `CONSOLE.SHOW` / `CONSOLE.LOG` / `CONSOLE.CLEAR`. For graphical text rendering see [DRAW2D.md](DRAW2D.md).
 
 ---
 
-### `PRINT(args...)`
+### `PRINT(args...)` 
 
 Prints one or more values to the console, separated by spaces, followed by a newline character.
 
@@ -17,7 +23,7 @@ PRINT "Welcome to", name, "version", version
 
 ---
 
-### `WRITE(args...)`
+### `WRITE(args...)` 
 
 Same as `PRINT`, but does *not* add a newline character at the end.
 
@@ -30,55 +36,64 @@ PRINT "Done!"
 
 ---
 
-### `Console.Input(prompt, [default])`
+### `CONSOLE.INPUT(prompt, default)` 
 
-Prompts the user for text input from the console.
+Prompts the user for text input from the console. Returns the string entered, or `default` if the user presses Enter without typing.
 
-- `prompt`: The message to display to the user.
-- `default`: (Optional) The value to return if the user just presses Enter.
-
-Returns the string entered by the user.
-
-```basic
-name = Console.Input("What is your name? ", "Player1")
-Console.Print("Hello, " + name)
-```
+- `prompt`: The message to display.
+- `default`: Fallback value (optional).
 
 ---
 
-### `Console.Log(message)`
+### `CONSOLE.LOG(message)` 
 
-Writes a message to the internal console.
+Writes a message to the internal console overlay.
 
 ---
 
-### `Console.Clear()`
+### `CONSOLE.CLEAR()` 
 
 Clears the console buffer.
 
 ---
 
-### `Console.Show()` / `Console.Hide()`
+### `CONSOLE.SHOW()` / `CONSOLE.HIDE()` 
 
-Toggles the console overlay.
-
----
-
-### `Console.SetColor(r, g, b, a)`
-
-Sets console text color.
-
-### `Console.SetBackground(r, g, b, a)`
-
-Sets console background color.
+Shows or hides the console overlay.
 
 ---
 
-### `Console.Locate(row, column)`
+### `CONSOLE.SETCOLOR(r, g, b, a)` 
 
-Moves the console cursor to the specified row and column. Like `Console.Clear`, this uses ANSI escape codes.
+Sets console text color (0–255 per channel).
+
+---
+
+### `CONSOLE.SETBACKGROUND(r, g, b, a)` 
+
+Sets console background color (0–255 per channel).
+
+---
+
+### `CONSOLE.LOCATE(row, column)` 
+
+Moves the console cursor to the specified row and column (ANSI escape codes).
+
+---
+
+## Full Example
+
+This example uses the console overlay for debug logging.
 
 ```basic
-Console.Clear()
-Console.Locate(10, 5)
-Console.Print("This text is on row 10, column 5.")
+CONSOLE.SHOW()
+CONSOLE.SETCOLOR(0, 255, 0, 255)
+CONSOLE.LOG("Game started")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    CONSOLE.LOG("Frame: " + STR(TIME.GETFRAME()))
+    RENDER.BEGINFRAME()
+    RENDER.ENDFRAME()
+WEND
+
+CONSOLE.HIDE()

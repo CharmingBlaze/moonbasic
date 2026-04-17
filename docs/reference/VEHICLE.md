@@ -1,33 +1,45 @@
-# VEHICLE
+# Vehicle Commands
 
-**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — use **`VEHICLE.*`** registry keys in new examples; parameter names below are plain identifiers (no Blitz-style **`#`** suffixes).
+High-level raycast-based vehicle simulation with suspension and traction helpers.
 
-The **`VEHICLE`** namespace provides a high-level raycast-based vehicle simulation: cars, trucks, and other wheeled vehicles with suspension and traction helpers.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-## Commands
+## Core Workflow
 
-### `VEHICLE.CREATE(entity, wheelCount)`
+1. Create a vehicle with `VEHICLE.CREATE`, binding it to a chassis entity.
+2. Configure wheels with `VEHICLE.SETWHEEL`.
+3. Each frame, apply inputs with `VEHICLE.CONTROL` and step with `VEHICLE.STEP`.
+
+---
+
+### `VEHICLE.CREATE(entity, wheelCount)` 
 Creates a new vehicle simulation bound to the specified chassis **entity**.
 * `entity`: Numeric **entity id** of the chassis (not a raw model handle — spawn or reference an entity first; see [ENTITY.md](ENTITY.md)).
 * `wheelCount`: Number of wheels.
 
-### `VEHICLE.SETWHEEL(vehicle, index, ox, oy, oz, radius)`
+---
+
+### `VEHICLE.SETWHEEL(vehicle, index, ox, oy, oz, radius)` 
 Configures one wheel relative to the chassis.
 * `vehicle`: Vehicle handle returned from **`VEHICLE.CREATE`**.
 * `index`: Wheel index from **0** to **wheelCount − 1**.
 * `ox`, `oy`, `oz`: Local offset from the chassis center.
 * `radius`: Wheel radius.
 
-### `VEHICLE.CONTROL(vehicle, throttle, steer, brake)`
+---
+
+### `VEHICLE.CONTROL(vehicle, throttle, steer, brake)` 
 Applies control inputs.
 * `throttle`: Acceleration input (-1 to 1).
 * `steer`: Steering input (-1 to 1).
 * `brake`: Braking input (0 to 1).
 
-### `VEHICLE.STEP(dt)`
+---
+
+### `VEHICLE.STEP(dt)` 
 Advances the simulation by **`dt`** seconds. Call once per frame with **`TIME.DELTA()`** (or **`DT()`**).
 
-## Example: simple car setup
+## Full Example
 
 ```basic
 WORLD.SETUP(-9.81)

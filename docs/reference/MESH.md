@@ -1,40 +1,87 @@
-# Mesh — `MESH.*`
+# Mesh Commands
 
-**CPU mesh geometry** (Raylib `Mesh`) stored in the VM heap (`TypeName` **`Mesh`**, `TagMesh`). Use **`MESH.Upload`** to send vertex data to the GPU, then **`MESH.Draw`** or **`MESH.DrawRotated`** with a **`MATERIAL.*`** handle. Meshes are **not** full **`MODEL.*`** objects (no bundled materials or hierarchy).
+CPU mesh geometry: procedural creation, loading, GPU upload, and drawing.
 
-**Requires CGO** (same as **`MODEL.*`**, **`Camera.*`**, **`MATERIAL.*`**).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-Registry keys use **dots and uppercase** (e.g. `MESH.MakeCube`).
+## Core Workflow
+
+1. Create with `MESH.MAKECUBE`, `MESH.MAKESPHERE`, or `MESH.LOAD`.
+2. Upload to GPU with `MESH.UPLOAD`.
+3. Draw with `MESH.DRAW` using a material and transform handle.
+4. Free with `MESH.FREE`.
+
+Meshes are **not** full models — see [MODEL.md](MODEL.md) for assets with bundled materials.
 
 ---
 
-### `Mesh.MakeCube(w, h, d)`
+### `MESH.MAKECUBE(w, h, d)` 
 Creates a procedural box mesh. Returns a **mesh handle**.
 
-### `Mesh.MakeSphere(r, rings, slices)`
+---
+
+### `MESH.MAKESPHERE(r, rings, slices)` 
 Creates a procedural sphere mesh.
 
-### `Mesh.Load(path)`
+---
+
+### `MESH.LOAD(path)` 
 Loads the first submesh from a model file. Returns a **mesh handle**.
 
 ---
 
-### `Mesh.Upload(mesh, dynamic)`
+### `MESH.UPLOAD(mesh, dynamic)` 
 Uploads mesh data to the GPU. Set `dynamic` to `TRUE` if the mesh will be updated frequently.
-
-### `Mesh.Draw(mesh, material, matrix)`
-Draws a mesh using a `Material` handle and a `Transform` matrix handle.
-
-### `Mesh.Free(handle)`
-Unloads the mesh from the GPU and frees the handle from memory.
 
 ---
 
-### `Mesh.VertexCount(handle)` / `Mesh.TriangleCount(handle)`
+### `MESH.DRAW(mesh, material, matrix)` 
+Draws a mesh using a `MATERIAL` handle and a `TRANSFORM` matrix handle.
+
+---
+
+### `MESH.FREE(handle)` 
+Unloads the mesh from the GPU and frees the handle.
+
+---
+
+### `MESH.VERTEXCOUNT(handle)` / `MESH.TRIANGLECOUNT(handle)` 
 Returns the number of vertices or triangles in the mesh.
 
-### `Mesh.GetBounds(handle)`
+---
+
+### `MESH.GETBOUNDS(handle)` 
 Returns a 6-element float array handle `[minX, minY, minZ, maxX, maxY, maxZ]`.
+
+---
+
+## Full Example
+
+```basic
+WINDOW.OPEN(800, 600, "Mesh Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 3, -5)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+cube = MESH.MAKECUBE(2, 2, 2)
+MESH.UPLOAD(cube)
+
+mat = MATERIAL.DEFAULT()
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(30, 30, 50)
+    RENDER.BEGIN3D(cam)
+        MESH.DRAW(cube, mat, 0, 0, 0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+MESH.FREE(cube)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 

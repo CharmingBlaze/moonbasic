@@ -73,6 +73,19 @@ func pollAnyKeyPressed() (int32, bool) {
 	return 0, false
 }
 
+// inAnyKey returns true if any key is currently pressed
+func (m *Module) inAnyKey(args []value.Value) (value.Value, error) {
+	if len(args) != 0 {
+		return value.Nil, fmt.Errorf("AnyKey expects 0 arguments")
+	}
+	for k := int32(32); k <= 400; k++ {
+		if rl.IsKeyDown(k) {
+			return value.FromBool(true), nil
+		}
+	}
+	return value.FromBool(false), nil
+}
+
 func (m *Module) inMoveMouse(args []value.Value) (value.Value, error) {
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("MoveMouse expects (x, y)")

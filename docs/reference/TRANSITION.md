@@ -1,43 +1,74 @@
-# Full-screen transitions (`TRANSITION.*`)
+# Transition Commands
 
-Fullscreen **fade** and **wipe** overlays drawn at the end of the frame (Raylib), used standalone or with [SCENE.LoadWithTransition](SCENE.md). **CGO** only (`runtime/mbtransition/transition_cgo.go`); a frame hook must be registered on the window module so `transitionDraw` runs each frame.
+Full-screen fade and wipe overlays for scene changes and cinematic effects.
+
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Optionally set the overlay color with `TRANSITION.SETCOLOR`.
+2. Start a transition with `TRANSITION.FADEOUT`, `TRANSITION.FADEIN`, or `TRANSITION.WIPE`.
+3. Poll `TRANSITION.ISDONE` each frame to know when to proceed.
+
+For automatic scene transitions see [SCENE.md](SCENE.md).
 
 ---
 
-## State machine
+### `TRANSITION.FADEOUT(seconds)` 
 
-1. Call **`TRANSITION.FADEOUT`** or **`TRANSITION.WIPE`** with a duration.
-2. Each frame, the hook advances time until progress reaches **1** → **`TRANSITION.ISDONE`** becomes `TRUE`.
-3. For fade-out, the screen ends fully covered by the transition color; for **fade-in**, the overlay clears back to transparent and the mode returns to idle.
+Fades the overlay in, blocking the view over `seconds`.
 
 ---
 
-## Commands
+### `TRANSITION.FADEIN(seconds)` 
 
-### `Transition.FadeOut(seconds)` / `Transition.FadeIn(seconds)`
+Fades the overlay out, revealing the scene over `seconds`.
 
-Fades the overlay **in** (blocking the view) or **out** (revealing the scene). Duration must be positive.
+---
 
-### `Transition.IsDone()` → bool
+### `TRANSITION.ISDONE()` 
 
-`TRUE` when the current transition segment has finished.
+Returns `TRUE` when the current transition has finished.
 
-### `Transition.Wipe(direction, seconds)`
+---
 
-Wipe overlay using the current transition **color**. `direction` (case-insensitive):
+### `TRANSITION.WIPE(direction, seconds)` 
+
+Wipe overlay using the current color. `direction` (case-insensitive):
 
 - `left` — bar grows from the left edge.
 - `right` — from the right.
-- `up` or `top` — from the top.
-- `down` or `bottom` — from the bottom.
-- Anything else — full-screen fill.
-
-### `Transition.SetColor(r, g, b, a)`
-
-Overlay color (components clamped **0–255**). Default is set in the CGO init (typically opaque black).
+- `up` / `top` — from the top.
+- `down` / `bottom` — from the bottom.
 
 ---
 
-## Scene integration
+### `TRANSITION.SETCOLOR(r, g, b, a)` 
 
-[SCENE.LoadWithTransition](SCENE.md) calls `FADEOUT` or `WIPE`, waits for `ISDONE`, runs the scene loader, then `FADEIN` for `"fade"` wipes that need a fade-in phase.
+Sets the overlay color (0–255 per channel). Default is opaque black.
+
+---
+
+## Full Example
+
+This example fades out, loads a new scene, then fades back in.
+
+```basic
+TRANSITION.SETCOLOR(0, 0, 0, 255)
+TRANSITION.FADEOUT(0.5)
+
+; Wait for fade to finish
+WHILE NOT TRANSITION.ISDONE()
+    RENDER.BEGINFRAME()
+    RENDER.ENDFRAME()
+WEND
+
+; Load new scene here
+SCENE.LOAD("level2")
+
+TRANSITION.FADEIN(0.5)
+WHILE NOT TRANSITION.ISDONE()
+    RENDER.BEGINFRAME()
+    RENDER.ENDFRAME()
+WEND
+```

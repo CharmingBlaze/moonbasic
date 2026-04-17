@@ -72,6 +72,11 @@ func (m *Module) isSoundPlaying(args []value.Value) (value.Value, error)  { retu
 func (m *Module) isMusicPlaying(args []value.Value) (value.Value, error)  { return value.FromBool(false), nil }
 func (m *Module) getMusicLength(args []value.Value) (value.Value, error)  { return value.FromFloat(0), nil }
 func (m *Module) getMusicTime(args []value.Value) (value.Value, error)    { return value.FromFloat(0), nil }
+func (m *Module) getSoundVolume(args []value.Value) (value.Value, error) { return value.FromFloat(1), nil }
+func (m *Module) getSoundPitch(args []value.Value) (value.Value, error)  { return value.FromFloat(1), nil }
+func (m *Module) getSoundPan(args []value.Value) (value.Value, error)    { return value.FromFloat(0), nil }
+func (m *Module) getMusicVolume(args []value.Value) (value.Value, error) { return value.FromFloat(1), nil }
+func (m *Module) getMusicPitch(args []value.Value) (value.Value, error)  { return value.FromFloat(1), nil }
 func (m *Module) seekMusic(args []value.Value) (value.Value, error)      { return value.Nil, nil }
 
 func (m *Module) audioPlayVarySound(args []value.Value) (value.Value, error) { return value.Nil, nil }
@@ -94,8 +99,11 @@ func (m *Module) streamPause(args []value.Value) (value.Value, error)     { retu
 func (m *Module) streamResume(args []value.Value) (value.Value, error)    { return value.Nil, nil }
 func (m *Module) streamStop(args []value.Value) (value.Value, error)      { return value.Nil, nil }
 func (m *Module) streamSetVolume(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) streamGetVolume(args []value.Value) (value.Value, error) { return value.FromFloat(1), nil }
 func (m *Module) streamSetPitch(args []value.Value) (value.Value, error)  { return value.Nil, nil }
+func (m *Module) streamGetPitch(args []value.Value) (value.Value, error)  { return value.FromFloat(1), nil }
 func (m *Module) streamSetPan(args []value.Value) (value.Value, error)    { return value.Nil, nil }
+func (m *Module) streamGetPan(args []value.Value) (value.Value, error)    { return value.FromFloat(0), nil }
 func (m *Module) streamFree(args []value.Value) (value.Value, error)      { return value.Nil, nil }
 
 func (m *Module) waveLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

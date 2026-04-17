@@ -1,8 +1,12 @@
-# Utility and filesystem (`UTIL.*`)
+# Util Commands
 
-Cross-platform **path and file helpers** under the `UTIL.` namespace. Many operations mirror the global names documented in [FILE.md](FILE.md) (`FILEEXISTS`, `READALLTEXT`, …); `UTIL.*` exists for consistent `Module.Command` style and for a few **window-only** helpers.
+Cross-platform path helpers, file I/O, directory queries, and drag-and-drop support.
 
-Implemented in `runtime/mbutil`.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+Use `UTIL.*` for namespaced file/path helpers. Global aliases (`FILEEXISTS`, `READALLTEXT`, etc.) are documented in [FILE.md](FILE.md). Both map to the same runtime.
 
 ---
 
@@ -23,11 +27,13 @@ Implemented in `runtime/mbutil`.
 
 ## Read / write text
 
-### `Util.LoadText(path)` → string
+### `UTIL.LOADTEXT(path)` → string 
 
 Reads the entire file as UTF-8/text (same idea as `READALLTEXT`).
 
-### `Util.SaveText(path, text)`
+---
+
+### `UTIL.SAVETEXT(path, text)` 
 
 Writes a file, replacing contents.
 
@@ -52,7 +58,7 @@ Current working directory and subdirectory listing use the global names **`GETDI
 
 ## Validation
 
-### `Util.IsFileNameValid(name)` → bool
+### `UTIL.ISFILENAMEVALID(name)` → bool 
 
 Checks whether a file name is acceptable on the current OS (invalid characters, reserved names, etc., per Go `path/filepath` usage in the runtime).
 
@@ -69,3 +75,20 @@ When the window layer is available (`CGO` build):
 | `Util.ClearDroppedFiles()` | Clears dropped-file state without returning paths. |
 
 Non-CGO builds still register these names but behavior follows the stub implementation.
+
+---
+
+## Full Example
+
+```basic
+; Read a text file, modify it, and save
+text = UTIL.LOADTEXT("notes.txt")
+PRINT "File contents: " + text
+
+UTIL.SAVETEXT("notes_backup.txt", text)
+PRINT "Backup saved."
+
+IF UTIL.ISFILENAMEVALID("my_file.txt") THEN
+    PRINT "Valid file name."
+ENDIF
+```

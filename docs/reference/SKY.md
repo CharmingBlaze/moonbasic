@@ -10,43 +10,43 @@ Create a sky with **`SKY.CREATE()`**, configure **`SKY.SETTIME`** / **`SKY.SETDA
 
 ---
 
-### `SKY.CREATE()`
+### `SKY.CREATE()` 
 
 Creates a sky object with default time and day length. **`SKY.MAKE()`** is a deprecated alias.
 
 ---
 
-### `SKY.FREE(sky)`
+### `SKY.FREE(sky)` 
 
 Frees the sky handle.
 
 ---
 
-### `SKY.UPDATE(sky, dt)`
+### `SKY.UPDATE(sky, dt)` 
 
 Advances internal time using **`dt`** and day length.
 
 ---
 
-### `SKY.DRAW(sky)`
+### `SKY.DRAW(sky)` 
 
 Draws the sky dome. Call order is user-defined, but the sky should usually be drawn **first** inside the camera block.
 
 ---
 
-### `SKY.SETTIME(sky, hours)` / `SKY.SETDAYLENGTH(sky, seconds)`
+### `SKY.SETTIME(sky, hours)` / `SKY.SETDAYLENGTH(sky, seconds)` 
 
 **`SETTIME`**: **0–24** style hours. **`SETDAYLENGTH`**: real-time **seconds** for a full day/night cycle.
 
 ---
 
-### `SKY.GETTIMEHOURS(sky)`
+### `SKY.GETTIMEHOURS(sky)` 
 
 Returns the current simulated hour (**float**).
 
 ---
 
-### `SKY.ISNIGHT(sky)`
+### `SKY.ISNIGHT(sky)` 
 
 Returns **`TRUE`** when the sun is below the horizon (implementation threshold).
 

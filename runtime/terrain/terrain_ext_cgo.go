@@ -17,10 +17,45 @@ func registerTerrainExtended(m *Module, r runtime.Registrar) {
 	r.Register("TERRAIN.LOAD", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainLoad(m, rt, args...) })
 	r.Register("TERRAIN.GETNORMAL", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainGetNormal(m, rt, args...) })
 	r.Register("TERRAIN.SETSCALE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetScale(m, rt, args...) })
+	r.Register("TERRAIN.GETSCALE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainGetScale(m, rt, args...) })
 	r.Register("TERRAIN.GETSPLAT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainGetSplat(m, rt, args...) })
 	r.Register("TERRAIN.RAYCAST", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainRaycast(m, rt, args...) })
 	r.Register("TERRAIN.SETDETAIL", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainSetDetail(m, rt, args...) })
+	r.Register("TERRAIN.GETDETAIL", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainGetDetail(m, rt, args...) })
 	r.Register("Terrain.Load", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return terrainLoad(m, rt, args...) })
+}
+
+func terrainGetScale(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("TERRAIN.GETSCALE: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TERRAIN.GETSCALE expects (terrain)")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, obj.ScaleX, obj.ScaleY, obj.ScaleZ)
+}
+
+func terrainGetDetail(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TERRAIN.GETDETAIL expects (terrain)")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(obj.DetailFactor)), nil
 }
 
 func terrainLoad(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -184,7 +219,7 @@ func terrainSetScale(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 	for i := range obj.Chunks {
 		obj.Chunks[i].Dirty = true
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func terrainGetSplat(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -295,5 +330,5 @@ func terrainSetDetail(m *Module, rt *runtime.Runtime, args ...value.Value) (valu
 	for i := range obj.Chunks {
 		obj.Chunks[i].Dirty = true
 	}
-	return value.Nil, nil
+	return args[0], nil
 }

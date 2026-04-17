@@ -1,41 +1,56 @@
-# Model — `MODEL.*`
+# Model Commands
 
-A **model** is a Raylib **`Model`**: meshes, materials, optional animation data, and a root transform. Registry keys use **dots and uppercase** (e.g. `MODEL.LOAD`). This page matches the **current** runtime, not legacy PascalCase-only docs.
+Load, position, and draw 3D models (glTF, GLB, OBJ, IQM, B3D) with materials and transforms.
 
-**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Model.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+## Core Workflow
 
-**Requires CGO.** See **[MESH.md](MESH.md)** for raw **`MESH.*`** geometry.
+1. Load with `MODEL.LOAD` or create from a mesh with `MODEL.CREATE`.
+2. Position with `MODEL.SETPOS`, rotate with `MODEL.SETROT`, scale with `MODEL.SETSCALE`.
+3. Draw between `RENDER.BEGIN3D` / `RENDER.END3D` with `MODEL.DRAW`.
+4. Free with `MODEL.FREE`.
+
+For raw meshes see [MESH.md](MESH.md). For skeletal animation see [ANIMATION_3D.md](ANIMATION_3D.md).
 
 ---
 
-### `MODEL.LOAD(path)`
+### `MODEL.LOAD(path)` 
 Loads a 3D model file (glTF, GLB, OBJ, IQM, B3D). Returns a **model handle**.
 
-### `MODEL.MAKE(mesh)` / `MODEL.CREATE(mesh)`
+---
+
+### `MODEL.MAKE(mesh)` / `MODEL.CREATE(mesh)` 
 Builds a model from an existing **`Mesh`** handle. The model takes ownership of the mesh GPU data. Prefer registry **`MODEL.CREATE`** (canonical); **`MODEL.MAKE`** is a deprecated alias.
 
 ---
 
-### `MODEL.DRAW(handle)`
+### `MODEL.DRAW(handle)` 
 Draws the model using its root transform. Call between **`RENDER.BEGIN3D(cam)`** and **`RENDER.END3D()`** (active 3D camera **`cam`**) for 3D rendering.
 
-### `MODEL.SETPOS(handle, x, y, z)` (canonical; deprecated `MODEL.SETPOSITION`)
+---
+
+### `MODEL.SETPOS(handle, x, y, z)` (canonical; deprecated `MODEL.SETPOSITION`) 
 Sets the model's root transform to a specific world position.
 
-### `MODEL.SETROT(handle, pitch, yaw, roll)`
+---
+
+### `MODEL.SETROT(handle, pitch, yaw, roll)` 
 Sets the model's absolute Euler rotation in **radians**.
 
-### `MODEL.SETSCALE(handle, sx, sy, sz)`
+---
+
+### `MODEL.SETSCALE(handle, sx, sy, sz)` 
 Sets the non-uniform scale of the model.
 
 ---
 
-### `MODEL.SETMATERIAL(handle, index, mat)`
+### `MODEL.SETMATERIAL(handle, index, mat)` 
 Replaces a specific material slot in the model with a **`Material`** handle.
 
-### `MODEL.FREE(handle)`
+---
+
+### `MODEL.FREE(handle)` 
 Unloads the model and its associated meshes/materials from memory and frees the heap slot.
 
 ---

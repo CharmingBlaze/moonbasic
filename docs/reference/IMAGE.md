@@ -1,43 +1,54 @@
-# Image (`IMAGE.*`)
+# Image Commands
 
-**CPU-side** pixel buffers (Raylib `Image`): read, mutate, save. **Not** GPU textures (`TEXTURE.*`). Typical pipeline: **`IMAGE.CREATE`** (canonical) or deprecated **`IMAGE.MAKE`** / **`IMAGE.LOAD`** → optional edits → **`TEXTURE.FROMIMAGE`** → **`DRAW.TEXTURE`** on the main framebuffer → free when done.
+CPU-side pixel buffers: create, load, mutate, export, then upload to GPU via `TEXTURE.FROMIMAGE`.
 
-**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Image.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+## Core Workflow
 
-**Requires CGO** and Raylib (same as **`DRAW.*`**, **`TEXTURE.*`**).
-
-Registry keys use **dots and uppercase** (e.g. **`IMAGE.CREATE`**). In source, the **`Image`** namespace maps to the same commands (`Image.Load` → `IMAGE.LOAD`).
+1. Load with `IMAGE.LOAD` or create with `IMAGE.CREATE`.
+2. Optionally draw on the image with `IMAGE.DRAWPIXEL`, `IMAGE.DRAWRECT`, etc.
+3. Upload to GPU with `TEXTURE.FROMIMAGE` (see [TEXTURE.md](TEXTURE.md)).
+4. Free CPU image with `IMAGE.FREE`.
 
 ---
 
-### `IMAGE.LOAD(path)`
+### `IMAGE.LOAD(path)` 
 Loads an image from disk (PNG, JPG, BMP, etc.). Returns a **handle**.
 
-### `IMAGE.CREATE(w, h [, r, g, b, a])`
+---
+
+### `IMAGE.CREATE(w, h [, r, g, b, a])` 
 Creates a new CPU image. If RGBA components are provided, fills the image with that color (0-255). **`IMAGE.MAKE`** is a **deprecated** alias of **`IMAGE.CREATE`**.
 
-### `IMAGE.FREE(handle)`
+---
+
+### `IMAGE.FREE(handle)` 
 Releases the heap slot and unloads the image memory.
 
 ---
 
-### `IMAGE.WIDTH(handle)` / `IMAGE.HEIGHT(handle)`
+### `IMAGE.WIDTH(handle)` / `IMAGE.HEIGHT(handle)` 
 Returns the integer pixel dimensions of the image.
 
-### `IMAGE.RESIZE(handle, w, h)`
+---
+
+### `IMAGE.RESIZE(handle, w, h)` 
 Resizes the image in memory using bilinear scaling.
 
-### `IMAGE.EXPORT(handle, path)`
+---
+
+### `IMAGE.EXPORT(handle, path)` 
 Saves the image to a file. The format is determined by the file extension.
 
 ---
 
-### `IMAGE.DRAWPIXEL(handle, x, y, r, g, b, a)`
+### `IMAGE.DRAWPIXEL(handle, x, y, r, g, b, a)` 
 Draws a single pixel on the image at `(x, y)`.
 
-### `IMAGE.DRAWRECT(handle, x, y, w, h, r, g, b, a)`
+---
+
+### `IMAGE.DRAWRECT(handle, x, y, w, h, r, g, b, a)` 
 Draws a filled rectangle on the image.
 
 ---

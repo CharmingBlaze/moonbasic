@@ -3,6 +3,8 @@
 package mbphysics3d
 
 import (
+	"fmt"
+
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 
@@ -28,18 +30,18 @@ func (j *JointObj) Free()            {}
 const stubHint = "native Jolt is not linked on this build: need (linux or windows) amd64/arm64 with CGO_ENABLED=1 and Jolt static libraries under third_party/jolt-go/jolt/lib/<platform> (see docs/JOLT_WINDOWS_PARITY.md). Builds without CGO use this stub."
 
 type ShapeObj struct {
-	Kind int
+	Kind       int
 	F1, F2, F3 float32
 }
 type body3dObj struct {
-	ID          int
-	Pos, Rot    Vec3
+	ID         int
+	Pos, Rot   Vec3
 	LinearVel  Vec3
 	AngularVel Vec3
-	Shape       *ShapeObj
-	Layer       int
-	Collision   bool
-	Sx, Sy, Sz  float32 // stub collision scale factors
+	Shape      *ShapeObj
+	Layer      int
+	Collision  bool
+	Sx, Sy, Sz float32 // stub collision scale factors
 }
 
 var (
@@ -62,12 +64,18 @@ func phCreateBody(m *Module, motion string) (value.Value, error) {
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) phStart(args []value.Value) (value.Value, error)              { return value.Nil, nil }
-func (m *Module) phStop(args []value.Value) (value.Value, error)               { return value.Nil, nil }
-func (m *Module) phSetGravity(args []value.Value) (value.Value, error)        { return value.Nil, nil }
-func (m *Module) phGetGravityX(args []value.Value) (value.Value, error)       { return value.FromFloat(0), nil }
-func (m *Module) phGetGravityY(args []value.Value) (value.Value, error)       { return value.FromFloat(-9.81), nil }
-func (m *Module) phGetGravityZ(args []value.Value) (value.Value, error)       { return value.FromFloat(0), nil }
+func (m *Module) phStart(args []value.Value) (value.Value, error)      { return value.Nil, nil }
+func (m *Module) phStop(args []value.Value) (value.Value, error)       { return value.Nil, nil }
+func (m *Module) phSetGravity(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) phGetGravityX(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+func (m *Module) phGetGravityY(args []value.Value) (value.Value, error) {
+	return value.FromFloat(-9.81), nil
+}
+func (m *Module) phGetGravityZ(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
 func (m *Module) phStep(args []value.Value) (value.Value, error) {
 	dt := 1.0 / 60.0
 	if len(args) == 1 {
@@ -75,7 +83,7 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 			dt = v
 		}
 	}
-	
+
 	// Basic Euler Integration for Dynamic Bodies in Stub
 	for _, b := range staticBodies {
 		if b.Collision { // Use this as a proxy for "dynamic" in stub for now
@@ -83,7 +91,7 @@ func (m *Module) phStep(args []value.Value) (value.Value, error) {
 			b.Pos.X += b.LinearVel.X * float32(dt)
 			b.Pos.Y += b.LinearVel.Y * float32(dt)
 			b.Pos.Z += b.LinearVel.Z * float32(dt)
-			
+
 			// Simple Gravity
 			b.LinearVel.Y -= 9.81 * float32(dt)
 		}
@@ -110,19 +118,21 @@ func (m *Module) phSetTimeStep(args []value.Value) (value.Value, error) {
 	m.fixedStep = 1.0 / v
 	return value.Nil, nil
 }
-func (m *Module) phGetMatrixBuffer(args []value.Value) (value.Value, error)   { return value.Nil, nil }
-func (m *Module) phSetSubsteps(args []value.Value) (value.Value, error)       { return value.Nil, nil }
-func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phRaycast(args []value.Value) (value.Value, error)           { return value.Nil, nil }
-func (m *Module) phSpherecast(args []value.Value) (value.Value, error)        { return value.Nil, nil }
-func (m *Module) phBoxcast(args []value.Value) (value.Value, error)           { return value.Nil, nil }
-func (m *Module) phEnable(args []value.Value) (value.Value, error)            { return value.Nil, nil }
-func (m *Module) phDisable(args []value.Value) (value.Value, error)           { return value.Nil, nil }
+func (m *Module) phGetMatrixBuffer(args []value.Value) (value.Value, error)    { return value.Nil, nil }
+func (m *Module) phSetSubsteps(args []value.Value) (value.Value, error)        { return value.Nil, nil }
+func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error)  { return value.Nil, nil }
+func (m *Module) phRaycast(args []value.Value) (value.Value, error)            { return value.Nil, nil }
+func (m *Module) phSpherecast(args []value.Value) (value.Value, error)         { return value.Nil, nil }
+func (m *Module) phBoxcast(args []value.Value) (value.Value, error)            { return value.Nil, nil }
+func (m *Module) phEnable(args []value.Value) (value.Value, error)             { return value.Nil, nil }
+func (m *Module) phDisable(args []value.Value) (value.Value, error)            { return value.Nil, nil }
 func (m *Module) phSyncWasmToPhysRegs(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) phDebugDraw(args []value.Value) (value.Value, error)         { return value.Nil, nil }
+func (m *Module) phDebugDraw(args []value.Value) (value.Value, error)          { return value.Nil, nil }
 
 func (m *Module) shCreateBox(args []value.Value) (value.Value, error) {
-	hx, _ := args[0].ToFloat(); hy, _ := args[1].ToFloat(); hz, _ := args[2].ToFloat()
+	hx, _ := args[0].ToFloat()
+	hy, _ := args[1].ToFloat()
+	hz, _ := args[2].ToFloat()
 	id, _ := m.h.Alloc(&ShapeObj{1, float32(hx), float32(hy), float32(hz)})
 	return value.FromHandle(id), nil
 }
@@ -132,33 +142,43 @@ func (m *Module) shCreateSphere(args []value.Value) (value.Value, error) {
 	return value.FromHandle(id), nil
 }
 func (m *Module) shCreateCapsule(args []value.Value) (value.Value, error) {
-	r, _ := args[0].ToFloat(); hi, _ := args[1].ToFloat()
+	r, _ := args[0].ToFloat()
+	hi, _ := args[1].ToFloat()
 	id, _ := m.h.Alloc(&ShapeObj{3, float32(r), float32(hi), 0})
 	return value.FromHandle(id), nil
 }
 func (m *Module) shCreateCylinder(args []value.Value) (value.Value, error) {
-	r, _ := args[0].ToFloat(); hi, _ := args[1].ToFloat()
+	r, _ := args[0].ToFloat()
+	hi, _ := args[1].ToFloat()
 	id, _ := m.h.Alloc(&ShapeObj{4, float32(r), float32(hi), 0})
 	return value.FromHandle(id), nil
 }
 func (m *Module) shGetType(args []value.Value) (value.Value, error) {
 	sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	return value.FromInt(int64(sh.Kind)), nil
 }
 func (m *Module) shGetDim1(args []value.Value) (value.Value, error) {
 	sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	return value.FromFloat(float64(sh.F1)), nil
 }
 func (m *Module) shGetDim2(args []value.Value) (value.Value, error) {
 	sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	return value.FromFloat(float64(sh.F2)), nil
 }
 func (m *Module) shGetDim3(args []value.Value) (value.Value, error) {
 	sh, err := heap.Cast[*ShapeObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil { return value.Nil, err }
+	if err != nil {
+		return value.Nil, err
+	}
 	return value.FromFloat(float64(sh.F3)), nil
 }
 func (m *Module) shFree(args []value.Value) (value.Value, error) {
@@ -192,14 +212,18 @@ func (m *Module) trCreate(args []value.Value) (value.Value, error) {
 func (m *Module) bdSetPos(args []value.Value) (value.Value, error) {
 	bo, _ := m.hGetBody(args[0])
 	if bo != nil && len(args) >= 4 {
-		x, _ := args[1].ToFloat(); y, _ := args[2].ToFloat(); z, _ := args[3].ToFloat()
+		x, _ := args[1].ToFloat()
+		y, _ := args[2].ToFloat()
+		z, _ := args[3].ToFloat()
 		bo.Pos = Vec3{X: float32(x), Y: float32(y), Z: float32(z)}
 	}
 	return value.Nil, nil
 }
 func (m *Module) bdGetPos(args []value.Value) (value.Value, error) {
 	bo, _ := m.hGetBody(args[0])
-	if bo == nil { return valueVec3FromFloats(m.h, 0, 0, 0) }
+	if bo == nil {
+		return valueVec3FromFloats(m.h, 0, 0, 0)
+	}
 	return valueVec3FromFloats(m.h, float64(bo.Pos.X), float64(bo.Pos.Y), float64(bo.Pos.Z))
 }
 
@@ -236,25 +260,37 @@ func (m *Module) bdSetScale(args []value.Value) (value.Value, error) {
 		return value.Nil, nil
 	}
 	bo.Sx, bo.Sy, bo.Sz = float32(x1), float32(y1), float32(z1)
-	return value.Nil, nil
+	return args[0], nil
 }
 
-func (m *Module) bdActivate(args []value.Value) (value.Value, error)     { return value.Nil, nil }
-func (m *Module) bdDeactivate(args []value.Value) (value.Value, error)   { return value.Nil, nil }
+func (m *Module) bdActivate(args []value.Value) (value.Value, error)    { return value.Nil, nil }
+func (m *Module) bdDeactivate(args []value.Value) (value.Value, error)  { return value.Nil, nil }
 func (m *Module) bdSetRotation(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdGetRotZero(args []value.Value) (value.Value, error)  { return value.FromFloat(0), nil }
-func (m *Module) bdSetMass(args []value.Value) (value.Value, error)      { return value.Nil, nil }
-func (m *Module) bdSetFriction(args []value.Value) (value.Value, error)  { return value.Nil, nil }
+
+func (m *Module) bdGetRot(args []value.Value) (value.Value, error) {
+	bo, _ := m.hGetBody(args[0])
+	if bo == nil {
+		return valueVec3FromFloats(m.h, 0, 0, 0)
+	}
+	return valueVec3FromFloats(m.h, float64(bo.Rot.X), float64(bo.Rot.Y), float64(bo.Rot.Z))
+}
+func (m *Module) bdSetMass(args []value.Value) (value.Value, error)        { return value.Nil, nil }
+func (m *Module) bdSetFriction(args []value.Value) (value.Value, error)    { return value.Nil, nil }
 func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdApplyForce(args []value.Value) (value.Value, error)   { return value.Nil, nil }
-func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) bdApplyForce(args []value.Value) (value.Value, error)     { return value.Nil, nil }
+func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error)   { return value.Nil, nil }
 func (m *Module) bdAxis(args []value.Value, axis int) (value.Value, error) {
 	bo, _ := m.hGetBody(args[0])
-	if bo == nil { return value.FromFloat(0), nil }
+	if bo == nil {
+		return value.FromFloat(0), nil
+	}
 	switch axis {
-	case 0: return value.FromFloat(float64(bo.Pos.X)), nil
-	case 1: return value.FromFloat(float64(bo.Pos.Y)), nil
-	case 2: return value.FromFloat(float64(bo.Pos.Z)), nil
+	case 0:
+		return value.FromFloat(float64(bo.Pos.X)), nil
+	case 1:
+		return value.FromFloat(float64(bo.Pos.Y)), nil
+	case 2:
+		return value.FromFloat(float64(bo.Pos.Z)), nil
 	}
 	return value.FromFloat(0), nil
 }
@@ -264,22 +300,46 @@ func (m *Module) bdFree(args []value.Value) (value.Value, error) {
 	m.h.Free(bh)
 	return value.Nil, nil
 }
-func (m *Module) bdCollided3D(args []value.Value) (value.Value, error)      { return value.FromBool(false), nil }
-func (m *Module) bdCollisionOther3D(args []value.Value) (value.Value, error) { return value.FromInt(0), nil }
-func (m *Module) bdCollisionPoint3D(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
-func (m *Module) bdCollisionNormal3D(args []value.Value) (value.Value, error) { return value.FromFloat(0), nil }
-func (m *Module) bdNoOp(args []value.Value) (value.Value, error)           { return value.Nil, nil }
+func (m *Module) bdCollided3D(args []value.Value) (value.Value, error) {
+	return value.FromBool(false), nil
+}
+func (m *Module) bdCollisionOther3D(args []value.Value) (value.Value, error) {
+	return value.FromInt(0), nil
+}
+func (m *Module) bdCollisionPoint3D(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+func (m *Module) bdCollisionNormal3D(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+func (m *Module) bdNoOp(args []value.Value) (value.Value, error) { return value.Nil, nil }
 
 func (m *Module) brSetPos(args []value.Value) (value.Value, error) {
-	bo, _ := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
-	if bo != nil && len(args) >= 4 {
-		x, _ := args[1].ToFloat(); y, _ := args[2].ToFloat(); z, _ := args[3].ToFloat()
-		bo.Pos = Vec3{X: float32(x), Y: float32(y), Z: float32(z)}
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODYREF.SETPOS expects (body, x, y, z)")
 	}
-	return value.Nil, nil
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bo.Pos = Vec3{X: float32(x), Y: float32(y), Z: float32(z)}
+	return args[0], nil
 }
-func (m *Module) brSetLayer(args []value.Value) (value.Value, error)   { return value.Nil, nil }
-func (m *Module) brEnableColl(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) brSetLayer(args []value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODYREF.SETLAYER expects (body, layer#)")
+	}
+	return args[0], nil
+}
+func (m *Module) brEnableColl(args []value.Value) (value.Value, error) {
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODYREF.ENABLECOLLISION expects (body, enabled?)")
+	}
+	return args[0], nil
+}
 func (m *Module) brFree(args []value.Value) (value.Value, error) {
 	bh := heap.Handle(args[0].IVal)
 	delete(staticBodies, bh)
@@ -321,27 +381,27 @@ type body3dObjExport struct {
 	Shape *ShapeObj
 }
 
-func ApplyImpulseToIndex(idx int, x, y, z float32)     {}
-func GetLinearVelocityToIndex(idx int) (x, y, z float32) { return 0, 0, 0 }
+func ApplyImpulseToIndex(idx int, x, y, z float32)                          {}
+func GetLinearVelocityToIndex(idx int) (x, y, z float32)                    { return 0, 0, 0 }
 func GetBodyQuaternionForBufferIndex(idx int) (x, y, z, w float32, ok bool) { return 0, 0, 0, 1, false }
-func SetVelocityToIndex(idx int, x, y, z float32)      {}
-func SetPositionToIndex(idx int, x, y, z float32)      {}
-func SetFrictionToIndex(idx int, x float32)            {}
-func SetRestitutionToIndex(idx int, x float32)         {}
-func WakeIndex(idx int)                                {}
-func ApplyForceToIndex(idx int, x, y, z float32)       {}
-func RotateToIndex(idx int, p, y, r float32)           {}
-func SetGravityFactorToIndex(idx int, x float32)      {}
+func SetVelocityToIndex(idx int, x, y, z float32)                           {}
+func SetPositionToIndex(idx int, x, y, z float32)                           {}
+func SetFrictionToIndex(idx int, x float32)                                 {}
+func SetRestitutionToIndex(idx int, x float32)                              {}
+func WakeIndex(idx int)                                                     {}
+func ApplyForceToIndex(idx int, x, y, z float32)                            {}
+func RotateToIndex(idx int, p, y, r float32)                                {}
+func SetGravityFactorToIndex(idx int, x float32)                            {}
 
 func (m *Module) phWorldSetup(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func (m *Module) bdAddMesh(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdAddBox(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdAddSphere(args []value.Value) (value.Value, error) { return value.Nil, nil }
+func (m *Module) bdAddMesh(args []value.Value) (value.Value, error)    { return value.Nil, nil }
+func (m *Module) bdAddBox(args []value.Value) (value.Value, error)     { return value.Nil, nil }
+func (m *Module) bdAddSphere(args []value.Value) (value.Value, error)  { return value.Nil, nil }
 func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdCommit(args []value.Value) (value.Value, error)  { return value.Nil, nil }
+func (m *Module) bdCommit(args []value.Value) (value.Value, error)     { return value.Nil, nil }
 func (m *Module) bdBufferIndex(args []value.Value) (value.Value, error) {
 	return value.FromInt(-1), nil
 }
@@ -362,13 +422,38 @@ func (m *Module) phCreatePointJoint(args []value.Value) (value.Value, error) {
 	return value.FromHandle(id), nil
 }
 
-func (m *Module) bdGetAxis(args []value.Value, axis int) (value.Value, error) { return value.FromFloat(0), nil }
+func (m *Module) bdGetAxis(args []value.Value, axis int) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
 
 // Advanced Body Stubs (Restored)
 func (m *Module) bdSetDamping(args []value.Value) (value.Value, error)       { return value.Nil, nil }
-func (m *Module) bdLockAxis(args []value.Value) (value.Value, error)        { return value.Nil, nil }
+func (m *Module) bdLockAxis(args []value.Value) (value.Value, error)         { return value.Nil, nil }
 func (m *Module) bdSetGravityFactor(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) btdSetCCD(args []value.Value) (value.Value, error)          { return value.Nil, nil }
+func (m *Module) bdGetGravityFactor(args []value.Value) (value.Value, error) {
+	return value.FromFloat(1), nil
+}
+func (m *Module) bdGetDamping(args []value.Value) (value.Value, error) {
+	arr, err := heap.NewArray([]int64{2})
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	_ = arr.Set([]int64{0}, float64(0))
+	_ = arr.Set([]int64{1}, float64(0))
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	return value.FromHandle(id), nil
+}
+func (m *Module) bdGetCCD(args []value.Value) (value.Value, error) { return value.FromBool(false), nil }
+func (m *Module) bdGetFriction(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+func (m *Module) bdGetRestitution(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
 
 func (m *Module) bdGetLinearVel(args []value.Value) (value.Value, error) {
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
@@ -419,7 +504,7 @@ func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) bdApplyTorque(args []value.Value) (value.Value, error) { return value.Nil, nil }
-func (m *Module) bdGetMass(args []value.Value) (value.Value, error)      { return value.FromFloat(1.0), nil }
+func (m *Module) bdGetMass(args []value.Value) (value.Value, error)     { return value.FromFloat(1.0), nil }
 
 // Aero Stubs (Logic implemented in Go, shared between platforms; handles in module.go)
 func (m *Module) arSetLift(args []value.Value) (value.Value, error)   { return value.Nil, nil }

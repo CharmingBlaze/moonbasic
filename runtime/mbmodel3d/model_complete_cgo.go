@@ -37,7 +37,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		}
 		t := rl.MatrixTranslate(dx, dy, dz)
 		o.model.Transform = rl.MatrixMultiply(t, o.model.Transform)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.X", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -92,7 +92,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		tx, ty, tz := mat.M12, mat.M13, mat.M14
 		rot := rl.MatrixRotateXYZ(rl.Vector3{X: rx, Y: ry, Z: rz})
 		o.model.Transform = rl.MatrixMultiply(rl.MatrixTranslate(tx, ty, tz), rot)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.ROTATE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -114,7 +114,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		}
 		d := rl.MatrixRotateXYZ(rl.Vector3{X: drx, Y: dry, Z: drz})
 		o.model.Transform = rl.MatrixMultiply(d, o.model.Transform)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.GETROT", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -129,18 +129,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		eul := rl.QuaternionToEuler(rl.QuaternionFromMatrix(o.model.Transform))
-		arr, err := heap.NewArray([]int64{3})
-		if err != nil {
-			return value.Nil, err
-		}
-		_ = arr.Set([]int64{0}, float64(eul.X))
-		_ = arr.Set([]int64{1}, float64(eul.Y))
-		_ = arr.Set([]int64{2}, float64(eul.Z))
-		id, err := m.h.Alloc(arr)
-		if err != nil {
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
+		return mbmatrix.AllocVec3Value(m.h, eul.X, eul.Y, eul.Z)
 	}))
 
 	reg.Register("MODEL.SETSCALE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -164,7 +153,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		tx, ty, tz := mat.M12, mat.M13, mat.M14
 		s := rl.MatrixScale(sx, sy, sz)
 		o.model.Transform = rl.MatrixMultiply(rl.MatrixTranslate(tx, ty, tz), s)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.SETSCALEUNIFORM", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -182,7 +171,8 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		if !ok {
 			return value.Nil, fmt.Errorf("MODEL.SETSCALEUNIFORM: s must be numeric")
 		}
-		return modelSetScaleUniform(o, s)
+		modelSetScaleUniform(o, s)
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.GETSCALE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -196,23 +186,11 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		if err != nil {
 			return value.Nil, err
 		}
-		// Column lengths of rotation/scale part (rough).
 		mat := o.model.Transform
 		sx := float32(math.Sqrt(float64(mat.M0*mat.M0 + mat.M1*mat.M1 + mat.M2*mat.M2)))
 		sy := float32(math.Sqrt(float64(mat.M4*mat.M4 + mat.M5*mat.M5 + mat.M6*mat.M6)))
 		sz := float32(math.Sqrt(float64(mat.M8*mat.M8 + mat.M9*mat.M9 + mat.M10*mat.M10)))
-		arr, err := heap.NewArray([]int64{3})
-		if err != nil {
-			return value.Nil, err
-		}
-		_ = arr.Set([]int64{0}, float64(sx))
-		_ = arr.Set([]int64{1}, float64(sy))
-		_ = arr.Set([]int64{2}, float64(sz))
-		id, err := m.h.Alloc(arr)
-		if err != nil {
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
+		return mbmatrix.AllocVec3Value(m.h, sx, sy, sz)
 	}))
 
 	reg.Register("MODEL.SETMATRIX", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -234,7 +212,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.model.Transform = mat
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.DRAWAT", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -261,7 +239,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.DRAWAT: numeric arguments required")
 		}
 		if o.hidden {
-			return value.Nil, nil
+			return args[0], nil
 		}
 		saved := o.model.Transform
 		rot := rl.MatrixRotateXYZ(rl.Vector3{X: rx, Y: ry, Z: rz})
@@ -269,7 +247,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		o.model.Transform = rl.MatrixMultiply(rl.MatrixMultiply(rl.MatrixTranslate(x, y, z), rot), scl)
 		rl.DrawModel(o.model, rl.Vector3{}, 1, rl.White)
 		o.model.Transform = saved
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.DRAWEX", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -298,7 +276,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		bi, _ := argInt(args[13])
 		ai, _ := argInt(args[14])
 		if o.hidden {
-			return value.Nil, nil
+			return args[0], nil
 		}
 		c := convert.NewColor4(ri, gi, bi, ai)
 		tint := color.RGBA{R: c.R, G: c.G, B: c.B, A: c.A}
@@ -310,7 +288,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		}
 		angDeg := float32(ang * 180 / math.Pi)
 		rl.DrawModelEx(o.model, rl.Vector3{X: x, Y: y, Z: z}, axis, angDeg, rl.Vector3{X: sx, Y: sy, Z: sz}, tint)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.DRAWWIRES", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -332,7 +310,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		tint := color.RGBA{R: c.R, G: c.G, B: c.B, A: c.A}
 		pos := rl.Vector3{X: o.model.Transform.M12, Y: o.model.Transform.M13, Z: o.model.Transform.M14}
 		rl.DrawModelWires(o.model, pos, 1, tint)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.SHOW", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -344,7 +322,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.hidden = false
-		return value.Nil, nil
+		return args[0], nil
 	}))
 	reg.Register("MODEL.HIDE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 1 {
@@ -355,7 +333,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.hidden = true
-		return value.Nil, nil
+		return args[0], nil
 	}))
 	reg.Register("MODEL.ISVISIBLE", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 1 {
@@ -368,6 +346,8 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		return value.FromBool(!o.hidden), nil
 	}))
 
+	reg.Register("MODEL.GETCOLOR", "model", runtime.AdaptLegacy(m.modelGetColor))
+	reg.Register("MODEL.GETALPHA", "model", runtime.AdaptLegacy(m.modelGetAlpha))
 	reg.Register("MODEL.SETCOLOR", "model", runtime.AdaptLegacy(m.modelSetColorRGBA))
 	reg.Register("MODEL.SETMETAL", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
@@ -388,7 +368,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		for i := range mats {
 			mats[i].Params[0] = v
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}))
 	reg.Register("MODEL.SETROUGH", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
@@ -409,7 +389,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		for i := range mats {
 			mats[i].Params[1] = v
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.LOADANIMATIONS", "model", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -438,7 +418,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		o.anims = rl.LoadModelAnimations(path)
 		o.animIdx = 0
 		o.animFrame = 0
-		return value.Nil, nil
+		return args[0], nil
 	})
 
 	reg.Register("MODEL.UPDATEANIM", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -457,7 +437,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.UPDATEANIM: dt must be numeric")
 		}
 		if len(o.anims) == 0 || !o.animPlaying {
-			return value.Nil, nil
+			return args[0], nil
 		}
 		anim := o.anims[o.animIdx]
 		// No per-clip duration in this raylib struct — advance at ~60 base FPS scaled by animSpeed.
@@ -472,7 +452,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			o.animPlaying = false
 		}
 		rl.UpdateModelAnimation(o.model, anim, int32(o.animFrame))
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.PLAYIDX", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -490,7 +470,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 		o.animIdx = int(idx)
 		o.animPlaying = true
 		o.animFrame = 0
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.STOP", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -502,7 +482,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		o.animPlaying = false
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.LOOP", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -518,7 +498,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.LOOP: enable must be bool or numeric")
 		}
 		o.animLoop = en
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.SETSPEED", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -534,7 +514,7 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MODEL.SETSPEED: fps must be numeric")
 		}
 		o.animSpeed = v
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MODEL.GETPARENT", "model", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -657,29 +637,106 @@ func registerModelComplete(m *Module, reg runtime.Registrar) {
 	reg.Register("MODEL.SETRECEIVESHADOW", "model", runtime.AdaptLegacy(stubModel("MODEL.SETRECEIVESHADOW: use light/shadow pipeline")))
 }
 
+func (m *Module) modelGetColor(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("MODEL.GETCOLOR expects model handle")
+	}
+	o, err := m.getModel(args, 0, "MODEL.GETCOLOR")
+	if err != nil {
+		return value.Nil, err
+	}
+	mats := o.model.GetMaterials()
+	var c color.RGBA
+	if len(mats) > 0 {
+		mp := mats[0].GetMap(rl.MapAlbedo)
+		c = color.RGBA{R: mp.Color.R, G: mp.Color.G, B: mp.Color.B, A: mp.Color.A}
+	} else {
+		c = color.RGBA{255, 255, 255, 255}
+	}
+	instance := heap.NewInstance("Color")
+	instance.SetField("r", value.FromInt(int64(c.R)))
+	instance.SetField("g", value.FromInt(int64(c.G)))
+	instance.SetField("b", value.FromInt(int64(c.B)))
+	instance.SetField("a", value.FromInt(int64(c.A)))
+	id, err := m.h.Alloc(instance)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
 func (m *Module) modelSetColorRGBA(args []value.Value) (value.Value, error) {
 	if err := m.requireHeap(); err != nil {
 		return value.Nil, err
 	}
-	if len(args) != 5 {
-		return value.Nil, fmt.Errorf("MODEL.SETCOLOR expects (model, r,g,b,a)")
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("MODEL.SETCOLOR expects (model, color_handle) or (model, r, g, b, [a])")
 	}
 	o, err := m.getModel(args, 0, "MODEL.SETCOLOR")
 	if err != nil {
 		return value.Nil, err
 	}
-	col, err := rgbaFromArgs(args[1], args[2], args[3], args[4])
+
+	var tint rl.Color
+	if len(args) == 2 && args[1].Kind == value.KindHandle {
+		c, ok := m.h.Get(heap.Handle(args[1].IVal))
+		if !ok {
+			return value.Nil, fmt.Errorf("MODEL.SETCOLOR: invalid color handle")
+		}
+		if inst, ok := c.(*heap.Instance); ok && inst.Type == "Color" {
+			r, _ := inst.GetField("r").ToInt()
+			g, _ := inst.GetField("g").ToInt()
+			b, _ := inst.GetField("b").ToInt()
+			a, _ := inst.GetField("a").ToInt()
+			tint = rl.Color{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
+		} else {
+			return value.Nil, fmt.Errorf("MODEL.SETCOLOR: handle is not a Color object")
+		}
+	} else if len(args) >= 4 {
+		r, _ := args[1].ToInt()
+		g, _ := args[2].ToInt()
+		b, _ := args[3].ToInt()
+		a := int64(255)
+		if len(args) >= 5 {
+			va, _ := args[4].ToFloat()
+			if va <= 1.0 {
+				a = int64(va * 255)
+			} else {
+				a = int64(va)
+			}
+		}
+		tint = rl.Color{R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a)}
+	} else {
+		return value.Nil, fmt.Errorf("MODEL.SETCOLOR: invalid arguments")
+	}
+
+	mats := o.model.GetMaterials()
+	for i := range mats {
+		mats[i].GetMap(rl.MapAlbedo).Color = tint
+	}
+	return args[0], nil
+}
+
+func (m *Module) modelGetAlpha(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("MODEL.GETALPHA expects model handle")
+	}
+	o, err := m.getModel(args, 0, "MODEL.GETALPHA")
 	if err != nil {
 		return value.Nil, err
 	}
 	mats := o.model.GetMaterials()
-	for i := range mats {
-		mp := mats[i].GetMap(rl.MapAlbedo)
-		c := mp.Color
-		c.R, c.G, c.B, c.A = col.R, col.G, col.B, col.A
-		mp.Color = c
+	if len(mats) > 0 {
+		mp := mats[0].GetMap(rl.MapAlbedo)
+		return value.FromFloat(float64(mp.Color.A) / 255.0), nil
 	}
-	return value.Nil, nil
+	return value.FromFloat(1.0), nil
 }
 
 func (m *Module) getModelTransform(args []value.Value, op string) (*modelObj, error) {
@@ -697,5 +754,5 @@ func modelSetScaleUniform(o *modelObj, s float32) (value.Value, error) {
 	tx, ty, tz := mat.M12, mat.M13, mat.M14
 	sc := rl.MatrixScale(s, s, s)
 	o.model.Transform = rl.MatrixMultiply(rl.MatrixTranslate(tx, ty, tz), sc)
-	return value.Nil, nil
+	return value.Nil, nil // This is internal helper, return value isn't used as builtin return usually
 }

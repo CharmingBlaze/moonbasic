@@ -10,6 +10,9 @@ import (
 
 type audioStreamObj struct {
 	s       rl.AudioStream
+	volume  float32 // last AUDIOSTREAM.SETVOLUME (default 1; raylib has no GetAudioStreamVolume)
+	pitch   float32 // last AUDIOSTREAM.SETPITCH (default 1)
+	pan     float32 // last AUDIOSTREAM.SETPAN (default 0)
 	release heap.ReleaseOnce
 }
 
@@ -52,6 +55,7 @@ func (o *soundObj) Free() {
 
 type musicObj struct {
 	m       rl.Music
+	pitch   float32 // last AUDIO.SETMUSICPITCH (default 1; raylib has no GetMusicPitch)
 	release heap.ReleaseOnce
 }
 

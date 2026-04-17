@@ -13,6 +13,10 @@ examples/rpg/save.json
 # Scratch Go files in module root (would duplicate package main with main_fullruntime.go)
 tmp_*.go
 
+# Python tooling (manifest_entries, local scripts)
+__pycache__/
+*.py[cod]
+
 # Build artifacts
 *.exe
 /dist/

@@ -1,12 +1,18 @@
-# In-memory tables (`TABLE.*`)
+# Table Commands
 
-The **`TABLE`** namespace provides a **column-oriented grid** of cells stored as Go `interface{}` values (strings, numbers, booleans) with **string column names**. It is implemented in pure Go (`runtime/tablemod`, package **`mbtable`**, heap tag **`TagTable`**).
+Column-oriented in-memory grids for structured rows, with JSON and CSV bridges.
 
-## Why this exists
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-When you need **structured rows** in RAM (UI tables, rosters, scratch buffers) without SQL overhead, a **`TABLE`** handle is lighter than ad-hoc `ARRAY` juggling. Bridges to **`JSON`** and **`CSV`** let you load/save or ship data to other moonBASIC APIs.
+## Core Workflow
 
-## Creating and filling
+1. Create a table with `TABLE.CREATE`, listing column names.
+2. Add rows with `TABLE.ADDROW`.
+3. Read/write cells with `TABLE.GET` / `TABLE.SET`.
+4. Bridge to JSON or CSV with `TABLE.TOJSON` / `TABLE.FROMJSON` / `TABLE.TOCSV` / `TABLE.FROMCSV`.
+5. Free with `TABLE.FREE`.
+
+---
 
 | Command | Purpose |
 |--------|---------|
@@ -33,7 +39,7 @@ Indices are **1-based** for rows; columns are addressed by **name** (case-sensit
 | `TABLE.TOCSV(handle)` | First row = column names; following rows = data (**`CSV`** handle). |
 | `TABLE.FROMCSV(handle)` | Inverse of **`TOCSV`** (expects header row). |
 
-## Example
+## Full Example
 
 ```basic
 t = TABLE.CREATE("name,score")

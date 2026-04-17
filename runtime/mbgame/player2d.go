@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -34,6 +35,7 @@ func (m *Module) registerPlayer2D(r runtime.Registrar) {
 	r.Register("PLAYER2D.KEEPINBOUNDS", "game", m.player2DKeepInBounds)
 	r.Register("PLAYER2D.GETX", "game", m.player2DGetX)
 	r.Register("PLAYER2D.GETZ", "game", m.player2DGetZ)
+	r.Register("PLAYER2D.GETPOS", "game", m.player2DGetPos)
 	r.Register("PLAYER2D.SETPOS", "game", m.player2DSetPos)
 	// English / Blitz-style flat names (same behavior as PLAYER2D.*)
 	r.Register("MOVEENTITY2D", "game", m.player2DMove)
@@ -175,6 +177,18 @@ func (m *Module) player2DGetZ(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	return value.FromFloat(o.Z), nil
+}
+
+func (m *Module) player2DGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("PLAYER2D.GETPOS expects (player)")
+	}
+	o, err := argPlayer2D(m.h, args[0])
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec2Value(m.h, float32(o.X), float32(o.Z))
 }
 
 func (m *Module) player2DSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

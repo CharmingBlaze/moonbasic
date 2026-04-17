@@ -27,37 +27,47 @@ JOINT.CREATEHINGE(door, 0, 0, 0, 0, 1, 0)
 
 ## Joints & Constraints
 
-### `JOINT.CREATEHINGE(b1, b2, px, py, pz, ax, ay, az)`
+### `JOINT.CREATEHINGE(b1, b2, px, py, pz, ax, ay, az)` 
 Creates a hinge joint between two bodies.
 - `b1`, `b2`: The two bodies to connect (handles).
 - `px, py, pz`: Pivot point in world space.
 - `ax, ay, az`: Rotation axis (e.g., `0, 1, 0` for a vertical door hinge).
 
-### `JOINT.CREATEPOINT(b1, b2, px, py, pz)`
+---
+
+### `JOINT.CREATEPOINT(b1, b2, px, py, pz)` 
 Creates a point-to-point (ball and socket) joint.
 - `px, py, pz`: Pivot point where the two bodies meet.
 
-### `JOINT.FREE(joint)`
+---
+
+### `JOINT.FREE(joint)` 
 Destroys a joint. The connected bodies remain but are no longer constrained.
 
 ---
 
 ## Advanced Body Control
 
-### `BODY3D.LOCKAXIS(body, flags)`
+### `BODY3D.LOCKAXIS(body, flags)` 
 Locks specific axes for translation or rotation.
 - `flags`: Sum of 1 (X), 2 (Y), 4 (Z) for linear; 8 (X), 16 (Y), 32 (Z) for angular.
 - *Handle Shortcut*: `e.LockAxis(flags)`
 
-### `BODY3D.SETDAMPING(body, linear, angular)`
+---
+
+### `BODY3D.SETDAMPING(body, linear, angular)` 
 Sets air resistance. High values make objects feel "heavy" in air or honey.
 - *Handle Shortcut*: `e.SetDamping(lin, ang)`
 
-### `BODY3D.SETGRAVITYFACTOR(body, factor)`
+---
+
+### `BODY3D.SETGRAVITYFACTOR(body, factor)` 
 Scales gravity for a single body. `0` makes it weightless; `2.0` makes it twice as heavy.
 - *Handle Shortcut*: `e.SetGravityFactor(factor)`
 
-### `BODY3D.SETCCD(body, toggle)`
+---
+
+### `BODY3D.SETCCD(body, toggle)` 
 Enables Continuous Collision Detection. Prevents fast-moving bullets from phasing through walls.
 - *Handle Shortcut*: `e.SetCCD(1)`
 
@@ -65,7 +75,7 @@ Enables Continuous Collision Detection. Prevents fast-moving bullets from phasin
 
 ## Automated Systems
 
-### `WATER.AUTOPHYSICS(toggle)`
+### `WATER.AUTOPHYSICS(toggle)` 
 When enabled, all physics-driven entities automatically receive buoyancy forces when they enter a `WATER` volume.
 - Force is proportional to the submerged volume.
 - Provides realistic floating for crates, barrels, and boats.
@@ -82,3 +92,55 @@ Desktop **Windows and Linux** with **`CGO_ENABLED=1`** and linked Jolt use the *
 | **LockAxis** | Parsed; some setters not implemented | Stub |
 | **Buoyancy** | Volume-based where wired | Scripted / limited |
 | **CCD** | Supported where exposed in wrapper | Not available |
+
+---
+
+## Full Example
+
+A hinged door that swings open when the player approaches.
+
+```basic
+WINDOW.OPEN(960, 540, "Hinge Door")
+WINDOW.SETFPS(60)
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -10, 0)
+
+; Floor
+floorDef = BODY3D.CREATE("STATIC")
+BODY3D.ADDBOX(floorDef, 20, 0.5, 20)
+BODY3D.COMMIT(floorDef, 0, -0.5, 0)
+
+; Door panel
+doorDef = BODY3D.CREATE("DYNAMIC")
+BODY3D.ADDBOX(doorDef, 0.1, 2.0, 1.0)
+door = BODY3D.COMMIT(doorDef, 2, 1, 0)
+
+; Hinge at door left edge, vertical axis
+hinge = JOINT.CREATEHINGE(door, 0, 2, 0.5, 0, 0, 1, 0, 0)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 5, -10)
+CAMERA.SETTARGET(cam, 0, 1, 0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    PHYSICS3D.UPDATE()
+    RENDER.CLEAR(20, 30, 40)
+    RENDER.BEGIN3D(cam)
+        DRAW3D.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+JOINT.FREE(hinge)
+BODY3D.FREE(door)
+PHYSICS3D.STOP()
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [PHYSICS3D.md](PHYSICS3D.md) — core body creation and forces
+- [WATER.md](WATER.md) — `WATER.AUTOPHYSICS` buoyancy

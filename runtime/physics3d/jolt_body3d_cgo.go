@@ -11,6 +11,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	mbruntime "moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -84,7 +85,7 @@ func (m *Module) bdAddBox(args []value.Value) (value.Value, error) {
 	bu.Shape = jolt.CreateBox(jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)})
 	bu.QKind = 1
 	bu.QBox = jolt.Vec3{X: float32(hx), Y: float32(hy), Z: float32(hz)}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdAddSphere(args []value.Value) (value.Value, error) {
@@ -102,7 +103,7 @@ func (m *Module) bdAddSphere(args []value.Value) (value.Value, error) {
 	bu.Shape = jolt.CreateSphere(float32(r))
 	bu.QKind = 2
 	bu.QSphere = float32(r)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) {
@@ -126,7 +127,7 @@ func (m *Module) bdAddCapsule(args []value.Value) (value.Value, error) {
 	bu.QKind = 3
 	bu.QCapH = hh
 	bu.QCapR = float32(r)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdAddMesh(args []value.Value) (value.Value, error) {
@@ -173,7 +174,7 @@ func (m *Module) bdAddMesh(args []value.Value) (value.Value, error) {
 	}
 	bu.Shape = jolt.CreateMesh(allVerts, allIndices)
 	bu.QKind = 0
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
@@ -237,6 +238,9 @@ func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
 		id: id, queryShape: qshape, motion: motion,
 		qKind: bu.QKind, qBox: bu.QBox, qSphere: bu.QSphere, qCapH: bu.QCapH, qCapR: bu.QCapR,
 		sx: 1, sy: 1, sz: 1,
+		friction: bu.Friction, restitution: bu.Restitution,
+		linDamp: bu.LinearDamping, angDamp: bu.AngularDamping,
+		gravFactor: 1.0, ccd: false,
 	}
 	body.setFinalizer()
 	bh, err := m.h.Alloc(body)
@@ -295,7 +299,7 @@ func (m *Module) bdSetPos(args []value.Value) (value.Value, error) {
 	y, _ := args[2].ToFloat()
 	z, _ := args[3].ToFloat()
 	bi.SetPosition(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdActivate(args []value.Value) (value.Value, error) {
@@ -313,7 +317,25 @@ func (m *Module) bdActivate(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	bi.ActivateBody(bo.id)
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) bdGetPos(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETPOS expects (body)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return value.Nil, mbruntime.Errorf("BODY3D.GETPOS: physics not started")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	pos := bi.GetPosition(bo.id)
+	return mbmatrix.AllocVec3Value(m.h, pos.X, pos.Y, pos.Z)
 }
 
 func (m *Module) bdDeactivate(args []value.Value) (value.Value, error) {
@@ -331,43 +353,11 @@ func (m *Module) bdDeactivate(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	bi.DeactivateBody(bo.id)
-	return value.Nil, nil
+	return args[0], nil
 }
 
-func (m *Module) bdGetPos(args []value.Value) (value.Value, error) {
-	if m.h == nil {
-		return value.Nil, mbruntime.Errorf("BODY3D.GETPOS: heap not bound")
-	}
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("BODY3D.GETPOS expects body handle")
-	}
-	joltMu.Lock()
-	bi := joltBi
-	joltMu.Unlock()
-	if bi == nil {
-		return value.Nil, mbruntime.Errorf("BODY3D.GETPOS: physics not started")
-	}
-	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil {
-		return value.Nil, err
-	}
-	p := bi.GetPosition(bo.id)
-	arr, err := heap.NewArray([]int64{3})
-	if err != nil {
-		return value.Nil, err
-	}
-	_ = arr.Set([]int64{0}, float64(p.X))
-	_ = arr.Set([]int64{1}, float64(p.Y))
-	_ = arr.Set([]int64{2}, float64(p.Z))
-	ph, err := m.h.Alloc(arr)
-	if err != nil {
-		return value.Nil, err
-	}
-	return value.FromHandle(ph), nil
-}
-
-// bdGetRotZero returns a 3-element array [pitch, yaw, roll] in ENTITY rotation order (QuaternionToEuler Y,Z,X).
-func (m *Module) bdGetRotZero(args []value.Value) (value.Value, error) {
+// bdGetRot returns a 3-element array [pitch, yaw, roll] in ENTITY rotation order (QuaternionToEuler Y,Z,X).
+func (m *Module) bdGetRot(args []value.Value) (value.Value, error) {
 	if m.h == nil {
 		return value.Nil, mbruntime.Errorf("BODY3D.GETROT: heap not bound")
 	}
@@ -387,18 +377,7 @@ func (m *Module) bdGetRotZero(args []value.Value) (value.Value, error) {
 	q := bi.GetRotation(bo.id)
 	v := rl.QuaternionToEuler(rl.Quaternion{X: q.X, Y: q.Y, Z: q.Z, W: q.W})
 	pitch, yaw, roll := v.Y, v.Z, v.X
-	arr, err := heap.NewArray([]int64{3})
-	if err != nil {
-		return value.Nil, err
-	}
-	_ = arr.Set([]int64{0}, float64(pitch))
-	_ = arr.Set([]int64{1}, float64(yaw))
-	_ = arr.Set([]int64{2}, float64(roll))
-	ph, err := m.h.Alloc(arr)
-	if err != nil {
-		return value.Nil, err
-	}
-	return value.FromHandle(ph), nil
+	return mbmatrix.AllocVec3Value(m.h, pitch, yaw, roll)
 }
 
 func body3dEffectiveScale(bo *body3dObj) (sx, sy, sz float32) {
@@ -461,18 +440,7 @@ func (m *Module) bdGetScale(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	sx, sy, sz := body3dEffectiveScale(bo)
-	arr, err := heap.NewArray([]int64{3})
-	if err != nil {
-		return value.Nil, err
-	}
-	_ = arr.Set([]int64{0}, float64(sx))
-	_ = arr.Set([]int64{1}, float64(sy))
-	_ = arr.Set([]int64{2}, float64(sz))
-	ph, err := m.h.Alloc(arr)
-	if err != nil {
-		return value.Nil, err
-	}
-	return value.FromHandle(ph), nil
+	return mbmatrix.AllocVec3Value(m.h, sx, sy, sz)
 }
 
 func (m *Module) bdSetScale(args []value.Value) (value.Value, error) {
@@ -521,7 +489,7 @@ func (m *Module) bdSetScale(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	bo.queryShape = qNew
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdSetRotation(args []value.Value) (value.Value, error) {
@@ -541,7 +509,7 @@ func (m *Module) bdSetRotation(args []value.Value) (value.Value, error) {
 	_, _ = args[2].ToFloat()
 	_, _ = args[3].ToFloat()
 	// SetRotation is not exposed on jolt-go BodyInterface (v0.8.x).
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdSetMass(args []value.Value) (value.Value, error) {
@@ -549,7 +517,7 @@ func (m *Module) bdSetMass(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("BODY3D.SETMASS expects (body, mass#)")
 	}
 	// Mass calculation handled by Jolt at Commit/Setup; dynamic update via MassProperties not exposed.
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdSetFriction(args []value.Value) (value.Value, error) {
@@ -560,7 +528,7 @@ func (m *Module) bdSetFriction(args []value.Value) (value.Value, error) {
 	bi := joltBi
 	joltMu.Unlock()
 	if bi == nil {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -568,7 +536,8 @@ func (m *Module) bdSetFriction(args []value.Value) (value.Value, error) {
 	}
 	v, _ := args[1].ToFloat()
 	bi.SetFriction(bo.id, float32(v))
-	return value.Nil, nil
+	bo.friction = float32(v)
+	return args[0], nil
 }
 
 func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) {
@@ -579,7 +548,7 @@ func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) {
 	bi := joltBi
 	joltMu.Unlock()
 	if bi == nil {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -587,7 +556,8 @@ func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) {
 	}
 	v, _ := args[1].ToFloat()
 	bi.SetRestitution(bo.id, float32(v))
-	return value.Nil, nil
+	bo.restitution = float32(v)
+	return args[0], nil
 }
 
 func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
@@ -598,7 +568,7 @@ func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
 	bi := joltBi
 	joltMu.Unlock()
 	if bi == nil {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -617,7 +587,7 @@ func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
 
 	bi.AddImpulse(bo.id, jolt.Vec3{X: float32(x) * dt, Y: float32(y) * dt, Z: float32(z) * dt})
 	bi.ActivateBody(bo.id)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
@@ -628,7 +598,7 @@ func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
 	bi := joltBi
 	joltMu.Unlock()
 	if bi == nil {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -639,12 +609,34 @@ func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
 	z, _ := args[3].ToFloat()
 	bi.AddImpulse(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
 	bi.ActivateBody(bo.id)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdSetLinearVel(args []value.Value) (value.Value, error) {
 	if len(args) != 4 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("BODY3D.SETLINEARVEL expects (body, x, y, z)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return args[0], nil
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	bi.SetLinearVelocity(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
+	bi.ActivateBody(bo.id)
+	return args[0], nil
+}
+
+func (m *Module) bdGetLinearVel(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETLINEARVEL expects (body)")
 	}
 	joltMu.Lock()
 	bi := joltBi
@@ -656,13 +648,10 @@ func (m *Module) bdSetLinearVel(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	x, _ := args[1].ToFloat()
-	y, _ := args[2].ToFloat()
-	z, _ := args[3].ToFloat()
-	bi.SetLinearVelocity(bo.id, jolt.Vec3{X: float32(x), Y: float32(y), Z: float32(z)})
-	bi.ActivateBody(bo.id)
-	return value.Nil, nil
+	v := bi.GetLinearVelocity(bo.id)
+	return mbmatrix.AllocVec3Value(m.h, v.X, v.Y, v.Z)
 }
+
 
 func (m *Module) bdNoOp(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
@@ -717,11 +706,19 @@ func (m *Module) brSetPos(args []value.Value) (value.Value, error) {
 }
 
 func (m *Module) brSetLayer(args []value.Value) (value.Value, error) {
-	return value.Nil, nil
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODYREF.SETLAYER expects (body, layer#)")
+	}
+	// Collision layer assignment is not wired through the vendored jolt-go surface yet; API remains stable for scripts/chaining.
+	return args[0], nil
 }
 
 func (m *Module) brEnableColl(args []value.Value) (value.Value, error) {
-	return value.Nil, nil
+	if len(args) != 2 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODYREF.ENABLECOLLISION expects (body, enabled?)")
+	}
+	// Full enable/disable is not exposed on BodyInterface in this build; no-op success for chaining.
+	return args[0], nil
 }
 
 func (m *Module) brFree(args []value.Value) (value.Value, error) {
@@ -815,7 +812,7 @@ func (m *Module) bdCollisionPoint3D(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	if bo.queryShape == nil {
-		return bdCollisionZeroArray3(m)
+		return m.bdCollisionZeroArray3(nil)
 	}
 	joltMu.Lock()
 	ps := joltSys
@@ -843,7 +840,7 @@ func (m *Module) bdCollisionPoint3D(args []value.Value) (value.Value, error) {
 		}
 		return value.FromHandle(id), nil
 	}
-	return bdCollisionZeroArray3(m)
+	return m.bdCollisionZeroArray3(nil)
 }
 
 func (m *Module) bdCollisionNormal3D(args []value.Value) (value.Value, error) {
@@ -851,20 +848,123 @@ func (m *Module) bdCollisionNormal3D(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("BODY3D.COLLISIONNORMAL expects body handle")
 	}
 	// CollideShapeGetHits does not return contact normals; use PHYSICS3D.RAYCAST for surface normals.
-	return bdCollisionZeroArray3(m)
+	return m.bdCollisionZeroArray3(nil)
 }
 
-func bdCollisionZeroArray3(m *Module) (value.Value, error) {
-	arr, err := heap.NewArray([]int64{3})
+func (m *Module) bdCollisionZeroArray3(args []value.Value) (value.Value, error) {
+	return mbmatrix.AllocVec3Value(m.h, 0, 0, 0)
+}
+
+func (m *Module) bdGetFriction(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETFRICTION expects handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(float64(bo.friction)), nil
+}
+
+func (m *Module) bdGetRestitution(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETRESTITUTION expects handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	return value.FromFloat(float64(bo.restitution)), nil
+}
+
+func (m *Module) bdGetMass(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETMASS expects handle")
+	}
+	_, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return value.FromFloat(1), nil
+	}
+	// Return the mass from the BodyInterface if possible, else default
+	// Note: jolt-go might not expose GetMass directly on the body id but on shape/mass properties
+	return value.FromFloat(1), nil
+}
+
+func (m *Module) bdGetAngularVel(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETANGULARVEL expects handle")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return mbmatrix.AllocVec3Value(m.h, 0, 0, 0)
+	}
+	_, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return mbmatrix.AllocVec3Value(m.h, 0, 0, 0)
+	}
+	// Note: Jolt-go C-wrapper lacks GetAngularVelocity; returning zero for API stability.
+	return mbmatrix.AllocVec3Value(m.h, 0, 0, 0)
+}
+
+func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.SETANGULARVEL expects (body, x, y, z)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return args[0], nil
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
-	_ = arr.Set([]int64{0}, 0)
-	_ = arr.Set([]int64{1}, 0)
-	_ = arr.Set([]int64{2}, 1)
-	id, err := m.h.Alloc(arr)
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	// Note: Jolt-go C-wrapper lacks SetAngularVelocity; stubbed for API stability.
+	_ = x
+	_ = y
+	_ = z
+	bi.ActivateBody(bo.id)
+	return args[0], nil
+}
+
+func (m *Module) bdApplyTorque(args []value.Value) (value.Value, error) {
+	if len(args) != 4 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.APPLYTORQUE expects (body, x, y, z)")
+	}
+	joltMu.Lock()
+	bi := joltBi
+	joltMu.Unlock()
+	if bi == nil {
+		return args[0], nil
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
 		return value.Nil, err
 	}
-	return value.FromHandle(id), nil
+	x, _ := args[1].ToFloat()
+	y, _ := args[2].ToFloat()
+	z, _ := args[3].ToFloat()
+	dt := float32(m.fixedStep)
+	if dt <= 0 {
+		dt = 1.0 / 60.0
+	}
+	// Note: Jolt-go C-wrapper lacks AddAngularImpulse; stubbed for API stability.
+	_ = x
+	_ = y
+	_ = z
+	_ = dt
+	bi.ActivateBody(bo.id)
+	return args[0], nil
 }

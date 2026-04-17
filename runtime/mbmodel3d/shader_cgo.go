@@ -40,18 +40,24 @@ func registerShaderCmds(m *Module, reg runtime.Registrar) {
 	})
 
 	reg.Register("SHADER.SETFLOAT", "shader", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 3 { return value.Nil, fmt.Errorf("SHADER.SETFLOAT expects shaderID, name$, value#") }
-		return value.Nil, nil
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("SHADER.SETFLOAT expects shaderID, name$, value#")
+		}
+		return args[0], nil
 	})
-	
+
 	reg.Register("SHADER.SETVECTOR", "shader", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 5 { return value.Nil, fmt.Errorf("SHADER.SETVECTOR expects shaderID, name$, x, y, z") }
-		return value.Nil, nil
+		if len(args) != 5 {
+			return value.Nil, fmt.Errorf("SHADER.SETVECTOR expects shaderID, name$, x, y, z")
+		}
+		return args[0], nil
 	})
 
 	reg.Register("SHADER.SETTEXTURE", "shader", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-		if len(args) != 3 { return value.Nil, fmt.Errorf("SHADER.SETTEXTURE expects shaderID, name$, texHandle") }
-		return value.Nil, nil
+		if len(args) != 3 {
+			return value.Nil, fmt.Errorf("SHADER.SETTEXTURE expects shaderID, name$, texHandle")
+		}
+		return args[0], nil
 	})
 
 	reg.Register("SHADER.FREE", "shader", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

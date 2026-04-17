@@ -1,71 +1,97 @@
-# Tweens (`TWEEN.*`)
+# Tween Commands
 
-Keyframe-style **tween chains** that read and write **global variables** by name (float-backed). Implemented in `runtime/mbtween`.
+Keyframe-style animation chains that read and write global variables by name.
 
-**Requirements:** The host must configure **get/set global** accessors on the tween module; otherwise updates error. The tween holds a handle in the heap (`Tween` type).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Create a tween with `TWEEN.MAKE`.
+2. Append segments with `TWEEN.TO` / `TWEEN.THEN`.
+3. Optionally set `TWEEN.LOOP`, `TWEEN.YOYO`, or `TWEEN.ONCOMPLETE`.
+4. Start with `TWEEN.START` and advance with `TWEEN.UPDATE(tween, dt)` each frame.
+5. Stop with `TWEEN.STOP` if needed.
 
 ---
 
-## Building a tween
-
-### `Tween.Make()` → handle
+### `TWEEN.MAKE()` 
 
 Creates an empty tween (default: **one** loop, no yoyo).
 
-### `Tween.To(tween, varName, target, seconds, easing)`
+---
 
-Appends a segment that animates the **global** named `varName` (folded uppercase) from its **current value at segment start** toward `target` over `seconds` (must be > 0).
+### `TWEEN.TO(tweenHandle, varName, target, seconds, easing)` 
 
-**Easing** names (case-insensitive; unknown names fall back to linear):
+Appends a segment that animates the global `varName` toward `target` over `seconds`.
 
-| Name | Effect |
-|------|--------|
-| `linear` or `""` | Linear |
-| `easein` | Quadratic ease-in |
-| `easeout` | Quadratic ease-out |
-| `easeinout` | Quadratic ease-in-out |
-| `bounce` | Ease-out bounce |
-| `elastic` | Ease-out elastic |
-| `back` | Ease-out overshoot |
-| `circ` | Ease-out circular |
-| `expo` | Ease-out exponential |
-| `sine` | Ease-in-out sine |
-
-### `Tween.Then(...)`
-
-Alias of `Tween.To` — append another segment after the previous.
-
-### `Tween.OnComplete(tween, functionName)`
-
-Registers a **parameterless user function** to run when the tween finishes all loops (not when stopped early). Cannot change while running.
-
-### `Tween.Loop(tween, count)`
-
-Sets loop count: `count <= 0` means **infinite** loops. Cannot change while running.
-
-### `Tween.Yoyo(tween)`
-
-When enabled, after the forward pass the tween runs **backward** through the same steps before counting a loop. Cannot change while running.
+- `easing`: `"linear"`, `"easein"`, `"easeout"`, `"easeinout"`, `"bounce"`, `"elastic"`, `"back"`, `"circ"`, `"expo"`, `"sine"` (case-insensitive; unknown defaults to linear).
 
 ---
 
-## Running
+### `TWEEN.THEN(tweenHandle, varName, target, seconds, easing)` 
 
-### `Tween.Start(tween)`
-
-Begins playback from the first step (requires at least one `TO`).
-
-### `Tween.Update(tween, dt)`
-
-Advances time; `dt` is clamped if negative. May complete steps, invoke **OnComplete**, or loop.
-
-### `Tween.Stop(tween)`
-
-Stops playback; does not call OnComplete.
+Alias for `TWEEN.TO` — appends another segment after the previous.
 
 ---
 
-## Notes
+### `TWEEN.ONCOMPLETE(tweenHandle, functionName)` 
 
-- You cannot append `TO` / change loop / yoyo / on-complete while `running`.
-- Globals must hold **numeric** values for variables being tweened.
+Registers a user function to call when all loops finish.
+
+---
+
+### `TWEEN.LOOP(tweenHandle, count)` 
+
+Sets loop count. `count <= 0` means infinite loops.
+
+---
+
+### `TWEEN.YOYO(tweenHandle)` 
+
+Enables yoyo mode — the tween plays forward then backward per loop.
+
+---
+
+### `TWEEN.START(tweenHandle)` 
+
+Begins playback from the first segment.
+
+---
+
+### `TWEEN.UPDATE(tweenHandle, dt)` 
+
+Advances the tween by `dt` seconds. Call each frame.
+
+---
+
+### `TWEEN.STOP(tweenHandle)` 
+
+Stops playback without calling OnComplete.
+
+---
+
+## Full Example
+
+This example tweens a global `posX` from 0 to 400 with easing.
+
+```basic
+posX = 0.0
+
+t = TWEEN.MAKE()
+TWEEN.TO(t, "posX", 400.0, 2.0, "easeout")
+TWEEN.THEN(t, "posX", 0.0, 2.0, "easein")
+TWEEN.LOOP(t, 0)
+TWEEN.YOYO(t)
+TWEEN.START(t)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = DELTATIME()
+    TWEEN.UPDATE(t, dt)
+
+    RENDER.BEGINFRAME()
+    DRAW.RECT(INT(posX), 300, 20, 20, 255, 100, 50, 255)
+    RENDER.ENDFRAME()
+WEND
+
+TWEEN.STOP(t)
+```

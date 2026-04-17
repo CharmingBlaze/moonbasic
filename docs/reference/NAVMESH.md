@@ -10,37 +10,37 @@ Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
 ---
 
-### `NAV.MAKE()`
+### `NAV.MAKE()` 
 
 Creates a navigation handle. See [NAV_AI.md](NAV_AI.md) for return type and pairing with **`NAV.FREE`**.
 
 ---
 
-### `NAV.SETGRID(...)`
+### `NAV.SETGRID(...)` 
 
 Defines grid resolution and extents — match your world scale (see [NAV_AI.md](NAV_AI.md)).
 
 ---
 
-### `NAV.ADDTERRAIN(nav, modelHandle)`
+### `NAV.ADDTERRAIN(nav, modelHandle)` 
 
 Uses a **model** axis-aligned bounding box to mark walkable **XZ** cells and ground height.
 
 ---
 
-### `NAV.ADDOBSTACLE(...)`
+### `NAV.ADDOBSTACLE(...)` 
 
 Registers blockers (see manifest / [NAV_AI.md](NAV_AI.md)).
 
 ---
 
-### `NAV.BUILD(nav)`
+### `NAV.BUILD(nav)` 
 
 Bakes the nav mesh **after** grid + obstacles are configured.
 
 ---
 
-### `NAV.FINDPATH(...)`
+### `NAV.FINDPATH(...)` 
 
 Path query — full signature in [NAV_AI.md](NAV_AI.md).
 

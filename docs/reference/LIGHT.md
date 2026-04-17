@@ -1,60 +1,67 @@
-# Light and shadow (`LIGHT.*`, `RENDER.SETAMBIENT`, `RENDER.SETSHADOWMAPSIZE`)
+# Light Commands
 
-moonBASIC exposes **3D** lights as small **CPU-side handles**. The built-in **PBR + shadow** path uses a **single directional** light for diffuse shading and **one shadow-casting light** at a time.
+3D light handles (directional, point, spot) with shadow casting and ambient control.
 
-**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Light.Make`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings).
+## Core Workflow
 
-**Engine-style constructors (`LIGHT.CREATEPOINT`, `CREATEDIRECTIONAL`, `CREATESPOT`, …):** [CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md).
+1. Create a light with `LIGHT.CREATE` (type: `"directional"`, `"point"`, or `"spot"`).
+2. Position with `LIGHT.SETPOS` / `LIGHT.SETDIR`, color with `LIGHT.SETCOLOR`.
+3. Enable shadows with `LIGHT.SETSHADOW` and set map size with `RENDER.SETSHADOWMAPSIZE`.
+4. Set ambient with `RENDER.SETAMBIENT`.
+5. Free with `LIGHT.FREE`.
 
-Registry keys use **dots and uppercase** (e.g. **`LIGHT.CREATE`**, deprecated **`LIGHT.MAKE`**).
-
-**GPU / memory**
-
-- **`RENDER.SETSHADOWMAPSIZE`** controls one depth render target; larger sizes use more VRAM and bandwidth.
-- Call **`LIGHT.FREE`** when a light is no longer needed. The underlying **`Heap.Free`** invalidates the handle after the first successful free; calling **`LIGHT.FREE`** again with the same numeric handle returns a **runtime error** (stale handle). The light object’s own teardown is safe once invoked.
-
-For **2D** lighting, use **`LIGHT2D.*`** and **`RENDER.SET2DAMBIENT`** — see [SPRITE.md](SPRITE.md).
+For 2D lighting see [SPRITE.md](SPRITE.md) (`LIGHT2D.*`).
 
 ---
 
-### `LIGHT.CREATE(type)`
+### `LIGHT.CREATE(type)` 
 Creates a new light source of the specified type. Returns a **handle** to the light. **`type`**: `"directional"`, `"point"`, or `"spot"`. **`LIGHT.MAKE`** is a **deprecated** alias of **`LIGHT.CREATE`**.
 
-### `LIGHT.FREE(handle)`
+---
+
+### `LIGHT.FREE(handle)` 
 Unloads the light and frees its resources.
 
 ---
 
-### `LIGHT.SETPOS(handle, x, y, z)`
+### `LIGHT.SETPOS(handle, x, y, z)` 
 Sets the world position of a point or spot light. (Canonical; deprecated **`LIGHT.SETPOSITION`**.)
 
-### `LIGHT.SETDIR(handle, x, y, z)`
+---
+
+### `LIGHT.SETDIR(handle, x, y, z)` 
 Sets the direction vector for a directional or spot light.
 
 ---
 
-### `LIGHT.SETCOLOR(handle, r, g, b [, a])`
+### `LIGHT.SETCOLOR(handle, r, g, b [, a])` 
 Sets the color and intensity of the light (0-255). The optional alpha component multiplies the overall light strength.
 
-### `LIGHT.SETRANGE(handle, range)`
+---
+
+### `LIGHT.SETRANGE(handle, range)` 
 Sets the maximum distance at which the light has an effect (for point and spot lights).
 
 ---
 
-### `LIGHT.SETSHADOW(handle, toggle)`
+### `LIGHT.SETSHADOW(handle, toggle)` 
 Enables or disables shadow casting for the light. Only **one** shadow-casting light is supported at a time.
 
-### `LIGHT.SETINNERCONE(handle, degrees)` / `LIGHT.SETOUTERCONE(handle, degrees)`
+---
+
+### `LIGHT.SETINNERCONE(handle, degrees)` / `LIGHT.SETOUTERCONE(handle, degrees)` 
 Sets the inner and outer half-cone angles for spotlights in degrees.
 
-### `LIGHT.SETTARGET(handle, x, y, z)`
+---
+
+### `LIGHT.SETTARGET(handle, x, y, z)` 
 Sets the world point the **orthographic shadow camera** looks at. Correctly framing your scene in this volume is required for shadows.
 
 ---
 
-### `RENDER.SETAMBIENT`
+### `RENDER.SETAMBIENT` 
 
 ```basic
 RENDER.SETAMBIENT(r, g, b)
@@ -81,7 +88,7 @@ RENDER.SETAMBIENT(13, 15, 20, 255)
 
 ---
 
-### `RENDER.SETSHADOWMAPSIZE`
+### `RENDER.SETSHADOWMAPSIZE` 
 
 ```basic
 RENDER.SETSHADOWMAPSIZE(size)
@@ -108,4 +115,57 @@ RENDER.SETSHADOWMAPSIZE(2048)
 - Materials use the engine PBR path so the fragment shader receives `lightDir`, `lightColor`, `ambientColor`, `lightVP`, `shadowBiasK`, and the shadow depth map.
 - If no shadow caster is registered, shadows are skipped for that frame.
 
-**See also:** [MODEL.md](MODEL.md), [MEMORY.md](../MEMORY.md), [ARCHITECTURE.md](../../ARCHITECTURE.md)
+---
+
+## Full Example
+
+A scene with a directional shadow-casting light and a point fill light.
+
+```basic
+WINDOW.OPEN(960, 540, "Lighting Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 8, -12)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+; Shadow-casting sun
+sun = LIGHT.CREATE("directional")
+LIGHT.SETDIR(sun, -0.5, -1.0, -0.3)
+LIGHT.SETCOLOR(sun, 255, 240, 200, 255)
+LIGHT.SETSHADOW(sun, TRUE)
+RENDER.SETSHADOWMAPSIZE(2048)
+
+; Warm fill point light
+fill = LIGHT.CREATE("point")
+LIGHT.SETPOS(fill, 3, 4, -2)
+LIGHT.SETCOLOR(fill, 255, 180, 100, 180)
+LIGHT.SETRANGE(fill, 12.0)
+
+RENDER.SETAMBIENT(30, 30, 50, 255)
+
+cube = ENTITY.CREATECUBE(2.0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(10, 15, 25)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+        DRAW3D.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+LIGHT.FREE(sun)
+LIGHT.FREE(fill)
+ENTITY.FREE(cube)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [MODEL.md](MODEL.md) — models and materials
+- [RENDER.md](RENDER.md) — `RENDER.SETAMBIENT`, shadow map size
+- [SHADER.md](SHADER.md) — custom PBR shaders

@@ -260,7 +260,7 @@ func (m *Module) lightSetDir(rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, fmt.Errorf("LIGHT.SETDIR: x, y, z must be numeric")
 	}
 	o.dirX, o.dirY, o.dirZ = normalizeDir3(x, y, z)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightSetShadow(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -293,7 +293,7 @@ func (m *Module) lightSetShadow(rt *runtime.Runtime, args ...value.Value) (value
 			shadowCasterHandle = 0
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func normalizeColorChannel(v float32) float32 {
@@ -346,7 +346,7 @@ func (m *Module) lightSetColor(rt *runtime.Runtime, args ...value.Value) (value.
 		}
 		o.colA = normalizeColorChannel(ax)
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightSetIntensity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -371,7 +371,7 @@ func (m *Module) lightSetIntensity(rt *runtime.Runtime, args ...value.Value) (va
 		v = 0
 	}
 	o.intensity = v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightGetPos(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -417,15 +417,12 @@ func (m *Module) lightGetColor(rt *runtime.Runtime, args ...value.Value) (value.
 	if err != nil {
 		return value.Nil, err
 	}
-	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
-	if err != nil {
-		return value.Nil, err
-	}
-	arr.Floats[0] = float64(o.r * 255)
-	arr.Floats[1] = float64(o.g * 255)
-	arr.Floats[2] = float64(o.b * 255)
-	arr.Floats[3] = float64(o.colA * 255)
-	id, err := m.h.Alloc(arr)
+	instance := heap.NewInstance("Color")
+	instance.SetField("r", value.FromInt(int64(o.r * 255)))
+	instance.SetField("g", value.FromInt(int64(o.g * 255)))
+	instance.SetField("b", value.FromInt(int64(o.b * 255)))
+	instance.SetField("a", value.FromInt(int64(o.colA * 255)))
+	id, err := m.h.Alloc(instance)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -453,7 +450,7 @@ func (m *Module) lightSetPosition(rt *runtime.Runtime, args ...value.Value) (val
 		return value.Nil, fmt.Errorf("LIGHT.SETPOSITION: x, y, z must be numeric")
 	}
 	o.posX, o.posY, o.posZ = x, y, z
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightSetTarget(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -477,7 +474,7 @@ func (m *Module) lightSetTarget(rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, fmt.Errorf("LIGHT.SETTARGET: x, y, z must be numeric")
 	}
 	o.targetX, o.targetY, o.targetZ = x, y, z
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightSetShadowBias(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -505,7 +502,7 @@ func (m *Module) lightSetShadowBias(rt *runtime.Runtime, args ...value.Value) (v
 		v = 8
 	}
 	o.shadowBiasK = v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightSetInnerCone(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -539,7 +536,7 @@ func (m *Module) lightCone(rt *runtime.Runtime, name string, args []value.Value,
 	} else {
 		o.outerConeDeg = v
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightSetRange(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -564,7 +561,7 @@ func (m *Module) lightSetRange(rt *runtime.Runtime, args ...value.Value) (value.
 		v = 0
 	}
 	o.rangeDist = v
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightEnable(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -593,7 +590,7 @@ func (m *Module) lightEnable(rt *runtime.Runtime, args ...value.Value) (value.Va
 		}
 		shadowMu.Unlock()
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) lightIsEnabled(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -615,3 +612,64 @@ func (m *Module) lightIsEnabled(rt *runtime.Runtime, args ...value.Value) (value
 	}
 	return value.FromInt(0), nil
 }
+
+func (m *Module) lightGetIntensity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	_ = rt
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("LIGHT.GETINTENSITY: heap not bound")
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETINTENSITY expects (light)")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.intensity)), nil
+}
+
+func (m *Module) lightGetShadow(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETSHADOW expects light handle")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromBool(o.shadow), nil
+}
+
+func (m *Module) lightGetRange(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETRANGE expects light handle")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.rangeDist)), nil
+}
+
+func (m *Module) lightGetInnerCone(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETINNERCONE expects light handle")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.innerConeDeg)), nil
+}
+
+func (m *Module) lightGetOuterCone(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("LIGHT.GETOUTERCONE expects light handle")
+	}
+	o, err := heap.Cast[*lightObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.outerConeDeg)), nil
+}
+
+// In Module.Register, add entries for LIGHT.GETINTENSITY and LIGHT.GETENERGY

@@ -1,6 +1,17 @@
-# Player interaction (`PLAYER.*`)
+# Player Commands
 
-High-level helpers for **kinematic character control** (KCC) and **spatial queries** against level geometry. These wrap Jolt’s **`CharacterVirtual`** (same subsystem as **`CHARCONTROLLER.*`**) and entity/tag data from **`LEVEL.LOAD`**.
+High-level KCC helpers: create, move, jump, swim, query grounding, and spatial lookups.
+
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. `PHYSICS3D.START()` and set gravity.
+2. `PLAYER.CREATE(entity, radius, height)` on a positioned capsule entity.
+3. Each frame: `PLAYER.MOVE` / `PLAYER.JUMP` / `PLAYER.ISGROUNDED`.
+4. Query targets with `PLAYER.GETLOOKTARGET`, nearby entities with `PLAYER.GETNEARBY`.
+
+For KCC tuning see [KCC.md](KCC.md). For low-level capsule API see [CHARCONTROLLER.md](CHARCONTROLLER.md).
 
 ## Platform
 

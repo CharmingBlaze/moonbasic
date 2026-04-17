@@ -1,25 +1,16 @@
-# GUI — raygui (Raylib) widgets
+# GUI Commands
 
-moonBASIC exposes [raygui](https://github.com/raysan5/raygui) as the `GUI.*` namespace. Controls are **immediate-mode**: each frame you call the same functions; raygui tracks focus and state from rectangles and IDs.
+Immediate-mode raygui widgets: buttons, sliders, text boxes, color pickers, themes, and more.
 
-Bindings follow [raylib-go raygui](https://github.com/gen2brain/raylib-go/tree/master/raygui) (raygui 4.x). **Every** exported control, style loader, tooltip, icon, and draw helper from that wrapper is available as a `GUI.*` command **except** font retrieval: there is no `GUI.GETFONT` because the active `rl.Font` is owned by raygui (often embedded in `.rgs` themes); double-freeing it through `FONT.FREE` would be unsafe. Use **`FONT.LOAD` + `GUI.SETFONT`** for fonts you allocate yourself.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Requirements (full raygui):** **CGO** enabled (same as `DRAW.*`, `WINDOW.*`, `FONT.*`).
+## Core Workflow
 
-**Windows without CGO** (`CGO_ENABLED=0`, Raylib purego / `raylib.dll`): a **minimal** `GUI.*` implementation is built in—labels, buttons, basic toggles/checkboxes/combos, simple sliders, window/panel/group/line, theme defaults, and draw helpers. It is **not** pixel-identical to raygui. Commands that still need the C raygui stack (**`GUI.Textbox`**, color-picker suite, **`GUI.MessageBox`**, **`GUI.ListView`**, **`GUI.Tabbar`**, `.rgs` **`GUI.LoadStyle`**, **`GUI.SetFont`** with custom fonts, etc.) return an error asking you to rebuild with **CGO**. See [BUILDING.md](../BUILDING.md).
+1. `RENDER.CLEAR` (and your scene).
+2. Call `GUI.*` widget functions each frame (immediate mode — no persistent widget objects).
+3. `RENDER.FRAME`.
 
-**Performance (purego GUI):** Internal widget state keys use **rounded pixel rects**. For stateful controls such as **`GUI.Togglegroup`**, use **stable** `x, y, width, height` (avoid coordinates that drift every frame). If an unusual number of distinct rectangles are used, the runtime may reset cached widget state to bound memory.
-
----
-
-## Typical frame order
-
-1. `Render.Clear(...)` (and your scene)
-2. Optional: `Camera2D.Begin()` / `Camera.Begin()` if you draw in screen or 2D / 3D space
-3. `GUI.*` for this frame
-4. `Render.Frame()` / end camera
-
-Call `GUI.Enable()` after `Window.Open` if you used `GUI.Disable()`.
+Apply themes with `GUI.THEMEAPPLY`, customize with `GUI.SETSTYLE` / `GUI.SETCOLOR`. Requires **CGO** for full raygui; a minimal subset works without CGO on Windows.
 
 ---
 
@@ -55,7 +46,7 @@ List separators in strings use **`;`**, matching raygui (tabs, combos, list rows
 
 VM globals match raygui **ControlID** / **PropertyID** integers. **Important:** many **`GPROP_*`** values reuse the same number for different controls; always pass the **`GCTL_*`** that matches the widget you are styling.
 
-### Control IDs (`GCTL_*`)
+### Control IDs (`GCTL_*`) 
 
 | Global | Typical use |
 |--------|-------------|
@@ -64,7 +55,9 @@ VM globals match raygui **ControlID** / **PropertyID** integers. **Important:** 
 
 (Full set: `GCTL_DEFAULT`, `GCTL_LABEL`, `GCTL_BUTTON`, `GCTL_TOGGLE`, `GCTL_SLIDER`, `GCTL_PROGRESSBAR`, `GCTL_CHECKBOX`, `GCTL_COMBOBOX`, `GCTL_DROPDOWNBOX`, `GCTL_TEXTBOX`, `GCTL_VALUEBOX`, `GCTL_CONTROL11`, `GCTL_LISTVIEW`, `GCTL_COLORPICKER`, `GCTL_SCROLLBAR`, `GCTL_STATUSBAR`.)
 
-### Base properties (colors, border, text box layout)
+---
+
+### Base properties (colors, border, text box layout) 
 
 | Global | Meaning |
 |--------|---------|
@@ -73,7 +66,9 @@ VM globals match raygui **ControlID** / **PropertyID** integers. **Important:** 
 | `GPROP_TEXT_PADDING` | Inset for text |
 | `GPROP_TEXT_ALIGNMENT` | Horizontal alignment index |
 
-### DEFAULT-only (global) extended
+---
+
+### DEFAULT-only (global) extended 
 
 | Global | Meaning |
 |--------|---------|
@@ -85,11 +80,15 @@ VM globals match raygui **ControlID** / **PropertyID** integers. **Important:** 
 | `GPROP_TEXT_ALIGNMENT_VERTICAL` | Vertical alignment |
 | `GPROP_TEXT_WRAP_MODE` | Wrap mode |
 
-### Per-control extended (same integers, different meaning per `GCTL_*`)
+---
+
+### Per-control extended (same integers, different meaning per `GCTL_*`) 
 
 Examples: `GPROP_TOGGLE_GROUP_PADDING`, `GPROP_SLIDER_WIDTH`, `GPROP_SCROLLBAR_*`, `GPROP_LIST_*`, `GPROP_COLOR_SELECTOR_SIZE`, … — see `runtime/mbgui/seed.go` for the full list and comments.
 
-### Other enums
+---
+
+### Other enums 
 
 | Globals | Use |
 |---------|-----|
@@ -122,7 +121,7 @@ Examples: `GPROP_TOGGLE_GROUP_PADDING`, `GPROP_SLIDER_WIDTH`, `GPROP_SCROLLBAR_*
 
 Notation: **float**, **string**, **optional bool** where shown. **`→`** return type.
 
-### Global, lock, alpha, font, style, themes
+### Global, lock, alpha, font, style, themes 
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
@@ -151,7 +150,9 @@ Notation: **float**, **string**, **optional bool** where shown. **`→`** return
 | `Gui.LoadStyleMem(path)` | `path` (binary `.rgs` read on host) | — |
 | `Gui.LoadIcons(path, loadNames)` | `path, loadNames` | — |
 
-### Layout
+---
+
+### Layout 
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
@@ -160,67 +161,111 @@ Notation: **float**, **string**, **optional bool** where shown. **`→`** return
 | `Gui.TabBar(x, y, w, h, tabs, stateHandle)` | `x, y, w, h, tabs, stateHandle` | int (close tab or -1) |
 | `Gui.ScrollPanel(px, py, pw, ph, title, cx, cy, cw, ch, stateHandle)` | `px, py, pw, ph, title, cx, cy, cw, ch, stateHandle` | — |
 
-### Basic controls
+---
 
-### `Gui.Button(label, x, y, w, h)`
+### Basic controls 
+
+---
+
+### `GUI.BUTTON(label, x, y, w, h)` 
 Draws a clickable button. Returns `TRUE` if the button was clicked this frame.
 
-### `Gui.Label(label, x, y, w, h)`
+---
+
+### `GUI.LABEL(label, x, y, w, h)` 
 Draws a static text label.
 
-### `Gui.Toggle(label, x, y, w, h, active)`
+---
+
+### `GUI.TOGGLE(label, x, y, w, h, active)` 
 Draws a toggle button. Returns the new active state.
 
-### `Gui.ToggleGroup(label, x, y, w, h, items)`
+---
+
+### `GUI.TOGGLEGROUP(label, x, y, w, h, items)` 
 Draws a toggle group. Returns the active index.
 
-### `Gui.ToggleSlider(label, x, y, w, h, active)`
+---
+
+### `GUI.TOGGLESLIDER(label, x, y, w, h, active)` 
 Draws a toggle slider. Returns the new active state.
 
-### `Gui.Checkbox(label, x, y, w, h, checked)`
+---
+
+### `GUI.CHECKBOX(label, x, y, w, h, checked)` 
 Draws a checkbox. Returns the new checked state.
 
-### `Gui.Combo(label, x, y, w, h, items, active)`
+---
+
+### `GUI.COMBOBOX(label, x, y, w, h, items, active)` 
 Draws a combo box. Returns the active index.
 
-### `Gui.Dropdown(label, x, y, w, h, items, stateHandle)`
+---
+
+### `GUI.DROPDOWNBOX(label, x, y, w, h, items, stateHandle)` 
 Draws a dropdown box. Returns whether the dropdown is open.
 
-### Text & numbers
+---
 
-### `Gui.Textbox(label, x, y, w, h, text, maxLen, editMode)`
+### Text & numbers 
+
+---
+
+### `GUI.TEXTBOX(label, x, y, w, h, text, maxLen, editMode)` 
 Draws a text box. Returns the new text.
 
-### `Gui.Spinner(label, x, y, w, h, text, value, min, max, editMode)`
+---
+
+### `GUI.SPINNER(label, x, y, w, h, text, value, min, max, editMode)` 
 Draws a spinner. Returns the new value.
 
-### `Gui.Valuebox(label, x, y, w, h, text, value, min, max, editMode)`
+---
+
+### `GUI.VALUEBOX(label, x, y, w, h, text, value, min, max, editMode)` 
 Draws a value box. Returns the new value.
 
-### `Gui.ValueboxFloat(label, x, y, w, h, label, value, textBuf, editMode)`
+---
+
+### `GUI.VALUEBOXFLOAT(label, x, y, w, h, label, value, textBuf, editMode)` 
 Draws a float value box. Returns the new value.
 
-### `Gui.ValueboxFloatText()`
+---
+
+### `GUI.VALUEBOXFLOATTEXT()` 
 Gets the text of a float value box.
 
-### Sliders, scroll, lists
+---
 
-### `Gui.Slider(label, x, y, value, min, max, w, h)`
+### Sliders, scroll, lists 
+
+---
+
+### `GUI.SLIDER(label, x, y, value, min, max, w, h)` 
 Draws a horizontal slider. Returns the updated value.
 
-### `Gui.Scrollbar(x, y, w, h, value, min, max)`
+---
+
+### `GUI.SCROLLBAR(x, y, w, h, value, min, max)` 
 Draws a scrollbar. Returns the updated value.
 
-### `Gui.Statusbar(label, x, y, w, h, text)`
+---
+
+### `GUI.STATUSBAR(label, x, y, w, h, text)` 
 Draws a status bar.
 
-### `Gui.ListView(label, x, y, w, h, items, stateHandle)`
+---
+
+### `GUI.LISTVIEW(label, x, y, w, h, items, stateHandle)` 
 Draws a list view. Returns the selected index.
 
-### `Gui.ListViewEx(label, x, y, w, h, items, stateHandle)`
+---
+
+### `GUI.LISTVIEWEX(label, x, y, w, h, items, stateHandle)` 
 Draws an extended list view. Returns the selected index.
 
-### Color pickers & dialogs
+---
+
+### Color pickers & dialogs 
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
@@ -232,7 +277,9 @@ Draws an extended list view. Returns the selected index.
 | `Gui.TextInputLast()` | — (after `TextInputBox`) | string |
 | `Gui.Grid(x, y, w, h, text, spacing, subdivs, cellHandle)` | `x, y, w, h, text, spacing, subdivs, cellHandle` | int |
 
-### Tooltips & icons
+---
+
+### Tooltips & icons 
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
@@ -243,7 +290,9 @@ Draws an extended list view. Returns the selected index.
 | `Gui.SetIconScale(scale)` | `scale` | — |
 | `Gui.GetTextWidth(text)` | `text` | int |
 
-### Styled drawing helpers
+---
+
+### Styled drawing helpers 
 
 | Command | Arguments | Returns |
 |---------|-----------|---------|
@@ -270,6 +319,35 @@ Call **`GUI.THEMENAMES`** for an authoritative `;`-separated list at runtime.
 - `examples/gui_basics/main.mb` — window, label, button  
 - `examples/gui_theme/main.mb` — `GUI.THEMEAPPLY`, text sizing  
 - `examples/gui_form/main.mb` — fields, slider, checkbox, tabs  
+
+---
+
+## Full Example
+
+```basic
+WINDOW.OPEN(640, 480, "GUI Demo")
+WINDOW.SETFPS(60)
+
+sliderVal = 50
+checked = FALSE
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(40, 40, 50)
+
+    IF GUI.BUTTON("Click Me", 20, 20, 120, 30) THEN
+        PRINT "Button pressed!"
+    ENDIF
+
+    GUI.LABEL("Volume:", 20, 70, 80, 30)
+    sliderVal = GUI.SLIDER("", 110, 70, sliderVal, 0, 100, 200, 30)
+
+    checked = GUI.CHECKBOX("Enable", 20, 120, 20, 20, checked)
+
+    RENDER.FRAME()
+WEND
+
+WINDOW.CLOSE()
+```
 
 ---
 

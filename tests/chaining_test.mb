@@ -1,0 +1,27 @@
+; MoonBASIC Method Chaining & Handle Method Registry Test
+
+; 1. Test Camera Chaining
+cam = CAMERA.CREATE().pos(0, 10, 20).look(0, 0, 0).fov(60)
+
+PRINT("Camera Handle: ", cam)
+p = cam.pos()
+PRINT("Camera Pos: ", p.x, p.y, p.z)
+PRINT("Camera FOV: ", cam.fov()) ; Note: .fov() dispatch might need verify
+
+; 2. Test Model Chaining (if we have a dummy model)
+; mod = MODEL.LOAD("assets/cube.obj")
+;    .pos(1, 2, 3)
+;    .rot(0, 1.57, 0)
+;    .scale(2, 2, 2)
+
+; 3. Test Light Chaining
+sun = LIGHT.CREATE("directional").pos(10, 20, 10).dir(-1, -1, -1).col(255, 255, 240).intensity(2.0)
+
+PRINT("Light intensity: ", sun.intensity())
+
+; 4. Test Sprite Chaining
+; spr = SPRITE.LOAD("assets/ship.png")
+;    .pos(100, 100)
+    ; .scale(2, 2)
+
+PRINT("Chain test complete.")

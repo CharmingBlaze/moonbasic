@@ -55,7 +55,7 @@ func (m *Module) fontSetDefault(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("FONT.SETDEFAULT: invalid handle")
 	}
 	activeDefaultFont = h
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) fontLoad(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

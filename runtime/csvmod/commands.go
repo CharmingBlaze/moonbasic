@@ -102,7 +102,7 @@ func csvSave(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err := os.WriteFile(strings.TrimSpace(path), buf.Bytes(), 0o644); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func csvToString(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -258,7 +258,7 @@ func csvSet(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		c.rows[ri] = append(c.rows[ri], "")
 	}
 	c.rows[ri][ci] = val
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // CSV.TOJSON builds a JSON array of objects using row 1 as field names; data rows start at row 2.

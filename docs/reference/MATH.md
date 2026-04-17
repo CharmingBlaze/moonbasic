@@ -1,6 +1,12 @@
 # Math Commands
 
-Commands for mathematical and numerical operations.
+Mathematical and numerical operations: trig, powers, clamping, lerp, random, and constants.
+
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+Use global aliases (`SIN`, `COS`, `SQRT`, `ABS`, `CLAMP`, `LERP`, `RND`, `PI`, etc.) or the `MATH.*` namespace equivalents. Angles are in **radians**.
 
 ---
 
@@ -8,59 +14,75 @@ Commands for mathematical and numerical operations.
 
 Angles are in **radians**. Use `Math.Deg2Rad()` / `Math.Rad2Deg()` to convert.
 
-### `Math.Sin(angle)`
+### `MATH.SIN(angle)` 
 Returns the sine of an angle in **radians**. Alias: `SIN()`.
 
-### `Math.Cos(angle)`
+---
+
+### `MATH.COS(angle)` 
 Returns the cosine of an angle in **radians**. Alias: `COS()`.
 
-### `Math.Tan(angle)`
+---
+
+### `MATH.TAN(angle)` 
 Returns the tangent of an angle in **radians**. Alias: `TAN()`.
 
 ---
 
 ## Powers, Roots & Logarithms
 
-### `Math.Sqrt(value)`
+### `MATH.SQRT(value)` 
 Returns the square root of a non-negative value. Alias: `SQRT()`, `SQR()`.
 
-### `Math.Abs(value)`
+---
+
+### `MATH.ABS(value)` 
 Returns the absolute value of a number. Alias: `ABS()`.
 
-### `Math.Pow(base, exp)`
+---
+
+### `MATH.POW(base, exp)` 
 Returns base raised to the power of exp. Alias: `POW()`.
 
 ---
 
 ## Arithmetic Helpers
 
-### `Math.Clamp(value, min, max)`
+### `MATH.CLAMP(value, min, max)` 
 Constrains a value to the range `[min, max]`. Alias: `CLAMP()`.
 
-### `Math.Lerp(a, b, t)`
+---
+
+### `MATH.LERP(a, b, t)` 
 Linearly interpolates between `a` and `b` by factor `t` (0.0–1.0). Alias: `LERP()`.
 
 ---
 
 ## Randomization
 
-### `Rnd(limit)`
+### `Rnd(limit)` 
 Returns a random integer from 0 up to `limit-1`.
 
-### `RndF(min, max)`
+---
+
+### `RndF(min, max)` 
 Returns a random float between `min` and `max`.
 
 ---
 
 ## Constants
 
-### `Math.Pi()`
+### `MATH.PI()` 
 Returns **π** (3.14159...). Alias: `PI()`.
 
-### `Math.Tau()`
+---
+
+### `MATH.TAU()` 
 Returns **τ** (6.28318...). Alias: `TAU()`.
 
-### `Math.E()`
+---
+
+### `MATH.E()` 
 Returns Euler's number (2.71828...). Alias: `E()`.
 
 ---

@@ -85,6 +85,39 @@ func registerCharControllerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.FREE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcFree(m, args) }))
 	reg.Register("CHARACTERREF.GETPOSITION", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcGetPos(m, args) }))
 	reg.Register("CHARACTERREF.GETROT", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) { return stubCcGetRot(m, args) }))
+	reg.Register("CHARACTERREF.GETGRAVITY", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETGRAVITY")
+	}))
+	reg.Register("CHARACTERREF.GETMAXSLOPE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETMAXSLOPE")
+	}))
+	reg.Register("CHARACTERREF.GETSTEPHEIGHT", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETSTEPHEIGHT")
+	}))
+	reg.Register("CHARACTERREF.GETSNAPDISTANCE", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETSNAPDISTANCE")
+	}))
+	reg.Register("CHARACTERREF.GETFRICTION", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETFRICTION")
+	}))
+	reg.Register("CHARACTERREF.GETJUMPBUFFER", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETJUMPBUFFER")
+	}))
+	reg.Register("CHARACTERREF.GETAIRCONTROL", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETAIRCONTROL")
+	}))
+	reg.Register("CHARACTERREF.GETGROUNDCONTROL", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetFloat(m, args, "CHARACTERREF.GETGROUNDCONTROL")
+	}))
+	reg.Register("CHARACTERREF.GETISSLIDING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetBool(m, args, "CHARACTERREF.GETISSLIDING")
+	}))
+	reg.Register("CHARACTERREF.GETCEILING", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetBool(m, args, "CHARACTERREF.GETCEILING")
+	}))
+	reg.Register("CHARACTERREF.GETGROUNDVELOCITY", "charcontroller", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		return stubCcGetVec3(m, args, "CHARACTERREF.GETGROUNDVELOCITY")
+	}))
 }
 
 func stubAllocFloat3(m *Module, x, y, z float64) (value.Value, error) {
@@ -100,6 +133,41 @@ func stubAllocFloat3(m *Module, x, y, z float64) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromHandle(ah), nil
+}
+
+func stubCcGetFloat(m *Module, args []value.Value, name string) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, fmt.Errorf("%s: heap not bound", name)
+	}
+	if len(args) < 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("%s: need handle", name)
+	}
+	co, err := heap.Cast[*charObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, fmt.Errorf("%s: invalid handle", name)
+	}
+	switch name {
+	case "CHARACTERREF.GETGRAVITY":
+		return value.FromFloat(float64(co.gravityG)), nil
+	case "CHARACTERREF.GETMAXSLOPE":
+		return value.FromFloat(float64(co.maxSlope)), nil
+	case "CHARACTERREF.GETSTEPHEIGHT":
+		return value.FromFloat(float64(co.stepH)), nil
+	case "CHARACTERREF.GETSNAPDISTANCE":
+		return value.FromFloat(float64(co.snapD)), nil
+	case "CHARACTERREF.GETFRICTION":
+		return value.FromFloat(float64(co.friction)), nil
+	default:
+		return value.FromFloat(0), nil
+	}
+}
+
+func stubCcGetBool(_ *Module, _ []value.Value, _ string) (value.Value, error) {
+	return value.FromBool(false), nil
+}
+
+func stubCcGetVec3(m *Module, _ []value.Value, _ string) (value.Value, error) {
+	return stubAllocFloat3(m, 0, 0, 0)
 }
 
 func stubCcMake(m *Module, args []value.Value) (value.Value, error) {
@@ -536,6 +604,17 @@ func (m *Module) SetCharacterRestitution(h heap.Handle, bounce float64) error {
 	}
 	co.bounce = float32(bounce)
 	return nil
+}
+
+func (m *Module) CharacterRestitution(h heap.Handle) (float64, bool) {
+	if m.h == nil {
+		return 0, false
+	}
+	co, err := heap.Cast[*charObj](m.h, h)
+	if err != nil {
+		return 0, false
+	}
+	return float64(co.bounce), true
 }
 
 func (m *Module) SetCharacterFriction(h heap.Handle, friction float64) error {

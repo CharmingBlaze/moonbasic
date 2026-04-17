@@ -19,6 +19,7 @@ func (m *Module) registerBlitzSysCommands(reg runtime.Registrar) {
 	reg.Register("SetSSAO", "window", m.setSSAOBlitz)
 	reg.Register("SetPostProcess", "window", m.postAddShader)
 	reg.Register("SetBloom", "window", m.setBloomBlitz)
+	reg.Register("SETBLOOM", "window", m.setBloomBlitz)
 }
 
 func (m *Module) setBloomBlitz(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

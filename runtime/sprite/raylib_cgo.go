@@ -217,7 +217,7 @@ func (m *Module) spDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err := m.drawSpriteAtScreen(s, x, y); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // drawSpriteAtScreen draws the sprite’s current frame at integer screen (x,y), plus SetPos offsets.
@@ -311,7 +311,7 @@ func (m *Module) spSetPos(rt *runtime.Runtime, args ...value.Value) (value.Value
 	}
 	s.x = x
 	s.y = y
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spDefAnim(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -343,7 +343,7 @@ func (m *Module) spDefAnim(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	s.frameH = s.tex.Height - s.srcY
 	s.curFrame = 0
 	s.accum = 0
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spPlayAnim(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -365,7 +365,7 @@ func (m *Module) spPlayAnim(rt *runtime.Runtime, args ...value.Value) (value.Val
 	s.playing = true
 	s.curFrame = 0
 	s.accum = 0
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spSetFrame(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -395,7 +395,7 @@ func (m *Module) spSetFrame(rt *runtime.Runtime, args ...value.Value) (value.Val
 	}
 	s.curFrame = idx
 	s.rangePlaying = false
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spPlayRange(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -440,7 +440,7 @@ func (m *Module) spPlayRange(rt *runtime.Runtime, args ...value.Value) (value.Va
 	s.rangePlaying = true
 	s.playing = false
 	s.curFrame = start
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spSetOrigin(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -463,7 +463,7 @@ func (m *Module) spSetOrigin(rt *runtime.Runtime, args ...value.Value) (value.Va
 	}
 	s.originX = ox
 	s.originY = oy
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func clampSpriteU8(n int64) uint8 {
@@ -530,7 +530,7 @@ func (m *Module) spSetScale(rt *runtime.Runtime, args ...value.Value) (value.Val
 	}
 	s.scaleX = x1
 	s.scaleY = y1
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -570,7 +570,7 @@ func (m *Module) spSetRot(rt *runtime.Runtime, args ...value.Value) (value.Value
 		return value.Nil, fmt.Errorf("SPRITE.SETROT: radians must be numeric")
 	}
 	s.rotRad = rad
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spGetColor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -596,15 +596,12 @@ func (m *Module) spGetColor(rt *runtime.Runtime, args ...value.Value) (value.Val
 	if a > 1 {
 		a = 1
 	}
-	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
-	if err != nil {
-		return value.Nil, err
-	}
-	arr.Floats[0] = float64(s.tr)
-	arr.Floats[1] = float64(s.tg)
-	arr.Floats[2] = float64(s.tb)
-	arr.Floats[3] = float64(a * 255)
-	id, err := m.h.Alloc(arr)
+	instance := heap.NewInstance("Color")
+	instance.SetField("r", value.FromInt(int64(s.tr)))
+	instance.SetField("g", value.FromInt(int64(s.tg)))
+	instance.SetField("b", value.FromInt(int64(s.tb)))
+	instance.SetField("a", value.FromInt(int64(a * 255)))
+	id, err := m.h.Alloc(instance)
 	if err != nil {
 		return value.Nil, err
 	}
@@ -648,7 +645,7 @@ func (m *Module) spSetColor(rt *runtime.Runtime, args ...value.Value) (value.Val
 			s.alpha = 1
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) spGetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -702,7 +699,7 @@ func (m *Module) spSetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Val
 			a = 1
 		}
 		s.alpha = a
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if ai, ok := args[1].ToInt(); ok {
 		s.alpha = float32(ai) / 255
@@ -712,7 +709,7 @@ func (m *Module) spSetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Val
 		if s.alpha > 1 {
 			s.alpha = 1
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("SPRITE.SETALPHA: alpha must be numeric")
 }
@@ -735,11 +732,11 @@ func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("SPRITE.UPDATEANIM: delta must be numeric")
 	}
 	if s.anim != nil {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if s.rangePlaying {
 		if s.rangeSpeed <= 0 {
-			return value.Nil, nil
+			return args[0], nil
 		}
 		s.rangeAccum += dt * s.rangeSpeed
 		for s.rangeAccum >= 1 {
@@ -754,15 +751,15 @@ func (m *Module) spUpdateAnim(rt *runtime.Runtime, args ...value.Value) (value.V
 				}
 			}
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if !s.playing || s.numFrames < 1 || s.fps <= 0 {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	s.accum += dt * s.fps
 	for s.accum >= 1 {
 		s.accum--
 		s.curFrame = (s.curFrame + 1) % s.numFrames
 	}
-	return value.Nil, nil
+	return args[0], nil
 }

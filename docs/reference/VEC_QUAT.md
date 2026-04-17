@@ -1,37 +1,55 @@
-# Vec2, Vec3, and Quat
+# Vec2, Vec3, and Quat Commands
 
-These commands support both classic heap-handle vector math and scalar convenience overloads for gameplay code.
+Vector and quaternion math with heap-handle and scalar-convenience overloads.
 
-**Convention:** Angles are in **radians** unless noted. Free heap handles with `Vec2.Free`, `Vec3.Free`, or `Quat.Free` when you no longer need them (or rely on `FREE.ALL` at shutdown).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Create vectors with `VEC3.MAKE` / `VEC2.MAKE`, quaternions with `QUAT.FROMEULER`.
+2. Perform arithmetic (`VEC3.ADD`, `VEC3.DOT`, etc.) or use scalar overloads (`VEC3.LENGTH(x,y,z)`).
+3. Free handles with `VEC3.FREE` / `VEC2.FREE` / `QUAT.FREE`.
+
+Angles are in **radians**. See also [TRANSFORM.md](TRANSFORM.md).
 
 ---
 
-### `Vec3.Make(x, y, z)`
+### `VEC3.MAKE(x, y, z)` 
 Creates a new 3D vector handle.
 
-### `Vec3.X(handle)` / `Y` / `Z`
+---
+
+### `VEC3.X(handle)` / `Y` / `Z` 
 Returns the individual red, green, blue, or alpha component (0-255).
 
-### `Vec3.Set(handle, x, y, z)`
+---
+
+### `VEC3.SET(handle, x, y, z)` 
 Updates the components of an existing vector handle in place.
 
 ---
 
-### `Vec3.Add(a, b)` / `Sub` / `Mul` / `Div`
+### `VEC3.ADD(a, b)` / `SUB` / `MUL` / `DIV` 
 Arithmetic on vector handles. Returns a new handle.
 
-### `Vec3.Dot(a, b)` / `Cross(a, b)`
+---
+
+### `VEC3.DOT(a, b)` / `VEC3.CROSS(a, b)` 
 Vector products. `Dot` returns a float; `Cross` returns a new handle.
 
-### `Vec3.Length(handle)` / `Normalize(handle)`
+---
+
+### `VEC3.LENGTH(handle)` / `VEC3.NORMALIZE(handle)` 
 Returns the length of a vector or a new normalized vector handle.
 
-### `Vec3.Distance(a, b)`
+---
+
+### `VEC3.DISTANCE(a, b)` 
 Returns the distance between two 3D points.
 
 ---
 
-### `Vec3.Free(handle)`
+### `VEC3.FREE(handle)` 
 Releases the vector handle from the heap and frees its memory.
 
 ```basic
@@ -60,24 +78,32 @@ ENDIF
 
 ---
 
-### `Vec2.Make(x, y)`
+### `VEC2.MAKE(x, y)` 
 Creates a new 2D vector handle.
 
-### `Vec2.X(handle)` / `Y`
+---
+
+### `VEC2.X(handle)` / `Y` 
 Returns the individual red, green, blue, or alpha component (0-255).
 
-### `Vec2.Set(handle, x, y)`
+---
+
+### `VEC2.SET(handle, x, y)` 
 Updates the components of an existing vector handle in place.
 
 ---
 
-### `Vec2.Add(a, b)` / `Sub` / `Mul`
+### `VEC2.ADD(a, b)` / `SUB` / `MUL` 
 Arithmetic on vector handles. Returns a new handle.
 
-### `Vec2.Length(handle)` / `Normalize(handle)`
+---
+
+### `VEC2.LENGTH(handle)` / `VEC2.NORMALIZE(handle)` 
 Returns the length of a vector or a new normalized vector handle.
 
-### `Vec2.Free(handle)`
+---
+
+### `VEC2.FREE(handle)` 
 Releases the vector handle from the heap and frees its memory.
 
 Scalar convenience overloads:
@@ -96,24 +122,32 @@ dist = VEC2.LENGTH(ex - px, ez - pz)
 
 ## Quat
 
-### `Quat.Identity()`
+### `QUAT.IDENTITY()` 
 Returns an identity quaternion handle.
 
-### `Quat.Make(x, y, z, w)`
-Creates a new quaternion handle with explicit components.
+---
 
-### `Quat.FromEuler(p, y, r)`
+### `QUAT.FROMAXISANGLE(axis, angle)` / `QUAT.FROMVEC3TOVEC3(from, to)` 
+Creates a quaternion from an axis+angle or from two direction vectors.
+
+---
+
+### `QUAT.FROMEULER(p, y, r)` 
 Creates a quaternion from Euler angles in **radians**.
 
 ---
 
-### `Quat.ToEuler(q)`
+### `QUAT.TOEULER(q)` 
 Returns a 3-float array handle `[p, y, r]` from a quaternion.
 
-### `Quat.Lerp(a, b, t)` / `Quat.Slerp(a, b, t)`
-Linear and spherical interpolation between quaternions `a` and `b` by factor `t` (0–1). Returns a new handle.
+---
 
-### `Quat.Free(handle)`
+### `QUAT.SLERP(a, b, t)` 
+Spherical interpolation between quaternions `a` and `b` by factor `t` (0–1). Returns a new handle.
+
+---
+
+### `QUAT.FREE(handle)` 
 Releases the quaternion handle from the heap and frees its memory.
 
 ```basic
@@ -129,6 +163,48 @@ Quat.Free(q)
 
 ---
 
+## Full Example
+
+Rotating a mesh using a quaternion built from euler angles each frame.
+
+```basic
+WINDOW.OPEN(960, 540, "Vec/Quat Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 3, -8)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+mesh = MESH.CREATECUBE(2, 2, 2)
+mat  = MATERIAL.CREATEDEFAULT()
+yaw  = 0.0
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt  = TIME.DELTA()
+    yaw = yaw + 1.2 * dt          ; radians/sec
+
+    q = QUAT.FROMEULER(0, yaw, 0)
+    m = QUAT.TOMAT4(q)
+    QUAT.FREE(q)
+
+    RENDER.CLEAR(20, 20, 40)
+    RENDER.BEGIN3D(cam)
+        MESH.DRAW(mesh, mat, m)
+        DRAW3D.GRID(10, 1.0)
+    RENDER.END3D()
+    TRANSFORM.FREE(m)
+    RENDER.FRAME()
+WEND
+
+MESH.UNLOAD(mesh)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
+
+---
+
 ## See also
 
-- [TRANSFORM.md](TRANSFORM.md) — transform matrices; legacy spellings in [MAT4.md](MAT4.md).
+- [TRANSFORM.md](TRANSFORM.md) — transform matrices
+- [MAT4.md](MAT4.md) — legacy matrix spellings
+- [MATH.md](MATH.md) — scalar trig and lerp helpers

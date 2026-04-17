@@ -2,65 +2,87 @@
 
 Commands for reading from and writing to files, and for managing the file system.
 
-## Core Concepts
+## Core Workflow
 
--   **Simple I/O**: For basic needs, `ReadAllText` and `WriteAllText` are the easiest way to read or write entire files at once.
+For simple reads/writes use `FILE.READALLTEXT` / `FILE.WRITEALLTEXT`. For streaming, open a handle with `FILE.OPEN`, write with `FILE.WRITE` / `FILE.WRITELINE`, and close with `FILE.CLOSE`. For path helpers see [UTIL.md](UTIL.md).
 
 ---
 
-### `File.Exists(path)`
+### `FILE.EXISTS(path)` 
 Returns `TRUE` if the specified file exists on disk.
 
-### `File.ReadAllText(path)`
+---
+
+### `FILE.READALLTEXT(path)` 
 Reads the entire content of a text file into a single string.
 
-### `File.WriteAllText(path, content)`
+---
+
+### `FILE.WRITEALLTEXT(path, content)` 
 Writes an entire string to a file, overwriting it if it already exists.
 
 ---
 
 ## Advanced File Operations
 
-### `File.Open(path, mode)`
+### `FILE.OPEN(path, mode)` 
 Opens a file and returns a **file handle**. `mode` can be `"r"` (read), `"w"` (write), or `"a"` (append).
 
-### `File.Close(handle)`
+---
+
+### `FILE.CLOSE(handle)` 
 Closes an open file handle and releases its resources.
 
-### `File.WriteLine(handle, content)`
+---
+
+### `FILE.WRITELINE(handle, content)` 
 Writes a string to an open file followed by a newline character.
 
-### `File.Write(handle, content)`
+---
+
+### `FILE.WRITE(handle, content)` 
 Writes a string to an open file without a newline.
 
 ---
 
 ## File System Management
 
-### `File.IsDir(path)`
+### `FILE.ISDIR(path)` 
 Returns `TRUE` if the specified path points to a directory.
 
-### `File.Delete(path)`
+---
+
+### `FILE.DELETE(path)` 
 Deletes a file or an empty directory from the system.
 
-### `File.Copy(source, dest)`
+---
+
+### `FILE.COPY(source, dest)` 
 Copies a file from the source path to the destination path.
 
-### `File.Move(source, dest)`
+---
+
+### `FILE.MOVE(source, dest)` 
 Moves or renames a file or directory.
 
-### `File.MakeDir(path)`
+---
+
+### `FILE.MAKEDIR(path)` 
 Creates a new directory.
 
-### `File.GetDir()`
+---
+
+### `FILE.GETDIR()` 
 Returns the current working directory.
 
-### `File.SetDir(path)`
+---
+
+### `FILE.SETDIR(path)` 
 Sets the current working directory.
 
 ---
 
-## Full Example: Creating and Managing a Log File
+## Full Example
 
 ```basic
 log_file = "my_game_log.txt"

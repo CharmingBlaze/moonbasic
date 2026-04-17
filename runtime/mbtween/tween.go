@@ -101,6 +101,13 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("TWEEN.LOOP", "tween", runtime.AdaptLegacy(m.twLoop))
 	reg.Register("TWEEN.YOYO", "tween", runtime.AdaptLegacy(m.twYoyo))
 	reg.Register("TWEEN.STOP", "tween", runtime.AdaptLegacy(m.twStop))
+
+	reg.Register("TWEEN.ISPLAYING", "tween", runtime.AdaptLegacy(m.twIsPlaying))
+	reg.Register("TWEEN.ISFINISHED", "tween", runtime.AdaptLegacy(m.twIsFinished))
+	reg.Register("TWEEN.PROGRESS", "tween", runtime.AdaptLegacy(m.twProgress))
+	reg.Register("TWEEN.GETLOOP", "tween", runtime.AdaptLegacy(m.twGetLoop))
+	reg.Register("TWEEN.GETYOYO", "tween", runtime.AdaptLegacy(m.twGetYoyo))
+	reg.Register("TWEEN.FREE", "tween", runtime.AdaptLegacy(m.twFree))
 }
 
 // Shutdown implements runtime.Module.
@@ -174,7 +181,7 @@ func (m *Module) twTo(rt *runtime.Runtime, args ...value.Value) (value.Value, er
 		Dur:     dur,
 		Ease:    easeName,
 	})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) twThen(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -204,7 +211,7 @@ func (m *Module) twOnComplete(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, fmt.Errorf("TWEEN.ONCOMPLETE: empty function name")
 	}
 	o.onDone = fn
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) twStart(args []value.Value) (value.Value, error) {
@@ -227,7 +234,7 @@ func (m *Module) twStart(args []value.Value) (value.Value, error) {
 	o.tStep = 0
 	o.entered = false
 	o.loopsDone = 0
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) twLoop(args []value.Value) (value.Value, error) {
@@ -259,7 +266,7 @@ func (m *Module) twLoop(args []value.Value) (value.Value, error) {
 	} else {
 		o.loopMax = int(n)
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) twYoyo(args []value.Value) (value.Value, error) {
@@ -277,6 +284,45 @@ func (m *Module) twYoyo(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("TWEEN.YOYO: cannot change while running")
 	}
 	o.yoyo = true
+	return args[0], nil
+}
+
+func (m *Module) twGetLoop(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TWEEN.GETLOOP expects (tween)")
+	}
+	o, err := m.getTween(args, 0, "TWEEN.GETLOOP")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.loopMax)), nil
+}
+
+func (m *Module) twGetYoyo(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TWEEN.GETYOYO expects (tween)")
+	}
+	o, err := m.getTween(args, 0, "TWEEN.GETYOYO")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromBool(o.yoyo), nil
+}
+
+func (m *Module) twFree(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("TWEEN.FREE expects (tween)")
+	}
+	m.h.Free(heap.Handle(args[0].IVal))
 	return value.Nil, nil
 }
 
@@ -294,7 +340,38 @@ func (m *Module) twStop(args []value.Value) (value.Value, error) {
 	o.running = false
 	o.entered = false
 	o.tStep = 0
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) twIsPlaying(args []value.Value) (value.Value, error) {
+	o, err := m.getTween(args, 0, "TWEEN.ISPLAYING")
+	if err != nil {
+		return value.FromBool(false), nil
+	}
+	return value.FromBool(o.running), nil
+}
+
+func (m *Module) twIsFinished(args []value.Value) (value.Value, error) {
+	o, err := m.getTween(args, 0, "TWEEN.ISFINISHED")
+	if err != nil {
+		return value.FromBool(true), nil
+	}
+	return value.FromBool(!o.running && o.loopsDone >= o.loopMax && o.loopMax > 0), nil
+}
+
+func (m *Module) twProgress(args []value.Value) (value.Value, error) {
+	o, err := m.getTween(args, 0, "TWEEN.PROGRESS")
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	if len(o.steps) == 0 {
+		return value.FromFloat(0), nil
+	}
+	s := o.steps[o.idx]
+	if s.Dur <= 0 {
+		return value.FromFloat(1), nil
+	}
+	return value.FromFloat(o.tStep / s.Dur), nil
 }
 
 func (o *tweenObj) beginSegment(m *Module) error {

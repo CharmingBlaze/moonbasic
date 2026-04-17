@@ -10,7 +10,7 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `WAVE.LOAD(filePath)`
+### `WAVE.LOAD(filePath)` 
 
 Loads a wave file (`.wav`) into memory. Returns a handle to the wave data.
 
@@ -18,31 +18,31 @@ Loads a wave file (`.wav`) into memory. Returns a handle to the wave data.
 
 ---
 
-### `WAVE.COPY(waveHandle)`
+### `WAVE.COPY(waveHandle)` 
 
 Creates a new, independent copy of a wave resource.
 
 ---
 
-### `WAVE.CROP(waveHandle, startFrame, endFrame)`
+### `WAVE.CROP(waveHandle, startFrame, endFrame)` 
 
 Crops the wave data to a new length, from `startFrame` to `endFrame`.
 
 ---
 
-### `WAVE.EXPORT(waveHandle, filePath)`
+### `WAVE.EXPORT(waveHandle, filePath)` 
 
 Saves the wave data to a new `.wav` file.
 
 ---
 
-### `WAVE.FREE(waveHandle)`
+### `WAVE.FREE(waveHandle)` 
 
 Frees the wave data from memory.
 
 ---
 
-### `SOUND.FROMWAVE(waveHandle)`
+### `SOUND.FROMWAVE(waveHandle)` 
 
 Creates a playable `SOUND` handle from raw `WAVE` data. The resulting sound can be used with **`AUDIO.PLAY()`**.
 

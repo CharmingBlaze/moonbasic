@@ -27,7 +27,7 @@ func (m *Module) musicLoad(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	}
 	initAudioOnce()
 	mu := rl.LoadMusicStream(path)
-	id, err := m.h.Alloc(&musicObj{m: mu})
+	id, err := m.h.Alloc(&musicObj{m: mu, pitch: 1})
 	if err != nil {
 		rl.UnloadMusicStream(mu)
 		return value.Nil, err

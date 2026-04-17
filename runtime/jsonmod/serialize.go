@@ -85,7 +85,7 @@ func jToFile(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err := os.WriteFile(strings.TrimSpace(path), b, 0o644); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jToFilePretty(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -113,7 +113,7 @@ func jToFilePretty(m *Module, rt *runtime.Runtime, args ...value.Value) (value.V
 	if err := os.WriteFile(strings.TrimSpace(path), b, 0o644); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // jToCSV exports a JSON array of objects to CSV text (RFC 4180 via encoding/csv).

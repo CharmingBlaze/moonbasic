@@ -1,46 +1,62 @@
-# Scene management (`SCENE.*`)
+# Scene Commands
 
-Registers **named scenes** backed by user **`FUNCTION`** loaders, optional **per-frame update/draw** hooks, and optional **transitions** when switching scenes. Implemented in `runtime/mbscene`.
+Named scene registration, loading, and per-frame update/draw hooks with optional transitions.
 
-> **Note:** This module is **not** a glTF level loader. For the roadmap toward Blender → scoped scene graph, deduplicated assets, and Jolt buffer integration, see [SCENE_ENGINE_BRIEF.md](SCENE_ENGINE_BRIEF.md).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-The module must receive a **user-function invoker** from the host (same mechanism as tweens and behavior trees): without it, loads fail.
+## Core Workflow
+
+1. Register scenes with `SCENE.REGISTER`, mapping an ID to a loader function.
+2. Set per-frame hooks with `SCENE.SETHANDLERS`.
+3. Load a scene with `SCENE.LOAD` or `SCENE.LOADASYNC`.
+4. Each frame, call `SCENE.UPDATE(dt)` and `SCENE.DRAW()`.
+5. Free with `SCENE.FREE` when done.
+
+For file-based level loading see [LEVEL.md](LEVEL.md). For transitions see [TRANSITION.md](TRANSITION.md).
 
 ---
 
-## Registration
-
-### `Scene.Load(id)`
+### `SCENE.LOAD(id)` 
 Loads a scene from a file and runs its loader function immediately. Returns a **scene handle**.
 
-### `Scene.LoadAsync(id)`
-Queues a scene to load at the start of the next update cycle.
+---
 
-### `Scene.Free(handle)`
-Unloads the scene and frees all associated entities and native resources.
+### `SCENE.LOADASYNC(id)` 
+Queues a scene to load at the start of the next update cycle.
 
 ---
 
-### `Scene.Register(id, funcName)`
-Maps a scene string ID to a parameterless user function name that acts as the loader.
+### `SCENE.FREE(sceneHandle)` 
+Unloads the scene and frees all associated entities and resources.
 
-### `Scene.SetHandlers(updateFunc, drawFunc)`
+---
+
+### `SCENE.REGISTER(id, funcName)` 
+Maps a scene string ID to a parameterless user function that acts as the loader.
+
+---
+
+### `SCENE.SETHANDLERS(updateFunc, drawFunc)` 
 Sets global names for the per-frame update and draw functions.
 
 ---
 
-### `Scene.Update(dt)`
+### `SCENE.UPDATE(dt)` 
 Advances transitions, runs async loads, and invokes the registered update function.
 
-### `Scene.Draw()`
+---
+
+### `SCENE.DRAW()` 
 Polls active transitions and invokes the registered draw function.
 
-### `Scene.Current()`
+---
+
+### `SCENE.CURRENT()` 
 Returns the ID string of the currently active scene.
 
 ---
 
-## Typical loop
+## Full Example
 
 ```basic
 SCENE.SETHANDLERS("MYUPDATE", "MYDRAW")

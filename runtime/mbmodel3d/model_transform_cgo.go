@@ -33,11 +33,11 @@ func (m *Module) modelSetPos(args []value.Value) (value.Value, error) {
 	}
 	if mo, err := m.getModel(args, 0, "MODEL.SETPOS"); err == nil {
 		mo.model.Transform = rl.MatrixTranslate(x, y, z)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if lo, err := m.getLODModel(args, 0, "MODEL.SETPOS"); err == nil {
 		lo.transform = rl.MatrixTranslate(x, y, z)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("MODEL.SETPOS: handle must be a Model or LODModel")
 }

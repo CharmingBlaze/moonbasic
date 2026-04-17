@@ -1,48 +1,57 @@
 # 2D Drawing Commands
 
-Raylib-backed 2D drawing. Typical frame flow: **`RENDER.CLEAR`** → (optional) **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** → **`DRAW.*`** → **`RENDER.FRAME`**.
+Immediate-mode 2D shapes, text, and texture drawing on the screen framebuffer.
 
-**BlitzPlus-style names** (`Plot`, `Line`, `Rect`, …) map to these **`DRAW.*`** commands with different color/buffer rules — see [BLITZ_COMMAND_INDEX.md](BLITZ_COMMAND_INDEX.md). Aliases: **`DRAW.PLOT`** = **`DRAW.PIXEL`**; **`DRAW.OVAL`** / **`DRAW.OVALLINES`** = **`DRAW.ELLIPSE`** / **`DRAW.ELLIPSELINES`**.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-- **No 2D camera:** coordinates are screen pixels (top-left origin).
-- **With `Camera2D`:** world coordinates are transformed by offset, target, zoom, and rotation.
+## Core Workflow
 
-Color components `r, g, b, a` are **0–255** unless noted.
+1. `RENDER.CLEAR` to start the frame.
+2. Draw with `DRAW.RECTANGLE`, `DRAW.CIRCLE`, `DRAW.LINE`, `DRAW.TEXT`, `DRAW.TEXTURE`, etc.
+3. `RENDER.FRAME` to present.
 
-**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern** — **`###`** per command, **`---`** between groups, **`## Full Example`** at the end).
+Color components `r, g, b, a` are **0–255**. For 2D camera transforms see `CAMERA2D.BEGIN` / `CAMERA2D.END` in [CAMERA.md](CAMERA.md).
 
 ---
 
-### `DRAW.RECTANGLE(x, y, w, h, r, g, b, a)`
+### `DRAW.RECTANGLE(x, y, w, h, r, g, b, a)` 
 Draws a filled rectangle at the specified screen coordinates.
 - `x, y`: Top-left corner.
 - `w, h`: Dimensions.
 - `r, g, b, a`: Color components (0-255).
 
-### `DRAW.RECTLINES(x, y, w, h, thick, r, g, b, a)`
+---
+
+### `DRAW.RECTLINES(x, y, w, h, thick, r, g, b, a)` 
 Draws a rectangle outline with a specific thickness.
 
 ---
 
-### `DRAW.CIRCLE(cx, cy, radius, r, g, b, a)`
+### `DRAW.CIRCLE(cx, cy, radius, r, g, b, a)` 
 Draws a filled circle.
 - `cx, cy`: Center position.
 - `radius`: Circle radius.
 
-### `DRAW.LINE(x1, y1, x2, y2, r, g, b, a)`
+---
+
+### `DRAW.LINE(x1, y1, x2, y2, r, g, b, a)` 
 Draws a line between two points.
 
 ---
 
-### `DRAW.TEXT(text, x, y, size, r, g, b, a)`
+### `DRAW.TEXT(text, x, y, size, r, g, b, a)` 
 Draws text using the default font.
 - `text`: The string to display.
 - `size`: Font size in pixels.
 
-### `DRAW.TEXTURE(id, x, y, r, g, b, a)`
+---
+
+### `DRAW.TEXTURE(id, x, y, r, g, b, a)` 
 Draws a texture handle at the specified position with a tint color. Use `255, 255, 255, 255` for no tint.
 
-### `DEBUG.PRINT(template, v0 [, v1 …])`
+---
+
+### `DEBUG.PRINT(template, v0 [, v1 …])` 
 
 Quick **debug HUD** lines: **`template`** uses placeholders **`{0}`** … **`{9}`**, filled from the following values. Draws with the default font at a fixed top-left column, **stacking downward** each frame; the vertical cursor **resets** when the render **frame** advances (same timing as **`RENDER.FRAME`** / runtime frame counter). For positioned or styled HUD text, use **`DRAW.TEXT`** instead.
 

@@ -12,15 +12,17 @@
 
 ---
 
-### `FONT.LOAD(path)`
+### `FONT.LOAD(path)` 
 Loads a `.ttf` or `.otf` font file from disk. Returns a **font handle**.
 
-### `FONT.FREE(handle)`
+---
+
+### `FONT.FREE(handle)` 
 Unloads a font from memory and releases its heap slot.
 
 ---
 
-### `DRAW.TEXTFONT(handle, text, x, y, size, spacing, r, g, b, a)`
+### `DRAW.TEXTFONT(handle, text, x, y, size, spacing, r, g, b, a)` 
 Draws text using a specific font handle. Call within **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** (or your active 2D camera bracket).
 - `handle`: The handle of the loaded font.
 - `text`: The string to draw.

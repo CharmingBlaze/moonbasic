@@ -1,8 +1,12 @@
-# Game helper commands
+# Game Helper Commands
 
-Small built-ins and idioms that keep gameplay code short without a full physics engine.
+Small built-ins for box landing, camera orbit, 2D movers, and camera-relative movement.
 
-Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — topic sections (**`BOXTOPLAND`**, orbit deltas, **`PLAYER2D`**) rather than one namespace; use **`###`** per major builtin where it helps scanning.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+Use `BOXTOPLAND` / `LANDBOXES` for platform snapping, `ORBITYAWDELTA` / `ORBITPITCHDELTA` / `ORBITDISTDELTA` for third-person orbit input, and `PLAYER2D.*` / `MOVEENTITY2D` for XZ ground-plane movement. Combine with `CAMERA.SETORBIT` for a complete third-person loop.
 
 ---
 

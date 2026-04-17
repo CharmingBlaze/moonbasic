@@ -2,7 +2,7 @@
 
 Commands for low-level bitwise manipulation of integer values. These are useful for working with flags, compact data formats, or certain kinds of algorithms.
 
-## Core Concepts
+## Core Workflow
 
 Bitwise operations treat integers as a sequence of binary digits (bits). A common use case is to store multiple boolean `TRUE`/`FALSE` states (flags) in a single integer variable.
 
@@ -15,43 +15,57 @@ GLOBAL FLAG_SPRINT = 2 ; Binary 0010
 
 ---
 
-### `Bit.And(a, b)`
+### `BAND(a, b)` 
 Returns the bitwise **AND** of two 32-bit integers.
 
-### `Bit.Or(a, b)`
+---
+
+### `BOR(a, b)` 
 Returns the bitwise **OR** of two 32-bit integers.
 
-### `Bit.Xor(a, b)`
+---
+
+### `BXOR(a, b)` 
 Returns the bitwise **XOR** of two 32-bit integers.
 
-### `Bit.Not(a)`
+---
+
+### `BNOT(a)` 
 Returns the bitwise **NOT** (one's complement) of an integer.
 
 ---
 
-### `Bit.Shl(v, n)`
+### `BSHL(v, n)` 
 Returns `v` shifted left by `n` bits.
 
-### `Bit.Shr(v, n)`
+---
+
+### `BSHR(v, n)` 
 Returns `v` shifted right by `n` bits.
 
 ---
 
-### `Bit.Get(v, bitIndex)`
-Returns `TRUE` if the bit at `bitIndex` (0–31) is set, `FALSE` otherwise.
-
-### `Bit.Set(v, bitIndex)`
-Returns a new integer with the bit at `bitIndex` set to 1.
-
-### `Bit.Clear(v, bitIndex)`
-Returns a new integer with the bit at `bitIndex` set to 0.
-
-### `Bit.Toggle(v, bitIndex)`
-Returns a new value with the specified bit flipped (0 to 1, or 1 to 0).
+### `BGET(v, bitIndex)` 
+Returns `TRUE` if the bit at `bitIndex` (0–31) is set.
 
 ---
 
-## Full Example: Using Bitwise Flags
+### `BSET(v, bitIndex)` 
+Returns a new integer with the bit at `bitIndex` set to 1.
+
+---
+
+### `BCLEAR(v, bitIndex)` 
+Returns a new integer with the bit at `bitIndex` set to 0.
+
+---
+
+### `BTOGGLE(v, bitIndex)` 
+Returns a new value with the specified bit flipped.
+
+---
+
+## Full Example
 
 This example uses bitwise commands to manage a set of player ability flags.
 

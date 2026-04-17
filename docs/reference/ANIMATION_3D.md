@@ -1,8 +1,16 @@
-# 3D skeletal animation (`ENTITY.*` vs `MODEL.*`)
+# Animation 3D Commands
 
-moonBASIC drives **skinned mesh** clips through Raylib’s **`ModelAnimation`** data: one **active clip** at a time, **`UpdateModelAnimation`** + **`UpdateModelAnimationBones`** each frame. There is **no** built-in cross-fade or blend tree — switching clips snaps to the new pose (see limitations below).
+Skeletal animation playback through the entity pipeline or manual model handles.
 
-Use either the **entity** pipeline (scene graph, **`ENTITY.UPDATE`**) or the **heap model** pipeline (**`MODEL.LOAD`** + **`MODEL.UPDATEANIM`**), not both on the same logical character unless you know what you are doing.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+**Entity path (recommended):** load with `ENTITY.LOADANIMATEDMESH`, play with `ENTITY.PLAY` / `ENTITY.PLAYNAME`, advance with `ENTITY.UPDATE(dt)` each frame.
+
+**Model path (manual):** load with `MODEL.LOADANIMATIONS`, play with `MODEL.PLAYIDX`, advance with `MODEL.UPDATEANIM(dt)`.
+
+No built-in cross-fade — switching clips snaps to the new pose.
 
 ---
 
@@ -85,6 +93,37 @@ Details and pitfalls: [MODEL.md](MODEL.md) (animation subsection).
 - **Single active pose** per mesh — no skeletal **cross-fade** between clips (Raylib updates one clip + frame index).
 - **Root motion** is not extracted from clips; move the **entity** or **model** yourself if your asset bakes displacement into bones only.
 - **Clip naming** on the **`MODEL`** path: resolve by index with **`MODEL.ANIMNAME`**; there is no string-based **`PLAY`** yet.
+
+---
+
+## Full Example
+
+```basic
+WINDOW.OPEN(1280, 720, "Animation Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 3, -6)
+CAMERA.SETTARGET(cam, 0, 1, 0)
+
+hero = ENTITY.LOADANIMATEDMESH("character.glb")
+ENTITY.SETPOS(hero, 0, 0, 0, TRUE)
+ENTITY.PLAYNAME(hero, "walk")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    ENTITY.UPDATE(TIME.DELTA())
+
+    RENDER.CLEAR(40, 50, 60)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+ENTITY.FREE(hero)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 

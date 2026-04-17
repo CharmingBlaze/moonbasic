@@ -12,38 +12,55 @@ Create a biome with **`BIOME.CREATE(name)`**, tune **`BIOME.SETTEMP`** and **`BI
 
 ---
 
-### `BIOME.CREATE(name)`
+### `BIOME.CREATE(name)` 
 
 Creates a biome descriptor. **`name`** is a string label. **`BIOME.MAKE`** is a deprecated alias. Returns a **handle**.
 
 ---
 
-### `BIOME.FREE(biome)`
+### `BIOME.MAKE(name)` 
 
-Frees the biome handle.
-
----
-
-### `BIOME.SETTEMP(biome, t)`
-
-Sets temperature (see runtime: manifest describes **celsius** scale).
+Alias for `BIOME.CREATE`.
 
 ---
 
-### `BIOME.SETHUMIDITY(biome, h)`
+### `BIOME.SETTEMP(biomeHandle, temperature)` 
 
-Sets humidity **0–1** (normalized).
+Sets the temperature value for the biome (typically 0.0–1.0).
+
+---
+
+### `BIOME.SETHUMIDITY(biomeHandle, humidity)` 
+
+Sets the humidity value for the biome (typically 0.0–1.0).
+
+---
+
+### `BIOME.FREE(biomeHandle)` 
+
+Frees the biome handle from memory.
 
 ---
 
 ## Full Example
 
+This example creates two biomes and assigns properties for a procedural terrain system.
+
 ```basic
-biome = BIOME.CREATE("forest")
-BIOME.SETTEMP(biome, 18.0)
-BIOME.SETHUMIDITY(biome, 0.65)
-; ... drive audio, foliage, or weather from biome ...
-BIOME.FREE(biome)
+desert = BIOME.CREATE("desert")
+BIOME.SETTEMP(desert, 0.9)
+BIOME.SETHUMIDITY(desert, 0.1)
+
+jungle = BIOME.CREATE("jungle")
+BIOME.SETTEMP(jungle, 0.7)
+BIOME.SETHUMIDITY(jungle, 0.9)
+
+PRINT "Biomes configured."
+
+; Use biome handles with terrain chunk placement ...
+
+BIOME.FREE(desert)
+BIOME.FREE(jungle)
 ```
 
 ---

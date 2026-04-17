@@ -125,7 +125,7 @@ func (m *Module) camOrbitFollowEntity(args []value.Value) (value.Value, error) {
 	o.cam.Position.Y = tyLook + float32(d*sp)
 	o.cam.Position.Z = tz + float32(d*cp*cy)
 	o.cam.Target = rl.Vector3{X: tx, Y: tyLook, Z: tz}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func clamp32(x, lo, hi float32) float32 {
@@ -155,7 +155,7 @@ func (m *Module) camUseMouseOrbit(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	o.orbitUseMouse = argBool(args[1])
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camUseOrbitRightMouse maps to CAMERA.USEORBITRIGHTMOUSE: when true (default), mouse orbit only while RMB is held; when false, mouse moves orbit without RMB.
@@ -175,7 +175,7 @@ func (m *Module) camUseOrbitRightMouse(args []value.Value) (value.Value, error) 
 		return value.Nil, err
 	}
 	o.orbitRightMouseForDrag = argBool(args[1])
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camSetOrbitKeys maps to CAMERA.SETORBITKEYS: raylib key codes; use 0 for a side to disable keyboard orbit on that side.
@@ -201,7 +201,7 @@ func (m *Module) camSetOrbitKeys(args []value.Value) (value.Value, error) {
 	}
 	o.orbitKeyLeft = kL
 	o.orbitKeyRight = kR
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camSetOrbitLimits maps to CAMERA.SETORBITLIMITS: pitch (radians), distance clamps.
@@ -231,7 +231,7 @@ func (m *Module) camSetOrbitLimits(args []value.Value) (value.Value, error) {
 	o.orbitMaxPitch = maxP
 	o.orbitMinDist = minD
 	o.orbitMaxDist = maxD
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camSetOrbitSpeed maps to CAMERA.SETORBITSPEED: mouse drag sensitivity and scroll-wheel zoom scale.
@@ -257,7 +257,7 @@ func (m *Module) camSetOrbitSpeed(args []value.Value) (value.Value, error) {
 	}
 	o.orbitMouseSens = ms
 	o.orbitWheelSens = ws
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camSetOrbitKeySpeed maps to CAMERA.SETORBITKEYSPEED: keyboard yaw rate in radians per second.
@@ -281,7 +281,7 @@ func (m *Module) camSetOrbitKeySpeed(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.SETORBITKEYSPEED: keyRadPerSec must be numeric")
 	}
 	o.orbitKeyRadPerSec = kr
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camGetYaw returns internal orbit yaw (radians) for aligning entities with the orbit camera.

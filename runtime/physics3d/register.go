@@ -78,7 +78,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("BODY3D.ACTIVATE", "physics3d", runtime.AdaptLegacy(m.bdActivate))
 	reg.Register("BODY3D.DEACTIVATE", "physics3d", runtime.AdaptLegacy(m.bdDeactivate))
 	reg.Register("BODY3D.SETROT", "physics3d", runtime.AdaptLegacy(m.bdSetRotation))
-	reg.Register("BODY3D.GETROT", "physics3d", runtime.AdaptLegacy(m.bdGetRotZero))
+	reg.Register("BODY3D.GETROT", "physics3d", runtime.AdaptLegacy(m.bdGetRot))
 	reg.Register("BODY3D.GETSCALE", "physics3d", runtime.AdaptLegacy(m.bdGetScale))
 	reg.Register("BODY3D.SETSCALE", "physics3d", runtime.AdaptLegacy(m.bdSetScale))
 	reg.Register("BODY3D.SETMASS", "physics3d", runtime.AdaptLegacy(m.bdSetMass))
@@ -91,9 +91,26 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("BODY3D.GETVELOCITY", "physics3d", runtime.AdaptLegacy(m.bdGetLinearVel))
 	reg.Register("BODY3D.GETLINEARVEL", "physics3d", runtime.AdaptLegacy(m.bdGetLinearVel))
 	reg.Register("BODY3D.GETANGULARVEL", "physics3d", runtime.AdaptLegacy(m.bdGetAngularVel))
+	reg.Register("BODY3D.ANGULARVEL", "physics3d", runtime.AdaptLegacy(m.bdGetAngularVel))
 	reg.Register("BODY3D.SETANGULARVEL", "physics3d", runtime.AdaptLegacy(m.bdSetAngularVel))
 	reg.Register("BODY3D.GETMASS", "physics3d", runtime.AdaptLegacy(m.bdGetMass))
+	reg.Register("BODY3D.MASS", "physics3d", runtime.AdaptLegacy(m.bdGetMass))
 	reg.Register("BODY3D.APPLYTORQUE", "physics3d", runtime.AdaptLegacy(m.bdApplyTorque))
+
+	// Additional aliases for manifest compatibility
+	reg.Register("BODY3D.BOUNCE", "physics3d", runtime.AdaptLegacy(m.bdSetRestitution))
+	reg.Register("BODY3D.FRICTION", "physics3d", runtime.AdaptLegacy(m.bdSetFriction))
+	reg.Register("BODY3D.GETFRICTION", "physics3d", runtime.AdaptLegacy(m.bdGetFriction))
+	reg.Register("BODY3D.GETRESTITUTION", "physics3d", runtime.AdaptLegacy(m.bdGetRestitution))
+	reg.Register("BODY3D.RESTITUTION", "physics3d", runtime.AdaptLegacy(m.bdSetRestitution))
+	reg.Register("BODY3D.POS", "physics3d", runtime.AdaptLegacy(m.bdGetPos))
+	reg.Register("BODY3D.ROT", "physics3d", runtime.AdaptLegacy(m.bdGetRot))
+	reg.Register("BODY3D.SCALE", "physics3d", runtime.AdaptLegacy(m.bdGetScale))
+	reg.Register("BODY3D.VEL", "physics3d", runtime.AdaptLegacy(m.bdGetLinearVel))
+	reg.Register("BODY3D.VELOCITY", "physics3d", runtime.AdaptLegacy(m.bdGetLinearVel))
+	reg.Register("BODY3D.GETCCD", "physics3d", runtime.AdaptLegacy(m.bdGetCCD))
+	reg.Register("BODY3D.GETDAMPING", "physics3d", runtime.AdaptLegacy(m.bdGetDamping))
+	reg.Register("BODY3D.GETGRAVITYFACTOR", "physics3d", runtime.AdaptLegacy(m.bdGetGravityFactor))
 	reg.Register("BODY3D.X", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.bdAxis(a, 0) }))
 	reg.Register("BODY3D.Y", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.bdAxis(a, 1) }))
 	reg.Register("BODY3D.Z", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.bdAxis(a, 2) }))
@@ -109,7 +126,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("BODYREF.SETPOSITION", "physics3d", runtime.AdaptLegacy(m.brSetPos))
 	reg.Register("BODYREF.GETPOSITION", "physics3d", runtime.AdaptLegacy(m.bdGetPos))
 	reg.Register("BODYREF.SETROTATION", "physics3d", runtime.AdaptLegacy(m.bdSetRotation))
-	reg.Register("BODYREF.GETROTATION", "physics3d", runtime.AdaptLegacy(m.bdGetRotZero))
+	reg.Register("BODYREF.GETROTATION", "physics3d", runtime.AdaptLegacy(m.bdGetRot))
 	reg.Register("BODYREF.GETVELOCITY", "physics3d", runtime.AdaptLegacy(m.bdGetLinearVel))
 	reg.Register("BODYREF.SETVELOCITY", "physics3d", runtime.AdaptLegacy(m.bdSetLinearVel))
 	reg.Register("BODYREF.SETLAYER", "physics3d", runtime.AdaptLegacy(m.brSetLayer))
@@ -134,6 +151,7 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 
 	// Kinematic Specific
 	reg.Register("KINEMATICREF.SETVELOCITY", "physics3d", runtime.AdaptLegacy(m.bdSetLinearVel))
+	reg.Register("KINEMATICREF.GETVELOCITY", "physics3d", runtime.AdaptLegacy(m.bdGetLinearVel))
 	reg.Register("KINEMATICREF.UPDATE", "physics3d", runtime.AdaptLegacy(m.bdNoOp))
 
 	// Debug / Picking
@@ -151,6 +169,10 @@ func registerPhysics3DCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("VEHICLE.WHEELZ", "physics3d", runtime.AdaptLegacy(func(a []value.Value) (value.Value, error) { return m.VHWheelAxis(a, 2) }))
 	registerAeroCommands(m, reg)
 	registerPickCommands(m, reg)
+
+	// Easy Mode flat aliases
+	reg.Register("CREATEBODY", "physics3d", runtime.AdaptLegacy(m.phBodyMake))
+	reg.Register("SETGRAVITY", "physics3d", runtime.AdaptLegacy(m.phSetGravity))
 }
 
 func (m *Module) phOnCollision(args []value.Value) (value.Value, error) {

@@ -58,7 +58,7 @@ func TestNoDuplicateAudioManifestArgSignatures(t *testing.T) {
 func TestSetPosHasSetPositionAlias(t *testing.T) {
 	tbl := Default()
 	for key, ovs := range tbl.Commands {
-		if !strings.Contains(key, ".SETPOS") || strings.Contains(key, ".SETPOSITION") {
+		if !strings.HasSuffix(key, ".SETPOS") || strings.Contains(key, ".SETPOSITION") {
 			continue
 		}
 		aliasKey := strings.Replace(key, ".SETPOS", ".SETPOSITION", 1)

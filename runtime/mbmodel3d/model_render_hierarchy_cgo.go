@@ -74,7 +74,7 @@ func (m *Module) modelSetAlpha(args []value.Value) (value.Value, error) {
 		c.A = au
 		mp.Color = c
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetWireframe(args []value.Value) (value.Value, error) {
@@ -93,7 +93,7 @@ func (m *Module) modelSetWireframe(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETWIREFRAME: enable must be bool or numeric")
 	}
 	o.wireframe = en
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetCull(args []value.Value) (value.Value, error) {
@@ -112,7 +112,7 @@ func (m *Module) modelSetCull(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETCULL: enable must be bool or numeric")
 	}
 	o.cull = en
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetLighting(args []value.Value) (value.Value, error) {
@@ -131,7 +131,7 @@ func (m *Module) modelSetLighting(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETLIGHTING: enable must be bool or numeric")
 	}
 	o.lighting = en
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetFog(args []value.Value) (value.Value, error) {
@@ -150,7 +150,7 @@ func (m *Module) modelSetFog(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETFOG: enable must be bool or numeric")
 	}
 	o.fog = en
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetBlend(args []value.Value) (value.Value, error) {
@@ -169,7 +169,7 @@ func (m *Module) modelSetBlend(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETBLEND: mode must be numeric (use BLEND_* constants)")
 	}
 	o.blendMode = mode
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetDepth(args []value.Value) (value.Value, error) {
@@ -188,7 +188,7 @@ func (m *Module) modelSetDepth(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETDEPTH: depth must be non-negative int (bitmask: 1=no depth test, 2=no depth write)")
 	}
 	o.depthBits = d
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetDiffuse(args []value.Value) (value.Value, error) {
@@ -213,7 +213,7 @@ func (m *Module) modelSetDiffuse(args []value.Value) (value.Value, error) {
 		c.R, c.G, c.B = col.R, col.G, col.B
 		mp.Color = c
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetSpecular(args []value.Value) (value.Value, error) {
@@ -238,7 +238,7 @@ func (m *Module) modelSetSpecular(args []value.Value) (value.Value, error) {
 		c.R, c.G, c.B = col.R, col.G, col.B
 		mp.Color = c
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetSpecularPow(args []value.Value) (value.Value, error) {
@@ -261,7 +261,7 @@ func (m *Module) modelSetSpecularPow(args []value.Value) (value.Value, error) {
 		mat := &mats[i]
 		mat.Params[0] = pow
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetEmissive(args []value.Value) (value.Value, error) {
@@ -288,7 +288,7 @@ func (m *Module) modelSetEmissive(args []value.Value) (value.Value, error) {
 		mp := mats[i].GetMap(rl.MapEmission)
 		mp.Color = em
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelSetAmbientColor(args []value.Value) (value.Value, error) {
@@ -309,7 +309,7 @@ func (m *Module) modelSetAmbientColor(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.SETAMBIENTCOLOR: r, g, b must be numeric")
 	}
 	o.ambientR, o.ambientG, o.ambientB = int32(ri), int32(gi), int32(bi)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelClone(args []value.Value) (value.Value, error) {
@@ -369,7 +369,7 @@ func (m *Module) modelAttachTo(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("MODEL.ATTACHTO: parent must be a model handle")
 	}
 	child.parent = ph
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelDetach(args []value.Value) (value.Value, error) {
@@ -384,7 +384,7 @@ func (m *Module) modelDetach(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	o.parent = 0
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelExists(args []value.Value) (value.Value, error) {
@@ -418,5 +418,5 @@ func (m *Module) modelSetGPUSkinning(args []value.Value) (value.Value, error) {
 	}
 	// raylib 5.6-dev in current raylib-go removed the per-model GPU skinning flag; skin path uses
 	// UpdateModelAnimation / UpdateModelAnimationBones. Kept as a documented no-op for scripts.
-	return value.Nil, nil
+	return args[0], nil
 }

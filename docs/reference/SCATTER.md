@@ -18,25 +18,25 @@ Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
 ## `SCATTER.*`
 
-### `SCATTER.CREATE(name)`
+### `SCATTER.CREATE(name)` 
 
 Allocates a scatter object tagged with **`name`** (string). Returns a **heap handle**.
 
 ---
 
-### `SCATTER.FREE(handle)`
+### `SCATTER.FREE(handle)` 
 
 Frees the scatter handle.
 
 ---
 
-### `SCATTER.APPLY(scatter, terrain, density)`
+### `SCATTER.APPLY(scatter, terrain, density)` 
 
 Repopulates samples on the given **terrain** using **`density`** (internal heuristic — start **low** and profile).
 
 ---
 
-### `SCATTER.DRAWALL(scatter)`
+### `SCATTER.DRAWALL(scatter)` 
 
 Draws scatter markers. Call inside **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`** (or **`CAMERA.BEGIN`** / **`CAMERA.END`**).
 
@@ -44,19 +44,19 @@ Draws scatter markers. Call inside **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()
 
 ## `PROP.*`
 
-### `PROP.PLACE(model, x, y, z)`
+### `PROP.PLACE(model, x, y, z)` 
 
 Records a prop at **(x, y, z)**. The first argument is **reserved** for a future mesh association; pass **`0`** or **`NIL`** where your build allows.
 
 ---
 
-### `PROP.FREE(handle)`
+### `PROP.FREE(handle)` 
 
 Frees a stored prop handle.
 
 ---
 
-### `PROP.DRAWALL()`
+### `PROP.DRAWALL()` 
 
 Draws all registered props (placeholder cubes in the reference implementation).
 

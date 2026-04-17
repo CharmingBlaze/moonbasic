@@ -1,54 +1,78 @@
-# Entity commands
+# Entity Commands
 
-**Style:** New scripts should prefer **`ENTITY.SETPOS`**, **`ENTITY.DRAWALL`**, **`WINDOW.*`**, **`RENDER.*`** — see the [API Standardization Directive](../API_STANDARDIZATION_DIRECTIVE.md) and [STYLE_GUIDE.md](../../STYLE_GUIDE.md). Sections below still show **Blitz / Easy Mode** names (`Entity.Position`, `Window.Open`, …) where those facades exist for migration.
+Lightweight integer-id entities for 3D scene objects: load, position, rotate, parent, animate, and draw.
 
-moonBASIC **entities** are lightweight **integer ids** (handles to rows in the host entity store—not heavy “OOP objects”). **`ENTITY.*`** is the canonical prefix; **PascalCase** **`Entity.*`** names in this doc are **facade aliases** where registered (see [`entity_blitz_facade_cgo.go`](../../runtime/mbentity/entity_blitz_facade_cgo.go)). **CGO** builds link the full implementation; see [`runtime/mbentity/`](../../runtime/mbentity/).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Scene vs level:** **`SCENE.*`** is for **game scene** switching (**mbscene**). Loading glTF levels uses **`LEVEL.LOAD`** / **`LEVEL.FINDENTITY`** (or **`ENTITY.FIND`** by name)—not **`Scene.FindEntity`**.
+## Core Workflow
 
-### `Entity.Load(path)`
+1. Create with `ENTITY.LOAD`, `ENTITY.CREATE`, `ENTITY.CREATECUBE`, etc.
+2. Position/rotate with `ENTITY.SETPOS`, `ENTITY.SETROT`, `ENTITY.SETSCALE`.
+3. Call `ENTITY.UPDATE(dt)` each frame to advance physics and animation.
+4. Draw with `ENTITY.DRAWALL` (sorted scene) or `ENTITY.DRAW` (single entity).
+5. Free with `ENTITY.FREE`.
+
+For scene switching see [SCENE.md](SCENE.md). For level loading see [LEVEL.md](LEVEL.md).
+
+---
+
+### `ENTITY.LOAD(path)` 
 Loads a 3D model from a file path. Returns an **entity id**. 
 - `path`: String path to model file (glTF, OBJ, etc.).
 
-### `Entity.CreateCube(size)`
+---
+
+### `ENTITY.CREATECUBE(size)` 
 Creates a cube primitive entity.
 - `size`: Uniform size of the cube.
 
 ---
 
-### `Entity.Position(id, x, y, z)`
+### `ENTITY.POSITION(id, x, y, z)` 
 Sets the world position of an entity.
 - `id`: Entity id.
 - `x, y, z`: World coordinates.
 
-### `Entity.Move(id, forward, right, up)`
+---
+
+### `ENTITY.MOVE(id, forward, right, up)` 
 Moves the entity along its local axes (from its current pitch and yaw).
 - `forward, right, up`: Distances to move along local vectors.
 
-### `Entity.SetRotation(id, pitch, yaw, roll)`
+---
+
+### `ENTITY.SETROTATION(id, pitch, yaw, roll)` 
 Sets the absolute rotation of an entity in degrees.
 
-### `Entity.Turn(id, pitch, yaw, roll)`
+---
+
+### `ENTITY.TURN(id, pitch, yaw, roll)` 
 Adds to the current rotation of an entity (delta rotation in degrees).
 
-### `Entity.Scale(id, sx, sy, sz)`
+---
+
+### `ENTITY.SCALE(id, sx, sy, sz)` 
 Sets the non-uniform scale of an entity.
 
 ---
 
-### `Entity.Parent(child, parent)`
+### `ENTITY.PARENT(child, parent)` 
 Parents one entity to another. The child inherits the parent's transforms.
 
-### `Entity.Unparent(id)`
+---
+
+### `ENTITY.UNPARENT(id)` 
 Removes the parent from an entity while maintaining its world position.
 
 ---
 
-### `Entity.Visible(id, toggle)`
+### `ENTITY.VISIBLE(id, toggle)` 
 Sets whether the entity is visible.
 - `toggle`: Boolean (`TRUE` or `FALSE`).
 
-### `Entity.Free(id)`
+---
+
+### `ENTITY.FREE(id)` 
 Frees the entity and its resources from memory.
 
 ---
@@ -64,7 +88,7 @@ Shorthand for reading/writing coordinates directly from the entity store. These 
 
 ## Examples
 
-### Creating and Moving an Entity
+### Creating and Moving an Entity 
 ```basic
 WINDOW.OPEN(1280, 720, "Entity Example")
 cam = CAMERA.CREATE()
@@ -86,6 +110,8 @@ WEND
 ENTITY.FREE(cube)
 WINDOW.CLOSE()
 ```
+
+---
 
 ## Quick links
 
@@ -128,7 +154,7 @@ Detailed normals along an arbitrary ray: **`PHYSICS3D.RAYCAST`** (returns a smal
 
 These globals mirror Blitz-style names; canonical forms are **`ENTITY.*`** / **`MOVEENTITY`** where noted.
 
-### `ENTITY.GETPOS(entity)` → **handle**
+### `ENTITY.GETPOS(entity)` → **handle** 
 
 - **Arguments:** `entity` (int entity id).
 - **Returns:** a 3-float tuple-like array handle `[x, y, z]` for destructuring.
@@ -140,32 +166,42 @@ px, py, pz = ENTITY.GETPOS(player)
 
 `ENTITY.GETPOSITION(entity)` remains available and returns a vec3 handle for the handle-based vector API.
 
-### `MoveEntity(entity, forward, right, up)`
+---
+
+### `MoveEntity(entity, forward, right, up)` 
 
 - **Arguments:** **`entity`** — entity id; **`forward`**, **`right`**, **`up`** — distances to move along that entity’s **local** axes (from its **pitch** and **yaw**; roll is not used for the basis).
 - **Behavior:** Same as **`MOVEENTITY`** and **`ENTITY.MOVE`**. The engine builds a forward vector from yaw/pitch, derives right from the world up cross forward, then up from right cross forward, and adds **`forward·fwd + right·right + up·up`** to the entity’s **world** position (parent-aware).
 - **Use for:** Walking relative to facing (e.g. set **`RotateEntity(player, 0, camYaw, 0)`** then **`MoveEntity(player, speed*dt, 0, 0)`** for forward).
 - **Not for:** A fixed world offset — use **`TranslateEntity`** instead.
 
-### `TranslateEntity(entity, dx, dy, dz)`
+---
+
+### `TranslateEntity(entity, dx, dy, dz)` 
 
 - **Arguments:** **`entity`**; **`dx`**, **`dy`**, **`dz`** — delta in **world** space (applied to world position, then converted back to local if parented).
 - **Behavior:** Same as **`ENTITY.TRANSLATE`** / **`ENTITY.TRANSLATEENTITY`**.
 - **Use for:** Nudging lights, props, or anything that should move **`(1,0,0)`** in world axes regardless of rotation.
 
-### `EntityHitsType(entity, type)` → **bool**
+---
+
+### `EntityHitsType(entity, type)` → **bool** 
 
 - **Arguments:** **`entity`** — mover/query entity; **`type`** — integer **collision type** previously set with **`EntityType`** / **`ENTITY.TYPE`** on **other** entities (e.g. ground = **`2`**).
 - **Returns:** **`TRUE`** if, **after the last `ENTITY.UPDATE(dt)`** (or **`UPDATEPHYSICS`**), **`entity`** has a rule-based hit whose other body’s **`EntityType`** equals **`type`**. Otherwise **`FALSE`**.
 - **Relation to `ENTITYCOLLIDED`:** Same test as **`ENTITYCOLLIDED(entity, type) <> 0`**; **`ENTITYCOLLIDED`** returns the **other entity’s id** or **`0`** if you need the handle.
 - **Prerequisites:** Register pairs with **`COLLISIONS(srcType, dstType, method, response)`** (e.g. sphere-vs-box **`method`** **`2`**) and run **`ENTITY.UPDATE`** each frame. **Not** the same as **`EntityCollided(a, b)`**, which is the **two-entity Jolt** contact query (Linux + linked buffers).
 
-### `Entity.TFormVector(x, y, z, srcEntity, dstEntity)` → **handle**
+---
+
+### `ENTITY.TFORMVECTOR(x, y, z, srcEntity, dstEntity)` → **handle** 
 
 - **Arguments:** Direction or vector components **`x`**, **`y`**, **`z`** in **`srcEntity`**’s **local** space; **`srcEntity`** and **`dstEntity`** are entity ids.
 - **Returns:** **Heap handle** to a **3-element float array** (same convention as **`ENTITY.GETPOSITION`**): read components via array access or helpers your script style supports.
 - **Behavior:** Alias of **`ENTITY.TFORMVECTOR`**. Transforms the vector by the **linear** part of the world matrix chain (direction only, no translation).
 - **Use for:** Camera-relative directions, wind in ship space, etc. **Note:** There is no **`entity = 0`** “world” shortcut; use an axis-aligned **pivot entity** at the origin if you need world as a space.
+
+---
 
 ## Scene hierarchy & world utilities (Blitz-style)
 
@@ -221,3 +257,47 @@ Full **command matrix** (entities vs **`MODEL.*`**), time scaling, and limitatio
 - **[API_CONSISTENCY.md](../API_CONSISTENCY.md)** — search for **`ENTITY.`** for every overload and arity.
 - **[ANIMATION_3D.md](ANIMATION_3D.md)** — skeletal clips, **`ENTITY.UPDATE`**, bone sockets.
 - **[GAMEHELPERS.md](GAMEHELPERS.md)** — movement, landing, camera follow.
+
+---
+
+## Full Example
+
+A spinning cube entity with camera orbit.
+
+```basic
+WINDOW.OPEN(960, 540, "Entity Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 5, -10)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+cube = ENTITY.CREATECUBE(2.0)
+ENTITY.SETPOS(cube, 0, 0, 0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    ENTITY.UPDATE(dt)
+    ENTITY.TURN(cube, 0, 30.0 * dt, 0)
+
+    RENDER.CLEAR(20, 30, 50)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+        DRAW3D.GRID(10, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+ENTITY.FREE(cube)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [ANIMATION_3D.md](ANIMATION_3D.md) — skeletal clips, bone sockets
+- [SCENE.md](SCENE.md) — scene switching and entity groups
+- [PHYSICS3D.md](PHYSICS3D.md) — physics body bridge
+- [GAMEHELPERS.md](GAMEHELPERS.md) — movement helpers

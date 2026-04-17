@@ -8,6 +8,7 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
+	"moonbasic/runtime/mbmatrix"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
 )
@@ -129,7 +130,7 @@ func (m *Module) wSetWave(args []value.Value) (value.Value, error) {
 	amp, _ := args[2].ToFloat()
 	o.WaveFreq = float32(sp)
 	o.WaveAmp = float32(amp)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wFree(args []value.Value) (value.Value, error) {
@@ -163,7 +164,7 @@ func (m *Module) wSetPos(args []value.Value) (value.Value, error) {
 	o.PY = float32(y)
 	o.PZ = float32(z)
 	o.BedY = o.PY - 12
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wDraw(args []value.Value) (value.Value, error) {
@@ -178,7 +179,7 @@ func (m *Module) wDraw(args []value.Value) (value.Value, error) {
 	bob := float32(math.Sin(float64(o.WaveT))) * o.WaveAmp * 0.15
 	mat := rl.MatrixTranslate(o.PX, o.PY+bob, o.PZ)
 	rl.DrawMesh(o.Mesh, o.Mat, mat)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wUpdate(args []value.Value) (value.Value, error) {
@@ -207,7 +208,7 @@ func (m *Module) wSetWaveHeight(args []value.Value) (value.Value, error) {
 	}
 	v, _ := args[1].ToFloat()
 	o.WaveAmp = float32(v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wGetWaveY(args []value.Value) (value.Value, error) {
@@ -269,7 +270,7 @@ func (m *Module) wSetShallow(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("WATER.SETSHALLOWCOLOR: colors must be integers")
 	}
 	o.Shallow = rl.Color{R: uint8(ri), G: uint8(gi), B: uint8(bi), A: uint8(ai)}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wSetDeep(args []value.Value) (value.Value, error) {
@@ -289,7 +290,7 @@ func (m *Module) wSetDeep(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("WATER.SETDEEPCOLOR: colors must be integers")
 	}
 	o.Deep = rl.Color{R: uint8(ri), G: uint8(gi), B: uint8(bi), A: uint8(ai)}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // wSetColor sets shallow tint from packed RGB (bits 16..23, 8..15, 0..7) and scales both shallow/deep alpha from clarity (0..1 or 0..255).
@@ -330,7 +331,113 @@ func (m *Module) wSetColor(args []value.Value) (value.Value, error) {
 		B: uint8(minInt(255, int(b)*2/3)),
 		A: uint8(minInt(255, int(a)*13/10)),
 	}
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) wGetPos(args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 {
+		return value.Nil, fmt.Errorf("WATER.GETPOS expects handle")
+	}
+	h := heap.Handle(args[0].IVal)
+	o, err := castW(m, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.PX, o.PY, o.PZ)
+}
+
+func (m *Module) wGetColor(args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 {
+		return value.Nil, fmt.Errorf("WATER.GETCOLOR expects handle")
+	}
+	h := heap.Handle(args[0].IVal)
+	o, err := castW(m, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(o.Shallow.R)
+	arr.Floats[1] = float64(o.Shallow.G)
+	arr.Floats[2] = float64(o.Shallow.B)
+	arr.Floats[3] = float64(o.Shallow.A)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) wGetWaveHeight(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("WATER.GETWAVEHEIGHT expects handle")
+	}
+	h := heap.Handle(args[0].IVal)
+	o, err := castW(m, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.WaveAmp)), nil
+}
+
+func (m *Module) wGetWaveSpeed(args []value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("WATER.GETWAVESPEED expects handle")
+	}
+	h := heap.Handle(args[0].IVal)
+	o, err := castW(m, h)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.WaveFreq)), nil
+}
+
+func (m *Module) wGetShallowColor(args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 {
+		return value.Nil, fmt.Errorf("WATER.GETSHALLOWCOLOR expects handle")
+	}
+	o, err := castW(m, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(o.Shallow.R)
+	arr.Floats[1] = float64(o.Shallow.G)
+	arr.Floats[2] = float64(o.Shallow.B)
+	arr.Floats[3] = float64(o.Shallow.A)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) wGetDeepColor(args []value.Value) (value.Value, error) {
+	if m.h == nil || len(args) != 1 {
+		return value.Nil, fmt.Errorf("WATER.GETDEEPCOLOR expects handle")
+	}
+	o, err := castW(m, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	arr, err := heap.NewArrayOfKind([]int64{4}, heap.ArrayKindFloat, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	arr.Floats[0] = float64(o.Deep.R)
+	arr.Floats[1] = float64(o.Deep.G)
+	arr.Floats[2] = float64(o.Deep.B)
+	arr.Floats[3] = float64(o.Deep.A)
+	id, err := m.h.Alloc(arr)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
 }
 
 func minInt(a, b int) int {

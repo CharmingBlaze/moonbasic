@@ -124,6 +124,8 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("LIGHT2D.SETPOSITION", "light2d", runtime.AdaptLegacy(m.ldSetPos))
 	reg.Register("LIGHT2D.GETPOS", "light2d", runtime.AdaptLegacy(m.ldGetPos))
 	reg.Register("LIGHT2D.GETCOLOR", "light2d", runtime.AdaptLegacy(m.ldGetColor))
+	reg.Register("LIGHT2D.GETRADIUS", "light2d", runtime.AdaptLegacy(m.ldGetRadius))
+	reg.Register("LIGHT2D.GETINTENSITY", "light2d", runtime.AdaptLegacy(m.ldGetIntensity))
 	reg.Register("LIGHT2D.SETCOLOR", "light2d", runtime.AdaptLegacy(m.ldSetColor))
 	reg.Register("LIGHT2D.SETRADIUS", "light2d", runtime.AdaptLegacy(m.ldSetRadius))
 	reg.Register("LIGHT2D.SETINTENSITY", "light2d", runtime.AdaptLegacy(m.ldSetIntensity))
@@ -190,7 +192,7 @@ func (m *Module) ldSetPos(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("LIGHT2D.SETPOS: x, y must be numeric")
 	}
 	o.x, o.y = x, y
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) ldGetPos(args []value.Value) (value.Value, error) {
@@ -246,7 +248,7 @@ func (m *Module) ldSetColor(args []value.Value) (value.Value, error) {
 	b0, _ := argInt32(args[3])
 	a0, _ := argInt32(args[4])
 	o.r, o.g, o.b, o.a = clampU8(r0), clampU8(g0), clampU8(b0), clampU8(a0)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) ldSetRadius(args []value.Value) (value.Value, error) {
@@ -262,7 +264,7 @@ func (m *Module) ldSetRadius(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("LIGHT2D.SETRADIUS: radius must be numeric")
 	}
 	o.radius = rad
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) ldSetIntensity(args []value.Value) (value.Value, error) {
@@ -281,7 +283,23 @@ func (m *Module) ldSetIntensity(args []value.Value) (value.Value, error) {
 		in = 0
 	}
 	o.intensity = in
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) ldGetRadius(args []value.Value) (value.Value, error) {
+	o, err := m.getLight(args, 0, "LIGHT2D.GETRADIUS")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.radius)), nil
+}
+
+func (m *Module) ldGetIntensity(args []value.Value) (value.Value, error) {
+	o, err := m.getLight(args, 0, "LIGHT2D.GETINTENSITY")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.intensity)), nil
 }
 
 func drawLightOverlay() {

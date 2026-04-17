@@ -17,7 +17,7 @@ func blitzRuneStart(pos int64) int {
 }
 
 func registerStringsSlice(r runtime.Registrar) {
-	r.Register("LEFT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	leftFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
 			return value.Value{}, runtime.Errorf("LEFT expects 2 arguments")
 		}
@@ -37,8 +37,11 @@ func registerStringsSlice(r runtime.Registrar) {
 			n = int64(len(runes))
 		}
 		return rt.RetString(string(runes[:n])), nil
-	})
-	r.Register("RIGHT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("LEFT", "core", leftFn)
+	r.Register("LEFT$", "core", leftFn)
+
+	rightFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
 			return value.Value{}, runtime.Errorf("RIGHT expects 2 arguments")
 		}
@@ -58,8 +61,11 @@ func registerStringsSlice(r runtime.Registrar) {
 			return rt.RetString(s), nil
 		}
 		return rt.RetString(string(runes[len(runes)-int(n):])), nil
-	})
-	r.Register("MID", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("RIGHT", "core", rightFn)
+	r.Register("RIGHT$", "core", rightFn)
+
+	midFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) < 2 || len(args) > 3 {
 			return value.Value{}, runtime.Errorf("MID expects 2 or 3 arguments")
 		}
@@ -95,7 +101,9 @@ func registerStringsSlice(r runtime.Registrar) {
 			return rt.RetString(""), nil
 		}
 		return rt.RetString(string(runes[i:end])), nil
-	})
+	}
+	r.Register("MID", "core", midFn)
+	r.Register("MID$", "core", midFn)
 	r.Register("SPACE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("SPACE expects 1 argument")
@@ -154,7 +162,7 @@ func registerStringsSlice(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.Repeat(ch, int(n))), nil
 	})
-	r.Register("LSET", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	lsetFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
 			return value.Value{}, runtime.Errorf("LSET expects 2 arguments (s, width)")
 		}
@@ -178,8 +186,11 @@ func registerStringsSlice(r runtime.Registrar) {
 			return rt.RetString(s), nil
 		}
 		return rt.RetString(s + strings.Repeat(" ", pad)), nil
-	})
-	r.Register("RSET", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("LSET", "core", lsetFn)
+	r.Register("LSET$", "core", lsetFn)
+
+	rsetFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
 			return value.Value{}, runtime.Errorf("RSET expects 2 arguments (s, width)")
 		}
@@ -203,7 +214,10 @@ func registerStringsSlice(r runtime.Registrar) {
 			return rt.RetString(s), nil
 		}
 		return rt.RetString(strings.Repeat(" ", pad) + s), nil
-	})
+	}
+	r.Register("RSET", "core", rsetFn)
+	r.Register("RSET$", "core", rsetFn)
+
 	r.Register("REVERSE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("REVERSE expects 1 argument")

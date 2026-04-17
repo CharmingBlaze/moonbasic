@@ -1,65 +1,79 @@
-# Sprite (`SPRITE.*`, `SPRITEGROUP.*`, `SPRITELAYER.*`, `SPRITEBATCH.*`, `SPRITEUI.*`, `PARTICLE2D.*`, `ANIM.*`)
+# Sprite Commands
 
-Sprites are **GPU textures** (Raylib `Texture2D`) plus **source rectangle**, **frame layout**, and optional **`ANIM.*`** state. Drawing uses **`SPRITE.DRAW`**. When **`RENDER.BEGINMODE2D`** / **`RENDER.ENDMODE2D`** are implemented in your build, wrap draws for **Camera2D**-style views; otherwise draw directly after **`RENDER.CLEAR`** (as in **`testdata/sprite_complete_test.mb`**).
+2D sprites with frame animation, groups, layers, batching, UI sprites, and 2D particles.
 
-**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Sprite.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+## Core Workflow
 
-**Requires CGO** (same as **`TEXTURE.*`**, **`DRAW.*`**).
+1. Load with `SPRITE.LOAD` or create from a texture with `SPRITE.CREATE`.
+2. Configure frame layout with `SPRITE.SETGRID`, animate with `ANIM.PLAY`.
+3. Draw with `SPRITE.DRAW` each frame.
+4. Test overlap with `SPRITE.HIT` / `SPRITE.POINTHIT`.
+5. Free with `SPRITE.FREE`.
 
-Registry keys use **dots and uppercase** (e.g. **`SPRITE.LOAD`**). In source, the **`Sprite`** namespace maps to the same commands (`Sprite.Load` → `SPRITE.LOAD`).
-
-**Related:** [ATLAS.md](ATLAS.md) (`ATLAS.LOAD`, `ATLAS.GETSPRITE`, `ATLAS.FREE`), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
-
-**Blitz-style “sprite collide”:** there is no separate **`Sprite.Collide`** name — use **`SPRITE.HIT`** / **`SPRITE.POINTHIT`**. Overlap uses the same **scaled** destination quad, **origin**, and **rotation** as **`SPRITE.DRAW`** (Raylib **`DrawTexturePro`**), not a separate axis-aligned box. For pixel-perfect work, use **`IMAGE.*`** CPU pixels or custom overlap — see table below and [BLITZ_ESSENTIAL_API.md](BLITZ_ESSENTIAL_API.md).
+See also [ATLAS.md](ATLAS.md), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
 
 ---
 
-### `SPRITE.LOAD(path)`
+### `SPRITE.LOAD(path)` 
 Loads an image and returns a **sprite handle**.
 
-### `SPRITE.FREE(handle)`
+---
+
+### `SPRITE.FREE(handle)` 
 Unloads the sprite and frees memory.
 
 ---
 
-### `SPRITE.DRAW(handle, x, y)`
+### `SPRITE.DRAW(handle, x, y)` 
 Draws the current frame at pixel coordinates.
 
-### `SPRITE.SETPOS(handle, x, y)`
+---
+
+### `SPRITE.SETPOS(handle, x, y)` 
 Sets a floating-point draw offset.
 
 ---
 
-### `SPRITE.DEFANIM(handle, count)`
+### `SPRITE.DEFANIM(handle, count)` 
 Defines a grid animation (`count` is a string).
 
-### `SPRITE.UPDATEANIM(handle, dt)`
+---
+
+### `SPRITE.UPDATEANIM(handle, dt)` 
 Advances animation frame by time.
 
 ---
 
-### `SPRITE.HIT(a, b)`
+### `SPRITE.HIT(a, b)` 
 Returns **`TRUE`** if the two drawn quads overlap (SAT on the four corners; matches **`DrawTexturePro`** geometry).
 
-### `SPRITE.POINTHIT(handle, x, y)`
+---
+
+### `SPRITE.POINTHIT(handle, x, y)` 
 Returns **`TRUE`** if **`(x, y)`** lies inside that quad in the same coordinate space as **`SPRITE.DRAW`**’s **`x, y`** plus **`SETPOS`** offsets (inverse rotation into local frame size).
 
 ---
 
 ## `SPRITEGROUP.*`
 
-### `SPRITEGROUP.CREATE()`
+### `SPRITEGROUP.CREATE()` 
 Creates a new empty sprite group. Returns a handle. **`SPRITEGROUP.MAKE`** is a **deprecated** alias of **`SPRITEGROUP.CREATE`**.
 
-### `SPRITEGROUP.ADD(group, sprite)`
+---
+
+### `SPRITEGROUP.ADD(group, sprite)` 
 Adds a sprite to the group.
 
-### `SPRITEGROUP.DRAW(group, x, y)`
+---
+
+### `SPRITEGROUP.DRAW(group, x, y)` 
 Draws all sprites in the group relative to a base position.
 
-### `SPRITEGROUP.FREE(group)`
+---
+
+### `SPRITEGROUP.FREE(group)` 
 Frees the group object (members remain).
 
 ---

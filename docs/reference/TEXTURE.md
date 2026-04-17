@@ -1,46 +1,61 @@
-# Texture (`TEXTURE.*`)
+# Texture Commands
 
-GPU **texture** handles: images uploaded for fast **`DRAW.TEXTURE*`** calls. For **CPU** pixel work first, see [IMAGE.md](IMAGE.md), then **`TEXTURE.FROMIMAGE`** or **`TEXTURE.UPDATE`**.
+GPU texture handles for loading, drawing, atlas animation, and render targets.
 
-**Conventions:** [STYLE_GUIDE.md](../../STYLE_GUIDE.md), [API_CONVENTIONS.md](API_CONVENTIONS.md) — reference pages use uppercase **`NAMESPACE.ACTION`**; Easy Mode (`Texture.Load`, …) is [compatibility only](../../STYLE_GUIDE.md#easy-mode-compatibility-layer).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
+## Core Workflow
 
-**Registry keys** use uppercase `TEXTURE.` (e.g. `TEXTURE.LOAD`). In source, the **`Texture`** namespace maps to the same commands (`Texture.Load` → `TEXTURE.LOAD`).
+1. Load with `TEXTURE.LOAD` or create from a CPU image with `TEXTURE.FROMIMAGE`.
+2. Draw with `DRAW.TEXTURE` / `DRAW.TEXTUREREC` / `DRAW.TEXTUREPRO` (see [DRAW2D.md](DRAW2D.md)).
+3. For sprite-sheet animation use `TEXTURE.LOADANIM` + `TEXTURE.PLAY` + `TEXTURE.TICKALL`.
+4. Free with `TEXTURE.FREE`.
 
-**Threading:** Raylib GL calls belong on the **main thread** (see [ARCHITECTURE.md](../../ARCHITECTURE.md)).
+For CPU pixel buffers see [IMAGE.md](IMAGE.md).
 
 ---
 
-### `TEXTURE.LOAD(path)`
+### `TEXTURE.LOAD(path)` 
 Loads a GPU texture from disk. Returns a **texture handle**.
 
-### `TEXTURE.FROMIMAGE(id)`
+---
+
+### `TEXTURE.FROMIMAGE(id)` 
 Creates a GPU texture from an in-memory `Image` handle.
 
-### `TEXTURE.FREE(handle)`
+---
+
+### `TEXTURE.FREE(handle)` 
 Unloads GPU data and releases the handle from memory and its heap slot.
 
 ---
 
-### `TEXTURE.WIDTH(handle)` / `TEXTURE.HEIGHT(handle)`
+### `TEXTURE.WIDTH(handle)` / `TEXTURE.HEIGHT(handle)` 
 Returns the integer pixel dimensions of the texture.
 
-### `TEXTURE.SETFILTER(handle, filter)`
+---
+
+### `TEXTURE.SETFILTER(handle, filter)` 
 Sets the sampling filter (e.g., `FILTER_POINT`, `FILTER_BILINEAR`, `FILTER_TRILINEAR`).
 
 ---
 
-### `RENDERTARGET.CREATE(w, h)`
+### `RENDERTARGET.CREATE(w, h)` 
 Creates an off-screen render target (FBO). Returns a **handle**. **`RENDERTARGET.MAKE`** is a **deprecated** alias of **`RENDERTARGET.CREATE`**.
 
-### `RENDERTARGET.BEGIN(handle)`
+---
+
+### `RENDERTARGET.BEGIN(handle)` 
 Starts drawing into the specified render target. Subsequent **`DRAW.*`** calls target this FBO.
 
-### `RENDERTARGET.END()`
+---
+
+### `RENDERTARGET.END()` 
 Ends drawing into the current target and returns to the default framebuffer.
 
-### `RENDERTARGET.FREE(handle)`
+---
+
+### `RENDERTARGET.FREE(handle)` 
 Frees the render target and its associated color texture from memory.
 
 The color attachment is often **Y-flipped** vs screen space; use **`DRAW.TEXTUREPRO`** / **`DRAW.TEXTUREREC`** with a negative source height, or draw helpers that account for UV orientation, when compositing to the screen.
@@ -57,7 +72,7 @@ Use **`DRAW.TEXTURE`**, **`DRAW.TEXTUREREC`**, **`DRAW.TEXTUREPRO`**, etc. (see 
 
 Sprite sheets as a single GPU texture are documented in **[ATLAS.md](ATLAS.md)** (`ATLAS.*` — JSON-packed rectangles).
 
-### Uniform grid animation (`TEXTURE.SETGRID`, `TEXTURE.*`)
+### Uniform grid animation (`TEXTURE.SETGRID`, `TEXTURE.*`) 
 
 For **equal-sized frames** laid out in a regular **columns × rows** grid on one texture (water ripples, fire strips, etc.):
 

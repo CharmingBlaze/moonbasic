@@ -12,49 +12,49 @@ Optionally **`WORLD.SETUP()`** or **`WORLD.SETUP(gravity)`** to initialize physi
 
 ---
 
-### `WORLD.SETUP()` / `WORLD.SETUP(gravity)`
+### `WORLD.SETUP()` / `WORLD.SETUP(gravity)` 
 
 Initializes the physics world with default **Y** gravity (**-9.81**) or a custom **`gravity`** value. Expects **`PHYSICS3D.START()`** / Jolt when using full **3D** physics on desktop **Windows** and **Linux** with **CGO**.
 
 ---
 
-### `WORLD.UPDATE(dt)`
+### `WORLD.UPDATE(dt)` 
 
 Updates world streaming and related state. **`dt`** is seconds (use **`TIME.DELTA()`** in the game loop).
 
 ---
 
-### `WORLD.SETCENTER(x, z)` / `WORLD.SETCENTERENTITY(id)`
+### `WORLD.SETCENTER(x, z)` / `WORLD.SETCENTERENTITY(id)` 
 
 Sets the streaming focal point for chunk paging.
 
 ---
 
-### `WORLD.PRELOAD(terrain, radius)`
+### `WORLD.PRELOAD(terrain, radius)` 
 
 Forces initial chunk loading around the current center.
 
 ---
 
-### `WORLD.STREAMENABLE(toggle)`
+### `WORLD.STREAMENABLE(toggle)` 
 
 Enables or disables automatic chunk paging.
 
 ---
 
-### `WORLD.ISREADY(terrain)`
+### `WORLD.ISREADY(terrain)` 
 
 Returns **`TRUE`** when initial chunk work is complete enough to play.
 
 ---
 
-### `WORLD.STATUS()`
+### `WORLD.STATUS()` 
 
 Returns a debug status string.
 
 ---
 
-### `WORLD.SETVEGETATION(terrain, billboard, density)`
+### `WORLD.SETVEGETATION(terrain, billboard, density)` 
 
 Populates an internal **`SCATTER`** sample set over terrain (**`TERRAIN.GETHEIGHT`**) with the given **density**. The **billboard** handle is reserved for future instanced drawing; **`Scatter.DrawAll`** may use simple debug spheres until extended.
 

@@ -10,7 +10,13 @@ Primitive 3D drawing via Raylib. **Call these between `RENDER.BEGIN3D(cam)` and 
 
 moonBASIC registers each command as **`DRAW3D.*`** and also exposes the same behavior under **`Draw.*`** aliases (for example **`Draw.Grid`** → **`DRAW3D.GRID`**). Use either style; they are equivalent.
 
-### Short global names (easier to type)
+### Method chaining (handles in the 3D pass) 
+
+**`DRAW3D.*`** primitives are plain commands (no handle return). Objects you place in the same frame—**cameras**, **models**, **terrain**, **water**, **lights**, **particles**—are **handles**. Mutating handle methods return the handle on success so you can chain setters and draws, for example `cam.pos(...).look(...).fov(60)`, `model.setPos(...).draw()`, or `water.setPos(...).draw()` inside **`RENDER.BEGIN3D(cam)`** … **`RENDER.END3D()`**. See [CAMERA.md](CAMERA.md), [MODEL.md](MODEL.md), [WATER.md](WATER.md), and [Masterplan.md](../../Masterplan.md) (Handle method chaining).
+
+---
+
+### Short global names (easier to type) 
 
 These builtins are **aliases** of the matching **`DRAW3D.*`** command (same argument lists). Handy in tight loops; long forms remain supported.
 
@@ -37,26 +43,32 @@ These builtins are **aliases** of the matching **`DRAW3D.*`** command (same argu
 
 ## Primitives
 
-### `DRAW3D.CUBE(x, y, z, w, h, d, r, g, b, a)`
+### `DRAW3D.CUBE(x, y, z, w, h, d, r, g, b, a)` 
 Draws an axis-aligned solid box centered at `(x, y, z)`.
 
-### `DRAW3D.SPHERE(x, y, z, radius, r, g, b, a)`
+---
+
+### `DRAW3D.SPHERE(x, y, z, radius, r, g, b, a)` 
 Draws a solid sphere.
 
 ---
 
-### `DRAW3D.LINE(x1, y1, z1, x2, y2, z2, r, g, b, a)`
+### `DRAW3D.LINE(x1, y1, z1, x2, y2, z2, r, g, b, a)` 
 Draws a line segment in world space.
 
-### `DRAW3D.GRID(slices, spacing)`
+---
+
+### `DRAW3D.GRID(slices, spacing)` 
 Draws a reference grid in the XZ plane. `slices`: number of divisions; `spacing`: world units between lines.
 
 ---
 
-### `DRAW3D.BILLBOARD(tex, x, y, z, size, r, g, b, a)`
+### `DRAW3D.BILLBOARD(tex, x, y, z, size, r, g, b, a)` 
 Draws a textured billboard facing the **active 3D camera**. **Must** be called inside **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`** (or **`CAMERA.BEGIN`/`CAMERA.END`**).
 
-### `DRAW3D.RAY(handle, r, g, b, a)`
+---
+
+### `DRAW3D.RAY(handle, r, g, b, a)` 
 Draws a debug ray from a **6-element float array handle**: origin `(x, y, z)` then direction `(dx, dy, dz)`.
 
 ---

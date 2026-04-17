@@ -118,7 +118,7 @@ func (m *Module) navSetGrid(args []value.Value) (value.Value, error) {
 	n.blocked = make([]bool, gw*gh)
 	n.groundY = make([]float32, gw*gh)
 	n.built = false
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) navAddTerrain(args []value.Value) (value.Value, error) {
@@ -139,7 +139,7 @@ func (m *Module) navAddTerrain(args []value.Value) (value.Value, error) {
 	}
 	n.setOpenRect(float64(bb.Min.X), float64(bb.Min.Z), float64(bb.Max.X), float64(bb.Max.Z))
 	n.setGroundYRect(float64(bb.Min.X), float64(bb.Min.Z), float64(bb.Max.X), float64(bb.Max.Z), bb.Min.Y)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) navAddObstacle(args []value.Value) (value.Value, error) {
@@ -165,7 +165,7 @@ func (m *Module) navAddObstacle(args []value.Value) (value.Value, error) {
 		clampInt(int(math.Floor((float64(bb.Max.Z)-n.oz)/n.cell)), 0, n.gh-1),
 		true,
 	)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) navBuild(args []value.Value) (value.Value, error) {
@@ -217,7 +217,7 @@ func (m *Module) navBuild(args []value.Value) (value.Value, error) {
 	})
 
 	n.built = true
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) navDebugDraw(args []value.Value) (value.Value, error) {
@@ -458,7 +458,7 @@ func (m *Module) agentSetPos(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("NAVAGENT.SETPOS: x,y,z must be numeric")
 	}
 	a.x, a.y, a.z = x, y, z
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) agentSetSpeed(args []value.Value) (value.Value, error) {
@@ -478,7 +478,7 @@ func (m *Module) agentSetSpeed(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("NAVAGENT.SETSPEED: speed must be >= 0")
 	}
 	a.speed = s
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) agentSetMaxForce(args []value.Value) (value.Value, error) {
@@ -498,7 +498,7 @@ func (m *Module) agentSetMaxForce(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("NAVAGENT.SETMAXFORCE: invalid")
 	}
 	a.maxForce = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) agentApplyForce(args []value.Value) (value.Value, error) {
@@ -536,7 +536,7 @@ func (m *Module) agentApplyForce(args []value.Value) (value.Value, error) {
 		a.vy *= s
 		a.vz *= s
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) agentMoveTo(args []value.Value) (value.Value, error) {
@@ -573,7 +573,56 @@ func (m *Module) agentMoveTo(args []value.Value) (value.Value, error) {
 	a.destX, a.destY, a.destZ = tx, ty, tz
 	a.hasDest = true
 	a.vx, a.vy, a.vz = 0, 0, 0
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) agentStop(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("NAVAGENT.STOP expects handle")
+	}
+	a, err := m.getAgent(h, args[0], "NAVAGENT.STOP")
+	if err != nil {
+		return value.Nil, err
+	}
+	a.way = nil
+	a.wayIdx = 0
+	a.hasDest = false
+	a.vx, a.vy, a.vz = 0, 0, 0
+	return args[0], nil
+}
+
+func (m *Module) agentGetSpeed(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("NAVAGENT.GETSPEED expects handle")
+	}
+	a, err := m.getAgent(h, args[0], "NAVAGENT.GETSPEED")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(a.speed), nil
+}
+
+func (m *Module) agentGetMaxForce(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("NAVAGENT.GETMAXFORCE expects handle")
+	}
+	a, err := m.getAgent(h, args[0], "NAVAGENT.GETMAXFORCE")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(a.maxForce), nil
 }
 
 func (m *Module) agentUpdate(args []value.Value) (value.Value, error) {
@@ -605,7 +654,7 @@ func (m *Module) agentUpdate(args []value.Value) (value.Value, error) {
 				a.way = nil
 				a.wayIdx = 0
 			}
-			return value.Nil, nil
+			return args[0], nil
 		}
 		step := a.speed * dt
 		if step > dist {
@@ -617,7 +666,7 @@ func (m *Module) agentUpdate(args []value.Value) (value.Value, error) {
 			a.y += dy * inv * step
 			a.z += dz * inv * step
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}
 	a.x += a.vx * dt
 	a.y += a.vy * dt
@@ -626,7 +675,7 @@ func (m *Module) agentUpdate(args []value.Value) (value.Value, error) {
 	a.vx *= damp
 	a.vy *= damp
 	a.vz *= damp
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) agentIsAtDestination(args []value.Value) (value.Value, error) {
@@ -773,7 +822,7 @@ func (m *Module) steerGroupAdd(args []value.Value) (value.Value, error) {
 		}
 	}
 	g.agents = append(g.agents, ah)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) steerGroupClear(args []value.Value) (value.Value, error) {
@@ -789,7 +838,7 @@ func (m *Module) steerGroupClear(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	g.agents = nil
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func agentPos(h *heap.Store, ah heap.Handle) (x, y, z float64, err error) {
@@ -1121,7 +1170,7 @@ func (m *Module) btAddCondition(args []value.Value) (value.Value, error) {
 		b.root = &btNode{kind: btKindSeq}
 	}
 	b.root.kids = append(b.root.kids, &btNode{kind: btKindCond, fn: fn})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) btAddAction(args []value.Value) (value.Value, error) {
@@ -1141,7 +1190,7 @@ func (m *Module) btAddAction(args []value.Value) (value.Value, error) {
 		b.root = &btNode{kind: btKindSeq}
 	}
 	b.root.kids = append(b.root.kids, &btNode{kind: btKindAct, fn: fn})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func tickBT(n *btNode, agent value.Value, inv func(string, []value.Value) (value.Value, error)) (bool, error) {

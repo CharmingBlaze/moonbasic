@@ -42,6 +42,9 @@ func (m *Module) Register(reg runtime.Registrar) {
 	reg.Register("NAVAGENT.Z", "navagent", runtime.AdaptLegacy(m.agentZ))
 	reg.Register("NAVAGENT.GETPOS", "navagent", runtime.AdaptLegacy(m.agentGetPos))
 	reg.Register("NAVAGENT.GETROT", "navagent", runtime.AdaptLegacy(m.agentGetRot))
+	reg.Register("NAVAGENT.GETSPEED", "navagent", runtime.AdaptLegacy(m.agentGetSpeed))
+	reg.Register("NAVAGENT.GETMAXFORCE", "navagent", runtime.AdaptLegacy(m.agentGetMaxForce))
+	reg.Register("NAVAGENT.STOP", "navagent", runtime.AdaptLegacy(m.agentStop))
 
 	reg.Register("STEER.GROUPMAKE", "steer", runtime.AdaptLegacy(m.steerGroupMake))
 	reg.Register("STEER.GROUPADD", "steer", runtime.AdaptLegacy(m.steerGroupAdd))

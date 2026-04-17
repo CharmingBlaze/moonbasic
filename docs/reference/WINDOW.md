@@ -4,7 +4,7 @@
 
 **Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
 
-## Core workflow
+## Core Workflow
 
 1. **Open:** **`WINDOW.OPEN(width, height, title)`** at startup.
 2. **Configure:** **`WINDOW.SETFPS`**, **`WINDOW.SETTITLE`**, …
@@ -29,23 +29,29 @@ WINDOW.CLOSE()
 
 ## Window management
 
-### `WINDOW.OPEN(width, height, title)`
+### `WINDOW.OPEN(width, height, title)` 
 Opens the window (**client** width/height in pixels) and title bar text.
 
-### `WINDOW.CLOSE()`
+---
+
+### `WINDOW.CLOSE()` 
 Closes the window and tears down the host.
 
-### `WINDOW.SHOULDCLOSE()`
+---
+
+### `WINDOW.SHOULDCLOSE()` 
 Returns **`TRUE`** when the user asked to close (title bar / Alt+F4 / etc.).
 
-### `WINDOW.SETFPS(fps)` / `WINDOW.SETTARGETFPS(fps)`
+---
+
+### `WINDOW.SETFPS(fps)` / `WINDOW.SETTARGETFPS(fps)` 
 Target frame rate (**`SETTARGETFPS`** is the paired name in the manifest where both exist).
 
 ---
 
 ## Appearance and position
 
-### `WINDOW.SETTITLE(title)`
+### `WINDOW.SETTITLE(title)` 
 Runtime title change.
 
 ```basic
@@ -53,32 +59,46 @@ score = 100
 WINDOW.SETTITLE("My Game | Score: " + STR(score))
 ```
 
-### `WINDOW.SETPOSITION(x, y)`
+---
+
+### `WINDOW.SETPOSITION(x, y)` 
 Screen position of the window’s top-left corner.
 
-### `WINDOW.SETICON(filePath)`
+---
+
+### `WINDOW.SETICON(filePath)` 
 Loads a window icon (square **`.png`** recommended, e.g. 64×64).
 
-### `WINDOW.SETOPACITY(alpha)`
+---
+
+### `WINDOW.SETOPACITY(alpha)` 
 Window transparency.
 
-### `WINDOW.SETSIZE(w, h)`
+---
+
+### `WINDOW.SETSIZE(w, h)` 
 Resizes the client area (pixels).
 
-### `WINDOW.GETPOSITIONX()` / `WINDOW.GETPOSITIONY()`
+---
+
+### `WINDOW.GETPOSITIONX()` / `WINDOW.GETPOSITIONY()` 
 Current screen position of the top-left corner.
 
-### `WINDOW.DPISCALE()`
+---
+
+### `WINDOW.DPISCALE()` 
 Global DPI scale factor for high-DPI displays.
 
 ---
 
 ## Monitors
 
-### `WINDOW.GETMONITORCOUNT()`
+### `WINDOW.GETMONITORCOUNT()` 
 Number of connected monitors.
 
-### `WINDOW.GETMONITORWIDTH(monitor)` / `WINDOW.GETMONITORHEIGHT(monitor)`
+---
+
+### `WINDOW.GETMONITORWIDTH(monitor)` / `WINDOW.GETMONITORHEIGHT(monitor)` 
 Pixel size of the given monitor index (**0** = primary).
 
 ---

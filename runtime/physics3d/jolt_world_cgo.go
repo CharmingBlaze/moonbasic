@@ -9,6 +9,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 
 	"moonbasic/internal/joltwasm"
+	"moonbasic/runtime/mbmatrix"
 	mbruntime "moonbasic/runtime"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -580,7 +581,8 @@ func (m *Module) bdSetGravityFactor(args []value.Value) (value.Value, error) {
 	if bi != nil {
 		bi.SetGravityFactor(bo.id, float32(factor))
 	}
-	return value.Nil, nil
+	bo.gravFactor = float32(factor)
+	return args[0], nil
 }
 
 func (m *Module) bdSetDamping(args []value.Value) (value.Value, error) {
@@ -601,7 +603,9 @@ func (m *Module) bdSetDamping(args []value.Value) (value.Value, error) {
 		return value.Nil, nil
 	}
 	sys.SetBodyDamping(bo.id, float32(lin), float32(ang))
-	return value.Nil, nil
+	bo.linDamp = float32(lin)
+	bo.angDamp = float32(ang)
+	return args[0], nil
 }
 
 func (m *Module) bdLockAxis(args []value.Value) (value.Value, error) {
@@ -623,7 +627,7 @@ func (m *Module) bdLockAxis(args []value.Value) (value.Value, error) {
 	if sys != nil {
 		sys.SetAllowedDOFs(bo.id, int(flags))
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) btdSetCCD(args []value.Value) (value.Value, error) {
@@ -644,7 +648,42 @@ func (m *Module) btdSetCCD(args []value.Value) (value.Value, error) {
 	if bi != nil {
 		bi.SetMotionQuality(bo.id, quality)
 	}
-	return value.Nil, nil
+	bo.ccd = value.Truthy(args[1], nil, nil)
+	return args[0], nil
+}
+
+func (m *Module) bdGetGravityFactor(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETGRAVITYFACTOR expects handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(1), nil
+	}
+	return value.FromFloat(float64(bo.gravFactor)), nil
+}
+
+func (m *Module) bdGetDamping(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETDAMPING expects handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromFloat(0), nil
+	}
+	// Return as array [lin, ang]
+	return mbmatrix.AllocVec2Value(m.h, bo.linDamp, bo.angDamp)
+}
+
+func (m *Module) bdGetCCD(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("BODY3D.GETCCD expects handle")
+	}
+	bo, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.FromBool(false), nil
+	}
+	return value.FromBool(bo.ccd), nil
 }
 
 func (m *Module) phDebugDraw(args []value.Value) (value.Value, error) {
@@ -695,70 +734,6 @@ func (m *Module) phWorldSetup(args []value.Value) (value.Value, error) {
 		}
 	}
 	return m.phSetGravity([]value.Value{value.FromFloat(0), value.FromFloat(grav), value.FromFloat(0)})
-}
-
-func (m *Module) bdGetLinearVel(args []value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("BODY3D.GETLINEARVEL expects (body)")
-	}
-	b, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal))
-	if err != nil {
-		return value.Nil, err
-	}
-	joltMu.Lock()
-	var v jolt.Vec3
-	if joltBi != nil {
-		v = joltBi.GetLinearVelocity(b.id)
-	}
-	joltMu.Unlock()
-	return valueVec3FromFloats(m.h, float64(v.X), float64(v.Y), float64(v.Z))
-}
-
-func (m *Module) bdGetAngularVel(args []value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("BODY3D.GETANGULARVEL expects (body)")
-	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
-		return value.Nil, err
-	}
-	// Angular velocity getters are not in vendored jolt-go; return a zero vector for API stability.
-	return valueVec3FromFloats(m.h, 0, 0, 0)
-}
-
-func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
-	if len(args) != 4 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("BODY3D.SETANGULARVEL expects (body, x#, y#, z#)")
-	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
-		return value.Nil, err
-	}
-	_, _ = args[1].ToFloat()
-	_, _ = args[2].ToFloat()
-	_, _ = args[3].ToFloat()
-	return value.Nil, fmt.Errorf("BODY3D.APPLYTORQUE not implemented on native backend")
-}
-
-func (m *Module) bdApplyTorque(args []value.Value) (value.Value, error) {
-	if len(args) != 4 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("BODY3D.APPLYTORQUE expects (body, x#, y#, z#)")
-	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
-		return value.Nil, err
-	}
-	_, _ = args[1].ToFloat()
-	_, _ = args[2].ToFloat()
-	_, _ = args[3].ToFloat()
-	return value.Nil, nil
-}
-
-func (m *Module) bdGetMass(args []value.Value) (value.Value, error) {
-	if len(args) != 1 || args[0].Kind != value.KindHandle {
-		return value.Nil, fmt.Errorf("BODY3D.GETMASS expects (body)")
-	}
-	if _, err := heap.Cast[*body3dObj](m.h, heap.Handle(args[0].IVal)); err != nil {
-		return value.Nil, err
-	}
-	return value.FromFloat(1.0), nil
 }
 
 // Internal Bridges for shared Go solvers (aero_host.go, vehicle_host.go)

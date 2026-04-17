@@ -48,14 +48,14 @@ func (m *Module) wUpdate(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	o.Intensity = float32(math.Min(1, float64(o.Intensity)+dt*0.01))
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wDraw(args []value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("WEATHER.DRAW expects weather")
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wSetType(args []value.Value) (value.Value, error) {
@@ -72,7 +72,7 @@ func (m *Module) wSetType(args []value.Value) (value.Value, error) {
 	if s == "rain" || s == "storm" {
 		o.Coverage = 0.7
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) wGetCoverage(args []value.Value) (value.Value, error) {

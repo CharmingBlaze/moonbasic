@@ -19,10 +19,11 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("BODY2D.COMMIT", "physics2d", runtime.AdaptLegacy(m.bdCommit))
 	r.Register("BODY2D.X", "physics2d", runtime.AdaptLegacy(m.bdX))
 	r.Register("BODY2D.Y", "physics2d", runtime.AdaptLegacy(m.bdY))
-	r.Register("BODY2D.ROT", "physics2d", runtime.AdaptLegacy(m.bdRot) )
+	r.Register("BODY2D.ROT", "physics2d", runtime.AdaptLegacy(m.bdRot))
 	r.Register("BODY2D.FREE", "physics2d", runtime.AdaptLegacy(m.bdFree))
 
 	r.Register("BODY2D.SETPOS", "physics2d", runtime.AdaptLegacy(m.bdSetPos))
+	r.Register("BODY2D.SETPOSITION", "physics2d", runtime.AdaptLegacy(m.bdSetPos))
 	r.Register("BODY2D.GETPOS", "physics2d", runtime.AdaptLegacy(m.bdGetPos))
 	r.Register("BODY2D.SETROT", "physics2d", runtime.AdaptLegacy(m.bdSetRot))
 	r.Register("BODY2D.GETROT", "physics2d", runtime.AdaptLegacy(m.bdGetRot))
@@ -33,7 +34,12 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("BODY2D.APPLYIMPULSE", "physics2d", runtime.AdaptLegacy(m.bdApplyImpulse))
 	r.Register("BODY2D.ADDPOLYGON", "physics2d", runtime.AdaptLegacy(m.bdAddPolygon))
 	r.Register("BODY2D.SETLINEARVELOCITY", "physics2d", runtime.AdaptLegacy(m.bdSetLinearVel))
+	r.Register("BODY2D.GETLINEARVELOCITY", "physics2d", runtime.AdaptLegacy(m.bdGetLinearVel))
 	r.Register("BODY2D.SETANGULARVELOCITY", "physics2d", runtime.AdaptLegacy(m.bdSetAngularVel))
+	r.Register("BODY2D.GETANGULARVELOCITY", "physics2d", runtime.AdaptLegacy(m.bdGetAngularVel))
+	r.Register("BODY2D.GETMASS", "physics2d", runtime.AdaptLegacy(m.bdGetMass))
+	r.Register("BODY2D.GETFRICTION", "physics2d", runtime.AdaptLegacy(m.bdGetFriction))
+	r.Register("BODY2D.GETRESTITUTION", "physics2d", runtime.AdaptLegacy(m.bdGetRestitution))
 	r.Register("BODY2D.COLLIDED", "physics2d", runtime.AdaptLegacy(m.bdCollided))
 	r.Register("BODY2D.COLLISIONOTHER", "physics2d", runtime.AdaptLegacy(m.bdCollisionOther))
 	r.Register("BODY2D.COLLISIONNORMAL", "physics2d", runtime.AdaptLegacy(m.bdCollisionNormal))
@@ -50,4 +56,7 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("BOX2D.BODYCREATE", "physics2d", runtime.AdaptLegacy(m.bdMake))
 	r.Register("BOX2D.FIXTUREBOX", "physics2d", runtime.AdaptLegacy(m.bdAddRect))
 	r.Register("BOX2D.FIXTURECIRCLE", "physics2d", runtime.AdaptLegacy(m.bdAddCircle))
+
+	// Easy Mode flat aliases
+	r.Register("CREATEBODY2D", "physics2d", runtime.AdaptLegacy(m.bdMake))
 }

@@ -80,7 +80,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		mo.mat.Shader = so.sh
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MATERIAL.SETTEXTURE", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -106,7 +106,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("MATERIAL.SETTEXTURE: %w", err)
 		}
 		rl.SetMaterialTexture(&mo.mat, slot, tex)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MATERIAL.SETCOLOR", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -130,7 +130,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 		}
 		mp := mo.mat.GetMap(slot)
 		mp.Color = col
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MATERIAL.SETFLOAT", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -154,7 +154,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 		}
 		mp := mo.mat.GetMap(slot)
 		mp.Value = v
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MATERIAL.SETEFFECT", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -175,7 +175,7 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 		} else {
 			return value.Nil, fmt.Errorf("MATERIAL.SETEFFECT: unknown or invalid effect '%s'", eff)
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("MATERIAL.SETEFFECTPARAM", "material", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -198,6 +198,6 @@ func registerMaterialCmds(m *Module, reg runtime.Registrar) {
 			mo.params = make(map[string]float32)
 		}
 		mo.params[pname] = float32(val)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 }

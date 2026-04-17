@@ -144,5 +144,8 @@ func (m *Module) camLookAtEntity(rt *runtime.Runtime, args ...value.Value) (valu
 	}
 	_, err = reg.Call("CAMERA.SETTARGET", []value.Value{args[0], ex, ey, ez})
 	_ = rt
-	return value.Nil, err
+	if err != nil {
+		return value.Nil, err
+	}
+	return args[0], nil
 }

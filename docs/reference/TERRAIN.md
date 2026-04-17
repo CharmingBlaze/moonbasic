@@ -14,73 +14,73 @@ Create terrain with **`TERRAIN.CREATE(...)`** or **`TERRAIN.LOAD(path)`**, set o
 
 ---
 
-### `TERRAIN.CREATE(...)`
+### `TERRAIN.CREATE(...)` 
 
 Creates procedural heightfield terrain. **`TERRAIN.MAKE`** is a deprecated alias. Several arities exist — see **`commands.json`**.
 
 ---
 
-### `TERRAIN.LOAD(path)`
+### `TERRAIN.LOAD(path)` 
 
 Loads a heightmap image as terrain. Returns a **handle**.
 
 ---
 
-### `TERRAIN.FREE(handle)`
+### `TERRAIN.FREE(handle)` 
 
 Frees terrain and chunk meshes.
 
 ---
 
-### `TERRAIN.SETPOS(handle, x, y, z)` / `TERRAIN.SETCHUNKSIZE(handle, size)`
+### `TERRAIN.SETPOS(handle, x, y, z)` / `TERRAIN.SETCHUNKSIZE(handle, size)` 
 
 World origin and chunk sample size (see reference for overloads).
 
 ---
 
-### `TERRAIN.FILLPERLIN(handle, ...)` / `TERRAIN.FILLFLAT(handle, ...)`
+### `TERRAIN.FILLPERLIN(handle, ...)` / `TERRAIN.FILLFLAT(handle, ...)` 
 
 Procedural or flat height fill.
 
 ---
 
-### `TERRAIN.GETHEIGHT(handle, x, z)` / `TERRAIN.GETSLOPE(handle, x, z)`
+### `TERRAIN.GETHEIGHT(handle, x, z)` / `TERRAIN.GETSLOPE(handle, x, z)` 
 
 Sample height and slope at **XZ**.
 
 ---
 
-### `TERRAIN.RAISE(handle, ...)` / `TERRAIN.LOWER(handle, ...)`
+### `TERRAIN.RAISE(handle, ...)` / `TERRAIN.LOWER(handle, ...)` 
 
 Brush sculpting helpers (see manifest).
 
 ---
 
-### `TERRAIN.PLACE(handle, id, x, z)`
+### `TERRAIN.PLACE(handle, id, x, z)` 
 
 Positions an entity on the terrain surface.
 
 ---
 
-### `TERRAIN.SNAPY(handle, id)`
+### `TERRAIN.SNAPY(handle, id)` 
 
 Snaps an entity to the surface **Y**.
 
 ---
 
-### `TERRAIN.DRAW(handle)`
+### `TERRAIN.DRAW(handle)` 
 
 Renders terrain. Must be inside an active **3D** camera block.
 
 ---
 
-### `CHUNK.SETRANGE(handle, load, unload)`
+### `CHUNK.SETRANGE(handle, load, unload)` 
 
 Sets **load** / **unload** radii for chunk paging (world units).
 
 ---
 
-### `CHUNK.GENERATE(handle, ix, iz)` / `CHUNK.COUNT(handle)` / `CHUNK.ISLOADED(handle, ix, iz)`
+### `CHUNK.GENERATE(handle, ix, iz)` / `CHUNK.COUNT(handle)` / `CHUNK.ISLOADED(handle, ix, iz)` 
 
 Build or query chunk meshes (see manifest).
 

@@ -31,7 +31,7 @@ func jSetString(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Valu
 	if err := setPath(&j.root, segs, val); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jSetInt(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -64,7 +64,7 @@ func jSetInt(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err := setPath(&j.root, segs, float64(n)); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jSetFloat(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -92,7 +92,7 @@ func jSetFloat(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 	if err := setPath(&j.root, segs, f); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jSetBool(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -125,7 +125,7 @@ func jSetBool(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 	if err := setPath(&j.root, segs, b); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jSetNull(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -149,7 +149,7 @@ func jSetNull(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 	if err := setPath(&j.root, segs, nil); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jDelete(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -173,7 +173,7 @@ func jDelete(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err := deletePath(j, segs); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jClear(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -197,7 +197,7 @@ func jClear(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	if err := clearContainer(j, segs); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func jAppend(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -225,7 +225,7 @@ func jAppend(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if err := appendValue(j, segs, val); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func valueToJSON(rt *runtime.Runtime, v value.Value) (interface{}, error) {

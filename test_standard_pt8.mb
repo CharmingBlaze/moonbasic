@@ -1,0 +1,40 @@
+; Phase 8 Verification: Model and Sprite Module Standardization
+
+PRINT("--- Phase 8: Model & Sprite ---")
+
+; 1. Test Model Standardization
+model = MODEL.CREATEBOX(1.0, 1.0, 1.0)
+PRINT("Model created: " + STR(model))
+
+; Test setters (separate lines due to parser limitations)
+model.SETPOS(0, 5, 0)
+model.SETROT(0, 1.57, 0)
+model.SETSCALE(2, 2, 2)
+PRINT("Model updated: " + STR(model))
+
+; Test property access
+PrintModelPos = model.POS()
+PRINT("Model Pos Y: " + STR(PrintModelPos.Y()))
+PRINT("Model Rot Y: " + STR(model.ROT().Y()))
+PRINT("Model Scale X: " + STR(model.SCALE().X()))
+PRINT("Model Alpha: " + STR(model.ALPHA()))
+
+; 2. Test Sprite Standardization
+sprite = SPRITE.LOAD("assets/textures/test_texture.png")
+PRINT("Sprite created: " + STR(sprite))
+
+; Test setters
+sprite.SETPOS(100, 200)
+sprite.SETROT(0.78)
+sprite.SETSCALE(1.5, 1.5)
+sprite.SETALPHA(0.5)
+PRINT("Sprite updated: " + STR(sprite))
+
+; Test property access
+PrintSpritePos = sprite.POS()
+PRINT("Sprite Pos X: " + STR(PrintSpritePos.X()))
+PRINT("Sprite Rot: " + STR(sprite.ROT().Z()))
+PRINT("Sprite Scale X: " + STR(sprite.SCALE().X()))
+PRINT("Sprite Alpha: " + STR(sprite.ALPHA()))
+
+PRINT("--- Model & Sprite Verification Complete ---")

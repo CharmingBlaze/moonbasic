@@ -73,6 +73,20 @@ func registerPlayerCharGetAPI(m *Module, reg runtime.Registrar) {
 	reg.Register("CHAR.GETMASK", "player", runtime.AdaptLegacy(m.playerGetKCCCollisionMask))
 	reg.Register("CHAR.GETCOLLISIONENABLED", "player", runtime.AdaptLegacy(m.playerGetCollisionEnabled))
 
+	reg.Register("CHARACTERREF.GETPOSITION", "player", runtime.AdaptLegacy(m.charRefGetPos))
+	reg.Register("CHARACTERREF.GETSPEED", "player", runtime.AdaptLegacy(m.playerGetSpeed))
+	reg.Register("CHARACTERREF.ISGROUNDED", "player", runtime.AdaptLegacy(m.charRefIsGrounded))
+	reg.Register("CHARACTERREF.GETSLOPEANGLE", "player", runtime.AdaptLegacy(m.playerGetSlopeAngle))
+	reg.Register("CHARACTERREF.GETMAXSLOPE", "player", runtime.AdaptLegacy(m.playerGetMaxSlope))
+	reg.Register("CHARACTERREF.GETSTEPHEIGHT", "player", runtime.AdaptLegacy(m.playerGetStepHeight))
+	reg.Register("CHARACTERREF.GETSNAPDISTANCE", "player", runtime.AdaptLegacy(m.playerGetSnapDistance))
+	reg.Register("CHARACTERREF.GETGRAVITY", "player", runtime.AdaptLegacy(m.playerGetGravityScale))
+	reg.Register("CHARACTERREF.GETFRICTION", "player", runtime.AdaptLegacy(m.playerGetFriction))
+	reg.Register("CHARACTERREF.GETISSLIDING", "player", runtime.AdaptLegacy(m.playerGetIsSliding))
+	reg.Register("CHARACTERREF.GETCEILING", "player", runtime.AdaptLegacy(m.playerGetCeiling))
+	reg.Register("CHARACTERREF.GETPADDING", "player", runtime.AdaptLegacy(m.charRefSetPadding)) // reuse setter logic for handle access
+	reg.Register("CHARACTERREF.GETGROUNDVELOCITY", "player", runtime.AdaptLegacy(m.charRefGetGroundVel))
+
 	registerPlayerKCCAliases(m, reg)
 }
 

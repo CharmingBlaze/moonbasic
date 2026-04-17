@@ -1,0 +1,58 @@
+; Phase 6 Verification: Collision Module Standardization
+
+PRINT("--- Phase 6: Collision ---")
+
+; 1. Test BBox Standardization
+box = BBOX.CREATE(-1, -1, -1, 1, 1, 1)
+PRINT("BBox created: " + STR(box))
+
+; Test fluent setters (separate lines due to parser statement limitations)
+box.SETMIN(-2, -2, -2)
+box.SETMAX(2, 2, 2)
+PRINT("BBox resized: " + STR(box))
+
+; Test property access (zero-arg)
+min = box.MIN()
+max = box.MAX()
+PRINT("Min X: " + STR(min.X()))
+PRINT("Max Z: " + STR(max.Z()))
+
+; 2. Test BSphere Standardization
+sphere = BSPHERE.CREATE(0, 0, 0, 1.0)
+PRINT("Sphere created: " + STR(sphere))
+
+; Test fluent setters
+sphere.SETPOS(1, 1, 1)
+sphere.SETRADIUS(2.5)
+PRINT("Sphere updated: " + STR(sphere))
+
+; Test property access
+PrintPos = sphere.POS()
+PRINT("Sphere Pos Y: " + STR(PrintPos.Y()))
+PRINT("Sphere Radius: " + STR(sphere.RADIUS()))
+
+; 3. Test Ray Standardization
+r = RAY.CREATE(0, 10, 0, 0, -1, 0)
+PRINT("Ray created: " + STR(r))
+
+; Test fluent setters
+r.SETPOS(0, 5, 0)
+r.SETDIR(1, 0, 1)
+PRINT("Ray updated: " + STR(r))
+
+; Test property access
+PrintRayPos = r.POS()
+PRINT("Ray Pos Y: " + STR(PrintRayPos.Y()))
+PrintRayDir = r.DIR()
+PRINT("Ray Dir X: " + STR(PrintRayDir.X()))
+
+; 4. Test Hit Chaining & Naming
+; Verify clean namespaced hit test (no _HIT suffix)
+isHit = r.HITSPHERE(10, 5, 10, 1.0)
+PRINT("Ray hit sphere test: " + STR(isHit))
+
+; Verify legacy _HIT alias still works
+isHitOld = r.HITSPHERE_HIT(10, 5, 10, 1.0)
+PRINT("Ray hit sphere (legacy alias): " + STR(isHitOld))
+
+PRINT("--- Collision Verification Complete ---")

@@ -82,6 +82,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA2D.MAKE", "camera", stub("CAMERA2D.MAKE"))
 	r.Register("CAMERA2D.GETPOS", "camera", stub("CAMERA2D.GETPOS"))
 	r.Register("CAMERA2D.GETROTATION", "camera", stub("CAMERA2D.GETROTATION"))
+	r.Register("CAMERA2D.GETOFFSET", "camera", stub("CAMERA2D.GETOFFSET"))
+	r.Register("CAMERA2D.GETZOOM", "camera", stub("CAMERA2D.GETZOOM"))
 	r.Register("CAMERA2D.SETTARGET", "camera", stub("CAMERA2D.SETTARGET"))
 	r.Register("CAMERA2D.SETOFFSET", "camera", stub("CAMERA2D.SETOFFSET"))
 	r.Register("CAMERA2D.SETZOOM", "camera", stub("CAMERA2D.SETZOOM"))
@@ -106,6 +108,8 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA2D.ROTATION", "camera", stub("CAMERA2D.ROTATION"))
 	r.Register("CAMERA2D.TARGETX", "camera", stub("CAMERA2D.TARGETX"))
 	r.Register("CAMERA2D.TARGETY", "camera", stub("CAMERA2D.TARGETY"))
+	r.Register("CAMERA2D.GETZOOM", "camera", stub("CAMERA2D.GETZOOM"))
+	r.Register("CAMERA2D.GETOFFSET", "camera", stub("CAMERA2D.GETOFFSET"))
 
 	r.Register("CULL.SPHEREVISIBLE", "camera", stub("CULL.SPHEREVISIBLE"))
 	r.Register("CULL.AABBVISIBLE", "camera", stub("CULL.AABBVISIBLE"))

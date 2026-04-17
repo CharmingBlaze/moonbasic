@@ -16,6 +16,7 @@ func registerScatter(m *Module, r runtime.Registrar) {
 		}
 	}
 	r.Register("SCATTER.CREATE", "scatter", h("SCATTER.CREATE"))
+	r.Register("SCATTER.MAKE", "scatter", h("SCATTER.MAKE"))
 	r.Register("SCATTER.FREE", "scatter", h("SCATTER.FREE"))
 	r.Register("SCATTER.APPLY", "scatter", h("SCATTER.APPLY"))
 	r.Register("SCATTER.DRAWALL", "scatter", h("SCATTER.DRAWALL"))

@@ -159,6 +159,17 @@ func (m *Module) registerTimerSim(r runtime.Registrar) {
 		o.loop = value.Truthy(args[1], pool, rt.Heap)
 		return value.Nil, nil
 	})
+	r.Register("TIMER.GETLOOP", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		_ = rt
+		o, err := m.getTimerSim(args, 0, "TIMER.GETLOOP")
+		if err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 1 {
+			return value.Nil, fmt.Errorf("TIMER.GETLOOP expects (timer)")
+		}
+		return value.FromBool(o.loop), nil
+	})
 	r.Register("TIMER.UPDATE", "game", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		_ = rt
 		o, err := m.getTimerSim(args, 0, "TIMER.UPDATE")

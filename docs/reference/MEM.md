@@ -1,45 +1,95 @@
-# Binary memory buffers (`MEM.*`)
+# Mem Commands
 
-Fixed-size **byte buffers** on the VM heap (`Mem` handles) for low-level packing, binary protocols, or interop-style layouts. Implemented in `runtime/mbmem`.
+Fixed-size byte buffers for low-level binary packing, protocols, and interop layouts.
 
-**Limits:** Each block is at most **256 MiB** (`maxMemBlock`). Integer offsets and sizes must be non-negative and in range.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Endianness:** Multi-byte reads and writes use **little-endian** order (`binary.LittleEndian`).
+## Core Workflow
+
+1. Allocate a buffer with `MEM.MAKE`.
+2. Write data with `MEM.SETBYTE`, `MEM.SETWORD`, `MEM.SETFLOAT`, `MEM.SETSTRING`, etc.
+3. Read back with the matching `MEM.GET*` commands.
+4. Copy between buffers with `MEM.COPY`.
+5. Free with `MEM.FREE`.
+
+**Limits:** Max 256 MiB per block. Little-endian byte order for multi-byte types.
 
 ---
 
-## Allocation
-
-### `Mem.Make(size)` → handle
+### `MEM.MAKE(size)` 
 
 Allocates `size` bytes, zero-initialized.
 
-### `Mem.Free(mem)`
+---
+
+### `MEM.FREE(memHandle)` 
 
 Frees the buffer.
 
-### `Mem.Size(mem)` → int
+---
 
-Byte length of the buffer.
+### `MEM.SIZE(memHandle)` 
 
-### `Mem.Clear(mem)`
-
-Sets every byte to zero (`clear`).
-
-### `Mem.Copy(src, dst, srcOff, dstOff, size)`
-
-Copies `size` bytes from `src[srcOff:]` to `dst[dstOff:]`. Overlap rules follow Go `copy`; out-of-range access errors.
+Returns the byte length of the buffer.
 
 ---
 
-## Read / write primitives
+### `MEM.CLEAR(memHandle)` 
 
-Offsets are **byte indices**. `GET` forms return values; `SET` forms return nothing.
+Sets every byte to zero.
 
-| Command | Width | Notes |
-|---------|-------|------|
-| `Mem.GetByte` / `SetByte` | 1 byte | `SetByte` value 0–255. |
-| `Mem.GetWord` / `SetWord` | 2 bytes | `SetWord` value 0–65535. |
-| `Mem.GetDword` / `SetDword` | 4 bytes | `SetDword` uses low 32 bits (two’s complement as `uint32`). |
-| `Mem.GetFloat` / `SetFloat` | 4 bytes | IEEE **32-bit** float. |
-| `Mem.GetString` / `SetString` | C string | **Get:** reads bytes until **NUL** or end of buffer. **Set:** writes bytes plus trailing **NUL**; needs `len(s)+1` bytes free at offset. |
+---
+
+### `MEM.COPY(src, dst, srcOff, dstOff, size)` 
+
+Copies `size` bytes from `src[srcOff:]` to `dst[dstOff:]`.
+
+---
+
+### `MEM.GETBYTE(memHandle, offset)` / `MEM.SETBYTE(memHandle, offset, value)` 
+
+Read/write a single byte (0–255).
+
+---
+
+### `MEM.GETWORD(memHandle, offset)` / `MEM.SETWORD(memHandle, offset, value)` 
+
+Read/write a 16-bit unsigned integer (0–65535), little-endian.
+
+---
+
+### `MEM.GETDWORD(memHandle, offset)` / `MEM.SETDWORD(memHandle, offset, value)` 
+
+Read/write a 32-bit integer, little-endian.
+
+---
+
+### `MEM.GETFLOAT(memHandle, offset)` / `MEM.SETFLOAT(memHandle, offset, value)` 
+
+Read/write an IEEE 32-bit float, little-endian.
+
+---
+
+### `MEM.GETSTRING(memHandle, offset)` / `MEM.SETSTRING(memHandle, offset, value)` 
+
+Read/write a NUL-terminated C string. `SETSTRING` needs `LEN(value)+1` bytes free at offset.
+
+---
+
+## Full Example
+
+This example packs a position into a binary buffer and reads it back.
+
+```basic
+buf = MEM.MAKE(12)
+MEM.SETFLOAT(buf, 0, 1.5)
+MEM.SETFLOAT(buf, 4, 2.0)
+MEM.SETFLOAT(buf, 8, 3.5)
+
+x = MEM.GETFLOAT(buf, 0)
+y = MEM.GETFLOAT(buf, 4)
+z = MEM.GETFLOAT(buf, 8)
+PRINT "Position: " + STR(x) + ", " + STR(y) + ", " + STR(z)
+
+MEM.FREE(buf)
+```

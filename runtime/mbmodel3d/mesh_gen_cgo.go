@@ -14,7 +14,7 @@ import (
 )
 
 func registerMeshGen(m *Module, reg runtime.Registrar) {
-	reg.Register("MESH.MAKEPOLY", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakePoly := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -28,7 +28,9 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshPoly(int(sides), rad)
 		return m.allocMesh(mesh, "MESH.MAKEPOLY")
-	}))
+	}
+	reg.Register("MESH.MAKEPOLY", "mesh", runtime.AdaptLegacy(meshMakePoly))
+	reg.Register("MESH.CREATEPOLY", "mesh", runtime.AdaptLegacy(meshMakePoly))
 
 	meshMakePlane := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
@@ -88,7 +90,7 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 	reg.Register("MESH.MAKESPHERE", "mesh", runtime.AdaptLegacy(meshMakeSphere))
 	reg.Register("MESH.CREATESPHERE", "mesh", runtime.AdaptLegacy(meshMakeSphere))
 
-	reg.Register("MESH.MAKECYLINDER", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeCylinder := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -103,9 +105,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshCylinder(rad, h, int(sl))
 		return m.allocMesh(mesh, "MESH.MAKECYLINDER")
-	}))
+	}
+	reg.Register("MESH.MAKECYLINDER", "mesh", runtime.AdaptLegacy(meshMakeCylinder))
+	reg.Register("MESH.CREATECYLINDER", "mesh", runtime.AdaptLegacy(meshMakeCylinder))
 
-	reg.Register("MESH.MAKECONE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeCone := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -120,9 +124,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshCone(rad, h, int(sl))
 		return m.allocMesh(mesh, "MESH.MAKECONE")
-	}))
+	}
+	reg.Register("MESH.MAKECONE", "mesh", runtime.AdaptLegacy(meshMakeCone))
+	reg.Register("MESH.CREATECONE", "mesh", runtime.AdaptLegacy(meshMakeCone))
 
-	reg.Register("MESH.MAKETORUS", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeTorus := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -138,9 +144,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshTorus(rad, sz, int(rseg), int(sides))
 		return m.allocMesh(mesh, "MESH.MAKETORUS")
-	}))
+	}
+	reg.Register("MESH.MAKETORUS", "mesh", runtime.AdaptLegacy(meshMakeTorus))
+	reg.Register("MESH.CREATETORUS", "mesh", runtime.AdaptLegacy(meshMakeTorus))
 
-	reg.Register("MESH.MAKEKNOT", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeKnot := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -156,9 +164,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshKnot(rad, sz, int(rseg), int(sides))
 		return m.allocMesh(mesh, "MESH.MAKEKNOT")
-	}))
+	}
+	reg.Register("MESH.MAKEKNOT", "mesh", runtime.AdaptLegacy(meshMakeKnot))
+	reg.Register("MESH.CREATEKNOT", "mesh", runtime.AdaptLegacy(meshMakeKnot))
 
-	reg.Register("MESH.MAKEHEIGHTMAP", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeHeightmap := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -177,9 +187,11 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshHeightmap(*img, rl.Vector3{X: sx, Y: sy, Z: sz})
 		return m.allocMesh(mesh, "MESH.MAKEHEIGHTMAP")
-	}))
+	}
+	reg.Register("MESH.MAKEHEIGHTMAP", "mesh", runtime.AdaptLegacy(meshMakeHeightmap))
+	reg.Register("MESH.CREATEHEIGHTMAP", "mesh", runtime.AdaptLegacy(meshMakeHeightmap))
 
-	reg.Register("MESH.MAKECUBICMAP", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+	meshMakeCubicmap := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
 			return value.Nil, err
 		}
@@ -198,7 +210,9 @@ func registerMeshGen(m *Module, reg runtime.Registrar) {
 		}
 		mesh := rl.GenMeshCubicmap(*img, rl.Vector3{X: cx, Y: cy, Z: cz})
 		return m.allocMesh(mesh, "MESH.MAKECUBICMAP")
-	}))
+	}
+	reg.Register("MESH.MAKECUBICMAP", "mesh", runtime.AdaptLegacy(meshMakeCubicmap))
+	reg.Register("MESH.CREATECUBICMAP", "mesh", runtime.AdaptLegacy(meshMakeCubicmap))
 
 	// Legacy manifest names (aliases)
 	reg.Register("MESH.CUBE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {

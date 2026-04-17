@@ -78,9 +78,29 @@ func registerStringsConv(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.ToUpper(s)), nil
 	})
+	r.Register("UPPER$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Value{}, runtime.Errorf("UPPER$ expects 1 argument")
+		}
+		s, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Value{}, err
+		}
+		return rt.RetString(strings.ToUpper(s)), nil
+	})
 	r.Register("LOWER", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("LOWER expects 1 argument")
+		}
+		s, err := rt.ArgString(args, 0)
+		if err != nil {
+			return value.Value{}, err
+		}
+		return rt.RetString(strings.ToLower(s)), nil
+	})
+	r.Register("LOWER$", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if len(args) != 1 {
+			return value.Value{}, runtime.Errorf("LOWER$ expects 1 argument")
 		}
 		s, err := rt.ArgString(args, 0)
 		if err != nil {
@@ -101,7 +121,7 @@ func registerStringsConv(r runtime.Registrar) {
 		}
 		return value.FromInt(int64(utf8.RuneCountInString(s))), nil
 	})
-	r.Register("CHR", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	chrFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("CHR expects 1 argument")
 		}
@@ -113,7 +133,10 @@ func registerStringsConv(r runtime.Registrar) {
 			return rt.RetString(""), nil
 		}
 		return rt.RetString(string(rune(c))), nil
-	})
+	}
+	r.Register("CHR", "core", chrFn)
+	r.Register("CHR$", "core", chrFn)
+
 	r.Register("ASC", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("ASC expects 1 argument")

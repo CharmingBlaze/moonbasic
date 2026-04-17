@@ -1,8 +1,12 @@
-# Raylib extras — window, input, render, draw, system
+# Raylib Extras
 
-moonBASIC maps Raylib to dotted registry keys (`WINDOW.OPEN`, `INPUT.KEYDOWN`, …). Source code may use **`Window.Open`**, **`Input.KeyDown`**, etc.; those lower-case forms compile to the same keys.
+Index of Raylib-mapped namespaces: window, input, render, draw, time, textures, and more.
 
-**Requires CGO** for the full Raylib stack. Stub builds return errors that mention **`CGO_ENABLED=1`**.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+This page is a quick-map to dedicated reference pages. Use registry-first keys (`WINDOW.OPEN`, `INPUT.KEYDOWN`, `RENDER.CLEAR`, etc.). Requires **CGO** for the full Raylib stack.
 
 ---
 

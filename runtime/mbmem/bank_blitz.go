@@ -20,6 +20,12 @@ func registerBankBlitzAliases(m *Module, r runtime.Registrar) {
 	r.Register("PokeInt", "mem", runtime.AdaptLegacy(m.memSetDword))
 	r.Register("PeekFloat", "mem", runtime.AdaptLegacy(m.memGetDouble))
 	r.Register("PokeFloat", "mem", runtime.AdaptLegacy(m.memSetDouble))
+
+	// Uppercase aliases for manifest compatibility
+	r.Register("CREATEBANK", "mem", runtime.AdaptLegacy(m.memMake))
+	r.Register("FREEBANK", "mem", runtime.AdaptLegacy(m.memFree))
+	r.Register("BANKSIZE", "mem", runtime.AdaptLegacy(m.memSize))
+	r.Register("COPYBANK", "mem", runtime.AdaptLegacy(m.bankCopyBlitzOrder))
 }
 
 // bankCopyBlitzOrder is CopyBank(src, srcOffset, dest, destOffset, count) — forwards to MEM.COPY(src, dst, ...).

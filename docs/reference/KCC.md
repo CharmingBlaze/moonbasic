@@ -1,8 +1,17 @@
-# Kinematic Character Controller (`CHAR.*` / `PLAYER.*`)
+# KCC Commands
 
-This page is the **gameplay-first** guide to MoonBASIC’s **Kinematic Character Controller (KCC)** — Jolt **`CharacterVirtual`** behind **`PLAYER.CREATE`**, **`CHAR.CREATE`**, and related commands. It bridges **“what I want the hero to do”** and **stable 3D navigation** (wall slide, stairs, floor stick) without you hand-writing collision response.
+Gameplay-first kinematic character controller backed by Jolt `CharacterVirtual`.
 
-For the **low-level capsule API** (`CharController.*` handles), see [CHARCONTROLLER.md](CHARCONTROLLER.md). For the full **`PLAYER.*`** surface (swim, push, surface type, …), see [PLAYER.md](PLAYER.md). For **heap `Character` handles** (**`CHARACTER.CREATE(entity, r, h)`**), see [CHARACTER.md](CHARACTER.md).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. `PHYSICS3D.START()` and set gravity.
+2. Create a capsule entity, then `CHAR.CREATE(entity, radius, height)` or `PLAYER.CREATE(entity, radius, height)`.
+3. Each frame: `CHAR.MOVEWITHCAMERA` or `CHAR.MOVE`, `CHAR.JUMP`.
+4. Query with `CHAR.ISGROUNDED`, `CHAR.GETPOS`, etc.
+
+For low-level capsule handles see [CHARCONTROLLER.md](CHARCONTROLLER.md). For full `PLAYER.*` surface see [PLAYER.md](PLAYER.md). For heap `Character` handles see [CHARACTER.md](CHARACTER.md).
 
 ## Platform
 
@@ -33,7 +42,7 @@ Aliases: **`PLAYER.CREATE`** and **`CHAR.CREATE`** are equivalent KCC setup; **`
 
 **Important:** Do **not** put the hero on **`ENTITY.PHYSICS`** as a **dynamic** body if you are using **`CHAR.CREATE`** — the KCC owns movement and collision for that entity. Keep **static** level meshes as usual.
 
-### Capsule size and pivot (primitive or glTF hero)
+### Capsule size and pivot (primitive or glTF hero) 
 
 - **`MODEL.CREATECAPSULE(radius#, height#)`** draws a **Jolt-style** capsule: pivot at the **center** of the shape; total height is **`height#`** (same convention as **`CHAR.CREATE(…, radius#, height#)`**).
 - Use the **same** `radius` and `height` in **`CHAR.CREATE(hero, radius, height)`** as in **`MODEL.CREATECAPSULE`**, or feet vs floor will not match the mesh. For an imported **`MODEL.LOAD` / glTF** hero, pick **`radius` / `height`** that match your collision need; Jolt KCC uses **height/2** from the pivot down to the feet (center-pivot capsules), not the radius, for ground contact.
@@ -146,7 +155,7 @@ See **`examples/mario64/modern_blitz_hop_kcc.mb`** — orbit camera + **`CHAR.MO
 - **KCC → `PHYSICS3D.ONCOLLISION`:** After each physics step, **`CharacterVirtual`** contact events are drained and matched against **`PHYSICS3D.ONCOLLISION(entityOrBodyA, entityOrBodyB, callback$)`** rules (handles may be **`BODY3D`** with **`ENTITY.LINKPHYSBUFFER`** or **`EntityRef`**). Enable the character contact listener (on by default for new capsules). **`CHARACTERREF.DRAINCONTACTS`** still returns raw events for custom handling.
 - **Water:** **`PLAYER.GETSUBMERGEDFACTOR`** / **`PLAYER.ISSUBMERGED`** use **`WATER.*`** volumes. Ambient swim (buoyancy/drag) is applied on **`PLAYER.MOVE`** / **`CHAR.MOVE`** / camera-walk moves when **`PLAYER.SWIM`** has **not** been used to pin manual swim on that entity (**`swimManual`**).
 
-### Regression checklist (manual)
+### Regression checklist (manual) 
 
 See **`examples/kcc_regression_checklist.mb`**: stairs **0.3m**, slopes **30° / 60°**, **`PHYSICS3D.SETTIMESTEP(144)`** + high refresh — feet should not jitter when grounded; verify **`PLAYER.MOVE`** on kinematic platforms.
 

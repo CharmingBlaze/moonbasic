@@ -162,7 +162,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		i := int(idx)
 		o.px[i], o.py[i], o.pz[i] = x, y, z
 		o.manual[i] = false
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("MODEL.SETINSTANCEPOS", "model", runtime.AdaptLegacy(setInstancePos))
 	reg.Register("INSTANCE.SETINSTANCEPOS", "model", runtime.AdaptLegacy(setInstancePos))
@@ -192,7 +192,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		i := int(idx)
 		o.rx[i], o.ry[i], o.rz[i] = rx, ry, rz
 		o.manual[i] = false
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("INSTANCE.SETROT", "model", runtime.AdaptLegacy(setInstanceRot))
 
@@ -220,7 +220,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		i := int(idx)
 		o.sx[i], o.sy[i], o.sz[i] = x, y, z
 		o.manual[i] = false
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("MODEL.SETINSTANCESCALE", "model", runtime.AdaptLegacy(setInstanceScale))
 	reg.Register("INSTANCE.SETINSTANCESCALE", "model", runtime.AdaptLegacy(setInstanceScale))
@@ -248,7 +248,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		i := int(idx)
 		o.transforms[i] = mat
 		o.manual[i] = true
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("INSTANCE.SETMATRIX", "model", runtime.AdaptLegacy(setInstanceMatrix))
 
@@ -276,7 +276,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		}
 		i := int(idx)
 		o.cr[i], o.cg[i], o.cb[i], o.ca[i] = r, g, b, a
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("INSTANCE.SETCOLOR", "model", runtime.AdaptLegacy(setInstanceColor))
 
@@ -300,7 +300,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 			sc := rl.MatrixScale(o.sx[i], o.sy[i], o.sz[i])
 			o.transforms[i] = rl.MatrixMultiply(rl.MatrixMultiply(tr, rot), sc)
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("MODEL.UPDATEINSTANCES", "model", runtime.AdaptLegacy(updateInstances))
 	reg.Register("INSTANCE.UPDATEINSTANCES", "model", runtime.AdaptLegacy(updateInstances))
@@ -325,7 +325,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 			d = 0
 		}
 		o.cullDistance = d
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("INSTANCE.SETCULLDISTANCE", "model", runtime.AdaptLegacy(setCullDistance))
 
@@ -377,18 +377,7 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		if o.count < 1 {
 			return value.Nil, fmt.Errorf("INSTANCE.GETROT: no instances")
 		}
-		arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
-		if err != nil {
-			return value.Nil, err
-		}
-		arr.Floats[0] = float64(o.rx[0])
-		arr.Floats[1] = float64(o.ry[0])
-		arr.Floats[2] = float64(o.rz[0])
-		id, err := m.h.Alloc(arr)
-		if err != nil {
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
+		return mbmatrix.AllocVec3Value(m.h, o.rx[0], o.ry[0], o.rz[0])
 	}
 	reg.Register("INSTANCE.GETROT", "model", runtime.AdaptLegacy(instGetRot0))
 
@@ -406,20 +395,11 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 		if o.count < 1 {
 			return value.Nil, fmt.Errorf("INSTANCE.GETSCALE: no instances")
 		}
-		arr, err := heap.NewArrayOfKind([]int64{3}, heap.ArrayKindFloat, 0)
-		if err != nil {
-			return value.Nil, err
-		}
-		arr.Floats[0] = float64(o.sx[0])
-		arr.Floats[1] = float64(o.sy[0])
-		arr.Floats[2] = float64(o.sz[0])
-		id, err := m.h.Alloc(arr)
-		if err != nil {
-			return value.Nil, err
-		}
-		return value.FromHandle(id), nil
+		return mbmatrix.AllocVec3Value(m.h, o.sx[0], o.sy[0], o.sz[0])
 	}
 	reg.Register("INSTANCE.GETSCALE", "model", runtime.AdaptLegacy(instGetScale0))
+	reg.Register("INSTANCE.GETCOLOR", "model", runtime.AdaptLegacy(m.modelInstGetColor0))
+	reg.Register("INSTANCE.GETALPHA", "model", runtime.AdaptLegacy(m.modelInstGetAlpha0))
 
 	instDrawLOD := func(args []value.Value) (value.Value, error) {
 		if err := m.requireHeap(); err != nil {
@@ -445,10 +425,10 @@ func registerModelInstDraw(m *Module, reg runtime.Registrar) {
 			draw3dMu.Lock()
 			pendingInstDraw = append(pendingInstDraw, instancedDrawRec{instH: h, lodMeshH: heap.Handle(args[1].IVal), lodDist: dist})
 			draw3dMu.Unlock()
-			return value.Nil, nil
+			return args[0], nil
 		}
 		drawInstancedRaster(io, lod, dist, false)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	reg.Register("INSTANCE.DRAWLOD", "model", runtime.AdaptLegacy(instDrawLOD))
 
@@ -468,10 +448,10 @@ func (m *Module) modelDrawInstOnly(args []value.Value) (value.Value, error) {
 		draw3dMu.Lock()
 		pendingInstDraw = append(pendingInstDraw, instancedDrawRec{instH: heap.Handle(args[0].IVal), lodMeshH: 0, lodDist: 0})
 		draw3dMu.Unlock()
-		return value.Nil, nil
+		return args[0], nil
 	}
 	drawInstancedRaster(io, nil, 0, false)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
@@ -518,13 +498,13 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 
 	if o, err := heap.Cast[*modelObj](m.h, h); err == nil {
 		if o.hidden {
-			return value.Nil, nil
+			return args[0], nil
 		}
 		if shadowDeferActive() && InCamera3D() {
 			draw3dMu.Lock()
 			deferredModels = append(deferredModels, deferredModelRec{modelH: h, useExt: useExt, extMtx: extMtx})
 			draw3dMu.Unlock()
-			return value.Nil, nil
+			return args[0], nil
 		}
 		if useExt {
 			saved := o.model.Transform
@@ -534,7 +514,7 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 		} else {
 			rl.DrawModel(o.model, rl.Vector3{}, 1, rl.White)
 		}
-		return value.Nil, nil
+		return args[0], nil
 	}
 
 	if lo, err := heap.Cast[*lodModelObj](m.h, h); err == nil {
@@ -544,13 +524,13 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 		}
 		li := lo.pickLOD(cam)
 		if li < 0 {
-			return value.Nil, nil
+			return args[0], nil
 		}
 		if shadowDeferActive() && InCamera3D() {
 			draw3dMu.Lock()
 			deferredModels = append(deferredModels, deferredModelRec{modelH: h, useExt: useExt, extMtx: extMtx})
 			draw3dMu.Unlock()
-			return value.Nil, nil
+			return args[0], nil
 		}
 		mod := &lo.models[li]
 		saved := mod.Transform
@@ -561,7 +541,7 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 		}
 		rl.DrawModel(*mod, rl.Vector3{}, 1, rl.White)
 		mod.Transform = saved
-		return value.Nil, nil
+		return args[0], nil
 	}
 
 	if io, err := heap.Cast[*instancedModelObj](m.h, h); err == nil {
@@ -576,11 +556,54 @@ func (m *Module) modelDraw(args []value.Value) (value.Value, error) {
 			draw3dMu.Lock()
 			pendingInstDraw = append(pendingInstDraw, instancedDrawRec{instH: h, lodMeshH: 0, lodDist: 0})
 			draw3dMu.Unlock()
-			return value.Nil, nil
+			return args[0], nil
 		}
 		drawInstancedRaster(io, nil, 0, false)
-		return value.Nil, nil
+		return args[0], nil
 	}
 
-	return value.Nil, fmt.Errorf("MODEL.DRAW: handle is not a Model, LODModel, or InstancedModel")
+	return args[0], nil
+}
+
+func (m *Module) modelInstGetColor0(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("INSTANCE.GETCOLOR expects (instancedModel)")
+	}
+	o, err := m.getInstancedModel(args, 0, "INSTANCE.GETCOLOR")
+	if err != nil {
+		return value.Nil, err
+	}
+	if o.count < 1 {
+		return value.Nil, fmt.Errorf("INSTANCE.GETCOLOR: no instances")
+	}
+	instance := heap.NewInstance("Color")
+	instance.SetField("r", value.FromInt(int64(o.cr[0])))
+	instance.SetField("g", value.FromInt(int64(o.cg[0])))
+	instance.SetField("b", value.FromInt(int64(o.cb[0])))
+	instance.SetField("a", value.FromInt(int64(o.ca[0])))
+	id, err := m.h.Alloc(instance)
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+func (m *Module) modelInstGetAlpha0(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("INSTANCE.GETALPHA expects (instancedModel)")
+	}
+	o, err := m.getInstancedModel(args, 0, "INSTANCE.GETALPHA")
+	if err != nil {
+		return value.Nil, err
+	}
+	if o.count < 1 {
+		return value.Nil, fmt.Errorf("INSTANCE.GETALPHA: no instances")
+	}
+	return value.FromFloat(float64(o.ca[0]) / 255.0), nil
 }

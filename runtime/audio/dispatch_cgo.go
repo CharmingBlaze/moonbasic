@@ -24,11 +24,11 @@ func (m *Module) audioPlay(args []value.Value) (value.Value, error) {
 	hid := heap.Handle(args[0].IVal)
 	if so, err := heap.Cast[*soundObj](m.h, hid); err == nil {
 		rl.PlaySound(so.snd)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if mo, err := heap.Cast[*musicObj](m.h, hid); err == nil {
 		rl.PlayMusicStream(mo.m)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("AUDIO.PLAY: handle must be sound or music")
 }
@@ -43,11 +43,11 @@ func (m *Module) audioStop(args []value.Value) (value.Value, error) {
 	hid := heap.Handle(args[0].IVal)
 	if so, err := heap.Cast[*soundObj](m.h, hid); err == nil {
 		rl.StopSound(so.snd)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if mo, err := heap.Cast[*musicObj](m.h, hid); err == nil {
 		rl.StopMusicStream(mo.m)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("AUDIO.STOP: handle must be sound or music")
 }
@@ -65,7 +65,7 @@ func (m *Module) audioPause(args []value.Value) (value.Value, error) {
 	}
 	if mo, err := heap.Cast[*musicObj](m.h, hid); err == nil {
 		rl.PauseMusicStream(mo.m)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("AUDIO.PAUSE: handle must be music")
 }
@@ -83,7 +83,7 @@ func (m *Module) audioResume(args []value.Value) (value.Value, error) {
 	}
 	if mo, err := heap.Cast[*musicObj](m.h, hid); err == nil {
 		rl.ResumeMusicStream(mo.m)
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("AUDIO.RESUME: handle must be music")
 }
@@ -101,11 +101,11 @@ func (m *Module) audioSetVolume(args []value.Value) (value.Value, error) {
 	}
 	if so, err := heap.Cast[*soundObj](m.h, hid); err == nil {
 		rl.SetSoundVolume(so.snd, float32(vol))
-		return value.Nil, nil
+		return args[0], nil
 	}
 	if mo, err := heap.Cast[*musicObj](m.h, hid); err == nil {
 		rl.SetMusicVolume(mo.m, float32(vol))
-		return value.Nil, nil
+		return args[0], nil
 	}
 	return value.Nil, fmt.Errorf("SOUNDVOLUME: handle must be sound or music")
 }

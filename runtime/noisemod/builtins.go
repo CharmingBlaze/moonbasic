@@ -79,7 +79,7 @@ func (m *Module) noiseSetType(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	n.noiseType = strings.TrimSpace(s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetSeed(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -98,7 +98,7 @@ func (m *Module) noiseSetSeed(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	n.seed = int32(seed)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetFrequency(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -117,7 +117,7 @@ func (m *Module) noiseSetFrequency(rt *runtime.Runtime, args ...value.Value) (va
 		return value.Nil, err
 	}
 	n.frequency = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetOctaves(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -139,7 +139,7 @@ func (m *Module) noiseSetOctaves(rt *runtime.Runtime, args ...value.Value) (valu
 	if n.octaves < 1 {
 		n.octaves = 1
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetLacunarity(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -158,7 +158,7 @@ func (m *Module) noiseSetLacunarity(rt *runtime.Runtime, args ...value.Value) (v
 		return value.Nil, err
 	}
 	n.lacunarity = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetGain(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -177,7 +177,7 @@ func (m *Module) noiseSetGain(rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	n.gain = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetWeightedStrength(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -196,7 +196,7 @@ func (m *Module) noiseSetWeightedStrength(rt *runtime.Runtime, args ...value.Val
 		return value.Nil, err
 	}
 	n.weightedStrength = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetPingPongStrength(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -215,7 +215,7 @@ func (m *Module) noiseSetPingPongStrength(rt *runtime.Runtime, args ...value.Val
 		return value.Nil, err
 	}
 	n.pingPongStrength = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetCellularType(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -234,7 +234,7 @@ func (m *Module) noiseSetCellularType(rt *runtime.Runtime, args ...value.Value) 
 		return value.Nil, err
 	}
 	n.cellularType = strings.TrimSpace(s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetCellularDistance(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -253,7 +253,7 @@ func (m *Module) noiseSetCellularDistance(rt *runtime.Runtime, args ...value.Val
 		return value.Nil, err
 	}
 	n.cellularDist = strings.TrimSpace(s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetCellularJitter(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -272,7 +272,7 @@ func (m *Module) noiseSetCellularJitter(rt *runtime.Runtime, args ...value.Value
 		return value.Nil, err
 	}
 	n.cellularJitter = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetDomainWarpType(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -291,7 +291,7 @@ func (m *Module) noiseSetDomainWarpType(rt *runtime.Runtime, args ...value.Value
 		return value.Nil, err
 	}
 	n.warpType = strings.TrimSpace(s)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseSetDomainWarpAmplitude(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -310,7 +310,7 @@ func (m *Module) noiseSetDomainWarpAmplitude(rt *runtime.Runtime, args ...value.
 		return value.Nil, err
 	}
 	n.warpAmp = f
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseGet(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -491,7 +491,7 @@ func (m *Module) noiseFillArray(rt *runtime.Runtime, args ...value.Value) (value
 			}
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseFillArrayNorm(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -549,7 +549,7 @@ func (m *Module) noiseFillArrayNorm(rt *runtime.Runtime, args ...value.Value) (v
 			}
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) noiseMakePerlin(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

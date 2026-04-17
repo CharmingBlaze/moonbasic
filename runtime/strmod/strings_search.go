@@ -43,7 +43,7 @@ func registerStringsSearch(r runtime.Registrar) {
 		}
 		return rt.RetString(strings.TrimSpace(s)), nil
 	})
-	r.Register("LTRIM", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	ltrimFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("LTRIM expects 1 argument")
 		}
@@ -52,8 +52,11 @@ func registerStringsSearch(r runtime.Registrar) {
 			return value.Value{}, err
 		}
 		return rt.RetString(strings.TrimLeft(s, " \t\r\n")), nil
-	})
-	r.Register("RTRIM", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	}
+	r.Register("LTRIM", "core", ltrimFn)
+	r.Register("LTRIM$", "core", ltrimFn)
+
+	rtrimFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 1 {
 			return value.Value{}, runtime.Errorf("RTRIM expects 1 argument")
 		}
@@ -62,7 +65,9 @@ func registerStringsSearch(r runtime.Registrar) {
 			return value.Value{}, err
 		}
 		return rt.RetString(strings.TrimRight(s, " \t\r\n")), nil
-	})
+	}
+	r.Register("RTRIM", "core", rtrimFn)
+	r.Register("RTRIM$", "core", rtrimFn)
 	r.Register("REPLACE", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 3 {
 			return value.Value{}, runtime.Errorf("REPLACE expects 3 arguments")
@@ -112,7 +117,7 @@ func registerStringsSearch(r runtime.Registrar) {
 	}
 	r.Register("INSTR", "core", instrImpl)
 	r.Register("Instr", "core", instrImpl)
-	r.Register("COUNT", "core", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	countFn := func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		if len(args) != 2 {
 			return value.Value{}, runtime.Errorf("COUNT expects 2 arguments (src, find)")
 		}
@@ -125,5 +130,7 @@ func registerStringsSearch(r runtime.Registrar) {
 			return value.Value{}, err
 		}
 		return value.FromInt(int64(strings.Count(s1, s2))), nil
-	})
+	}
+	r.Register("COUNT", "core", countFn)
+	r.Register("COUNT$", "core", countFn)
 }

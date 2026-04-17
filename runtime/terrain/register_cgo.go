@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"moonbasic/runtime"
+	"moonbasic/runtime/mbmatrix"
 	mbcamera "moonbasic/runtime/camera"
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
@@ -23,6 +24,9 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	})
 	r.Register("TERRAIN.SETPOS", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return terrainSetPos(m, rt, args...)
+	})
+	r.Register("TERRAIN.GETPOS", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainGetPos(m, rt, args...)
 	})
 	r.Register("TERRAIN.SETCHUNKSIZE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return terrainSetChunkSize(m, rt, args...)
@@ -173,7 +177,22 @@ func terrainSetPos(m *Module, rt *runtime.Runtime, args ...value.Value) (value.V
 	obj.PX = float32(x)
 	obj.PY = float32(y)
 	obj.PZ = float32(z)
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func terrainGetPos(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TERRAIN.GETPOS expects terrain handle")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, obj.PX, obj.PY, obj.PZ)
 }
 
 func terrainSetChunkSize(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -204,7 +223,7 @@ func terrainSetChunkSize(m *Module, rt *runtime.Runtime, args ...value.Value) (v
 	obj.ChunkW = (obj.WorldW + obj.ChunkSize - 1) / obj.ChunkSize
 	obj.ChunkH = (obj.WorldH + obj.ChunkSize - 1) / obj.ChunkSize
 	obj.Chunks = make([]chunkSlot, obj.ChunkW*obj.ChunkH)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func terrainFillPerlin(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -232,7 +251,7 @@ func terrainFillPerlin(m *Module, rt *runtime.Runtime, args ...value.Value) (val
 	for i := range obj.Chunks {
 		obj.Chunks[i].Dirty = true
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func terrainFillFlat(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -259,7 +278,7 @@ func terrainFillFlat(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 	for i := range obj.Chunks {
 		obj.Chunks[i].Dirty = true
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func terrainGetHeight(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -337,7 +356,7 @@ func terrainRaise(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	brush(obj, float32(wx), float32(wz), float32(rad), float32(amt), 1)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func terrainLower(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -369,7 +388,7 @@ func terrainLower(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	brush(obj, float32(wx), float32(wz), float32(rad), float32(amt), -1)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func brush(obj *TerrainObject, wx, wz, radius, amount float32, sign int) {
@@ -491,7 +510,7 @@ func terrainDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Val
 			obj.drawChunk(cx, cz)
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func chunkGenerate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -515,10 +534,10 @@ func chunkGenerate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	if int(cx) < 0 || int(cz) < 0 || int(cx) >= obj.ChunkW || int(cz) >= obj.ChunkH {
-		return value.Nil, nil
+		return args[0], nil
 	}
 	obj.rebuildChunkMesh(int(cx), int(cz))
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func chunkCount(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -561,7 +580,7 @@ func chunkSetRange(m *Module, rt *runtime.Runtime, args ...value.Value) (value.V
 	}
 	obj.LoadDist = float32(ld)
 	obj.UnloadDist = float32(ud)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func chunkIsLoaded(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -700,7 +719,7 @@ func terrainSetMeshBudget(m *Module, rt *runtime.Runtime, args ...value.Value) (
 		return value.Nil, err
 	}
 	obj.MeshBuildBudgetPerTick = int(b)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func terrainSetAsync(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -720,5 +739,5 @@ func terrainSetAsync(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 		return value.Nil, err
 	}
 	obj.MeshBuildAsync = b
-	return value.Nil, nil
+	return args[0], nil
 }

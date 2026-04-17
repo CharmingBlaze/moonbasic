@@ -1,10 +1,18 @@
-# Level & glTF scene graph (`LEVEL.*`)
+# Level Commands
 
-Data-driven level helpers that **do not** replace **`SCENE.*`** game-scene switching ([SCENE.md](SCENE.md)). Use **`LEVEL.*`** for loading a **`.gltf` / `.glb`** file, resolving named markers/spawns, toggling layer visibility, bulk material swaps, and asset preloading.
+Load glTF levels, resolve markers/spawns, toggle layers, preload assets, and set up physics.
 
-**Requires CGO** (same as **`ENTITY.LOAD`**).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-Naming note: workflows described as **`Scene.Preload` / `Scene.LoadSkybox`** in engine design docs map to **`LEVEL.PRELOAD`** and **`LEVEL.LOADSKYBOX`** here so **`SCENE.*`** stays reserved for **mbscene** game scenes.
+## Core Workflow
+
+1. Set asset root with `LEVEL.SETROOT`.
+2. Load a glTF file with `LEVEL.LOAD`.
+3. Query spawn points with `LEVEL.GETSPAWN`, find entities with `LEVEL.FINDENTITY`.
+4. Toggle visibility with `LEVEL.SHOWLAYER` / `LEVEL.HIDELAYER`.
+5. Optionally set up physics with `LEVEL.SETUP` and static collision with `LEVEL.STATIC` / `LEVEL.AUTOCOLLIDE`.
+
+For game-scene switching see [SCENE.md](SCENE.md).
 
 ---
 
@@ -114,6 +122,37 @@ The VM does not auto-call BASIC functions on collision yet. **`LEVEL.BINDSCRIPT`
 ## Engine roadmap (compiler / host)
 
 Resource **deduplication** on **`LEVEL.LOAD`**, optional **texture arrays / atlases**, **WASM shared memory** for scene-graph reads, and **automatic** script callbacks are described in [SCENE_ENGINE_BRIEF.md](SCENE_ENGINE_BRIEF.md).
+
+---
+
+## Full Example
+
+```basic
+WINDOW.OPEN(1280, 720, "Level Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 10, -15)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+LEVEL.SETROOT("assets/levels/")
+lvl = LEVEL.LOAD("town.glb")
+
+spawn = LEVEL.GETSPAWN("PlayerStart")
+px = spawn(0) : py = spawn(1) : pz = spawn(2)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(80, 120, 180)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+ENTITY.FREE(lvl)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 

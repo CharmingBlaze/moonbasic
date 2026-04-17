@@ -78,7 +78,7 @@ func terrainApplyMap(m *Module, rt *runtime.Runtime, args ...value.Value) (value
 			}
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // terrainApplyTiles places a copy of templateEntity at each non-empty tile center on layer layerIndex (default 0).

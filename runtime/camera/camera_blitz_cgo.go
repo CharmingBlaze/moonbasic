@@ -97,7 +97,7 @@ func (m *Module) camTurn(args []value.Value) (value.Value, error) {
 	o.cam.Position = pos
 	o.cam.Target = rl.Vector3Add(pos, rl.Vector3Scale(fwd, dist))
 	o.cam.Up = up
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camRotateAbs: absolute orientation from pitch, yaw, roll (radians). Y-up, yaw about Y, pitch about X, roll about view.
@@ -151,7 +151,7 @@ func (m *Module) camRotateAbs(args []value.Value) (value.Value, error) {
 	o.cam.Position = pos
 	o.cam.Target = rl.Vector3Add(pos, rl.Vector3Scale(fwd, dist))
 	o.cam.Up = up
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camZoom(args []value.Value) (value.Value, error) {
@@ -177,7 +177,7 @@ func (m *Module) camZoom(args []value.Value) (value.Value, error) {
 	if o.cam.Fovy > 120 {
 		o.cam.Fovy = 120
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camFollow: third-person follow using world target (tx,ty,tz), horizontal yaw, distance, absolute camera Y, smoothness 0..1, dt from runtime.
@@ -203,5 +203,5 @@ func (m *Module) camFollow(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	if err := ThirdPersonFollowStep(m.h, h, tx, ty, tz, yaw, dist, height, smooth, dt); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }

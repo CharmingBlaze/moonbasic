@@ -111,6 +111,9 @@ func (m *Module) Register(r runtime.Registrar) {
 	r.Register("CAMERA.SETPROJECTION", "camera", runtime.AdaptLegacy(m.camSetProjection))
 	r.Register("CAMERA.SETMODE", "camera", m.camSetMode)
 	r.Register("CAMERA.SETFOV", "camera", runtime.AdaptLegacy(m.camSetFov))
+	r.Register("CAMERA.GETPOS", "camera", runtime.AdaptLegacy(m.camGetPos))
+	r.Register("CAMERA.GETROT", "camera", runtime.AdaptLegacy(m.camGetRot))
+	r.Register("CAMERA.GETFOV", "camera", runtime.AdaptLegacy(m.camGetFov))
 	r.Register("CAMERA.BEGIN", "camera", runtime.AdaptLegacy(m.camBegin))
 	r.Register("CAMERA.END", "camera", runtime.AdaptLegacy(m.camEnd))
 	r.Register("CAMERA.MOVE", "camera", runtime.AdaptLegacy(m.camMove))
@@ -210,7 +213,7 @@ func (m *Module) camSetPos(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.SETPOS: non-numeric position")
 	}
 	o.cam.Position = rl.Vector3{X: x, Y: y, Z: z}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camSetTarget(args []value.Value) (value.Value, error) {
@@ -232,7 +235,7 @@ func (m *Module) camSetTarget(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.SETTARGET: non-numeric target")
 	}
 	o.cam.Target = rl.Vector3{X: x, Y: y, Z: z}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camSetProjection(args []value.Value) (value.Value, error) {
@@ -263,7 +266,7 @@ func (m *Module) camSetProjection(args []value.Value) (value.Value, error) {
 	default:
 		return value.Nil, fmt.Errorf("CAMERA.SETPROJECTION: mode must be 0 (perspective) or 1 (orthographic)")
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // camSetMode: alias-friendly projection picker — numeric 0/1 or strings "perspective"/"orthographic".
@@ -305,7 +308,7 @@ func (m *Module) camSetFov(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA.SETFOV: fovy must be numeric")
 	}
 	o.cam.Fovy = fov
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // CameraWorldPosition returns the world-space position of a CAMERA.MAKE handle (for ENTITY follow helpers).
@@ -336,7 +339,7 @@ func (m *Module) camShake(args []value.Value) (value.Value, error) {
 	}
 	o.shakeMag = amt
 	o.shakeTime = dur
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camLerpTo(args []value.Value) (value.Value, error) {
@@ -352,7 +355,7 @@ func (m *Module) camLerpTo(args []value.Value) (value.Value, error) {
 	smooth, _ := args[2].ToFloat()
 	o.lerpTarget = tid
 	o.lerpSmooth = float32(smooth)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camBegin(args []value.Value) (value.Value, error) {
@@ -434,7 +437,7 @@ func (m *Module) camBegin(args []value.Value) (value.Value, error) {
 		aspect = rw / rh
 	}
 	setActiveFrustum(cam, aspect)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camEnd(args []value.Value) (value.Value, error) {
@@ -472,7 +475,7 @@ func (m *Module) camMove(args []value.Value) (value.Value, error) {
 	o.cam.Target.X += dx
 	o.cam.Target.Y += dy
 	o.cam.Target.Z += dz
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) camGetRay(args []value.Value) (value.Value, error) {
@@ -595,3 +598,4 @@ func (m *Module) matrixFree(args []value.Value) (value.Value, error) {
 	}
 	return value.Nil, nil
 }
+

@@ -17,6 +17,7 @@ func registerCloud(m *Module, r runtime.Registrar) {
 	r.Register("CLOUD.UPDATE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cUpdate(m, rt, args...) })
 	r.Register("CLOUD.DRAW", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cDraw(m, rt, args...) })
 	r.Register("CLOUD.SETCOVERAGE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cSetCoverage(m, rt, args...) })
+	r.Register("CLOUD.GETCOVERAGE", "cloud", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return cGetCoverage(m, rt, args...) })
 }
 
 func cMake(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -46,18 +47,26 @@ func cUpdate(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, 
 	if len(args) != 2 {
 		return value.Nil, fmt.Errorf("CLOUD.UPDATE expects cloud, dt#")
 	}
-	_, _ = rt.ArgHandle(args, 0)
-	_, _ = rt.ArgFloat(args, 1)
-	return value.Nil, nil
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	if _, err := rt.ArgFloat(args, 1); err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(h), nil
 }
 
 func cDraw(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	if len(args) != 1 {
 		return value.Nil, fmt.Errorf("CLOUD.DRAW expects cloud")
 	}
-	_, _ = rt.ArgHandle(args, 0)
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
 	// Coverage reserved for future volumetric rendering.
-	return value.Nil, nil
+	return value.FromHandle(h), nil
 }
 
 func cSetCoverage(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -77,5 +86,20 @@ func cSetCoverage(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Va
 		return value.Nil, err
 	}
 	o.Coverage = float32(v)
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func cGetCoverage(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CLOUD.GETCOVERAGE expects cloud handle")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	o, err := heap.Cast[*CloudObject](m.h, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.Coverage)), nil
 }

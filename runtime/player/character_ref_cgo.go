@@ -74,7 +74,7 @@ func (m *Module) charRefUpdate(args []value.Value) (value.Value, error) {
 			_ = m.ent.PlayerBridgeSetWorldPos(obj.id, float32(x), float32(y), float32(z))
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefJump(args []value.Value) (value.Value, error) {
@@ -97,7 +97,7 @@ func (m *Module) charRefJump(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterLinearVelocity(ch, vx, f, vz); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefMoveWithCam(args []value.Value) (value.Value, error) {
@@ -143,7 +143,7 @@ func (m *Module) charRefMoveWithCam(args []value.Value) (value.Value, error) {
 	if ok {
 		_ = m.ent.PlayerBridgeSetWorldPos(obj.id, float32(x), float32(y), float32(z))
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefSetMaxSlope(args []value.Value) (value.Value, error) {
@@ -171,7 +171,7 @@ func (m *Module) charRefSetMaxSlope(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	m.entToChar[obj.id] = newH
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefSetStepHeight(args []value.Value) (value.Value, error) {
@@ -194,7 +194,7 @@ func (m *Module) charRefSetStepHeight(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterWalkStairsStepUp(ch, float32(h)); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefIsGrounded(args []value.Value) (value.Value, error) {
@@ -237,7 +237,7 @@ func (m *Module) charRefSetPos(args []value.Value) (value.Value, error) {
 	if m.ent != nil {
 		_ = m.ent.PlayerBridgeSetWorldPos(obj.id, float32(x), float32(y), float32(z))
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefGetPos(args []value.Value) (value.Value, error) {
@@ -308,7 +308,7 @@ func (m *Module) charRefAddVel(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterLinearVelocity(ch, cvx+vx, cvy+vy, cvz+vz); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefSetSnapDist(args []value.Value) (value.Value, error) {
@@ -327,7 +327,7 @@ func (m *Module) charRefSetSnapDist(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterStickToFloorDown(ch, float32(d)); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefGetSpeed(args []value.Value) (value.Value, error) {
@@ -386,12 +386,12 @@ func (m *Module) charRefSetFriction(args []value.Value) (value.Value, error) {
 	if err := m.char.SetCharacterFriction(ch, f); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefSetPadding(args []value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("CHARACTERREF.SETPADDING expects (handle, padding#)")
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETPADDING expects handle")
 	}
 	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -400,6 +400,13 @@ func (m *Module) charRefSetPadding(args []value.Value) (value.Value, error) {
 	ch, ok := m.entToChar[obj.id]
 	if !ok || m.char == nil {
 		return value.Nil, fmt.Errorf("CHARACTER: no KCC for entity")
+	}
+	if len(args) == 1 {
+		// Getter mode
+		if p, ok := m.char.CharacterPadding(ch); ok {
+			return value.FromFloat(float64(p)), nil
+		}
+		return value.FromFloat(0.02), nil
 	}
 	p, _ := args[1].ToFloat()
 	newH, err := m.char.SetCharacterPadding(ch, float32(p))
@@ -407,12 +414,12 @@ func (m *Module) charRefSetPadding(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	m.entToChar[obj.id] = newH
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefSetBounce(args []value.Value) (value.Value, error) {
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("CHARACTERREF.SETBOUNCE expects (handle, bounce#)")
+	if len(args) != 1 && len(args) != 2 {
+		return value.Nil, fmt.Errorf("CHARACTERREF.SETBOUNCE expects (handle) or (handle, bounce#)")
 	}
 	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
 	if err != nil {
@@ -422,11 +429,17 @@ func (m *Module) charRefSetBounce(args []value.Value) (value.Value, error) {
 	if !ok || m.char == nil {
 		return value.Nil, fmt.Errorf("CHARACTER: no KCC for entity")
 	}
+	if len(args) == 1 {
+		if b, ok := m.char.CharacterRestitution(ch); ok {
+			return value.FromFloat(b), nil
+		}
+		return value.FromFloat(0), nil
+	}
 	b, _ := args[1].ToFloat()
 	if err := m.char.SetCharacterRestitution(ch, b); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) charRefSetGravityScale(args []value.Value) (value.Value, error) {
@@ -445,5 +458,24 @@ func (m *Module) charRefSetGravityScale(args []value.Value) (value.Value, error)
 	if err := m.char.SetCharacterGravityScale(ch, s); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) charRefGetGroundVel(args []value.Value) (value.Value, error) {
+	if len(args) < 1 {
+		return value.Nil, fmt.Errorf("CHARACTERREF.GETGROUNDVELOCITY expects handle")
+	}
+	obj, err := heap.Cast[*charRefHeapObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	ch, ok := m.entToChar[obj.id]
+	if !ok || m.char == nil {
+		return mbmatrix.AllocVec3Value(m.h, 0, 0, 0)
+	}
+	vx, vy, vz, ok := m.char.CharacterGroundVelocityVec(ch)
+	if !ok {
+		return mbmatrix.AllocVec3Value(m.h, 0, 0, 0)
+	}
+	return mbmatrix.AllocVec3Value(m.h, float32(vx), float32(vy), float32(vz))
 }

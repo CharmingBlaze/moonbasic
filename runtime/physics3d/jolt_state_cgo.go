@@ -153,6 +153,14 @@ type body3dObj struct {
 	qCapH      float32
 	qCapR      float32
 	sx, sy, sz float32 // collision scale factors (default 1)
+
+	// Property tracking for getters (since jolt-go v0.8.x is write-only for some fields)
+	friction    float32
+	restitution float32
+	linDamp     float32
+	angDamp     float32
+	gravFactor  float32
+	ccd         bool
 }
 
 func (b *body3dObj) TypeName() string { return "Body3D" }

@@ -7,6 +7,7 @@ import (
 
 	"moonbasic/vm/heap"
 	"moonbasic/vm/value"
+	"moonbasic/runtime/mbmatrix"
 
 	"github.com/ByteArena/box2d"
 )
@@ -186,7 +187,7 @@ func (m *Module) bdAddRect(args []value.Value) (value.Value, error) {
 		r, _ = args[5].ToFloat()
 	}
 	tmp.fixtures = append(tmp.fixtures, fixtureDef{kind: fdRect, w: w, h: h, density: d, friction: f, restitution: r})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdAddCircle(args []value.Value) (value.Value, error) {
@@ -205,7 +206,7 @@ func (m *Module) bdAddCircle(args []value.Value) (value.Value, error) {
 		r, _ = args[4].ToFloat()
 	}
 	tmp.fixtures = append(tmp.fixtures, fixtureDef{kind: fdCircle, radius: rad, density: d, friction: f, restitution: r})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdAddPolygon(args []value.Value) (value.Value, error) {
@@ -235,7 +236,7 @@ func (m *Module) bdAddPolygon(args []value.Value) (value.Value, error) {
 	tmp.fixtures = append(tmp.fixtures, fixtureDef{
 		kind: fdPoly, verts: verts, density: 1, friction: 0.2, restitution: 0,
 	})
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdCommit(args []value.Value) (value.Value, error) {
@@ -352,7 +353,7 @@ func (m *Module) bdSetPos(args []value.Value) (value.Value, error) {
 	x, _ := args[1].ToFloat()
 	y, _ := args[2].ToFloat()
 	o.body.SetTransform(box2d.MakeB2Vec2(x, y), o.body.GetAngle())
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdGetPos(args []value.Value) (value.Value, error) {
@@ -381,7 +382,7 @@ func (m *Module) bdSetRot(args []value.Value) (value.Value, error) {
 	}
 	a, _ := args[1].ToFloat()
 	o.body.SetTransform(o.body.GetPosition(), a)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdGetRot(args []value.Value) (value.Value, error) {
@@ -405,7 +406,7 @@ func (m *Module) bdSetMass(args []value.Value) (value.Value, error) {
 	o.body.GetMassData(&data)
 	data.Mass = float64(mval)
 	o.body.SetMassData(&data)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdSetFriction(args []value.Value) (value.Value, error) {
@@ -420,7 +421,7 @@ func (m *Module) bdSetFriction(args []value.Value) (value.Value, error) {
 	for f := o.body.GetFixtureList(); f != nil; f = f.GetNext() {
 		f.SetFriction(fval)
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) {
@@ -435,7 +436,7 @@ func (m *Module) bdSetRestitution(args []value.Value) (value.Value, error) {
 	for f := o.body.GetFixtureList(); f != nil; f = f.GetNext() {
 		f.SetRestitution(rval)
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
@@ -449,7 +450,7 @@ func (m *Module) bdApplyForce(args []value.Value) (value.Value, error) {
 	fx, _ := args[1].ToFloat()
 	fy, _ := args[2].ToFloat()
 	o.body.ApplyForceToCenter(box2d.MakeB2Vec2(fx, fy), true)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
@@ -463,5 +464,80 @@ func (m *Module) bdApplyImpulse(args []value.Value) (value.Value, error) {
 	ix, _ := args[1].ToFloat()
 	iy, _ := args[2].ToFloat()
 	o.body.ApplyLinearImpulseToCenter(box2d.MakeB2Vec2(ix, iy), true)
-	return value.Nil, nil
+	return args[0], nil
+}
+func (m *Module) bdSetLinearVel(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETLINEARVELOCITY")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 3 {
+		return value.Nil, fmt.Errorf("BODY2D.SETLINEARVELOCITY expects (handle, vx#, vy#)")
+	}
+	vx, _ := args[1].ToFloat()
+	vy, _ := args[2].ToFloat()
+	o.body.SetLinearVelocity(box2d.MakeB2Vec2(vx, vy))
+	return args[0], nil
+}
+
+func (m *Module) bdGetLinearVel(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETLINEARVELOCITY")
+	if err != nil {
+		return value.Nil, err
+	}
+	v := o.body.GetLinearVelocity()
+	return mbmatrix.AllocVec2Value(m.h, float32(v.X), float32(v.Y))
+}
+
+func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.SETANGULARVELOCITY")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 2 {
+		return value.Nil, fmt.Errorf("BODY2D.SETANGULARVELOCITY expects (handle, omega#)")
+	}
+	w, _ := args[1].ToFloat()
+	o.body.SetAngularVelocity(w)
+	return args[0], nil
+}
+
+func (m *Module) bdGetAngularVel(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETANGULARVELOCITY")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(o.body.GetAngularVelocity()), nil
+}
+
+func (m *Module) bdGetMass(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETMASS")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(o.body.GetMass()), nil
+}
+
+func (m *Module) bdGetFriction(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETFRICTION")
+	if err != nil {
+		return value.Nil, err
+	}
+	f := o.body.GetFixtureList()
+	if f != nil {
+		return value.FromFloat(f.GetFriction()), nil
+	}
+	return value.FromFloat(0.2), nil
+}
+
+func (m *Module) bdGetRestitution(args []value.Value) (value.Value, error) {
+	o, err := m.getBody(args, 0, "BODY2D.GETRESTITUTION")
+	if err != nil {
+		return value.Nil, err
+	}
+	f := o.body.GetFixtureList()
+	if f != nil {
+		return value.FromFloat(f.GetRestitution()), nil
+	}
+	return value.FromFloat(0.0), nil
 }

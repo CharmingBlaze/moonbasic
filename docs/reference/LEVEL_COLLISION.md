@@ -28,12 +28,14 @@ LEVEL.AUTOCOLLIDE()
 
 ## Static Collision
 
-### `LEVEL.STATIC(entity)`
+### `LEVEL.STATIC(entity)` 
 Generates a persistent static mesh collision body for a specific entity.
 - `entity`: The ID or handle of the entity to process.
 - **Workflow**: This command is best for dynamic environment pieces that are added after the main level load.
 
-### `LEVEL.AUTOCOLLIDE()`
+---
+
+### `LEVEL.AUTOCOLLIDE()` 
 The **Easy Mode** way to setup a world. It scans every active entity and creates collisions for anything marked as static that has a valid 3D model.
 - **Performance**: This command is extremely efficient and should be called once the initial level loading is finished.
 - **Returns**: The total count of entities that were successfully "cooked" into the physics world.
@@ -44,10 +46,12 @@ The **Easy Mode** way to setup a world. It scans every active entity and creates
 
 You can also trigger these operations directly on entity handles:
 
-### `entity.SetStatic(toggle)`
+### `ENTITY.SETSTATIC(toggle)` 
 Marks or unmarks an entity as "Static" for the next `AUTOCOLLIDE` pass.
 
-### `entity.SetCollisionMesh()`
+---
+
+### `ENTITY.SETCOLLISIONMESH()` 
 Immediately bakes a static mesh collision for this entity. Equivalent to `LEVEL.STATIC(entity)`.
 
 ```basic

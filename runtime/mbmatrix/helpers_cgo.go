@@ -25,6 +25,18 @@ func AllocVec3Value(h *heap.Store, x, y, z float32) (value.Value, error) {
 	return value.FromHandle(id), nil
 }
 
+// AllocVec2Value allocates a heap-backed vec2 (VEC2.*) for other runtime packages.
+func AllocVec2Value(h *heap.Store, x, y float32) (value.Value, error) {
+	if h == nil {
+		return value.Nil, fmt.Errorf("AllocVec2Value: heap is nil")
+	}
+	id, err := h.Alloc(&vec2Obj{v: hal.V2{X: x, Y: y}})
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
 // Conversion helpers (hal <-> rl)
 func toV2(v hal.V2) rl.Vector2 { return rl.Vector2{X: v.X, Y: v.Y} }
 func toV3(v hal.V3) rl.Vector3 { return rl.Vector3{X: v.X, Y: v.Y, Z: v.Z} }
@@ -118,8 +130,20 @@ func (m *Module) vec2FromArgs(args []value.Value, idx int, op string) (hal.V2, e
 	return o.v, nil
 }
 
+func (m *Module) AllocVec3(x, y, z float32) (value.Value, error) {
+	id, err := m.h.Alloc(&vec3Obj{v: hal.V3{X: x, Y: y, Z: z}})
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
 func (m *Module) allocVec3(v hal.V3) (value.Value, error) {
-	id, err := m.h.Alloc(&vec3Obj{v: v})
+	return m.AllocVec3(v.X, v.Y, v.Z)
+}
+
+func (m *Module) AllocVec2(x, y float32) (value.Value, error) {
+	id, err := m.h.Alloc(&vec2Obj{v: hal.V2{X: x, Y: y}})
 	if err != nil {
 		return value.Nil, err
 	}
@@ -127,11 +151,7 @@ func (m *Module) allocVec3(v hal.V3) (value.Value, error) {
 }
 
 func (m *Module) allocVec2(v hal.V2) (value.Value, error) {
-	id, err := m.h.Alloc(&vec2Obj{v: v})
-	if err != nil {
-		return value.Nil, err
-	}
-	return value.FromHandle(id), nil
+	return m.AllocVec2(v.X, v.Y)
 }
 
 func (m *Module) allocMat(mat hal.Matrix) (value.Value, error) {

@@ -391,29 +391,3 @@ func (m *Module) jtFree(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
 
-func (m *Module) bdSetLinearVel(args []value.Value) (value.Value, error) {
-	o, err := m.getBody(args, 0, "BODY2D.SETLINEARVELOCITY")
-	if err != nil {
-		return value.Nil, err
-	}
-	if len(args) != 3 {
-		return value.Nil, fmt.Errorf("BODY2D.SETLINEARVELOCITY expects (body, vx#, vy#)")
-	}
-	vx, _ := args[1].ToFloat()
-	vy, _ := args[2].ToFloat()
-	o.body.SetLinearVelocity(box2d.MakeB2Vec2(vx, vy))
-	return value.Nil, nil
-}
-
-func (m *Module) bdSetAngularVel(args []value.Value) (value.Value, error) {
-	o, err := m.getBody(args, 0, "BODY2D.SETANGULARVELOCITY")
-	if err != nil {
-		return value.Nil, err
-	}
-	if len(args) != 2 {
-		return value.Nil, fmt.Errorf("BODY2D.SETANGULARVELOCITY expects (body, av#)")
-	}
-	av, _ := args[1].ToFloat()
-	o.body.SetAngularVelocity(av)
-	return value.Nil, nil
-}

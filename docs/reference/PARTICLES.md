@@ -14,37 +14,37 @@ Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
 ---
 
-### `PARTICLE.CREATE()`
+### `PARTICLE.CREATE()` 
 
 Returns a new **emitter handle**. Same as **`PARTICLE3D.CREATE()`**.
 
 ---
 
-### `PARTICLE.FREE(handle)`
+### `PARTICLE.FREE(handle)` 
 
 Frees the emitter and all associated resources.
 
 ---
 
-### `PARTICLE.UPDATE(handle, dt)`
+### `PARTICLE.UPDATE(handle, dt)` 
 
 Advances simulation by **`dt`** seconds.
 
 ---
 
-### `PARTICLE.DRAW(handle)` / `PARTICLE.DRAW(handle, cameraHandle)`
+### `PARTICLE.DRAW(handle)` / `PARTICLE.DRAW(handle, cameraHandle)` 
 
 Draws billboards (or debug cubes if configured). Uses the active camera, or pass an explicit **3D** camera handle when overloaded — see [PARTICLE.md](PARTICLE.md).
 
 ---
 
-### `PARTICLE.PLAY(handle)` / `PARTICLE.STOP(handle)`
+### `PARTICLE.PLAY(handle)` / `PARTICLE.STOP(handle)` 
 
 Starts or stops continuous emission.
 
 ---
 
-### `PARTICLE.SETBURST(handle, count)`
+### `PARTICLE.SETBURST(handle, count)` 
 
 Immediately spawns up to **`count`** particles (capped).
 

@@ -2,7 +2,7 @@
 
 This page maps **friendly names** (Input / World / Math / Entity dot methods) to the **registry keys** moonBASIC actually runs. Everything here is implemented in the Go runtime unless noted.
 
-**Related:** [GAMEPLAY_HELPERS.md](GAMEPLAY_HELPERS.md), [PROJECTILES_AND_POOLING.md](PROJECTILES_AND_POOLING.md), [MEMORY.md](../MEMORY.md), [POOL.md](POOL.md).
+**Related:** [GAMEPLAY_HELPERS.md](GAMEPLAY_HELPERS.md), [PROJECTILES.md](PROJECTILES.md), [MEMORY.md](../MEMORY.md), [POOL.md](POOL.md).
 
 ---
 

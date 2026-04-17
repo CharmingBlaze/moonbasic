@@ -73,6 +73,6 @@ func registerModelLOD(m *Module, reg runtime.Registrar) {
 		}
 		lo.band0, lo.band1, lo.band2 = b0, b1, b2
 		lo.configured = true
-		return value.Nil, nil
+		return args[0], nil
 	}))
 }

@@ -106,7 +106,7 @@ func tabAddRow(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value
 		}
 	}
 	t.rows = append(t.rows, row)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func cellFromValue(rt *runtime.Runtime, v value.Value) (interface{}, error) {
@@ -235,7 +235,7 @@ func tabSet(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 		return value.Nil, err
 	}
 	t.rows[row][ci] = val
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func tabToJSON(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

@@ -12,12 +12,18 @@ import (
 // registerBlitzFacadeCommands wires documented Blitz-style global names to ENTITY.* / physics without duplicating logic.
 func registerBlitzFacadeCommands(m *Module, r runtime.Registrar) {
 	r.Register("ENTITY.CREATECONE", "entity", runtime.AdaptLegacy(m.entCreateCone))
+	r.Register("ENTITY.MAKECONE", "entity", runtime.AdaptLegacy(m.entCreateCone))
 	r.Register("CreateCone", "entity", runtime.AdaptLegacy(m.entCreateConeEasy))
+	r.Register("CREATECONE", "entity", runtime.AdaptLegacy(m.entCreateConeEasy))
 	r.Register("GetParent", "entity", runtime.AdaptLegacy(m.entGetParent))
+	r.Register("GETPARENT", "entity", runtime.AdaptLegacy(m.entGetParent))
 	r.Register("EntityParent", "entity", runtime.AdaptLegacy(m.entParent))
 	r.Register("FindChild", "entity", m.entFindChild)
+	r.Register("FINDCHILD", "entity", m.entFindChild)
 	r.Register("GetChild", "entity", runtime.AdaptLegacy(m.entGetChild))
+	r.Register("GETCHILD", "entity", runtime.AdaptLegacy(m.entGetChild))
 	r.Register("CountChildren", "entity", runtime.AdaptLegacy(m.entCountChildren))
+	r.Register("COUNTCHILDREN", "entity", runtime.AdaptLegacy(m.entCountChildren))
 	r.Register("CopyEntity", "entity", runtime.AdaptLegacy(m.entCopyExtended))
 	r.Register("FreeEntity", "entity", runtime.AdaptLegacy(m.entFree))
 	r.Register("EntityPick", "entity", runtime.AdaptLegacy(m.entPick))
@@ -65,11 +71,15 @@ func registerBlitzFacadeCommands(m *Module, r runtime.Registrar) {
 	r.Register("ExtractAnimSeq", "entity", runtime.AdaptLegacy(m.entExtractAnimSeq))
 	r.Register("AnimLength", "entity", runtime.AdaptLegacy(m.entAnimLength))
 	r.Register("CreateTerrain", "entity", runtime.AdaptLegacy(m.entCreateTerrainStub))
+	r.Register("CREATETERRAIN", "entity", runtime.AdaptLegacy(m.entCreateTerrainStub))
 	r.Register("CreateMirror", "entity", runtime.AdaptLegacy(m.entCreateMirrorStub))
+	r.Register("CREATEMIRROR", "entity", runtime.AdaptLegacy(m.entCreateMirrorStub))
 	r.Register("EntityAutoFade", "entity", runtime.AdaptLegacy(m.entAutoFadeStub))
 	r.Register("UpdateNormals", "entity", runtime.AdaptLegacy(m.entUpdateNormalsStub))
 	r.Register("FlipMesh", "entity", runtime.AdaptLegacy(m.entFlipMeshStub))
+	r.Register("FLIPMESH", "entity", runtime.AdaptLegacy(m.entFlipMeshStub))
 	r.Register("FitMesh", "entity", runtime.AdaptLegacy(m.entFitMeshStub))
+	r.Register("FITMESH", "entity", runtime.AdaptLegacy(m.entFitMeshStub))
 	r.Register("VertexNX", "entity", runtime.AdaptLegacy(m.entVertexNormalStub))
 	r.Register("VertexNY", "entity", runtime.AdaptLegacy(m.entVertexNormalStub))
 	r.Register("VertexNZ", "entity", runtime.AdaptLegacy(m.entVertexNormalStub))
@@ -278,4 +288,3 @@ func (m *Module) entCreatePivot(args []value.Value) (value.Value, error) {
 	}
 	return v, nil
 }
-

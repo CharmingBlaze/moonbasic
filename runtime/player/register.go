@@ -30,6 +30,9 @@ func registerPlayerCommands(m *Module, reg runtime.Registrar) {
 	reg.Register("CHARACTERREF.SETFRICTION", "player", runtime.AdaptLegacy(m.charRefSetFriction))
 	reg.Register("CHARACTERREF.SETPADDING", "player", runtime.AdaptLegacy(m.charRefSetPadding))
 	reg.Register("CHARACTERREF.SETBOUNCE", "player", runtime.AdaptLegacy(m.charRefSetBounce))
+	reg.Register("CHARACTERREF.SETBOUNCINESS", "player", runtime.AdaptLegacy(m.charRefSetBounce))
+	reg.Register("CHARACTERREF.GETBOUNCE", "player", runtime.AdaptLegacy(m.charRefSetBounce))
+	reg.Register("CHARACTERREF.GETBOUNCINESS", "player", runtime.AdaptLegacy(m.charRefSetBounce))
 	reg.Register("CHARACTERREF.GETSPEED", "player", runtime.AdaptLegacy(m.charRefGetSpeed))
 	reg.Register("CHARACTERREF.ISMOVING", "player", runtime.AdaptLegacy(m.charRefIsMoving))
 

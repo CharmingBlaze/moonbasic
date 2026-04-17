@@ -49,5 +49,5 @@ func (m *Module) noiseFillImage(rt *runtime.Runtime, args ...value.Value) (value
 			rl.ImageDrawPixel(img, int32(x), int32(y), rl.Color{R: g, G: g, B: g, A: 255})
 		}
 	}
-	return value.Nil, nil
+	return args[0], nil
 }

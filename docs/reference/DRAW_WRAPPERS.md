@@ -1,8 +1,17 @@
-# Object-style draw and input wrappers
+# Draw Wrapper Commands
 
-This reference describes the **optional** heap-backed wrappers around long-argument **`DRAW3D.*`**, **`DRAW.*`**, **`DRAW.TEXT`**, texture draws, **`INPUT.*`**, and **`LANDBOXES`** / **`PLAYER.MOVERELATIVE`**-style helpers. The original commands remain the canonical low-level API; wrappers call the same Raylib paths (or forward to existing natives).
+Object-style heap-backed wrappers around immediate-mode 2D/3D draw, text, and input commands.
 
-**CGO:** All drawing wrappers require **Raylib** (same as **`DRAW3D.*`**). **`MOVER`** is pure Go. Input facades (**`MOUSE`**, **`KEY`**, **`GAMEPAD`**) require CGO builds that link Raylib input.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Create a wrapper handle (`DRAWCUBE`, `DRAWSPHERE`, `DRAWRECT2`, `TEXTOBJ`, etc.).
+2. Configure with chained methods (`.Pos`, `.Size`, `.Color`, etc.).
+3. Call `.Draw()` each frame inside the render pass.
+4. Free with `.Free()`.
+
+For canonical low-level draw commands see [DRAW2D.md](DRAW2D.md) and [DRAW3D.md](DRAW3D.md).
 
 ---
 
@@ -37,7 +46,7 @@ Constructors allocate a handle; methods dispatch to registry keys **`DRAWPRIM3D.
 | **`DRAWGRID3D`** | Optional **`(slices, spacing)`**. |
 | **`DRAWBILLBOARD(tex)`**, **`DRAWBILLBOARDREC(tex)`** | **`.SetTexture`**, **`.SrcTex`** for rec variant; **inside `RENDER.BEGIN3D`/`END3D`** (or **`CAMERA.BEGIN`/`END`**). |
 
-### Shared methods (3D)
+### Shared methods (3D) 
 
 | Method | Role |
 |--------|------|
@@ -108,6 +117,44 @@ First **`MOUSE()`** / **`KEY()`** / **`GAMEPAD()`** call allocates a handle; lat
 - **`compiler/builtinmanifest/commands.json`** — includes representative wrapper keys; extend with more overload rows as needed.
 - **`go run ./tools/cmdaudit`** — namespace coverage audit.
 - **`go run ./tools/apidoc`** — refreshes **[API_CONSISTENCY.md](../API_CONSISTENCY.md)**.
+
+---
+
+## Full Example
+
+```basic
+WINDOW.OPEN(800, 600, "Draw Wrappers Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 5, -10)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+cube = DRAWCUBE()
+cube.Pos(0, 1, 0)
+cube.Size(2, 2, 2)
+cube.Color(200, 80, 80, 255)
+
+sphere = DRAWSPHERE()
+sphere.Pos(4, 1, 0)
+sphere.Radius(1.0)
+sphere.Color(80, 200, 80, 255)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(30, 30, 50)
+    RENDER.BEGIN3D(cam)
+        cube.Draw()
+        sphere.Draw()
+        DRAW3D.GRID(10, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+cube.Free()
+sphere.Free()
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 

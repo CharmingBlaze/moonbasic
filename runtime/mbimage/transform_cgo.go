@@ -31,7 +31,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.CROP: x, y, width, height must be numeric")
 		}
 		rl.ImageCrop(img, rl.Rectangle{X: float32(x), Y: float32(y), Width: float32(w), Height: float32(h)})
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.RESIZE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -51,7 +51,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.RESIZE: dimensions must be numeric")
 		}
 		rl.ImageResize(img, w, h)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.RESIZENN", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -71,7 +71,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.RESIZENN: dimensions must be numeric")
 		}
 		rl.ImageResizeNN(img, w, h)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.FLIPH", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -86,7 +86,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageFlipHorizontal(img)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.FLIPV", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -101,7 +101,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageFlipVertical(img)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.ROTATE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -120,7 +120,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.ROTATE: degrees must be numeric")
 		}
 		rl.ImageRotate(img, deg)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.ROTATECW", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -135,7 +135,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageRotateCW(img)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.ROTATECCW", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -150,7 +150,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageRotateCCW(img)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.COLORTINT", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -169,7 +169,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.COLORTINT: %w", err)
 		}
 		rl.ImageColorTint(img, col)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.COLORINVERT", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -184,7 +184,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageColorInvert(img)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.COLORGRAYSCALE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -199,7 +199,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, err
 		}
 		rl.ImageColorGrayscale(img)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.COLORCONTRAST", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -218,7 +218,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.COLORCONTRAST: contrast must be numeric")
 		}
 		rl.ImageColorContrast(img, c)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.COLORBRIGHTNESS", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -237,7 +237,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.COLORBRIGHTNESS: brightness must be numeric")
 		}
 		rl.ImageColorBrightness(img, b)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	reg.Register("IMAGE.COLORREPLACE", "image", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
@@ -260,7 +260,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 			return value.Nil, fmt.Errorf("IMAGE.COLORREPLACE (to): %w", err)
 		}
 		rl.ImageColorReplace(img, from, to)
-		return value.Nil, nil
+		return args[0], nil
 	}))
 
 	imageClearBackground := func(op string) func([]value.Value) (value.Value, error) {
@@ -280,7 +280,7 @@ func registerImageTransform(m *Module, reg runtime.Registrar) {
 				return value.Nil, fmt.Errorf("%s: %w", op, err)
 			}
 			rl.ImageClearBackground(img, col)
-			return value.Nil, nil
+			return args[0], nil
 		}
 	}
 	reg.Register("IMAGE.CLEARBACKGROUND", "image", runtime.AdaptLegacy(imageClearBackground("IMAGE.CLEARBACKGROUND")))

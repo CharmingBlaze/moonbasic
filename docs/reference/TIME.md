@@ -6,7 +6,7 @@ Commands for elapsed program time, per-frame delta, and wall-clock values.
 
 **Page shape:** [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) — see [WAVE.md](WAVE.md) (registry-first headings, **Full Example** at the end).
 
-## Core concepts
+## Core Workflow
 
 - **Delta time:** **`TIME.DELTA()`** — seconds since the last frame; use for movement and logic independent of frame rate.
 - **Program time:** **`TIME.GET()`** or **`TICKCOUNT()`** — elapsed time since start (**`TICKCOUNT`** is milliseconds; **`TIME.GET`** is seconds).
@@ -14,18 +14,22 @@ Commands for elapsed program time, per-frame delta, and wall-clock values.
 
 ---
 
-### `TIME.DELTA()`
+### `TIME.DELTA()` 
 Returns seconds since last frame.
 
-### `TIME.GET()`
+---
+
+### `TIME.GET()` 
 Returns total elapsed seconds since start.
 
-### `TICKCOUNT()`
+---
+
+### `TICKCOUNT()` 
 Returns total elapsed milliseconds since start.
 
 ---
 
-### `DATE` / `TIME` / `DATETIME` / `TIMESTAMP`
+### `DATE` / `TIME` / `DATETIME` / `TIMESTAMP` 
 Returns formatted wall-clock strings or epoch values as documented in the command registry (**`TIMESTAMP`** — Unix seconds).
 
 ---

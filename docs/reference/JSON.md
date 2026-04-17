@@ -1,38 +1,58 @@
-# JSON documents (`JSON.*`)
+# JSON Commands
 
-The **`JSON`** namespace decodes and mutates JSON values using Go’s [`encoding/json`](https://pkg.go.dev/encoding/json). Values live on the VM heap as **`JSON`** handles (`TagJSON`). The root may be an **object**, **array**, or **scalar**; nested structures use **dot + bracket paths** (see below).
+Decode, query, mutate, and serialize JSON documents from files or strings.
 
-## Why paths instead of flat keys
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-Earlier builds only supported flat objects. The current implementation keeps **one decoded `interface{}` tree** per handle so you can work with **real-world files** (levels, configs, save data) without flattening.
+## Core Workflow
 
-### `JSON.Parse(path)`
+1. Parse from a file with `JSON.PARSE` or from a string with `JSON.PARSESTRING`.
+2. Read values with `JSON.GETSTRING`, `JSON.GETINT`, `JSON.GETBOOL` using dot-bracket paths.
+3. Mutate with `JSON.SETSTRING`.
+4. Write back with `JSON.TOFILE`.
+5. Free with `JSON.FREE`.
+
+Nested structures use dot + bracket paths (e.g. `"player.inventory[0].name"`).
+
+### `JSON.PARSE(path)` 
 Reads a UTF-8 file from disk and decodes it as JSON. Returns a **handle**.
-
-### `JSON.ParseString(jsonString)`
-Decodes JSON from a string. Returns a **handle**.
-
-### `JSON.Free(handle)`
-Releases the JSON heap object and unloads it from memory.
 
 ---
 
-### `JSON.GetString(handle, path [, default])`
-Returns the string value at the specified dot-path. Supports an optional default value if the path is missing.
+### `JSON.PARSESTRING(jsonString)` 
+Decodes JSON from a string. Returns a **handle**.
 
-### `JSON.GetInt(handle, path [, default])`
+---
+
+### `JSON.FREE(handle)` 
+Releases the JSON heap object.
+
+---
+
+### `JSON.GETSTRING(handle, path, default)` 
+Returns the string value at the specified dot-path. Optional `default` if missing.
+
+---
+
+### `JSON.GETINT(handle, path, default)` 
 Returns the integer value at the specified dot-path.
 
-### `JSON.GetBool(handle, path [, default])`
+---
+
+### `JSON.GETBOOL(handle, path, default)` 
 Returns the boolean value at the specified dot-path.
 
 ---
 
-### `JSON.SetString(handle, path, value)`
-Sets a string value at the specified path, creating intermediate objects or arrays as needed.
+### `JSON.SETSTRING(handle, path, value)` 
+Sets a string value at the specified path, creating intermediates as needed.
 
-### `JSON.ToFile(handle, path)`
-Writes the JSON object to a file on disk in a compact format.
+---
+
+### `JSON.TOFILE(handle, path)` 
+Writes the JSON object to a file on disk.
+
+---
 
 ## `JSON.QUERY` (minimal)
 
@@ -51,7 +71,7 @@ Exports a JSON **array of objects** to CSV text. Root must be an array, or pass 
 
 - Use **`JSON.TOCSV`** with **`CSV.FROMSTRING`** / **`CSV.TOJSON`** for round trips (see [`testdata/data_integration_test.mb`](../../testdata/data_integration_test.mb)).
 
-## Example
+## Full Example
 
 ```basic
 j = JSON.PARSESTRING("{\"player\":{\"hp\":10}}")

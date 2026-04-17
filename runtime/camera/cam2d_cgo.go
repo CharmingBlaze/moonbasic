@@ -35,6 +35,8 @@ func (m *Module) registerCamera2D(reg runtime.Registrar) {
 	reg.Register("CAMERA2D.MAKE", "camera", runtime.AdaptLegacy(m.cam2dMake))
 	reg.Register("CAMERA2D.GETPOS", "camera", runtime.AdaptLegacy(m.cam2dGetPos))
 	reg.Register("CAMERA2D.GETROTATION", "camera", runtime.AdaptLegacy(m.cam2dGetRotation))
+	reg.Register("CAMERA2D.GETOFFSET", "camera", runtime.AdaptLegacy(m.cam2dGetOffset))
+	reg.Register("CAMERA2D.GETZOOM", "camera", runtime.AdaptLegacy(m.cam2dGetZoom))
 	reg.Register("CAMERA2D.SETTARGET", "camera", runtime.AdaptLegacy(m.cam2dSetTarget))
 	reg.Register("CAMERA2D.SETOFFSET", "camera", runtime.AdaptLegacy(m.cam2dSetOffset))
 	reg.Register("CAMERA2D.SETZOOM", "camera", runtime.AdaptLegacy(m.cam2dSetZoom))
@@ -45,6 +47,8 @@ func (m *Module) registerCamera2D(reg runtime.Registrar) {
 	reg.Register("CAMERA2D.WORLDTOSCREEN", "camera", runtime.AdaptLegacy(m.cam2dWorldToScreen))
 	reg.Register("CAMERA2D.SCREENTOWORLD", "camera", runtime.AdaptLegacy(m.cam2dScreenToWorld))
 	reg.Register("CAMERA2D.FREE", "camera", runtime.AdaptLegacy(m.cam2dFree))
+	reg.Register("CAMERA2D.GETZOOM", "camera", runtime.AdaptLegacy(m.cam2dGetZoom))
+	reg.Register("CAMERA2D.GETOFFSET", "camera", runtime.AdaptLegacy(m.cam2dGetOffset))
 }
 
 func (m *Module) cam2dMake(args []value.Value) (value.Value, error) {
@@ -91,7 +95,7 @@ func (m *Module) cam2dSetTarget(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA2D.SETTARGET: x, y must be numeric")
 	}
 	o.cam.Target = rl.Vector2{X: x, Y: y}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dSetOffset(args []value.Value) (value.Value, error) {
@@ -108,7 +112,7 @@ func (m *Module) cam2dSetOffset(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA2D.SETOFFSET: x, y must be numeric")
 	}
 	o.cam.Offset = rl.Vector2{X: x, Y: y}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dSetZoom(args []value.Value) (value.Value, error) {
@@ -127,7 +131,7 @@ func (m *Module) cam2dSetZoom(args []value.Value) (value.Value, error) {
 		z = 0.01
 	}
 	o.cam.Zoom = z
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dSetRotation(args []value.Value) (value.Value, error) {
@@ -143,7 +147,7 @@ func (m *Module) cam2dSetRotation(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("CAMERA2D.SETROTATION: degrees must be numeric")
 	}
 	o.cam.Rotation = rad
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) cam2dGetPos(args []value.Value) (value.Value, error) {
@@ -174,6 +178,34 @@ func (m *Module) cam2dGetRotation(args []value.Value) (value.Value, error) {
 	return value.FromFloat(float64(o.cam.Rotation)), nil
 }
 
+func (m *Module) cam2dGetOffset(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.GETOFFSET: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA2D.GETOFFSET expects camera handle")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.GETOFFSET")
+	if err != nil {
+		return value.Nil, err
+	}
+	return m.allocVec2Arr(o.cam.Offset.X, o.cam.Offset.Y)
+}
+
+func (m *Module) cam2dGetZoom(args []value.Value) (value.Value, error) {
+	if m.h == nil {
+		return value.Nil, runtime.Errorf("CAMERA2D.GETZOOM: heap not bound")
+	}
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("CAMERA2D.GETZOOM expects camera handle")
+	}
+	o, err := m.getCam2D(args, 0, "CAMERA2D.GETZOOM")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(o.cam.Zoom)), nil
+}
+
 func (m *Module) cam2dBegin(args []value.Value) (value.Value, error) {
 	switch len(args) {
 	case 0:
@@ -195,7 +227,7 @@ func (m *Module) cam2dBegin(args []value.Value) (value.Value, error) {
 			return value.Nil, err
 		}
 		rl.BeginMode2D(o.cam)
-		return value.Nil, nil
+		return args[0], nil
 	default:
 		return value.Nil, fmt.Errorf("CAMERA2D.BEGIN expects 0 arguments (identity) or 1 (camera handle)")
 	}

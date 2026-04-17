@@ -16,6 +16,7 @@ import (
 
 func registerScatter(m *Module, r runtime.Registrar) {
 	r.Register("SCATTER.CREATE", "scatter", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return sCreate(m, rt, args...) })
+	r.Register("SCATTER.MAKE", "scatter", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return sCreate(m, rt, args...) })
 	r.Register("SCATTER.FREE", "scatter", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return sFree(m, rt, args...) })
 	r.Register("SCATTER.APPLY", "scatter", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return sApply(m, rt, args...) })
 	r.Register("SCATTER.DRAWALL", "scatter", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) { return sDrawAll(m, rt, args...) })
@@ -52,7 +53,9 @@ func sFree(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, er
 }
 
 func sApply(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 3 {
 		return value.Nil, fmt.Errorf("SCATTER.APPLY expects scatter, terrain, density")
+	}
 	hs, err := rt.ArgHandle(args, 0)
 	if err != nil {
 		return value.Nil, err
@@ -68,7 +71,7 @@ func sApply(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, e
 	if err := m.ApplyToTerrain(heap.Handle(hs), heap.Handle(ht), den); err != nil {
 		return value.Nil, err
 	}
-	return value.Nil, nil
+	return args[0], nil
 }
 
 // ApplyToTerrain repopulates a scatter set with random XZ samples on the terrain heightfield (same rules as SCATTER.APPLY).
@@ -117,7 +120,7 @@ func sDrawAll(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value,
 	for i := range o.X {
 		rl.DrawSphere(rl.Vector3{X: o.X[i], Y: o.Y[i] + 0.5, Z: o.Z[i]}, 0.4, c2)
 	}
-	return value.Nil, nil
+	return value.FromHandle(h), nil
 }
 
 func pPlace(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

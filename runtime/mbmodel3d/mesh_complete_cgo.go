@@ -357,10 +357,97 @@ func registerMeshComplete(m *Module, reg runtime.Registrar) {
 		rl.UploadMesh(&o.m, false)
 		return value.FromHandle(id), nil
 	})
+	reg.Register("MESH.CREATECUSTOM", "mesh", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		if err := m.requireHeap(); err != nil {
+			return value.Nil, err
+		}
+		if len(args) != 2 {
+			return value.Nil, fmt.Errorf("MESH.CREATECUSTOM expects (verts_array, indices_array)")
+		}
+		_ = rt
+		if args[0].Kind != value.KindHandle || args[1].Kind != value.KindHandle {
+			return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: both arguments must be array handles")
+		}
+		vh := heap.Handle(args[0].IVal)
+		ih := heap.Handle(args[1].IVal)
+		vn := m.h.ArrayFlatLen(vh)
+		in := m.h.ArrayFlatLen(ih)
+		if vn < 8 || vn%8 != 0 {
+			return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: verts must have length multiple of 8 (x,y,z,nx,ny,nz,u,v)")
+		}
+		if in < 3 || in%3 != 0 {
+			return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: indices must have length multiple of 3")
+		}
+		vc := vn / 8
+		tc := in / 3
+		verts := make([]float32, vc*3)
+		norms := make([]float32, vc*3)
+		uvs := make([]float32, vc*2)
+		for i := 0; i < vc; i++ {
+			base := int64(i * 8)
+			for j := 0; j < 3; j++ {
+				f, ok := m.h.ArrayGetFloat(vh, base+int64(j))
+				if !ok {
+					return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: bad vertex data")
+				}
+				verts[i*3+j] = float32(f)
+			}
+			for j := 0; j < 3; j++ {
+				f, ok := m.h.ArrayGetFloat(vh, base+3+int64(j))
+				if !ok {
+					return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: bad normal data")
+				}
+				norms[i*3+j] = float32(f)
+			}
+			for j := 0; j < 2; j++ {
+				f, ok := m.h.ArrayGetFloat(vh, base+6+int64(j))
+				if !ok {
+					return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: bad texcoord data")
+				}
+				uvs[i*2+j] = float32(f)
+			}
+		}
+		idx := make([]uint16, in)
+		for i := 0; i < in; i++ {
+			f, ok := m.h.ArrayGetFloat(ih, int64(i))
+			if !ok {
+				return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: bad index data")
+			}
+			if f < 0 || f >= float64(vc) {
+				return value.Nil, fmt.Errorf("MESH.CREATECUSTOM: index out of range")
+			}
+			idx[i] = uint16(math.Round(f))
+		}
+		rm := rl.Mesh{}
+		rm.VertexCount = int32(vc)
+		rm.TriangleCount = int32(tc)
+		rm.Vertices = unsafe.SliceData(verts)
+		rm.Normals = unsafe.SliceData(norms)
+		rm.Texcoords = unsafe.SliceData(uvs)
+		rm.Indices = unsafe.SliceData(idx)
+		obj := &meshObj{
+			m: rm, pinVerts: verts, pinNorms: norms, pinUVs: uvs, pinIdx: idx,
+		}
+		obj.setFinalizer()
+		id, err := m.h.Alloc(obj)
+		if err != nil {
+			return value.Nil, err
+		}
+		o, err := heap.Cast[*meshObj](m.h, id)
+		if err != nil {
+			return value.Nil, err
+		}
+		rl.UploadMesh(&o.m, false)
+		return value.FromHandle(id), nil
+	})
 
 	reg.Register("MESH.MAKECAPSULE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		_ = m
 		return value.Nil, fmt.Errorf("MESH.MAKECAPSULE: not available — this raylib build has no GenMeshCapsule; use MESH.MAKECYLINDER and spheres or DRAW3D.CAPSULE")
+	}))
+	reg.Register("MESH.CREATECAPSULE", "mesh", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
+		_ = m
+		return value.Nil, fmt.Errorf("MESH.CREATECAPSULE: not available — this raylib build has no GenMeshCapsule; use MESH.MAKECYLINDER and spheres or DRAW3D.CAPSULE")
 	}))
 
 	stubOpt := func(name string) func([]value.Value) (value.Value, error) {

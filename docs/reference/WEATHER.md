@@ -10,61 +10,61 @@ Create a **`WEATHER`** handle, drive **`WEATHER.UPDATE`** / **`WEATHER.DRAW`** e
 
 ---
 
-### `WEATHER.CREATE()`
+### `WEATHER.CREATE()` 
 
 Creates a weather controller handle.
 
 ---
 
-### `WEATHER.FREE(weather)`
+### `WEATHER.FREE(weather)` 
 
 Frees the controller.
 
 ---
 
-### `WEATHER.UPDATE(weather, dt)`
+### `WEATHER.UPDATE(weather, dt)` 
 
 Per-frame update.
 
 ---
 
-### `WEATHER.DRAW(weather)`
+### `WEATHER.DRAW(weather)` 
 
 Draw pass (particles / effects as implemented).
 
 ---
 
-### `WEATHER.SETTYPE(weather, name)`
+### `WEATHER.SETTYPE(weather, name)` 
 
 Sets a named preset (for example `"clear"`, `"rain"` — see runtime).
 
 ---
 
-### `WEATHER.GETCOVERAGE(weather)`
+### `WEATHER.GETCOVERAGE(weather)` 
 
 Returns normalized coverage **0–1**.
 
 ---
 
-### `WEATHER.GETTYPE(weather)`
+### `WEATHER.GETTYPE(weather)` 
 
 Returns the current type string.
 
 ---
 
-### `FOG.ENABLE(enabled)`
+### `FOG.ENABLE(enabled)` 
 
 Turns fog application on/off where supported.
 
 ---
 
-### `FOG.SETNEAR(near)` / `FOG.SETFAR(far)`
+### `FOG.SETNEAR(near)` / `FOG.SETFAR(far)` 
 
 Distance fog start and end.
 
 ---
 
-### `FOG.SETCOLOR(r, g, b, a)`
+### `FOG.SETCOLOR(r, g, b, a)` 
 
 Fog color components **0–255**.
 
@@ -72,13 +72,13 @@ Fog color components **0–255**.
 
 ---
 
-### `WIND.SET(strength, dx, dz)`
+### `WIND.SET(strength, dx, dz)` 
 
 Sets wind **strength** and a horizontal direction on the XZ plane (components need not be normalized).
 
 ---
 
-### `WIND.GETSTRENGTH()`
+### `WIND.GETSTRENGTH()` 
 
 Reads current strength.
 

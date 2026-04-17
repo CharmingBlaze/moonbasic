@@ -30,7 +30,7 @@ func (m *Module) setSoundVolume(args []value.Value) (value.Value, error) {
 	}
 	so.gain = v
 	rl.SetSoundVolume(so.snd, v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) setSoundPitch(args []value.Value) (value.Value, error) {
@@ -49,7 +49,7 @@ func (m *Module) setSoundPitch(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIO.SETSOUNDPITCH: pitch must be numeric")
 	}
 	rl.SetSoundPitch(so.snd, v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) setSoundPan(args []value.Value) (value.Value, error) {
@@ -69,7 +69,7 @@ func (m *Module) setSoundPan(args []value.Value) (value.Value, error) {
 	}
 	so.pan = v
 	rl.SetSoundPan(so.snd, v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) setMusicVolume(args []value.Value) (value.Value, error) {
@@ -88,7 +88,7 @@ func (m *Module) setMusicVolume(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIO.SETMUSICVOLUME: volume must be numeric")
 	}
 	rl.SetMusicVolume(mo.m, v)
-	return value.Nil, nil
+	return args[0], nil
 }
 
 func (m *Module) setMusicPitch(args []value.Value) (value.Value, error) {
@@ -106,8 +106,23 @@ func (m *Module) setMusicPitch(args []value.Value) (value.Value, error) {
 	if !ok {
 		return value.Nil, fmt.Errorf("AUDIO.SETMUSICPITCH: pitch must be numeric")
 	}
+	mo.pitch = v
 	rl.SetMusicPitch(mo.m, v)
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) getMusicPitch(args []value.Value) (value.Value, error) {
+	if err := m.requireHeap(); err != nil {
+		return value.Nil, err
+	}
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("AUDIO.GETMUSICPITCH expects music handle")
+	}
+	mo, err := heap.Cast[*musicObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(mo.pitch)), nil
 }
 
 func (m *Module) setMasterVolume(args []value.Value) (value.Value, error) {
@@ -195,5 +210,38 @@ func (m *Module) seekMusic(args []value.Value) (value.Value, error) {
 		return value.Nil, fmt.Errorf("AUDIO.SEEKMUSIC: position must be numeric")
 	}
 	rl.SeekMusicStream(mo.m, t)
-	return value.Nil, nil
+	return args[0], nil
+}
+
+func (m *Module) getSoundVolume(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("AUDIO.GETSOUNDVOLUME expects handle")
+	}
+	so, err := heap.Cast[*soundObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(so.gain)), nil
+}
+
+func (m *Module) getSoundPitch(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("AUDIO.GETSOUNDPITCH expects handle")
+	}
+	return value.FromFloat(1.0), nil
+}
+
+func (m *Module) getSoundPan(args []value.Value) (value.Value, error) {
+	if len(args) != 1 || args[0].Kind != value.KindHandle {
+		return value.Nil, fmt.Errorf("AUDIO.GETSOUNDPAN expects handle")
+	}
+	so, err := heap.Cast[*soundObj](m.h, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(so.pan)), nil
+}
+
+func (m *Module) getMusicVolume(args []value.Value) (value.Value, error) {
+	return value.FromFloat(1.0), nil
 }

@@ -63,3 +63,27 @@ func (m *Module) wSetDeep(args []value.Value) (value.Value, error) {
 func (m *Module) wSetColor(args []value.Value) (value.Value, error) {
 	return value.Nil, nil
 }
+
+func (m *Module) wGetPos(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.GETPOS requires CGO")
+}
+
+func (m *Module) wGetColor(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.GETCOLOR requires CGO")
+}
+
+func (m *Module) wGetWaveHeight(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) wGetWaveSpeed(args []value.Value) (value.Value, error) {
+	return value.FromFloat(0), nil
+}
+
+func (m *Module) wGetShallowColor(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.GETSHALLOWCOLOR requires CGO")
+}
+
+func (m *Module) wGetDeepColor(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.GETDEEPCOLOR requires CGO")
+}

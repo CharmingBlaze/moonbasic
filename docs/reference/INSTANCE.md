@@ -1,6 +1,16 @@
-# Instancing — `INSTANCE.*` and `MODEL.*`
+# Instance Commands
 
-GPU **instancing** draws many copies of one loaded model with **per-instance transforms** (`DrawMeshInstanced` in Raylib). Heap handles report type **`InstancedModel`**.
+GPU instancing: draw many copies of one model with per-instance transforms and colors.
+
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
+## Core Workflow
+
+1. Create with `MODEL.CREATEINSTANCED(path, count)` or `INSTANCE.CREATE(model, count)`.
+2. Set per-instance transforms with `INSTANCE.SETPOS`, `INSTANCE.SETROT`, `INSTANCE.SETSCALE`.
+3. Call `INSTANCE.UPDATEBUFFER` after changes.
+4. Draw with `INSTANCE.DRAW` or `MODEL.DRAW`.
+5. Free with `INSTANCE.FREE`.
 
 ---
 
@@ -59,6 +69,38 @@ Indices are **`0 .. INSTANCE.COUNT(inst)-1`**.
 - **`inst.Free`** → **`INSTANCE.FREE`**
 
 See [UNIVERSAL_HANDLE_METHODS.md](UNIVERSAL_HANDLE_METHODS.md).
+
+---
+
+## Full Example
+
+```basic
+WINDOW.OPEN(1280, 720, "Instancing Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 10, -20)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+inst = MODEL.CREATEINSTANCED("tree.glb", 100)
+FOR i = 0 TO 99
+    INSTANCE.SETPOS(inst, i, RND(20) - 10, 0, RND(20) - 10)
+    INSTANCE.SETSCALE(inst, i, 0.5 + RNDF(0, 1), 0.5 + RNDF(0, 1), 0.5 + RNDF(0, 1))
+NEXT
+INSTANCE.UPDATEBUFFER(inst)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    RENDER.CLEAR(40, 60, 80)
+    RENDER.BEGIN3D(cam)
+        INSTANCE.DRAW(inst)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+INSTANCE.FREE(inst)
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 
