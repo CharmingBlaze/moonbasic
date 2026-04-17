@@ -13,6 +13,8 @@ func (m *Module) inWaitMouse(args []value.Value) (value.Value, error) { return v
 func (m *Module) inWaitKey(args []value.Value) (value.Value, error)   { return value.FromInt(0), nil }
 func (m *Module) inGetKey(args []value.Value) (value.Value, error)    { return value.FromInt(0), nil }
 
+func (m *Module) inAnyKey(args []value.Value) (value.Value, error) { return value.FromBool(false), nil }
+
 func (m *Module) inMoveMouse(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) inHidePointer(args []value.Value) (value.Value, error) { return value.Nil, nil }
 func (m *Module) inShowPointer(args []value.Value) (value.Value, error) { return value.Nil, nil }
