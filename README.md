@@ -8,7 +8,7 @@
 
 ## Download and use (recommended)
 
-**Latest builds:** **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (Windows and Linux **x64**).
+The **compiled distribution** ships only from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (Windows and Linux **x64**): official **`moonbasic`** / **`moonrun`** binaries — use these for play and compile; building the engine from source is optional.
 
 **Optional static page** (direct archive links, no repo browser): [charmingblaze.github.io/moonbasic](https://charmingblaze.github.io/moonbasic/) — use **Releases** if that URL is not live yet. Setup: `.github/workflows/github-pages.yml`.
 

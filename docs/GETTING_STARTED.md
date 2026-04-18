@@ -10,7 +10,9 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 
 ## 1. Installation
 
-Download the latest archive from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. You do **not** need to clone the repository or install Go — the zip or tar.gz is what you use day to day.
+Use the **compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** — official Windows/Linux archives with **`moonbasic`** and (for the full runtime) **`moonrun`**. That is the supported way to run games and use the compiler: **no Go, no GCC, no local build** of the engine.
+
+You only need a **clone or ZIP of this repo** if you want example `.mb` sources or documentation; everyday play and compile use **only** the extracted release binaries.
 
 Pick the file that matches what you need (replace `<tag>` with the release version, e.g. `v1.2.20`):
 

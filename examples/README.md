@@ -4,11 +4,13 @@ Runnable sample programs. Work from the **repository root** so working-directory
 
 ---
 
-## Run examples with a pre-built release (recommended)
+## Run examples (compiled distribution only)
 
-1. Download **`moonbasic`** and **`moonrun`** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** — use the **full runtime** archive (Windows or Linux) so you have **`moonrun`** for games with a window.
-2. Get the **`examples/`** sources: **clone** this repository or **download the repo as a ZIP** from GitHub. You need the files on disk; the release zip does not bundle `examples/`.
-3. Open a terminal at the **repository root** (the folder that contains `examples/` and `go.mod`). Put the release binaries on your **`PATH`**, or call them with a full path.
+Use the **official compiled distribution** from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** — not `go run`, not a locally built `moonrun`. Extract the **full runtime** zip/tar.gz so you have **`moonbasic`** and **`moonrun`** next to each other.
+
+1. Download and extract the **full runtime** archive for your OS (Windows or Linux x64).
+2. Get the **`examples/`** folder: **clone** this repo or **download the repository ZIP** from GitHub (release archives do not include `examples/`).
+3. Open a terminal at the **repository root** (the folder that contains `examples/`). Either add the folder where you extracted **`moonbasic`** / **`moonrun`** to your **`PATH`**, or invoke them with a **full path** to those `.exe` / binaries.
 
 **Check** a sample (no window):
 
@@ -30,9 +32,9 @@ moonrun.exe examples\spin_cube\main.mb
 ```
 
 - **`moonbasic`** — compiles `.mb` → `.mbc` next to the source; use **`moonbasic path/to/main.mb`** if you only want bytecode.
-- **`moonrun`** — runs `.mb` or `.mbc` with the full engine. Release **`moonrun`** compiles in-process when needed; you do **not** need Go or GCC on your machine for these zips.
+- **`moonrun`** — runs `.mb` or `.mbc` with the full engine. The **distribution** `moonrun` compiles in-process when needed.
 
-More on installing and using the compiler: **[docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)**. If a DLL or GPU message appears on Windows/Linux, see **`README-RELEASE.txt`** inside the full-runtime archive.
+More: **[docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)**. OS/DLL notes: **`README-RELEASE.txt`** in the full-runtime archive.
 
 ---
 
