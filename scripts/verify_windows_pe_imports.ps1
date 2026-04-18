@@ -53,4 +53,4 @@ if ($forbidden.Count -gt 0) {
             ($forbidden -join ", "), ($dlls -join ", "))
 }
 
-Write-Host "OK: $Exe — no forbidden MinGW/Raylib DLL imports ($($dlls.Count) DLL(s) total)."
+Write-Host ('OK: {0} - no forbidden MinGW/Raylib DLL imports ({1} DLL import name(s) in PE).' -f $Exe, $dlls.Count)
