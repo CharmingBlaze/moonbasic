@@ -10,51 +10,100 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 
 ## 1. Installation
 
-### Pre-built Binaries (Recommended)
-Download the latest archive for your platform from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. You do **not** need to clone the repository or install Go — the zip/tar.gz is everything you need to use `moonbasic` and `moonrun`.
+Download the latest archive from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. You do **not** need to clone the repository or install Go — the zip or tar.gz is what you use day to day.
 
-| OS | Archive |
-|----|---------|
-| **Windows** | `moonbasic-v*-windows-amd64.zip` |
-| **Linux** | `moonbasic-v*-linux-amd64.tar.gz` |
+Pick the file that matches what you need (replace `<tag>` with the release version, e.g. `v1.2.20`):
 
-**Contents:**
-- `moonbasic` / `moonbasic.exe`: The compiler (`.mb` → `.mbc`).
-- `moonrun` / `moonrun.exe`: The game runtime (executes your code).
+| Your goal | Download |
+|-----------|----------|
+| **Run games** (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` |
+| **Compile / check / LSP only** (CI, tooling, no `moonrun`) | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
 
-### Building from Source
-If you prefer to build from source, you will need **Go 1.25.3+** and a **C toolchain** (MinGW-w64 for Windows, GCC for Linux).
+**Full runtime** includes **`moonbasic`** and **`moonrun`** plus `README-RELEASE.txt`. **Compiler only** ships in a folder such as **`MoonBasic-compiler/`** with **`moonbasic`** (or **`moonbasic.exe`**) and a short readme — there is **no** `moonrun` in that bundle.
 
-> [!IMPORTANT]
-> **CGO is Required**
-> MoonBASIC relies on CGO for its high-performance graphics and physics engines. Ensure `CGO_ENABLED=1` is set in your environment.
+Extract the archive somewhere permanent. On **Windows**, use `moonbasic.exe` in the examples below; on **Linux**, use `./moonbasic` if the binary is not on your `PATH`.
 
-**Windows Build:**
-```bat
-git clone https://github.com/CharmingBlaze/moonbasic
-cd moonbasic
-set CGO_ENABLED=1
-go build -o moonbasic.exe .
-go build -tags fullruntime -o moonrun.exe ./cmd/moonrun
-```
+More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic#download-and-use-recommended)** on GitHub.
+
+To **build moonbasic from source** (contributors), see **[BUILDING.md](BUILDING.md)**.
 
 ---
 
-## 2. Your First Program
+## 2. Using the moonbasic compiler
+
+Open a terminal in the directory that contains **`moonbasic`** (on **compiler-only** installs, that is usually inside **`MoonBasic-compiler/`**).
+
+### Check the binary
+
+```bash
+moonbasic --version
+```
+
+On Windows:
+
+```bat
+moonbasic.exe --version
+```
+
+### Lint without running (`--check`)
+
+Parses and type-checks a program and reports errors. Does not require `moonrun` or a GPU.
+
+```bash
+moonbasic --check path/to/game.mb
+```
+
+Use this in editors, pre-commit hooks, and CI.
+
+### Compile to bytecode (`.mbc`)
+
+```bash
+moonbasic path/to/game.mb
+```
+
+This writes **`game.mbc`** next to **`game.mb`** (same base name). The compiler does not run the game — it only produces bytecode.
+
+### Language server (`--lsp`)
+
+For editor integration, run:
+
+```bash
+moonbasic --lsp
+```
+
+Configure your editor’s MoonBASIC/LSP client to use **stdio**. The same **`moonbasic`** binary serves **`--check`**, compile, and **`--lsp`**; the full builtin list is always available in the compiler.
+
+### Running games
+
+Running **`.mb`** or **`.mbc`** with a window requires **`moonrun`** from a **full runtime** download:
+
+```bash
+moonrun path/to/game.mb
+```
+
+Release **`moonrun`** compiles `.mb` in-process when needed, then starts the engine — you still do **not** need Go or a separate compiler install on the player machine for pre-built releases.
+
+If you only installed the **compiler-only** archive, use **`moonbasic`** to produce **`.mbc`** here and run **`moonrun`** on another machine that has the **full runtime**, or install the full runtime on the same machine.
+
+---
+
+## 3. Your First Program
 
 Create a file named `hello.mb`:
+
 ```basic
 PRINT "Hello, MoonBASIC!"
 ```
 
-Run it using the runtime:
+Run it using the runtime (full runtime install):
+
 ```bash
 moonrun hello.mb
 ```
 
 ---
 
-## 3. Opening a Window
+## 4. Opening a Window
 
 MoonBASIC makes window management effortless. Create `display.mb`:
 
@@ -73,7 +122,7 @@ WINDOW.CLOSE()
 
 ---
 
-## 4. Modern 3D with Method Chaining
+## 5. Modern 3D with Method Chaining
 
 MoonBASIC supports **Method Chaining** (Fluent API), allowing you to configure objects in a single, readable line.
 
@@ -97,7 +146,7 @@ WEND
 
 ---
 
-## 5. Modern Blitz-Style (High Fidelity)
+## 6. Modern Blitz-Style (High Fidelity)
 
 For advanced users, MoonBASIC provides a "High Fidelity" path with PBR materials, dynamic lighting, and SSAO.
 
