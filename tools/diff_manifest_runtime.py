@@ -22,7 +22,16 @@ MANIFEST_TXT = AUDIT_DIR / "manifest_keys.txt"
 RUNTIME_TXT = AUDIT_DIR / "runtime_keys.txt"
 MISSING_MD = ROOT / "docs" / "MISSING_COMMANDS_AUDIT.md"
 
+# Literal `.Register("KEY"` (same as extract_runtime_keys.ps1).
 REGISTER_RE = re.compile(r'\.Register\("([^"]+)"')
+# Helpers that register two string keys without repeating `.Register("...")` in source.
+REG_FLAT = re.compile(r'regFlat\(\s*"([^"]+)"\s*,\s*"([^"]+)"')
+REG_LEGACY2 = re.compile(r'regLegacy2\(\s*"([^"]+)"\s*,\s*"([^"]+)"')
+REG_RT0 = re.compile(r'regRT0\(\s*"([^"]+)"\s*,\s*"([^"]+)"')
+# bitwise: reg("core.BAND", "BAND", fn)
+REG_PAIR = re.compile(r'\breg\(\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,')
+# texture atlas: reg("TEXTURE.X", (*Module).method)
+REG_SINGLE = re.compile(r'\breg\(\s*"([^"]+)"\s*,\s*\(')
 
 
 def load_manifest_keys() -> list[str]:
@@ -30,13 +39,36 @@ def load_manifest_keys() -> list[str]:
     return sorted({c["key"].upper() for c in data["commands"]})
 
 
-def load_runtime_keys() -> list[str]:
-    keys: list[str] = []
+def load_runtime_key_sets() -> tuple[set[str], set[str]]:
+    """Return (strict_register_literals, wide_all_sources).
+
+    *strict* — only `.Register("KEY"` string literals (true compiler-facing registrations).
+    *wide* — strict plus `regFlat` / `regLegacy2` / `regRT0` / two-arg `reg` / single-arg `reg`
+    helpers so manifest keys registered only via variables still count as implemented.
+    """
+    strict: set[str] = set()
+    wide: set[str] = set()
     for p in RUNTIME_DIR.rglob("*.go"):
         text = p.read_text(encoding="utf-8", errors="replace")
         for m in REGISTER_RE.finditer(text):
-            keys.append(m.group(1).upper())
-    return sorted(set(keys))
+            k = m.group(1).upper()
+            strict.add(k)
+            wide.add(k)
+        for rx in (REG_FLAT, REG_LEGACY2, REG_RT0):
+            for m in rx.finditer(text):
+                wide.add(m.group(1).upper())
+                wide.add(m.group(2).upper())
+        for m in REG_PAIR.finditer(text):
+            wide.add(m.group(1).upper())
+            wide.add(m.group(2).upper())
+        for m in REG_SINGLE.finditer(text):
+            wide.add(m.group(1).upper())
+    return strict, wide
+
+
+def load_runtime_keys() -> list[str]:
+    _, wide = load_runtime_key_sets()
+    return sorted(wide)
 
 
 def write_lines(path: Path, lines: list[str]) -> None:
@@ -53,10 +85,10 @@ def build_missing_md(missing_from_manifest: list[str], missing_from_runtime: lis
     lines: list[str] = [
         "# Missing Commands Audit",
         "",
-        "**Generated** by `python tools/diff_manifest_runtime.py --write`. Runtime keys follow the same `.Register(` string heuristic as `extract_runtime_keys.ps1` over `runtime/**/*.go`; not every builtin uses that pattern. Treat gaps as triage hints, not a complete defect list.",
+        "**Generated** by `python tools/diff_manifest_runtime.py --write`. **In Runtime but Missing from Manifest** lists only **string literals** in `.Register(\"…\")` (alias helpers like `regFlat` are not counted here). **In Manifest but Missing from Runtime** uses a **wide** scan: those literals plus keys from `regFlat`, `regLegacy2`, `regRT0`, two-arg `reg`, and single-arg `reg`. Not every builtin is covered. Treat gaps as triage hints.",
         "",
         f"## In Runtime but Missing from Manifest ({len(missing_from_manifest)})",
-        "These commands are registered in Go runtime code but have no entry in commands.json.",
+        "These commands appear as string literals in `.Register(\"…\")` but have no entry in commands.json.",
         "The compiler will reject .mb scripts that try to use them.",
         "",
     ]
@@ -90,10 +122,11 @@ def main() -> int:
         ap.error("specify exactly one of --write or --check")
 
     mkeys = load_manifest_keys()
-    rkeys = load_runtime_keys()
-    mset, rset = set(mkeys), set(rkeys)
-    missing_from_manifest = sorted(rset - mset)
-    missing_from_runtime = sorted(mset - rset)
+    strict_reg, wide_runtime = load_runtime_key_sets()
+    mset = set(mkeys)
+    rkeys = sorted(wide_runtime)
+    missing_from_manifest = sorted(strict_reg - mset)
+    missing_from_runtime = sorted(mset - wide_runtime)
 
     if args.write:
         write_lines(MANIFEST_TXT, mkeys)
