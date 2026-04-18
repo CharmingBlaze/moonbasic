@@ -7,7 +7,11 @@ compiler — no raylib.dll next to moonbasic.exe). See dist/README.md in the rep
 WHAT'S IN THIS FOLDER
 ---------------------
   moonbasic (or moonbasic.exe)  — Compiler: turn .mb source into .mbc bytecode, --check, --lsp
+                                 (uses the full builtin catalog — same command names as the engine API)
   moonrun   (or moonrun.exe)     — Full game runtime: compile and run .mb / .mbc (graphics, physics, audio)
+
+  For “all commands” at RUN TIME (playing/running a game), you need moonrun in this folder.
+  For “all commands” at CHECK/COMPILE time only, moonbasic alone is enough.
 
 FIRST STEPS
 -----------

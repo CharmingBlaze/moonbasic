@@ -251,13 +251,15 @@ jobs:
           files: upload/*
           generate_release_notes: true
           body: |
-            **Full runtime (graphics, physics, audio):** Download `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz`, extract, read **README-RELEASE.txt**.
+            **Builtin catalog:** The compiler always uses the full `commands.json` manifest — every release has the **same command names** for `--check`, `--lsp`, and `.mbc` output. See [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/dist/README.md) (“All commands”).
 
-            **Compiler only** (no extra DLLs for the toolchain — `.mb` → `.mbc`, `--check`, `--lsp`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
+            **Full runtime (run games — graphics, physics, audio):** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**.
+
+            **Compiler only** (tooling / CI — `.mb` → `.mbc`, `--check`, `--lsp`, no engine DLLs beside `moonbasic`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
 
             | File | Contents |
             |------|----------|
-            | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, compile to `.mbc`, `--lsp`) |
+            | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, compile to `.mbc`, `--lsp`) — full manifest |
             | `moonrun` / `moonrun.exe` | Full runtime — run `.mb` / `.mbc` games |
 
             Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [Build from source](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/BUILDING.md) · [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/dist/README.md)
