@@ -144,6 +144,8 @@ jobs:
           Set-Location "${{ github.workspace }}"
           powershell -ExecutionPolicy Bypass -File "third_party/jolt-go/scripts/build-libs-windows.ps1"
 
+      # Embed libgcc + winpthread into the .exe (avoids PATH picking up wrong libwinpthread).
+      # Keep libstdc++ shared — Jolt C++ static libs pair more reliably with the MSYS DLL.
       - name: Build moonbasic + moonrun
         shell: bash
         env:
@@ -155,19 +157,17 @@ jobs:
           mkdir -p dist
           VER="${GITHUB_REF_NAME}"
           LD="-s -w -X moonbasic/internal/version.Version=${VER}"
-          go build -trimpath -ldflags="${LD}" -o dist/moonbasic.exe .
-          go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
+          EX="${LD} -linkmode external -extldflags=-static-libgcc -extldflags=-Wl,-Bstatic -extldflags=-lwinpthread -extldflags=-Wl,-Bdynamic"
+          go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
+          go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
-      # CGO binaries may resolve pthread/GCC symbols via MinGW DLLs at load time. Ship the same
-      # runtime DLLs as the build toolchain so a lone moonrun.exe next to unrelated PATH DLLs
-      # does not pick up an older libwinpthread (e.g. "nanosleep64" entry point not found).
-      - name: Bundle MinGW runtime DLLs next to exes
+      - name: Bundle remaining Windows DLLs next to exes
         shell: pwsh
         run: |
           $mingwBin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
           $dist = Join-Path "${{ github.workspace }}" "dist"
-          foreach ($dll in @("libwinpthread-1.dll", "libgcc_s_seh-1.dll", "libstdc++-6.dll")) {
+          foreach ($dll in @("libstdc++-6.dll", "raylib.dll")) {
             $src = Join-Path $mingwBin $dll
             if (Test-Path -LiteralPath $src) {
               Copy-Item -LiteralPath $src -Destination $dist -Force

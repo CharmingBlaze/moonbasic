@@ -13,6 +13,10 @@ WHAT'S IN THIS FOLDER
   For “all commands” at RUN TIME (playing/running a game), you need moonrun in this folder.
   For “all commands” at CHECK/COMPILE time only, moonbasic alone is enough.
 
+  Windows (full runtime zip): keep **all** files together — `libstdc++-6.dll` and `raylib.dll`
+  must sit next to the `.exe` files. Newer releases link **libgcc** and **winpthread** into the
+  executables so you should not need separate `libgcc` / `libwinpthread` DLLs.
+
 FIRST STEPS
 -----------
   1. Extract this zip/tar anywhere you like (Desktop, Projects, etc.).
@@ -50,8 +54,6 @@ Windows: run from a normal folder; if Windows reports a missing DLL, install the
           latest "Microsoft Visual C++ Redistributable" for x64, or use MSYS2 MinGW
           runtimes if you built from source yourself.
 
-Windows: "Entry Point Not Found" / nanosleep64 (or similar) on moonrun.exe
-          — Do not copy only moonrun.exe out of the zip. Keep every file from the
-          release archive in the same folder (MinGW runtime DLLs ship next to the
-          exes so Windows does not load an older libwinpthread-1.dll from PATH).
-          Re-extract the full-runtime zip to a clean folder and run from there.
+Windows: "Entry Point Not Found" / nanosleep64 — usually from copying only `moonrun.exe`
+          or mixing DLLs from another PC. Re-extract the **entire** full-runtime zip so
+          `raylib.dll`, `libstdc++-6.dll`, and both `.exe` files match the same build.
