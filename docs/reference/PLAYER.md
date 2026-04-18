@@ -134,13 +134,18 @@ Returns a list of entities within range matching a tag.
 Instantly snaps the character to a new position and clears velocity.
 
 - **Returns**: (Handle) The entity handle.
+
+### Tuning, queries, and gameplay helpers
+
+| Command | Description |
+|--------|-------------|
 | **`PLAYER.SETGRAVITYSCALE(entity, scale)`** | Scales **gravity on Y** during **`CharacterMoveXZVelocity`** (**1** = default; values below **1** lighten gravity; above **1** strengthen it). |
 | **`PLAYER.GETCROUCH(entity)`** / **`PLAYER.SETCROUCH(entity, bool)`** | Stored **crouch** flag for gameplay. **Capsule height** is not changed yet (Jolt wrapper limitation). |
 | **`PLAYER.SWIM(entity, buoyancy, drag)`** | **Swim mode**: **buoyancy** (0–1) reduces downward gravity; **drag** damps horizontal velocity per second. Use **`(0, 0)`** to disable. |
 | **`PLAYER.SETSTEPOFFSET(entity, height)`** | Alias of **`PLAYER.SETSTEPHEIGHT`** (reserved for future stair tuning). |
 | **`PLAYER.GETSTANDNORMAL(entity)`** → **vec3 handle** | Ground/floor normal under the feet (**`GetGroundNormal`** or short downward ray). |
 | **`PLAYER.PUSH(player, target, force)`** | Forward **horizontal** push on **target** via **`ENTITY.ADDFORCE`**-style integration; scaled by **`PLAYER.SETMASS`**. |
-| **`PLAYER.GRAB(player, target)`** | Each **`PLAYER.MOVE`**, repositions **target** in front of the player ( **`target 0`** releases). Not a Jolt **fixed constraint** yet. |
+| **`PLAYER.GRAB(player, target)`** | Each **`PLAYER.MOVE`**, repositions **target** in front of the player (**`target 0`** releases). Not a Jolt **fixed constraint** yet. |
 | **`PLAYER.SETMASS(entity, mass)`** | Stores **gameplay mass** (e.g. **`PLAYER.PUSH`**); Jolt **CharacterVirtual** mass is fixed at **`PLAYER.CREATE`**. |
 | **`PLAYER.GETSURFACETYPE(entity)`** → **string** | Downward **Jolt** ray → hit entity → **`SurfaceMaterialHint`** from glTF **`material` / `footstep`** metadata or **Blender tag**; else **`Default`**. |
 | **`PLAYER.SETFOVKICK` / `PLAYER.GETFOVKICK`** | Stores **extra FOV degrees** per entity; each frame do **`Camera.SetFOV(cam, base + Player.GetFovKick(hero))`** (or your own base). |
