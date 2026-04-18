@@ -5,7 +5,7 @@ These commands are registered in Go runtime code but have no entry in commands.j
 The compiler will reject .mb scripts that try to use them.
 
 
-## In Manifest but Missing from Runtime (497)
+## In Manifest but Missing from Runtime (489)
 These commands are declared in commands.json but have no runtime registration.
 Scripts compile but will fail at runtime with 'unknown command'.
 
@@ -60,14 +60,6 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `DISTSQ2D`
 - `DUMP`
 - `E`
-- `ENET.CREATEHOST`
-- `ENET.DEINITIALIZE`
-- `ENET.HOSTBROADCAST`
-- `ENET.HOSTSERVICE`
-- `ENET.INITIALIZE`
-- `ENET.MAKEHOST`
-- `ENET.PEERPING`
-- `ENET.PEERSEND`
 - `ENT.GET_NEAREST`
 - `ENT.GETNEAREST`
 - `ENTHIT`

@@ -1,12 +1,14 @@
 # Net / Server / Client / Peer / Packet / ENet / RPC Commands
 
+Beginner-oriented overview and learning order: **[MULTIPLAYER.md](MULTIPLAYER.md)**.
+
 moonBASIC's network stack. Multiple layers are available depending on control level needed:
 
 | Layer | Use when |
 |---|---|
 | **`SERVER.*` / `CLIENT.*`** | High-level lobby game server with entity sync |
 | **`NET.*`** | Mid-level ENet wrapper with peer handles |
-| **`ENET.*`** | Low-level raw ENet host/peer control |
+| **`ENET.*`** | Legacy names for the same stack — see **[ENET.md](ENET.md)** |
 | **`RPC.*`** | Remote procedure calls over an active connection |
 | **`PEER.*` / `PACKET.*`** | Per-peer send and raw packet building |
 
@@ -259,39 +261,7 @@ Frees the packet handle.
 
 ## ENET Commands (Low-level)
 
-### `ENET.INITIALIZE()` / `ENET.DEINITIALIZE()` 
-
-Start/stop the raw ENet library. Called automatically by `NET.START`.
-
----
-
-### `ENET.CREATEHOST(address, port, peers, channels, inBps, outBps)` 
-
-Creates a raw ENet host. Pass empty string for `address` to listen on all interfaces.
-
----
-
-### `ENET.HOSTSERVICE(host, timeout)` 
-
-Dispatches events for a raw ENet host. `timeout` in ms (0 = non-blocking).
-
----
-
-### `ENET.HOSTBROADCAST(host, channel, flags, packet)` 
-
-Broadcasts a packet to all peers on the raw ENet host.
-
----
-
-### `ENET.PEERSEND(peer, channel, packet)` 
-
-Sends a packet to a single peer on the raw ENet host.
-
----
-
-### `ENET.PEERPING(peer)` 
-
-Sends a ping to measure latency.
+Legacy **`ENET.*`** names are documented on **[ENET.md](ENET.md)** (same implementation as **`NET.*`** / **`PEER.*`** / **`PACKET.*`**).
 
 ---
 

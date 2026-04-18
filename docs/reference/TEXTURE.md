@@ -108,7 +108,7 @@ For **equal-sized frames** laid out in a regular **columns × rows** grid on one
 | **`TEXTURE.SETUVSCROLL`** | `(texture, speedU, speedV)` — scroll source rect (for “infinite” flow) |
 | **`TEXTURE.SETDISTORTION`** | `(texture, amount)` — hint for shader-side distortion |
 
-**Billboards:** **`ENTITY.CREATESPRITE`** accepts **`(textureHandle, width, height [, parent])`** so a loaded atlas applies to a 3D-facing quad; combine with **`TEXTURE.TICKALL`** and/or **`TEXTURE.SETFRAME`**.
+**Billboards:** **`ENTITY.CREATESPRITE`** accepts **`(textureHandle, width, height [, parent])`** so a loaded grid/atlas applies to a 3D-facing quad; combine with **`TEXTURE.TICKALL`** and/or **`TEXTURE.SETFRAME`**. Full workflow (maps, animation modes): [**`SPRITE3D.md`**](SPRITE3D.md).
 
 **Meshes:** **`ENTITY.SCROLLMATERIAL`** adds **(du, dv)** to material 0’s scroll (same idea as **`MODEL.SCROLLTEXTURE`**). **`ENTITY.SETDETAILTEXTURE`** binds a second texture as **normal/detail** for the same material.
 

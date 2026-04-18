@@ -8,5 +8,5 @@ foreach ($f in $files) {
     }
 }
 $unique = $keys | Sort-Object -Unique
-$unique | Out-File -Encoding utf8 "$PSScriptRoot\..\runtime_keys.txt"
+$unique | Out-File -Encoding utf8 "$PSScriptRoot\..\docs\audit\runtime_keys.txt"
 Write-Host "Runtime keys: $($unique.Count)"

@@ -1,0 +1,5 @@
+; Semantic check: INCLUDE merges FUNCTIONS from another .mb (see docs/reference/INCLUDE.md)
+
+INCLUDE "include_globals_lib.mb"
+
+v = LibConst()

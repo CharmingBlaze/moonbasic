@@ -190,13 +190,13 @@ WHILE NOT (INPUT.KEYHIT(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
         agent.MoveTo(px0, py0, pz0)
     ENDIF
     agent.Update(dt)
-    ax, ay, az = NAVAGENT.GETPOS(agent)
+    ax, ay, az = agent.pos()
     POSENT(guardianEnt, ax, ay, az)
 
     ; 3. Automatic World Simulation
     ENTITY.UPDATE(dt)
     hero.Update(dt)
-    hx, hy, hz = CHARACTERREF.GETPOSITION(hero)
+    hx, hy, hz = hero.pos()
     POSENT(playerEnt, hx, hy, hz)
 
     ; 4. Jumping — after hero.Update so GetGrounded reflects this frame's contact

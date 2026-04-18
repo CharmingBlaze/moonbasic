@@ -10,10 +10,9 @@ import (
 	"strings"
 
 	"moonbasic/compiler/pipeline"
+	"moonbasic/internal/version"
 	"moonbasic/lsp"
 )
-
-const version = "1.2.17"
 
 func main() {
 	var (
@@ -26,7 +25,7 @@ func main() {
 	)
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "moonBASIC Compiler %s\n", version)
+		fmt.Fprintf(os.Stderr, "moonBASIC Compiler %s\n", version.Version)
 		fmt.Fprintf(os.Stderr, "Usage:\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic [flags] <source.mb>     compile to .mbc\n")
 		fmt.Fprintf(os.Stderr, "  moonbasic --check <source.mb>     parse and type-check only\n")
@@ -38,7 +37,7 @@ func main() {
 	flag.Parse()
 
 	if *showVer {
-		fmt.Printf("moonBASIC Compiler %s\n", version)
+		fmt.Printf("moonBASIC Compiler %s\n", version.Version)
 		return
 	}
 

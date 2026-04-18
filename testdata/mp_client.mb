@@ -1,0 +1,14 @@
+; Minimal high-level client: connects to mp_host.mb and sends one RPC to the server.
+; Registry-first names; Easy Mode aliases exist (e.g. Server.Start).
+
+CLIENT.CONNECT("127.0.0.1", 27777)
+CLIENT.ONCONNECT("ONCONNECTED")
+FUNCTION ONCONNECTED()
+    RPC.CALLSERVER("PING", "hello")
+ENDFUNCTION
+i = 0
+WHILE i < 2000
+    CLIENT.TICK(0.016)
+    i = i + 1
+WEND
+CLIENT.STOP()

@@ -72,7 +72,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     PHYSICS3D.PROCESSCOLLISIONS()
 
     ; Player pos (CHARACTERREF — capsule center)
-    px, py, pz = CHARACTERREF.GETPOSITION(player)
+    px, py, pz = player.pos()
     CAMERA.SETORBIT(cam, px, py, pz, 0.4, 0.3, 14.0)
 
     ; --- Render ---

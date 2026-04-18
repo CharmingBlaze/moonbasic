@@ -80,7 +80,7 @@ var namespaceRef = map[string]struct {
 	"FOG":            {Doc: "reference/WEATHER.md", Blurb: "Distance fog parameters (weather / atmosphere)."},
 	"EFFECT":         {Doc: "reference/RENDER.md", Blurb: "Screen-space and post effects."},
 	"ENEMY":          {Doc: "reference/NAV_AI.md", Blurb: "Enemy / wave helpers (where registered)."},
-	"ENET":           {Doc: "reference/NETWORK.md", Blurb: "Legacy ENet-style stubs; prefer NET.*."},
+	"ENET":           {Doc: "reference/ENET.md", Blurb: "Legacy ENET.* aliases over the same ENet stack as NET.*."},
 	"ENT":            {Doc: "reference/ENTITY.md", Blurb: "Gameplay shortcuts (`ENT.*`); convenience over `ENTITY.*` where documented."},
 	"ENTITY":         {Doc: "reference/ENTITY.md", Blurb: "3D entities: create, transform, draw, animation, physics hooks."},
 	"ENTITYREF":      {Doc: "reference/ENTITYREF.md", Blurb: "Entity handle helpers: grounding, jump, nav update."},

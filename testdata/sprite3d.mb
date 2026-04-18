@@ -1,0 +1,24 @@
+; Semantic check: 3D billboard / SPRITE3D.md workflows (see docs/reference/SPRITE3D.md)
+
+; Static sprite entity from file
+s1 = ENTITY.LOADSPRITE("testdata/assets/missing_placeholder.png")
+
+; Texture grid + animated playback (paths need not exist for --check)
+tex = TEXTURE.LOADANIM("testdata/assets/sheet.png", 4, 4)
+TEXTURE.PLAY(tex, 12.0, TRUE)
+TEXTURE.TICKALL(0.016)
+TEXTURE.SETFRAME(tex, 0)
+
+; Billboard from texture handle
+s2 = ENTITY.CREATESPRITE(tex, 2.0, 2.0)
+ENTITY.SETPOS(s2, 0, 1, 0, TRUE)
+SPRITEMODE(s2, 2)
+ENTITY.SETSPRITEFRAME(s2, 0)
+
+; Immediate billboards (texture handle, geometry, tint) — typically inside BEGIN3D
+; DRAW3D.BILLBOARD(tex, 0, 0, 0, 1.0, 255, 255, 255, 255)
+; DRAW3D.BILLBOARDREC(tex, 0, 0, 32, 32, 0, 0, 0, 1, 1, 255, 255, 255, 255)
+
+ENTITY.FREE(s1)
+ENTITY.FREE(s2)
+TEXTURE.FREE(tex)

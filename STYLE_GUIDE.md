@@ -82,4 +82,5 @@ fire = PARTICLE.CREATE()
 - **Easy Mode:** Mention dotted facades (`Input.KeyDown`, `CreateCamera`, …) as **compatibility**, not the primary path for new examples (see **Easy Mode** above).
 - **Identifiers in prose:** Do not use Blitz-style **`#` / `$` / `?` / `%`** suffixes in new docs—use plain parameter names ([Naming conventions](#naming-conventions)).
 - **Cross-links:** Point to [API Standardization Directive](docs/API_STANDARDIZATION_DIRECTIVE.md) for phased rollout and manifest workflow.
+- **Multi-file `.mb` projects:** Split source with compile-time **`INCLUDE`** (not Markdown). See [docs/reference/INCLUDE.md](docs/reference/INCLUDE.md).
 

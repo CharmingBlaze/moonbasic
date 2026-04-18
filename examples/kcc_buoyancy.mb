@@ -28,7 +28,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -4
     
     ; Logic
-    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    px, py, pz = char.pos()
     
     IF py < 2 THEN
         ; Entering water

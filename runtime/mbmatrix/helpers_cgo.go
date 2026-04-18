@@ -4,6 +4,7 @@ package mbmatrix
 
 import (
 	"fmt"
+	"image/color"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 
@@ -23,6 +24,42 @@ func AllocVec3Value(h *heap.Store, x, y, z float32) (value.Value, error) {
 		return value.Nil, err
 	}
 	return value.FromHandle(id), nil
+}
+
+// AllocColorValue allocates a heap-backed Color (DECAL.GETCOLOR and similar).
+func AllocColorValue(h *heap.Store, r, g, b, a uint8) (value.Value, error) {
+	if h == nil {
+		return value.Nil, fmt.Errorf("AllocColorValue: heap is nil")
+	}
+	id, err := h.Alloc(&colorObj{c: color.RGBA{R: r, G: g, B: b, A: a}})
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromHandle(id), nil
+}
+
+// Vec2FromHandle returns the components of a heap vec2 handle (TagVec2).
+func Vec2FromHandle(s *heap.Store, h heap.Handle) (hal.V2, error) {
+	if s == nil || h == 0 {
+		return hal.V2{}, fmt.Errorf("Vec2FromHandle: invalid store or handle")
+	}
+	o, err := heap.Cast[*vec2Obj](s, h)
+	if err != nil {
+		return hal.V2{}, fmt.Errorf("Vec2FromHandle: %w", err)
+	}
+	return o.v, nil
+}
+
+// Vec3FromHandle returns the components of a heap vec3 handle (TagVec3).
+func Vec3FromHandle(s *heap.Store, h heap.Handle) (hal.V3, error) {
+	if s == nil || h == 0 {
+		return hal.V3{}, fmt.Errorf("Vec3FromHandle: invalid store or handle")
+	}
+	o, err := heap.Cast[*vec3Obj](s, h)
+	if err != nil {
+		return hal.V3{}, fmt.Errorf("Vec3FromHandle: %w", err)
+	}
+	return o.v, nil
 }
 
 // AllocVec2Value allocates a heap-backed vec2 (VEC2.*) for other runtime packages.

@@ -1,0 +1,13 @@
+; Minimal high-level server: receives RPC "PING" from a CLIENT.* program.
+; Run with moonrun alongside testdata/mp_client.mb (same port).
+
+SERVER.START(27777, 8)
+done = 0
+WHILE done = 0
+    SERVER.TICK(0.016)
+WEND
+SERVER.STOP()
+
+FUNCTION PING(msg, peerH)
+    done = 1
+ENDFUNCTION

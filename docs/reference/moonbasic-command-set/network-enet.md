@@ -36,4 +36,6 @@ Returns received string data.
 ### `Event.Free(id)`
 Frees the event resource.
 
+Registry-first **`NET.*`** / **`PEER.*`** / **`EVENT.*`** map to the same implementation as legacy **`ENET.*`** — see **[ENET.md](../ENET.md)** for `ENET.CREATEHOST`, `ENET.HOSTSERVICE`, etc.
+
 See also: [NETWORK.md](../NETWORK.md).

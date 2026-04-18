@@ -55,7 +55,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     char.UPDATE()
     
     ; Sync camera
-    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    px, py, pz = char.pos()
     cam.SETPOS(px, py + 1.6, pz - 5)
     cam.SETTARGET(px, py + 1.6, pz + 10)
     

@@ -1,6 +1,9 @@
 moonBASIC — quick start (pre-built binaries)
 ==============================================
 
+GitHub Releases also ship a smaller **compiler-only** download (no moonrun, CGO off for the
+compiler — no raylib.dll next to moonbasic.exe). See dist/README.md in the repo.
+
 WHAT'S IN THIS FOLDER
 ---------------------
   moonbasic (or moonbasic.exe)  — Compiler: turn .mb source into .mbc bytecode, --check, --lsp

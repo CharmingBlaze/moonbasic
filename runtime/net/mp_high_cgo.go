@@ -226,7 +226,9 @@ func (m *Module) srvStop(rt *runtime.Runtime, args ...value.Value) (value.Value,
 }
 
 func (m *Module) srvOnConnect(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
-	return value.Nil, fmt.Errorf("SERVER.ONCONNECT expects functionName")
+	if len(args) != 1 || args[0].Kind != value.KindString {
+		return value.Nil, fmt.Errorf("SERVER.ONCONNECT expects functionName")
+	}
 	s, err := rt.ArgString(args, 0)
 	if err != nil {
 		return value.Nil, err

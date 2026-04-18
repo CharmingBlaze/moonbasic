@@ -1,5 +1,5 @@
-$manifest = Get-Content "$PSScriptRoot\..\manifest_keys.txt" | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.Trim().ToUpper() }
-$runtime  = Get-Content "$PSScriptRoot\..\runtime_keys.txt" | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.Trim().ToUpper() }
+$manifest = Get-Content "$PSScriptRoot\..\docs\audit\manifest_keys.txt" | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.Trim().ToUpper() }
+$runtime  = Get-Content "$PSScriptRoot\..\docs\audit\runtime_keys.txt" | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.Trim().ToUpper() }
 
 $manifestSet = @{}
 foreach ($k in $manifest) { $manifestSet[$k] = $true }

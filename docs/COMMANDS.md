@@ -514,7 +514,7 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Network (ENet) — [Reference](reference/NETWORK.md) · [Command set (host/events)](reference/moonbasic-command-set/network-enet.md) · [Helpers](reference/moonbasic-command-set/network-helpers.md)
+### Network (ENet) — [Multiplayer hub](reference/MULTIPLAYER.md) · [First run (tutorial)](tutorials/FIRST_MULTIPLAYER_GAME.md) · [Reference](reference/NETWORK.md) · [ENET.* aliases](reference/ENET.md) · [Command set (host/events)](reference/moonbasic-command-set/network-enet.md) · [Helpers](reference/moonbasic-command-set/network-helpers.md)
 
 | Command | Description |
 |---|---|

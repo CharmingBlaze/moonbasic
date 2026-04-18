@@ -241,6 +241,7 @@ func registerNetCommands(m *Module, reg runtime.Registrar) {
 		return value.FromInt(0), nil
 	})
 
+	registerENETCommands(m, reg)
 	registerHighLevelNet(m, reg)
 }
 

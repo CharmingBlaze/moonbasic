@@ -82,4 +82,5 @@ WEND
 ## See also
 
 - [ENTITY.md](ENTITY.md) — entity creation and management
+- [SPRITE3D.md](SPRITE3D.md) — billboard sprites in 3D scenes
 - [WORLD.md](WORLD.md) — `WORLD.SETCENTER`, `WORLD.UPDATE`

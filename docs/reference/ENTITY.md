@@ -226,8 +226,7 @@ px, py, pz = ENTITY.GETPOS(player)
 
 ## 3D sprites (billboards)
 
-- **`LoadSprite(path)`** / **`LoadSprite(path, parent)`** — **`ENTITY.LOADSPRITE`** / **`ENTITY.CREATESPRITE`** are aliases; optional **parent** parents the new sprite like **`Entity.Parent`** (child starts at local origin).
-- **`SpriteMode`** / **`Entity.SpriteViewMode`** / **`SpriteViewMode`** — **`1`** = Y-axis billboard, **`2`** = full camera-facing billboard, **`3`** = static quad (see implementation in [`entity_cgo.go`](../../runtime/mbentity/entity_cgo.go)).
+Use **`ENTITY.LOADSPRITE`**, **`ENTITY.CREATESPRITE`**, **`SPRITEMODE`**, and **`ENTITY.DRAWALL`** for camera-facing quads in world space; combine with **`TEXTURE.LOADANIM`** / **`TEXTURE.TICKALL`** for sheet animation. Canonical guide (static vs immediate **`DRAW3D.BILLBOARD`**, atlases, terrain/maps): [**`SPRITE3D.md`**](SPRITE3D.md).
 
 ## Bulk free (`FreeEntities` / `Entity.FreeEntities`)
 

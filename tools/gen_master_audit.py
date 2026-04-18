@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+AUDIT_DIR = ROOT / "docs" / "audit"
 # Enhanced regex to find strings inside Register / reg / regFlat or similar calls.
 REG_PAT = re.compile(r'(?:Register|reg|regFlat|reg_alias|RegisterModule)\((.*)\)')
 STR_PAT = re.compile(r'"([^"]+)"')
@@ -35,7 +36,8 @@ def register_key_lines() -> list[str]:
 def main() -> None:
     keys = register_key_lines()
     uniq = sorted(set(keys))
-    (ROOT / "MASTER_AUDIT_REGISTERED.txt").write_text(
+    AUDIT_DIR.mkdir(parents=True, exist_ok=True)
+    (AUDIT_DIR / "MASTER_AUDIT_REGISTERED.txt").write_text(
         "\n".join(uniq) + "\n", encoding="utf-8"
     )
 
@@ -46,7 +48,7 @@ def main() -> None:
     )
     man = {c["key"] for c in data["commands"]}
     mkeys = sorted(man)
-    (ROOT / "MASTER_AUDIT_MANIFEST.txt").write_text(
+    (AUDIT_DIR / "MASTER_AUDIT_MANIFEST.txt").write_text(
         "\n".join(mkeys) + "\n", encoding="utf-8"
     )
 
@@ -59,7 +61,7 @@ def main() -> None:
     for k, n in sorted(ctr.items()):
         if n > 1:
             dup_lines.append(f"{k} {n}")
-    (ROOT / "MASTER_AUDIT_DUPLICATES.txt").write_text(
+    (AUDIT_DIR / "MASTER_AUDIT_DUPLICATES.txt").write_text(
         "\n".join(dup_lines) + "\n", encoding="utf-8"
     )
 
@@ -80,7 +82,7 @@ def main() -> None:
         lines.append(f"{k}\tMISSING")
     for k in doconly:
         lines.append(f"{k}\tDOCONLY")
-    (ROOT / "MASTER_AUDIT.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (AUDIT_DIR / "MASTER_AUDIT.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     write_reference_key_coverage(man)
 
@@ -91,7 +93,7 @@ def main() -> None:
 
 def write_reference_key_coverage(man: set[str]) -> None:
     """Map manifest keys to docs/reference/*.md + language spec (verbatim substring hits)."""
-    out_dir = ROOT / "docs" / "audit"
+    out_dir = AUDIT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
     ref_dir = ROOT / "docs" / "reference"
     spec = ROOT / "compiler" / "errors" / "MoonBasic.md"

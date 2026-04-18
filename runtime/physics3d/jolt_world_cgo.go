@@ -393,8 +393,8 @@ func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) {
 	// Drain rigid body contacts (sensors & triggers)
 	events := sys.DrainContactQueue(256)
 	for _, ev := range events {
-		ha, okA := joltLookupHandle(ev.BodyA)
-		hb, okB := joltLookupHandle(ev.BodyB)
+		ha, okA := joltLookupHandle(ev.Body1)
+		hb, okB := joltLookupHandle(ev.Body2)
 		if !okA || !okB {
 			continue
 		}

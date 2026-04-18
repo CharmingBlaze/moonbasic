@@ -32467,6 +32467,124 @@
     },
     {
       "args": [
+        "handle",
+        "handle",
+        "handle",
+        "handle"
+      ],
+      "description": "2D AABB overlap using four VEC2 handles: position and size for each box (fewer scalars than BOXCOLLIDE).",
+      "key": "COLLISION.BOXOVERLAP2D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "float",
+        "handle",
+        "float"
+      ],
+      "description": "2D circle-circle test: two VEC2 centers and two radii (four arguments total).",
+      "key": "COLLISION.CIRCLEOVERLAP2D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "handle",
+        "handle"
+      ],
+      "description": "2D point-in-axis-aligned-box using VEC2 point, box min corner, and box size.",
+      "key": "COLLISION.POINTINBOX2D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "float",
+        "handle",
+        "handle"
+      ],
+      "description": "2D circle vs axis-aligned box: center VEC2, radius, box position VEC2, box size VEC2.",
+      "key": "COLLISION.CIRCLEBOX2D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "handle",
+        "handle",
+        "handle"
+      ],
+      "description": "2D segment intersection: endpoints of segment A and segment B as VEC2 handles.",
+      "key": "COLLISION.LINESEGINTERSECT2D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "handle",
+        "handle",
+        "float"
+      ],
+      "description": "2D point-near-segment test: point, segment endpoints, distance threshold (matches POINTONLINE math).",
+      "key": "COLLISION.POINTONSEG2D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "float",
+        "handle",
+        "float"
+      ],
+      "description": "3D sphere-sphere overlap: two VEC3 centers and two radii.",
+      "key": "COLLISION.SPHEREOVERLAP3D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "handle",
+        "handle",
+        "handle"
+      ],
+      "description": "3D AABB overlap using min/max corners for each box (four VEC3 handles; same math as AABBCOLLIDE).",
+      "key": "COLLISION.AABBOVERLAP3D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "float",
+        "handle",
+        "handle"
+      ],
+      "description": "3D sphere vs axis-aligned box: sphere center VEC3, radius, box min corner VEC3, box size VEC3.",
+      "key": "COLLISION.SPHEREBOX3D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
+        "handle",
+        "handle",
+        "handle"
+      ],
+      "description": "3D point in axis-aligned box: point VEC3, box min corner VEC3, box size VEC3.",
+      "key": "COLLISION.POINTINAABB3D",
+      "phase": "any",
+      "returns": "bool"
+    },
+    {
+      "args": [
         "float",
         "float",
         "float",

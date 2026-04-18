@@ -315,7 +315,7 @@ func drawLightOverlay() {
 
 	// Darkness overlay + additive lights are a pair: without any LIGHT2D.* lights, do not dim the
 	// framebuffer — otherwise a low SET2DAMBIENT (or legacy default) paints opaque black over every
-	// program (3D included). See BUG_COLOUR_DIAGNOSIS.txt.
+	// program (3D included). See docs/audit/archives/BUG_COLOUR_DIAGNOSIS.txt.
 	if len(ls) == 0 {
 		return
 	}

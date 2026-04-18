@@ -1,0 +1,5 @@
+; Library for include_globals.mb — shared FUNCTION (multi-file INCLUDE test)
+
+FUNCTION LibConst()
+    RETURN 42
+ENDFUNCTION

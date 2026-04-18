@@ -156,5 +156,6 @@ TERRAIN.FREE(terrain)
 ## See also
 
 - [WORLD.md](WORLD.md) — **`WORLD.SETCENTER`**, **`WORLD.UPDATE`**, **`WORLD.PRELOAD`**
+- [SPRITE3D.md](SPRITE3D.md) — billboard props and texture-sheet sprites in 3D maps
 - [WATER.md](WATER.md) — water plane vs terrain height
 - [SCATTER.md](SCATTER.md) — foliage on terrain height

@@ -35,7 +35,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     char.UPDATE()
     
     ; Logic
-    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    px, py, pz = char.pos()
     touchingHazard = FALSE
     IF px >= -2.5 AND px <= 2.5 AND pz >= 7.5 AND pz <= 12.5 AND py >= -1.5 AND py <= 2.5 THEN
         touchingHazard = TRUE

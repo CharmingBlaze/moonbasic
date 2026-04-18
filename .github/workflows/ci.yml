@@ -48,8 +48,12 @@ jobs:
           go run . --check testdata/exit_continue_test.mb
           go run . --check testdata/phase_d_acceptance.mb
           go run . --check testdata/physics_demo.mb
+          go run . --check testdata/enet_smoke.mb
           go run . --check testdata/net_server.mb
           go run . --check testdata/net_client.mb
+          go run . --check testdata/collision_vec.mb
+          go run . --check testdata/sprite3d.mb
+          go run . --check testdata/include_globals.mb
           go run . --check examples/pong/main.mb
           go run . --check examples/platformer/main.mb
           go run . --check examples/fps/main.mb
@@ -112,8 +116,12 @@ jobs:
           go run . --check testdata/exit_continue_test.mb
           go run . --check testdata/phase_d_acceptance.mb
           go run . --check testdata/physics_demo.mb
+          go run . --check testdata/enet_smoke.mb
           go run . --check testdata/net_server.mb
           go run . --check testdata/net_client.mb
+          go run . --check testdata/collision_vec.mb
+          go run . --check testdata/sprite3d.mb
+          go run . --check testdata/include_globals.mb
           go run . --check examples/pong/main.mb
           go run . --check examples/platformer/main.mb
           go run . --check examples/fps/main.mb
@@ -190,8 +198,12 @@ jobs:
 
       - name: Semantic check net samples (stub path)
         run: |
+          go run . --check testdata/enet_smoke.mb
           go run . --check testdata/net_server.mb
           go run . --check testdata/net_client.mb
+          go run . --check testdata/collision_vec.mb
+          go run . --check testdata/sprite3d.mb
+          go run . --check testdata/include_globals.mb
         env:
           CGO_ENABLED: '0'
 
@@ -199,3 +211,22 @@ jobs:
         run: go test ./...
         env:
           CGO_ENABLED: '0'
+
+  # cmd/moonbasic with CGO off (matches compiler-only release); smoke --version + --check
+  compiler_smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.3'
+
+      - name: Build and smoke-test standalone compiler
+        run: |
+          set -e
+          CGO_ENABLED=0 go build -trimpath \
+            -ldflags="-X moonbasic/internal/version.Version=ci" \
+            -o /tmp/moonbasic ./cmd/moonbasic
+          /tmp/moonbasic --version | grep -q ci
+          /tmp/moonbasic --check testdata/enet_smoke.mb

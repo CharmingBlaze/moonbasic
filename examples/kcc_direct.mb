@@ -34,7 +34,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     char.MOVE(dx, dy, dz)
     
     ; Get current position (namespace form — STYLE_GUIDE.md)
-    px, py, pz = CHARACTERREF.GETPOSITION(char)
+    px, py, pz = char.pos()
     
     ; Update camera to follow
     cam.SETORBIT(px, py, pz, 0.4, 0.3, 10.0)

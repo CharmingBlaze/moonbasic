@@ -1,4 +1,4 @@
-package scratch
+package main
 
 import (
 	"testing"

@@ -109,7 +109,7 @@ Either pattern satisfies the contract in `heap.go`.
 
 On shutdown, **`RunProgram`** tears down the registry and calls **`Store.FreeAll`**, which walks **every** slot and invokes **`HeapObject.Free()`** on live objects. Long-running games should still **`FREE`** / **`ERASE`** handles they no longer need to cap memory during play; shutdown is the safety net for leaks of VM handles.
 
-### Audit baselines (repo root)
+### Audit baselines (`docs/audit/baselines/`)
 
 Optional regression artifacts (see **`ARCHITECTURE.md`** for optional Valgrind/gccheckmark notes):
 

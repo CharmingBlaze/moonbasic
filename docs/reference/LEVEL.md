@@ -183,6 +183,7 @@ WINDOW.CLOSE()
 ## See also
 
 - [SCENE_ENGINE_BRIEF.md](SCENE_ENGINE_BRIEF.md) — architecture roadmap and WASM/Jolt notes  
+- [SPRITE3D.md](SPRITE3D.md) — 3D billboards and animated sheets in levels  
 - [ENTITY.md](ENTITY.md) — entity ids, groups, drawing  
 - [ANIMATION_3D.md](ANIMATION_3D.md) — skinned models  
 - [WORLD.md](WORLD.md) — global setup and streaming

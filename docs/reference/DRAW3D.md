@@ -66,6 +66,8 @@ Draws a reference grid in the XZ plane. `slices`: number of divisions; `spacing`
 ### `DRAW3D.BILLBOARD(tex, x, y, z, size, r, g, b, a)` 
 Draws a textured billboard facing the **active 3D camera**. **Must** be called inside **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`** (or **`CAMERA.BEGIN`/`CAMERA.END`**).
 
+For **entity-based** billboards, texture-sheet animation, and 3D map workflows, see [**`SPRITE3D.md`**](SPRITE3D.md).
+
 ---
 
 ### `DRAW3D.RAY(handle, r, g, b, a)` 
@@ -103,12 +105,13 @@ WINDOW.CLOSE()
 |--------|-------------|
 | `DRAW3D.CYLINDER(x,y,z, rTop, rBot, h, slices, r,g,b,a)` | Draw a solid cylinder (or cone if one radius is 0). |
 | `DRAW3D.CYLINDERWIRES(x,y,z, rTop, rBot, h, slices, r,g,b,a)` | Draw cylinder wireframe. |
-| `DRAW3D.BILLBOARDREC(cam, tex, srcRec, pos, size, r,g,b,a)` | Draw a sub-region of a texture as a camera-facing billboard. |
+| `DRAW3D.BILLBOARDREC(tex, srcX, srcY, srcW, srcH, x, y, z, w, h, r, g, b, a)` | Draw a sub-region of a texture as a camera-facing billboard (same ordering as **`DRAW.BILLBOARDREC`**). |
 
 ---
 
 ## See also
 
+- [SPRITE3D.md](SPRITE3D.md) — billboard entities vs **`DRAW3D.BILLBOARD`**, animation, maps
 - [DRAW_WRAPPERS.md](DRAW_WRAPPERS.md) — object-style **`DRAWCUBE()`**, **`DRAWSPHERE()`**, … (short methods instead of long **`DRAW3D.*`** argument lists).
 - [CAMERA.md](CAMERA.md) — 3D camera setup and picking rays.
 - [DRAW2D.md](DRAW2D.md) — 2D drawing (screen space, **`CAMERA2D.*`**).

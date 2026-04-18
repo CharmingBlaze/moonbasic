@@ -2,6 +2,8 @@
 
 2D sprites with frame animation, groups, layers, batching, UI sprites, and 2D particles.
 
+For **camera-facing 3D billboards** (world-space props, texture-sheet animation on entities), see [**`SPRITE3D.md`**](SPRITE3D.md).
+
 Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
 ## Core Workflow

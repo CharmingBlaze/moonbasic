@@ -77,7 +77,7 @@ High-level pipeline and layout: [ARCHITECTURE.md](ARCHITECTURE.md). Deeper contr
 
 ## Optional: command coverage
 
-[`COMMAND_AUDIT.txt`](COMMAND_AUDIT.txt) tracks implementation status (`DONE`, `PARTIAL`, `MISSING`) for builtins—useful for larger features, not required for every small fix.
+[`docs/audit/COMMAND_AUDIT.txt`](docs/audit/COMMAND_AUDIT.txt) tracks implementation status (`DONE`, `PARTIAL`, `MISSING`) for builtins—useful for larger features, not required for every small fix. The generated doc index is [`docs/COMMAND_AUDIT.md`](docs/COMMAND_AUDIT.md).
 
 ## First-Time Contributor's Checklist
 When contributing to MoonBASIC, remember our Static-First philosophy to ensure single-binary Zero-DLL purity across releases!

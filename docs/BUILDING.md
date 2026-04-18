@@ -55,6 +55,19 @@ For the **native Raylib library** (`raylib.dll`, `libraylib.so`, …), install a
 
 ---
 
+## Compiler-only release (no extra DLLs for end users)
+
+To ship a **compiler-only** moonBASIC build so players of *your* release do **not** need **`raylib.dll`**, **Python**, or a **C compiler**—only the usual **Windows** or **Linux** OS:
+
+- **Windows (PowerShell):** run [`scripts/release_compiler_windows.ps1`](../scripts/release_compiler_windows.ps1) from the repo root. It builds **[`cmd/moonbasic`](../cmd/moonbasic/)** with **`CGO_ENABLED=0`** and writes **`dist/MoonBasic-compiler-windows-amd64.zip`** ( **`moonbasic.exe`** + **`README-COMPILER.txt`** ).
+- **Linux:** run **`bash scripts/release_compiler_linux.sh`** → **`dist/MoonBasic-compiler-linux-amd64.tar.gz`**.
+
+That binary supports **compile**, **`--check`**, **`--lsp`**, **`--disasm`**. It does **not** bundle the full game runtime (**`moonrun`**, **`--run`** with graphics). For static or beta **game** bundles, see [`scripts/package_beta_zip.ps1`](../scripts/package_beta_zip.ps1) and [DEVELOPER.md](DEVELOPER.md).
+
+**Version string:** CLI tools read **`moonbasic/internal/version.Version`**. Local `go build` shows **`devel`** unless you set **`MOONBASIC_VERSION`** when running the release scripts or pass **`-ldflags="-X moonbasic/internal/version.Version=v1.2.18"`**. Git tag builds (`.github/workflows/release.yml`) inject the tag (e.g. **`v1.2.18`**).
+
+---
+
 ## Build Steps
 
 ### 1. Clone the Repository

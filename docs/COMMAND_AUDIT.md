@@ -62,7 +62,7 @@ This file cross-checks `compiler/builtinmanifest/commands.json` against referenc
 | `DRAWTEXREC` | 7 | [reference/TEXTURE_DRAW_WRAPPERS.md](reference/TEXTURE_DRAW_WRAPPERS.md) (yes) | Source-rectangle texture draw objects. |
 | `EFFECT` | 24 | [reference/RENDER.md](reference/RENDER.md) (yes) | Screen-space and post effects. |
 | `ENEMY` | 1 | [reference/NAV_AI.md](reference/NAV_AI.md) (yes) | Enemy / wave helpers (where registered). |
-| `ENET` | 8 | [reference/NETWORK.md](reference/NETWORK.md) (yes) | Legacy ENet-style stubs; prefer NET.*. |
+| `ENET` | 8 | [reference/ENET.md](reference/ENET.md) (yes) | Legacy **`ENET.*`** aliases over the same stack as **`NET.*`**. |
 | `ENT` | 17 | [reference/ENTITY.md](reference/ENTITY.md) (yes) | Gameplay shortcuts (`ENT.*`); convenience over `ENTITY.*` where documented. |
 | `ENTITY` | 284 | [reference/ENTITY.md](reference/ENTITY.md) (yes) | 3D entities: create, transform, draw, animation, physics hooks. |
 | `ENTITYREF` | 3 | [reference/ENTITYREF.md](reference/ENTITYREF.md) (yes) | Entity handle helpers: grounding, jump, nav update. |

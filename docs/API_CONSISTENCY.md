@@ -976,6 +976,16 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`BSPHERE.SETPOS`** - args: handle, float, float, float -> returns handle — Set bounding sphere center. Returns handle.
 - **`BSPHERE.SETPOSITION`** - args: handle, float, float, float -> returns handle — DEPRECATED alias of BSPHERE.SETPOS. Use BSPHERE.SETPOS.
 - **`BSPHERE.SETRADIUS`** - args: handle, float -> returns handle — Set bounding sphere radius. Returns handle.
+- **`COLLISION.AABBOVERLAP3D`** - args: handle, handle, handle, handle -> returns bool — 3D AABB overlap using min/max corners for each box (four VEC3 handles; same math as AABBCOLLIDE).
+- **`COLLISION.BOXOVERLAP2D`** - args: handle, handle, handle, handle -> returns bool — 2D AABB overlap using four VEC2 handles: position and size for each box (fewer scalars than BOXCOLLIDE).
+- **`COLLISION.CIRCLEBOX2D`** - args: handle, float, handle, handle -> returns bool — 2D circle vs axis-aligned box: center VEC2, radius, box position VEC2, box size VEC2.
+- **`COLLISION.CIRCLEOVERLAP2D`** - args: handle, float, handle, float -> returns bool — 2D circle-circle test: two VEC2 centers and two radii (four arguments total).
+- **`COLLISION.LINESEGINTERSECT2D`** - args: handle, handle, handle, handle -> returns bool — 2D segment intersection: endpoints of segment A and segment B as VEC2 handles.
+- **`COLLISION.POINTINAABB3D`** - args: handle, handle, handle -> returns bool — 3D point in axis-aligned box: point VEC3, box min corner VEC3, box size VEC3.
+- **`COLLISION.POINTINBOX2D`** - args: handle, handle, handle -> returns bool — 2D point-in-axis-aligned-box using VEC2 point, box min corner, and box size.
+- **`COLLISION.POINTONSEG2D`** - args: handle, handle, handle, float -> returns bool — 2D point-near-segment test: point, segment endpoints, distance threshold (matches POINTONLINE math).
+- **`COLLISION.SPHEREBOX3D`** - args: handle, float, handle, handle -> returns bool — 3D sphere vs axis-aligned box: sphere center VEC3, radius, box min corner VEC3, box size VEC3.
+- **`COLLISION.SPHEREOVERLAP3D`** - args: handle, float, handle, float -> returns bool — 3D sphere-sphere overlap: two VEC3 centers and two radii.
 - **`RAY.DIR`** - args: handle -> returns handle — Property alias for RAY.GETDIR.
 - **`RAY.GETDIR`** - args: handle -> returns handle — Get ray direction as Vec3 handle.
 - **`RAY.GETPOS`** - args: handle -> returns handle — Get ray origin as Vec3 handle.

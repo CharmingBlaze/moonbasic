@@ -1,0 +1,5 @@
+; Compile-only smoke test for legacy ENET.* bindings (same stack as NET.*).
+ENET.INITIALIZE()
+h = ENET.CREATEHOST("", 27777, 8, 2, 0)
+ENET.HOSTSERVICE(h, 0)
+ENET.DEINITIALIZE()

@@ -9,6 +9,7 @@ import (
 
 func (m *Module) registerCollisionBuiltins(r runtime.Registrar) {
 	_ = m
+	m.registerCollisionVecBuiltins(r)
 	r.Register("BOXCOLLIDE", "game", runtime.AdaptLegacy(func(args []value.Value) (value.Value, error) {
 		if len(args) != 8 {
 			return value.Nil, fmt.Errorf("BOXCOLLIDE expects 8 arguments")

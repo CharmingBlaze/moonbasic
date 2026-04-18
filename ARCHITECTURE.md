@@ -63,7 +63,7 @@ The orchestration logic must live in `compiler/pipeline/pipeline.go`. The CLI dr
 - **Runtime dispatch** (`runtime/runtime.go`): **`RegisterFromManifest`** walks every overload but registers **at most one stub per canonical `Command.Key`** — the first-seen **`Namespace`** wins for the stub closure. Natives that support multiple arities implement **branching on `len(args)`** in one **`BuiltinFn`** (e.g. **`RENDER.CLEAR`** in **`runtime/window/raylib_cgo.go`**).
 - **LSP** (`lsp/server.go`): Hover for a dotted builtin uses **`FirstOverload(key)`** when arity cannot be inferred from the line; multi-arity commands may show only the first signature unless tooling is extended.
 
-**Inventory tooling**: From the repo root, **`python tools/gen_master_audit.py`** regenerates **`MASTER_AUDIT.txt`** (manifest keys vs **`Register("KEY"`** in **`runtime/**/*.go`**, excluding **`*_test.go`**) plus **`MASTER_AUDIT_REGISTERED.txt`**, **`MASTER_AUDIT_MANIFEST.txt`**, **`MASTER_AUDIT_DUPLICATES.txt`**, and **`docs/audit/REFERENCE_KEY_COVERAGE.txt`** (which manifest keys appear verbatim in **`docs/reference/*.md`** and **`compiler/errors/MoonBasic.md`**).
+**Inventory tooling**: From the repo root, **`python tools/gen_master_audit.py`** regenerates **`docs/audit/MASTER_AUDIT.txt`** (manifest keys vs **`Register("KEY"`** in **`runtime/**/*.go`**, excluding **`*_test.go`**) plus **`docs/audit/MASTER_AUDIT_REGISTERED.txt`**, **`docs/audit/MASTER_AUDIT_MANIFEST.txt`**, **`docs/audit/MASTER_AUDIT_DUPLICATES.txt`**, and **`docs/audit/REFERENCE_KEY_COVERAGE.txt`** (which manifest keys appear verbatim in **`docs/reference/*.md`** and **`compiler/errors/MoonBasic.md`**).
 
 ---
 

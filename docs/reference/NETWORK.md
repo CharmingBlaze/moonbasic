@@ -2,7 +2,9 @@
 
 Commands for creating multiplayer games using ENet.
 
-**Registry names** use **`NET.*`**, **`PEER.*`**, **`EVENT.*`**, **`PACKET.*`**, plus helpers **`NETSEND*`** / **`NETREAD*`** (see [moonbasic-command-set/network-enet.md](moonbasic-command-set/network-enet.md) and [network-helpers.md](moonbasic-command-set/network-helpers.md)). **`PEER.SEND`** takes **`(peer, channel, data, reliable)`** (channel before the string).
+Beginner-oriented overview: **[MULTIPLAYER.md](MULTIPLAYER.md)**.
+
+**Registry names** use **`NET.*`**, **`PEER.*`**, **`EVENT.*`**, **`PACKET.*`**, plus helpers **`NETSEND*`** / **`NETREAD*`** (see [moonbasic-command-set/network-enet.md](moonbasic-command-set/network-enet.md) and [network-helpers.md](moonbasic-command-set/network-helpers.md)). Legacy **`ENET.*`** names are implemented on the same stack — see **[ENET.md](ENET.md)**. **`PEER.SEND`** takes **`(peer, channel, data, reliable)`** (channel before the string). Easy Mode examples may show **`Net.Start`**, **`Net.CreateServer`**, … — those map to the same **`NET.*`** registry keys (see [STYLE_GUIDE.md](../STYLE_GUIDE.md)).
 
 ## Core Workflow
 
@@ -319,5 +321,7 @@ WINDOW.CLOSE()
 
 ## See also
 
+- [MULTIPLAYER.md](MULTIPLAYER.md) — scope, learning path, and compile-check list
+- [ENET.md](ENET.md) — legacy **`ENET.*`** names (`ENET.CREATEHOST`, …) on the same stack
 - [moonbasic-command-set/network-enet.md](moonbasic-command-set/network-enet.md) — full registry map
 - [moonbasic-command-set/network-helpers.md](moonbasic-command-set/network-helpers.md) — `NETSEND*` / `NETREAD*` helpers

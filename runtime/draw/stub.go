@@ -17,7 +17,7 @@ func stub(name string) runtime.BuiltinFn {
 
 // Register implements runtime.Module.
 func (m *Module) Register(r runtime.Registrar) {
-	// This is a partial list. Add all commands from IMPL_AUDIT.txt here.
+	// This is a partial list. Add all commands from docs/audit/archives/IMPL_AUDIT.txt here.
 	r.Register("DRAW.RECTANGLE", "draw", stub("DRAW.RECTANGLE"))
 	r.Register("DRAW.RECTANGLE_ROUNDED", "draw", stub("DRAW.RECTANGLE_ROUNDED"))
 	r.Register("DRAW.TEXTURE", "draw", stub("DRAW.TEXTURE"))

@@ -48,6 +48,7 @@ Releases the atlas and all associated sprite handles.
 ## See also
 
 - [SPRITE.md](SPRITE.md) — **`SPRITE.DRAW`**, strip frames, **`ANIM.*`**
+- [SPRITE3D.md](SPRITE3D.md) — **`ATLAS.GETSPRITE`** is for **2D** **`SPRITE.*`** drawing; **world** billboards use **`TEXTURE.*`** + **`ENTITY.CREATESPRITE`** (texture grid / `TEXTURE.LOADANIM`)
 - [IMAGE.md](IMAGE.md) — CPU images before GPU upload
 
 ---

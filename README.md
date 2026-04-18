@@ -51,11 +51,28 @@ moonBASIC uses the right physics engine for the right dimensionality. Three-dime
 
 ---
 
+## Repository layout
+
+The root directory is kept small on purpose: Go sources, `go.mod`, and a handful of top-level guides. Supporting material lives in named folders so the GitHub file tree is easier to scan.
+
+| Path | Purpose |
+|------|---------|
+| [`cmd/moonbasic`](cmd/moonbasic), [`cmd/moonrun`](cmd/moonrun) | CLI entrypoints (compiler-only vs full runtime). |
+| [`compiler/`](compiler/), [`vm/`](vm/) | Language front-end, bytecode, and VM. |
+| [`runtime/`](runtime/) | Engine modules (rendering, physics, audio, net, …). |
+| [`docs/`](docs/) | Guides and reference; maintainer audits under [`docs/audit/`](docs/audit/). |
+| [`testdata/`](testdata/) | `.mb` samples for `--check` and tests (ad hoc copies under [`testdata/dev_samples/`](testdata/dev_samples/)). |
+| [`examples/`](examples/) | Runnable projects. |
+| [`dist/`](dist/) | What each release flavor contains — see [`dist/README.md`](dist/README.md). |
+| [`scripts/`](scripts/), [`tools/`](tools/) | Release packaging and parity / audit helpers. |
+
+---
+
 ## Multiplayer through the strengths of Go
 
 Multiplayer functionality is not an afterthought. Because the runtime is hosted in Go, networking can take advantage of goroutines and structured concurrency. The engine handles synchronization, buffering, and timing so developers can think in straightforward multiplayer operations.
 
-Start with **[docs/reference/NETWORK.md](docs/reference/NETWORK.md)** and the **`NETWORK.*`** commands in **[docs/COMMANDS.md](docs/COMMANDS.md)**.
+Start with **[docs/reference/MULTIPLAYER.md](docs/reference/MULTIPLAYER.md)** (scope + learning path), **[docs/tutorials/FIRST_MULTIPLAYER_GAME.md](docs/tutorials/FIRST_MULTIPLAYER_GAME.md)** (two-process tutorial), then **[docs/reference/NETWORK.md](docs/reference/NETWORK.md)** and the **`NETWORK.*`** commands in **[docs/COMMANDS.md](docs/COMMANDS.md)**.
 
 ---
 

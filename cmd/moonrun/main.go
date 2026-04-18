@@ -13,10 +13,9 @@ import (
 
 	"moonbasic/compiler/pipeline"
 	"moonbasic/internal/driver"
+	"moonbasic/internal/version"
 	mbphysics3d "moonbasic/runtime/physics3d"
 )
-
-const version = "1.2.17"
 
 func init() {
 	// Pin the main goroutine before any work. OpenGL/GLFW contexts (Raylib) must stay on the OS
@@ -34,7 +33,7 @@ func main() {
 	)
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "moonBASIC Engine %s\n", version)
+		fmt.Fprintf(os.Stderr, "moonBASIC Engine %s\n", version.Version)
 		fmt.Fprintf(os.Stderr, "Usage:\n")
 		fmt.Fprintf(os.Stderr, "  moonrun [flags] <file.mbc>        run MOON bytecode\n")
 		fmt.Fprintf(os.Stderr, "  moonrun [flags] <source.mb>       compile and run source\n")
@@ -44,7 +43,7 @@ func main() {
 	flag.Parse()
 
 	if *showVer {
-		fmt.Printf("moonBASIC Engine %s\n", version)
+		fmt.Printf("moonBASIC Engine %s\n", version.Version)
 		fmt.Fprintln(os.Stdout, "Runtime: raylib 5.5 | Jolt 5.1 | Box2D 3.0 | ENet 1.3")
 		return
 	}
