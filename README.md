@@ -129,7 +129,7 @@ This provides the clarity of BASIC at the language level and the performance of 
 
 ### Prebuilt binaries
 
-**Windows x64** and **Linux x64** builds are available on **[Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. Each archive includes the compiler, the runtime, and a release guide (`README-RELEASE.txt`). After extraction, verify with `moonbasic --version` or run any example under [`examples/`](examples/).
+**Windows x64** and **Linux x64** builds are on **[Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. There are **two flavors**: **compiler-only** bundles (small, no native graphics DLLs—ideal for compiling and `--check`) and **full runtime** archives (**`moonbasic`** + **`moonrun`**, native deps possible). See **[`dist/README.md`](dist/README.md)** for which asset to download. Full-runtime archives also include a release guide (`README-RELEASE.txt`). After extraction, run `moonbasic --version` and try an example under [`examples/`](examples/).
 
 ### Build from source
 
