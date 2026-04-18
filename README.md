@@ -32,7 +32,7 @@ The **compiled distribution** ships only from **[GitHub Releases](https://github
 
 **Editor:** run **`moonbasic --lsp`** and attach your LSP client (stdio).
 
-More detail on what each zip contains: **[`dist/README.md`](dist/README.md)** · step-by-step install and first window: **[`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)**
+More detail on what each zip contains: **[`dist/README.md`](dist/README.md)** · step-by-step install, first window, and **how to ship your game to players**: **[`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)** (section **Ship your game**)
 
 ---
 

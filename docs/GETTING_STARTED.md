@@ -31,7 +31,21 @@ To **build moonbasic from source** (contributors), see **[BUILDING.md](BUILDING.
 
 ---
 
-## 2. Using the moonbasic compiler
+## 2. Ship your game (for authors)
+
+You can share games in two straightforward ways:
+
+**A — Minimal install for players (recommended)**  
+Ship your **`.mb`** source and/or **`.mbc`** bytecode, plus any **assets** (images, sounds, data files) using the **paths your scripts expect** (working directory when they run `moonrun`, or paths you set with **`RES.PATH`** and similar APIs). Tell players to install the **same [full runtime](#1-installation) archive** for their OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) — **not** the **compiler-only** download (that bundle has no `moonrun` and cannot open a game window). Prefer the **same moonBASIC release tag** you used to build and test: bytecode and engine behavior stay aligned across patch versions.
+
+**B — Folder bundle (one zip per game)**  
+Ship a folder that contains **`moonrun`** (and optionally **`moonbasic`**) next to your game and assets so players extract and double-click or run from that folder. On **Windows**, use an official **`moonrun.exe`** from the full-runtime zip or a packager aligned with release builds — see **[`docs/BUILDING.md`](BUILDING.md)** (**Windows full-runtime PE link model**): official Windows builds avoid MinGW / Raylib companion DLLs beside the executables. On **Linux**, the full-runtime tarball links against the usual **glibc**, OpenGL, and desktop libraries on the build OS — **fully static Linux binaries are not the goal**; target common distros with a normal GPU stack, or build your own layout / AppImage / `.deb` from source using **[`docs/BUILDING.md`](BUILDING.md)** and maintainer notes in **[`dist/README.md`](../dist/README.md)**.
+
+Packaging helpers (maintainers / power users): **[`scripts/package_release_style_zip.ps1`](../scripts/package_release_style_zip.ps1)** (folder zip using a **release-style** `moonrun.exe`), **[`scripts/package_beta_zip.ps1`](../scripts/package_beta_zip.ps1)** (optional Zig-based build — see script header).
+
+---
+
+## 3. Using the moonbasic compiler
 
 Open a terminal in the directory that contains **`moonbasic`** (on **compiler-only** installs, that is usually inside **`MoonBasic-compiler/`**).
 
@@ -89,7 +103,7 @@ If you only installed the **compiler-only** archive, use **`moonbasic`** to prod
 
 ---
 
-## 3. Your First Program
+## 4. Your First Program
 
 Create a file named `hello.mb`:
 
@@ -105,7 +119,7 @@ moonrun hello.mb
 
 ---
 
-## 4. Opening a Window
+## 5. Opening a Window
 
 MoonBASIC makes window management effortless. Create `display.mb`:
 
@@ -124,7 +138,7 @@ WINDOW.CLOSE()
 
 ---
 
-## 5. Modern 3D with Method Chaining
+## 6. Modern 3D with Method Chaining
 
 MoonBASIC supports **Method Chaining** (Fluent API), allowing you to configure objects in a single, readable line.
 
@@ -148,7 +162,7 @@ WEND
 
 ---
 
-## 6. Modern Blitz-Style (High Fidelity)
+## 7. Modern Blitz-Style (High Fidelity)
 
 For advanced users, MoonBASIC provides a "High Fidelity" path with PBR materials, dynamic lighting, and SSAO.
 

@@ -1,4 +1,9 @@
-# Package a Windows "Beta" distribution zip: static-linked moonrun + loose folders.
+# Package a Windows "Beta" distribution zip: moonrun + loose folders (experimental Zig build path).
+#
+# Prefer shipping a release-aligned binary: use scripts/package_release_style_zip.ps1 with
+# moonrun.exe from an official full-runtime GitHub zip or a local MSYS2 build matching
+# scripts/windows_fullruntime_go_ldflags.sh (see docs/BUILDING.md). This script defaults to
+# build_static.ps1 (Zig-oriented); linkage can differ from official releases — use for experiments.
 #
 # Layout (default: one root folder inside the zip so "Extract all" stays tidy):
 #   MoonBasic/
@@ -108,8 +113,8 @@ Keep shaders\, assets\, and examples\ next to moonrun.exe.
 Failure modes:
   - File not found: a script references a missing file; restore the full zip tree or fix the path.
   - Wrong working directory: prefer running commands from this bundle root so relative paths in scripts match.
-  - Missing DLL errors: this build should be static (no raylib.dll / jolt.dll). If you see DLL load errors,
-    you are not running the static-linked exe from scripts/build_static.ps1 / package_beta_zip.ps1.
+  - Missing DLL errors: compare with a release-style build (package_release_style_zip.ps1 + official moonrun.exe).
+    This beta path uses build_static.ps1 (Zig) and may not match GitHub Release PE imports exactly.
 
 Future: embed.FS single-file distribution is optional and documented separately.
 "@

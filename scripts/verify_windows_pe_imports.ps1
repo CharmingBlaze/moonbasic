@@ -1,4 +1,16 @@
 # Verify a PE built with MinGW does not import companion runtime / Raylib DLLs we intend to embed.
+#
+# Maintenance (contributors):
+#   When you add a new Windows CGO dependency to moonbasic/moonrun, run this script on the
+#   resulting .exe. If a NEW non-system DLL appears in the import table:
+#   1) Prefer fixing the link (static archive, correct -l order) so the DLL is not required.
+#   2) If a sidecar DLL is unavoidable, add an explicit allowlist entry BELOW with the DLL
+#      name and a one-line rationale; update docs/BUILDING.md "Windows full-runtime PE link model".
+#   3) Do not remove existing forbidden checks without maintainer review.
+#
+# Optional future allowlist (regex or literal), currently unused — example:
+#   # $Allowlisted = @('^SomeCodec\.dll$')
+#
 # Usage (from repo root, MSYS2 mingw64 bin on PATH):
 #   powershell -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin "C:\msys64\mingw64\bin"
 
