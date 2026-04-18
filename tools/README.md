@@ -13,10 +13,10 @@ Developer utilities for auditing and maintaining the MoonBASIC compiler manifest
 
 | Script | Purpose |
 |--------|---------|
-| `audit_manifest.ps1` | Extracts unique keys from `commands.json` → `docs/audit/manifest_keys.txt`. |
+| `diff_manifest_runtime.py` | **Canonical (CI):** regenerates or verifies `docs/audit/manifest_keys.txt`, `docs/audit/runtime_keys.txt`, and `docs/MISSING_COMMANDS_AUDIT.md`. Run `python tools/diff_manifest_runtime.py --write` after manifest or runtime registration changes; CI runs `--check`. |
+| `audit_manifest.ps1` | Extracts unique keys from `commands.json` → `docs/audit/manifest_keys.txt` (Windows; prefer `diff_manifest_runtime.py --write`). |
 | `extract_runtime_keys.ps1` | Greps `r.Register("KEY"` patterns from `runtime/` Go source → `docs/audit/runtime_keys.txt`. |
-| `diff_keys.ps1` | Compares the two key sets and writes `docs/MISSING_COMMANDS_AUDIT.md`. |
-| `audit_manifest_runtime.py` | Python alternative for the same audit. |
+| `diff_keys.ps1` | Compares the two key sets and writes `docs/MISSING_COMMANDS_AUDIT.md` (PowerShell; prefer `diff_manifest_runtime.py --write`). |
 | `gen_master_audit.py` | Generates a broader master-audit report. |
 
 ## Documentation

@@ -60,6 +60,7 @@ Before pushing Go changes, run **`bash scripts/check_builds.sh`** (or **`make ch
 4. Ensure the feature satisfies the **Null Driver** (even as a no-op) so compiler tests remain headless.
 5. Run `go run . --check` on a sample that exercises the change.
 6. Regenerate API docs: `go run ./tools/apidoc` (**[`docs/API_CONSISTENCY.md`](docs/API_CONSISTENCY.md)**).
+7. Refresh manifest/runtime key snapshots: `python tools/diff_manifest_runtime.py --write` (updates `docs/audit/manifest_keys.txt`, `docs/audit/runtime_keys.txt`, and `docs/MISSING_COMMANDS_AUDIT.md`; CI verifies with `--check`).
 
 **Ease-of-use helpers:** New pattern commands (movement, snapping, camera-relative input, etc.) should complement—not replace—existing `MATH.*` / vector primitives. Naming, tuples, and documentation expectations are summarized in [`docs/EASY_LANGUAGE.md`](docs/EASY_LANGUAGE.md).
 

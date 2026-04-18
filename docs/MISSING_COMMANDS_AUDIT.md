@@ -1,11 +1,21 @@
-﻿# Missing Commands Audit
+# Missing Commands Audit
 
-## In Runtime but Missing from Manifest (0)
+## In Runtime but Missing from Manifest (10)
 These commands are registered in Go runtime code but have no entry in commands.json.
 The compiler will reject .mb scripts that try to use them.
 
+- `CAMERA2D.GETOFFSET`
+- `CAMERA2D.GETZOOM`
+- `CHARACTERREF.GETBOUNCE`
+- `CHARACTERREF.GETBOUNCINESS`
+- `CHARACTERREF.SETBOUNCINESS`
+- `KINEMATICREF.GETVELOCITY`
+- `LIGHT.GETENERGY`
+- `TWEEN.FREE`
+- `WATER.GETDEEPCOLOR`
+- `WATER.GETSHALLOWCOLOR`
 
-## In Manifest but Missing from Runtime (489)
+## In Manifest but Missing from Runtime (456)
 These commands are declared in commands.json but have no runtime registration.
 Scripts compile but will fail at runtime with 'unknown command'.
 
@@ -16,16 +26,18 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `ANGLETO`
 - `ATN`
 - `BAND`
+- `BBOX.MAX`
+- `BBOX.MIN`
 - `BCLEAR`
 - `BCOUNT`
-- `BIN$`
 - `BLSHIFT`
 - `BNOT`
-- `BODY2D.SETPOSITION`
 - `BOR`
 - `BOX2D.WORLDSTEP`
 - `BRSHIFT`
 - `BSET`
+- `BSPHERE.POS`
+- `BSPHERE.RADIUS`
 - `BTEST`
 - `BTOGGLE`
 - `BXOR`
@@ -38,7 +50,6 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `CHAR.GETVY`
 - `CHAR.GETVZ`
 - `CHAR.UPDATE`
-- `CHR$`
 - `CLAMP`
 - `COLLISIONFORCE`
 - `COLLISIONPX`
@@ -46,13 +57,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `COLLISIONPZ`
 - `CONNECT`
 - `COSD`
-- `COUNT$`
-- `CREATEBODY`
-- `CREATEBODY2D`
 - `CREATECAMERA2D`
-- `DECAL.GETPOS`
-- `DECAL.GETROT`
-- `DECAL.GETSIZE`
 - `DECAL.SETPOSITION`
 - `DEG2RAD`
 - `DEGPERSEC`
@@ -60,8 +65,8 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `DISTSQ2D`
 - `DUMP`
 - `E`
-- `ENT.GET_NEAREST`
 - `ENT.GETNEAREST`
+- `ENT.GET_NEAREST`
 - `ENTHIT`
 - `ENTITY.COLLIDED`
 - `ENTITY.COLLISIONOTHER`
@@ -88,6 +93,11 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `ERRMSG$`
 - `FILE.CLOSE`
 - `FILE.EOF`
+- `FILE.GETEOF`
+- `FILE.GETPOS`
+- `FILE.GETSIZE`
+- `FILE.OPENREAD`
+- `FILE.OPENWRITE`
 - `FILE.READLINE`
 - `FILE.SEEK`
 - `FILE.SIZE`
@@ -97,43 +107,13 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `FILEPOS`
 - `FILESIZE`
 - `FIX`
-- `FORMAT$`
-- `GAME.ANYKEY`
 - `GAME.DT`
-- `GAME.FPS`
-- `GAME.JOYBUTTON`
-- `GAME.JOYX`
-- `GAME.JOYY`
-- `GAME.KEYCHAR`
-- `GAME.KEYDOWN`
-- `GAME.KEYHIT`
-- `GAME.KEYPRESSED`
-- `GAME.KEYRELEASED`
-- `GAME.MDX`
-- `GAME.MDY`
-- `GAME.MLEFT`
-- `GAME.MLEFTPRESSED`
-- `GAME.MMIDDLE`
-- `GAME.MOUSEX`
-- `GAME.MOUSEXSPEED`
-- `GAME.MOUSEY`
-- `GAME.MOUSEYSPEED`
-- `GAME.MRIGHT`
-- `GAME.MRIGHTPRESSED`
-- `GAME.MWHEEL`
-- `GAME.MX`
-- `GAME.MY`
 - `GAME.ORBITDISTDELTA`
 - `GAME.ORBITPITCHDELTA`
 - `GAME.ORBITYAWDELTA`
-- `GAME.SCREENCX`
-- `GAME.SCREENCY`
-- `GAME.SCREENH`
-- `GAME.SCREENW`
 - `GAME.SETAESTHETIC`
 - `HDIST`
 - `HDISTSQ`
-- `HEX$`
 - `HITCOUNT`
 - `HITENT`
 - `IMAGE.CREATEBLANK`
@@ -142,7 +122,6 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `INSTANCE.SETPOSITION`
 - `INTERP$`
 - `INVERSE_LERP`
-- `JOIN$`
 - `JOINT.MAKEHINGE`
 - `JOINT.MAKEPOINT`
 - `JOLT.BODYCREATEDYNAMIC`
@@ -164,22 +143,14 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `JOLT.SHAPESPHERE`
 - `JOLT.SHUTDOWN`
 - `JOLT.STEP`
-- `LEFT$`
 - `LERP`
-- `LIGHT.GETINTENSITY`
 - `LIGHT.GETROT`
-- `LIGHT.MAKEDIRECTIONAL`
-- `LIGHT.MAKEPOINT`
-- `LIGHT.MAKESPOT`
 - `LIGHT.SETROT`
 - `LISTEN`
 - `LOADFONT`
 - `LOADIMAGE`
 - `LOADMUSIC`
 - `LOG2`
-- `LOWER$`
-- `LSET$`
-- `LTRIM$`
 - `MATERIAL.CREATEDEFAULT`
 - `MATERIAL.CREATEPBR`
 - `MATH.ABS`
@@ -236,19 +207,14 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `MATH.WRAPANGLE180`
 - `MATH.YAWFROMXZ`
 - `MAX`
-- `MESH.CREATECAPSULE`
-- `MESH.CREATECONE`
-- `MESH.CREATECUBICMAP`
-- `MESH.CREATECUSTOM`
-- `MESH.CREATECYLINDER`
-- `MESH.CREATEHEIGHTMAP`
-- `MESH.CREATEKNOT`
-- `MESH.CREATEPOLY`
-- `MESH.CREATETORUS`
-- `MID$`
 - `MIN`
+- `MODEL.ALPHA`
+- `MODEL.COLOR`
 - `MODEL.MAKEBOX`
 - `MODEL.MAKECAPSULE`
+- `MODEL.POS`
+- `MODEL.ROT`
+- `MODEL.SCALE`
 - `MUSICVOLUME`
 - `NAVAGENT.SETPOSITION`
 - `NET.MAKECLIENT`
@@ -259,7 +225,6 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `NOISE.CREATEFRACTAL`
 - `NOISE.CREATEPERLIN`
 - `NOISE.CREATESIMPLEX`
-- `OCT$`
 - `ORBITDISTDELTA`
 - `ORBITPITCHDELTA`
 - `ORBITYAWDELTA`
@@ -270,6 +235,8 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `PARTICLE.GETALPHA`
 - `PARTICLE.GETCOLOR`
 - `PARTICLE.GETPOS`
+- `PARTICLE.GETSIZE`
+- `PARTICLE.GETVELOCITY`
 - `PARTICLE.ISALIVE`
 - `PARTICLE.MAKE`
 - `PARTICLE.PLAY`
@@ -336,6 +303,8 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `PRINTAT`
 - `PRINTCOLOR`
 - `RAD2DEG`
+- `RAY.DIR`
+- `RAY.HITBOX`
 - `RAY.HITBOX_DISTANCE`
 - `RAY.HITBOX_HIT`
 - `RAY.HITBOX_NORMALX`
@@ -344,6 +313,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.HITBOX_POINTX`
 - `RAY.HITBOX_POINTY`
 - `RAY.HITBOX_POINTZ`
+- `RAY.HITMESH`
 - `RAY.HITMESH_DISTANCE`
 - `RAY.HITMESH_HIT`
 - `RAY.HITMESH_NORMALX`
@@ -352,6 +322,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.HITMESH_POINTX`
 - `RAY.HITMESH_POINTY`
 - `RAY.HITMESH_POINTZ`
+- `RAY.HITMODEL`
 - `RAY.HITMODEL_DISTANCE`
 - `RAY.HITMODEL_HIT`
 - `RAY.HITMODEL_NORMALX`
@@ -360,6 +331,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.HITMODEL_POINTX`
 - `RAY.HITMODEL_POINTY`
 - `RAY.HITMODEL_POINTZ`
+- `RAY.HITPLANE`
 - `RAY.HITPLANE_DISTANCE`
 - `RAY.HITPLANE_HIT`
 - `RAY.HITPLANE_NORMALX`
@@ -368,6 +340,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.HITPLANE_POINTX`
 - `RAY.HITPLANE_POINTY`
 - `RAY.HITPLANE_POINTZ`
+- `RAY.HITSPHERE`
 - `RAY.HITSPHERE_DISTANCE`
 - `RAY.HITSPHERE_HIT`
 - `RAY.HITSPHERE_NORMALX`
@@ -376,6 +349,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.HITSPHERE_POINTX`
 - `RAY.HITSPHERE_POINTY`
 - `RAY.HITSPHERE_POINTZ`
+- `RAY.HITTRIANGLE`
 - `RAY.HITTRIANGLE_DISTANCE`
 - `RAY.HITTRIANGLE_HIT`
 - `RAY.HITTRIANGLE_NORMALX`
@@ -384,6 +358,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.HITTRIANGLE_POINTX`
 - `RAY.HITTRIANGLE_POINTY`
 - `RAY.HITTRIANGLE_POINTZ`
+- `RAY.INTERSECTSMODEL`
 - `RAY.INTERSECTSMODEL_DISTANCE`
 - `RAY.INTERSECTSMODEL_HIT`
 - `RAY.INTERSECTSMODEL_NORMALX`
@@ -392,6 +367,7 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `RAY.INTERSECTSMODEL_POINTX`
 - `RAY.INTERSECTSMODEL_POINTY`
 - `RAY.INTERSECTSMODEL_POINTZ`
+- `RAY.POS`
 - `RAYLIB.BEGINFRAME`
 - `RAYLIB.BEGINSHADERMODE`
 - `RAYLIB.CLEARBACKGROUND`
@@ -444,11 +420,8 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `REPEAT$`
 - `REPLACE$`
 - `REVERSE$`
-- `RIGHT$`
 - `ROTENT`
 - `ROUND`
-- `RSET$`
-- `RTRIM$`
 - `SATURATE`
 - `SEEKFILE`
 - `SERVICENET`
@@ -464,6 +437,11 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `SMOOTHSTEP`
 - `SPACE$`
 - `SPLIT$`
+- `SPRITE.ALPHA`
+- `SPRITE.COLOR`
+- `SPRITE.POS`
+- `SPRITE.ROT`
+- `SPRITE.SCALE`
 - `SQR`
 - `STOPMUSIC`
 - `STR$`
@@ -487,7 +465,6 @@ Scripts compile but will fail at runtime with 'unknown command'.
 - `TRIM$`
 - `TURNCAMERA`
 - `UPDW`
-- `UPPER$`
 - `UTIL.CREATEDIRECTORY`
 - `WATER.SETHEIGHT`
 - `WATER.SETPOSITION`
