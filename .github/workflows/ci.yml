@@ -153,6 +153,68 @@ jobs:
           CGO_ENABLED: '1'
           CC: ${{ steps.msys2.outputs.msys2-location }}\mingw64\bin\gcc.exe
 
+  # Mirrors release.yml windows-amd64: Jolt rebuild + same MinGW static-runtime ldflags + moonrun link + PE checks.
+  # Catches link/flag regressions before a version tag (the default windows job does not build moonrun).
+  windows_fullruntime:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.3'
+
+      - uses: msys2/setup-msys2@v2
+        id: msys2_fullrt
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-raylib
+
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v4
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (Windows)
+        shell: pwsh
+        env:
+          JPH_SRC: ${{ github.workspace }}/JoltPhysics
+        run: |
+          $msys = "${{ steps.msys2_fullrt.outputs.msys2-location }}"
+          $mingwBin = Join-Path $msys "mingw64\bin"
+          $env:Path = "$mingwBin;$env:Path"
+          Set-Location "${{ github.workspace }}"
+          powershell -ExecutionPolicy Bypass -File "third_party/jolt-go/scripts/build-libs-windows.ps1"
+
+      - name: Build moonbasic + moonrun (release parity)
+        shell: bash
+        env:
+          CGO_ENABLED: '1'
+          CC: ${{ steps.msys2_fullrt.outputs.msys2-location }}/mingw64/bin/gcc.exe
+          MOONBASIC_WINDOWS_VERSION: 'ci-${{ github.sha }}'
+        run: |
+          set -e
+          mkdir -p dist
+          . scripts/windows_fullruntime_go_ldflags.sh
+          EX="$(moonbasic_windows_fullruntime_go_ldflags)"
+          go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
+          go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
+
+      - name: Verify PE imports + moonrun --version
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bin = Join-Path "${{ steps.msys2_fullrt.outputs.msys2-location }}" "mingw64\bin"
+          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+          & .\dist\moonrun.exe -version
+
   # Compile-only: core Raylib via raylib-go purego (no C compiler). raygui/DB/ENet still need CGO in full builds.
   windows_purego:
     runs-on: windows-latest

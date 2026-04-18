@@ -26,16 +26,23 @@ if (-not (Test-Path $JPH_SRC)) {
 
 Write-Host "--- Building Jolt Core ---" -ForegroundColor Blue
 $BUILD_DIR = Join-Path $JPH_SRC "Build\windows_amd64_release"
-if (-not (Test-Path $BUILD_DIR)) { New-Item -ItemType Directory $BUILD_DIR }
+# Fresh configure every time: stale CMakeCache can re-enable IPO/LTO or wrong flags after
+# toolchain upgrades, producing libJolt.a objects that only link with a matching lto1.
+if (Test-Path $BUILD_DIR) {
+    Remove-Item -Recurse -Force $BUILD_DIR
+}
+New-Item -ItemType Directory -Path $BUILD_DIR | Out-Null
 
 Push-Location $BUILD_DIR
 # Jolt v5.x: CMakeLists.txt lives under Build/ — configure from Build/<profile> with source ..
-# -fno-lto: keep libJolt.a as plain objects so any MinGW gcc can link it (avoids
-# "bytecode stream ... LTO version X instead of Y" when the archive was built with another GCC).
+# LTO / IPO policy (keep parity with release.yml Linux Jolt job):
+# - -fno-lto on compile: archives contain normal COFF objects, not GCC LTO bytecode.
+# - CMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF: CMake targets must not add -flto behind our back.
 cmake .. `
     -DCMAKE_BUILD_TYPE=Release `
     -DCMAKE_CXX_FLAGS="-fno-lto" `
     -DCMAKE_C_FLAGS="-fno-lto" `
+    -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF `
     -DDISABLE_CUSTOM_ALLOCATOR=ON `
     -DTARGET_UNIT_TESTS=OFF `
     -DTARGET_HELLO_WORLD=OFF `

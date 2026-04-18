@@ -66,6 +66,22 @@ That binary supports **compile**, **`--check`**, **`--lsp`**, **`--disasm`**. It
 
 **Windows full-runtime releases** (GitHub Actions `release.yml`): the tagged **Windows amd64** zip links **libgcc**, **libstdc++**, and **winpthread** statically into `moonbasic.exe` / `moonrun.exe` (Raylib is compiled from sources — no **`raylib.dll`**). For an alternate local static **`moonrun`** (Zig / custom flags), see [`scripts/build_static.ps1`](../scripts/build_static.ps1).
 
+### Windows full-runtime PE link model (distributors / CI)
+
+This is the contract the **tagged release job** and the **`windows_fullruntime` CI job** implement; it exists so the shipped zip does not depend on MinGW **companion DLLs** next to the executable.
+
+1. **Go / CGO** — `CGO_ENABLED=1`, `CC` points at **MSYS2 MINGW64** `gcc.exe` (same family as **g++** used to build Jolt).
+
+2. **Final link** — `-linkmode external` so the Go linker invokes MinGW **`g++`** / **`ld`** with explicit flags. The canonical flag string is generated in **[`scripts/windows_fullruntime_go_ldflags.sh`](../scripts/windows_fullruntime_go_ldflags.sh)** (do not fork ad‑hoc copies in other scripts without updating that file and CI).
+
+3. **MinGW runtimes in the PE** — `-static-libgcc` and `-static-libstdc++` pull the corresponding archive members into the image so **`libgcc_s_*.dll`** and **`libstdc++-6.dll`** are not load-time dependencies. **`pthread`** is taken from the **static** `libwinpthread` archive between `-Wl,-Bstatic … -Wl,-Bdynamic` so **`libwinpthread-1.dll`** is not required.
+
+4. **Raylib** — Do **not** set **`CGO_LDFLAGS=-lraylib`**. Upstream **`raylib-go`** compiles Raylib + GLFW from sources under **`#cgo`**; adding `-lraylib` would resolve the MSYS **shared** `raylib.dll` and reintroduce a sidecar DLL.
+
+5. **Jolt** — **`libJolt.a`** / **`libjolt_wrapper.a`** must be built with the **same** MinGW toolchain as the Go link (release and **`windows_fullruntime`** CI rebuild Jolt from **JoltPhysics v5.4.0** every time). The build script **[`third_party/jolt-go/scripts/build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1)** uses **`-fno-lto`** and **`CMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF`** so the static archives contain **normal objects**, not **GCC LTO bytecode** that only matches one **`lto1`** version. Without that, you get failures like *bytecode stream … LTO version X instead of expected Y* when a cached **`libJolt.a`** was produced by another GCC.
+
+6. **Verification** — After linking, **[`scripts/verify_windows_pe_imports.ps1`](../scripts/verify_windows_pe_imports.ps1)** parses **`objdump -p`** and fails the job if the import table still lists **`raylib.dll`** or the usual MinGW runtime DLLs above. If a **new** legitimate dependency appears (e.g. a future optional codec DLL), update the script and this paragraph with the rationale—do not delete the check silently.
+
 **Version string:** CLI tools read **`moonbasic/internal/version.Version`**. Local `go build` shows **`devel`** unless you set **`MOONBASIC_VERSION`** when running the release scripts or pass **`-ldflags="-X moonbasic/internal/version.Version=v1.2.18"`**. Git tag builds (`.github/workflows/release.yml`) inject the tag (e.g. **`v1.2.18`**).
 
 ---
@@ -135,7 +151,7 @@ On **Windows**, set **`CGO_ENABLED=1`** and point **`CC`** at MinGW **`gcc.exe`*
 
 **3D physics:** native **Jolt** (`PHYSICS3D.*` / `BODY3D.*`) is available on **Linux and Windows x64** when **`CGO_ENABLED=1`** and the Jolt static libraries are present (see [JOLT_WINDOWS_PARITY.md](JOLT_WINDOWS_PARITY.md)). Other builds get a **full graphics** runtime with physics builtins **stubbed** with a clear error—see [PHYSICS3D.md](reference/PHYSICS3D.md).
 
-**Jolt on Windows (LTO / GCC mismatch):** If the link step fails with **LTO** or **GCC version** errors (e.g. vendored **`libJolt.a`** built with a different toolchain than your MinGW **`gcc`**), rebuild the static archives with the **same** compiler you use for CGO — see [`third_party/jolt-go/jolt/lib/windows_amd64/README.md`](../third_party/jolt-go/jolt/lib/windows_amd64/README.md). As a **temporary** experiment, you can try disabling LTO on the **final** link only, for example: `go build -ldflags="-extldflags=-fno-lto" -tags fullruntime ./cmd/moonrun`. That may not fix every mismatch; rebuilding the **`.a`** files to match your environment remains the reliable fix.
+**Jolt on Windows (LTO / GCC mismatch):** If the link step fails with **LTO** errors (**`lto1`**, *bytecode stream … LTO version*), your **`libJolt.a`** likely contains **LTO IR** from another GCC. Run [`build-libs-windows.ps1`](../third_party/jolt-go/scripts/build-libs-windows.ps1) (it forces **`-fno-lto`** and **`CMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF`**) with the **same** MinGW **`g++`** you use for **`go build`**, or match the **[`windows_fullruntime`](../.github/workflows/ci.yml)** / **release** pipeline. A **final-link-only** `-fno-lto` does **not** strip LTO from objects already inside **`libJolt.a`**.
 
 ---
 

@@ -155,12 +155,19 @@ jobs:
         run: |
           set -e
           mkdir -p dist
-          VER="${GITHUB_REF_NAME}"
-          LD="-s -w -X moonbasic/internal/version.Version=${VER}"
-          EX="${LD} -linkmode external -extldflags=-static-libgcc -extldflags=-static-libstdc++ -extldflags=-Wl,-Bstatic -extldflags=-lwinpthread -extldflags=-Wl,-Bdynamic"
+          . scripts/windows_fullruntime_go_ldflags.sh
+          EX="$(moonbasic_windows_fullruntime_go_ldflags)"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Verify Windows PE imports (no MinGW/Raylib DLLs)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
+          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
 
       - name: Package (zip)
         shell: pwsh

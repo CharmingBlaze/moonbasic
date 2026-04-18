@@ -20,4 +20,4 @@ These binaries are large; they may be built locally or committed per release pol
 
 ## Toolchain matching (GCC)
 
-The build script compiles Jolt **without LTO** (`-fno-lto`) so **`libJolt.a`** usually links with any recent MinGW **`g++`**. If you still see **undefined reference** errors, rebuild both archives with the **same** toolchain you use for **`go build`** (see [`build-libs-windows.ps1`](../../../scripts/build-libs-windows.ps1)).
+[`build-libs-windows.ps1`](../../../scripts/build-libs-windows.ps1) compiles Jolt **without LTO** (`-fno-lto`, **`CMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF`**) so **`libJolt.a`** contains plain objects—see **“Windows full-runtime PE link model”** in [`docs/BUILDING.md`](../../../../../docs/BUILDING.md). If you still see **undefined reference** errors, rebuild both archives with the **same** MinGW **`g++`** you use for **`go build`**.
