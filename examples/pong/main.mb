@@ -1,65 +1,87 @@
-; Two-player Pong (W/S vs I/K). HUD uses Draw.Text - no external .ttf required
-; Run from repo root: CGO_ENABLED=1 go run . examples/pong/main.mb
+; Two-player Pong — left: W/S, right: I/K, ESC to quit
+; From repo root (full runtime): moonrun examples/pong/main.mb
+; No external fonts; HUD uses DRAW.TEXT
 
 WINDOW.OPEN(960, 540, "moonBASIC Pong")
 WINDOW.SETFPS(60)
 
-py1 = 200
-py2 = 200
-bx = 480
-by = 270
-bvx = 280
-bvy = 180
+pw = 16
+ph = 80
+phh = 40
+pyMin = 40
+pyMax = 420
+
+py1 = 200.0
+py2 = 200.0
+bx = 480.0
+by = 270.0
+bvx = 280.0
+bvy = 140.0
+bCap = 480.0
 p1s = 0
 p2s = 0
 
 WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     dt = TIME.DELTA()
-    IF INPUT.KEYDOWN(KEY_W) THEN py1 = py1 - 260 * dt
-    IF INPUT.KEYDOWN(KEY_S) THEN py1 = py1 + 260 * dt
-    IF INPUT.KEYDOWN(KEY_I) THEN py2 = py2 - 260 * dt
-    IF INPUT.KEYDOWN(KEY_K) THEN py2 = py2 + 260 * dt
-    py1 = MATH.MIN(420, MATH.MAX(40, py1))
-    py2 = MATH.MIN(420, MATH.MAX(40, py2))
+    ps = 280.0 * dt
+    IF INPUT.KEYDOWN(KEY_W) THEN py1 = py1 - ps
+    IF INPUT.KEYDOWN(KEY_S) THEN py1 = py1 + ps
+    IF INPUT.KEYDOWN(KEY_I) THEN py2 = py2 - ps
+    IF INPUT.KEYDOWN(KEY_K) THEN py2 = py2 + ps
+    py1 = MATH.CLAMP(py1, pyMin, pyMax)
+    py2 = MATH.CLAMP(py2, pyMin, pyMax)
 
     bx = bx + bvx * dt
     by = by + bvy * dt
-    IF by < 20 OR by > 500 THEN bvy = 0 - bvy
+    IF by < 24.0 OR by > 516.0 THEN bvy = 0.0 - bvy
 
-    IF bx < 50 THEN
-        IF by > py1 - 50 AND by < py1 + 90 THEN
-            bvx = 0 - bvx
-            bx = 52
+    ; P1 side — ball heading left
+    IF bx < 52.0 AND bvx < 0.0 THEN
+        IF by >= py1 - 8.0 AND by <= py1 + ph + 8.0 THEN
+            bvx = 0.0 - bvx
+            IF bvx < 380.0 THEN bvx = bvx - 22.0
+            bx = 52.0
+            bvy = bvy + (by - (py1 + phh)) * 5.0
+            bvy = MATH.CLAMP(bvy, 0.0 - bCap, bCap)
         ELSE
             p2s = p2s + 1
-            bx = 480
-            by = 270
-            bvx = 280
-            bvy = 180
+            bx = 480.0
+            by = 270.0
+            bvx = 280.0
+            bvy = 140.0
         ENDIF
     ENDIF
 
-    IF bx > 910 THEN
-        IF by > py2 - 50 AND by < py2 + 90 THEN
-            bvx = 0 - bvx
-            bx = 908
+    ; P2 side — ball heading right
+    IF bx > 908.0 AND bvx > 0.0 THEN
+        IF by >= py2 - 8.0 AND by <= py2 + ph + 8.0 THEN
+            bvx = 0.0 - bvx
+            IF bvx > -380.0 THEN bvx = bvx + 22.0
+            bx = 908.0
+            bvy = bvy + (by - (py2 + phh)) * 5.0
+            bvy = MATH.CLAMP(bvy, 0.0 - bCap, bCap)
         ELSE
             p1s = p1s + 1
-            bx = 480
-            by = 270
-            bvx = 0 - 280
-            bvy = 180
+            bx = 480.0
+            by = 270.0
+            bvx = -280.0
+            bvy = 140.0
         ENDIF
     ENDIF
 
-    RENDER.CLEAR(15, 18, 28)
-    DRAW.RECTANGLE(30, INT(py1), 16, 80, 220, 240, 255, 255)
-    DRAW.RECTANGLE(914, INT(py2), 16, 80, 255, 180, 120, 255)
-    DRAW.RECTANGLE(INT(bx) - 8, INT(by) - 8, 16, 16, 255, 255, 255, 255)
-    DRAW.RECTANGLE(478, 0, 4, 540, 60, 60, 80, 255)
+    RENDER.CLEAR(12, 14, 22)
+    cy = 8
+    WHILE cy < 520
+        DRAW.RECTANGLE(478, cy, 4, 18, 45, 50, 70, 255)
+        cy = cy + 34
+    WEND
 
-    DRAW.TEXT("P1: " + STR(p1s) + "     P2: " + STR(p2s), 380, 12, 22, 255, 255, 255, 255)
-    DRAW.TEXT("W/S  vs  I/K   ESC quit", 320, 510, 18, 200, 200, 210, 255)
+    DRAW.RECTANGLE(30, INT(py1), pw, ph, 200, 230, 255, 255)
+    DRAW.RECTANGLE(914, INT(py2), pw, ph, 255, 170, 110, 255)
+    DRAW.RECTANGLE(INT(bx) - 8, INT(by) - 8, 16, 16, 255, 255, 255, 255)
+
+    DRAW.TEXT("P1: " + STR(p1s) + "          P2: " + STR(p2s), 360, 10, 24, 245, 245, 250, 255)
+    DRAW.TEXT("W / S  vs  I / K", 360, 506, 18, 160, 165, 185, 255)
     RENDER.FRAME()
 WEND
 
