@@ -13,6 +13,7 @@ This directory groups **generated inventories**, **manual implementation logs**,
 ## Regeneration
 
 - **`python tools/diff_manifest_runtime.py --write`** — canonical refresh of **`manifest_keys.txt`**, **`runtime_keys.txt`**, and **`docs/MISSING_COMMANDS_AUDIT.md`** (CI runs **`--check`** on Linux).
+- **`python tools/manifest_gap_summary.py`** — same gap as the markdown report, summarized **by namespace**; **`--list PREFIX`** lists keys (e.g. **`--list JOLT`**, **`--list global`** for flat globals).
 - **`python tools/gen_master_audit.py`** (from repo root) — updates **`MASTER_AUDIT*.txt`** and **`REFERENCE_KEY_COVERAGE.txt`**.
 - **`tools/audit_manifest.ps1`** / **`extract_runtime_keys.ps1`** / **`diff_keys.ps1`** — Windows-oriented equivalents; prefer the Python script for parity with CI.
 - **`go run ./tools/cmdaudit`** — updates **`docs/COMMAND_AUDIT.md`** (separate from **`COMMAND_AUDIT.txt`** here).
