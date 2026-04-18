@@ -33,6 +33,8 @@ FIRST STEPS
   5. Run a game (needs full runtime):
        moonrun path\to\yourgame.mb
      or:  moonrun yourgame.mbc
+     moonrun compiles .mb inside the same program — you do NOT need Go, GCC, or moonbasic
+     on PATH to play; extract the zip and run.
 
 TIPS
 ----
@@ -40,8 +42,9 @@ TIPS
   • For editor support, run:  moonbasic --lsp  (stdio language server)
   • More help: https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md
 
-Linux: if the app fails to start, install your distro's OpenGL / X11 / Wayland dev
-       packages (see docs/BUILDING.md — same libraries the binary was linked against).
+Linux: if the app fails to start, ensure GPU drivers and a normal desktop OpenGL stack
+       are installed (run-time libs, not compiler -dev packages). See docs/BUILDING.md
+       only if you build from source.
 
 Windows: run from a normal folder; if Windows reports a missing DLL, install the
           latest "Microsoft Visual C++ Redistributable" for x64, or use MSYS2 MinGW

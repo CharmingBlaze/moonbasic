@@ -157,6 +157,12 @@ More detail: **[`dist/README.md`](dist/README.md)**.
 
 To **run** a game that opens a window, use a **full runtime** download and run **`moonrun path/to/game.mb`** or **`moonrun path/to/game.mbc`** (same folder as **`moonbasic`** after extract). If you only installed the **compiler-only** bundle, you do not have **`moonrun`** — compile on this machine and run on another that has the full runtime, or download the full archive.
 
+### Running games — no extra compiler to install
+
+**Pre-built `moonrun` from Releases does not call Go, GCC, or Clang.** It embeds the same compile step as `moonbasic`: you can run **`moonrun mygame.mb`** and it compiles in-process, then starts the engine — you do **not** need a separate “moonbasic on PATH” or any programming toolchain. (You still need normal OS pieces: a GPU stack on Linux, and on Windows sometimes the [VC++ x64 runtime](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist) if Windows reports a missing DLL — see **`README-RELEASE.txt`** in the zip.)
+
+**Building `moonrun` from source** is different: that requires Go + a C toolchain (see **Build from source** below). End users grabbing a Release zip only extract and run.
+
 ### Build from source
 
 Building from source requires **Go** and a **C toolchain**. Full graphical programs need the **`fullruntime`** build tag and **`moonrun`** (or **`moonbasic --run`** from a full-runtime build). See **[AGENTS.md](AGENTS.md)**, **[CONTRIBUTING.md](CONTRIBUTING.md)**, and **[docs/BUILDING.md](docs/BUILDING.md)**.

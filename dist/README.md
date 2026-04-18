@@ -13,6 +13,8 @@
 
 ## Two kinds of downloads
 
+**Release binaries do not require Go, GCC, or Clang on the player’s machine** — `moonrun` compiles `.mb` internally. (Building *from source* still needs those tools; see `docs/BUILDING.md`.)
+
 | Artifact | Contents | End-user needs |
 |----------|----------|----------------|
 | **Full runtime** (`moonbasic-<tag>-windows-amd64.zip` / `linux-amd64.tar.gz`) | `moonbasic` + `moonrun` + README | OS + GPU/OpenGL stack; may need VC++ redist on Windows (see `packaging/README-RELEASE.txt`). **Use this for “all commands” at run time** (games). |
