@@ -12,6 +12,8 @@ ENTRIES = [
     ("CAMERA.GETTARGET", ntimes("handle", 1), "handle", "rendering"),
     ("CAMERA.SETUP", ["handle", "float", "float", "float"], None, "rendering"),
     ("CAMERA2D.GETMATRIX", ntimes("handle", 1), "handle", "rendering"),
+    ("CAMERA2D.GETOFFSET", ntimes("handle", 1), "array", "rendering"),
+    ("CAMERA2D.GETZOOM", ntimes("handle", 1), "float", "rendering"),
     ("CAMERA2D.SCREENTOWORLD", ["handle", "float", "float"], "handle", "rendering"),
     ("CAMERA2D.WORLDTOSCREEN", ["handle", "float", "float"], "handle", "rendering"),
     # --- camera extended (Blitz-compat) ---

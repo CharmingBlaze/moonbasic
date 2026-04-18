@@ -640,8 +640,10 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CAMERA2D.FOLLOW`** - args: handle, handle, float, float
 - **`CAMERA2D.FREE`** - args: handle
 - **`CAMERA2D.GETMATRIX`** - args: handle -> returns handle
+- **`CAMERA2D.GETOFFSET`** - args: handle -> returns array
 - **`CAMERA2D.GETPOS`** - args: handle -> returns array
 - **`CAMERA2D.GETROTATION`** - args: handle -> returns float
+- **`CAMERA2D.GETZOOM`** - args: handle -> returns float
 - **`CAMERA2D.MAKE`** - args: (none) -> returns handle — DEPRECATED alias of CAMERA2D.CREATE. Use CAMERA2D.CREATE.
 - **`CAMERA2D.ROTATION`** - args: handle -> returns float
 - **`CAMERA2D.SCREENTOWORLD`** - args: handle, float, float -> returns handle
@@ -806,6 +808,8 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### CHARACTERREF
 
 - **`CHARACTERREF.ADDVELOCITY`** - args: handle, float, float, float — Accumulates world-space velocity (m/s).
+- **`CHARACTERREF.GETBOUNCE`** - args: handle -> returns float
+- **`CHARACTERREF.GETBOUNCINESS`** - args: handle -> returns float
 - **`CHARACTERREF.GETCEILING`** - args: handle -> returns bool — True if ceiling/head contact detected on last move
 - **`CHARACTERREF.GETFRICTION`** - args: handle -> returns float
 - **`CHARACTERREF.GETGRAVITY`** - args: handle -> returns float
@@ -830,6 +834,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`CHARACTERREF.ONWALL`** - args: handle -> returns bool — True if colliding with vertical or steep geometry.
 - **`CHARACTERREF.SETAIRCONTROL`** - args: handle, float — Scales horizontal move input while airborne
 - **`CHARACTERREF.SETBOUNCE`** - args: handle, float
+- **`CHARACTERREF.SETBOUNCINESS`** - args: handle, float
 - **`CHARACTERREF.SETGRAVITYSCALE`** - args: handle, float
 - **`CHARACTERREF.SETGROUNDCONTROL`** - args: handle, float — Scales horizontal move input while on ground
 - **`CHARACTERREF.SETJUMPBUFFER`** - args: handle, float — Jump buffer window (seconds) for CHARACTERREF.JUMP while airborne
@@ -3584,6 +3589,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 
 ### KINEMATICREF
 
+- **`KINEMATICREF.GETVELOCITY`** - args: handle -> returns handle
 - **`KINEMATICREF.SETVELOCITY`** - args: handle, float, float, float — Sets velocity for moving kinematic bodies.
 - **`KINEMATICREF.UPDATE`** - args: handle — Resolves kinematic movement and collisions.
 
@@ -3643,21 +3649,22 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`LIGHT.ENABLED`** - args: handle -> returns bool — Property alias for LIGHT.ISENABLED
 - **`LIGHT.FREE`** - args: handle
 - **`LIGHT.GETCOLOR`** - args: handle -> returns handle — (Returns Color instance handle)
-- **`LIGHT.GETCOLOR`** - args: handle -> returns handle — Returns a Color heap handle with RGBA components (0-255).
 - **`LIGHT.GETCOLOR`** - args: handle -> returns handle — Get light color as Color instance.
-- **`LIGHT.GETDIR`** - args: handle -> returns array
+- **`LIGHT.GETCOLOR`** - args: handle -> returns handle — Returns a Color heap handle with RGBA components (0-255).
 - **`LIGHT.GETDIR`** - args: handle -> returns handle — Get light direction as Vec3.
-- **`LIGHT.GETINNERCONE`** - args: handle -> returns float — Get spotlight inner cone angle.
+- **`LIGHT.GETDIR`** - args: handle -> returns array
+- **`LIGHT.GETENERGY`** - args: handle -> returns float
 - **`LIGHT.GETINNERCONE`** - args: handle -> returns float
+- **`LIGHT.GETINNERCONE`** - args: handle -> returns float — Get spotlight inner cone angle.
+- **`LIGHT.GETINTENSITY`** - args: handle -> returns float
 - **`LIGHT.GETINTENSITY`** - args: handle -> returns float — Get light intensity.
 - **`LIGHT.GETINTENSITY`** - args: handle -> returns float
-- **`LIGHT.GETINTENSITY`** - args: handle -> returns float
-- **`LIGHT.GETOUTERCONE`** - args: handle -> returns float
 - **`LIGHT.GETOUTERCONE`** - args: handle -> returns float — Get spotlight outer cone angle.
+- **`LIGHT.GETOUTERCONE`** - args: handle -> returns float
 - **`LIGHT.GETPOS`** - args: handle -> returns array
 - **`LIGHT.GETPOS`** - args: handle -> returns handle — Get light position as Vec3.
-- **`LIGHT.GETRANGE`** - args: handle -> returns float — Get light range.
 - **`LIGHT.GETRANGE`** - args: handle -> returns float
+- **`LIGHT.GETRANGE`** - args: handle -> returns float — Get light range.
 - **`LIGHT.GETROT`** - args: handle -> returns array — Returns [p, y, r] Euler rotation of the light
 - **`LIGHT.GETSHADOW`** - args: handle -> returns bool — Check if light has shadows enabled.
 - **`LIGHT.GETSHADOW`** - args: handle -> returns bool
@@ -6473,6 +6480,7 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 ### TWEEN
 
 - **`TWEEN.CREATE`** - args: (none) -> returns handle
+- **`TWEEN.FREE`** - args: handle
 - **`TWEEN.GETLOOP`** - args: handle -> returns float — Loop count configured with TWEEN.LOOP (negative = infinite repeat).
 - **`TWEEN.GETYOYO`** - args: handle -> returns bool — Whether yoyo mode was enabled with TWEEN.YOYO.
 - **`TWEEN.ISFINISHED`** - args: handle -> returns bool — Check if tween has completed all loops.
@@ -6682,16 +6690,18 @@ Refresh: `go run ./tools/apidoc` (from the repository root).
 - **`WATER.DRAW`** - args: handle
 - **`WATER.FREE`** - args: handle
 - **`WATER.GETCOLOR`** - args: handle -> returns handle
+- **`WATER.GETDEEPCOLOR`** - args: handle -> returns handle
 - **`WATER.GETDEPTH`** - args: handle, float, float -> returns float
 - **`WATER.GETPOS`** - args: handle -> returns handle
 - **`WATER.GETROT`** - args: handle -> returns array — Returns [x,y,z] rotation of water plane.
 - **`WATER.GETSCALE`** - args: handle -> returns array — Returns [x,y,z] scale of water plane.
+- **`WATER.GETSHALLOWCOLOR`** - args: handle -> returns handle
 - **`WATER.GETWAVEHEIGHT`** - args: handle -> returns float
 - **`WATER.GETWAVESPEED`** - args: handle -> returns float
 - **`WATER.GETWAVEY`** - args: handle, float, float -> returns float
 - **`WATER.ISUNDER`** - args: handle, float, float, float -> returns bool
-- **`WATER.MAKE`** - args: float, float, float, float, float -> returns handle — DEPRECATED alias of WATER.CREATE. Use WATER.CREATE. x, z, width, depth, water level (Y); same plane as WATER.MAKE
 - **`WATER.MAKE`** - args: float, int, int, int, int -> returns handle — DEPRECATED alias of WATER.CREATE. Use WATER.CREATE.
+- **`WATER.MAKE`** - args: float, float, float, float, float -> returns handle — DEPRECATED alias of WATER.CREATE. Use WATER.CREATE. x, z, width, depth, water level (Y); same plane as WATER.MAKE
 - **`WATER.SETCOLOR`** - args: handle, int, float — Packed RGB diffuse (0xRRGGBB) and clarity (0..1 alpha, or 0..255); updates shallow/deep tint
 - **`WATER.SETDEEPCOLOR`** - args: handle, int, int, int, int
 - **`WATER.SETHEIGHT`** - args: handle, float

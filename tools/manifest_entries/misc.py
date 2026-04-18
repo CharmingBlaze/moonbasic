@@ -216,4 +216,6 @@ ENTRIES = [
     ("ERRLINE", [], "int", "any"),
     ("DUMP", ntimes("any", 1), None, "any"),
     ("UPDW", [], None, "any"),
+    # --- tween ---
+    ("TWEEN.FREE", ntimes("handle", 1), None, "any"),
 ]

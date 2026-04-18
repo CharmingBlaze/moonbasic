@@ -23,12 +23,17 @@ ENTRIES = [
     # --- physics2d extended ---
     ("PHYSICS2D.ONCOLLISION", ["handle", "string"], None, "any"),
     ("PHYSICS2D.PROCESSCOLLISIONS", [], None, "any"),
+    # --- kinematic / body ---
+    ("KINEMATICREF.GETVELOCITY", ntimes("handle", 1), "handle", "any"),
     # --- characterref ---
+    ("CHARACTERREF.GETBOUNCE", ntimes("handle", 1), "float", "any"),
+    ("CHARACTERREF.GETBOUNCINESS", ntimes("handle", 1), "float", "any"),
     ("CHARACTERREF.GETGROUNDSTATE", ntimes("handle", 1), "int", "any"),
     ("CHARACTERREF.GETVELOCITY", ntimes("handle", 1), "handle", "any"),
     ("CHARACTERREF.ISMOVING", ntimes("handle", 1), "bool", "any"),
     ("CHARACTERREF.MOVEWITHCAMERA", ["handle", "float", "float", "handle"], None, "any"),
     ("CHARACTERREF.SETBOUNCE", ["handle", "float"], None, "any"),
+    ("CHARACTERREF.SETBOUNCINESS", ["handle", "float"], None, "any"),
     ("CHARACTERREF.SETGRAVITYSCALE", ["handle", "float"], None, "any"),
     ("CHARACTERREF.SETLINEARVELOCITY", ["handle", "float", "float", "float"], None, "any"),
     ("CHARACTERREF.SETPADDING", ["handle", "float"], None, "any"),

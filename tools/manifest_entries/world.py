@@ -112,6 +112,8 @@ ENTRIES = [
     ("TRIGGER.MAKEFROMENTITY", ntimes("handle", 1), "handle", "any"),
     ("TRIGGER.MAKEZONE", ntimes("float", 6), "handle", "any"),
     # --- water ---
+    ("WATER.GETDEEPCOLOR", ntimes("handle", 1), "handle", "any"),
+    ("WATER.GETSHALLOWCOLOR", ntimes("handle", 1), "handle", "any"),
     ("WATER.SHOW", ntimes("bool", 1), None, "rendering"),
     ("WATER.SETPOSITION", ntimes("float", 3), None, "rendering"),
     ("WATER.SETHEIGHT", ntimes("float", 1), None, "rendering"),

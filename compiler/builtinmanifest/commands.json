@@ -449,7 +449,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of CURVE â€” current + (target-current)/divisor (divisor clamped to \u003e= 1)",
+      "description": "Alias of CURVE \u00e2\u20ac\u201d current + (target-current)/divisor (divisor clamped to >= 1)",
       "key": "MATH.CURVE",
       "returns": "float"
     },
@@ -459,7 +459,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of MATH.APPROACH â€” move current toward target by at most maxDelta without overshooting",
+      "description": "Alias of MATH.APPROACH \u00e2\u20ac\u201d move current toward target by at most maxDelta without overshooting",
       "key": "MOVE.TOWARD",
       "returns": "float"
     },
@@ -948,7 +948,7 @@
         "float",
         "float"
       ],
-      "description": "Same as MOVEX(yaw,f,s)*speed*dt â€” world X delta this frame",
+      "description": "Same as MOVEX(yaw,f,s)*speed*dt \u00e2\u20ac\u201d world X delta this frame",
       "key": "MOVESTEPX",
       "returns": "float"
     },
@@ -960,7 +960,7 @@
         "float",
         "float"
       ],
-      "description": "Same as MOVEZ(yaw,f,s)*speed*dt â€” world Z delta this frame",
+      "description": "Same as MOVEZ(yaw,f,s)*speed*dt \u00e2\u20ac\u201d world Z delta this frame",
       "key": "MOVESTEPZ",
       "returns": "float"
     },
@@ -970,7 +970,7 @@
         "float",
         "float"
       ],
-      "description": "currentX + MOVEX(yaw,1,0)*dist â€” yaw in radians (XZ forward step)",
+      "description": "currentX + MOVEX(yaw,1,0)*dist \u00e2\u20ac\u201d yaw in radians (XZ forward step)",
       "key": "MATH.NEWX",
       "returns": "float"
     },
@@ -980,7 +980,7 @@
         "float",
         "float"
       ],
-      "description": "currentZ + MOVEZ(yaw,1,0)*dist â€” yaw in radians",
+      "description": "currentZ + MOVEZ(yaw,1,0)*dist \u00e2\u20ac\u201d yaw in radians",
       "key": "MATH.NEWZ",
       "returns": "float"
     },
@@ -1055,7 +1055,7 @@
         "any",
         "any"
       ],
-      "description": "Same as RND(min, max) â€” inclusive integer range",
+      "description": "Same as RND(min, max) \u00e2\u20ac\u201d inclusive integer range",
       "key": "RAND",
       "returns": "int"
     },
@@ -1082,7 +1082,7 @@
         "any",
         "any"
       ],
-      "description": "Inclusive int range â€” same as RND(lo, hi)",
+      "description": "Inclusive int range \u00e2\u20ac\u201d same as RND(lo, hi)",
       "key": "MATH.RND",
       "returns": "int"
     },
@@ -2582,7 +2582,7 @@
       "args": [
         "int"
       ],
-      "description": "Alias of WINDOW.SETMSAA â€” MSAA sample hint; 2+ enables GPU MSAA hint",
+      "description": "Alias of WINDOW.SETMSAA \u00e2\u20ac\u201d MSAA sample hint; 2+ enables GPU MSAA hint",
       "key": "SetMSAA"
     },
     {
@@ -2603,7 +2603,7 @@
       "args": [
         "handle"
       ],
-      "description": "Alias of POST.ADDSHADER â€” full-screen post shader for the render pipeline",
+      "description": "Alias of POST.ADDSHADER \u00e2\u20ac\u201d full-screen post shader for the render pipeline",
       "key": "ActiveShader"
     },
     {
@@ -2648,7 +2648,7 @@
         "int"
       ],
       "deprecated_of": "WINDOW.SETPOS",
-      "description": "DEPRECATED alias of WINDOW.SETPOS. Use WINDOW.SETPOS. Deprecated alias of WINDOW.SETPOS â€” set window client-area position in screen pixels",
+      "description": "DEPRECATED alias of WINDOW.SETPOS. Use WINDOW.SETPOS. Deprecated alias of WINDOW.SETPOS \u00e2\u20ac\u201d set window client-area position in screen pixels",
       "key": "WINDOW.SETPOSITION"
     },
     {
@@ -2786,7 +2786,7 @@
         "float",
         "float"
       ],
-      "description": "MOVESTEPX/Z combined â€” 2-float array [dx,dz]; ERASE when done",
+      "description": "MOVESTEPX/Z combined \u00e2\u20ac\u201d 2-float array [dx,dz]; ERASE when done",
       "key": "PLAYER.MOVERELATIVE",
       "phase": "any",
       "returns": "handle"
@@ -3097,7 +3097,7 @@
         "float",
         "float"
       ],
-      "description": "Fog RGB, near, far, density â€” FOG.* + WORLD.FOGDENSITY",
+      "description": "Fog RGB, near, far, density \u00e2\u20ac\u201d FOG.* + WORLD.FOGDENSITY",
       "key": "RENDER.SETFOG"
     },
     {
@@ -4394,7 +4394,7 @@
         "float",
         "float"
       ],
-      "description": "Directional light: direction vector (dx,dy,dz), RGB, energy â€” direction is normalized",
+      "description": "Directional light: direction vector (dx,dy,dz), RGB, energy \u00e2\u20ac\u201d direction is normalized",
       "key": "LIGHT.CREATEDIRECTIONAL",
       "returns": "handle"
     },
@@ -6600,7 +6600,7 @@
         "int",
         "int"
       ],
-      "description": "Alias of MESH.MAKEPLANE â€” procedural plane mesh handle",
+      "description": "Alias of MESH.MAKEPLANE \u00e2\u20ac\u201d procedural plane mesh handle",
       "key": "MESH.CREATEPLANE",
       "returns": "handle"
     },
@@ -7183,7 +7183,7 @@
         "float",
         "float"
       ],
-      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) â€” radians this frame",
+      "description": "Input.Axis(neg,pos)*DEGPERSEC(degPerSec,dt) \u00e2\u20ac\u201d radians this frame",
       "key": "INPUT.AXISDEG",
       "phase": "any",
       "returns": "float"
@@ -7195,7 +7195,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of INPUT.AXISDEG â€” orbit / yaw delta this frame",
+      "description": "Alias of INPUT.AXISDEG \u00e2\u20ac\u201d orbit / yaw delta this frame",
       "key": "INPUT.ORBIT",
       "phase": "any",
       "returns": "float"
@@ -8555,7 +8555,7 @@
         "int",
         "int"
       ],
-      "description": "Same handler as DRAW.TEXTEX â€” DrawTextEx with a loaded FONT.* handle",
+      "description": "Same handler as DRAW.TEXTEX \u00e2\u20ac\u201d DrawTextEx with a loaded FONT.* handle",
       "key": "DRAW.TEXTFONT",
       "phase": "rendering"
     },
@@ -9399,7 +9399,7 @@
         "float",
         "float"
       ],
-      "description": "2D ray vs circle â€” hit",
+      "description": "2D ray vs circle \u00e2\u20ac\u201d hit",
       "key": "RAY2D.HITCIRCLE_HIT",
       "phase": "any",
       "returns": "bool"
@@ -10677,7 +10677,7 @@
         "float",
         "float"
       ],
-      "description": "COLOR.HSV(index, total) â€” evenly spaced hues on the wheel",
+      "description": "COLOR.HSV(index, total) \u00e2\u20ac\u201d evenly spaced hues on the wheel",
       "key": "COLOR.HSV",
       "phase": "any",
       "returns": "handle"
@@ -12254,7 +12254,7 @@
       "args": [
         "handle"
       ],
-      "description": "RGBA as floats (A channel 0â€“255) (Returns Color instance handle)",
+      "description": "RGBA as floats (A channel 0\u00e2\u20ac\u201c255) (Returns Color instance handle)",
       "key": "SPRITE.GETCOLOR",
       "phase": "rendering",
       "returns": "handle"
@@ -13432,7 +13432,7 @@
         "float",
         "float"
       ],
-      "description": "Screen (x,y) to world ray â€” alias of CAMERA.GETRAY / PICK",
+      "description": "Screen (x,y) to world ray \u00e2\u20ac\u201d alias of CAMERA.GETRAY / PICK",
       "key": "CAMERA.UNPROJECT",
       "phase": "rendering",
       "returns": "handle"
@@ -13501,7 +13501,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of CAMERA.WORLDTOSCREEN â€” world point to screen [sx,sy]",
+      "description": "Alias of CAMERA.WORLDTOSCREEN \u00e2\u20ac\u201d world point to screen [sx,sy]",
       "key": "CAMERA.PROJECT",
       "phase": "rendering",
       "returns": "handle"
@@ -13677,7 +13677,7 @@
         "handle",
         "any"
       ],
-      "description": "0/1 or perspective/orthographic â€” alias-friendly CAMERA.SETPROJECTION",
+      "description": "0/1 or perspective/orthographic \u00e2\u20ac\u201d alias-friendly CAMERA.SETPROJECTION",
       "key": "CAMERA.SETMODE",
       "phase": "rendering",
       "returns": "handle"
@@ -15554,7 +15554,7 @@
       "returns": "float"
     },
     {
-      "description": "Implicit KCC subject â€” same as Player.GetPositionX() with no args",
+      "description": "Implicit KCC subject \u00e2\u20ac\u201d same as Player.GetPositionX() with no args",
       "key": "PLAYER.GETPOSITIONX",
       "returns": "float"
     },
@@ -15637,7 +15637,7 @@
       "returns": "float"
     },
     {
-      "description": "Implicit KCC subject â€” same as Player.GetSpeed(entity)",
+      "description": "Implicit KCC subject \u00e2\u20ac\u201d same as Player.GetSpeed(entity)",
       "key": "PLAYER.GETSPEED",
       "returns": "float"
     },
@@ -15650,7 +15650,7 @@
       "returns": "bool"
     },
     {
-      "description": "Implicit KCC subject â€” steep slope (Jolt OnSteepGround)",
+      "description": "Implicit KCC subject \u00e2\u20ac\u201d steep slope (Jolt OnSteepGround)",
       "key": "PLAYER.GETONSLOPE",
       "returns": "bool"
     },
@@ -15764,7 +15764,7 @@
       "returns": "bool"
     },
     {
-      "description": "Alias of PLAYER.GETPOSITIONX () â€” implicit KCC subject",
+      "description": "Alias of PLAYER.GETPOSITIONX () \u00e2\u20ac\u201d implicit KCC subject",
       "key": "PLAYER.GETX",
       "returns": "float"
     },
@@ -16020,7 +16020,7 @@
         "float",
         "float"
       ],
-      "description": "KCC world move: (entity, dirX, dirZ, speed) â†’ horizontal velocity = dir * speed; slides on walls (CharacterVirtual; Linux+CGO)",
+      "description": "KCC world move: (entity, dirX, dirZ, speed) \u00e2\u2020\u2019 horizontal velocity = dir * speed; slides on walls (CharacterVirtual; Linux+CGO)",
       "key": "CHAR.MOVE"
     },
     {
@@ -16324,7 +16324,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of PLAYER.NAVTO â€” click-to-move for KCC (default arrival ~0.2 world units)",
+      "description": "Alias of PLAYER.NAVTO \u00e2\u20ac\u201d click-to-move for KCC (default arrival ~0.2 world units)",
       "key": "NAV.GOTO"
     },
     {
@@ -16384,7 +16384,7 @@
         "int",
         "float"
       ],
-      "description": "Character capsule skin padding (world units, \u003e0); rebuilds CharacterVirtual (Linux+CGO)",
+      "description": "Character capsule skin padding (world units, >0); rebuilds CharacterVirtual (Linux+CGO)",
       "key": "PLAYER.SETPADDING"
     },
     {
@@ -16974,7 +16974,7 @@
         "int",
         "float"
       ],
-      "description": "Alias of PLAYER.SETSTICKFLOOR â€” glue to floor within max step down (world units)",
+      "description": "Alias of PLAYER.SETSTICKFLOOR \u00e2\u20ac\u201d glue to floor within max step down (world units)",
       "key": "CHAR.STICK"
     },
     {
@@ -16983,7 +16983,7 @@
         "float",
         "string"
       ],
-      "description": "Alias of PLAYER.GETNEARBY â€” entities with matching tag within radius (float array of ids)",
+      "description": "Alias of PLAYER.GETNEARBY \u00e2\u20ac\u201d entities with matching tag within radius (float array of ids)",
       "key": "ENT.GET_NEAREST",
       "returns": "handle"
     },
@@ -17010,7 +17010,7 @@
         "int",
         "int"
       ],
-      "description": "Alias of ENTITY.DIST â€” distance between two entities",
+      "description": "Alias of ENTITY.DIST \u00e2\u20ac\u201d distance between two entities",
       "key": "CHAR.DIST",
       "returns": "float"
     },
@@ -17019,7 +17019,7 @@
         "handle",
         "float"
       ],
-      "description": "Alias of WORLD.MOUSEFLOOR3D â€” mouse ray vs plane y=floorY â†’ [wx,wz] or NIL",
+      "description": "Alias of WORLD.MOUSEFLOOR3D \u00e2\u20ac\u201d mouse ray vs plane y=floorY \u00e2\u2020\u2019 [wx,wz] or NIL",
       "key": "WORLD.MOUSEFLOOR",
       "returns": "handle"
     },
@@ -17027,7 +17027,7 @@
       "args": [
         "handle"
       ],
-      "description": "Alias of WORLD.MOUSETOENTITY â€” entity id under mouse cursor (physics ray; Linux+Jolt)",
+      "description": "Alias of WORLD.MOUSETOENTITY \u00e2\u20ac\u201d entity id under mouse cursor (physics ray; Linux+Jolt)",
       "key": "WORLD.MOUSEPICK",
       "returns": "int"
     },
@@ -17079,7 +17079,7 @@
         "int",
         "int"
       ],
-      "description": "Death-drop prefab with 100 chance â€” alias of ENTITY.ONDEATHDROP(entity, prefab, 100)",
+      "description": "Death-drop prefab with 100 chance \u00e2\u20ac\u201d alias of ENTITY.ONDEATHDROP(entity, prefab, 100)",
       "key": "ENT.ONDEATH"
     },
     {
@@ -17116,21 +17116,21 @@
         "float",
         "float"
       ],
-      "description": "Fade to target alpha over duration â€” convenience over ENTITY.FADE",
+      "description": "Fade to target alpha over duration \u00e2\u20ac\u201d convenience over ENTITY.FADE",
       "key": "ENT.FADE"
     },
     {
       "args": [
         "float"
       ],
-      "description": "Freeze gameplay delta for duration (wall-clock seconds) â€” impact frames",
+      "description": "Freeze gameplay delta for duration (wall-clock seconds) \u00e2\u20ac\u201d impact frames",
       "key": "WORLD.HITSTOP"
     },
     {
       "args": [
         "int"
       ],
-      "description": "WORLD.TOSCREEN(entity) â€” screen [x,y] for entity world position via active 3D camera",
+      "description": "WORLD.TOSCREEN(entity) \u00e2\u20ac\u201d screen [x,y] for entity world position via active 3D camera",
       "key": "WORLD.TOSCREEN",
       "returns": "handle"
     },
@@ -17140,7 +17140,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of ENTITY.ADDWOBBLE â€” bob amplitude and speed",
+      "description": "Alias of ENTITY.ADDWOBBLE \u00e2\u20ac\u201d bob amplitude and speed",
       "key": "ENT.WOBBLE"
     },
     {
@@ -17151,7 +17151,7 @@
         "float",
         "float"
       ],
-      "description": "Smooth move to world (x,y,z) over duration â€” alias of ENTITY.ANIMATETOWARD",
+      "description": "Smooth move to world (x,y,z) over duration \u00e2\u20ac\u201d alias of ENTITY.ANIMATETOWARD",
       "key": "ENT.TWEEN"
     },
     {
@@ -17159,7 +17159,7 @@
         "float",
         "float"
       ],
-      "description": "Alias of WORLD.SCREENSHAKE â€” screen impact via active camera",
+      "description": "Alias of WORLD.SCREENSHAKE \u00e2\u20ac\u201d screen impact via active camera",
       "key": "WORLD.SHAKE"
     },
     {
@@ -17223,7 +17223,7 @@
       "args": [
         "int"
       ],
-      "description": "True if horizontal linear speed \u003e ~0.05 (CharacterVirtual)",
+      "description": "True if horizontal linear speed > ~0.05 (CharacterVirtual)",
       "key": "PLAYER.ISMOVING",
       "returns": "bool"
     },
@@ -19384,7 +19384,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CUBE â€” solid axis-aligned box",
+      "description": "alias of DRAW3D.CUBE \u00e2\u20ac\u201d solid axis-aligned box",
       "key": "BOX"
     },
     {
@@ -19400,7 +19400,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CUBEWIRES â€” wire box",
+      "description": "alias of DRAW3D.CUBEWIRES \u00e2\u20ac\u201d wire box",
       "key": "BOXW"
     },
     {
@@ -19430,7 +19430,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.SPHERE â€” solid sphere",
+      "description": "alias of DRAW3D.SPHERE \u00e2\u20ac\u201d solid sphere",
       "key": "BALL"
     },
     {
@@ -19446,7 +19446,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.SPHEREWIRES â€” wire sphere",
+      "description": "alias of DRAW3D.SPHEREWIRES \u00e2\u20ac\u201d wire sphere",
       "key": "BALLW"
     },
     {
@@ -19454,7 +19454,7 @@
         "int",
         "float"
       ],
-      "description": "alias of DRAW3D.GRID â€” XZ reference grid",
+      "description": "alias of DRAW3D.GRID \u00e2\u20ac\u201d XZ reference grid",
       "key": "GRID3"
     },
     {
@@ -19614,7 +19614,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.PLANE â€” horizontal plane patch",
+      "description": "alias of DRAW3D.PLANE \u00e2\u20ac\u201d horizontal plane patch",
       "key": "FLAT"
     },
     {
@@ -19633,7 +19633,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CAPSULE â€” solid capsule",
+      "description": "alias of DRAW3D.CAPSULE \u00e2\u20ac\u201d solid capsule",
       "key": "CAP"
     },
     {
@@ -19652,7 +19652,7 @@
         "int",
         "int"
       ],
-      "description": "alias of DRAW3D.CAPSULEWIRES â€” wire capsule",
+      "description": "alias of DRAW3D.CAPSULEWIRES \u00e2\u20ac\u201d wire capsule",
       "key": "CAPW"
     },
     {
@@ -20984,7 +20984,7 @@
         "handle",
         "int"
       ],
-      "description": "Max chunk mesh GPU rebuilds per WORLD.UPDATE tick; 0 = unlimited (default). Use 1â€“4 to avoid UI thread stalls.",
+      "description": "Max chunk mesh GPU rebuilds per WORLD.UPDATE tick; 0 = unlimited (default). Use 1\u00e2\u20ac\u201c4 to avoid UI thread stalls.",
       "key": "TERRAIN.SETMESHBUILDBUDGET",
       "returns": "handle"
     },
@@ -21482,7 +21482,7 @@
         "any"
       ],
       "deprecated_of": "ENTITY.SETPOS",
-      "description": "DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS. Deprecated alias of ENTITY.SETPOS â€” set world or local position",
+      "description": "DEPRECATED alias of ENTITY.SETPOS. Use ENTITY.SETPOS. Deprecated alias of ENTITY.SETPOS \u00e2\u20ac\u201d set world or local position",
       "key": "ENTITY.SETPOSITION"
     },
     {
@@ -21493,7 +21493,7 @@
         "float",
         "any"
       ],
-      "description": "Alias of ENTITY.SETPOS â€” set world or local position",
+      "description": "Alias of ENTITY.SETPOS \u00e2\u20ac\u201d set world or local position",
       "key": "ENTITY.POSITION"
     },
     {
@@ -21764,7 +21764,7 @@
         "float",
         "float"
       ],
-      "description": "Add pitch/yaw/roll degrees â€” alias of ENTITY.ROTATE / TURNENTITY",
+      "description": "Add pitch/yaw/roll degrees \u00e2\u20ac\u201d alias of ENTITY.ROTATE / TURNENTITY",
       "key": "ENTITY.TURN"
     },
     {
@@ -22526,7 +22526,7 @@
         "int",
         "float"
       ],
-      "description": "Alias of PHYSICS.SETBUOYANCY â€” per-entity density hint for buoyancy",
+      "description": "Alias of PHYSICS.SETBUOYANCY \u00e2\u20ac\u201d per-entity density hint for buoyancy",
       "key": "ENTITY.SETBUOYANCY"
     },
     {
@@ -23731,7 +23731,7 @@
       "returns": "void"
     },
     {
-      "description": "Blitz-style static box entity (1Ã—1Ã—1); use CUBE(w,h,d) for dimensions â€” ENTITYREF handle",
+      "description": "Blitz-style static box entity (1\u00c3\u20141\u00c3\u20141); use CUBE(w,h,d) for dimensions \u00e2\u20ac\u201d ENTITYREF handle",
       "key": "CUBE",
       "returns": "handle"
     },
@@ -23741,7 +23741,7 @@
         "float",
         "float"
       ],
-      "description": "Blitz-style static box entity â€” ENTITYREF handle",
+      "description": "Blitz-style static box entity \u00e2\u20ac\u201d ENTITYREF handle",
       "key": "CUBE",
       "returns": "handle"
     },
@@ -23996,7 +23996,7 @@
       "args": [
         "float"
       ],
-      "description": "Blitz-style static sphere entity â€” ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)",
+      "description": "Blitz-style static sphere entity \u00e2\u20ac\u201d ENTITYREF; optional 2nd arg segments (see ENTITY.CREATESPHERE)",
       "key": "SPHERE",
       "returns": "handle"
     },
@@ -24005,7 +24005,7 @@
         "float",
         "int"
       ],
-      "description": "Blitz-style static sphere entity â€” ENTITYREF handle",
+      "description": "Blitz-style static sphere entity \u00e2\u20ac\u201d ENTITYREF handle",
       "key": "SPHERE",
       "returns": "handle"
     },
@@ -24021,7 +24021,7 @@
       "args": [
         "float"
       ],
-      "description": "Radius only â€” default 16 segments",
+      "description": "Radius only \u00e2\u20ac\u201d default 16 segments",
       "key": "ENTITY.CREATESPHERE",
       "returns": "int"
     },
@@ -24060,7 +24060,7 @@
       "args": [
         "any"
       ],
-      "description": "Alias of ENTITY.LOADMESH â€” static model path (Raylib-supported formats), optional parentEntity",
+      "description": "Alias of ENTITY.LOADMESH \u00e2\u20ac\u201d static model path (Raylib-supported formats), optional parentEntity",
       "key": "ENTITY.LOAD",
       "returns": "int"
     },
@@ -24206,7 +24206,7 @@
         "float",
         "any"
       ],
-      "description": "Absolute pitch/yaw/roll degrees â€” alias of ENTITY.ROTATEENTITY",
+      "description": "Absolute pitch/yaw/roll degrees \u00e2\u20ac\u201d alias of ENTITY.ROTATEENTITY",
       "key": "ENTITY.SETROTATION"
     },
     {
@@ -24319,7 +24319,7 @@
       "args": [
         "int"
       ],
-      "description": "Alias of ENTITY.PARENTCLEAR â€” detach and keep world position",
+      "description": "Alias of ENTITY.PARENTCLEAR \u00e2\u20ac\u201d detach and keep world position",
       "key": "ENTITY.UNPARENT"
     },
     {
@@ -25122,7 +25122,7 @@
         "float",
         "float"
       ],
-      "description": "Horizontal walk velocity (units/s) from camera XZ strafe basis (eyeâ†’target on ground). forwardAxis/strafeAxis are typically Input.Axis âˆ’1..1; preserves vertical velocity. Dot: player.MoveWithCamera(cam, â€¦).",
+      "description": "Horizontal walk velocity (units/s) from camera XZ strafe basis (eye\u00e2\u2020\u2019target on ground). forwardAxis/strafeAxis are typically Input.Axis \u00e2\u02c6\u20191..1; preserves vertical velocity. Dot: player.MoveWithCamera(cam, \u00e2\u20ac\u00a6).",
       "key": "ENTITY.MOVEWITHCAMERA"
     },
     {
@@ -25589,7 +25589,7 @@
       "args": [
         "float"
       ],
-      "description": "Shorthand: ENTITY.UPDATE(dt) â€” use ENTITY.UPDATE in scripts",
+      "description": "Shorthand: ENTITY.UPDATE(dt) \u00e2\u20ac\u201d use ENTITY.UPDATE in scripts",
       "key": "UPDW"
     },
     {
@@ -25980,7 +25980,7 @@
         "handle",
         "float"
       ],
-      "description": "True if 3D distance between entities is \u003c= maxDistance (simple sphere check; not Jolt physics).",
+      "description": "True if 3D distance between entities is <= maxDistance (simple sphere check; not Jolt physics).",
       "key": "ENTITY.WITHINRADIUS",
       "returns": "bool"
     },
@@ -27333,7 +27333,7 @@
         "float"
       ],
       "deprecated_of": "LIGHT.CREATEPOINT",
-      "description": "DEPRECATED alias of LIGHT.CREATEPOINT. Use LIGHT.CREATEPOINT. Point light at (x,y,z) with RGB (0â€“255 or 0â€“1) and intensity (energy)",
+      "description": "DEPRECATED alias of LIGHT.CREATEPOINT. Use LIGHT.CREATEPOINT. Point light at (x,y,z) with RGB (0\u00e2\u20ac\u201c255 or 0\u00e2\u20ac\u201c1) and intensity (energy)",
       "key": "LIGHT.MAKEPOINT",
       "returns": "handle"
     },
@@ -27348,7 +27348,7 @@
         "float"
       ],
       "deprecated_of": "LIGHT.CREATEDIRECTIONAL",
-      "description": "DEPRECATED alias of LIGHT.CREATEDIRECTIONAL. Use LIGHT.CREATEDIRECTIONAL. Directional light: direction vector (dx,dy,dz), RGB, energy â€” direction is normalized",
+      "description": "DEPRECATED alias of LIGHT.CREATEDIRECTIONAL. Use LIGHT.CREATEDIRECTIONAL. Directional light: direction vector (dx,dy,dz), RGB, energy \u00e2\u20ac\u201d direction is normalized",
       "key": "LIGHT.MAKEDIRECTIONAL",
       "returns": "handle"
     },
@@ -27506,7 +27506,7 @@
         "int"
       ],
       "deprecated_of": "MESH.CREATEPLANE",
-      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE. Alias of MESH.MAKEPLANE â€” procedural plane mesh handle",
+      "description": "DEPRECATED alias of MESH.CREATEPLANE. Use MESH.CREATEPLANE. Alias of MESH.MAKEPLANE \u00e2\u20ac\u201d procedural plane mesh handle",
       "key": "MESH.MAKEPLANE",
       "returns": "handle"
     },
@@ -28341,7 +28341,7 @@
         "float"
       ],
       "deprecated_of": "ENTITY.CREATESPHERE",
-      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE. Radius only â€” default 16 segments",
+      "description": "DEPRECATED alias of ENTITY.CREATESPHERE. Use ENTITY.CREATESPHERE. Radius only \u00e2\u20ac\u201d default 16 segments",
       "key": "ENTITY.MAKESPHERE",
       "returns": "int"
     },
@@ -34708,6 +34708,85 @@
       "key": "RAY.DIR",
       "namespace": "collision",
       "returns": "handle"
+    },
+    {
+      "key": "CAMERA2D.GETOFFSET",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering",
+      "returns": "array"
+    },
+    {
+      "key": "CAMERA2D.GETZOOM",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering",
+      "returns": "float"
+    },
+    {
+      "key": "KINEMATICREF.GETVELOCITY",
+      "args": [
+        "handle"
+      ],
+      "phase": "any",
+      "returns": "handle"
+    },
+    {
+      "key": "CHARACTERREF.GETBOUNCE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any",
+      "returns": "float"
+    },
+    {
+      "key": "CHARACTERREF.GETBOUNCINESS",
+      "args": [
+        "handle"
+      ],
+      "phase": "any",
+      "returns": "float"
+    },
+    {
+      "key": "CHARACTERREF.SETBOUNCINESS",
+      "args": [
+        "handle",
+        "float"
+      ],
+      "phase": "any"
+    },
+    {
+      "key": "LIGHT.GETENERGY",
+      "args": [
+        "handle"
+      ],
+      "phase": "rendering",
+      "returns": "float"
+    },
+    {
+      "key": "WATER.GETDEEPCOLOR",
+      "args": [
+        "handle"
+      ],
+      "phase": "any",
+      "returns": "handle"
+    },
+    {
+      "key": "WATER.GETSHALLOWCOLOR",
+      "args": [
+        "handle"
+      ],
+      "phase": "any",
+      "returns": "handle"
+    },
+    {
+      "key": "TWEEN.FREE",
+      "args": [
+        "handle"
+      ],
+      "phase": "any"
     }
   ]
 }

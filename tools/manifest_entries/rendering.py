@@ -90,6 +90,7 @@ ENTRIES = [
     ("LIGHT.SETROT", ["handle", "float", "float", "float"], None, "rendering"),
     ("LIGHT.GETROT", ntimes("handle", 1), "handle", "rendering"),
     ("LIGHT.GETINTENSITY", ntimes("handle", 1), "float", "rendering"),
+    ("LIGHT.GETENERGY", ntimes("handle", 1), "float", "rendering"),
     # --- raylib low-level pass-through ---
     ("RAYLIB.INITWINDOW", ["int", "int", "string"], None, "any"),
     ("RAYLIB.CLOSEWINDOW", [], None, "any"),

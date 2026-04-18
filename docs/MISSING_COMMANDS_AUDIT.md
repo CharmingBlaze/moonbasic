@@ -1,19 +1,9 @@
 # Missing Commands Audit
 
-## In Runtime but Missing from Manifest (10)
+## In Runtime but Missing from Manifest (0)
 These commands are registered in Go runtime code but have no entry in commands.json.
 The compiler will reject .mb scripts that try to use them.
 
-- `CAMERA2D.GETOFFSET`
-- `CAMERA2D.GETZOOM`
-- `CHARACTERREF.GETBOUNCE`
-- `CHARACTERREF.GETBOUNCINESS`
-- `CHARACTERREF.SETBOUNCINESS`
-- `KINEMATICREF.GETVELOCITY`
-- `LIGHT.GETENERGY`
-- `TWEEN.FREE`
-- `WATER.GETDEEPCOLOR`
-- `WATER.GETSHALLOWCOLOR`
 
 ## In Manifest but Missing from Runtime (456)
 These commands are declared in commands.json but have no runtime registration.
