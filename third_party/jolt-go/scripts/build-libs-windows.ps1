@@ -30,8 +30,12 @@ if (-not (Test-Path $BUILD_DIR)) { New-Item -ItemType Directory $BUILD_DIR }
 
 Push-Location $BUILD_DIR
 # Jolt v5.x: CMakeLists.txt lives under Build/ — configure from Build/<profile> with source ..
+# -fno-lto: keep libJolt.a as plain objects so any MinGW gcc can link it (avoids
+# "bytecode stream ... LTO version X instead of Y" when the archive was built with another GCC).
 cmake .. `
     -DCMAKE_BUILD_TYPE=Release `
+    -DCMAKE_CXX_FLAGS="-fno-lto" `
+    -DCMAKE_C_FLAGS="-fno-lto" `
     -DDISABLE_CUSTOM_ALLOCATOR=ON `
     -DTARGET_UNIT_TESTS=OFF `
     -DTARGET_HELLO_WORLD=OFF `
@@ -51,7 +55,7 @@ $CPPS = Get-ChildItem "$WRAPPER_SRC\*.cpp"
 foreach ($src in $CPPS) {
     $obj = $src.FullName.Replace(".cpp", ".o")
     Write-Host "Compiling $($src.Name)..."
-    & g++ -std=c++17 -O3 -I"$JPH_SRC" -DNDEBUG -DJPH_DISABLE_CUSTOM_ALLOCATOR -DJPH_PROFILE_ENABLED -DJPH_DEBUG_RENDERER -DJPH_OBJECT_STREAM -c "$($src.FullName)" -o "$obj"
+    & g++ -std=c++17 -O3 -fno-lto -I"$JPH_SRC" -DNDEBUG -DJPH_DISABLE_CUSTOM_ALLOCATOR -DJPH_PROFILE_ENABLED -DJPH_DEBUG_RENDERER -DJPH_OBJECT_STREAM -c "$($src.FullName)" -o "$obj"
     $OBJS += $obj
 }
 

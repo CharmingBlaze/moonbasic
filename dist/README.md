@@ -13,7 +13,7 @@ If you came here from the repo: **you usually do not need this folder.**
 2. **Running games (engine at runtime)**  
    Calling **`WINDOW.*`**, **`PHYSICS3D.*`**, etc. needs the **engine**, which ships as **`moonrun`** in the **full runtime** archives — not in the compiler-only zip. Use the **full runtime** download when you need to **execute** those calls on a machine (graphics, physics, net, …).
 
-3. **Four files per version tag**  
+3. **Four download archives per version tag**  
    Each release publishes **two** full-runtime (Linux + Windows) and **two** compiler-only archives. Together they cover tooling plus “run anywhere you install the full bundle.”
 
 ---
