@@ -11,7 +11,7 @@ Welcome to MoonBASIC. Whether you are installing the engine for the first time o
 ## 1. Installation
 
 ### Pre-built Binaries (Recommended)
-Download the latest archive for your platform from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**.
+Download the latest archive for your platform from **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. You do **not** need to clone the repository or install Go — the zip/tar.gz is everything you need to use `moonbasic` and `moonrun`.
 
 | OS | Archive |
 |----|---------|
