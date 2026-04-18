@@ -1,7 +1,12 @@
 # Deploy docs/downloads/ as the GitHub Pages site root (downloads-only landing).
 #
-# Maintainer (once): Repository Settings → Pages → Build and deployment → Source: GitHub Actions.
-# Merge to main; the workflow publishes only docs/downloads/ (not the rest of docs/).
+# Pushes do NOT deploy by default (avoids failing when Pages is not configured).
+#
+# To go live at https://<org>.github.io/moonbasic/ :
+#   1. Settings → Pages → Build and deployment → Source: GitHub Actions
+#   2. Settings → Variables → Actions → add PUBLISH_DOWNLOADS_SITE = true (auto-deploy on push)
+#   3. Or skip (2) and use Actions → this workflow → "Run workflow" after changing docs/downloads/
+#
 name: GitHub Pages (downloads)
 
 on:
@@ -10,6 +15,7 @@ on:
     paths:
       - 'docs/downloads/**'
       - '.github/workflows/github-pages.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,6 +28,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.PUBLISH_DOWNLOADS_SITE == 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
