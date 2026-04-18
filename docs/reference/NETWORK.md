@@ -18,55 +18,80 @@ Commands for creating multiplayer games using ENet.
 
 ## Host Management
 
-### `NET.START()` / `NET.STOP()` 
-
+### `NET.START()` / `STOP`
 Initializes and shuts down the entire networking system.
 
 ---
 
-### `NET.CREATESERVER(port, maxClients)` 
-
+### `NET.CREATESERVER(port, maxClients)`
 Creates a server host that listens for incoming connections.
 
+- **Arguments**:
+    - `port`: (Integer) UDP port.
+    - `maxClients`: (Integer) Max concurrent players.
+- **Returns**: (Handle) The server host handle.
+
 ---
 
-### `NET.CREATECLIENT()` 
-
+### `NET.CREATECLIENT()`
 Creates a client host.
 
+- **Returns**: (Handle) The client host handle.
+
 ---
 
-### `NET.CONNECT(clientHandle, address, port)` 
-
+### `NET.CONNECT(clientHandle, address, port)`
 Connects a client to a server. Returns a handle to the server peer.
+
+- **Arguments**:
+    - `clientHandle`: (Handle) Your client host.
+    - `address`: (String) Server IP or hostname.
+    - `port`: (Integer) Server port.
+- **Returns**: (Handle) The peer handle (for sending messages).
 
 ---
 
 ## Communication
 
-### `NET.UPDATE(hostHandle)` 
-
+### `NET.UPDATE(hostHandle)`
 This must be called every frame to process network packets.
 
----
-
-### `NET.RECEIVE(hostHandle)` 
-
-Retrieves the next available network event. Returns an event handle, or `0` if no events are waiting. You should call this in a loop until it returns `0`.
+- **Arguments**:
+    - `hostHandle`: (Handle) The server or client host.
+- **Returns**: (None)
 
 ---
 
-### `NET.BROADCAST(serverHandle, channel, data, reliable)` 
+### `NET.RECEIVE(hostHandle)`
+Retrieves the next available network event.
 
+- **Returns**: (Handle) An event handle, or `0` if no events are waiting.
+- **Example**:
+    ```basic
+    event = NET.RECEIVE(host)
+    WHILE event
+        ; ... process ...
+        EVENT.FREE(event)
+        event = NET.RECEIVE(host)
+    WEND
+    ```
+
+---
+
+### `NET.BROADCAST(serverHandle, channel, data, reliable)`
 (Server-only) Sends a message to every connected client.
 
+- **Arguments**:
+    - `serverHandle`: (Handle) The server host.
+    - `channel`: (Integer) ENet channel (0 or 1).
+    - `data`: (String) The message to send.
+    - `reliable`: (Boolean) `TRUE` for guaranteed delivery.
+- **Returns**: (None)
+
 ---
 
-### `PEER.SEND(peerHandle, channel, data, reliable)` 
-
+### `PEER.SEND(peerHandle, channel, data, reliable)`
 Sends a message to a specific peer.
-
-- `reliable`: `TRUE` guarantees delivery and order. `FALSE` is faster but packets can be lost or arrive out of order.
 
 ---
 

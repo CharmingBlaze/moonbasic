@@ -84,7 +84,7 @@ Window.Close()
 | Namespace | Description | Doc |
 |-----------|-------------|-----|
 | **PLAYER** | Player character controller (Jolt KCC) | PLAYER.md |
-| **CHARCONTROLLER** | Generic character controller | CHARCONTROLLER.md |
+| **CHARCONTROLLER** | Generic character controller | CHARACTER_PHYSICS.md |
 | **NAV** / **NAVAGENT** | Navigation mesh and pathfinding | NAV.md |
 
 ## Particles & Effects

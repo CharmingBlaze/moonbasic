@@ -12,85 +12,59 @@ Query system properties with `SYSTEM.VERSION`, `SystemProperty`, `SYSTEM.CPUNAME
 
 ## Program control
 
-### `SYSTEM.EXIT([code])` 
+### `SYSTEM.EXIT([code])`
+Terminates the program immediately.
 
-Terminates the program immediately with the given exit code (when supported). Prefer **`WINDOW.CLOSE()`** for a normal graphics shutdown when a window is open.
-
----
-
-## Host environment
-
-### `SYSTEM.VERSION()` 
-
-Returns the MoonBasic release label (e.g. `"1.0.0-GOLD"`). Useful for logging and debugging.
+- **Arguments**:
+    - `code`: (Integer, Optional) Process exit code.
+- **Returns**: (None)
 
 ---
 
-### `SystemProperty(key)` 
+### `SYSTEM.VERSION()`
+Returns the MoonBASIC release label.
 
-Returns a small set of OS/runtime facts keyed by **`key`** (string). Examples: **`"os"`** / **`"os_name"`** → OS id (`"windows"`, `"linux"`, …); **`"arch"`** → CPU architecture (`"amd64"`, `"arm64"`, …); **`"cpu_cores"`**, **`"compiler"`**, etc. Unknown keys return **`""`**.
-
----
-
-### `SYSTEM.CPUNAME()` / `SYSTEM.GPUNAME()` 
-
-CPU model string and primary GPU name (best-effort; may be **`"(unavailable)"`** on some setups).
+- **Returns**: (String)
 
 ---
 
-### `SYSTEM.TOTALMEMORY()` / `SYSTEM.FREEMEMORY()` 
+### `SYSTEM.CPUNAME()` / `GPUNAME()`
+Returns the hardware model strings.
 
-Host RAM totals (bytes), via the same probes as the runtime host module.
-
----
-
-### `SYSTEM.GETENV(name)` / `SYSTEM.SETENV(name, value)` 
-
-Read or set an environment variable. Aliases: **`ENVIRON`**, **`ENVIRON$`** (same arity as **`SYSTEM.GETENV`**).
+- **Returns**: (String)
 
 ---
 
-### `SYSTEM.OPENURL(url)` 
+### `SYSTEM.GETENV(name)` / `SETENV(name, value)`
+Reads or writes environment variables.
 
-Opens a URL in the system default browser.
-
----
-
-### `SYSTEM.GETCLIPBOARD()` / `SYSTEM.SETCLIPBOARD(text)` 
-
-Read or write the OS text clipboard.
+- **Returns**: (String) For `GETENV`.
 
 ---
 
-### `SYSTEM.LOCALE()` / `SYSTEM.USERNAME()` 
-
-Current locale hint and current username (best-effort).
-
----
-
-### `SYSTEM.ISDEBUGBUILD()` 
-
-**`TRUE`** when the build or environment indicates a development/debug configuration (see runtime for exact rules).
+### `SYSTEM.OPENURL(url)`
+Opens a URL in the system's default browser.
 
 ---
 
-### `SYSTEM.EXECUTE(cmdline)` 
-
-Runs a shell command (`cmd /C` on Windows, `sh -c` elsewhere). Returns an exit code on success; errors may surface as runtime errors.
-
----
-
-## Command-line arguments
-
-### `ARGC()` 
-
-Returns the number of host arguments available to the script (see **`COMMAND`**).
+### `SYSTEM.GETCLIPBOARD()` / `SETCLIPBOARD(text)`
+Accesses the OS text clipboard.
 
 ---
 
-### `COMMAND([index])` 
+### `ARGC()`
+Returns the number of command-line arguments.
 
-With **no** arguments, returns the full command line as one string. With **`index`**, returns the **`index`**-th argument (0-based), or **`""`** if out of range.
+- **Returns**: (Integer)
+
+---
+
+### `COMMAND([index])`
+Returns the full command line or a specific argument.
+
+- **Arguments**:
+    - `index`: (Integer, Optional) 0-based argument index.
+- **Returns**: (String)
 
 ---
 

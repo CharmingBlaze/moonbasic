@@ -14,95 +14,51 @@ For raw gamepad access without the action layer, use `GAMEPAD.AXIS` and `GAMEPAD
 
 ---
 
-### `ACTION.MAPKEY(actionName, keyCode)` 
+### `ACTION.MAPKEY(name, key)` / `MAPJOY` / `MAPMOUSE` / `MAPAXIS`
+Binds a physical input to a named logical action.
 
-Binds a keyboard key to a named action.
-
-- `actionName`: Logical action name (e.g. `"jump"`).
-- `keyCode`: Keyboard key constant.
-
----
-
-### `ACTION.MAPJOY(actionName, gamepadIndex, buttonIndex)` 
-
-Binds a gamepad button to a named action.
-
-- `actionName`: Logical action name.
-- `gamepadIndex`: Gamepad slot (0-based).
-- `buttonIndex`: Button index on the gamepad.
+- **Arguments**:
+    - `name`: (String) Logical action name (e.g., "jump").
+    - `key / button / axis`: (Integer) Hardware input constant.
+- **Returns**: (None)
+- **Example**:
+    ```basic
+    ACTION.MAPKEY("jump", KEY_SPACE)
+    ACTION.MAPJOY("jump", 0, 0)
+    ```
 
 ---
 
-### `ACTION.MAPMOUSE(actionName, mouseButton)` 
+### `ACTION.DOWN(name)` / `PRESSED` / `RELEASED`
+Polls the binary state of a named action.
 
-Binds a mouse button to a named action.
-
-- `actionName`: Logical action name.
-- `mouseButton`: Mouse button index (0 = left, 1 = right, 2 = middle).
+- **Returns**: (Boolean)
 
 ---
 
-### `ACTION.MAPAXIS(actionName, gamepadIndex, axisIndex)` 
+### `ACTION.VALUE(name)`
+Returns the analog value of an action (0.0 to 1.0).
 
-Binds a gamepad axis to a named action for analog queries via `ACTION.VALUE`.
-
-- `actionName`: Logical action name.
-- `gamepadIndex`: Gamepad slot (0-based).
-- `axisIndex`: Axis index on the gamepad.
+- **Returns**: (Float)
 
 ---
 
-### `ACTION.DOWN(actionName)` 
-
-Returns `TRUE` while the action is held down (any mapped input is active).
-
----
-
-### `ACTION.PRESSED(actionName)` 
-
-Returns `TRUE` only on the frame the action was first pressed.
+### `ACTION.RESET()`
+Clears all input mappings for all actions.
 
 ---
 
-### `ACTION.RELEASED(actionName)` 
+### `GAMEPAD.AXIS(idx, axis)`
+Returns the raw float value of a gamepad axis (-1.0 to 1.0).
 
-Returns `TRUE` only on the frame the action was released.
-
----
-
-### `ACTION.VALUE(actionName)` 
-
-Returns the analog value of the action (0.0–1.0 for axes, 0/1 for digital).
+- **Returns**: (Float)
 
 ---
 
-### `ACTION.RESET()` 
+### `GAMEPAD.BUTTON(idx, btn)`
+Returns `TRUE` if the gamepad button is currently held.
 
-Clears all action-to-input mappings.
-
----
-
-### `GAMEPAD.AXIS(gamepadIndex, axisIndex)` 
-
-Returns the raw float value of a gamepad axis (−1.0 to 1.0).
-
-- `gamepadIndex`: Gamepad slot (0-based).
-- `axisIndex`: Axis index.
-
----
-
-### `GAMEPAD.BUTTON(gamepadIndex, buttonIndex)` 
-
-Returns `TRUE` if the specified gamepad button is currently held.
-
-- `gamepadIndex`: Gamepad slot (0-based).
-- `buttonIndex`: Button index.
-
----
-
-### `AXIS.DPADY(gamepadIndex)` 
-
-Returns the vertical D-pad value for the given gamepad as a float (−1.0 up, 1.0 down, 0.0 neutral).
+- **Returns**: (Boolean)
 
 ---
 

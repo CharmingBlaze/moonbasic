@@ -13,128 +13,60 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `COLOR.RGB(r, g, b)` 
+### `COLOR.RGB(r, g, b)` / `RGBA`
+Creates a color handle from component values (0–255).
 
-Creates a color handle from red, green, and blue values (0–255).
-
----
-
-### `COLOR.RGBA(r, g, b, a)` 
-
-Creates a color handle from red, green, blue, and alpha values (0–255).
-
----
-
-### `COLOR.HEX(hexString)` 
-
-Creates a color from a hexadecimal string (e.g. `"#FF0000"` or `"FF0000"`).
+- **Returns**: (Handle) The new color handle.
+- **Example**:
+    ```basic
+    red = COLOR.RGB(255, 0, 0)
+    ```
 
 ---
 
-### `COLOR.HSV(h, s, v)` 
+### `COLOR.HEX(hexString)`
+Creates a color from a hexadecimal string.
 
+- **Returns**: (Handle) The new color handle.
+
+---
+
+### `COLOR.HSV(h, s, v)`
 Creates a color from hue (0–360), saturation (0.0–1.0), and value (0.0–1.0).
 
----
-
-### `COLOR.FROMHSV(h, s, v)` 
-
-Alias for `COLOR.HSV`.
+- **Returns**: (Handle) The new color handle.
 
 ---
 
-### `COLOR.CLAMP(r, g, b)` 
+### `COLOR.R(handle)` / `G` / `B` / `A`
+Returns the specific component value (0–255).
 
-Clamps RGB float values to valid range. Returns a color handle.
-
----
-
-### `COLOR.R(colorHandle)` 
-
-Returns the red component (0–255).
+- **Returns**: (Float)
 
 ---
 
-### `COLOR.G(colorHandle)` 
+### `COLOR.LERP(a, b, t)`
+Returns a new color interpolated between two colors.
 
-Returns the green component (0–255).
-
----
-
-### `COLOR.B(colorHandle)` 
-
-Returns the blue component (0–255).
+- **Returns**: (Handle) The new color handle.
 
 ---
 
-### `COLOR.A(colorHandle)` 
+### `COLOR.FADE(handle, alpha)`
+Returns a new color with adjusted alpha transparency (0.0–1.0).
 
-Returns the alpha component (0–255).
-
----
-
-### `COLOR.LERP(a, b, t)` 
-
-Returns a new color interpolated between colors `a` and `b` by factor `t` (0.0–1.0).
+- **Returns**: (Handle) The new color handle.
 
 ---
 
-### `COLOR.FADE(colorHandle, alpha)` 
+### `COLOR.TOHEX(handle)`
+Returns the color as a hex string.
 
-Returns a new color with the specified alpha transparency (0.0–1.0).
-
----
-
-### `COLOR.TOHSVX(colorHandle)` 
-
-Returns the hue component (H) of the color as a float.
+- **Returns**: (String)
 
 ---
 
-### `COLOR.TOHSVY(colorHandle)` 
-
-Returns the saturation component (S) of the color as a float.
-
----
-
-### `COLOR.TOHSVZ(colorHandle)` 
-
-Returns the value component (V) of the color as a float.
-
----
-
-### `COLOR.TOHSV(colorHandle)` 
-
-Returns the HSV representation as a handle.
-
----
-
-### `COLOR.TOHEX(colorHandle)` 
-
-Returns the color as a hex string (e.g. `"FF0000FF"`).
-
----
-
-### `COLOR.INVERT(colorHandle)` 
-
-Returns a new color with inverted RGB channels.
-
----
-
-### `COLOR.CONTRAST(colorHandle, factor)` 
-
-Returns a new color with contrast adjusted by `factor`.
-
----
-
-### `COLOR.BRIGHTNESS(colorHandle, factor)` 
-
-Returns a new color with brightness adjusted by `factor`.
-
----
-
-### `COLOR.FREE(colorHandle)` 
-
+### `COLOR.FREE(handle)`
 Releases the color handle from memory.
 
 ---

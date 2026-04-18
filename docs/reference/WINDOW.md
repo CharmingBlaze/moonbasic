@@ -29,77 +29,54 @@ WINDOW.CLOSE()
 
 ## Window management
 
-### `WINDOW.OPEN(width, height, title)` 
-Opens the window (**client** width/height in pixels) and title bar text.
+### `WINDOW.OPEN(width, height, title)`
+Opens the application window and initializes the OpenGL context.
+
+- **Arguments**:
+    - `width, height`: (Integer) Client area dimensions.
+    - `title`: (String) Window title bar text.
+- **Returns**: (None)
 
 ---
 
-### `WINDOW.CLOSE()` 
-Closes the window and tears down the host.
+### `WINDOW.SHOULDCLOSE()`
+Returns `TRUE` if the user has requested to close the window.
+
+- **Returns**: (Boolean)
 
 ---
 
-### `WINDOW.SHOULDCLOSE()` 
-Returns **`TRUE`** when the user asked to close (title bar / Alt+F4 / etc.).
+### `WINDOW.SETFPS(fps)`
+Sets the target frame rate (e.g., 60).
+
+- **Returns**: (None)
 
 ---
 
-### `WINDOW.SETFPS(fps)` / `WINDOW.SETTARGETFPS(fps)` 
-Target frame rate (**`SETTARGETFPS`** is the paired name in the manifest where both exist).
+### `WINDOW.CLOSE()`
+Closes the window and terminates the engine host.
 
 ---
 
-## Appearance and position
-
-### `WINDOW.SETTITLE(title)` 
-Runtime title change.
-
-```basic
-score = 100
-WINDOW.SETTITLE("My Game | Score: " + STR(score))
-```
+### `WINDOW.SETTITLE(title)`
+Updates the window title bar at runtime.
 
 ---
 
-### `WINDOW.SETPOSITION(x, y)` 
-Screen position of the window’s top-left corner.
+### `WINDOW.SETPOSITION(x, y)`
+Sets the screen position of the window's top-left corner.
 
 ---
 
-### `WINDOW.SETICON(filePath)` 
-Loads a window icon (square **`.png`** recommended, e.g. 64×64).
+### `WINDOW.SETSIZE(w, h)`
+Resizes the client area in pixels.
 
 ---
 
-### `WINDOW.SETOPACITY(alpha)` 
-Window transparency.
+### `WINDOW.GETMONITORCOUNT()`
+Returns the number of connected physical displays.
 
----
-
-### `WINDOW.SETSIZE(w, h)` 
-Resizes the client area (pixels).
-
----
-
-### `WINDOW.GETPOSITIONX()` / `WINDOW.GETPOSITIONY()` 
-Current screen position of the top-left corner.
-
----
-
-### `WINDOW.DPISCALE()` 
-Global DPI scale factor for high-DPI displays.
-
----
-
-## Monitors
-
-### `WINDOW.GETMONITORCOUNT()` 
-Number of connected monitors.
-
----
-
-### `WINDOW.GETMONITORWIDTH(monitor)` / `WINDOW.GETMONITORHEIGHT(monitor)` 
-Pixel size of the given monitor index (**0** = primary).
+- **Returns**: (Integer)
 
 ---
 

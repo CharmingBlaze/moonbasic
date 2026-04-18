@@ -39,6 +39,12 @@ func main() {
 	}
 	byNS := make(map[string][]sig)
 	for _, c := range r.Commands {
+		// Skip legacy suffixed names in the human documentation
+		if strings.HasSuffix(c.Key, "$") || strings.HasSuffix(c.Key, "#") ||
+			strings.HasSuffix(c.Key, "%") || strings.HasSuffix(c.Key, "?") {
+			continue
+		}
+
 		parts := strings.SplitN(c.Key, ".", 2)
 		ns := parts[0]
 		if c.Namespace != "" {
@@ -78,7 +84,7 @@ func main() {
 	b.WriteString("| `BODY3D.CREATE` (deprecated `BODY3D.MAKE`) | no args → **DYNAMIC** motion type |\n")
 	b.WriteString("| `MATERIAL.MAKEDEFAULT` / `MAKEPBR` | see `runtime/mbmodel3d` (material modules) |\n\n")
 	b.WriteString("## Debug watch overlay\n\n")
-	b.WriteString("`DEBUG.WATCH(label$, value)` stores rows; `DEBUG.WATCHCLEAR` clears them. With **CGO** and Raylib, the window pipeline may draw a **top-left overlay** each frame (`runtime/mbdebug/overlay_cgo.go`) when **`DEBUG.ENABLE`** was called or the host enabled **`Registry.DebugMode`** (e.g. **`--debug`**). **`DEBUG.DISABLE`** clears the user override. Without CGO, watches are stored but not drawn.\n\n")
+	b.WriteString("`DEBUG.WATCH(label, value)` stores rows; `DEBUG.WATCHCLEAR` clears them. With **CGO** and Raylib, the window pipeline may draw a **top-left overlay** each frame (`runtime/mbdebug/overlay_cgo.go`) when **`DEBUG.ENABLE`** was called or the host enabled **`Registry.DebugMode`** (e.g. **`--debug`**). **`DEBUG.DISABLE`** clears the user override. Without CGO, watches are stored but not drawn.\n\n")
 	b.WriteString("## Errors\n\n")
 	b.WriteString("- **Compile-time**: unknown `NS.METHOD` → did-you-mean within namespace + manifest listing (see `compiler/semantic/cmdhint.go`).\n")
 	b.WriteString("- **Runtime**: VM wraps native errors with **source file and line** when available (`vm/vm.go`). Unknown registry keys → `runtime.FormatUnknownRegistryCommand`.\n\n")

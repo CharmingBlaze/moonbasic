@@ -12,55 +12,71 @@ Poll keys with `INPUT.KEYDOWN` / `INPUT.KEYPRESSED`, read mouse with `INPUT.MOUS
 
 ## Keyboard and mouse
 
-### `INPUT.KEYDOWN(key)` 
-Returns `TRUE` if the key is currently held down.
+### `INPUT.KEYDOWN(key)` / `KEYPRESSED` / `KEYUP`
+Keyboard state queries.
+
+- **Arguments**:
+    - `key`: (Integer) Key constant (e.g., `KEY_A`).
+- **Returns**: (Boolean)
 
 ---
 
-### `INPUT.KEYPRESSED(key)` 
-Returns `TRUE` on the frame the key was first pressed.
-
----
-
-### `INPUT.KEYUP(key)` 
-Returns `TRUE` on the frame the key was released.
-
----
-
-### `INPUT.MOUSEX()` / `INPUT.MOUSEY()` 
+### `INPUT.MOUSEX()` / `MOUSEY()`
 Returns the current mouse pixel coordinates.
 
+- **Returns**: (Float)
+
 ---
 
-### `INPUT.MOUSEDOWN(button)` 
+### `INPUT.MOUSEDOWN(button)`
 Returns `TRUE` if the mouse button is held down.
 
+- **Arguments**:
+    - `button`: (Integer) Mouse button constant.
+- **Returns**: (Boolean)
+
 ---
 
-### `INPUT.MOUSEWHEELMOVE()` 
+### `INPUT.MOUSEWHEELMOVE()`
 Returns the mouse wheel movement delta.
+
+- **Returns**: (Float)
 
 ---
 
 ## Axes and movement helpers
 
-### `INPUT.AXIS(negKey, posKey)` 
+### `INPUT.AXIS(negKey, posKey)`
 Returns a value from -1.0 to 1.0 based on two keys.
 
----
-
-### `INPUT.AXISDEG(negKey, posKey, degPerSec, dt)` 
-Keyboard orbit / yaw-style delta in degrees per second, scaled by **`dt`** (see [CAMERA.md](CAMERA.md)).
-
----
-
-### `INPUT.MOVEMENT2D(up, down, left, right)` 
-Returns a 2-element array handle `[forward, strafe]` based on four keys.
+- **Arguments**:
+    - `negKey`: (Integer) Key for negative direction (-1.0).
+    - `posKey`: (Integer) Key for positive direction (1.0).
+- **Returns**: (Float)
 
 ---
 
-### `INPUT.MOUSEDELTA()` 
-Returns a 2-element array handle `[dx, dy]` for movement since last frame (see also **`INPUT.MOUSEDELTAX`** / **`INPUT.MOUSEDELTAY`**).
+### `INPUT.AXISDEG(negKey, posKey, degPerSec, dt)`
+Keyboard orbit / yaw-style delta in degrees per second.
+
+- **Arguments**:
+    - `degPerSec`: (Float) Speed of rotation.
+    - `dt`: (Float) Delta time.
+- **Returns**: (Float)
+
+---
+
+### `INPUT.MOVEMENT2D(up, down, left, right)`
+Returns a handle to a 2-element array `[forward, strafe]`.
+
+- **Returns**: (Handle) A 2-float array.
+
+---
+
+### `INPUT.MOUSEDELTA()`
+Returns a handle to a 2-element array `[dx, dy]` for relative movement.
+
+- **Returns**: (Handle) A 2-float array.
 
 ---
 

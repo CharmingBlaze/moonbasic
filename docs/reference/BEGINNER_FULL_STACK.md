@@ -1,126 +1,114 @@
-# Beginner “full stack” gameplay helpers
+# Beginner “Full Stack” Gameplay Helpers
 
-This page maps **friendly names** (Input / World / Math / Entity dot methods) to the **registry keys** moonBASIC actually runs. Everything here is implemented in the Go runtime unless noted.
+A collection of high-level, friendly commands that bridge input, world interactions, and entity logic for rapid game prototyping.
 
-**Related:** [GAMEPLAY_HELPERS.md](GAMEPLAY_HELPERS.md), [PROJECTILES.md](PROJECTILES.md), [MEMORY.md](../MEMORY.md), [POOL.md](POOL.md).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
----
+## Core Workflow
 
-## 1. Input and mouse (2D / 3D bridge)
-
-| You want | Registry command | Notes |
-|----------|------------------|--------|
-| Mouse X / Y in pixels | `INPUT.MOUSEX()`, `INPUT.MOUSEY()` | Window client pixels |
-| Delta since last frame | `INPUT.MOUSEDELTAX()`, `INPUT.MOUSEDELTAY()` | FPS mouselook |
-| Lock / unlock cursor | `INPUT.LOCKMOUSE(TRUE)` / `FALSE` | Calls Raylib `DisableCursor` / `EnableCursor` |
-| 2D world under cursor | `WORLD.MOUSE2D(camera2D)` | → float array `[wx, wy]` |
-| Ground under cursor (3D) | `WORLD.MOUSEFLOOR3D(cam, floorY#)` or **`WORLD.MOUSETOFLOOR`** (alias) | Ray vs plane **y = floorY** → `[wx, wz]` or **NIL** |
-| Entity under cursor (Jolt) | **`WORLD.MOUSETOENTITY(cam)`** or `CAMERA.RAYCASTMOUSE(cam)` | → **entity#** or **0** (needs **Linux + CGO + Jolt**; Windows stub errors) |
-| Hit **point** under cursor | `PHYSICS3D.MOUSEHIT(cam)` | → `[x,y,z]` or **NIL** (same platform note) |
-
-**Minimal 3D click-to-ground pattern:** after `CAMERA.BEGIN(cam)`, `pt = WORLD.MOUSEFLOOR3D(cam, 0)` — if not NIL, read index 0 and 1 from the float array for `wx` / `wz`, then drive `ENTITY.NAVTO` or your own logic.
+1. **Input:** Poll mouse or keyboard state using `INPUT.*` or bridge helpers.
+2. **Spatial:** Convert screen clicks to world positions using `WORLD.MOUSEFLOOR3D`.
+3. **Entity:** Drive behavior using high-level routines like `ENTITY.NAVTO` or `ENTITY.PATROL`.
+4. **RPG Logic:** Manage life and combat with `ENTITY.SETHEALTH` and `ENTITY.DAMAGE`.
+5. **Juice:** Apply polish with `CAMERA.SHAKE` or `WORLD.FLASH`.
 
 ---
 
-## 2. Navigation and movement (non-physics movers)
+## 1. Input and Mouse (2D / 3D Bridge)
 
-These target **scripted** entities (not `ENTITY.ADDPHYSICS` Jolt bodies). Use **`ENTITY.STOP`** to cancel nav / patrol / magnet and zero velocity.
-
-| Intent | Command | Returns `EntityRef` for chaining? |
-|--------|---------|-----------------------------------|
-| Move along facing | `ENTITY.MOVEFORWARD(entity, speed#)` | Yes (handle) |
-| Click-to-move | `ENTITY.NAVTO(entity, tx#, tz#, speed#)` | Optional 5th **arrival** distance; yes |
-| Walk with default arrival | `ENTITY.WALKTO(entity, tx#, tz#, speed# [, arrival#])` | Yes |
-| Ping-pong two XZ points | `ENTITY.PATROL(entity, ax#, az#, bx#, bz#, speed#)` | Yes (6-arg form). Legacy **3-arg** `PATROL` still sets internal AI patrol |
-| Keep distance band | `ENTITY.KEEPDISTANCE(entity, target, min#, max#, speed#)` | See [GAMEPLAY_HELPERS.md](GAMEPLAY_HELPERS.md) |
-| Thrust (Jolt, Linux) | `ENTITY.THRUSTFORWARD` / `THRUSTUP` / `BRAKE` | Dot: `Thrust` → `THRUSTFORWARD` |
-| Stop everything | `ENTITY.STOP(entity)` | Yes |
-
----
-
-## 3. Combat and tags (RPG-style)
-
-| Intent | Command |
-|--------|---------|
-| HP | `ENTITY.SETHEALTH(entity, max#)` or **`(entity, current#, max#)`** |
-| Damage | `ENTITY.DAMAGE(entity, amount#)` |
-| Alive | `ENTITY.ISALIVE(entity)` → bool |
-| Tag | `ENTITY.SETTAG(entity, tag$)` — returns handle |
-| Nearest tagged | `ENTITY.FINDNEARESTWITHTAG(entity, tag$)` → **entity#** |
-| Loot on death | `ENTITY.ONDEATHDROP(entity, prefabEntity, chance%)` |
-
-Also: `ENTITY.GETCLOSESTWITHTAG(entity#, radius#, tag$)` when you need a **radius** limit.
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `INPUT.MOUSEX()` | None | Float | Window client X in pixels. |
+| `INPUT.MOUSEY()` | None | Float | Window client Y in pixels. |
+| `INPUT.MOUSEDELTAX()`| None | Float | Delta since last frame. |
+| `INPUT.LOCKMOUSE(toggle)`| Boolean | None | Locks/unlocks cursor for FPS mouselook. |
+| `WORLD.MOUSE2D(cam)` | Handle | Array | World `[x, y]` under cursor. |
+| `WORLD.MOUSEFLOOR3D(cam, y)`| Handle, Float | Array | Ray vs plane at `y` → `[x, z]`. |
+| `WORLD.MOUSETOENTITY(cam)`| Handle | Integer | Entity ID under cursor (**CGO/Jolt**). |
+| `PHYSICS3D.MOUSEHIT(cam)`| Handle | Array | World `[x, y, z]` of physics hit. |
 
 ---
 
-## 4. World, camera, juice
+## 2. Navigation and Movement
 
-| Intent | Command |
-|--------|---------|
-| Global gravity | `PHYSICS3D.SETGRAVITY(gx, gy, gz)` or **`WORLD.SETGRAVITY`** (alias) |
-| Slow-mo | `GAME.SETTIMESCALE(factor)` or **`WORLD.SETTIMESCALE`** |
-| Radial push | `PHYSICS.EXPLOSION(x, y, z, force, radius)` or **`WORLD.EXPLOSION`** |
-| Full-screen flash | `WORLD.FLASH(color, duration)` — see [WINDOW.md](WINDOW.md) |
-| Camera shake | `CAMERA.SHAKE(camera, intensity, duration)` |
-| Look at entity | `CAMERA.LOOKATENTITY(camera, entity#)` — dot on camera: **`LookAtEntity`** |
+These commands drive **scripted** entities. Use `ENTITY.STOP(e)` to cancel any active navigation or patrol.
 
----
-
-## 5. Math (no heavy calculus)
-
-| Intent | Command |
-|--------|---------|
-| Random % | `MATH.CHANCE(percent#)` → bool |
-| Random float range | `MATH.RANGE(min#, max#)` (alias of `MATH.RNDF`) |
-| Snap to grid | `MATH.SNAP(value#, grid#)` |
-| Wrap range | `MATH.WRAP(value#, min#, max#)` |
-| Smooth toward | `MATH.SMOOTH(current#, target#, speed#)` — uses frame **dt** internally |
-
-Also: `MATH.LERP`, `MATH.APPROACH`, `MATH.CLAMP` — see [MATH.md](MATH.md).
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `ENTITY.MOVEFORWARD(e, s)`| Integer, Float | Handle | Moves along facing direction. |
+| `ENTITY.NAVTO(e, x, z, s)`| Integer, Float... | Handle | Pathfinds to destination. |
+| `ENTITY.WALKTO(e, x, z, s)`| Integer, Float... | Handle | `NAVTO` with arrival logic. |
+| `ENTITY.PATROL(e, ax, az, bx, bz, s)`| Integer, Float... | Handle | Ping-pongs between two points. |
+| `ENTITY.STOP(e)` | Integer | Handle | Cancels all active movement. |
 
 ---
 
-## 6. Screen / UI bridge (3D → 2D)
+## 3. Combat and Tags (RPG-Style)
 
-| Intent | Command |
-|--------|---------|
-| World → screen array | `ENTITY.WORLDTOSCREEN(entity)` → `[sx, sy]` |
-| Component | `ENTITY.TOSCREENX(entity)`, `ENTITY.TOSCREENY(entity)` |
-| On screen | `ENTITY.ISONSCREEN(entity)` |
-| HP bar | `ENTITY.DRAWHEALTHBAR(entity [, offsetY#])` — requires `ENTITY.SETHEALTH` first; call during your **2D / UI** pass |
-
----
-
-## 7. Lifecycle and spawners
-
-| Intent | Command |
-|--------|---------|
-| Timed despawn | `ENTITY.DESTROYAFTER(entity, sec#)` or **`ENTITY.SETLIFETIMER`** (alias) — returns **handle** |
-| Parent | `ENTITY.PARENT(child, parent [, global])` — returns handle |
-| Unparent | `ENTITY.PARENTCLEAR` / `UNPARENT` or **`ENTITY.DETACH`** |
-| Spawner | `SPAWNER.CREATE(prefab, interval#)` at origin XZ **0**, or **`(prefab, interval, x#, z#)`** |
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `ENTITY.SETHEALTH(e, v)`| Integer, Float | Handle | Sets current health. |
+| `ENTITY.DAMAGE(e, v)` | Integer, Float | Handle | Reduces health by `v`. |
+| `ENTITY.ISALIVE(e)` | Integer | Boolean | `TRUE` if health > 0. |
+| `ENTITY.SETTAG(e, tag)`| Integer, String| Handle | Attaches a string label. |
+| `ENTITY.FINDNEARESTWITHTAG(e, tag)`| Integer, String| Integer | Nearest entity with label. |
 
 ---
 
-## 8. Chaining (fluent style)
+## 4. World and Juice
 
-Many **mutating** entity builtins now return the **`EntityRef` handle** so you can write:
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `WORLD.SETGRAVITY(x, y, z)`| Float, Float, Float| None | Sets global physics gravity. |
+| `WORLD.SETTIMESCALE(s)`| Float | None | Slow-motion or speed-up factor. |
+| `WORLD.EXPLOSION(x, y, z, f, r)`| Float... | None | Radial physics push (**CGO**). |
+| `WORLD.FLASH(color, d)`| Handle, Float | None | Full-screen color flash. |
+| `CAMERA.SHAKE(cam, i, d)`| Handle, Float, Float| None | Screen shake effect. |
 
-```moonbasic
-player.SetHealth(100, 100).SetTag("Hero").Pos(0, 1, 0)
+---
+
+## Full Example
+
+A simple "Click to Move" script with health management and a camera shake effect on damage.
+
+```basic
+WINDOW.OPEN(1280, 720, "Full Stack Demo")
+cam = CAMERA.CREATE()
+player = ENTITY.CREATECUBE(1.0).SETHEALTH(100).SETTAG("Player")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    
+    ; 1. Input: Click to navigate
+    IF INPUT.MOUSEHIT(1)
+        target = WORLD.MOUSEFLOOR3D(cam, 0)
+        IF target <> NIL
+            player.NAVTO(target(0), target(1), 5.0)
+        END IF
+    END IF
+
+    ; 2. Combat: Self-damage for testing
+    IF INPUT.KEYHIT(KEY_SPACE)
+        player.DAMAGE(10)
+        CAMERA.SHAKE(cam, 0.5, 0.2)
+        PRINT "Health: " + STR(player.GETHEALTH())
+    END IF
+
+    ; 3. Update and Render
+    ENTITY.UPDATE(dt)
+    CAMERA.FOLLOW(cam, player, 10.0)
+    
+    RENDER.CLEAR(20, 20, 30)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+        DRAW3D.GRID(50, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
 ```
 
-Supported paths include **`ENTITY.SETPOSITION` / `POS`**, **`SETHEALTH`**, **`SETTAG`**, **`NAVTO`**, **`DESTROYAFTER` / `SETLIFETIMER`**, **`PARENT`**, **`PARENTCLEAR` / `DETACH`**, **`SETSTATE`**, and several helpers registered in `runtime/mbentity`.
+## See also
 
----
-
-## 9. Example snippet
-
-See **[examples/snippets/beginner_full_stack.mb](../../examples/snippets/beginner_full_stack.mb)** for a commented walkthrough.
-
----
-
-## 10. Platform notes
-
-- **Jolt** (3D physics, mouse pick, `WORLD.MOUSETOENTITY`): **Linux + CGO** builds. Windows fullruntime uses stubs for native Jolt — use the same **API names**, but expect errors or no-ops where the stub applies.
-- **`ENTITY.DRAWHEALTHBAR`** uses immediate-mode 2D drawing; call when your render pass is appropriate for screen-space UI.
+- [GAMEPLAY_HELPERS.md](GAMEPLAY_HELPERS.md) — triggers and proximity
+- [PROJECTILES.md](PROJECTILES.md) — shooting and pooling
+- [ENTITY.md](ENTITY.md) — core entity documentation

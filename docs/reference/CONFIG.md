@@ -14,78 +14,47 @@ For larger or structured data, prefer `JSON.*` or `FILE.*`.
 
 ---
 
-### `CONFIG.LOAD(filePath)` 
+### `CONFIG.LOAD(filePath)`
+Loads a config file into the module-local store.
 
-Loads a config file into the module-local store. Keys from the file become immediately queryable.
-
-- `filePath`: Path to the config file (e.g. `"settings.ini"`).
-
----
-
-### `CONFIG.SAVE(filePath)` 
-
-Writes the current config store to disk, overwriting the file if it exists.
-
-- `filePath`: Destination path.
+- **Arguments**:
+    - `filePath`: (String) Path to the `.ini` file.
+- **Returns**: (Boolean) `TRUE` if loaded successfully.
 
 ---
 
-### `CONFIG.GETINT(key)` 
+### `CONFIG.SAVE(filePath)`
+Writes the current config store to disk.
 
-Returns the integer value for `key`, or `0` if the key does not exist.
-
----
-
-### `CONFIG.GETFLOAT(key)` 
-
-Returns the float value for `key`, or `0.0` if the key does not exist.
+- **Returns**: (Boolean) `TRUE` if saved successfully.
 
 ---
 
-### `CONFIG.GETSTRING(key)` 
+### `CONFIG.GETINT(key)` / `GETFLOAT` / `GETSTRING` / `GETBOOL`
+Returns the typed value for `key`, or a default (0, "", FALSE) if missing.
 
-Returns the string value for `key`, or `""` if the key does not exist.
-
----
-
-### `CONFIG.GETBOOL(key)` 
-
-Returns the boolean value for `key`, or `FALSE` if the key does not exist.
+- **Arguments**:
+    - `key`: (String) The setting name.
+- **Returns**: (Integer/Float/String/Boolean)
 
 ---
 
-### `CONFIG.SETINT(key, value)` 
+### `CONFIG.SETINT(key, value)` / `SETFLOAT` / `SETSTRING` / `SETBOOL`
+Sets a typed value in the store.
 
-Sets an integer value in the store.
-
----
-
-### `CONFIG.SETFLOAT(key, value)` 
-
-Sets a float value in the store.
+- **Arguments**:
+    - `key`: (String) The setting name.
+    - `value`: (Any) The value to store.
+- **Returns**: (None)
 
 ---
 
-### `CONFIG.SETSTRING(key, value)` 
-
-Sets a string value in the store.
-
----
-
-### `CONFIG.SETBOOL(key, value)` 
-
-Sets a boolean value in the store.
-
----
-
-### `CONFIG.HAS(key)` 
-
+### `CONFIG.HAS(key)`
 Returns `TRUE` if the key exists in the store.
 
 ---
 
-### `CONFIG.DELETE(key)` 
-
+### `CONFIG.DELETE(key)`
 Removes a key from the store.
 
 ---

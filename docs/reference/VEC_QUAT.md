@@ -17,20 +17,36 @@ Angles are in **radians**. See also [TRANSFORM.md](TRANSFORM.md).
 ### `VEC3.MAKE(x, y, z)` 
 Creates a new 3D vector handle.
 
+- **Arguments**:
+    - `x, y, z`: (Float) Initial components.
+- **Returns**: (Handle) A new VEC3 handle.
+- **Example**:
+    ```basic
+    v = VEC3.MAKE(0, 5, 0)
+    ```
+
 ---
 
 ### `VEC3.X(handle)` / `Y` / `Z` 
-Returns the individual red, green, blue, or alpha component (0-255).
+Returns the individual components of the vector.
+
+- **Returns**: (Float) The component value.
 
 ---
 
 ### `VEC3.SET(handle, x, y, z)` 
 Updates the components of an existing vector handle in place.
 
+- **Returns**: (Handle) The modified vector handle (for chaining).
+
 ---
 
 ### `VEC3.ADD(a, b)` / `SUB` / `MUL` / `DIV` 
 Arithmetic on vector handles. Returns a new handle.
+
+- **Arguments**:
+    - `a, b`: (Handle) The vector handles to operate on.
+- **Returns**: (Handle) A new VEC3 handle containing the result.
 
 ---
 
@@ -52,20 +68,14 @@ Returns the distance between two 3D points.
 ### `VEC3.FREE(handle)` 
 Releases the vector handle from the heap and frees its memory.
 
-```basic
-v = Vec3.Make(0, 1, 0)
-u = Vec3.Make(1, 0, 0)
-PRINT "angle rad=" + STR(Vec3.Angle(v, u))
-Vec3.Free(v)
-Vec3.Free(u)
-```
+---
 
 Scalar convenience overloads (no vec3 handle required):
 
-- `VEC3.LENGTH(x, y, z) -> float`
-- `VEC3.NORMALIZE(x, y, z) -> handle` (tuple-like 3-float array for destructuring)
-- `VEC3.DIST(x1, y1, z1, x2, y2, z2) -> float` — distance between two points; overload with **two vec3 handles** (same as `VEC3.Distance`).
-- `VEC3.DISTSQ(x1, y1, z1, x2, y2, z2) -> float` — squared distance (cheap radius checks without `SQRT`).
+- `VEC3.LENGTH(x, y, z)` -> **Float**
+- `VEC3.NORMALIZE(x, y, z)` -> **Float Array Handle** (tuple-like 3-float array for destructuring)
+- `VEC3.DIST(x1, y1, z1, x2, y2, z2)` -> **Float**
+- `VEC3.DISTSQ(x1, y1, z1, x2, y2, z2)` -> **Float**
 
 ```basic
 dx, dy, dz = VEC3.NORMALIZE(dx, dy, dz)
@@ -81,15 +91,21 @@ ENDIF
 ### `VEC2.MAKE(x, y)` 
 Creates a new 2D vector handle.
 
+- **Arguments**:
+    - `x, y`: (Float) Initial components.
+- **Returns**: (Handle) A new VEC2 handle.
+
 ---
 
 ### `VEC2.X(handle)` / `Y` 
-Returns the individual red, green, blue, or alpha component (0-255).
+Returns the individual components of the vector.
 
 ---
 
 ### `VEC2.SET(handle, x, y)` 
 Updates the components of an existing vector handle in place.
+
+- **Returns**: (Handle) The modified vector handle (for chaining).
 
 ---
 
@@ -106,11 +122,13 @@ Returns the length of a vector or a new normalized vector handle.
 ### `VEC2.FREE(handle)` 
 Releases the vector handle from the heap and frees its memory.
 
+---
+
 Scalar convenience overloads:
 
-- `VEC2.LENGTH(x, y) -> float`
-- `VEC2.NORMALIZE(x, y) -> handle` (tuple-like 2-float array)
-- `VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist) -> handle`
+- `VEC2.LENGTH(x, y)` -> **Float**
+- `VEC2.NORMALIZE(x, y)` -> **Float Array Handle** (tuple-like 2-float array)
+- `VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist)` -> **Float Array Handle**
 
 ```basic
 f, s = VEC2.NORMALIZE(f, s)

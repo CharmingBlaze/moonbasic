@@ -1,4 +1,4 @@
-﻿//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
+//go:build (cgo || (windows && !cgo)) && (!windows || !gopls_stub)
 
 package terrain
 
@@ -23,6 +23,7 @@ type TerrainObject struct {
 	ChunkH int
 
 	PX, PY, PZ float32
+	RotX, RotY, RotZ float32
 
 	// ScaleX/ScaleZ stretch world spacing per height sample; ScaleY scales vertical range (default 1).
 	ScaleX, ScaleY, ScaleZ float32

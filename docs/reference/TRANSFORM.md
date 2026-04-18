@@ -15,43 +15,36 @@ For legacy `MAT4.*` naming see [MAT4.md](MAT4.md).
 
 ---
 
-### `TRANSFORM.IDENTITY()` 
-Returns a new identity matrix handle.
+### `TRANSFORM.IDENTITY()`
+Returns a new identity matrix.
+
+- **Returns**: (Handle)
 
 ---
 
-### `TRANSFORM.TRANSLATION(x, y, z)` 
-Returns a translation matrix handle.
+### `TRANSFORM.TRANSLATION(x, y, z)` / `ROTATION` / `SCALE`
+Creates a transformation matrix.
+
+- **Arguments**:
+    - `x, y, z`: (Float) Translation or scale components.
+    - `p, y, r`: (Float) Euler angles (pitch, yaw, roll).
+- **Returns**: (Handle) The new matrix handle.
+- **Example**:
+    ```basic
+    m = TRANSFORM.TRANSLATION(0, 10, 0)
+    ```
 
 ---
 
-### `TRANSFORM.ROTATION(pitch, yaw, roll)` 
-Returns a rotation matrix from Euler angles.
+### `TRANSFORM.MULTIPLY(a, b)`
+Returns the product of two matrices.
+
+- **Returns**: (Handle) The new matrix handle.
 
 ---
 
-### `TRANSFORM.SCALE(sx, sy, sz)` 
-Returns a non-uniform scale matrix handle.
-
----
-
-### `TRANSFORM.MULTIPLY(a, b)` 
-Returns the product of two matrices as a new handle.
-
----
-
-### `TRANSFORM.INVERSE(handle)` 
-Returns the inverse of the given matrix.
-
----
-
-### `TRANSFORM.TRANSPOSE(handle)` 
-Returns the transpose of the given matrix.
-
----
-
-### `TRANSFORM.FREE(handle)` 
-Releases the matrix from the heap.
+### `TRANSFORM.FREE(handle)`
+Releases the matrix handle from memory.
 
 ---
 

@@ -16,43 +16,71 @@ See also [ATLAS.md](ATLAS.md), [TEXTURE.md](TEXTURE.md), [IMAGE.md](IMAGE.md).
 
 ---
 
-### `SPRITE.LOAD(path)` 
+### `SPRITE.LOAD(path)`
 Loads an image and returns a **sprite handle**.
+
+- **Arguments**:
+    - `path`: (String) File path relative to working directory.
+- **Returns**: (Handle) The new sprite handle.
+- **Example**:
+    ```basic
+    hero = SPRITE.LOAD("hero.png")
+    ```
 
 ---
 
-### `SPRITE.FREE(handle)` 
+### `SPRITE.FREE(handle)`
 Unloads the sprite and frees memory.
 
 ---
 
-### `SPRITE.DRAW(handle, x, y)` 
+### `SPRITE.DRAW(handle, x, y)`
 Draws the current frame at pixel coordinates.
 
+- **Arguments**:
+    - `handle`: (Handle) The sprite to draw.
+    - `x, y`: (Float) Screen position.
+- **Returns**: (Handle) The sprite handle (for chaining).
+
 ---
 
-### `SPRITE.SETPOS(handle, x, y)` 
+### `SPRITE.SETPOS(handle, x, y)`
 Sets a floating-point draw offset.
 
----
-
-### `SPRITE.DEFANIM(handle, count)` 
-Defines a grid animation (`count` is a string).
+- **Returns**: (Handle) The sprite handle (for chaining).
 
 ---
 
-### `SPRITE.UPDATEANIM(handle, dt)` 
+### `SPRITE.DEFANIM(handle, framesCount)`
+Defines a grid animation.
+
+- **Arguments**:
+    - `handle`: (Handle) The sprite to animate.
+    - `framesCount`: (Integer) Total frames in the sprite sheet.
+- **Returns**: (Handle) The sprite handle (for chaining).
+
+---
+
+### `SPRITE.UPDATEANIM(handle, dt)`
 Advances animation frame by time.
 
----
-
-### `SPRITE.HIT(a, b)` 
-Returns **`TRUE`** if the two drawn quads overlap (SAT on the four corners; matches **`DrawTexturePro`** geometry).
+- **Returns**: (Handle) The sprite handle (for chaining).
 
 ---
 
-### `SPRITE.POINTHIT(handle, x, y)` 
-Returns **`TRUE`** if **`(x, y)`** lies inside that quad in the same coordinate space as **`SPRITE.DRAW`**’s **`x, y`** plus **`SETPOS`** offsets (inverse rotation into local frame size).
+### `SPRITE.HIT(a, b)`
+Returns **`TRUE`** if the two sprites overlap.
+
+- **Arguments**:
+    - `a, b`: (Handle) The sprites to test.
+- **Returns**: (Boolean)
+
+---
+
+### `SPRITE.POINTHIT(handle, x, y)`
+Returns **`TRUE`** if **`(x, y)`** lies inside the sprite.
+
+- **Returns**: (Boolean)
 
 ---
 

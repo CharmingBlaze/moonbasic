@@ -15,107 +15,40 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `MAT4.IDENTITY()` 
+### `MAT4.IDENTITY()`
+Returns a new identity matrix.
 
-Returns a new identity matrix handle.
-
----
-
-### `MAT4.FROMROTATION(pitch, yaw, roll)` 
-
-Creates a rotation matrix from Euler angles (degrees).
+- **Returns**: (Handle)
 
 ---
 
-### `MAT4.ROTATION(pitch, yaw, roll)` 
+### `MAT4.ROTATION(p, y, r)` / `TRANSLATION` / `SCALE`
+Creates a transformation matrix from Euler angles or components.
 
-Alias for `MAT4.FROMROTATION`.
-
----
-
-### `MAT4.SETROTATION(matHandle, pitch, yaw, roll)` 
-
-Overwrites the rotation component of an existing matrix.
-
----
-
-### `MAT4.FROMSCALE(sx, sy, sz)` 
-
-Creates a scale matrix.
+- **Arguments**:
+    - `p, y, r`: (Float) Euler angles in degrees.
+    - `tx, ty, tz`: (Float) Translation components.
+    - `sx, sy, sz`: (Float) Scale factors.
+- **Returns**: (Handle) The new matrix handle.
 
 ---
 
-### `MAT4.FROMTRANSLATION(tx, ty, tz)` 
+### `MAT4.MULTIPLY(a, b)`
+Returns the product of two matrices.
 
-Creates a translation matrix.
-
----
-
-### `MAT4.LOOKAT(eyeX, eyeY, eyeZ, targetX, targetY, targetZ, upX, upY, upZ)` 
-
-Creates a look-at view matrix.
+- **Returns**: (Handle) The new matrix handle.
 
 ---
 
-### `MAT4.PERSPECTIVE(fovY, aspect, near, far)` 
+### `MAT4.TRANSFORMX(handle, x, y, z)` / `Y` / `Z`
+Transforms a point by the matrix and returns a single component.
 
-Creates a perspective projection matrix.
-
-- `fovY`: Vertical field of view in degrees.
-
----
-
-### `MAT4.ORTHO(left, right, bottom, top, near, far)` 
-
-Creates an orthographic projection matrix.
+- **Returns**: (Float)
 
 ---
 
-### `MAT4.MULTIPLY(a, b)` 
-
-Returns the product of two matrices (`a × b`). The result is a new handle.
-
----
-
-### `MAT4.INVERSE(matHandle)` 
-
-Returns the inverse of the matrix. The result is a new handle.
-
----
-
-### `MAT4.TRANSPOSE(matHandle)` 
-
-Returns the transpose of the matrix. The result is a new handle.
-
----
-
-### `MAT4.GETELEMENT(matHandle, row, col)` 
-
-Returns the float value at the given row and column (0-based).
-
----
-
-### `MAT4.TRANSFORMX(matHandle, x, y, z)` 
-
-Returns the X component after transforming the point `(x, y, z)` by the matrix.
-
----
-
-### `MAT4.TRANSFORMY(matHandle, x, y, z)` 
-
-Returns the Y component after transforming the point.
-
----
-
-### `MAT4.TRANSFORMZ(matHandle, x, y, z)` 
-
-Returns the Z component after transforming the point.
-
----
-
-### `MAT4.FREE(matHandle)` 
-
-Frees the matrix handle from memory.
+### `MAT4.FREE(handle)`
+Releases the matrix handle from memory.
 
 ---
 

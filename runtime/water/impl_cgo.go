@@ -69,6 +69,7 @@ func (m *Module) wMake(args []value.Value) (value.Value, error) {
 		Shallow:  rl.Color{R: 0, G: 160, B: 200, A: 180},
 		Deep:     rl.Color{R: 0, G: 50, B: 100, A: 230},
 		BedY:     -50,
+		ScaleX:   1, ScaleY: 1, ScaleZ: 1,
 	}
 	id, err := m.h.Alloc(o)
 	if err != nil {
@@ -107,6 +108,7 @@ func (m *Module) wCreate(args []value.Value) (value.Value, error) {
 		PX:       float32(x),
 		PY:       float32(level),
 		PZ:       float32(z),
+		ScaleX:   1, ScaleY: 1, ScaleZ: 1,
 	}
 	o.BedY = o.PY - 12
 	id, err := m.h.Alloc(o)
@@ -177,7 +179,10 @@ func (m *Module) wDraw(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	bob := float32(math.Sin(float64(o.WaveT))) * o.WaveAmp * 0.15
-	mat := rl.MatrixTranslate(o.PX, o.PY+bob, o.PZ)
+	trans := rl.MatrixTranslate(o.PX, o.PY+bob, o.PZ)
+	rot := rl.MatrixRotateXYZ(rl.Vector3{X: o.RotX * rl.Deg2rad, Y: o.RotY * rl.Deg2rad, Z: o.RotZ * rl.Deg2rad})
+	scale := rl.MatrixScale(o.ScaleX, o.ScaleY, o.ScaleZ)
+	mat := rl.MatrixMultiply(rl.MatrixMultiply(scale, rot), trans)
 	rl.DrawMesh(o.Mesh, o.Mat, mat)
 	return args[0], nil
 }
@@ -344,6 +349,62 @@ func (m *Module) wGetPos(args []value.Value) (value.Value, error) {
 		return value.Nil, err
 	}
 	return mbmatrix.AllocVec3Value(m.h, o.PX, o.PY, o.PZ)
+}
+
+func (m *Module) wSetRot(args []value.Value) (value.Value, error) {
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("WATER.SETROT expects water, rot_y [or x,y,z]")
+	}
+	o, err := castW(m, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 4 {
+		rx, _ := args[1].ToFloat()
+		ry, _ := args[2].ToFloat()
+		rz, _ := args[3].ToFloat()
+		o.RotX, o.RotY, o.RotZ = float32(rx), float32(ry), float32(rz)
+	} else {
+		ry, _ := args[1].ToFloat()
+		o.RotY = float32(ry)
+	}
+	return args[0], nil
+}
+
+func (m *Module) wGetRot(args []value.Value) (value.Value, error) {
+	o, err := castW(m, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.RotX, o.RotY, o.RotZ)
+}
+
+func (m *Module) wSetScale(args []value.Value) (value.Value, error) {
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("WATER.SETSCALE expects water, scale [or sx,sy,sz]")
+	}
+	o, err := castW(m, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 4 {
+		sx, _ := args[1].ToFloat()
+		sy, _ := args[2].ToFloat()
+		sz, _ := args[3].ToFloat()
+		o.ScaleX, o.ScaleY, o.ScaleZ = float32(sx), float32(sy), float32(sz)
+	} else {
+		s, _ := args[1].ToFloat()
+		o.ScaleX, o.ScaleY, o.ScaleZ = float32(s), float32(s), float32(s)
+	}
+	return args[0], nil
+}
+
+func (m *Module) wGetScale(args []value.Value) (value.Value, error) {
+	o, err := castW(m, heap.Handle(args[0].IVal))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, o.ScaleX, o.ScaleY, o.ScaleZ)
 }
 
 func (m *Module) wGetColor(args []value.Value) (value.Value, error) {

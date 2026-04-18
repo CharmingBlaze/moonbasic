@@ -16,64 +16,74 @@ For scene switching see [SCENE.md](SCENE.md). For level loading see [LEVEL.md](L
 
 ---
 
-### `ENTITY.LOAD(path)` 
-Loads a 3D model from a file path. Returns an **entity id**. 
-- `path`: String path to model file (glTF, OBJ, etc.).
+### `ENTITY.LOAD(path)`
+Loads a 3D model from a file path.
+
+- **Arguments**:
+    - `path`: (String) File path to a model (glTF, OBJ, etc.).
+- **Returns**: (Integer) The new entity ID.
+- **Example**:
+    ```basic
+    hero = ENTITY.LOAD("hero.glb")
+    ```
 
 ---
 
-### `ENTITY.CREATECUBE(size)` 
-Creates a cube primitive entity.
-- `size`: Uniform size of the cube.
+### `ENTITY.CREATECUBE(w, h, d)` / `CREATESPHERE` / `CREATEPLANE`
+Creates a primitive geometric entity.
+
+- **Arguments**:
+    - `w, h, d`: (Float) Dimensions.
+- **Returns**: (Integer) The new entity ID.
 
 ---
 
-### `ENTITY.POSITION(id, x, y, z)` 
-Sets the world position of an entity.
-- `id`: Entity id.
-- `x, y, z`: World coordinates.
+### `ENTITY.SETPOS(id, x, y, z [, world])`
+Sets the position of an entity.
+
+- **Arguments**:
+    - `id`: (Integer) Entity ID.
+    - `x, y, z`: (Float) Coordinates.
+    - `world`: (Boolean, Optional) `TRUE` for world-space, `FALSE` for relative to parent.
+- **Returns**: (Integer) The entity ID (for chaining).
 
 ---
 
-### `ENTITY.MOVE(id, forward, right, up)` 
-Moves the entity along its local axes (from its current pitch and yaw).
-- `forward, right, up`: Distances to move along local vectors.
+### `ENTITY.SETROT(id, pitch, yaw, roll)` / `TURN`
+Sets the absolute Euler rotation (degrees) or adds a relative rotation.
+
+- **Returns**: (Integer) The entity ID (for chaining).
 
 ---
 
-### `ENTITY.SETROTATION(id, pitch, yaw, roll)` 
-Sets the absolute rotation of an entity in degrees.
-
----
-
-### `ENTITY.TURN(id, pitch, yaw, roll)` 
-Adds to the current rotation of an entity (delta rotation in degrees).
-
----
-
-### `ENTITY.SCALE(id, sx, sy, sz)` 
+### `ENTITY.SETSCALE(id, sx, sy, sz)`
 Sets the non-uniform scale of an entity.
 
----
-
-### `ENTITY.PARENT(child, parent)` 
-Parents one entity to another. The child inherits the parent's transforms.
+- **Returns**: (Integer) The entity ID (for chaining).
 
 ---
 
-### `ENTITY.UNPARENT(id)` 
-Removes the parent from an entity while maintaining its world position.
+### `ENTITY.PARENT(child, parent)` / `UNPARENT`
+Establishes a hierarchy between two entities.
+
+- **Returns**: (Integer) The child entity ID (for chaining).
 
 ---
 
-### `ENTITY.VISIBLE(id, toggle)` 
-Sets whether the entity is visible.
-- `toggle`: Boolean (`TRUE` or `FALSE`).
+### `ENTITY.UPDATE(dt)`
+Advances physics, animation, and lerps for all entities.
+
+- **Returns**: (None)
 
 ---
 
-### `ENTITY.FREE(id)` 
-Frees the entity and its resources from memory.
+### `ENTITY.DRAWALL()` / `DRAW(id)`
+Renders the scene graph or a specific entity.
+
+---
+
+### `ENTITY.FREE(id)`
+Frees the entity and its resources.
 
 ---
 

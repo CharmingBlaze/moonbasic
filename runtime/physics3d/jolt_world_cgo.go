@@ -392,10 +392,26 @@ func (m *Module) phProcessCollisions(args []value.Value) (value.Value, error) {
 	
 	// Drain rigid body contacts (sensors & triggers)
 	events := sys.DrainContactQueue(256)
-	for range events {
-		// Map global BodyIDs back to Entity handles if possible
-		// This requires a lookup which we'll implement later or rely on the script to filter.
-		// For now, we only support the virtual character callback pattern if specifically registered.
+	for _, ev := range events {
+		ha, okA := joltLookupHandle(ev.BodyA)
+		hb, okB := joltLookupHandle(ev.BodyB)
+		if !okA || !okB {
+			continue
+		}
+
+		joltMu.Lock()
+		for _, rule := range collRules {
+			// Match bidirectional rules (h1=ha, h2=hb OR h1=hb, h2=ha)
+			// A rule with ha=0 or hb=0 could be a wildcard, but MoonBASIC currently requires explicit pairs.
+			if (rule.ha == ha && rule.hb == hb) || (rule.ha == hb && rule.hb == ha) {
+				collPending = append(collPending, collEvent{
+					ha: ha,
+					hb: hb,
+					cb: rule.cb,
+				})
+			}
+		}
+		joltMu.Unlock()
 	}
 
 	// Character collisions already populate collPending elsewhere (usually in Step)

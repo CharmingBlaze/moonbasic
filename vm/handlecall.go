@@ -791,6 +791,8 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "NAVAGENT.SETPOS", true, true
 		case "GETPOS":
 			return "NAVAGENT.GETPOS", true, true
+		case "SETROT", "ROT":
+			return "NAVAGENT.SETROT", true, true
 		case "GETROT":
 			return "NAVAGENT.GETROT", true, true
 		case "SETSPEED", "SPEED":
@@ -1767,16 +1769,26 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "DECAL.SETPOS", true, true
 		case "GETPOS":
 			return "DECAL.GETPOS", true, true
+		case "SETROT", "ROT":
+			return "DECAL.SETROT", true, true
+		case "GETROT":
+			return "DECAL.GETROT", true, true
 		case "SETSIZE", "SIZE":
 			return "DECAL.SETSIZE", true, true
 		case "GETSIZE":
 			return "DECAL.GETSIZE", true, true
+		case "SETCOLOR", "COLOR":
+			return "DECAL.SETCOLOR", true, true
+		case "GETCOLOR":
+			return "DECAL.GETCOLOR", true, true
+		case "SETALPHA", "ALPHA":
+			return "DECAL.SETALPHA", true, true
+		case "GETALPHA":
+			return "DECAL.GETALPHA", true, true
 		case "SETLIFETIME", "LIFETIME":
 			return "DECAL.SETLIFETIME", true, true
 		case "GETLIFETIME":
 			return "DECAL.GETLIFETIME", true, true
-		case "GETROT":
-			return "DECAL.GETROT", true, true
 		case "DRAW":
 			return "DECAL.DRAW", true, true
 		case "FREE":
@@ -1788,6 +1800,14 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "WATER.SETPOS", true, true
 		case "GETPOS":
 			return "WATER.GETPOS", true, true
+		case "SETROT", "ROT":
+			return "WATER.SETROT", true, true
+		case "GETROT":
+			return "WATER.GETROT", true, true
+		case "SETSCALE", "SCALE":
+			return "WATER.SETSCALE", true, true
+		case "GETSCALE":
+			return "WATER.GETSCALE", true, true
 		case "DRAW":
 			return "WATER.DRAW", true, true
 		case "FREE":
@@ -1855,6 +1875,10 @@ func handleCallBuiltin(tag uint16, method string) (registryKey string, prependRe
 			return "TERRAIN.SETPOS", true, true
 		case "GETPOS":
 			return "TERRAIN.GETPOS", true, true
+		case "SETROT", "ROT":
+			return "TERRAIN.SETROT", true, true
+		case "GETROT":
+			return "TERRAIN.GETROT", true, true
 		case "SETSCALE", "SCALE":
 			return "TERRAIN.SETSCALE", true, true
 		case "GETSCALE":

@@ -14,23 +14,35 @@ Commands for elapsed program time, per-frame delta, and wall-clock values.
 
 ---
 
-### `TIME.DELTA()` 
+### `TIME.DELTA()`
 Returns seconds since last frame.
 
+- **Returns**: (Float) The frame delta time (DT).
+- **Example**:
+    ```basic
+    pos = pos + speed * TIME.DELTA()
+    ```
+
 ---
 
-### `TIME.GET()` 
+### `TIME.GET()`
 Returns total elapsed seconds since start.
 
+- **Returns**: (Float) Total seconds.
+
 ---
 
-### `TICKCOUNT()` 
+### `TICKCOUNT()`
 Returns total elapsed milliseconds since start.
 
+- **Returns**: (Integer) Total milliseconds.
+
 ---
 
-### `DATE` / `TIME` / `DATETIME` / `TIMESTAMP` 
-Returns formatted wall-clock strings or epoch values as documented in the command registry (**`TIMESTAMP`** — Unix seconds).
+### `DATE` / `TIME` / `DATETIME` / `TIMESTAMP`
+Returns wall-clock strings or epoch values.
+
+- **Returns**: (String/Integer) Formatted date/time or Unix timestamp.
 
 ---
 

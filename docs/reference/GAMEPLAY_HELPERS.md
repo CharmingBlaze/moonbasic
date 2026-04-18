@@ -2,153 +2,85 @@
 
 A collection of beginner-friendly building blocks for common game patterns: entity distance/movement, proximity triggers, and camera-relative controls.
 
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
+
 ## Core Workflow
 
-1. Use **`ENTITY.WITHINRADIUS`** or **`ENTITY.DISTANCE`** to detect proximity.
-2. Use **`ENTITY.MOVETOWARD`** or **`ENTITY.MOVEWITHCAMERA`** to drive movement.
-3. Read **`ENTITY.GETPOS`** for world-space positions when needed.
+1. **Proximity:** Use `ENTITY.WITHINRADIUS` or `ENTITY.DISTANCE` to detect nearby targets.
+2. **Movement:** Drive behavior using `ENTITY.MOVETOWARD` or `ENTITY.MOVEWITHCAMERA`.
+3. **Alignment:** Ensure entities face their targets with `ENTITY.TURNTOWARD` or `ENTITY.LOOKAT`.
+4. **Camera:** Link the view to gameplay using `CAMERA.ORBITENTITY`.
 
 ---
 
-## Entity verbs
+## 1. Proximity and Distance
 
-### `ENTITY.DISTANCE(a, b)` / `ENTITY.DIST` / `ENTITY.DISTANCETO(a, b)` 
-
-Returns the **3D** world distance between two entities (numeric **entity#** or **EntityRef** handle). **`ENTITY.DISTANCETO`** is the same distance; **`ENTITY.DIST`** is a short alias.
-
----
-
-### Horizontal (XZ) distance 
-
-There is no separate **XZ-only** built-in. Use **`ENTITY.GETPOS`** on both entities and compare on **X/Z**, or use **`ENTITY.WITHINRADIUS`** when a **3D** sphere test is acceptable.
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `ENTITY.DISTANCE(a, b)` | Integer, Integer | Float | 3D world distance between `a` and `b`. |
+| `ENTITY.DISTANCETO(a, b)`| Integer, Integer | Float | Same as `DISTANCE`. |
+| `ENTITY.WITHINRADIUS(a, b, r)`| Integer, Integer, Float| Boolean | `TRUE` if `b` is within `r` of `a`. |
 
 ---
 
-### `ENTITY.WITHINRADIUS(a, b, radius)` 
+## 2. Targeted Movement
 
-Returns **`TRUE`** if entity **`b`** is within **3D** **`radius`** of entity **`a`** (center-to-center sphere test).
-
----
-
-### `ENTITY.MOVETOWARD(id, target, speed)` / `ENTITY.MOVETOWARD(id, x, z, speed)` 
-
-Moves an entity toward a **target entity** or a world **(x, z)** on the ground plane at **`speed`**.
-
----
-
-### `ENTITY.TURNTOWARD(id, targetX, targetZ, turnSpeed)` 
-
-Smoothly rotates an entity to face a world **(x, z)** position at **`turnSpeed`**.
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `ENTITY.MOVETOWARD(e, target, s)`| Integer, Integer, Float | Handle | Moves entity `e` toward entity `target`. |
+| `ENTITY.MOVETOWARD(e, x, z, s)` | Integer, Float, Float, Float| Handle | Moves entity `e` toward world `(x, z)`. |
+| `ENTITY.TURNTOWARD(e, x, z, s)` | Integer, Float, Float, Float| Handle | Smoothly rotates `e` to face `(x, z)`. |
+| `ENTITY.LOOKAT(e, x, z)` | Integer, Float, Float | Handle | Instantly faces `(x, z)`. |
 
 ---
 
-### `ENTITY.LOOKAT(id, x, z)` 
+## 3. Character and Camera
 
-Instantly makes an entity face a world **(x, z)** position.
-
----
-
-## World / terrain
-
-### `TERRAIN.GETHEIGHT(terrain, x, z)` 
-
-Returns the terrain surface height at world **(x, z)** for a loaded heightmap terrain **handle** (see [TERRAIN.md](TERRAIN.md)).
-
----
-
-### `ENTITY.RAYCAST(ox, oy, oz, dx, dy, dz, maxDist)` 
-
-Physics ray cast (Jolt path when linked); returns the first hit **entity#** or **`0`**. Same family as **`PHYSICS3D.RAYCAST`** / picking — see [ENTITY.md](ENTITY.md) and [PHYSICS3D.md](PHYSICS3D.md).
-
----
-
-## Character and camera
-
-### `ENTITY.MOVEWITHCAMERA(id, cam, forward, strafe, speed)` 
-
-Moves an entity relative to the camera's orientation (WASD style).
-
----
-
-### `CAMERA.ORBITENTITY(cam, entity, yaw, pitch, dist)` 
-
-Sets up a third-person orbit camera around an entity (see runtime **`CAMERA.ORBITENTITY`** — **yaw**, **pitch**, **dist** in radians / world units).
-
----
-
-## Examples
-
-### Proximity trigger 
-
-```basic
-px, py, pz = ENTITY.GETPOS(player)
-IF ENTITY.WITHINRADIUS(player, door, 2.0) THEN
-    ENTITY.TURNTOWARD(door, px, pz, 5.0)
-    PRINT "Door opening..."
-ENDIF
-```
-
----
-
-### Camera-relative movement 
-
-```basic
-f = INPUT.AXIS(KEY_S, KEY_W)
-s = INPUT.AXIS(KEY_A, KEY_D)
-ENTITY.MOVEWITHCAMERA(player, mainCam, f, s, 10.0)
-```
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `ENTITY.MOVEWITHCAMERA(e, cam, f, s, speed)`| Int, Handle, Float...| Handle | Moves `e` relative to camera (WASD style). |
+| `CAMERA.ORBITENTITY(cam, e, y, p, d)` | Handle, Int, Float...| None | Third-person orbit setup. |
 
 ---
 
 ## Full Example
 
-Player entity that follows camera direction and opens a door on proximity.
+This example creates a player that moves relative to the camera and a "follower" entity that trails the player.
 
 ```basic
-WINDOW.OPEN(960, 540, "Gameplay Helpers")
-WINDOW.SETFPS(60)
-
-cam    = CAMERA.CREATE()
-player = ENTITY.CREATECUBE(1.0)
-door   = ENTITY.CREATECUBE(0.2)
-ENTITY.SETPOS(player, 0, 0.5, 0)
-ENTITY.SETPOS(door,   5, 0.5, 0)
+WINDOW.OPEN(1280, 720, "Gameplay Helpers Demo")
+cam = CAMERA.CREATE()
+player = ENTITY.CREATECUBE(1.0).SETPOS(0, 0.5, 0)
+follower = ENTITY.CREATESPHERE(0.5, 16).SETPOS(5, 0.5, 5)
 
 WHILE NOT WINDOW.SHOULDCLOSE()
     dt = TIME.DELTA()
+    
+    ; 1. Player movement (WASD)
+    forward = INPUT.AXIS(KEY_S, KEY_W)
+    strafe = INPUT.AXIS(KEY_A, KEY_D)
+    player.MOVEWITHCAMERA(cam, forward, strafe, 6.0)
 
-    ; camera-relative WASD
-    f = INPUT.AXIS(KEY_S, KEY_W)
-    s = INPUT.AXIS(KEY_A, KEY_D)
-    ENTITY.MOVEWITHCAMERA(player, cam, f, s, 6.0)
-
-    ; proximity check
-    IF ENTITY.WITHINRADIUS(player, door, 2.0)
-        PRINT "Near door!"
+    ; 2. Follower logic
+    IF NOT ENTITY.WITHINRADIUS(follower, player, 2.0)
+        follower.MOVETOWARD(player, 4.0)
+        follower.TURNTOWARD(player.X(), player.Z(), 5.0)
     END IF
 
-    ENTITY.UPDATE(dt)
-    px, py, pz = ENTITY.GETPOS(player)
-    CAMERA.ORBIT(cam, player, 8.0)
-
-    RENDER.CLEAR(20, 30, 40)
+    ; 3. Camera setup
+    CAMERA.ORBITENTITY(cam, player, 0, 0.5, 10.0)
+    
+    RENDER.CLEAR(30, 30, 40)
     RENDER.BEGIN3D(cam)
         ENTITY.DRAWALL()
-        DRAW3D.GRID(20, 1.0)
+        DRAW3D.GRID(50, 1.0)
     RENDER.END3D()
     RENDER.FRAME()
 WEND
-
-ENTITY.FREE(player)
-ENTITY.FREE(door)
-CAMERA.FREE(cam)
-WINDOW.CLOSE()
 ```
-
----
 
 ## See also
 
-- [ENTITY.md](ENTITY.md) — full entity API
-- [INPUT.md](INPUT.md) — `INPUT.AXIS` and key constants
-- [CAMERA.md](CAMERA.md) — orbit and follow cameras
+- [BEGINNER_FULL_STACK.md](BEGINNER_FULL_STACK.md) — high-level bridge commands
+- [ENTITY.md](ENTITY.md) — full entity API reference
+- [CAMERA.md](CAMERA.md) — camera modes and projection

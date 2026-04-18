@@ -15,47 +15,68 @@ For CPU pixel buffers see [IMAGE.md](IMAGE.md).
 
 ---
 
-### `TEXTURE.LOAD(path)` 
+### `TEXTURE.LOAD(path)`
 Loads a GPU texture from disk. Returns a **texture handle**.
 
+- **Arguments**:
+    - `path`: (String) File path relative to working directory.
+- **Returns**: (Handle) The new texture handle.
+- **Example**:
+    ```basic
+    tex = TEXTURE.LOAD("assets/grass.png")
+    ```
+
 ---
 
-### `TEXTURE.FROMIMAGE(id)` 
+### `TEXTURE.FROMIMAGE(imgHandle)`
 Creates a GPU texture from an in-memory `Image` handle.
 
+- **Arguments**:
+    - `imgHandle`: (Handle) The CPU image source.
+- **Returns**: (Handle) A new GPU texture.
+
 ---
 
-### `TEXTURE.FREE(handle)` 
+### `TEXTURE.FREE(handle)`
 Unloads GPU data and releases the handle from memory and its heap slot.
 
 ---
 
-### `TEXTURE.WIDTH(handle)` / `TEXTURE.HEIGHT(handle)` 
+### `TEXTURE.WIDTH(handle)` / `TEXTURE.HEIGHT(handle)`
 Returns the integer pixel dimensions of the texture.
 
 ---
 
-### `TEXTURE.SETFILTER(handle, filter)` 
-Sets the sampling filter (e.g., `FILTER_POINT`, `FILTER_BILINEAR`, `FILTER_TRILINEAR`).
+### `TEXTURE.SETFILTER(handle, filter)`
+Sets the sampling filter.
+
+- **Arguments**:
+    - `handle`: (Handle) The texture to modify.
+    - `filter`: (Integer) Filter mode constant (e.g., `FILTER_POINT`).
+- **Returns**: (Handle) The texture handle (for chaining).
 
 ---
 
-### `RENDERTARGET.CREATE(w, h)` 
-Creates an off-screen render target (FBO). Returns a **handle**. **`RENDERTARGET.MAKE`** is a **deprecated** alias of **`RENDERTARGET.CREATE`**.
+### `RENDERTARGET.CREATE(w, h)`
+Creates an off-screen render target (FBO). Returns a **handle**.
+
+- **Arguments**:
+    - `w, h`: (Integer) Dimensions in pixels.
+- **Returns**: (Handle) The new render target handle.
 
 ---
 
-### `RENDERTARGET.BEGIN(handle)` 
-Starts drawing into the specified render target. Subsequent **`DRAW.*`** calls target this FBO.
+### `RENDERTARGET.BEGIN(handle)`
+Starts drawing into the specified render target.
 
 ---
 
-### `RENDERTARGET.END()` 
+### `RENDERTARGET.END()`
 Ends drawing into the current target and returns to the default framebuffer.
 
 ---
 
-### `RENDERTARGET.FREE(handle)` 
+### `RENDERTARGET.FREE(handle)`
 Frees the render target and its associated color texture from memory.
 
 The color attachment is often **Y-flipped** vs screen space; use **`DRAW.TEXTUREPRO`** / **`DRAW.TEXTUREREC`** with a negative source height, or draw helpers that account for UV orientation, when compositing to the screen.

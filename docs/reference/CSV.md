@@ -13,33 +13,38 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `CSV.LOAD(path)` 
-Reads a CSV file from disk and returns a new **handle**.
+### `CSV.LOAD(path)` / `FROMSTRING`
+Loads or parses CSV data into a handle.
+
+- **Returns**: (Handle) The new CSV handle.
+- **Example**:
+    ```basic
+    h = CSV.LOAD("data.csv")
+    ```
 
 ---
 
-### `CSV.SAVE(handle, path)` 
-Writes the CSV table to disk as UTF-8 text.
+### `CSV.GET(handle, row, col)` / `SET`
+Accesses cell values using **1-based** indexing.
+
+- **Arguments**:
+    - `handle`: (Handle) The CSV table.
+    - `row, col`: (Integer) 1-based coordinates.
+- **Returns**: (String) For `GET`.
 
 ---
 
-### `CSV.FREE(handle)` 
-Releases the heap object and frees memory.
+### `CSV.ROWCOUNT(handle)` / `COLCOUNT`
+Returns the dimensions of the table.
+
+- **Returns**: (Integer)
 
 ---
 
-### `CSV.ROWCOUNT(handle)` / `CSV.COLCOUNT(handle)` 
-Returns the number of rows or columns. If the table is empty, column count is 0; otherwise it follows the first row's width. Note that indexing is **1-based**.
+### `CSV.TOJSON(handle)`
+Converts the table to a JSON array of objects (using the first row as headers).
 
----
-
-### `CSV.GET(handle, row, col)` 
-Returns the cell string at the specified **1-based** index (matching typical BASIC grids).
-
----
-
-### `CSV.SET(handle, row, col, value)` 
-Sets the cell string at the specified **1-based** index.
+- **Returns**: (Handle) A new JSON handle.
 
 ---
 

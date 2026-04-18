@@ -1,120 +1,85 @@
-# Blitz-style “2025” API map
+# Blitz 2025: Modern Ergonomics
 
-MoonBASIC uses **dotted command names** (`ENTITY.*`, `CAMERA.*`, …). This page maps common Blitz-style names to **built-in equivalents** (aliases share the same implementation; no duplicate semantics).
+A vision for modern game development in MoonBASIC, combining the rapid prototyping speed of Blitz3D with modern engine features like Jolt Physics, JSON state, and Fluent APIs.
 
-For a **line-by-line checklist** of classic Blitz3D/BlitzPlus command names (Plot, CreateCube, CameraZoom, LoadTexture, …) and their moonBASIC counterparts, see **[BLITZ_COMMAND_INDEX.md](BLITZ_COMMAND_INDEX.md)**.
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
----
+## Core Workflow
 
-## 1. Scene and world
-
-| Intent | MoonBASIC command | Notes |
-|--------|-------------------|--------|
-| Save entities to JSON | **`ENTITY.SAVESCENE(path)`** or **`SCENE.SAVESCENE`** | Same handler; format v1 (see below). |
-| Load entities from JSON | **`ENTITY.LOADSCENE(path)`** or **`SCENE.LOADSCENE`** | Clears the world first, then spawns entities. |
-| Clear all entities | **`ENTITY.CLEARSCENE`** or **`SCENE.CLEARSCENE`** | Resets entity ids and groups. |
-| Scene flow / transitions | **`SCENE.REGISTER`**, **`SCENE.LOAD`**, … | Existing [scene](SCENE.md) system for scripted scene switches. |
-
-**Scene file format (v1):** JSON with `v: 1` and `e: [...]` entity records (kind, transform, color, optional `path` for models). Primitives and file-backed models reload; procedural meshes without a path are recreated as a default cube mesh.
-
-**Groups (runtime only):** **`ENTITY.GROUPCREATE`**, **`GROUPADD`**, **`GROUPREMOVE`**. **`ENTITY.ENTITIESINGROUP`** returns an **array handle** of entity ids, or **NULL** when empty.
-
-**Spatial queries:** **`ENTITY.ENTITIESINRADIUS`**, **`ENTITY.ENTITIESINBOX`** — return a **1D float array** of ids (use **`ARRAYLEN`** / indexing). **NULL** means no matches.
+1. **Modern Types:** Use `MAP` and `LIST` handles instead of legacy `Type` structures.
+2. **Physics First:** Use `ENTITY.ADDPHYSICS` (or `.PHYSICS()`) to let Jolt handle motion and collision.
+3. **Data Driven:** Load levels and config from JSON using the `JSON.*` namespace.
+4. **Fluent API:** Chain your entity configuration for readable, compact code.
 
 ---
 
-## 2. Math and vectors
+## 1. Modern Data Structures
 
-| Intent | MoonBASIC |
-|--------|-----------|
-| Vec3(x,y,z) | **`VEC3.MAKE`** or alias **`VEC3.VEC3`** |
-| VecAdd / Sub / Scale / Normalize / Dot / Cross / Length | **`VEC3.ADD`**, **`VEC3.SUB`**, **`VEC3.MUL`**, **`VEC3.NORMALIZE`**, **`VEC3.DOT`**, **`VEC3.CROSS`**, **`VEC3.LENGTH`** — or **`VEC3.VECADD`**, **`VECSUB`**, **`VECSCALE`**, … |
-| WrapAngle, Lerp, SmoothStep | Top-level **`WRAPANGLE`**, **`LERP`**, **`SMOOTHSTEP`** or **`MATH.*`** variants (see manifest). |
+Forget legacy globals. Use handles for dynamic state.
 
----
-
-## 3. Camera
-
-| Intent | MoonBASIC |
-|--------|-----------|
-| Set target to point | **`CAMERA.SETTARGET`** |
-| Set target to entity | **`CAMERA.SETTARGETENTITY(cam, entity)`** |
-| Third-person follow | **`CAMERA.FOLLOW`** (world target) or **`CAMERA.FOLLOWENTITY`** / **`CAMERA.CAMERAFOLLOW`** (entity + dist/height/smooth) |
-| Orbit | **`CAMERA.SETORBIT`**, **`CAMERA.ORBIT`**, **`CAMERA.ORBITENTITY`** |
-| Zoom FOV | **`CAMERA.ZOOM`** |
-| Screen ray / pick | **`CAMERA.GETRAY(cam, sx, sy)`** or alias **`CAMERA.PICK`** (same as **`GETRAY`**) |
-| Shake | **`CAMERA.SHAKE(cam, amount, duration)`** — applied during **`CAMERA.BEGIN`** |
+| Command | Arguments | Returns | Description |
+|---------|-----------|---------|-------------|
+| `MAP()` | None | Handle | Creates a key-value dictionary. |
+| `LIST()`| None | Handle | Creates a dynamic array. |
+| `JSON.LOAD(path)` | String | Handle | Parses a JSON file into a Map/List. |
 
 ---
 
-## 4. Physics (Jolt, Linux + CGO)
+## 2. Jolt Physics Integration
 
-| Intent | MoonBASIC |
-|--------|-----------|
-| World gravity | **`PHYSICS3D.SETGRAVITY`** or alias **`PHYSICS.SETGRAVITY`** |
-| Ray cast | **`PHYSICS3D.RAYCAST`** or **`PHYSICS.RAYCAST`** |
-| Character | **`CHARCONTROLLER.CREATE`** or **`CONTROLLER.CREATE`** (deprecated **`CHARCONTROLLER.MAKE`** / **`CONTROLLER.MAKE`**); **`MOVE`**, **`ISGROUNDED`** / **`CONTROLLER.GROUNDED`**; **`FREE`** |
+The "Blitz 2025" way is to let the physics engine solve the world.
 
-**`PHYSICS.SPHERECAST` / `BOXCAST` / `ENABLE` / `DISABLE`:** reserved stubs with messages directing to **`RAYCAST`** / **`BODY3D.ACTIVATE`** / **`DEACTIVATE`**. **`CONTROLLER.JUMP`** is not implemented on this controller yet.
-
----
-
-## 5. Rendering (fog, lights, materials)
-
-| Intent | MoonBASIC |
-|--------|-----------|
-| Fog color / range | **`FOG.SETCOLOR`**, **`FOG.SETNEAR` / `SETFAR`** or **`FOG.SETRANGE(near, far)`** |
-| Lights | **`LIGHT.CREATE`** / typed **`LIGHT.CREATEPOINT`** …, **`LIGHT.SETCOLOR`**, **`LIGHT.SETRANGE`**, cones, … (deprecated: **`LIGHT.MAKE`**) |
-| Skybox | **`RENDER.SETSKYBOX`** (path) — see [rendering docs](../BUILDING.md) / manifest |
-| Material | **`MATERIAL.MAKEDEFAULT`** or **`MATERIAL.CREATE`** (alias) |
+| Method | Arguments | Returns | Description |
+|--------|-----------|---------|-------------|
+| `.PHYSICS(mode)`| Int | Handle | Adds a Jolt body to an entity. |
+| `.IMPULSE(x,y,z)`| Float... | Handle | Applies a physics impulse. |
+| `.GRAVITY(g)` | Float | Handle | Sets per-entity gravity scale. |
 
 ---
 
-## 6. Input
+## 3. Advanced Scene Control
 
-| Intent | MoonBASIC |
-|--------|-----------|
-| Mouse position | **`INPUT.MOUSEX`**, **`INPUT.MOUSEY`** |
-| Mouse delta | **`INPUT.MOUSEXSPEED`**, **`INPUT.MOUSEYSPEED`** (Blitz aliases) or **`INPUT.MOUSEDELTAX/Y`** |
-| Mouse down / hit | **`INPUT.MOUSEDOWN`**, **`INPUT.MOUSEHIT`** (pressed this frame) |
-| Gamepad | **`INPUT.JOYX`**, **`JOYY`**, **`JOYBUTTON`**, **`INPUT.JOYDOWN`** (alias of **`JOYBUTTON`**) |
-
----
-
-## 7. Audio
-
-Use **`AUDIO.LOADSOUND`**, **`AUDIO.PLAY`**, **`AUDIO.STOP`**, **`AUDIO.SETSOUNDVOLUME`**, etc. Raylib 2D panning exists; full **3D positional** mixing is not exposed as separate builtins here—use engine docs for extensions.
+| Command | Arguments | Returns | Description |
+|---------|-----------|---------|-------------|
+| `SCENE.LOAD(path)`| String | Handle | Loads a GLTF/GLB scene with entities. |
+| `FOG.COLOR(r,g,b)`| Int... | None | Sets global distance fog. |
+| `SKYBOX(path)` | String | Handle | Sets the environment cubemap. |
 
 ---
 
-## 8. Timing
+## Full Example: The 2025 Character Controller
 
-**`TIME.GET`**, **`TIME.DELTA`**, **`TIMER`** (monotonic seconds). A full **`TimerCreate` / `TimerWait`** coroutine-style API is not implemented; use **`TIME.GET`** and comparisons in your update loop.
+A modern character controller using Jolt physics and method chaining.
 
----
+```basic
+WINDOW.OPEN(1280, 720, "Blitz 2025")
+cam = CAM().POS(0, 5, -10).LOOK(0, 0, 0)
 
-## 9. Files and JSON
+; Create a player with Jolt physics (Mode 2 = Dynamic)
+player = SPHERE(0.5).POS(0, 10, 0).COLOR(0, 255, 100).PHYSICS(2)
 
-| Intent | MoonBASIC |
-|--------|-----------|
-| Exists | **`FILE.EXISTS(path)`** |
-| Read whole text | **`FILE.READALLTEXT(path)`** |
-| Write whole text | **`FILE.WRITEALLTEXT(path, text)`** |
-| Load JSON from file | **`JSON.PARSE(path)`** or **`JSON.LOADFILE`** (same behavior: path on disk) |
-| Save JSON | **`JSON.TOFILE`** or **`JSON.SAVEFILE`** `(jsonHandle, path)` |
+; Create a floor
+floor = CUBE(20, 1, 20).POS(0, -0.5, 0).COLOR(50, 50, 50).PHYSICS(0)
 
----
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    
+    ; Physics is solved automatically in the background
+    ; We just apply forces based on input
+    IF KEYDOWN(KEY_W) THEN player.IMPULSE(0, 0, 500 * dt)
+    
+    RENDER.CLEAR(10, 10, 15)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
 
-## 10. Debug
+WINDOW.CLOSE()
+```
 
-| Intent | MoonBASIC |
-|--------|-----------|
-| Log | **`DEBUG.LOG`**, **`DEBUG.PRINT`** |
-| Draw line / box (3D, inside **`CAMERA.Begin`/`End`**) | **`DEBUG.DRAWLINE`**, **`DEBUG.DRAWBOX`** |
+## See also
 
----
-
-## Related
-
-- [BLITZ3D.md](BLITZ3D.md) — core Blitz-style entity/camera/input aliases  
-- [CAMERA.md](CAMERA.md), [INPUT.md](INPUT.md), [PHYSICS3D.md](PHYSICS3D.md) where present  
+- [PHYSICS3D.md](PHYSICS3D.md) — Deep dive into Jolt integration
+- [JSON.md](JSON.md) — Working with modern data formats
+- [NETWORKING.md](NETWORKING.md) — Building multiplayer "2025" games

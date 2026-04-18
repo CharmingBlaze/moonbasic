@@ -8,8 +8,31 @@ This guide explains how **built-in commands** fit together, how to structure pro
 
 Built-ins look like method calls. Prefer registry style: `WINDOW.OPEN(...)`, `DRAW.RECTANGLE(...)`, `TIME.DELTA()` — Easy Mode (`Window.Open`, …) is the same keys; see [EASY_MODE.md](EASY_MODE.md).
 
-You can write **any mix of upper and lower case** in source — it does not matter for the language. (Internally the compiler picks a single spelling for names; built-in calls still match the manifest’s **uppercase** `NAMESPACE.NAME` keys.) These are the same call:
+---
 
+## 2. Method Chaining & Fluent API
+
+One of the most powerful features of modern MoonBASIC is **Method Chaining**. Most setters and creation commands return the object's handle, allowing you to chain multiple operations into a single, readable line.
+
+### Comparison: Legacy vs. Modern
+```basic
+; Legacy Style (One command per line)
+hero = ENTITY.CREATE(model)
+ENTITY.SETPOS(hero, 10, 0, 5)
+ENTITY.SETROT(hero, 0, 45, 0)
+ENTITY.SETCOLOR(hero, 255, 100, 100)
+
+; Modern Modern Style (Chaining)
+hero = ENTITY.CREATE(model).setPos(10, 0, 5).setRot(0, 45, 0).setColor(255, 100, 100)
+```
+
+### Why use it?
+- **Readability**: It's clear that all these operations are being performed on the `hero` object.
+- **Conciseness**: Less boilerplate and repeated variable names.
+- **DX**: Most commands in MoonBASIC are designed with this "Fluent API" in mind.
+
+### Case Insensitivity & Namespaces
+You can write **any mix of upper and lower case** in source — it does not matter for the language. (Internally the compiler picks a single spelling for names; built-in calls still match the manifest’s **uppercase** `NAMESPACE.NAME` keys.) These are the same call:
 - `Window.Open` → `WINDOW.OPEN`
 - `draw.rectangle` → `DRAW.RECTANGLE`
 
@@ -19,7 +42,7 @@ Use whatever style reads best; examples in the repo often use **Mixed.Case** for
 
 ---
 
-## 2. Arguments and types
+## 3. Arguments and types
 
 Commands are **type-checked** against the manifest (`compiler/builtinmanifest/commands.json`). Typical argument kinds:
 

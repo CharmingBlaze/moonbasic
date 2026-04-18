@@ -1,65 +1,84 @@
-# Camera, lights, and rendering (engine-style map)
+# Camera, Light, and Rendering
 
-moonBASIC uses **`CAMERA.*`** (heap **handles**, not integer IDs), **`LIGHT.*`** handles, and **`RENDER.*`** / **`FOG.*`** / **`POST.*`** for atmosphere and post-processing. **CGO** + Raylib required for full behavior.
+A high-level overview of atmospheric controls, camera management, and light setup in the MoonBASIC engine.
 
----
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-## 1. Camera module
+## Core Workflow
 
-| Concept | moonBASIC |
-|--------|-----------|
-| Create camera | **`CAMERA.CREATE`** (canonical) or deprecated **`CAMERA.MAKE`** / **`CAM`** — returns a **handle** (`Camera3D`). |
-| Set eye position | **`CAMERA.SETPOS`** (canonical) / deprecated **`CAMERA.SETPOSITION`** |
-| Set look-at target | **`CAMERA.SETTARGET`** / **`CAMERA.LOOKAT`** |
-| Field of view | **`CAMERA.SETFOV`** (vertical FOV in degrees, Raylib-style) |
-| Perspective vs orthographic | **`CAMERA.SETMODE`** — **`0`** / **`"perspective"`** or **`1`** / **`"orthographic"`**; or **`CAMERA.SETPROJECTION`** `(cam, 0\|1)`. |
-| Follow behind an entity | **`CAMERA.FOLLOWENTITY`** `(camera, entity, dist, height, smooth)` — third-person each frame. (**`CAMERA.FOLLOW`** is a lower-level variant with explicit world target + yaw — 8 args.) |
-| Screen shake | **`CAMERA.SHAKE`** `(camera, amount, duration)` |
-| World → screen (HUD) | **`CAMERA.PROJECT`** / **`CAMERA.WORLDTOSCREEN`** `(camera, wx, wy, wz)` → 2-float array handle **(x, y)** in screen pixels. |
-| Screen → world ray | **`CAMERA.UNPROJECT`** / **`CAMERA.GETRAY`** / **`CAMERA.PICK`** `(camera, screenX, screenY)` → **ray handle**. |
-
-See **[CAMERA.md](CAMERA.md)** for orbit, FPS mode, culling, and 2D cameras.
+1. **Camera:** Create a viewpoint with `CAMERA.CREATE` and link it to the scene.
+2. **Lights:** Populate the world with `LIGHT.CREATEPOINT` or `LIGHT.CREATEDIRECTIONAL`.
+3. **Atmosphere:** Configure global effects like `RENDER.SETFOG` and `RENDER.SETAMBIENT`.
+4. **Post-Process:** Apply final polish using `RENDER.SETBLOOM` or `CAMERA.SHAKE`.
 
 ---
 
-## 2. Light module
+## 1. Camera Module
 
-| Concept | moonBASIC |
-|--------|-----------|
-| Point (omni) | **`LIGHT.CREATEPOINT`** `(x, y, z, r, g, b, energy)` |
-| Directional (sun) | **`LIGHT.CREATEDIRECTIONAL`** `(dx, dy, dz, r, g, b, energy)` — direction is normalized. |
-| Spotlight | **`LIGHT.CREATESPOT`** `(x,y,z, tx,ty,tz, r,g,b, outerConeDeg, energy)` — aim is **position → target**; inner cone is derived. |
-| Generic | **`LIGHT.CREATE`** `([kind$])` (canonical) or deprecated **`LIGHT.MAKE`**; then **`LIGHT.SETPOS`**, **`LIGHT.SETDIR`**, **`LIGHT.SETTARGET`**, cones, **`LIGHT.SETRANGE`**, etc. |
-| Color | **`LIGHT.SETCOLOR`** — channels **0–1** or **0–255** (same heuristic as elsewhere). |
-| Position | **`LIGHT.SETPOS`** (canonical) / deprecated **`LIGHT.SETPOSITION`** |
-| On / off | **`LIGHT.ENABLE`** or **`LIGHT.SETSTATE`** `(light, enabled)` |
-| Range | **`LIGHT.SETRANGE`** |
-| Free | **`LIGHT.FREE`** |
-
-PBR + directional shadows are described in **[LIGHT.md](LIGHT.md)** and the API consistency doc.
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `CAMERA.CREATE()` | None | Handle | Creates a new 3D camera. |
+| `CAMERA.SETPOS(c, x, y, z)`| Handle, Float...| Handle | Positions the camera. |
+| `CAMERA.SETTARGET(c, x, y, z)`| Handle, Float...| None | Sets the look-at target. |
+| `CAMERA.SETFOV(c, fov)` | Handle, Float | None | Sets field of view in degrees. |
+| `CAMERA.FOLLOWENTITY(c, e, d, h, s)`| Handle, Int, Float...| None | Smooth third-person follow. |
+| `CAMERA.SHAKE(c, a, d)` | Handle, Float...| None | Screen shake effect. |
 
 ---
 
-## 3. Atmosphere, fog, post, screenshots
+## 2. Light Module
 
-| Concept | moonBASIC |
-|--------|-----------|
-| Scene ambient (PBR) | **`RENDER.SETAMBIENT`** `(r, g, b)` or **`(r, g, b, intensityScale)`** — fourth component scales RGB. |
-| Fog + density in one call | **`RENDER.SETFOG`** `(r, g, b, start, end, density)` — enables **`FOG.*`**, sets color, range, and **`WORLD.FOGDENSITY`**. You can also use **`FOG.ENABLE`**, **`FOG.SETCOLOR`**, **`FOG.SETRANGE`**, **`WORLD.FOGDENSITY`** separately. |
-| Bloom | **`RENDER.SETBLOOM`** `(threshold)` or **`(threshold, intensity)`** — forwards to **`POST.BLOOM`**. |
-| Screenshot | **`RENDER.SCREENSHOT`** `(path)` — **`TakeScreenshot`** (Raylib). |
-| Forward / deferred pipeline | **`RENDER.SETMODE`** `("forward" \| "deferred")` — internal pipeline flag (see **[RENDER.md](RENDER.md)**). |
-
-**Sky / environment**
-
-- **Procedural sky (time of day):** **`SKY.CREATE`** (canonical) or deprecated **`SKY.MAKE`**, **`SKY.DRAW`**, **`SKY.UPDATE`**, … — see **[SKY.md](SKY.md)**.
-- **`RENDER.SETSKYBOX`** appears in the manifest for future / asset pipeline use; there is **no** dedicated HDR cubemap loader wired to that name yet. Prefer **`SKY.*`** or load environment data through your content path.
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `LIGHT.CREATEPOINT(x, y, z, r, g, b, e)`| Float... | Handle | Omnidirectional point light. |
+| `LIGHT.CREATEDIRECTIONAL(dx, dy, dz, r, g, b, e)`| Float... | Handle | Sun-like directional light. |
+| `LIGHT.CREATESPOT(x, y, z, tx, ty, tz, r, g, b, cone, e)`| Float... | Handle | Focused spotlight. |
+| `LIGHT.SETCOLOR(lt, r, g, b)`| Handle, Float...| None | Sets light tint (0.0-1.0 or 0-255). |
 
 ---
+
+## 3. Atmosphere and Post-Processing
+
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `RENDER.SETAMBIENT(r, g, b, i)`| Float... | None | Sets base scene lighting. |
+| `RENDER.SETFOG(r, g, b, start, end, density)`| Float... | None | Configures distance fog. |
+| `RENDER.SETBLOOM(threshold)`| Float | None | Enables post-process bloom. |
+| `RENDER.SCREENSHOT(path)` | String | None | Saves frame to disk. |
+
+---
+
+## Full Example
+
+A complete scene setup with a camera follow, directional sun, and atmospheric fog.
+
+```basic
+WINDOW.OPEN(1280, 720, "Render Demo")
+cam = CAMERA.CREATE()
+sun = LIGHT.CREATEDIRECTIONAL(0, -1, 0, 255, 255, 200, 2.0)
+player = ENTITY.CREATECUBE(1.0).SETPOS(0, 0.5, 0)
+
+RENDER.SETFOG(20, 20, 30, 10.0, 100.0, 0.01)
+RENDER.SETAMBIENT(50, 50, 60, 1.0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    
+    ; 1. Logic
+    CAMERA.FOLLOWENTITY(cam, player, 10.0, 3.0, 5.0)
+    
+    ; 2. Rendering
+    RENDER.CLEAR(20, 20, 30)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+        DRAW3D.GRID(100, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+```
 
 ## See also
 
-- **[GAME_ENGINE_PATTERNS.md](GAME_ENGINE_PATTERNS.md)** — rays, ambient, shortcuts.
-- **[docs/API_CONSISTENCY.md](../API_CONSISTENCY.md)** — generated manifest index.
-
-Refresh generated table: `go run ./tools/apidoc`.
+- [CAMERA.md](CAMERA.md) — dedicated camera reference
+- [LIGHT.md](LIGHT.md) — dedicated lighting reference
+- [RENDER.md](RENDER.md) — render pipeline and shaders

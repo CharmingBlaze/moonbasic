@@ -756,6 +756,34 @@ func (m *Module) agentGetPos(args []value.Value) (value.Value, error) {
 	return mbmatrix.AllocVec3Value(m.h, float32(a.x), float32(a.y), float32(a.z))
 }
 
+func (m *Module) agentSetRot(args []value.Value) (value.Value, error) {
+	h, err := m.requireHeap()
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("NAVAGENT.SETROT expects (agent, angle#)")
+	}
+	a, err := m.getAgent(h, args[0], "NAVAGENT.SETROT")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 4 {
+		ry, ok := argF64(args[2])
+		if ok {
+			a.rotY = ry
+			a.manualRot = true
+		}
+	} else {
+		ry, ok := argF64(args[1])
+		if ok {
+			a.rotY = ry
+			a.manualRot = true
+		}
+	}
+	return args[0], nil
+}
+
 func (m *Module) agentGetRot(args []value.Value) (value.Value, error) {
 	h, err := m.requireHeap()
 	if err != nil {
@@ -768,15 +796,19 @@ func (m *Module) agentGetRot(args []value.Value) (value.Value, error) {
 	if err != nil {
 		return value.Nil, err
 	}
-	dx, dy, dz := a.movementDirection()
-	p, y, r := EulerFromWorldDirection(dx, dy, dz)
+	y := a.rotY
+	if !a.manualRot {
+		dx, dy, dz := a.movementDirection()
+		_, ay, _ := EulerFromWorldDirection(dx, dy, dz)
+		y = ay
+	}
 	arr, err := heap.NewArray([]int64{3})
 	if err != nil {
 		return value.Nil, err
 	}
-	_ = arr.Set([]int64{0}, p)
+	_ = arr.Set([]int64{0}, 0.0)
 	_ = arr.Set([]int64{1}, y)
-	_ = arr.Set([]int64{2}, r)
+	_ = arr.Set([]int64{2}, 0.0)
 	ah, err := m.h.Alloc(arr)
 	if err != nil {
 		return value.Nil, err

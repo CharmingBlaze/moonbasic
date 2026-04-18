@@ -16,11 +16,21 @@ Command and module **reference** pages use a single **page shape** (the **WAVE p
 6. **Each command** — Repeat this exact block:
    ```
    ### `NAMESPACE.COMMAND(arg1, arg2)` 
-   
+
    One short paragraph: what it does or returns.
-   
+
    - *Handle shortcut*: `handle.method(arg1, arg2)`  ← include only if a handle dispatch exists
-   
+   - **Arguments**:
+     - `arg1` (type): What this argument represents.
+     - `arg2` (type): What this argument represents.
+   - **Returns**: (type) Description of the return value (e.g., a new handle or `self` for chaining).
+
+   - **Example**:
+     ```basic
+     ; Short, focused snippet showing this command in action
+     res = NAMESPACE.COMMAND(a, b)
+     ```
+
    ---
    ```
    **Rules:**
@@ -29,7 +39,9 @@ Command and module **reference** pages use a single **page shape** (the **WAVE p
    - If the command takes no arguments use `()`.
    - For aliased commands: `Alias: NAMESPACE.OTHERNAME` in the body — do **not** create a duplicate heading.
    - Handle shortcut bullet uses `*Handle shortcut*:` (italic, no bold).
-   - `---` separator comes **after** the handle shortcut bullet (or after the body paragraph if no shortcut).
+   - **Arguments** and **Returns** sections are mandatory for clarity.
+   - **Example** snippets are highly recommended for complex commands.
+   - `---` separator comes **after** the last block of the command entry.
 7. **`## Full Example`** — One sentence intro, then a single fenced ` ```basic ` block with `;` comments and realistic cleanup (`FREE`, `STOP`, `WINDOW.CLOSE`).
 8. **`## See also`** — Short bullet list of related pages with one-phrase descriptions.
 

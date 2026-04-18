@@ -15,60 +15,53 @@ For compute shaders, see the `COMPUTESHADER.*` namespace.
 
 ---
 
-### `SHADER.LOAD(vertexPath, fragmentPath)` 
+### `SHADER.LOAD(vertexPath, fragmentPath)`
+Loads GLSL shaders from file paths. Returns a shader handle.
 
-Loads GLSL vertex and fragment shaders from file paths. Returns a shader handle.
-
-- `vertexPath`: Path to the `.vs` / `.vert` file.
-- `fragmentPath`: Path to the `.fs` / `.frag` file.
-
----
-
-### `SHADER.FREE(shaderHandle)` 
-
-Unloads the shader from GPU memory and releases its heap slot.
-
----
-
-### `SHADER.GETLOC(shaderHandle, uniformName)` 
-
-Returns the integer location of a uniform variable by name. Use this to cache locations for per-frame updates.
+- **Arguments**:
+    - `vertexPath`: (String) Path to vertex shader.
+    - `fragmentPath`: (String) Path to fragment shader.
+- **Returns**: (Handle) The new shader handle.
+- **Example**:
+    ```basic
+    sh = SHADER.LOAD("water.vert", "water.frag")
+    ```
 
 ---
 
-### `SHADER.SETFLOAT(shaderHandle, uniformName, value)` 
-
-Sets a float uniform value in the shader.
-
----
-
-### `SHADER.SETINT(shaderHandle, uniformName, value)` 
-
-Sets an integer uniform value in the shader.
+### `SHADER.FREE(shaderHandle)`
+Unloads the shader and releases its heap slot.
 
 ---
 
-### `SHADER.SETVEC2(shaderHandle, uniformName, x, y)` 
+### `SHADER.GETLOC(shaderHandle, uniformName)`
+Returns the location index of a uniform variable.
 
-Sets a 2-component vector uniform.
-
----
-
-### `SHADER.SETVEC3(shaderHandle, uniformName, x, y, z)` 
-
-Sets a 3-component vector uniform.
+- **Arguments**:
+    - `shaderHandle`: (Handle) The shader to query.
+    - `uniformName`: (String) Variable name in GLSL.
+- **Returns**: (Integer) Location index (cache this for performance).
 
 ---
 
-### `SHADER.SETVEC4(shaderHandle, uniformName, x, y, z, w)` 
+### `SHADER.SETFLOAT(shaderHandle, uniformName, value)` / `SETINT`
+Sets a scalar uniform value.
 
-Sets a 4-component vector uniform.
+- **Returns**: (Handle) The shader handle (for chaining).
 
 ---
 
-### `SHADER.SETTEXTURE(shaderHandle, uniformName, textureHandle)` 
+### `SHADER.SETVEC2(shaderHandle, uniformName, x, y)` / `SETVEC3` / `SETVEC4`
+Sets vector uniform values.
 
-Binds a texture handle to a shader uniform sampler.
+- **Returns**: (Handle) The shader handle (for chaining).
+
+---
+
+### `SHADER.SETTEXTURE(shaderHandle, uniformName, textureHandle)`
+Binds a texture to a shader sampler.
+
+- **Returns**: (Handle) The shader handle (for chaining).
 
 ---
 

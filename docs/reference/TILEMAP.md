@@ -18,43 +18,45 @@ Export your maps in `.tmx` format (XML), place the tileset image next to the
 
 ---
 
-### `TILEMAP.LOAD(path)` 
-Loads a Tiled `.tmx` file and its associated tileset image. Returns a **tilemap handle**.
+### `TILEMAP.LOAD(path)`
+Loads a Tiled `.tmx` map and its tileset texture.
+
+- **Arguments**:
+    - `path`: (String) File path to the `.tmx` file.
+- **Returns**: (Handle) The new tilemap handle.
+- **Example**:
+    ```basic
+    map = TILEMAP.LOAD("level1.tmx")
+    ```
 
 ---
 
-### `TILEMAP.FREE(handle)` 
-Unloads the tilemap texture and frees all associated data from memory.
+### `TILEMAP.DRAW(handle, ox, oy)`
+Renders the tilemap with a pixel offset (scrolling).
+
+- **Arguments**:
+    - `handle`: (Handle) The tilemap.
+    - `ox, oy`: (Float) Pixel offsets.
+- **Returns**: (None)
 
 ---
 
-### `TILEMAP.DRAW(handle, offsetX, offsetY)` 
-Draws all tile layers of the map, shifted by a pixel offset. Use the offset to implement scrolling.
+### `TILEMAP.ISSOLID(handle, tx, ty)`
+Returns `TRUE` if the tile at grid coordinates `(tx, ty)` has collision.
+
+- **Returns**: (Boolean)
 
 ---
 
-### `TILEMAP.ISSOLID(handle, tileX, tileY)` 
-Returns `TRUE` if the tile at grid position `(tileX, tileY)` has collision. Collision data is loaded from a layer named `"collision"` in the Tiled map.
+### `TILEMAP.GETTILE(handle, layerName, tx, ty)` / `SETTILE`
+Accesses specific tiles on a named layer.
+
+- **Returns**: (Integer) The tile GID for `GETTILE`.
 
 ---
 
-### `TILEMAP.GETTILE(handle, layerName, tileX, tileY)` 
-Returns the tile GID (global ID) at a specific grid position on a named layer. Returns `0` for empty tiles.
-
----
-
-### `TILEMAP.SETTILE(handle, layerName, x, y, id)` 
-Changes a tile in a layer at runtime. Set `id = 0` to erase.
-
----
-
-### `TILEMAP.WIDTH(handle)` / `TILEMAP.HEIGHT(handle)` 
-Returns map dimensions in tiles.
-
----
-
-### `TILEMAP.SETTILESIZE(handle, w, h)` 
-Overrides the tile pixel dimensions loaded from the `.tmx` file.
+### `TILEMAP.FREE(handle)`
+Releases the tilemap and its texture from memory.
 
 ---
 

@@ -28,6 +28,12 @@ func registerTerrain(m *Module, r runtime.Registrar) {
 	r.Register("TERRAIN.GETPOS", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return terrainGetPos(m, rt, args...)
 	})
+	r.Register("TERRAIN.SETROT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainSetRot(m, rt, args...)
+	})
+	r.Register("TERRAIN.GETROT", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+		return terrainGetRot(m, rt, args...)
+	})
 	r.Register("TERRAIN.SETCHUNKSIZE", "terrain", func(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 		return terrainSetChunkSize(m, rt, args...)
 	})
@@ -193,6 +199,45 @@ func terrainGetPos(m *Module, rt *runtime.Runtime, args ...value.Value) (value.V
 		return value.Nil, err
 	}
 	return mbmatrix.AllocVec3Value(m.h, obj.PX, obj.PY, obj.PZ)
+}
+
+func terrainSetRot(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("TERRAIN.SETROT expects terrain, rot_y [or x,y,z]")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 4 {
+		rx, _ := rt.ArgFloat(args, 1)
+		ry, _ := rt.ArgFloat(args, 2)
+		rz, _ := rt.ArgFloat(args, 3)
+		obj.RotX, obj.RotY, obj.RotZ = float32(rx), float32(ry), float32(rz)
+	} else if len(args) == 2 {
+		ry, _ := rt.ArgFloat(args, 1)
+		obj.RotY = float32(ry)
+	}
+	return args[0], nil
+}
+
+func terrainGetRot(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	if len(args) != 1 {
+		return value.Nil, fmt.Errorf("TERRAIN.GETROT expects terrain")
+	}
+	h, err := rt.ArgHandle(args, 0)
+	if err != nil {
+		return value.Nil, err
+	}
+	obj, err := castTerrain(m, heap.Handle(h))
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocVec3Value(m.h, obj.RotX, obj.RotY, obj.RotZ)
 }
 
 func terrainSetChunkSize(m *Module, rt *runtime.Runtime, args ...value.Value) (value.Value, error) {

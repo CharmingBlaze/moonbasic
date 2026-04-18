@@ -24,48 +24,53 @@ Requires **CGO**. See also [CSV_DATABASE.md](CSV_DATABASE.md).
 
 `Free()` on heap objects is **idempotent**. Closing a **`DB`** rolls back an open transaction and closes all cached statements.
 
-### `DB.OPEN(path)` 
-Opens a SQLite database file. Use `":memory:"` for an in-memory database. Returns a **database handle**.
+### `DB.OPEN(path)`
+Opens a SQLite database file (or `":memory:"`).
+
+- **Arguments**:
+    - `path`: (String) File path to the database.
+- **Returns**: (Handle) The new database handle.
+- **Example**:
+    ```basic
+    db = DB.OPEN("game.db")
+    ```
 
 ---
 
-### `DB.CLOSE(db)` 
-Closes the database and releases all associated resources.
+### `DB.QUERY(db, sql [, params...])`
+Executes a SELECT statement and returns a row set.
+
+- **Arguments**:
+    - `db`: (Handle) The database.
+    - `sql`: (String) The query with `?` placeholders.
+    - `params`: (Optional) Values to bind to placeholders.
+- **Returns**: (Handle) A new rows handle.
 
 ---
 
-### `DB.QUERY(db, sql [, ...params])` 
-Executes a `SELECT` query and returns a **Rows** handle. Supports bound parameters for safe queries.
+### `DB.EXEC(db, sql [, params...])`
+Executes a DML statement (INSERT, UPDATE, DELETE).
+
+- **Returns**: (None)
 
 ---
 
-### `DB.EXEC(db, sql [, ...params])` 
-Executes a SQL statement (e.g., `CREATE`, `INSERT`, `UPDATE`) with optional bound parameters.
+### `ROWS.NEXT(rows)`
+Advances to the next row in the result set.
+
+- **Returns**: (Boolean) `TRUE` if a row is available.
 
 ---
 
-### `ROWS.NEXT(rows)` 
-Advances to the next row in the result set. Returns `FALSE` when no more rows are available.
+### `ROWS.GETSTRING(rows, colName)` / `GETINT`
+Reads a value from the current row.
+
+- **Returns**: (String / Integer)
 
 ---
 
-### `ROWS.GETSTRING(rows, column)` / `ROWS.GETINT(...)` 
-Returns the value of the specified column (**1-based** index) for the current row.
-
----
-
-### `ROWS.CLOSE(rows)` 
-Closes the result set and frees associated memory.
-
----
-
-### `DB.BEGIN(db)` 
-Starts a SQL transaction and returns a **TX** handle.
-
----
-
-### `DB.COMMIT(tx)` / `DB.ROLLBACK(tx)` 
-Finalizes the transaction by committing changes or rolling them back, then frees the handle.
+### `DB.CLOSE(db)` / `ROWS.CLOSE(rows)`
+Releases the database or row set resources.
 
 Freed **`TX`** handles roll back if not yet committed.
 

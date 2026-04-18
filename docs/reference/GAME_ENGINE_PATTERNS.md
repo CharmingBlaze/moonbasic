@@ -1,63 +1,83 @@
-# Game engine patterns (Blitz-style helpers)
+# Game Engine Patterns
 
-moonBASIC keeps the render loop in **`RENDER.FRAME`**, **`CAMERA.Begin`/`End`**, **`ENTITY.UPDATE`**, etc. These commands focus on **state**, **spatial math**, **assets**, and **common gameplay** so you rarely need to hand-roll the same Raylib math.
+Common high-level patterns for world interaction, material management, and lighting in the MoonBASIC engine.
 
-**Entity CRUD / transform API** (`ENTITY.LOAD`, **`ENTITY.POSITION`**, **`ENTITY.TURN`** vs **`ENTITY.SETROTATION`**, **`ENTITY.LOOKAT`**, …) — see **[ENTITY.md](ENTITY.md)** (“Entity.* API” table).
+Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**).
 
-**Camera, lights, fog, bloom, screenshots** — **[CAMERA_LIGHT_RENDER.md](CAMERA_LIGHT_RENDER.md)**.
+## Core Workflow
 
-**3D skeletal clips** (entities + **`ENTITY.UPDATE`**, or **`MODEL.LOADANIMATIONS`** / **`MODEL.UPDATEANIM`**) — **[ANIMATION_3D.md](ANIMATION_3D.md)**.
-
-## 1. Collision and raycasting (3D)
-
-| Idea | moonBASIC |
-|------|-----------|
-| Screen → world ray (“unproject”) | **`CAMERA.UNPROJECT(cam, screenX, screenY)`** — same implementation as **`CAMERA.GETRAY`** / **`CAMERA.PICK`**. |
-| Ray vs loaded model | **`RAY.HITMODEL_*`** or **`RAY.INTERSECTSMODEL_*`** (aliases: same ray, same model handle). Use **`_HIT`** for boolean, **`_DISTANCE`** for hit distance along the ray. |
-| Per-mesh + matrix (custom pose) | **`RAY.HITMESH_*`** with mesh handle + matrix handle. |
-| Distance between entities | **`ENTITY.DISTANCE(e1, e2)`** — also **`MATH.HDIST`** / **`HDIST`** for horizontal (XZ) distance between two points. |
-
-## 2. Texture and material
-
-| Idea | moonBASIC |
-|------|-----------|
-| Swap maps on a material | **`MATERIAL.SETTEXTURE`** (diffuse, normal, specular, etc. — see manifest map-type constants). |
-| Pixelated vs smooth | **`TEXTURE.SETFILTER`** (e.g. point vs bilinear). |
-| Tiling | **`TEXTURE.SETWRAP`**. |
-
-## 3. Lights and world ambient
-
-| Idea | moonBASIC |
-|------|-----------|
-| Point light at position with color + energy | **`LIGHT.CREATEPOINT(x, y, z, r, g, b, energy)`** — returns a light handle. RGB accepts **0–255** or **0.0–1.0** (same heuristic as **`LIGHT.SETCOLOR`**). |
-| Generic light | **`LIGHT.CREATE`** / deprecated **`LIGHT.MAKE`** `("point" \| "directional" \| "spot")`, then **`LIGHT.SETPOS`**, **`LIGHT.SETCOLOR`**, **`LIGHT.SETINTENSITY`**. |
-| Spotlight aim | **`LIGHT.SETTARGET`** (shadow frustum look-at; spot/directional semantics depend on kind). |
-| Scene base level | **`RENDER.SETAMBIENT`** — so unlit areas are not pure black. |
-
-## 4. Sprite animation (2D)
-
-| Idea | moonBASIC |
-|------|-----------|
-| Manual frame | **`SPRITE.SETFRAME(sprite, frameIndex)`** — clamps to the strip from **`SPRITE.DEFANIM`**. |
-| Range playback | **`SPRITE.PLAY(sprite, start, end, speed, loop)`** — **speed** is frames per second; each frame call **`SPRITE.UPDATEANIM(sprite, TIME.DELTA())`**. |
-| Pivot | **`SPRITE.SETORIGIN(sprite, ox, oy)`** — offset in pixels (applied when drawing). |
-| Named states / atlas FSM | **`ANIM.DEFINE`**, **`ANIM.UPDATE`**, etc. (see **`SPRITE`** / animation docs). |
-
-## 5. “Magic” math
-
-| Idea | moonBASIC |
-|------|-----------|
-| Move toward without overshooting | **`MOVE.TOWARD`** — alias of **`MATH.APPROACH`**. |
-| Linear interpolation | **`MOVE.LERP`** — alias of **`MATH.LERP`**. |
-| Shortest angle delta (degrees) | **`ANGLE.DIFFERENCE`** — alias of **`MATH.ANGLEDIFF`** / **`ANGLEDIFF`**. For radians, **`MATH.ANGLEDIFFRAD`**. |
-
-## 6. Paths and file checks
-
-| Idea | moonBASIC |
-|------|-----------|
-| Path next to the executable | **`RES.PATH(localPath)`** — absolute paths are left as-is after cleaning. |
-| Exists before loading | **`RES.EXISTS(path)`** — same practical use as **`UTIL.FILEEXISTS`** / **`FILEEXISTS`**. |
+1. **Spatial Queries:** Use `RAY.HITMODEL` or `CAMERA.UNPROJECT` to interact with the 3D world.
+2. **Materials:** Customize appearance with `MATERIAL.SETTEXTURE` and `TEXTURE.SETFILTER`.
+3. **Lighting:** Setup the scene's mood with `LIGHT.CREATEPOINT` and `RENDER.SETAMBIENT`.
+4. **2D Juice:** Drive animated UI and sprites with `SPRITE.PLAY` and `SPRITE.SETFRAME`.
 
 ---
 
-**Refresh generated API tables:** `go run ./tools/apidoc` after manifest changes.
+## 1. Collision and Raycasting (3D)
+
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `CAMERA.UNPROJECT(cam, x, y)`| Handle, Float, Float| Array | Screen `[x, y]` to world `[x, y, z]`. |
+| `RAY.HITMODEL(ray, model)` | Handle, Handle | Boolean | `TRUE` if ray hits the model. |
+| `RAY.HITDISTANCE(ray, model)`| Handle, Handle | Float | Distance to the first hit point. |
+| `ENTITY.DISTANCE(e1, e2)` | Integer, Integer | Float | 3D world distance. |
+
+---
+
+## 2. Texture and Material
+
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `MATERIAL.SETTEXTURE(m, t, type)`| Handle, Handle, Int| None | Binds texture to slot (diffuse, normal, etc). |
+| `TEXTURE.SETFILTER(t, mode)`| Handle, Integer | None | Sets point vs. bilinear filtering. |
+| `TEXTURE.SETWRAP(t, mode)` | Handle, Integer | None | Sets repeat vs. clamp tiling. |
+
+---
+
+## 3. Lights and Ambient
+
+| Command | Arguments | Returns | Notes |
+|---------|-----------|---------|-------|
+| `LIGHT.CREATEPOINT(x, y, z, r, g, b, e)`| Float... | Handle | Creates a point light source. |
+| `LIGHT.SETTARGET(light, x, y, z)`| Handle, Float... | None | Aims directional/spot lights. |
+| `RENDER.SETAMBIENT(r, g, b, a)`| Float... | None | Sets global scene base lighting. |
+
+---
+
+## Full Example
+
+A simple scene demonstrating raycasting against a model and dynamic lighting.
+
+```basic
+WINDOW.OPEN(1280, 720, "Engine Patterns Demo")
+cam = CAMERA.CREATE()
+mdl = MODEL.LOAD("cube.glb").SETPOS(0, 0, 0)
+lt = LIGHT.CREATEPOINT(5, 5, 5, 255, 200, 100, 10.0)
+
+RENDER.SETAMBIENT(40, 40, 50, 255)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    
+    ; 1. Raycasting: Check if mouse is over model
+    ray = CAMERA.GETRAY(cam, INPUT.MOUSEX(), INPUT.MOUSEY())
+    IF RAY.HITMODEL(ray, mdl)
+        ENTITY.SETCOLOR(mdl, 255, 0, 0, 255)
+    ELSE
+        ENTITY.SETCOLOR(mdl, 255, 255, 255, 255)
+    END IF
+
+    ; 2. Rendering
+    RENDER.CLEAR(10, 10, 20)
+    RENDER.BEGIN3D(cam)
+        MODEL.DRAW(mdl)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+```
+
+## See also
+
+- [ENTITY.md](ENTITY.md) — full entity API
+- [MATERIAL.md](MATERIAL.md) — advanced shader and texture properties
+- [CAMERA.md](CAMERA.md) — projection and viewport management

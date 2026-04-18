@@ -15,43 +15,63 @@ Meshes are **not** full models — see [MODEL.md](MODEL.md) for assets with bund
 
 ---
 
-### `MESH.MAKECUBE(w, h, d)` 
-Creates a procedural box mesh. Returns a **mesh handle**.
+### `MESH.MAKECUBE(w, h, d)` / `MAKESPHERE` / `MAKEPLANE`
+Creates a procedural mesh.
+
+- **Arguments**:
+    - `w, h, d`: (Float) Dimensions.
+- **Returns**: (Handle) The new mesh handle.
+- **Example**:
+    ```basic
+    cube = MESH.MAKECUBE(2, 2, 2)
+    ```
 
 ---
 
-### `MESH.MAKESPHERE(r, rings, slices)` 
-Creates a procedural sphere mesh.
+### `MESH.LOAD(path)`
+Loads the first submesh from a model file.
+
+- **Returns**: (Handle) The new mesh handle.
 
 ---
 
-### `MESH.LOAD(path)` 
-Loads the first submesh from a model file. Returns a **mesh handle**.
+### `MESH.UPLOAD(mesh [, dynamic])`
+Uploads mesh data to the GPU.
+
+- **Arguments**:
+    - `mesh`: (Handle) The mesh to upload.
+    - `dynamic`: (Boolean, Optional) `TRUE` if the mesh will be updated frequently.
+- **Returns**: (Handle) The mesh handle (for chaining).
 
 ---
 
-### `MESH.UPLOAD(mesh, dynamic)` 
-Uploads mesh data to the GPU. Set `dynamic` to `TRUE` if the mesh will be updated frequently.
+### `MESH.DRAW(mesh, material, x, y, z)`
+Draws a mesh with a specific material and position.
+
+- **Arguments**:
+    - `mesh`: (Handle) The mesh to draw.
+    - `material`: (Handle) The material to apply.
+    - `x, y, z`: (Float) World position.
+- **Returns**: (Handle) The mesh handle (for chaining).
 
 ---
 
-### `MESH.DRAW(mesh, material, matrix)` 
-Draws a mesh using a `MATERIAL` handle and a `TRANSFORM` matrix handle.
-
----
-
-### `MESH.FREE(handle)` 
+### `MESH.FREE(handle)`
 Unloads the mesh from the GPU and frees the handle.
 
 ---
 
-### `MESH.VERTEXCOUNT(handle)` / `MESH.TRIANGLECOUNT(handle)` 
+### `MESH.VERTEXCOUNT(handle)` / `TRIANGLECOUNT`
 Returns the number of vertices or triangles in the mesh.
+
+- **Returns**: (Integer)
 
 ---
 
-### `MESH.GETBOUNDS(handle)` 
-Returns a 6-element float array handle `[minX, minY, minZ, maxX, maxY, maxZ]`.
+### `MESH.GETBOUNDS(handle)`
+Returns the bounding box of the mesh.
+
+- **Returns**: (Handle) A 6-float array handle `[minX, minY, minZ, maxX, maxY, maxZ]`.
 
 ---
 

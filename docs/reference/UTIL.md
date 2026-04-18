@@ -12,55 +12,38 @@ Use `UTIL.*` for namespaced file/path helpers. Global aliases (`FILEEXISTS`, `RE
 
 ## Paths and metadata
 
-| Command | Returns | Notes |
-|---------|---------|------|
-| `Util.FileExists(path)` | bool | |
-| `Util.IsDir(path)` | bool | |
-| `Util.GetFileExt(path)` | string | Includes the dot (e.g. `.png`). |
-| `Util.GetFileName(path)` | string | Final path segment. |
-| `Util.GetFileNameNoExt(path)` | string | Base name without extension. |
-| `Util.GetFilePath(path)` | string | Directory portion. |
-| `Util.GetFileSize(path)` | int | `0` if stat fails. |
-| `Util.GetFileModTime(path)` | int | **Unix seconds** since epoch; `0` if stat fails. |
+### `UTIL.LOADTEXT(path)` / `SAVETEXT`
+Reads or writes an entire file as a UTF-8 string.
+
+- **Returns**: (String) For `LOADTEXT`.
 
 ---
 
-## Read / write text
+### `UTIL.FILEEXISTS(path)` / `ISDIR`
+Checks for the existence or type of a file system entry.
 
-### `UTIL.LOADTEXT(path)` → string 
-
-Reads the entire file as UTF-8/text (same idea as `READALLTEXT`).
-
----
-
-### `UTIL.SAVETEXT(path, text)` 
-
-Writes a file, replacing contents.
+- **Returns**: (Boolean)
 
 ---
 
-## Directories and working directory
+### `UTIL.GETFILENAME(path)` / `GETFILEEXT`
+Extracts components from a file path string.
 
-| Command | Returns / behavior |
-|---------|---------------------|
-| `Util.GetDirFiles(dir)` | **JSON array string** of **all** entry names in the directory (files and subdirs), from `os.ReadDir`. |
-| `Util.ChangeDir(path)` | **Bool** — `TRUE` if `chdir` succeeded. |
-| `Util.MakeDirectory(path)` | **Bool** — `TRUE` if `MkdirAll` succeeded. |
-Current working directory and subdirectory listing use the global names **`GETDIR`** and **`GETDIRS`** (same implementation in `mbutil`; see [FILE.md](FILE.md)), not `UTIL.*` prefixes in the manifest.
+- **Returns**: (String)
 
 ---
 
-## File operations (globals)
+### `UTIL.GETDIRFILES(path)`
+Returns a JSON array of all files in a directory.
 
-`DELETEFILE`, `COPYFILE`, `RENAMEFILE`, `MOVEFILE`, `DELETEDIR` are registered on the same module as **`UTIL.*`** helpers but use **global** names in the manifest. See [FILE.md](FILE.md) for semantics; implementations live in `mbutil`.
+- **Returns**: (String) JSON-formatted array.
 
 ---
 
-## Validation
+### `UTIL.MAKEDIRECTORY(path)` / `CHANGEDIR`
+Directory manipulation and process control.
 
-### `UTIL.ISFILENAMEVALID(name)` → bool 
-
-Checks whether a file name is acceptable on the current OS (invalid characters, reserved names, etc., per Go `path/filepath` usage in the runtime).
+- **Returns**: (Boolean) Success status.
 
 ---
 

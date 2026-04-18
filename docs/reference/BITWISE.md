@@ -15,53 +15,38 @@ GLOBAL FLAG_SPRINT = 2 ; Binary 0010
 
 ---
 
-### `BAND(a, b)` 
-Returns the bitwise **AND** of two 32-bit integers.
+### `BAND(a, b)` / `BOR` / `BXOR`
+Performs bitwise logic on two integers.
+
+- **Returns**: (Integer)
 
 ---
 
-### `BOR(a, b)` 
-Returns the bitwise **OR** of two 32-bit integers.
+### `BNOT(v)`
+Performs bitwise negation (ones' complement).
+
+- **Returns**: (Integer)
 
 ---
 
-### `BXOR(a, b)` 
-Returns the bitwise **XOR** of two 32-bit integers.
+### `BSHL(v, count)` / `BSHR`
+Shifts bits left or right.
+
+- **Returns**: (Integer)
 
 ---
 
-### `BNOT(a)` 
-Returns the bitwise **NOT** (one's complement) of an integer.
+### `BSET(v, index)` / `BCLEAR` / `BTOGGLE`
+Returns a new integer with a specific bit (0–31) modified.
+
+- **Returns**: (Integer)
 
 ---
 
-### `BSHL(v, n)` 
-Returns `v` shifted left by `n` bits.
+### `BGET(v, index)`
+Returns `TRUE` if the specified bit is set.
 
----
-
-### `BSHR(v, n)` 
-Returns `v` shifted right by `n` bits.
-
----
-
-### `BGET(v, bitIndex)` 
-Returns `TRUE` if the bit at `bitIndex` (0–31) is set.
-
----
-
-### `BSET(v, bitIndex)` 
-Returns a new integer with the bit at `bitIndex` set to 1.
-
----
-
-### `BCLEAR(v, bitIndex)` 
-Returns a new integer with the bit at `bitIndex` set to 0.
-
----
-
-### `BTOGGLE(v, bitIndex)` 
-Returns a new value with the specified bit flipped.
+- **Returns**: (Boolean)
 
 ---
 

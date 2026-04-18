@@ -16,63 +16,40 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `MEM.MAKE(size)` 
+### `MEM.MAKE(size)` / `FREE`
+Allocates or releases a fixed-size byte buffer.
 
-Allocates `size` bytes, zero-initialized.
-
----
-
-### `MEM.FREE(memHandle)` 
-
-Frees the buffer.
+- **Arguments**:
+    - `size`: (Integer) Buffer size in bytes.
+- **Returns**: (Handle) The new memory handle.
 
 ---
 
-### `MEM.SIZE(memHandle)` 
+### `MEM.SETBYTE(handle, offset, value)` / `SETWORD` / `SETFLOAT`
+Writes binary data into the buffer at a specific offset.
 
-Returns the byte length of the buffer.
-
----
-
-### `MEM.CLEAR(memHandle)` 
-
-Sets every byte to zero.
-
----
-
-### `MEM.COPY(src, dst, srcOff, dstOff, size)` 
-
-Copies `size` bytes from `src[srcOff:]` to `dst[dstOff:]`.
+- **Arguments**:
+    - `handle`: (Handle) The buffer.
+    - `offset`: (Integer) 0-based byte offset.
+    - `value`: (Integer/Float) Data to write.
+- **Returns**: (Handle) The memory handle (for chaining).
 
 ---
 
-### `MEM.GETBYTE(memHandle, offset)` / `MEM.SETBYTE(memHandle, offset, value)` 
+### `MEM.GETBYTE(handle, offset)` / `GETWORD` / `GETFLOAT`
+Reads binary data from the buffer.
 
-Read/write a single byte (0–255).
-
----
-
-### `MEM.GETWORD(memHandle, offset)` / `MEM.SETWORD(memHandle, offset, value)` 
-
-Read/write a 16-bit unsigned integer (0–65535), little-endian.
+- **Returns**: (Integer / Float)
 
 ---
 
-### `MEM.GETDWORD(memHandle, offset)` / `MEM.SETDWORD(memHandle, offset, value)` 
-
-Read/write a 32-bit integer, little-endian.
-
----
-
-### `MEM.GETFLOAT(memHandle, offset)` / `MEM.SETFLOAT(memHandle, offset, value)` 
-
-Read/write an IEEE 32-bit float, little-endian.
+### `MEM.SETSTRING(handle, offset, text)` / `GETSTRING`
+Reads or writes NUL-terminated strings.
 
 ---
 
-### `MEM.GETSTRING(memHandle, offset)` / `MEM.SETSTRING(memHandle, offset, value)` 
-
-Read/write a NUL-terminated C string. `SETSTRING` needs `LEN(value)+1` bytes free at offset.
+### `MEM.COPY(src, dst, srcOff, dstOff, count)`
+Copies raw bytes between two buffers.
 
 ---
 

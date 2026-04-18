@@ -165,6 +165,8 @@ type navAgentObj struct {
 	destX, destY, destZ float64
 	hasDest   bool
 	arriveEps float64
+	rotY      float64
+	manualRot bool
 }
 
 func (a *navAgentObj) TypeName() string { return "NavAgent" }

@@ -14,58 +14,51 @@ Page shape: [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern** where 
 
 ---
 
-## `NAV.*` — navigation grid
+### `NAV.MAKE()` / `FREE`
+Allocates or releases a navigation grid object.
 
-### `NAV.MAKE()` 
-
-Creates a nav grid handle with a default **64×64** cell layout. Call **`NAV.SETGRID`** before serious use.
-
----
-
-### `NAV.FREE(nav)` 
-
-Frees the nav object.
+- **Returns**: (Handle) The new nav handle.
 
 ---
 
-### `NAV.SETGRID(nav, gw, gh, cellSize, originX, originZ)` 
+### `NAV.SETGRID(nav, gw, gh, cellSize, ox, oz)`
+Configures the grid dimensions and world origin.
 
-Resizes the grid: **`gw`**/**`gh`** are tile counts (**1–4096**), **`cellSize`** is world units per cell (**> 0**), **`(originX, originZ)`** is the world origin of cell **`(0,0)`**. Clears blocked flags and marks the nav **not built** until **`NAV.BUILD`**.
-
----
-
-### `NAV.ADDTERRAIN(nav, modelHandle)` / `NAV.ADDOBSTACLE(nav, modelHandle)` 
-
-Uses the model’s **axis-aligned bounding box** in world space:
-
-- **`ADDTERRAIN`** — marks that **XZ** footprint **walkable** and sets ground height from **`Min.Y`** across that region.
-- **`ADDOBSTACLE`** — marks those cells **blocked**.
+- **Arguments**:
+    - `nav`: (Handle) The nav object.
+    - `gw, gh`: (Integer) Grid cell counts.
+    - `cellSize`: (Float) World units per cell.
+    - `ox, oz`: (Float) World origin.
+- **Returns**: (None)
 
 ---
 
-### `NAV.BUILD(nav)` 
+### `NAV.BUILD(nav)`
+Bakes the navigation data for pathfinding.
 
-Marks the nav data ready (sets the internal **built** flag). Call after editing terrain/obstacles and before path queries.
-
----
-
-### `NAV.FINDPATH(nav, sx, sy, sz, tx, ty, tz)` 
-
-Runs A* on the grid from start to target world position. Returns a **`Path`** handle (may be invalid if no path). Call **`PATH.FREE`** when done.
+- **Returns**: (None)
 
 ---
 
-## `PATH.*` — path result
+### `NAV.FINDPATH(nav, sx, sy, sz, tx, ty, tz)`
+Calculates an A* path between two points.
 
-### `PATH.ISVALID(path)` → bool 
-
-Whether the search produced a usable path.
+- **Arguments**:
+    - `nav`: (Handle) The nav grid.
+    - `sx, sy, sz`: (Float) Start position.
+    - `tx, ty, tz`: (Float) Target position.
+- **Returns**: (Handle) A new path handle.
+- **Example**:
+    ```basic
+    p = NAV.FINDPATH(nav, 0, 0, 0, 10, 0, 10)
+    ```
 
 ---
 
-### `PATH.NODECOUNT(path)` → int 
+### `PATH.ISVALID(path)` / `NODECOUNT`
+Queries the status and size of a calculated path.
 
-Number of waypoints (**0** if invalid).
+- **Returns**: (Boolean / Integer)
 
 ---
 

@@ -16,24 +16,32 @@ Texture **atlases** are large images containing many smaller sub-images or sprit
 
 ---
 
-### `ATLAS.LOAD(imagePath, jsonPath)` 
-Loads a texture atlas from an image and a JSON data file. Returns a handle to the atlas.
+### `ATLAS.LOAD(imagePath, jsonPath)`
+Loads a texture atlas and its frame definition JSON.
 
-- `imagePath`: Path to the atlas texture sheet (e.g. `.png`).
-- `jsonPath`: Path to the JSON data file.
-
----
-
-### `ATLAS.GETSPRITE(atlasHandle, spriteName)` 
-Retrieves a handle to a single sprite within the atlas.
-
-- `atlasHandle`: Handle of the loaded atlas.
-- `spriteName`: Original filename of the sprite as packed (e.g. `"player.png"`).
+- **Arguments**:
+    - `imagePath`: (String) The texture sheet.
+    - `jsonPath`: (String) The frame metadata (e.g., TexturePacker JSON).
+- **Returns**: (Handle) The new atlas handle.
+- **Example**:
+    ```basic
+    atl = ATLAS.LOAD("sheet.png", "sheet.json")
+    ```
 
 ---
 
-### `ATLAS.FREE(atlasHandle)` 
-Frees the atlas texture and all associated sprite data.
+### `ATLAS.GETSPRITE(handle, name)`
+Retrieves a sprite handle for a named frame in the atlas.
+
+- **Arguments**:
+    - `handle`: (Handle) The loaded atlas.
+    - `name`: (String) The frame name (e.g., "hero_idle").
+- **Returns**: (Handle) A sprite handle compatible with `SPRITE.DRAW`.
+
+---
+
+### `ATLAS.FREE(handle)`
+Releases the atlas and all associated sprite handles.
 
 ---
 

@@ -487,7 +487,7 @@ Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-### Character Controller — [Reference](reference/CHARCONTROLLER.md)
+### Character Controller — [Reference](reference/CHARACTER_PHYSICS.md)
 
 | Command | Description |
 |---|---|

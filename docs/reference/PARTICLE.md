@@ -20,29 +20,71 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 | Command | Notes |
 |---------|--------|
-| **`PARTICLE.CREATE`** / **`PARTICLE3D.CREATE`** (canonical) / deprecated **`PARTICLE.MAKE`** / **`PARTICLE3D.MAKE`** | No args → emitter **handle**. |
-| **`PARTICLE.FREE`** / **`PARTICLE3D.FREE`** | Free emitter. |
-| **`PARTICLE.SETTEXTURE`** | `(emitter, textureHandle)` |
-| **`PARTICLE.SETEMITRATE`** / **`PARTICLE.SETRATE`** | `(emitter, per_sec)` — **`SETRATE`** is an alias. **`PARTICLE3D.SETRATE`** same. |
-| **`PARTICLE.SETPOS`** | `(emitter, x, y, z)` |
-| **`PARTICLE.SETLIFETIME`** | `(emitter, min, max)` seconds |
-| **`PARTICLE.SETVELOCITY`** | `(emitter, vx, vy, vz, spread)` — **spread** is random component noise (same units as velocity components). |
-| **`PARTICLE.SETDIRECTION`** | `(emitter, vx, vy, vz)` — base direction; combine with **`SETSPREAD`**. |
-| **`PARTICLE.SETSPREAD`** | `(emitter, angle)` — random jitter added to each velocity component at spawn. |
-| **`PARTICLE.SETSPEED`** | `(emitter, min, max)` — per-particle scalar applied after direction+spread. Default `1..1`. |
-| **`PARTICLE.SETSTARTSIZE`** | `(emitter, min, max)` — spawn size range. |
-| **`PARTICLE.SETENDSIZE`** | `(emitter, min, max)` — end-of-life size range. |
-| **`PARTICLE.SETSIZE`** | `(emitter, start, end)` — sets **both** start and end to **single** values (legacy shorthand). |
-| **`PARTICLE.SETCOLOR`** / **`PARTICLE.SETSTARTCOLOR`** | `(emitter, r, g, b, a)` 0–255 |
-| **`PARTICLE.SETCOLOREND`** / **`PARTICLE.SETENDCOLOR`** | End color |
-| **`PARTICLE.SETGRAVITY`** | `(emitter, g)` **legacy** → `(0, g, 0)`, or `(emitter, gx, gy, gz)` |
-| **`PARTICLE.SETBURST`** | `(emitter, count)` — spawn **count** particles immediately (capped). |
-| **`PARTICLE.SETBILLBOARD`** | `(emitter, TRUE/FALSE)` — **`TRUE`**: **`DrawBillboard`**. **`FALSE`**: draw **cubes** at particle positions (debug / non-camera-facing). |
-| **`PARTICLE.PLAY`** / **`PARTICLE.STOP`** | Start/stop continuous emission. |
-| **`PARTICLE.UPDATE`** | `(emitter, dt)` |
-| **`PARTICLE.DRAW`** | `(emitter)` uses **`CAMERA.BEGIN` … `CAMERA.END`** active camera, or **`(emitter, cameraHandle)`** for an explicit **`Camera3D`** handle. |
-| **`PARTICLE.ISALIVE`** | `→ int` (`1` = still playing **or** live particles remain). |
-| **`PARTICLE.COUNT`** | `→ int` live particles |
+### `PARTICLE.CREATE()`
+Creates a new 3D particle emitter. Returns an **emitter handle**.
+
+- **Returns**: (Handle) The new emitter handle.
+- **Example**:
+    ```basic
+    fire = PARTICLE.CREATE()
+    ```
+
+---
+
+### `PARTICLE.SETTEXTURE(emitter, textureHandle)`
+Binds a texture to the emitter particles.
+
+- **Returns**: (Handle) The emitter handle (for chaining).
+
+---
+
+### `PARTICLE.SETEMITRATE(emitter, rate)`
+Sets the number of particles spawned per second.
+
+- **Returns**: (Handle) The emitter handle (for chaining).
+
+---
+
+### `PARTICLE.SETPOS(emitter, x, y, z)`
+Sets the emitter world position.
+
+- **Returns**: (Handle) The emitter handle (for chaining).
+
+---
+
+### `PARTICLE.SETLIFETIME(emitter, min, max)`
+Sets the lifespan range for new particles.
+
+- **Returns**: (Handle) The emitter handle (for chaining).
+
+---
+
+### `PARTICLE.SETVELOCITY(emitter, vx, vy, vz, spread)`
+Sets the initial velocity and random spread.
+
+- **Returns**: (Handle) The emitter handle (for chaining).
+
+---
+
+### `PARTICLE.UPDATE(emitter, dt)`
+Advances the particle simulation.
+
+- **Arguments**:
+    - `emitter`: (Handle) The emitter to update.
+    - `dt`: (Float) Delta time.
+- **Returns**: (None)
+
+---
+
+### `PARTICLE.DRAW(emitter [, camera])`
+Renders the particles in 3D space.
+
+- **Returns**: (None)
+
+---
+
+### `PARTICLE.FREE(emitter)`
+Frees the emitter and all its particles.
 
 Every row above exists under **`PARTICLE3D.*`** as well (e.g. **`PARTICLE3D.SETTEXTURE`**, **`PARTICLE3D.DRAW`**, …).
 

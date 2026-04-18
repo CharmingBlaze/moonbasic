@@ -16,43 +16,39 @@ For file-based level loading see [LEVEL.md](LEVEL.md). For transitions see [TRAN
 
 ---
 
-### `SCENE.LOAD(id)` 
-Loads a scene from a file and runs its loader function immediately. Returns a **scene handle**.
+### `SCENE.REGISTER(id, loaderName)`
+Maps a scene ID to a user function for initialization.
+
+- **Arguments**:
+    - `id`: (String) Unique scene identifier.
+    - `loaderName`: (String) Name of the BASIC function to call.
+- **Returns**: (None)
 
 ---
 
-### `SCENE.LOADASYNC(id)` 
-Queues a scene to load at the start of the next update cycle.
+### `SCENE.LOAD(id)` / `LOADASYNC`
+Loads a scene and runs its registration hook.
+
+- **Returns**: (Handle) The scene handle.
 
 ---
 
-### `SCENE.FREE(sceneHandle)` 
-Unloads the scene and frees all associated entities and resources.
+### `SCENE.SETHANDLERS(updateName, drawName)`
+Sets global hooks for the per-frame loop.
+
+- **Returns**: (None)
 
 ---
 
-### `SCENE.REGISTER(id, funcName)` 
-Maps a scene string ID to a parameterless user function that acts as the loader.
+### `SCENE.UPDATE(dt)` / `DRAW()`
+Advances the scene state or renders the active scene.
 
 ---
 
-### `SCENE.SETHANDLERS(updateFunc, drawFunc)` 
-Sets global names for the per-frame update and draw functions.
+### `SCENE.CURRENT()`
+Returns the ID string of the active scene.
 
----
-
-### `SCENE.UPDATE(dt)` 
-Advances transitions, runs async loads, and invokes the registered update function.
-
----
-
-### `SCENE.DRAW()` 
-Polls active transitions and invokes the registered draw function.
-
----
-
-### `SCENE.CURRENT()` 
-Returns the ID string of the currently active scene.
+- **Returns**: (String)
 
 ---
 

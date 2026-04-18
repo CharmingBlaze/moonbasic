@@ -14,59 +14,40 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `TWEEN.MAKE()` 
+### `TWEEN.MAKE()`
+Creates a new empty tween.
 
-Creates an empty tween (default: **one** loop, no yoyo).
-
----
-
-### `TWEEN.TO(tweenHandle, varName, target, seconds, easing)` 
-
-Appends a segment that animates the global `varName` toward `target` over `seconds`.
-
-- `easing`: `"linear"`, `"easein"`, `"easeout"`, `"easeinout"`, `"bounce"`, `"elastic"`, `"back"`, `"circ"`, `"expo"`, `"sine"` (case-insensitive; unknown defaults to linear).
+- **Returns**: (Handle) The new tween handle.
 
 ---
 
-### `TWEEN.THEN(tweenHandle, varName, target, seconds, easing)` 
+### `TWEEN.TO(handle, varName, target, seconds, easing)` / `THEN`
+Appends an animation segment to the tween.
 
-Alias for `TWEEN.TO` — appends another segment after the previous.
-
----
-
-### `TWEEN.ONCOMPLETE(tweenHandle, functionName)` 
-
-Registers a user function to call when all loops finish.
-
----
-
-### `TWEEN.LOOP(tweenHandle, count)` 
-
-Sets loop count. `count <= 0` means infinite loops.
+- **Arguments**:
+    - `handle`: (Handle) The tween.
+    - `varName`: (String) Global variable to animate.
+    - `target`: (Float) Destination value.
+    - `seconds`: (Float) Duration.
+    - `easing`: (String) Easing function (e.g., "easeout", "bounce").
+- **Returns**: (Handle) The tween handle (for chaining).
 
 ---
 
-### `TWEEN.YOYO(tweenHandle)` 
+### `TWEEN.START(handle)` / `UPDATE(dt)` / `STOP()`
+Controls the playback and progression of the tween.
 
-Enables yoyo mode — the tween plays forward then backward per loop.
-
----
-
-### `TWEEN.START(tweenHandle)` 
-
-Begins playback from the first segment.
-
----
-
-### `TWEEN.UPDATE(tweenHandle, dt)` 
-
-Advances the tween by `dt` seconds. Call each frame.
+- **Example**:
+    ```basic
+    t = TWEEN.MAKE()
+    TWEEN.TO(t, "alpha", 255, 1.0, "linear")
+    TWEEN.START(t)
+    ```
 
 ---
 
-### `TWEEN.STOP(tweenHandle)` 
-
-Stops playback without calling OnComplete.
+### `TWEEN.LOOP(handle, count)` / `YOYO()`
+Sets repeating and oscillation behavior.
 
 ---
 

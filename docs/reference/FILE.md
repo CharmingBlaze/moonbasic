@@ -8,77 +8,78 @@ For simple reads/writes use `FILE.READALLTEXT` / `FILE.WRITEALLTEXT`. For stream
 
 ---
 
-### `FILE.EXISTS(path)` 
+### `FILE.EXISTS(path)`
 Returns `TRUE` if the specified file exists on disk.
 
+- **Arguments**:
+    - `path`: (String) File path.
+- **Returns**: (Boolean)
+
 ---
 
-### `FILE.READALLTEXT(path)` 
+### `FILE.READALLTEXT(path)`
 Reads the entire content of a text file into a single string.
 
+- **Returns**: (String) The file contents.
+
 ---
 
-### `FILE.WRITEALLTEXT(path, content)` 
-Writes an entire string to a file, overwriting it if it already exists.
+### `FILE.WRITEALLTEXT(path, content)`
+Writes an entire string to a file.
+
+- **Arguments**:
+    - `path`: (String) Destination path.
+    - `content`: (String) Text to write.
+- **Returns**: (None)
 
 ---
 
 ## Advanced File Operations
 
-### `FILE.OPEN(path, mode)` 
-Opens a file and returns a **file handle**. `mode` can be `"r"` (read), `"w"` (write), or `"a"` (append).
+### `FILE.OPEN(path, mode)`
+Opens a file and returns a **file handle**.
+
+- **Arguments**:
+    - `path`: (String) File path.
+    - `mode`: (String) `"r"` (read), `"w"` (write), or `"a"` (append).
+- **Returns**: (Handle) The file handle.
 
 ---
 
-### `FILE.CLOSE(handle)` 
-Closes an open file handle and releases its resources.
+### `FILE.CLOSE(handle)`
+Closes an open file handle.
 
 ---
 
-### `FILE.WRITELINE(handle, content)` 
-Writes a string to an open file followed by a newline character.
+### `FILE.WRITELINE(handle, content)` / `FILE.WRITE`
+Writes a string to an open file.
 
----
-
-### `FILE.WRITE(handle, content)` 
-Writes a string to an open file without a newline.
+- **Arguments**:
+    - `handle`: (Handle) The open file.
+    - `content`: (String) Text to write.
+- **Returns**: (Handle) The file handle (for chaining).
 
 ---
 
 ## File System Management
 
-### `FILE.ISDIR(path)` 
+### `FILE.ISDIR(path)`
 Returns `TRUE` if the specified path points to a directory.
 
 ---
 
-### `FILE.DELETE(path)` 
-Deletes a file or an empty directory from the system.
+### `FILE.DELETE(path)` / `FILE.COPY` / `FILE.MOVE`
+File system mutations.
 
 ---
 
-### `FILE.COPY(source, dest)` 
-Copies a file from the source path to the destination path.
-
----
-
-### `FILE.MOVE(source, dest)` 
-Moves or renames a file or directory.
-
----
-
-### `FILE.MAKEDIR(path)` 
+### `FILE.MAKEDIR(path)`
 Creates a new directory.
 
 ---
 
-### `FILE.GETDIR()` 
-Returns the current working directory.
-
----
-
-### `FILE.SETDIR(path)` 
-Sets the current working directory.
+### `FILE.GETDIR()` / `FILE.SETDIR(path)`
+Working directory management.
 
 ---
 

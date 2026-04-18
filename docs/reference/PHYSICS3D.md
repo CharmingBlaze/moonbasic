@@ -24,7 +24,10 @@ All **`BODY3D.*`** mutating builtins return the body handle on success, so sette
 
 ### `PHYSICS3D.START()` 
 
-Initialises the physics world. Must be called before any body creation or world queries.
+Initialises the physics world. Must be called once before any body creation or world queries.
+
+- **Arguments**: (none)
+- **Returns**: (none)
 
 ---
 
@@ -32,17 +35,44 @@ Initialises the physics world. Must be called before any body creation or world 
 
 Shuts down the simulation and frees all internal resources.
 
+- **Arguments**: (none)
+- **Returns**: (none)
+
 ---
 
-### `PHYSICS3D.UPDATE()` / `PHYSICS3D.STEP()` 
+### `PHYSICS3D.UPDATE()` 
 
-Advances the simulation one step. Call once per frame. Both keys call the same handler; **`UPDATE`** is preferred in new scripts (see [API_STANDARDIZATION_DIRECTIVE.md](../API_STANDARDIZATION_DIRECTIVE.md)).
+Advances the simulation one step. Call once per frame in your main loop.
+
+- **Arguments**: (none)
+- **Returns**: (none)
+- **Alias**: `PHYSICS3D.STEP`
+
+- **Example**:
+  ```basic
+  WHILE NOT WINDOW.SHOULDCLOSE()
+      PHYSICS3D.UPDATE()
+      RENDER.FRAME()
+  WEND
+  ```
 
 ---
 
 ### `PHYSICS3D.SETGRAVITY(x, y, z)` 
 
-Sets the global gravity vector. Typical: `PHYSICS3D.SETGRAVITY(0, -10, 0)`.
+Sets the global gravity vector for the world.
+
+- **Arguments**:
+  - `x` (float): Gravity on the X axis.
+  - `y` (float): Gravity on the Y axis (vertical).
+  - `z` (float): Gravity on the Z axis.
+- **Returns**: (none)
+
+- **Example**:
+  ```basic
+  ; Earth-like gravity
+  PHYSICS3D.SETGRAVITY(0, -9.81, 0)
+  ```
 
 ---
 
@@ -50,259 +80,168 @@ Sets the global gravity vector. Typical: `PHYSICS3D.SETGRAVITY(0, -10, 0)`.
 
 ### `BODY3D.CREATE(type)` 
 
-Creates a body *definition* (not yet in the world). `type`: `"static"`, `"dynamic"`, or `"kinematic"`. Returns a **definition handle**. Alias: `BODY3D.MAKE` (deprecated).
+Creates a new body definition. This describes a body's properties before it is committed to the world.
+
+- **Arguments**:
+  - `type` (string): The motion type. Can be `"STATIC"`, `"DYNAMIC"`, or `"KINEMATIC"`.
+- **Returns**: (handle) A handle to the new body definition.
+- **Alias**: `BODY3D.MAKE` (deprecated)
+
+- **Example**:
+  ```basic
+  def = BODY3D.CREATE("DYNAMIC")
+  ```
 
 ---
 
-### `BODY3D.ADDBOX(def, w, h, d)` 
+### `BODY3D.ADDBOX(def, w, h, d)` / `ADDSPHERE` / `ADDCAPSULE`
+Adds a primitive collision shape to a body definition.
 
-Adds a box collision shape (half-extents w, h, d) to the definition.
+- **Arguments**:
+    - `def`: (Handle) The body definition.
+    - `w, h, d`: (Float) Half-extents or dimensions.
+- **Returns**: (Handle) The definition handle (for chaining).
+
+---
+
+### `BODY3D.COMMIT(def, x, y, z)`
+Finalizes the definition and spawns the body in the world.
+
+- **Arguments**:
+    - `def`: (Handle) The body definition (consumed).
+    - `x, y, z`: (Float) Initial world position.
+- **Returns**: (Handle) The active physics body handle.
+- **Example**:
+    ```basic
+    body = def.commit(0, 10, 0)
+    ```
+
+---
+
+### `BODY3D.SETPOS(body, x, y, z)` / `SETROT`
+Teleports the body or sets its Euler rotation (radians).
+
+- **Returns**: (Handle) The body handle (for chaining).
+
+---
+
+### `BODY3D.GETPOS(body)` / `GETROT`
+Returns the world position or Euler rotation.
+
+- **Returns**: (Float, Float, Float) Destructured values.
+
+---
 
 ---
 
 ### `BODY3D.ADDSPHERE(def, radius)` 
 
-Adds a sphere collision shape to the definition.
+Adds a sphere collision shape to a body definition.
+
+- **Arguments**:
+  - `def` (handle): The body definition handle.
+  - `radius` (float): The radius of the sphere.
+- **Returns**: (handle) Returns the definition handle for chaining.
 
 ---
 
 ### `BODY3D.ADDCAPSULE(def, radius, height)` 
 
-Adds a capsule collision shape to the definition.
+Adds a capsule collision shape to a body definition.
 
----
-
-### `BODY3D.ADDCONVEX(def, ...)` 
-
-Adds a convex hull shape. See `commands.json` for vertex arity overloads.
+- **Arguments**:
+  - `def` (handle): The body definition handle.
+  - `radius` (float): The horizontal radius.
+  - `height` (float): The total vertical height.
+- **Returns**: (handle) Returns the definition handle for chaining.
 
 ---
 
 ### `BODY3D.ADDMESH(def, meshHandle)` 
 
-Adds a mesh collision shape from an existing mesh handle (static bodies only).
+Adds a static mesh collision shape. Only valid for `STATIC` bodies.
+
+- **Arguments**:
+  - `def` (handle): The body definition handle.
+  - `meshHandle` (handle): The handle to a mesh (e.g. from `MESH.LOAD`).
+- **Returns**: (handle) Returns the definition handle for chaining.
 
 ---
 
-### `BODY3D.COMMIT(def, x, y, z)` 
-
-Finalises the body definition and inserts it into the world at `(x, y, z)`. Returns a **body handle**. The definition handle is consumed.
-
-- *Handle shortcut*: `def.commit(x, y, z)`
-
----
+## Body Properties
 
 ### `BODY3D.SETMASS(body, mass)` 
 
-Sets the mass of a dynamic body (kg). Must be called after `COMMIT`.
+Sets the mass of a dynamic body.
+
+- *Handle shortcut*: `body.setMass(mass)`
+- **Arguments**:
+  - `body` (handle): The active physics body.
+  - `mass` (float): Mass in kilograms.
+- **Returns**: (handle) Returns the body handle for chaining.
 
 ---
-
-## Body Transform
-
-### `BODY3D.SETPOS(body, x, y, z)` 
-
-Teleports the body to a new world position. Does not wake a sleeping body automatically — call `BODY3D.ACTIVATE` after.
-
-- *Handle shortcut*: `body.setPos(x, y, z)`
-
----
-
-### `BODY3D.GETPOS(body)` 
-
-Returns the current world position as three floats `x, y, z`.
-
-- *Handle shortcut*: `body.getPos()`
-
----
-
-### `BODY3D.GETROT(body)` 
-
-Returns the current rotation as Euler angles `pitch, yaw, roll` (radians).
-
-- *Handle shortcut*: `body.getRot()`
-
----
-
-### `BODY3D.GETPOS` / `BODY3D.GETROT` — visual sync note 
-
-There is no **`BODY3D.GETMATRIX`** builtin. For **`MESH.DRAW`**, combine **`TRANSFORM.TRANSLATION`** with **`TRANSFORM.ROTATION`** via **`TRANSFORM.MULTIPLY`**, or link an entity with **`ENTITY.LINKPHYSBUFFER`** and draw through **`ENTITY.DRAWALL`** / **`ENTITY.DRAW`**.
-
----
-
-### `BODY3D.BUFFERINDEX(body)` 
-
-Returns the shared matrix buffer index used by **`ENTITY.LINKPHYSBUFFER`**.
-
-- *Handle shortcut*: `body.bufferIndex()`
-
----
-
-## Body Velocity & Forces
-
-### `BODY3D.SETLINEARVEL(body, vx, vy, vz)` 
-
-Directly sets the linear velocity of a dynamic body. Alias: `BODY3D.SETVELOCITY`.
-
-- *Handle shortcut*: `body.setLinearVel(vx, vy, vz)`
-
----
-
-### `BODY3D.GETLINEARVEL(body)` 
-
-Returns the current linear velocity as three floats. Alias: `BODY3D.GETVELOCITY`.
-
-- *Handle shortcut*: `body.getLinearVel()`
-
----
-
-### `BODY3D.APPLYFORCE(body, fx, fy, fz)` 
-
-Applies a continuous force vector (mass-scaled). Alias: `BODY3D.ADDFORCE`.
-
-- *Handle shortcut*: `body.applyForce(fx, fy, fz)`
-
----
-
-### `BODY3D.APPLYIMPULSE(body, ix, iy, iz)` 
-
-Applies an instant velocity-change impulse. Alias: `BODY3D.ADDIMPULSE`.
-
-- *Handle shortcut*: `body.applyImpulse(ix, iy, iz)`
-
----
-
-## Body State
-
-### `BODY3D.ACTIVATE(body)` 
-
-Force-wakes a sleeping body. Call after teleporting or after modifying velocity on a static/sleeping body.
-
-- *Handle shortcut*: `body.activate()`
-
----
-
-### `BODY3D.DEACTIVATE(body)` 
-
-Puts a body to sleep immediately.
-
-- *Handle shortcut*: `body.deactivate()`
-
----
-
-### `BODY3D.FREE(body)` 
-
-Removes the body from the simulation and frees its heap slot.
-
-- *Handle shortcut*: `body.free()`
-
----
-
-## Body Properties & Constraints
 
 ### `BODY3D.SETBOUNCE(body, restitution)` 
 
-Sets the restitution (bounciness) coefficient (0..1).
+Sets the "bounciness" of a body.
 
-- *Handle shortcut*: `body.setBounce(r)`
+- *Handle shortcut*: `body.setBounce(restitution)`
+- **Arguments**:
+  - `body` (handle): The active physics body.
+  - `restitution` (float): Range 0.0 (no bounce) to 1.0 (perfectly elastic).
+- **Returns**: (handle) Returns the body handle for chaining.
 
 ---
 
 ### `BODY3D.SETFRICTION(body, friction)` 
 
-Sets the friction coefficient.
+Sets the surface friction of a body.
 
-- *Handle shortcut*: `body.setFriction(f)`
-
----
-
-### `BODY3D.SETDAMPING(body, linear, angular)` 
-
-Sets air-resistance damping (0..1). **Not implemented** in the vendored binding — returns a runtime error.
-
-- *Handle shortcut*: `body.setDamping(lin, ang)`
+- *Handle shortcut*: `body.setFriction(friction)`
+- **Arguments**:
+  - `body` (handle): The active physics body.
+  - `friction` (float): Higher values result in more friction.
+- **Returns**: (handle) Returns the body handle for chaining.
 
 ---
 
-### `BODY3D.LOCKAXIS(body, flags)` 
+## Motion & Forces
 
-Locks specific translation/rotation axes via a bitmask. **Not implemented** — returns a runtime error.
+### `BODY3D.APPLYFORCE(body, x, y, z)` 
 
-- *Handle shortcut*: `body.lockAxis(flags)`
+Applies a continuous force to a body.
 
----
-
-### `BODY3D.SETGRAVITYFACTOR(body, factor)` 
-
-Scales gravity for this body (e.g. `0` = weightless). **Not implemented** — returns a runtime error.
-
-- *Handle shortcut*: `body.setGravityFactor(factor)`
+- *Handle shortcut*: `body.applyForce(x, y, z)`
+- **Arguments**:
+  - `body` (handle): The active physics body.
+  - `x, y, z` (float): The force vector.
+- **Returns**: (none)
 
 ---
 
-### `BODY3D.SETCCD(body, toggle)` 
+### `BODY3D.APPLYIMPULSE(body, x, y, z)` 
 
-Enables/disables Continuous Collision Detection. **Not implemented** — returns a runtime error.
+Applies an immediate momentum change (like a hit).
 
----
-
-## Per-Body Collision Queries
-
-Call these after **`PHYSICS3D.UPDATE`** each frame.
-
-### `BODY3D.COLLIDED(body)` 
-
-Returns `TRUE` if this body overlapped another body this step.
-
-- *Handle shortcut*: `body.collided()`
+- *Handle shortcut*: `body.applyImpulse(x, y, z)`
+- **Arguments**:
+  - `body` (handle): The active physics body.
+  - `x, y, z` (float): The impulse vector.
+- **Returns**: (none)
 
 ---
 
-### `BODY3D.COLLISIONOTHER(body)` 
+### `BODY3D.SETLINEARVEL(body, x, y, z)` 
 
-Returns the **other** body handle from the last collision this step.
+Directly sets the velocity of a dynamic body.
 
-- *Handle shortcut*: `body.collisionOther()`
-
----
-
-### `BODY3D.COLLISIONPOINT(body)` 
-
-Returns the world contact point as a `[x, y, z]` array handle.
-
-- *Handle shortcut*: `body.collisionPoint()`
-
----
-
-### `BODY3D.COLLISIONNORMAL(body)` 
-
-Returns the contact surface normal as a `[nx, ny, nz]` array handle.
-
-- *Handle shortcut*: `body.collisionNormal()`
-
----
-
-## Entity ↔ Body Bridge
-
-### `ENTITY.LINKPHYSBUFFER(entity, bufferIndex)` 
-
-Links a visual entity to a Jolt body's matrix buffer slot (index from `BODY3D.BUFFERINDEX`). The engine syncs the entity transform each frame after `PHYSICS3D.UPDATE` and registers the pair for frame collision queries.
-
----
-
-### Entity-level collision helpers 
-
-After `PHYSICS3D.STEP`, these globals query entity-linked bodies:
-
-| Command | Returns | Notes |
-|--------|---------|-------|
-| **`EntityCollided(a, b)`** | `bool` | Both entities must be linked via `LINKPHYSBUFFER`. |
-| **`CollisionNX/NY/NZ`** | `float` | Approximate contact normal (center-to-center). |
-| **`CollisionPX/PY/PZ`** | `float` | Contact point; `CollisionY` aliases `CollisionPY`. |
-| **`CollisionForce`** | `float` | Penetration-depth proxy — not a true post-solve impulse. |
-| **`CountCollisions(e)`** | `int` | Number of distinct overlapping other entities this frame. |
-
-**Ordering:** collect events **after** `PHYSICS3D.UPDATE`. `ENTITY.FREE` / `ENTITY.CLEARPHYSBUFFER` unregister the bridge.
+- *Handle shortcut*: `body.setLinearVel(x, y, z)`
+- **Arguments**:
+  - `body` (handle): The active physics body.
+  - `x, y, z` (float): Velocity in units per second.
+- **Returns**: (none)
+- **Alias**: `BODY3D.SETVELOCITY`
 
 ---
 
@@ -310,72 +249,36 @@ After `PHYSICS3D.STEP`, these globals query entity-linked bodies:
 
 ### `PHYSICS3D.RAYCAST(ox, oy, oz, dx, dy, dz, maxDist)` 
 
-Casts a ray from `(ox,oy,oz)` in direction `(dx,dy,dz)` scaled to `maxDist`. Returns a **1D float array handle** `[hit, nx, ny, nz, fraction, 0]`:
+Casts a ray into the physics world and returns the first hit.
 
-- `[0]` — `1` if hit, `0` if miss
-- `[1..3]` — hit surface normal, or `0` on miss
-- `[4]` — hit fraction along the ray (0–1)
-- `[5]` — reserved (future body id)
-
-Free the array handle when done.
-
----
-
-## `PICK.*` — Screen / World Picking
-
-Stage a ray, cast, then read results. Requires **CGO + Jolt**.
-
-### `PICK.ORIGIN(x, y, z)` 
-
-Sets the ray start point.
+- **Arguments**:
+  - `ox, oy, oz` (float): Origin of the ray.
+  - `dx, dy, dz` (float): Direction vector.
+  - `maxDist` (float): Maximum search distance.
+- **Returns**: (array) A 1D float array handle `[hit, nx, ny, nz, fraction]`.
+  - `hit`: 1.0 if something was hit, 0.0 otherwise.
+  - `nx, ny, nz`: Surface normal at hit point.
+  - `fraction`: Distance percentage (0.0 to 1.0) along `maxDist`.
 
 ---
 
-### `PICK.DIRECTION(dx, dy, dz)` 
+## Entity Bridge
 
-Sets the ray direction. Vector length is used as max travel unless `PICK.MAXDIST` is set.
+### `ENTITY.LINKPHYSBUFFER(entity, bufferIndex)` 
 
----
+Links a visual entity to a physics body for automatic synchronization.
 
-### `PICK.MAXDIST(d)` 
+- **Arguments**:
+  - `entity` (handle): The visual entity.
+  - `bufferIndex` (int): The index obtained from `BODY3D.BUFFERINDEX(body)`.
+- **Returns**: (none)
 
-If set, normalises the direction and scales to this distance.
-
----
-
-### `PICK.LAYERMASK(mask)` 
-
-Bit `i` = accept hits on `ENTITY.COLLISIONLAYER` `i`. `0` = accept all.
-
----
-
-### `PICK.CAST()` 
-
-Fires the staged ray; fills result registers. Returns the hit entity or `0`. Entity must be linked via `ENTITY.LINKPHYSBUFFER`.
-
----
-
-### `PICK.FROMCAMERA(cam, sx, sy)` 
-
-Builds a ray from Raylib screen position `(sx, sy)`. Sets a default `MAXDIST` if unset.
-
----
-
-### `PICK.SCREENCAST(cam, sx, sy)` 
-
-`PICK.FROMCAMERA` + `PICK.CAST` in one call. Returns the hit entity or `0`.
-
----
-
-### Pick result registers 
-
-| Key | Value |
-|-----|-------|
-| **`PICK.X` / `PICK.Y` / `PICK.Z`** | Last hit world position |
-| **`PICK.NX` / `PICK.NY` / `PICK.NZ`** | Last hit surface normal |
-| **`PICK.ENTITY`** | Last hit entity |
-| **`PICK.DIST`** | Distance along ray |
-| **`PICK.HIT`** | `TRUE` if the last cast hit |
+- **Example**:
+  ```basic
+  body = def.commit(0, 10, 0)
+  ent  = ENTITY.CREATE(model)
+  ENTITY.LINKPHYSBUFFER(ent, body.bufferIndex())
+  ```
 
 ---
 
@@ -383,14 +286,10 @@ Builds a ray from Raylib screen position `(sx, sy)`. Sets a default `MAXDIST` if
 
 ```basic
 WINDOW.OPEN(960, 540, "3D Physics")
-WINDOW.SETFPS(60)
-
 PHYSICS3D.START()
 PHYSICS3D.SETGRAVITY(0, -10, 0)
 
-cam = CAMERA.CREATE()
-cam.setPos(0, 10, 20)
-cam.setTarget(0, 0, 0)
+cam = CAMERA.CREATE().pos(0, 10, 20).look(0, 0, 0)
 
 ; Floor
 floorDef = BODY3D.CREATE("STATIC")
@@ -401,7 +300,6 @@ floorBody = BODY3D.COMMIT(floorDef, 0, -0.5, 0)
 cubeDef = BODY3D.CREATE("DYNAMIC")
 BODY3D.ADDBOX(cubeDef, 1, 1, 1)
 cubeBody = BODY3D.COMMIT(cubeDef, 0, 15, 0)
-BODY3D.SETMASS(cubeBody, 1.0)
 
 floorMesh = MESH.CREATECUBE(50, 1, 50)
 cubeMesh  = MESH.CREATECUBE(2, 2, 2)
@@ -410,6 +308,7 @@ mat       = MATERIAL.CREATEDEFAULT()
 WHILE NOT WINDOW.SHOULDCLOSE()
     PHYSICS3D.UPDATE()
 
+    ; Read position/rotation from physics body
     cx, cy, cz    = BODY3D.GETPOS(cubeBody)
     cp, cyaw, cr  = BODY3D.GETROT(cubeBody)
     xform = TRANSFORM.MULTIPLY(TRANSFORM.TRANSLATION(cx, cy, cz), TRANSFORM.ROTATION(cp, cyaw, cr))
@@ -433,8 +332,7 @@ WINDOW.CLOSE()
 
 ## See also
 
-- [PHYSICS_ADVANCED.md](PHYSICS_ADVANCED.md) — joints, constraints, vehicles
-- [PHYSICS2D.md](PHYSICS2D.md) — Box2D 2D simulation
-- [CHARCONTROLLER.md](CHARCONTROLLER.md) — capsule character controller
-- [ENTITY.md](ENTITY.md) — entity system and `LINKPHYSBUFFER`
-- [RAYCAST.md](RAYCAST.md) — non-physics ray queries
+- [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md) — Capsule character controller (KCC).
+- [PHYSICS_ADVANCED.md](PHYSICS_ADVANCED.md) — Joints, constraints, and vehicles.
+- [ENTITY.md](ENTITY.md) — Entity system and `LINKPHYSBUFFER`.
+- [docs/PHYSICS.md](../PHYSICS.md) — Beginner's guide to 3D physics.

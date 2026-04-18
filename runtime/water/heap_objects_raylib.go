@@ -16,6 +16,8 @@ type WaterObject struct {
 	Width    float32
 	Depth    float32
 	PX, PY, PZ float32
+	RotX, RotY, RotZ float32
+	ScaleX, ScaleY, ScaleZ float32
 	WaveT    float32
 	WaveAmp  float32
 	WaveFreq float32

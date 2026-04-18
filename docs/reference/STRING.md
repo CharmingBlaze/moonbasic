@@ -13,43 +13,49 @@ Commands for manipulating and querying strings.
 
 ## Slicing & Substrings
 
-### `LEN(s)` 
+### `LEN(s)`
 Returns the number of characters in a string.
 
----
-
-### `UPPER(s)` / `LOWER(s)` 
-Converts a string to all uppercase or all lowercase letters.
+- **Returns**: (Integer)
 
 ---
 
-### `TRIM(s)` 
-Removes whitespace from both ends of a string.
+### `UPPER(s)` / `LOWER(s)` / `TRIM`
+Case conversion and whitespace removal.
+
+- **Returns**: (String)
 
 ---
 
-### `MID(s, start, count)` 
-Extracts a substring from `s`, starting at the 1-based index `start`. If `count` is omitted, returns the rest of the string.
+### `MID(s, start [, count])` / `LEFT` / `RIGHT`
+Extracts a substring from the original string.
+
+- **Arguments**:
+    - `s`: (String) Source text.
+    - `start`: (Integer) 1-based starting position.
+    - `count`: (Integer, Optional) Number of characters.
+- **Returns**: (String)
 
 ---
 
-### `REPLACE(s, old, new)` 
+### `REPLACE(s, old, new)`
 Returns a new string with all occurrences of `old` replaced by `new`.
 
----
-
-### `SPLIT(s, separator)` 
-Splits `s` into an array of substrings. Returns a handle to a string list.
+- **Returns**: (String)
 
 ---
 
-### `INSTR(s, find)` 
-Returns the 1-based position of `find` within `s`, or `0` if not found.
+### `INSTR(s, query)`
+Returns the 1-based index of a substring, or 0 if not found.
+
+- **Returns**: (Integer)
 
 ---
 
-### `JOIN(handle, separator)` 
-Joins elements of a string list into a single string, separated by `separator`.
+### `SPLIT(s, separator)`
+Splits a string into a list handle.
+
+- **Returns**: (Handle) A string list handle.
 
 ---
 

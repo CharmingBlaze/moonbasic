@@ -14,30 +14,37 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-| Command | Purpose |
-|--------|---------|
-| `TABLE.CREATE(cols)` | `cols` is comma-separated names, e.g. `"name,score,hp"`. |
-| `TABLE.ADDROW(handle, v1, v2, …)` | One value per column (arity must match column count). |
-| `TABLE.FREE(handle)` | Release the table. |
+### `TABLE.CREATE(columnNames)`
+Allocates a new in-memory table with the specified columns.
 
-## Access
+- **Arguments**:
+    - `columnNames`: (String) Comma-separated names (e.g., "id,name,score").
+- **Returns**: (Handle) The new table handle.
+- **Example**:
+    ```basic
+    t = TABLE.CREATE("id,name")
+    ```
 
-Indices are **1-based** for rows; columns are addressed by **name** (case-sensitive to the string you passed to **`CREATE`**).
+---
 
-| Command | Purpose |
-|--------|---------|
-| `TABLE.ROWCOUNT` / `TABLE.COLCOUNT` | Sizes. |
-| `TABLE.GET(handle, row, col)` | Read cell; missing/empty cells return sensible defaults for strings. |
-| `TABLE.SET(handle, row, col, value)` | Write cell. |
+### `TABLE.ADDROW(handle, v1, v2, ...)`
+Appends a new row of values to the table.
 
-## Bridges
+- **Returns**: (Handle) The table handle.
 
-| Command | Purpose |
-|--------|---------|
-| `TABLE.TOJSON(handle)` | JSON array of objects (one object per row). |
-| `TABLE.FROMJSON(handle)` | Expects a **`JSON`** root array of uniform objects; column order is sorted lexicographically by key (deterministic). |
-| `TABLE.TOCSV(handle)` | First row = column names; following rows = data (**`CSV`** handle). |
-| `TABLE.FROMCSV(handle)` | Inverse of **`TOCSV`** (expects header row). |
+---
+
+### `TABLE.GET(handle, row, columnName)` / `SET`
+Accesses a cell by its **1-based** row index and column name.
+
+- **Returns**: (String) For `GET`.
+
+---
+
+### `TABLE.TOJSON(handle)` / `FROMJSON`
+Bridges the table to a JSON array of objects.
+
+- **Returns**: (Handle) A new JSON handle.
 
 ## Full Example
 

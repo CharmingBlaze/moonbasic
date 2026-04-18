@@ -8,7 +8,7 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 `ENTITYREF.*` commands operate on an entity handle that has physics or navigation attached. Use them in your game loop to query grounding state, trigger jumps, and update navigation.
 
-For the full entity API see [ENTITY.md](ENTITY.md). For character controllers see [CHARACTER.md](CHARACTER.md) and [KCC.md](KCC.md).
+For the full entity API see [ENTITY.md](ENTITY.md). For character controllers see [CHARACTER.md](CHARACTER.md) and [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md).
 
 ---
 

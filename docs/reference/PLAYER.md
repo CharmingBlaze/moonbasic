@@ -11,7 +11,7 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 3. Each frame: `PLAYER.MOVE` / `PLAYER.JUMP` / `PLAYER.ISGROUNDED`.
 4. Query targets with `PLAYER.GETLOOKTARGET`, nearby entities with `PLAYER.GETNEARBY`.
 
-For KCC tuning see [KCC.md](KCC.md). For low-level capsule API see [CHARCONTROLLER.md](CHARCONTROLLER.md).
+For character controller tuning and guide see [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md).
 
 ## Platform
 
@@ -24,7 +24,7 @@ Order: **Windows** first, **Linux** second ([DEVELOPER.md](../DEVELOPER.md#platf
 
 Start the world with **`PHYSICS3D.START()`** before **`PLAYER.CREATE`**.
 
-**Gameplay-oriented KCC guide (beginner → advanced):** **[KCC.md](KCC.md)** — **`CHAR.MOVE`**, **`CHAR.MOVEWITHCAMERA`**, **`NAVTO` / `NAVUPDATE`**, **`WORLD.MOUSEFLOOR`**, **`WORLD.MOUSEPICK`**, and RPG helpers.
+**Gameplay-oriented KCC guide (beginner → advanced):** **[CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md)** — **`CHAR.MOVE`**, **`CHAR.MOVEWITHCAMERA`**, **`NAVTO` / `NAVUPDATE`**, **`WORLD.MOUSEFLOOR`**, **`WORLD.MOUSEPICK`**, and RPG helpers.
 
 **Entity argument:** Commands that take **`entity`** accept either a **numeric entity id** (`1`, `2`, …) or an **EntityRef handle** from **`MODEL.CREATECAPSULE`**, **`CUBE`**, **`SPHERE`**, etc. Do not pass the raw heap slot as a plain integer; use the handle returned by the constructor.
 
@@ -56,45 +56,84 @@ If you call **`Player.GetPositionX()`** (or any zero-arg getter) **before** any 
 
 ---
 
-## Kinematic character (Jolt on desktop CGO — see [KCC.md](KCC.md))
+### `PLAYER.CREATE(entity [, radius, height])`
+Spawns a capsule character controller at the entity's world position.
 
-| Command | Purpose |
-|--------|---------|
-| **`PLAYER.CREATE(entity)`** or **`PLAYER.CREATE(entity, radius#, height#)`** | Spawns a **capsule** character controller at the entity’s world position (defaults **0.4** × **1.75** if omitted). Clears scripted gravity/velocity on the entity. Stores **entity → controller**. |
-| **`PLAYER.MOVE(entity, velocityX, velocityZ)`** | World-space **horizontal** velocity in **units per second** (multiplied by **`TIME.DELTA`** internally). Uses **`CharacterMoveXZVelocity`** (slide/step via Jolt **`ExtendedUpdate`**). Syncs the **entity** transform to the capsule after the move. |
-| **`PLAYER.MOVEWITHCAMERA(entity, camera, forwardAxis#, strafeAxis#, speed#)`** | Camera-relative **WASD** on **XZ** (same idea as **`CHAR.MOVEWITHCAMERA`**). |
-| **`PLAYER.NAVTO` / `PLAYER.NAVUPDATE`** | **Click-to-move** target + per-frame update; optional **arrival** and **`brakeDist`** for **soft stop** (see **[KCC.md](KCC.md)**). |
-| **`PLAYER.SETPADDING(entity, padding#)`** | Rebuilds **`CharacterVirtual`** with **character padding** (skin; **&gt; 0**). |
-| **`PLAYER.JUMP(entity, impulseY)`** | Adds **impulseY** to upward linear velocity (same idea as **`CharacterJump`**). |
-| **`PLAYER.ISGROUNDED(entity)`** → **bool** | **`true`** if the Jolt character reports ground support (**`IsSupported`**). |
-
-Lower-level access without entity ids: **`CHARCONTROLLER.CREATE`** (deprecated **`CHARCONTROLLER.MAKE`**) / **`MOVE` / …** ([CHARCONTROLLER.md](CHARCONTROLLER.md)).
-
-**`CHAR.*` aliases:** **`CHAR.CREATE`** = **`PLAYER.CREATE`** (deprecated **`CHAR.MAKE`**); **`CHAR.MOVE(entity, dirX, dirZ, speed)`** = **direction × speed** (not raw velocity — see **[KCC.md](KCC.md)**); **`CHAR.SETSTEP`**, **`CHAR.SETSLOPE`**, **`CHAR.SETPADDING`**, **`CHAR.MOVEWITHCAMERA`**, **`CHAR.NAVTO`**, **`CHAR.NAVUPDATE`**, **`CHAR.STICK`** map to the corresponding **`PLAYER.*`** commands.
+- **Arguments**:
+    - `entity`: (Handle) The entity to control.
+    - `radius`: (Float, Optional) Capsule radius (default 0.4).
+    - `height`: (Float, Optional) Total height (default 1.75).
+- **Returns**: (Handle) The entity handle.
+- **Example**:
+    ```basic
+    hero = ENTITY.LOAD("hero.iqm")
+    PLAYER.CREATE(hero, 0.4, 1.8)
+    ```
 
 ---
 
-## Interaction & detection
+### `PLAYER.MOVE(entity, vx, vz)`
+Moves the character with world-space horizontal velocity.
 
-| Command | Purpose |
-|--------|---------|
-| **`PLAYER.GETLOOKTARGET(entity, maxDist)`** → **entity** | **Eye height ≈ 1.65** above feet. Casts a **physics ray** along the entity’s **world forward** (`PickCastEntityID`). If the first hit is the player or nothing, falls back to **`ENTITY.PICK`-style AABB** ray vs **static** entities. Returns **0** if none. |
-| **`PLAYER.GETNEARBY(entity, radius, tag)`** → **float array** | Entities within **radius** whose **`ENTITY`** name **or** Blender **`tag`** extra matches **`tag`** (case-insensitive **`path.Match`** glob, e.g. **`Enemy*`**). Returns a **numeric array** of entity ids (same pattern as other “list of ids” APIs). |
-| **`ENT.GET_NEAREST`** | Alias of **`PLAYER.GETNEARBY`**. |
+- **Arguments**:
+    - `entity`: (Handle) The character entity.
+    - `vx, vz`: (Float) Velocity in units per second.
+- **Returns**: (Handle) The entity handle.
 
 ---
 
-## Triggers & animation
+### `PLAYER.MOVEWITHCAMERA(entity, camera, fwd, side, speed)`
+Moves the character relative to a camera's orientation.
 
-| Command | Purpose |
-|--------|---------|
-| **`PLAYER.ONTRIGGER(entity, callbackFunc)`** | **Not implemented** — the VM cannot be entered from Jolt sensors yet. Use **`LEVEL.BINDSCRIPT`** + **`LEVEL.MATCHSCRIPTBIND`**, **`EntityCollided`**, or **`PHYSICS3D`** collision hooks instead. A future **physics → BASIC** callback path would need a strict **main-thread / post-step** queue (no VM reentrancy inside Jolt) and is separate from the **wazero** WASM story. |
-| **`PLAYER.SETSTATE(entity, state)`** | Stores an integer **state id** for gameplay logic (e.g. **0 = idle**, **1 = walk**, **2 = jump**). Constants **`STATE_*`** are not built-ins yet—use literals or your own **`CONST`**. |
-| **`PLAYER.SYNCANIM(entity [, scale])`** | Sets **`ENTITY`** animation speed from **horizontal** linear velocity (× optional **scale**, default **1**). Requires **`PLAYER.CREATE`**. |
-| **`PLAYER.SETSTEPHEIGHT(entity, height)`** | Sets Jolt **ExtendedUpdate** **WalkStairsStepUp** (max stair/curb height). |
-| **`PLAYER.SETSLOPELIMIT(entity, maxSlopeDegrees)`** | **Rebuilds** the **`CharacterVirtual`** with **`MaxSlopeAngle`** = **maxSlopeDegrees** (must be between **0** and **90**). Preserves linear velocity. |
-| **`PLAYER.GETVELOCITY(entity)`** → **vec3 handle** | **`CharacterVirtual`** linear velocity (**vx, vy, vz**). |
-| **`PLAYER.TELEPORT(entity, x, y, z)`** | **`SetPosition`** + clears velocity + **`ExtendedUpdate`** + syncs the **entity** transform (snap teleport without smoothing). |
+- **Arguments**:
+    - `entity`: (Handle) The character entity.
+    - `camera`: (Handle) The reference camera.
+    - `fwd`: (Float) Forward/Back input (-1 to 1).
+    - `side`: (Float) Left/Right input (-1 to 1).
+    - `speed`: (Float) Movement speed.
+- **Returns**: (Handle) The entity handle.
+
+---
+
+### `PLAYER.JUMP(entity, impulseY)`
+Applies an upward vertical impulse.
+
+- **Returns**: (Handle) The entity handle.
+
+---
+
+### `PLAYER.ISGROUNDED(entity)`
+Returns `TRUE` if the character reports ground support.
+
+- **Returns**: (Boolean)
+
+---
+
+### `PLAYER.GETLOOKTARGET(entity, maxDist)`
+Returns the entity ID being looked at by this character.
+
+- **Arguments**:
+    - `entity`: (Handle) The character entity.
+    - `maxDist`: (Float) Maximum ray distance.
+- **Returns**: (Integer) Entity ID, or 0 if nothing hit.
+
+---
+
+### `PLAYER.GETNEARBY(entity, radius, tag)`
+Returns a list of entities within range matching a tag.
+
+- **Arguments**:
+    - `entity`: (Handle) The source entity.
+    - `radius`: (Float) Search radius.
+    - `tag`: (String) Case-insensitive glob (e.g., "Enemy*").
+- **Returns**: (Handle) A numeric array handle of entity IDs.
+
+---
+
+### `PLAYER.TELEPORT(entity, x, y, z)`
+Instantly snaps the character to a new position and clears velocity.
+
+- **Returns**: (Handle) The entity handle.
 | **`PLAYER.SETGRAVITYSCALE(entity, scale)`** | Scales **gravity on Y** during **`CharacterMoveXZVelocity`** (**1** = default; values below **1** lighten gravity; above **1** strengthen it). |
 | **`PLAYER.GETCROUCH(entity)`** / **`PLAYER.SETCROUCH(entity, bool)`** | Stored **crouch** flag for gameplay. **Capsule height** is not changed yet (Jolt wrapper limitation). |
 | **`PLAYER.SWIM(entity, buoyancy, drag)`** | **Swim mode**: **buoyancy** (0–1) reduces downward gravity; **drag** damps horizontal velocity per second. Use **`(0, 0)`** to disable. |
@@ -154,8 +193,7 @@ Naming: use **`LEVEL.LOAD`** / **`ENTITY.DRAW`** (or your project’s draw path)
 ## See also
 
 - [CHARACTER.md](CHARACTER.md) — **`CHARACTER.CREATE(entity, r, h)`**, **`CHARACTERREF.*`**, entity-bound Jolt KCC  
-- [KCC.md](KCC.md) — **`CHAR.*`** tutorial, mouse floor/pick, RPG helpers  
-- [CHARCONTROLLER.md](CHARCONTROLLER.md) — capsule API and full sample  
+- [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md) — character controller tutorial and full sample
 - [LEVEL.md](LEVEL.md) — glTF, tags, **`LEVEL.BINDSCRIPT`**  
 - [PHYSICS3D.md](PHYSICS3D.md) — Jolt world, **`PICK.*`**, rays  
 - [API_CONSISTENCY.md](../API_CONSISTENCY.md) — machine-generated list of every **`PLAYER.*`** / **`CHAR.*`** name and arity (from `commands.json`; use after manifest changes)  

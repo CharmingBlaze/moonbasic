@@ -23,7 +23,25 @@ moonBASIC registers commands as **`NAMESPACE.ACTION`** (uppercase, dot). In sour
 
 ---
 
-## 2. What exists today (quick map)
+## 2. Method Chaining (Fluent API)
+
+Most **setter** commands (`SET*`) and **creation** commands (`CREATE`, `LOAD`) in MoonBASIC return the object's handle. This enables **Method Chaining**, allowing you to configure objects in a single, fluent block of code.
+
+### The Rule for New APIs:
+- `CREATE` / `LOAD` should return the new handle.
+- `SET*` (e.g., `SETPOS`, `SETCOLOR`) should return the handle passed as the first argument.
+
+```basic
+; Standard chaining pattern
+hero = ENTITY.CREATE(model).setPos(0, 10, 0).setColor(255, 0, 0).setAlpha(0.5)
+
+; Also works with variables
+hero.setPos(10, 0, 10).setAlpha(1.0)
+```
+
+---
+
+## 3. What exists today (quick map)
 
 | Family | Load / make | Position | Scale / rotate (summary) |
 |--------|-------------|----------|---------------------------|

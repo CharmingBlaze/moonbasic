@@ -14,43 +14,40 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 Nested structures use dot + bracket paths (e.g. `"player.inventory[0].name"`).
 
-### `JSON.PARSE(path)` 
-Reads a UTF-8 file from disk and decodes it as JSON. Returns a **handle**.
+### `JSON.PARSE(path)` / `PARSESTRING`
+Decodes a JSON document from a file or string.
+
+- **Returns**: (Handle) The new JSON handle.
+- **Example**:
+    ```basic
+    j = JSON.PARSESTRING("{\"hero\": {\"hp\": 100}}")
+    ```
 
 ---
 
-### `JSON.PARSESTRING(jsonString)` 
-Decodes JSON from a string. Returns a **handle**.
+### `JSON.GETSTRING(handle, path [, default])` / `GETINT` / `GETBOOL`
+Reads a value at a dot-path (e.g., `"player.inventory[0].id"`).
+
+- **Arguments**:
+    - `handle`: (Handle) The JSON document.
+    - `path`: (String) The query path.
+    - `default`: (Optional) Fallback value if missing.
+- **Returns**: (String / Integer / Boolean) The resolved value.
 
 ---
 
-### `JSON.FREE(handle)` 
+### `JSON.SETSTRING(handle, path, value)`
+Mutates a value at the specified path.
+
+---
+
+### `JSON.TOFILE(handle, path)` / `TOSTRING`
+Serializes the JSON document back to a file or string.
+
+---
+
+### `JSON.FREE(handle)`
 Releases the JSON heap object.
-
----
-
-### `JSON.GETSTRING(handle, path, default)` 
-Returns the string value at the specified dot-path. Optional `default` if missing.
-
----
-
-### `JSON.GETINT(handle, path, default)` 
-Returns the integer value at the specified dot-path.
-
----
-
-### `JSON.GETBOOL(handle, path, default)` 
-Returns the boolean value at the specified dot-path.
-
----
-
-### `JSON.SETSTRING(handle, path, value)` 
-Sets a string value at the specified path, creating intermediates as needed.
-
----
-
-### `JSON.TOFILE(handle, path)` 
-Writes the JSON object to a file on disk.
 
 ---
 

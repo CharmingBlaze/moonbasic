@@ -4,7 +4,7 @@ High-level **heap-backed character controller** API. **`CHARACTER.CREATE`** bind
 
 **Platform:** Windows and Linux with **CGO + Jolt** (`fullruntime`). Same keys are registered as stubs on other builds. **Documentation order:** Windows-first ([DEVELOPER.md](../DEVELOPER.md#platform-priority-windows-then-linux)).
 
-For **`PLAYER.*`** high-level gameplay, see [PLAYER.md](PLAYER.md). For the standalone capsule API, see [CHARCONTROLLER.md](CHARCONTROLLER.md). For KCC tuning, see [KCC.md](KCC.md).
+For **`PLAYER.*`** high-level gameplay, see [PLAYER.md](PLAYER.md). For the standalone capsule API and KCC guide, see [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md).
 
 ## Core Workflow
 
@@ -85,9 +85,10 @@ Returns current linear velocity as a `[vx, vy, vz]` array handle.
 
 ### `CHARACTERREF.MOVE(hero, dx, dy, dz)` 
 
-Applies a displacement this frame; collisions resolved via Jolt extended update.
+### `CHARACTERREF.MOVE(hero, dx, dy, dz)`
+Applies a displacement this frame; collisions resolved via Jolt.
 
-- *Handle shortcut*: `hero.move(dx, dy, dz)`
+- **Returns**: (Handle) The character handle (for chaining).
 
 ---
 
@@ -99,11 +100,10 @@ Smart movement relative to the active camera view. See `commands.json` for arity
 
 ---
 
-### `CHARACTERREF.JUMP(hero, force)` 
-
+### `CHARACTERREF.JUMP(hero, force)`
 Applies an upward impulse of `force`.
 
-- *Handle shortcut*: `hero.jump(force)`
+- **Returns**: (Handle) The character handle (for chaining).
 
 ---
 
@@ -117,11 +117,10 @@ Sets the effective gravity magnitude for this character.
 
 ---
 
-### `CHARACTERREF.SETGRAVITYSCALE(hero, scale)` 
+### `CHARACTERREF.SETGRAVITYSCALE(hero, scale)`
+Scales world gravity for this character.
 
-Scales world gravity for this character (e.g. `0.5` = half gravity).
-
-- *Handle shortcut*: `hero.setGravityScale(scale)`
+- **Returns**: (Handle) The character handle (for chaining).
 
 ---
 
@@ -133,19 +132,17 @@ Sets the snap-to-ground stick distance (keeps character grounded on shallow slop
 
 ---
 
-### `CHARACTERREF.SETFRICTION(hero, f)` 
-
+### `CHARACTERREF.SETFRICTION(hero, f)`
 Sets sliding resistance (0..1).
 
-- *Handle shortcut*: `hero.setFriction(f)`
+- **Returns**: (Handle) The character handle (for chaining).
 
 ---
 
-### `CHARACTERREF.SETBOUNCE(hero, b)` 
+### `CHARACTERREF.SETBOUNCE(hero, b)`
+Sets restitution coefficient (0..1).
 
-Sets restitution coefficient (0..1). Alias: `CHARACTERREF.SETBOUNCINESS`.
-
-- *Handle shortcut*: `hero.setBounce(b)`
+- **Returns**: (Handle) The character handle (for chaining).
 
 ---
 
@@ -360,7 +357,6 @@ WINDOW.CLOSE()
 
 ## See also
 
-- [CHARCONTROLLER.md](CHARCONTROLLER.md) — standalone capsule handle (`CHARCONTROLLER.CREATE`)
-- [KCC.md](KCC.md) — `CHAR.*` / `PLAYER.*` gameplay layer
+- [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md) — standalone capsule handle and `CHAR.*` / `PLAYER.*` gameplay layer
 - [PLAYER.md](PLAYER.md) — `PLAYER.CREATE`, swim, nav
 - [PHYSICS3D.md](PHYSICS3D.md) — world step, picks, entity bridge

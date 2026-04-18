@@ -15,43 +15,49 @@ For raw meshes see [MESH.md](MESH.md). For skeletal animation see [ANIMATION_3D.
 
 ---
 
-### `MODEL.LOAD(path)` 
-Loads a 3D model file (glTF, GLB, OBJ, IQM, B3D). Returns a **model handle**.
+### `MODEL.LOAD(path)`
+Loads a 3D model file (glTF, GLB, OBJ, IQM, B3D).
+
+- **Arguments**:
+    - `path`: (String) File path.
+- **Returns**: (Handle) The new model handle.
+- **Example**:
+    ```basic
+    hero = MODEL.LOAD("hero.glb")
+    ```
 
 ---
 
-### `MODEL.MAKE(mesh)` / `MODEL.CREATE(mesh)` 
-Builds a model from an existing **`Mesh`** handle. The model takes ownership of the mesh GPU data. Prefer registry **`MODEL.CREATE`** (canonical); **`MODEL.MAKE`** is a deprecated alias.
+### `MODEL.CREATE(mesh)`
+Builds a model from an existing **`Mesh`** handle.
+
+- **Returns**: (Handle) The new model handle.
 
 ---
 
-### `MODEL.DRAW(handle)` 
-Draws the model using its root transform. Call between **`RENDER.BEGIN3D(cam)`** and **`RENDER.END3D()`** (active 3D camera **`cam`**) for 3D rendering.
+### `MODEL.DRAW(handle)`
+Draws the model using its current transform.
+
+- **Returns**: (Handle) The model handle (for chaining).
 
 ---
 
-### `MODEL.SETPOS(handle, x, y, z)` (canonical; deprecated `MODEL.SETPOSITION`) 
-Sets the model's root transform to a specific world position.
+### `MODEL.SETPOS(handle, x, y, z)` / `SETROT` / `SETSCALE`
+Sets the model's world position, Euler rotation (radians), or scale.
+
+- **Returns**: (Handle) The model handle (for chaining).
 
 ---
 
-### `MODEL.SETROT(handle, pitch, yaw, roll)` 
-Sets the model's absolute Euler rotation in **radians**.
+### `MODEL.SETMATERIAL(handle, index, material)`
+Replaces a material slot in the model.
+
+- **Returns**: (Handle) The model handle (for chaining).
 
 ---
 
-### `MODEL.SETSCALE(handle, sx, sy, sz)` 
-Sets the non-uniform scale of the model.
-
----
-
-### `MODEL.SETMATERIAL(handle, index, mat)` 
-Replaces a specific material slot in the model with a **`Material`** handle.
-
----
-
-### `MODEL.FREE(handle)` 
-Unloads the model and its associated meshes/materials from memory and frees the heap slot.
+### `MODEL.FREE(handle)`
+Unloads the model and its resources.
 
 ---
 

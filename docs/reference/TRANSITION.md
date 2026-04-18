@@ -14,38 +14,36 @@ For automatic scene transitions see [SCENE.md](SCENE.md).
 
 ---
 
-### `TRANSITION.FADEOUT(seconds)` 
+### `TRANSITION.FADEOUT(seconds)` / `FADEIN`
+Starts a full-screen color fade.
 
-Fades the overlay in, blocking the view over `seconds`.
-
----
-
-### `TRANSITION.FADEIN(seconds)` 
-
-Fades the overlay out, revealing the scene over `seconds`.
+- **Arguments**:
+    - `seconds`: (Float) Duration of the effect.
+- **Returns**: (None)
 
 ---
 
-### `TRANSITION.ISDONE()` 
+### `TRANSITION.WIPE(direction, seconds)`
+Starts a directional screen wipe.
 
-Returns `TRUE` when the current transition has finished.
-
----
-
-### `TRANSITION.WIPE(direction, seconds)` 
-
-Wipe overlay using the current color. `direction` (case-insensitive):
-
-- `left` — bar grows from the left edge.
-- `right` — from the right.
-- `up` / `top` — from the top.
-- `down` / `bottom` — from the bottom.
+- **Arguments**:
+    - `direction`: (String) "left", "right", "up", "down".
+    - `seconds`: (Float) Duration.
+- **Returns**: (None)
 
 ---
 
-### `TRANSITION.SETCOLOR(r, g, b, a)` 
+### `TRANSITION.ISDONE()`
+Returns `TRUE` if the current transition effect has completed.
 
-Sets the overlay color (0–255 per channel). Default is opaque black.
+- **Returns**: (Boolean)
+
+---
+
+### `TRANSITION.SETCOLOR(r, g, b [, a])`
+Sets the color used for transitions (default black).
+
+- **Returns**: (None)
 
 ---
 

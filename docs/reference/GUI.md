@@ -167,101 +167,67 @@ Notation: **float**, **string**, **optional bool** where shown. **`→`** return
 
 ---
 
-### `GUI.BUTTON(label, x, y, w, h)` 
-Draws a clickable button. Returns `TRUE` if the button was clicked this frame.
+### `GUI.BUTTON(label, x, y, w, h)`
+Draws a clickable button.
+
+- **Arguments**:
+    - `label`: (String) Text to display.
+    - `x, y, w, h`: (Float) Rectangle dimensions.
+- **Returns**: (Boolean) `TRUE` if clicked this frame.
 
 ---
 
-### `GUI.LABEL(label, x, y, w, h)` 
-Draws a static text label.
+### `GUI.LABEL(label, x, y, w, h)`
+Draws static text.
+
+- **Returns**: (None)
 
 ---
 
-### `GUI.TOGGLE(label, x, y, w, h, active)` 
-Draws a toggle button. Returns the new active state.
+### `GUI.TOGGLE(label, x, y, w, h, active)`
+Draws a toggle button.
+
+- **Arguments**:
+    - `active`: (Boolean) Current state.
+- **Returns**: (Boolean) The new state.
 
 ---
 
-### `GUI.TOGGLEGROUP(label, x, y, w, h, items)` 
-Draws a toggle group. Returns the active index.
+### `GUI.SLIDER(label, x, y, value, min, max, w, h)`
+Draws a horizontal slider.
+
+- **Arguments**:
+    - `value`: (Float) Current value.
+    - `min, max`: (Float) Range.
+- **Returns**: (Float) The updated value.
 
 ---
 
-### `GUI.TOGGLESLIDER(label, x, y, w, h, active)` 
-Draws a toggle slider. Returns the new active state.
+### `GUI.CHECKBOX(label, x, y, w, h, checked)`
+Draws a checkbox.
+
+- **Returns**: (Boolean) The new checked state.
 
 ---
 
-### `GUI.CHECKBOX(label, x, y, w, h, checked)` 
-Draws a checkbox. Returns the new checked state.
+### `GUI.TEXTBOX(label, x, y, w, h, text, maxLen, editMode)`
+Draws a text input box.
+
+- **Arguments**:
+    - `text`: (String) Current text.
+    - `maxLen`: (Integer) Max characters.
+    - `editMode`: (Boolean) Whether it is currently being edited.
+- **Returns**: (String) The updated text.
 
 ---
 
-### `GUI.COMBOBOX(label, x, y, w, h, items, active)` 
-Draws a combo box. Returns the active index.
+### `GUI.LISTVIEW(label, x, y, w, h, items, stateHandle)`
+Draws a list view.
 
----
-
-### `GUI.DROPDOWNBOX(label, x, y, w, h, items, stateHandle)` 
-Draws a dropdown box. Returns whether the dropdown is open.
-
----
-
-### Text & numbers 
-
----
-
-### `GUI.TEXTBOX(label, x, y, w, h, text, maxLen, editMode)` 
-Draws a text box. Returns the new text.
-
----
-
-### `GUI.SPINNER(label, x, y, w, h, text, value, min, max, editMode)` 
-Draws a spinner. Returns the new value.
-
----
-
-### `GUI.VALUEBOX(label, x, y, w, h, text, value, min, max, editMode)` 
-Draws a value box. Returns the new value.
-
----
-
-### `GUI.VALUEBOXFLOAT(label, x, y, w, h, label, value, textBuf, editMode)` 
-Draws a float value box. Returns the new value.
-
----
-
-### `GUI.VALUEBOXFLOATTEXT()` 
-Gets the text of a float value box.
-
----
-
-### Sliders, scroll, lists 
-
----
-
-### `GUI.SLIDER(label, x, y, value, min, max, w, h)` 
-Draws a horizontal slider. Returns the updated value.
-
----
-
-### `GUI.SCROLLBAR(x, y, w, h, value, min, max)` 
-Draws a scrollbar. Returns the updated value.
-
----
-
-### `GUI.STATUSBAR(label, x, y, w, h, text)` 
-Draws a status bar.
-
----
-
-### `GUI.LISTVIEW(label, x, y, w, h, items, stateHandle)` 
-Draws a list view. Returns the selected index.
-
----
-
-### `GUI.LISTVIEWEX(label, x, y, w, h, items, stateHandle)` 
-Draws an extended list view. Returns the selected index.
+- **Arguments**:
+    - `items`: (String) Semicolon-separated list.
+    - `stateHandle`: (Handle) DIM array for scroll/active state.
+- **Returns**: (Integer) The selected index.
 
 ---
 

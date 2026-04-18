@@ -16,16 +16,40 @@ For game-scene switching see [SCENE.md](SCENE.md).
 
 ---
 
-## Loader
+### `LEVEL.SETROOT(path)`
+Sets the base directory for relative asset paths.
 
-| Command | Purpose |
-|--------|---------|
-| **`LEVEL.SETROOT(path)`** | Base directory for relative paths passed to **`LEVEL.LOAD`**, **`LEVEL.PRELOAD`**, **`LEVEL.LOADSKYBOX`**. |
-| **`LEVEL.LOAD(path)`** → **entity** | Opens glTF, walks the node hierarchy, fills **marker/spawn** maps, then loads graphics. |
-| **`LEVEL.STATIC(entity)`** | **Easy Mode** — generates a high-performance static collision mesh from the entity's current model. |
-| **`LEVEL.AUTOCOLLIDE()`** | **Easy Mode** — scans all active entities and automatically bakes static mesh collisions for those marked as static. |
-| **`LEVEL.SETUP(gravity#)`** | Initializes physics for the level. Alias of **`WORLD.SETUP`**. |
-| **`LEVEL.PRELOAD(dir)`** → **count** | Recursively loads image files under **`dir`** into GPU textures. |
+- **Returns**: (None)
+
+---
+
+### `LEVEL.LOAD(path)`
+Loads a glTF level and resolves all markers and spawns.
+
+- **Arguments**:
+    - `path`: (String) File path relative to the root.
+- **Returns**: (Integer) The ID of the root level entity.
+- **Example**:
+    ```basic
+    LEVEL.SETROOT("assets/")
+    lvl = LEVEL.LOAD("level1.glb")
+    ```
+
+---
+
+### `LEVEL.STATIC(entity)` / `AUTOCOLLIDE`
+Bakes high-performance static collision geometry for levels.
+
+- **Returns**: (None)
+
+---
+
+### `LEVEL.GETSPAWN(name)`
+Returns the world transform of a named node.
+
+- **Arguments**:
+    - `name`: (String) The node name from the glTF file.
+- **Returns**: (Handle) A matrix handle (`MAT4`).
 
 **Limits (current):**
 

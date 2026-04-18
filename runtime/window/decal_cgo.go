@@ -19,10 +19,12 @@ import (
 type decalObj struct {
 	texH heap.Handle
 	pos  rl.Vector3
+	rot  float32 // degrees (for DrawBillboardPro)
 	sx   float32
 	sy   float32
 	life float32 // seconds; 0 = no fade-out
 	age  float32
+	col  color.RGBA
 }
 
 func (d *decalObj) TypeName() string { return "Decal" }
@@ -37,11 +39,16 @@ func (m *Module) registerDecalCommands(r runtime.Registrar) {
 	r.Register("DECAL.FREE", "decal", m.decalFree)
 	r.Register("DECAL.SETPOS", "decal", m.decalSetPos)
 	r.Register("DECAL.GETPOS", "decal", m.decalGetPos)
+	r.Register("DECAL.SETROT", "decal", m.decalSetRot)
+	r.Register("DECAL.GETROT", "decal", m.decalGetRot)
 	r.Register("DECAL.SETSIZE", "decal", m.decalSetSize)
 	r.Register("DECAL.GETSIZE", "decal", m.decalGetSize)
+	r.Register("DECAL.SETCOLOR", "decal", m.decalSetColor)
+	r.Register("DECAL.GETCOLOR", "decal", m.decalGetColor)
+	r.Register("DECAL.SETALPHA", "decal", m.decalSetAlpha)
+	r.Register("DECAL.GETALPHA", "decal", m.decalGetAlpha)
 	r.Register("DECAL.SETLIFETIME", "decal", m.decalSetLifetime)
 	r.Register("DECAL.GETLIFETIME", "decal", m.decalGetLifetime)
-	r.Register("DECAL.GETROT", "decal", m.decalGetRot)
 	r.Register("DECAL.DRAW", "decal", m.decalDraw)
 }
 
@@ -73,7 +80,7 @@ func (m *Module) decalMake(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	if _, err := mbdraw.TextureForBinding(store, heap.Handle(args[0].IVal)); err != nil {
 		return value.Nil, fmt.Errorf("DECAL.MAKE: %w", err)
 	}
-	d := &decalObj{texH: heap.Handle(args[0].IVal), sx: 1, sy: 1}
+	d := &decalObj{texH: heap.Handle(args[0].IVal), sx: 1, sy: 1, col: color.RGBA{255, 255, 255, 255}}
 	id, err := store.Alloc(d)
 	if err != nil {
 		return value.Nil, err
@@ -240,7 +247,31 @@ func (m *Module) decalGetLifetime(rt *runtime.Runtime, args ...value.Value) (val
 	return value.FromFloat(float64(d.life)), nil
 }
 
-// decalGetRot returns [0,0,0]; the decal object has no stored rotation (2D screen-space quad).
+func (m *Module) decalSetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) < 2 {
+		return value.Nil, fmt.Errorf("DECAL.SETROT expects (decal, angle#)")
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.SETROT")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 4 {
+		// handle (decal, p, y, r) - decals only use 'r' (yaw/roll in billboard space)
+		if r, ok := args[3].ToFloat(); ok {
+			d.rot = float32(r)
+		}
+	} else {
+		if r, ok := args[1].ToFloat(); ok {
+			d.rot = float32(r)
+		}
+	}
+	return args[0], nil
+}
+
 func (m *Module) decalGetRot(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
 	store, err := m.requireHeapDecal(rt)
 	if err != nil {
@@ -249,10 +280,78 @@ func (m *Module) decalGetRot(rt *runtime.Runtime, args ...value.Value) (value.Va
 	if len(args) != 1 || args[0].Kind != value.KindHandle {
 		return value.Nil, fmt.Errorf("DECAL.GETROT expects decal handle")
 	}
-	if _, err := m.getDecal(store, args, 0, "DECAL.GETROT"); err != nil {
+	d, err := m.getDecal(store, args, 0, "DECAL.GETROT")
+	if err != nil {
 		return value.Nil, err
 	}
-	return mbmatrix.AllocVec3Value(store, 0, 0, 0)
+	return mbmatrix.AllocVec3Value(store, 0, 0, d.rot)
+}
+
+func (m *Module) decalSetColor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.SETCOLOR")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 2 && args[1].Kind == value.KindHandle {
+		c, err := mbmatrix.HeapColorRGBA(store, heap.Handle(args[1].IVal))
+		if err != nil {
+			return value.Nil, err
+		}
+		d.col.R, d.col.G, d.col.B = c.R, c.G, c.B
+	} else if len(args) >= 4 {
+		r, _ := args[1].ToInt()
+		g, _ := args[2].ToInt()
+		b, _ := args[3].ToInt()
+		d.col.R, d.col.G, d.col.B = uint8(r), uint8(g), uint8(b)
+	}
+	return args[0], nil
+}
+
+func (m *Module) decalGetColor(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.GETCOLOR")
+	if err != nil {
+		return value.Nil, err
+	}
+	return mbmatrix.AllocColorValue(store, d.col.R, d.col.G, d.col.B, d.col.A)
+}
+
+func (m *Module) decalSetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.SETALPHA")
+	if err != nil {
+		return value.Nil, err
+	}
+	if len(args) == 2 {
+		if a, ok := args[1].ToFloat(); ok {
+			d.col.A = uint8(a * 255)
+		} else if a, ok := args[1].ToInt(); ok {
+			d.col.A = uint8(a)
+		}
+	}
+	return args[0], nil
+}
+
+func (m *Module) decalGetAlpha(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
+	store, err := m.requireHeapDecal(rt)
+	if err != nil {
+		return value.Nil, err
+	}
+	d, err := m.getDecal(store, args, 0, "DECAL.GETALPHA")
+	if err != nil {
+		return value.Nil, err
+	}
+	return value.FromFloat(float64(d.col.A) / 255.0), nil
 }
 
 func (m *Module) decalDraw(rt *runtime.Runtime, args ...value.Value) (value.Value, error) {
@@ -277,22 +376,18 @@ func (m *Module) decalDraw(rt *runtime.Runtime, args ...value.Value) (value.Valu
 	}
 	dt := rl.GetFrameTime()
 	d.age += dt
-	var alpha uint8 = 255
+	alpha := d.col.A
 	if d.life > 0 {
 		if d.age >= d.life {
 			return value.Nil, nil
 		}
-		t := 1.0 - float64(d.age/d.life)
-		if t < 0 {
-			t = 0
-		}
-		if t > 1 {
-			t = 1
-		}
-		alpha = uint8(255.0 * t)
+		t := 1.0 - float32(d.age/d.life)
+		if t < 0 { t = 0 }
+		if t > 1 { t = 1 }
+		alpha = uint8(float32(d.col.A) * t)
 	}
-	tint := color.RGBA{R: 255, G: 255, B: 255, A: alpha}
+	tint := color.RGBA{R: d.col.R, G: d.col.G, B: d.col.B, A: alpha}
 	src := rl.NewRectangle(0, 0, float32(tex.Width), float32(tex.Height))
-	rl.DrawBillboardRec(cam, tex, src, d.pos, rl.NewVector2(d.sx, d.sy), tint)
+	rl.DrawBillboardPro(cam, tex, src, d.pos, cam.Up, rl.NewVector2(d.sx, d.sy), rl.NewVector2(0, 0), d.rot, tint)
 	return args[0], nil
 }

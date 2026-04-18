@@ -12,24 +12,35 @@
 
 ---
 
-### `FONT.LOAD(path)` 
-Loads a `.ttf` or `.otf` font file from disk. Returns a **font handle**.
+### `FONT.LOAD(path)`
+Loads a TrueType (`.ttf`) or OpenType (`.otf`) font file.
+
+- **Arguments**:
+    - `path`: (String) File path to the font.
+- **Returns**: (Handle) The new font handle.
+- **Example**:
+    ```basic
+    fnt = FONT.LOAD("font.ttf")
+    ```
 
 ---
 
-### `FONT.FREE(handle)` 
-Unloads a font from memory and releases its heap slot.
+### `DRAW.TEXTFONT(handle, text, x, y, size, spacing, r, g, b, a)`
+Draws text using a specific font handle.
+
+- **Arguments**:
+    - `handle`: (Handle) The loaded font.
+    - `text`: (String) The message to draw.
+    - `x, y`: (Float) Screen position.
+    - `size`: (Float) Font size in pixels.
+    - `spacing`: (Float) Letter spacing.
+    - `r, g, b, a`: (Float/Integer) Color.
+- **Returns**: (None)
 
 ---
 
-### `DRAW.TEXTFONT(handle, text, x, y, size, spacing, r, g, b, a)` 
-Draws text using a specific font handle. Call within **`CAMERA2D.BEGIN`** / **`CAMERA2D.END`** (or your active 2D camera bracket).
-- `handle`: The handle of the loaded font.
-- `text`: The string to draw.
-- `x`, `y`: Screen position.
-- `size`: Font size in pixels.
-- `spacing`: Extra spacing between characters.
-- `r, g, b, a`: Color components (0-255).
+### `FONT.FREE(handle)`
+Releases the font handle from memory.
 
 ---
 

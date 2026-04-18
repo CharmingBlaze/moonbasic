@@ -13,42 +13,61 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
-### `IMAGE.LOAD(path)` 
+### `IMAGE.LOAD(path)`
 Loads an image from disk (PNG, JPG, BMP, etc.). Returns a **handle**.
 
+- **Arguments**:
+    - `path`: (String) File path relative to working directory.
+- **Returns**: (Handle) The new image handle.
+- **Example**:
+    ```basic
+    img = IMAGE.LOAD("hero.png")
+    ```
+
 ---
 
-### `IMAGE.CREATE(w, h [, r, g, b, a])` 
-Creates a new CPU image. If RGBA components are provided, fills the image with that color (0-255). **`IMAGE.MAKE`** is a **deprecated** alias of **`IMAGE.CREATE`**.
+### `IMAGE.CREATE(w, h [, r, g, b, a])`
+Creates a new CPU image.
+
+- **Arguments**:
+    - `w, h`: (Integer) Dimensions in pixels.
+    - `r, g, b, a`: (Integer, optional) Initial fill color (0-255).
+- **Returns**: (Handle) The new image handle.
+- **Example**:
+    ```basic
+    a = IMAGE.CREATE(128, 128, 255, 0, 0, 255) ; 128x128 Red box
+    ```
 
 ---
 
-### `IMAGE.FREE(handle)` 
+### `IMAGE.FREE(handle)`
 Releases the heap slot and unloads the image memory.
 
 ---
 
-### `IMAGE.WIDTH(handle)` / `IMAGE.HEIGHT(handle)` 
+### `IMAGE.WIDTH(handle)` / `IMAGE.HEIGHT(handle)`
 Returns the integer pixel dimensions of the image.
 
 ---
 
-### `IMAGE.RESIZE(handle, w, h)` 
+### `IMAGE.RESIZE(handle, w, h)`
 Resizes the image in memory using bilinear scaling.
+
+- **Returns**: (Handle) The modified image handle (for chaining).
 
 ---
 
-### `IMAGE.EXPORT(handle, path)` 
+### `IMAGE.EXPORT(handle, path)`
 Saves the image to a file. The format is determined by the file extension.
 
 ---
 
-### `IMAGE.DRAWPIXEL(handle, x, y, r, g, b, a)` 
-Draws a single pixel on the image at `(x, y)`.
+### `IMAGE.DRAWPIXEL(handle, x, y, r, g, b, a)`
+Draws a single pixel on the image.
 
 ---
 
-### `IMAGE.DRAWRECT(handle, x, y, w, h, r, g, b, a)` 
+### `IMAGE.DRAWRECT(handle, x, y, w, h, r, g, b, a)`
 Draws a filled rectangle on the image.
 
 ---

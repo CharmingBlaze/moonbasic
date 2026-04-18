@@ -16,48 +16,64 @@ For 2D lighting see [SPRITE.md](SPRITE.md) (`LIGHT2D.*`).
 
 ---
 
-### `LIGHT.CREATE(type)` 
-Creates a new light source of the specified type. Returns a **handle** to the light. **`type`**: `"directional"`, `"point"`, or `"spot"`. **`LIGHT.MAKE`** is a **deprecated** alias of **`LIGHT.CREATE`**.
+### `LIGHT.CREATE(type)`
+Creates a new light source of the specified type.
+
+- **Arguments**:
+    - `type`: (String) `"directional"`, `"point"`, or `"spot"`.
+- **Returns**: (Handle) The new light handle.
+- **Example**:
+    ```basic
+    sun = LIGHT.CREATE("directional")
+    ```
 
 ---
 
-### `LIGHT.FREE(handle)` 
+### `LIGHT.FREE(handle)`
 Unloads the light and frees its resources.
 
 ---
 
-### `LIGHT.SETPOS(handle, x, y, z)` 
-Sets the world position of a point or spot light. (Canonical; deprecated **`LIGHT.SETPOSITION`**.)
+### `LIGHT.SETPOS(handle, x, y, z)` / `SETDIR`
+Sets the position or direction of the light.
+
+- **Arguments**:
+    - `handle`: (Handle) The light to modify.
+    - `x, y, z`: (Float) World coordinates or direction vector.
+- **Returns**: (Handle) The light handle (for chaining).
 
 ---
 
-### `LIGHT.SETDIR(handle, x, y, z)` 
-Sets the direction vector for a directional or spot light.
+### `LIGHT.SETCOLOR(handle, r, g, b [, a])`
+Sets the color and intensity of the light.
+
+- **Arguments**:
+    - `r, g, b`: (Float/Integer) Color components (0-255).
+    - `a`: (Float, Optional) Multiplier for light strength.
+- **Returns**: (Handle) The light handle (for chaining).
 
 ---
 
-### `LIGHT.SETCOLOR(handle, r, g, b [, a])` 
-Sets the color and intensity of the light (0-255). The optional alpha component multiplies the overall light strength.
+### `LIGHT.SETRANGE(handle, range)`
+Sets the maximum distance for point/spot lights.
+
+- **Returns**: (Handle) The light handle (for chaining).
 
 ---
 
-### `LIGHT.SETRANGE(handle, range)` 
-Sets the maximum distance at which the light has an effect (for point and spot lights).
+### `LIGHT.SETSHADOW(handle, toggle)`
+Enables or disables shadow casting.
+
+- **Arguments**:
+    - `toggle`: (Boolean) `TRUE` to enable shadows.
+- **Returns**: (Handle) The light handle (for chaining).
 
 ---
 
-### `LIGHT.SETSHADOW(handle, toggle)` 
-Enables or disables shadow casting for the light. Only **one** shadow-casting light is supported at a time.
+### `LIGHT.SETTARGET(handle, x, y, z)`
+Sets the world point for shadow camera focus.
 
----
-
-### `LIGHT.SETINNERCONE(handle, degrees)` / `LIGHT.SETOUTERCONE(handle, degrees)` 
-Sets the inner and outer half-cone angles for spotlights in degrees.
-
----
-
-### `LIGHT.SETTARGET(handle, x, y, z)` 
-Sets the world point the **orthographic shadow camera** looks at. Correctly framing your scene in this volume is required for shadows.
+- **Returns**: (Handle) The light handle (for chaining).
 
 ---
 

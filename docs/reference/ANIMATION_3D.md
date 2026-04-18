@@ -14,25 +14,43 @@ No built-in cross-fade — switching clips snaps to the new pose.
 
 ---
 
-## Unified `ENTITY.*` API (models + animation in one module)
+### `ENTITY.LOADANIMATEDMESH(path)`
+Loads a 3D model with embedded skeletal animations.
 
-moonBASIC exposes **3D models and skeletal playback** through **`ENTITY.*`** builtins (PascalCase **`Entity.*`** in teaching docs maps to these). Prefer this table when you want one coherent module for loading, drawing, materials, and clips.
+- **Arguments**:
+    - `path`: (String) File path to the model.
+- **Returns**: (Integer) The new entity ID.
+- **Example**:
+    ```basic
+    hero = ENTITY.LOADANIMATEDMESH("hero.glb")
+    ```
 
-| Goal | Command |
-|------|---------|
-| Load mesh (glTF, OBJ, IQM, M3D, … — whatever Raylib **`LoadModel`** supports) | **`ENTITY.LOAD(path)`** / **`ENTITY.LOADMESH`** |
-| Load mesh **and** animations from the same path | **`ENTITY.LOADANIMATEDMESH(path)`** |
-| Load **external** animation data (e.g. IQM anim in a separate file) | **`ENTITY.LOADANIMATIONS(entity, path)`** — replaces the entity’s previous clip set |
-| Free entity and unload model/animations | **`ENTITY.FREE(entity)`** |
-| Play clip by index / by name | **`ENTITY.PLAY(entity, idx)`**, **`ENTITY.PLAYNAME(entity, name)`** — sets speed to **1** and time to **0** |
-| Stop / seek / speed / loop | **`ENTITY.STOPANIM`**, **`ENTITY.SETANIMFRAME`**, **`ENTITY.SETANIMSPEED`**, **`ENTITY.SETANIMLOOP`** |
-| Playing? / clip names | **`ENTITY.ISPLAYING`**, **`ENTITY.ANIMNAME(entity, idx)`**, **`ENTITY.CURRENTANIM(entity)`** |
-| Cross-fade / named transition | **`ENTITY.CROSSFADE(entity, nextIdx, duration)`**, **`ENTITY.TRANSITION(entity, name, duration)`** — **no** skeletal blend yet; **`duration`** is reserved; switches clip **immediately** (same as **`PLAY`** / **`PLAYNAME`**). |
-| Bone attachment point (world space) | **`ENTITY.GETBONEPOS`**, **`ENTITY.GETBONEROT`** → 3-float arrays; or **`ENTITY.FINDBONE`** + **`ENTITY.GETPOS`** on the socket entity |
-| Texture / tint / shader on loaded model | **`ENTITY.SETTEXTUREMAP(entity, materialIndex, textureHandle)`**, **`ENTITY.COLOR`**, **`ENTITY.SETSHADER(entity, shaderHandle)`** |
-| Aim at another entity | **`ENTITY.POINTAT`** (alias of **`POINTENTITY`**), or **`ENTITY.LOOKAT`** toward a world point |
-| Tight world AABB / picking | **`ENTITY.GETBOUNDS`** → **`[minX,minY,minZ,maxX,maxY,maxZ]`**; **`ENTITY.RAYHIT(entity, ox,oy,oz, dx,dy,dz)`** (mesh raycast; direction is normalized internally) |
-| Draw this entity only | **`ENTITY.DRAW(entity)`** or **`DrawEntity(entity)`** — scene sort order is **not** applied (unlike **`DRAWALL`**) |
+---
+
+### `ENTITY.PLAYNAME(entity, name)` / `PLAY`
+Starts playing a specific animation clip by name or index.
+
+- **Arguments**:
+    - `entity`: (Integer) The character entity.
+    - `name`: (String) Clip name from the model file.
+- **Returns**: (Integer) The entity ID (for chaining).
+
+---
+
+### `ENTITY.UPDATE(dt)`
+Advances the skeletal pose and bone matrices for all entities.
+
+- **Returns**: (None)
+
+---
+
+### `ENTITY.FINDBONE(entity, name)`
+Returns a "socket" entity that follows a specific bone's transform.
+
+- **Arguments**:
+    - `entity`: (Integer) The source entity.
+    - `name`: (String) Bone name (e.g., "Hand_R").
+- **Returns**: (Integer) A new hidden entity ID tracking the bone.
 
 **Loop:** Call **`ENTITY.UPDATE(TIME.DELTA())`** each frame so physics and **`UpdateModelAnimation`** / bone matrices run before **`ENTITY.DRAW`** / **`DRAWALL`**.
 

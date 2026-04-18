@@ -87,45 +87,56 @@ For multidimensional arrays, `.length` returns dimension 1 size.
 
 See [MEMORY.md](../MEMORY.md).
 
-### `ARRAY.MAKE(size)` 
-Creates a new 1D numeric array on the heap. Returns an **array handle**.
+### `ARRAY.MAKE(size)`
+Allocates a new 1D numeric array on the heap.
+
+- **Arguments**:
+    - `size`: (Integer) Number of elements.
+- **Returns**: (Handle) A reference to the new heap array.
+- **Example**:
+    ```basic
+    a = ARRAY.MAKE(10)
+    ```
 
 ---
 
-### `ARRAY.LEN(handle)` 
-Returns the number of elements in the array.
+### `ARRAY.GET(handle, index)` / `SET`
+Reads or writes values using **0-indexed** position.
+
+- **Arguments**:
+    - `handle`: (Handle) The array.
+    - `index`: (Integer) 0-based position.
+- **Returns**: (Float/Integer) The value for `GET`; the handle for `SET`.
 
 ---
 
-### `ARRAY.GET(handle, index)` / `ARRAY.SET(handle, index, value)` 
-Reads or writes a value at a specific **0-indexed** position.
+### `ARRAY.LEN(handle)`
+Returns the total number of elements in the array.
+
+- **Returns**: (Integer)
 
 ---
 
-### `ARRAY.FREE(handle)` 
-Releases the heap array and frees its memory.
-
----
-
-### `ARRAY.FILL(handle, value)` 
-Fills all elements of the array with a single numeric value.
-
----
-
-### `ARRAY.SORT(handle)` 
+### `ARRAY.SORT(handle)`
 Sorts the elements of a 1D array in ascending order.
 
+- **Returns**: (Handle) The array handle (for chaining).
+
 ---
 
-### `ARRAY.MAKE2D(rows, cols)` / `ARRAY.MAKE3D(d, h, w)` 
+### `ARRAY.FILL(handle, value)`
+Overwrites every element with a specific value.
 
-Creates multi-dimensional numeric arrays. Indexing is **0-based**.
+- **Returns**: (Handle) The array handle (for chaining).
+
+---
+
+### `ARRAY.FREE(handle)`
+Releases the array from the heap.
 
 ---
 
 ## Full Example
-
-This example creates an array, fills and sorts it.
 
 ```basic
 a = ARRAY.MAKE(5)
@@ -133,6 +144,7 @@ FOR i = 0 TO 4
     ARRAY.SET(a, i, RND(100))
 NEXT
 ARRAY.SORT(a)
+
 FOR i = 0 TO ARRAY.LEN(a) - 1
     PRINT ARRAY.GET(a, i)
 NEXT
