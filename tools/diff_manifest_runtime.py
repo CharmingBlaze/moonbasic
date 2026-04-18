@@ -53,6 +53,8 @@ def build_missing_md(missing_from_manifest: list[str], missing_from_runtime: lis
     lines: list[str] = [
         "# Missing Commands Audit",
         "",
+        "**Generated** by `python tools/diff_manifest_runtime.py --write`. Runtime keys follow the same `.Register(` string heuristic as `extract_runtime_keys.ps1` over `runtime/**/*.go`; not every builtin uses that pattern. Treat gaps as triage hints, not a complete defect list.",
+        "",
         f"## In Runtime but Missing from Manifest ({len(missing_from_manifest)})",
         "These commands are registered in Go runtime code but have no entry in commands.json.",
         "The compiler will reject .mb scripts that try to use them.",

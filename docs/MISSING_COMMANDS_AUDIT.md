@@ -1,5 +1,7 @@
 # Missing Commands Audit
 
+**Generated** by `python tools/diff_manifest_runtime.py --write`. Runtime keys follow the same `.Register(` string heuristic as `extract_runtime_keys.ps1` over `runtime/**/*.go`; not every builtin uses that pattern. Treat gaps as triage hints, not a complete defect list.
+
 ## In Runtime but Missing from Manifest (0)
 These commands are registered in Go runtime code but have no entry in commands.json.
 The compiler will reject .mb scripts that try to use them.

@@ -36,7 +36,7 @@ docs/reference/CAMERA.md                          100
 docs/reference/CAMERA2D.md                        49
 docs/reference/CAMERA_LIGHT_RENDER.md             40
 docs/reference/CHAR.md                            110
-docs/reference/CHARACTER.md                       83
+docs/reference/CHARACTER.md                       85
 docs/reference/CHARACTERREF.md                    96
 docs/reference/CHARACTER_PHYSICS.md               50
 docs/reference/CHARCONTROLLER.md                  66
@@ -214,7 +214,7 @@ docs/reference/WIND.md                            18
 docs/reference/WINDOW.md                          52
 docs/reference/WORLD.md                           58
 
-# Manifest keys with no hit in any scanned doc (626 total)
+# Manifest keys with no hit in any scanned doc (634 total)
 
 ADDSURFACE
 AMBIENTLIGHT
@@ -248,6 +248,8 @@ CAMERA.ROTATE
 CAMERA.SETMODE
 CAMERA.TARGET
 CAMERA.ZOOM
+CAMERA2D.GETOFFSET
+CAMERA2D.GETZOOM
 CAMERA2DOFFSET
 CAMERA2DROTATION
 CAMERA2DTARGET
@@ -263,6 +265,7 @@ CAMERAZOOM
 CHAR.GETROTATIONPITCH
 CHAR.GETROTATIONROLL
 CHARACTER.MAKE
+CHARACTERREF.SETBOUNCINESS
 CHARCONTROLLER.GROUNDSTATE
 CHARCONTROLLER.TELEPORT
 CHOOSE
@@ -536,9 +539,11 @@ JOYYDIR
 JOYZ
 JSON.KEYS
 JSON.TOSTRING
+KINEMATICREF.GETVELOCITY
 LEFT$
 LIGHT.COLOR
 LIGHT.DIR
+LIGHT.GETENERGY
 LIGHT.INTENSITY
 LIGHT.POS
 LIGHT.RANGE
@@ -804,6 +809,7 @@ TOTALVIDMEM
 TRIM$
 TURNCAMERA
 TWEEN.CREATE
+TWEEN.FREE
 TWEEN.PROGRESS
 TYPEOF
 UPDATEEMITTER
@@ -829,6 +835,8 @@ VertexZ
 WAIT
 WAITKEY
 WAITMOUSE
+WATER.GETDEEPCOLOR
+WATER.GETSHALLOWCOLOR
 WAVE.FORMAT
 WEIGHTEDRND
 WINDOW.GETMONITORHEIGHT
