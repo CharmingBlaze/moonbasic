@@ -76,3 +76,54 @@ Signatures match `compiler/builtinmanifest/commands.json`.
 - `LEVEL.STATIC(any)`
 - `LEVEL.AUTOCOLLIDE()`
 - `ENTITY.SETSTATIC(any, any)`
+
+---
+
+## Full Example
+
+Loading a level and baking static collision in one pass.
+
+```basic
+WINDOW.OPEN(960, 540, "Level Collision Demo")
+WINDOW.SETFPS(60)
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -10, 0)
+
+LEVEL.SETUP(-10)
+castle = LEVEL.LOAD("assets/castle.glb")
+ENTITY.SETSTATIC(castle, TRUE)
+
+barrel = MODEL.LOAD("assets/barrel.glb")
+ENTITY.SETSTATIC(barrel, TRUE)
+ENTITY.SETPOS(barrel, 4, 0, 2)
+
+LEVEL.AUTOCOLLIDE()
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 8, -14)
+CAMERA.SETTARGET(cam, 0, 2, 0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    PHYSICS3D.UPDATE()
+    ENTITY.UPDATE(TIME.DELTA())
+
+    RENDER.CLEAR(80, 100, 130)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+        DRAW.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+PHYSICS3D.STOP()
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [LEVEL.md](LEVEL.md) — `LEVEL.LOAD`, `LEVEL.SETUP`, `LEVEL.BINDSCRIPT`
+- [PHYSICS3D.md](PHYSICS3D.md) — physics world setup
+- [ENTITY.md](ENTITY.md) — `ENTITY.SETSTATIC`

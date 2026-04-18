@@ -305,6 +305,203 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+Commands not covered in detail above. All accept an entity id or handle as the first argument unless noted.
+
+### Creation aliases
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.MAKE(path)` | Alias of `ENTITY.LOAD`. |
+| `ENTITY.CREATEENTITY()` / `ENTITY.MAKEENTITY()` | Create an empty entity with no mesh. |
+| `ENTITY.CREATEBOX(w,h,d)` / `ENTITY.MAKEBOX(w,h,d)` | Box mesh entity. |
+| `ENTITY.MAKECUBE(size)` | Cube entity (uniform box). |
+| `ENTITY.CREATECONE(r,h)` / `ENTITY.MAKECONE(r,h)` | Cone mesh entity. |
+| `ENTITY.CREATECYLINDER(r,h)` / `ENTITY.MAKECYLINDER(r,h)` | Cylinder mesh entity. |
+| `ENTITY.MAKESPHERE(r)` | Sphere mesh entity. |
+| `ENTITY.MAKEMESH(meshHandle)` | Entity from an existing mesh handle. |
+| `ENTITY.MAKESURFACE()` | Empty surface entity for dynamic geometry. |
+| `ENTITY.MAKEPLANE(w,d)` | Flat plane entity. |
+| `ENTITY.MAKESPRITE(texHandle)` | Billboard sprite entity. |
+| `ENTITY.COPY(id)` | Clone an entity (same mesh, new id). |
+
+---
+
+### Position / pose shortcuts
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.ENTITYX(id)` / `ENTITYY` / `ENTITYZ` | World X/Y/Z (same as `ENTITY.X/Y/Z`). |
+| `ENTITY.ENTITYPITCH(id)` / `ENTITYYAW` / `ENTITYROLL` | Euler rotation accessors. |
+| `ENTITY.GETROT(id)` | Returns `[pitch, yaw, roll]` array. |
+| `ENTITY.GETSCALE(id)` | Returns `[sx, sy, sz]` array. |
+| `ENTITY.GETXZ(id)` | Returns `[x, z]` ground-plane position array. |
+| `ENTITY.FLOOR(id)` | Snaps entity Y to the terrain height at its XZ. |
+| `ENTITY.SNAPTO(id, targetId)` | Teleports entity to target's world position. |
+| `ENTITY.CLAMPTOTERRAIN(id)` | Keeps entity Y at or above terrain surface. |
+| `ENTITY.SETROTATION(id, p, y, r)` | Alias of `ENTITY.SETROT`. |
+| `ENTITY.TURNENTITY(id, dp, dy, dr)` | Incremental rotation each frame. |
+
+---
+
+### Movement helpers
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.MOVETOWARD(id, tx, ty, tz, speed)` | Move entity toward target position at speed. |
+| `ENTITY.MOVERELATIVE(id, dx, dz)` | Move relative to entity's own yaw. |
+| `ENTITY.MOVECAMERARELATIVE(id, cam, f, s, speed)` | Camera-relative WASD movement. |
+| `ENTITY.MOVEWITHCAMERA(id, cam, f, s, speed)` | Alias of `MOVECAMERARELATIVE`. |
+| `ENTITY.LOOKAT(id, tx, ty, tz)` | Face toward world position. |
+| `ENTITY.POINTAT(id, targetId)` | Face toward another entity. |
+| `ENTITY.POINTENTITY(id, targetId)` | Alias of `POINTAT`. |
+| `ENTITY.TURNTOWARD(id, targetId, speed)` | Smoothly rotate toward target entity at speed. |
+| `ENTITY.ALIGNTOVECTOR(id, nx, ny, nz)` | Align entity up-axis to a normal vector. |
+| `ENTITY.NAVTO(id, x, z)` | Set navigation destination (uses navmesh). |
+| `ENTITY.WANDER(id, radius, speed)` | Random wandering within radius. |
+| `ENTITY.FLEE(id, fromId, speed)` | Move away from target entity. |
+| `ENTITY.PATROL(id, ...)` | Follow a waypoint patrol route. |
+| `ENTITY.MAGNETTO(id, targetId, force)` | Pull toward target with a force. |
+| `ENTITY.SLIDE(id, dx, dz)` | Slide entity along XZ with wall collision response. |
+| `ENTITY.JUMP(id, impulse)` | Apply upward velocity impulse. |
+| `ENTITY.CUTJUMP(id)` | Cancel current jump arc (for variable jump height). |
+| `ENTITY.WASGROUNDED(id)` | Returns `TRUE` if entity was grounded last frame. |
+| `ENTITY.ISWALLSLIDING(id)` | Returns `TRUE` if entity is sliding against a wall. |
+
+---
+
+### Physics & material
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.APPLYGRAVITY(id, dt)` | Apply gravity step to entity velocity. |
+| `ENTITY.APPLYTORQUE(id, tx, ty, tz)` | Apply torque to Jolt body. |
+| `ENTITY.PHYSICSMOTION(id, vx, vy, vz)` | Set kinematic body motion target. |
+| `ENTITY.SETGRAVITY(id, g)` | Per-entity gravity override. |
+| `ENTITY.SETGRAVITYSCALE(id, scale)` | Scale world gravity for this entity. |
+| `ENTITY.SETMASS(id, mass)` | Set Jolt body mass. |
+| `ENTITY.SETBOUNCE(id, r)` / `ENTITY.SETBOUNCINESS(id, r)` | Set restitution. |
+| `ENTITY.SETFRICTION(id, f)` | Set surface friction. |
+| `ENTITY.SETBUOYANCY(id, b)` | Set buoyancy factor for water interaction. |
+| `ENTITY.GETBUOYANCY(id)` | Get current buoyancy setting. |
+| `ENTITY.ISSUBMERGED(id)` | Returns `TRUE` if entity is in a water volume. |
+| `ENTITY.SETSTATIC(id, bool)` | Mark entity as static for collision baking. |
+| `ENTITY.SETTRIGGER(id, bool)` | Mark entity as a trigger (sensor) body. |
+| `ENTITY.PICKMODE(id, mode)` | Set Jolt pick/query mode. |
+| `ENTITY.SETWEIGHT(id, w)` | Gameplay weight (affects `PLAYER.PUSH`). |
+
+---
+
+### Collision queries
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.COLLISIONX(id)` / `COLLISIONY` / `COLLISIONZ` | Last collision hit point. |
+| `ENTITY.COLLISIONNX(id)` / `COLLISIONNY` / `COLLISIONNZ` | Last collision normal. |
+| `ENTITY.COLLISIONOTHER(id)` | Entity id of last collision partner. |
+| `ENTITY.CHECKRADIUS(id, r)` | Returns closest entity id within radius `r`. |
+| `ENTITY.DISTANCETO(id, otherId)` | World distance to another entity. |
+| `ENTITY.GETDISTANCE(id, otherId)` | Alias of `DISTANCETO`. |
+| `ENTITY.WITHINRADIUS(id, otherId, r)` | Returns `TRUE` if distance ≤ r. |
+| `ENTITY.ENTITIESINRADIUS(id, r)` | Array of entity ids within radius. |
+| `ENTITY.ENTITIESINBOX(cx,cy,cz, hw,hh,hd)` | Array of entity ids inside AABB. |
+| `ENTITY.ENTITIESINGROUP(group)` | Array of ids in a named group. |
+| `ENTITY.FINDBYPROPERTY(key, value)` | Find entities matching a metadata property. |
+
+---
+
+### Animation extensions
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.SETANIMATION(id, name)` | Play animation by name. |
+| `ENTITY.SETANIMFRAME(id, frame)` | Seek to a specific frame. |
+| `ENTITY.SETANIMLOOP(id, bool)` | Enable or disable loop. |
+| `ENTITY.SETANIMSPEED(id, speed)` | Set playback speed multiplier. |
+| `ENTITY.STOPANIM(id)` | Stop the current animation. |
+| `ENTITY.CURRENTANIM(id)` / `ENTITY.CURRENTANIM$(id)` | Returns current animation name. |
+| `ENTITY.ANIMNAME(id, index)` / `ENTITY.ANIMNAME$(id, index)` | Returns animation name by index. |
+| `ENTITY.ANIMLENGTH(id, name)` | Returns animation duration in seconds. |
+| `ENTITY.ISPLAYING(id)` | Returns `TRUE` if an animation is playing. |
+| `ENTITY.CROSSFADE(id, name, duration)` | Cross-fade to another animation. |
+| `ENTITY.TRANSITION(id, name, blend)` | Transition to animation with blend factor. |
+| `ENTITY.GETBONEPOS(id, boneName)` | Returns `[x,y,z]` world position of a bone. |
+| `ENTITY.GETBONEROT(id, boneName)` | Returns `[p,y,r]` world rotation of a bone. |
+
+---
+
+### Visual effects & rendering
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.ALPHA(id, a)` | Set entity alpha (0.0–1.0). |
+| `ENTITY.GETALPHA(id)` | Get current alpha. |
+| `ENTITY.GETCOLOR(id)` | Returns `[r,g,b,a]` tint array. |
+| `ENTITY.RGB(id, r, g, b)` | Set RGB tint (full alpha). |
+| `ENTITY.COLORPULSE(id, r, g, b, speed)` | Animate color pulsing at speed. |
+| `ENTITY.OUTLINE(id, r, g, b, thickness)` | Enable/configure outline effect. |
+| `ENTITY.GHOSTMODE(id, bool)` | Semi-transparent ghost rendering. |
+| `ENTITY.SQUASH(id, sy, speed)` | Squash-and-stretch on Y axis. |
+| `ENTITY.ADDTRAIL(id, length, r, g, b, a)` | Attach a motion trail effect. |
+| `ENTITY.ADDWOBBLE(id, amp, freq)` | Attach a wobble deformation. |
+| `ENTITY.SCROLLMATERIAL(id, ux, uy)` | Scroll UV texture coordinates per frame. |
+| `ENTITY.SETDETAILTEXTURE(id, texHandle)` | Assign a detail/overlay texture. |
+| `ENTITY.SETTEXTUREMAP(id, slot, texHandle)` | Set texture in a specific material slot. |
+| `ENTITY.SETTEXTURESCROLL(id, ux, uy)` | Set persistent UV scroll speed. |
+| `ENTITY.SETTEXTUREFLIP(id, flipX, flipY)` | Flip texture UVs. |
+| `ENTITY.SETSHADER(id, shaderHandle)` | Assign a custom shader. |
+| `ENTITY.SETSPRITEFRAME(id, frame)` | Set sprite sheet frame index. |
+| `ENTITY.EMITPARTICLES(id, count)` | Burst-emit from entity's attached emitter. |
+| `ENTITY.EXPLODE(id, force, radius)` | Destroy and scatter physics fragments. |
+| `ENTITY.INSTANCEGRID(id, cols, rows, spacing)` | Stamp a grid of instances. |
+
+---
+
+### State & messaging
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.GETSTATE(id)` | Returns current AI/gameplay state string. |
+| `ENTITY.SETHEALTH(id, hp)` | Set entity health value. |
+| `ENTITY.ISALIVE(id)` | Returns `TRUE` if health > 0. |
+| `ENTITY.DAMAGE(id, amount)` | Apply damage and reduce health. |
+| `ENTITY.SETTAG(id, tag)` | Set entity tag string. |
+| `ENTITY.GETMETADATA(id, key)` | Read a glTF `extras` metadata property. |
+| `ENTITY.SENDMESSAGE(id, msg)` | Post a string message to entity's queue. |
+| `ENTITY.POLLMESSAGE(id)` | Pop and return the next queued message. |
+| `ENTITY.ONHIT(id, callback)` | Register callback for hit events. |
+| `ENTITY.ONDEATHDROP(id, template)` | Spawn `template` entity when entity dies. |
+| `ENTITY.ATTACH(id, parentId)` | Parent entity to another (alias of `ENTITY.SETPARENT`). |
+| `ENTITY.PARENTCLEAR(id)` | Clear parent, return to world space. |
+
+---
+
+### Groups
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.GROUPCREATE(name)` | Create a named entity group. |
+| `ENTITY.GROUPADD(id, group)` | Add entity to a named group. |
+| `ENTITY.GROUPREMOVE(id, group)` | Remove entity from a named group. |
+
+---
+
+### Visibility & settings
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.SETVISIBLE(id, bool)` | Show or hide entity. |
+
+### Surface vertex accessors
+
+| Command | Description |
+|--------|-------------|
+| `ENTITY.VERTEXY(id, index)` | Returns the Y component of vertex `index` on a surface entity. |
+| `ENTITY.VERTEXZ(id, index)` | Returns the Z component of vertex `index` on a surface entity. |
+
+---
+
 ## See also
 
 - [ANIMATION_3D.md](ANIMATION_3D.md) — skeletal clips, bone sockets

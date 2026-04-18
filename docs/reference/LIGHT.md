@@ -180,6 +180,51 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Creation
+
+| Command | Description |
+|--------|-------------|
+| `LIGHT.CREATEPOINT(x,y,z, r,g,b, range)` / `LIGHT.MAKEPOINT(...)` | Create a point light at world position. |
+| `LIGHT.CREATESPOT(x,y,z, dx,dy,dz, r,g,b, inner,outer)` / `LIGHT.MAKESPOT(...)` | Create a spot light. |
+| `LIGHT.CREATEDIRECTIONAL(dx,dy,dz, r,g,b)` / `LIGHT.MAKEDIRECTIONAL(...)` | Create a directional light. |
+
+### State
+
+| Command | Description |
+|--------|-------------|
+| `LIGHT.ENABLED(light, bool)` | Enable or disable a light. |
+| `LIGHT.ISENABLED(light)` | Returns `TRUE` if light is enabled. |
+| `LIGHT.SETSTATE(light, bool)` | Alias of `LIGHT.ENABLED`. |
+
+### Queries
+
+| Command | Description |
+|--------|-------------|
+| `LIGHT.GETPOS(light)` | Returns `[x,y,z]` world position. |
+| `LIGHT.GETDIR(light)` | Returns `[dx,dy,dz]` direction vector. |
+| `LIGHT.GETCOLOR(light)` | Returns `[r,g,b,a]` tint. |
+| `LIGHT.GETINTENSITY(light)` | Returns light intensity. |
+| `LIGHT.GETRANGE(light)` | Returns point/spot light range. |
+| `LIGHT.GETINNERCONE(light)` | Returns spot inner cone angle (degrees). |
+| `LIGHT.GETOUTERCONE(light)` | Returns spot outer cone angle (degrees). |
+| `LIGHT.GETROT(light)` | Returns `[pitch,yaw,roll]` rotation. |
+| `LIGHT.GETSHADOW(light)` | Returns `TRUE` if shadow casting is enabled. |
+
+### Setters
+
+| Command | Description |
+|--------|-------------|
+| `LIGHT.SETPOSITION(light, x,y,z)` | Alias of `LIGHT.SETPOS`. |
+| `LIGHT.SETROT(light, p,y,r)` | Set rotation (for directional/spot direction). |
+| `LIGHT.SETINTENSITY(light, v)` | Set light intensity. |
+| `LIGHT.SETINNERCONE(light, deg)` | Set spot inner cone angle. |
+| `LIGHT.SETOUTERCONE(light, deg)` | Set spot outer cone angle. |
+| `LIGHT.SETSHADOWBIAS(light, bias)` | Set shadow map depth bias to reduce acne. |
+
+---
+
 ## See also
 
 - [MODEL.md](MODEL.md) — models and materials

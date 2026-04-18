@@ -2,6 +2,15 @@
 
 This document ties together **entity lifecycle**, **`Entity.Shoot()`**, **`Pool.*()`**, and what the runtime **does not** hide for you.
 
+## Core Workflow
+
+- **Entity-based:** `ENTITY.SHOOT(prefab, speed, lifetime)` → auto-clone, physics, timed purge.
+- **Array pool (lightweight):** `DIM bx(N), by(N), bAlive(N)` — integrate manually each frame, no GC pressure.
+- **VM Pool:** `Pool.Make()` / `Pool.Get()` / `Pool.Return()` for handle recycling.
+- **Cleanup:** `ENTITY.FREE(id)` or `ENTITY.DESTROYAFTER(id, t)` — never leak.
+
+---
+
 ## No hidden Go-side entity pool
 
 The **`mbentity`** module does **not** maintain a central pool that recycles **`ent` + Jolt bodies** for bullets. Each shot uses normal allocation: **`Entity.Copy()`** (or `CREATE`) → optional physics build → **`Entity.DestroyAfter()`** / **`Entity.Free()`**, which end in **`purgeEntityByID`** and unload Raylib/Jolt resources in one place.
@@ -66,6 +75,63 @@ Typical pattern:
 | Rotation | `Entity.Pitch()` / `Entity.Yaw()` / `Entity.Roll()` | |
 | Linear velocity | `Entity.GetLinearVel()` | Reads **Jolt** when physics is active. |
 | Cap speed | `Entity.LimitSpeed(id, max)` | Clamps vector length. |
+
+---
+
+## Full Example
+
+Spawning and updating a pool of bullets.
+
+```basic
+WINDOW.OPEN(960, 540, "Projectiles Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 8, -14)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+CONST MAX_BULLETS = 20
+DIM bx(MAX_BULLETS), by(MAX_BULLETS), bz(MAX_BULLETS)
+DIM bvx(MAX_BULLETS), bvy(MAX_BULLETS), bvz(MAX_BULLETS)
+DIM bAlive(MAX_BULLETS)
+
+FUNCTION SpawnBullet(ox, oy, oz, dx, dy, dz)
+    FOR i = 0 TO MAX_BULLETS - 1
+        IF NOT bAlive(i) THEN
+            bx(i) = ox : by(i) = oy : bz(i) = oz
+            bvx(i) = dx : bvy(i) = dy : bvz(i) = dz
+            bAlive(i) = TRUE
+            RETURN
+        END IF
+    NEXT i
+END FUNCTION
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+
+    IF INPUT.KEYPRESSED(KEY_SPACE) THEN
+        SpawnBullet(0, 1, 0, 0, 0.5, 8)
+    END IF
+
+    RENDER.CLEAR(20, 25, 35)
+    RENDER.BEGIN3D(cam)
+        FOR i = 0 TO MAX_BULLETS - 1
+            IF bAlive(i) THEN
+                bx(i) = bx(i) + bvx(i) * dt
+                by(i) = by(i) + bvy(i) * dt
+                bz(i) = bz(i) + bvz(i) * dt
+                IF bz(i) > 30 THEN bAlive(i) = FALSE
+                DRAW.SPHERE(bx(i), by(i), bz(i), 0.1, 255, 220, 60, 255)
+            END IF
+        NEXT i
+        DRAW.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 

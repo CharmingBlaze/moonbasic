@@ -104,6 +104,15 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `INSTANCE.GETALPHA(inst)` | Returns current alpha 0.0–1.0 of the instance. |
+| `INSTANCE.GETCOLOR(inst)` | Returns `[r,g,b,a]` tint of the instance. |
+
+---
+
 ## See also
 
 - [MODEL.md](MODEL.md) — loading, materials, **`MODEL.INSTANCE`** (scene graph clone; not GPU instancing)

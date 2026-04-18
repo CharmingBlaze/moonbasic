@@ -107,6 +107,83 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Creation aliases
+
+| Command | Description |
+|--------|-------------|
+| `IMAGE.MAKE(w, h)` / `IMAGE.MAKEBLANK(w, h)` | Create a blank RGBA image. Aliases of `IMAGE.CREATEBLANK`. |
+| `IMAGE.MAKECOPY(img)` | Alias of `IMAGE.CREATECOPY`. |
+| `IMAGE.MAKETEXT(text, font, size, r, g, b)` | Alias of `IMAGE.CREATETEXT`. |
+| `IMAGE.CREATEBLANK(w, h)` | Create blank RGBA image. |
+| `IMAGE.CREATECOPY(img)` | Deep-copy an image handle. |
+| `IMAGE.CREATETEXT(text, font, size, r, g, b)` | Render text into an image. |
+| `IMAGE.COPY(img)` | Alias of `IMAGE.CREATECOPY`. |
+| `IMAGE.LOADGIF(path)` | Load an animated GIF; returns first frame. |
+| `IMAGE.LOADRAW(path, w, h, fmt)` | Load raw pixel data from file. |
+| `IMAGE.LOADSEQUENCE(pattern, count)` | Load numbered image sequence (`frame_001.png`, …). |
+| `IMAGE.TOTEXTURE(img)` | Upload image to GPU and return a texture handle. |
+
+### Size queries
+
+| Command | Description |
+|--------|-------------|
+| `IMAGE.GETWIDTH(img)` | Width in pixels. |
+| `IMAGE.GETHEIGHT(img)` | Height in pixels. |
+| `IMAGE.GETSIZE(img)` | Returns `[w, h]` array. |
+| `IMAGE.GETBBOXX(img)` / `GETBBOXY(img)` | Bounding box top-left after alpha crop. |
+| `IMAGE.GETBBOXW(img)` / `GETBBOXH(img)` | Bounding box width/height after alpha crop. |
+
+### Pixel access
+
+| Command | Description |
+|--------|-------------|
+| `IMAGE.GETPIXEL(img, x, y)` | Returns `[r,g,b,a]` of pixel at `(x,y)`. |
+| `IMAGE.GETCOLORR(img, x, y)` | Red channel 0–255. |
+| `IMAGE.GETCOLORG(img, x, y)` | Green channel 0–255. |
+| `IMAGE.GETCOLORB(img, x, y)` | Blue channel 0–255. |
+| `IMAGE.GETCOLORA(img, x, y)` | Alpha channel 0–255. |
+
+### Transforms
+
+| Command | Description |
+|--------|-------------|
+| `IMAGE.FLIPH(img)` | Flip horizontally in place. |
+| `IMAGE.FLIPV(img)` | Flip vertically in place. |
+| `IMAGE.ROTATE(img, degrees)` | Rotate by arbitrary angle (new image). |
+| `IMAGE.ROTATECW(img)` | Rotate 90° clockwise. |
+| `IMAGE.ROTATECCW(img)` | Rotate 90° counter-clockwise. |
+| `IMAGE.CROP(img, x, y, w, h)` | Crop to rectangle in place. |
+| `IMAGE.ALPHACROP(img)` | Crop to non-transparent bounding box. |
+| `IMAGE.RESIZENN(img, w, h)` | Resize with nearest-neighbour filtering. |
+| `IMAGE.MIPMAPS(img)` | Generate mipmap chain in image. |
+| `IMAGE.DITHER(img)` | Apply dithering. |
+| `IMAGE.SETFILTER(img, mode)` | Set scaling filter (`POINT`, `BILINEAR`). |
+
+### Color adjustments
+
+| Command | Description |
+|--------|-------------|
+| `IMAGE.COLORBRIGHTNESS(img, factor)` | Adjust brightness. |
+| `IMAGE.COLORCONTRAST(img, factor)` | Adjust contrast. |
+| `IMAGE.COLORGRAYSCALE(img)` | Convert to grayscale. |
+| `IMAGE.COLORINVERT(img)` | Invert colors. |
+| `IMAGE.COLORTINT(img, r, g, b, a)` | Multiply tint each pixel. |
+| `IMAGE.COLORREPLACE(img, sr,sg,sb,sa, dr,dg,db,da)` | Replace one color with another. |
+| `IMAGE.ALPHACLEAR(img, threshold)` | Zero alpha for pixels below threshold. |
+| `IMAGE.CLEARBACKGROUND(img, r, g, b, a)` | Fill image with solid color. |
+
+### Drawing into image
+
+| Command | Description |
+|--------|-------------|
+| `IMAGE.DRAWLINE(img, x0, y0, x1, y1, r, g, b, a)` | Draw a line. |
+| `IMAGE.DRAWCIRCLE(img, cx, cy, radius, r, g, b, a)` | Draw a filled circle. |
+| `IMAGE.DRAWRECTLINES(img, x, y, w, h, r, g, b, a)` | Draw a rectangle outline. |
+
+---
+
 ## See also
 
 - [TEXTURE.md](TEXTURE.md) — **`TEXTURE.FROMIMAGE`**, render targets

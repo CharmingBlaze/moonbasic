@@ -95,3 +95,60 @@ Returns the number of connected physical displays.
 | `Window.SetSize` | `WINDOW.SETSIZE` |
 | `Window.GetPositionX` / `GetPositionY` | `WINDOW.GETPOSITIONX` / `WINDOW.GETPOSITIONY` |
 | `Window.DPIScale` | `WINDOW.DPISCALE` |
+
+---
+
+## Extended Command Reference
+
+### State queries
+
+| Command | Description |
+|--------|-------------|
+| `WINDOW.ISFULLSCREEN()` | Returns `TRUE` if fullscreen. |
+| `WINDOW.ISRESIZED()` | Returns `TRUE` if window was resized this frame. |
+| `WINDOW.GETFPS()` | Returns current measured FPS. |
+| `WINDOW.CANOPEN(w, h)` | Returns `TRUE` if a window of that size can be opened. |
+| `WINDOW.GETSCALEDPIX()` / `WINDOW.GETSCALEDPIY()` | Returns DPI-scaled pixel density X/Y. |
+
+### Monitor
+
+| Command | Description |
+|--------|-------------|
+| `WINDOW.GETMONITORWIDTH(id)` / `GETMONITORHEIGHT(id)` | Physical monitor resolution. |
+| `WINDOW.GETMONITORREFRESHRATE(id)` | Monitor refresh rate in Hz. |
+| `WINDOW.GETMONITORNAME(id)` | Monitor name string. |
+| `WINDOW.SETMONITOR(id)` | Move window to monitor `id`. |
+| `WINDOW.TOGGLEFULLSCREEN()` | Toggle fullscreen mode. |
+
+### Size constraints
+
+| Command | Description |
+|--------|-------------|
+| `WINDOW.SETMINSIZE(w, h)` | Set minimum window size. |
+| `WINDOW.SETMAXSIZE(w, h)` | Set maximum window size. |
+| `WINDOW.MAXIMIZE()` | Maximize window. |
+| `WINDOW.MINIMIZE()` | Minimize window. |
+| `WINDOW.RESTORE()` | Restore minimized/maximized window. |
+
+### Flags
+
+| Command | Description |
+|--------|-------------|
+| `WINDOW.SETFLAG(flag)` | Set a config flag (e.g. `FLAG_VSYNC_HINT`). |
+| `WINDOW.CLEARFLAG(flag)` | Clear a config flag. |
+| `WINDOW.CHECKFLAG(flag)` | Returns `TRUE` if flag is set. |
+| `WINDOW.SETSTATE(flags)` | Set multiple flags at once. |
+| `WINDOW.SETMSAA(samples)` | Set MSAA sample count. |
+| `WINDOW.SETTARGETFPS(fps)` | Alias of `WINDOW.SETFPS`. |
+
+### Loading screen
+
+| Command | Description |
+|--------|-------------|
+| `WINDOW.LOADINGMODE(bool)` | Enable/disable loading screen overlay. |
+| `WINDOW.SETLOADINGMODE(bool)` | Alias of `WINDOW.LOADINGMODE`. |
+
+## See also
+
+- [RENDER.md](RENDER.md) — frame lifecycle
+- [GAME.md](GAME.md) — `GAME.SCREENW/H`, FPS helpers

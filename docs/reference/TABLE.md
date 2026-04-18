@@ -56,6 +56,16 @@ PRINT(TABLE.GET(t, 1, "name"))
 TABLE.FREE(t)
 ```
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `TABLE.MAKE(...)` | Deprecated alias of `TABLE.CREATE`. |
+| `TABLE.ROWCOUNT(t)` | Returns number of rows. |
+| `TABLE.COLCOUNT(t)` | Returns number of columns. |
+
+---
+
 ## See also
 
 - [JSON.md](JSON.md), [CSV.md](CSV.md), [DATABASE.md](DATABASE.md)

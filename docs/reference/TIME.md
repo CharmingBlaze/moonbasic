@@ -85,3 +85,18 @@ WEND
 
 WINDOW.CLOSE()
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `TIME.GETFPS()` | Returns current measured frames per second. |
+| `TIME.SETMAXDELTA(max)` | Cap the maximum delta time returned by `TIME.DELTA` (prevents large spikes). |
+| `TIME.UPDATE()` | Manually advance the internal clock (needed outside `RENDER.FRAME` loops). |
+
+## See also
+
+- [WINDOW.md](WINDOW.md) — `WINDOW.SETTARGETFPS`
+- [TWEEN.md](TWEEN.md) — `TWEEN.UPDATE(dt)`

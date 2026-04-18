@@ -85,3 +85,16 @@ WEND
 
 SHADER.FREE(sh)
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `SHADER.SETVECTOR(sh, name, x, y, z, w)` | Set a `vec4` uniform by name. |
+
+## See also
+
+- [MATERIAL.md](MATERIAL.md) — `MATERIAL.SETSHADER`
+- [RENDERTARGET.md](RENDERTARGET.md) — render-to-texture for post-process shaders

@@ -61,5 +61,22 @@ WHILE NOT WINDOW.SHOULDCLOSE()
 WEND
 ```
 
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `VEHICLE.MAKE(entity)` | Deprecated alias of `VEHICLE.CREATE`. |
+| `VEHICLE.SETTHROTTLE(v, value)` | Set throttle -1.0 (reverse) to 1.0 (forward). |
+| `VEHICLE.SETSTEER(v, angle)` | Set steering angle in degrees. |
+| `VEHICLE.SETTUNING(v, key, value)` | Set a tuning parameter by name (e.g. `"maxSpeed"`). |
+| `VEHICLE.WHEELX(v, wheel)` / `WHEELY` / `WHEELZ` | World position of wheel `wheel` per axis. |
+
+## See also
+
+- [PHYSICS3D.md](PHYSICS3D.md) — physics world setup
+- [BODY3D.md](BODY3D.md) — rigid body for chassis
+
 > [!TIP]
 > Use **`LEVEL.STATIC`** on ground entities so vehicle raycasts can detect the floor.

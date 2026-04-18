@@ -66,6 +66,14 @@ SKY.FREE(sky)
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `CLOUD.GETCOVERAGE(cloud)` | Returns current cloud coverage value 0.0–1.0. |
+
+---
+
 ## See also
 
 - [SKY.md](SKY.md) — draw order

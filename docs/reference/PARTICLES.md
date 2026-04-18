@@ -110,3 +110,16 @@ WINDOW.CLOSE()
 
 - **Performance:** keep emit rates reasonable; use **`PARTICLE.COUNT`** for debugging.
 - **Alias:** **`PARTICLE3D.*`** matches **`PARTICLE.*`** line-for-line.
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `PARTICLES.DRAWEMITTER(emitter)` | Draw an emitter by handle (namespace alias of `PARTICLE.DRAW`). |
+
+## See also
+
+- [PARTICLE.md](PARTICLE.md) — legacy CPU particle emitters
+- [PARTICLE3D.md](PARTICLE3D.md) — 3D world-space particles

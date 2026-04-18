@@ -70,3 +70,22 @@ PRINT "Position: " + STR(x) + ", " + STR(y) + ", " + STR(z)
 
 MEM.FREE(buf)
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `MEM.CREATE(bytes)` | Canonical creation alias (same as `MEM.ALLOC`). |
+| `MEM.RESIZE(buf, newBytes)` | Resize an existing buffer in place. |
+| `MEM.CLEAR(buf)` | Zero all bytes in buffer. |
+| `MEM.GETDWORD(buf, offset)` | Read a 32-bit unsigned integer at byte `offset`. |
+| `MEM.SETDWORD(buf, offset, v)` | Write a 32-bit unsigned integer. |
+| `MEM.GETDOUBLE(buf, offset)` | Read a 64-bit float at byte `offset`. |
+| `MEM.SETDOUBLE(buf, offset, v)` | Write a 64-bit float. |
+
+## See also
+
+- [ARRAY.md](ARRAY.md) — high-level array handles
+- [PHYSICS3D.md](PHYSICS3D.md) — `PHYSICS3D.GETMATRIXBUFFER`

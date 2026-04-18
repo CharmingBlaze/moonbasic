@@ -47,4 +47,19 @@ WHILE Window.Open()
 WEND
 ```
 
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `GRID.MAKE(cols, rows, cellW, cellH)` | Deprecated alias of `GRID.CREATE`. |
+
+## See also
+
+- [TILEMAP.md](TILEMAP.md) — tile-based maps with collision
+- [TERRAIN.md](TERRAIN.md) — height-field terrain
+
+---
+
 Planned / not in runtime yet: **`Terrain.ApplyMap`**, **`Terrain.ApplyTiles`**, **`Image.LoadSequence`**, **`Image.LoadGIF`**, **`Entity.SetAnimation`** — use **`TEXTURE.LOADANIM`** + **`TEXTURE.TICKALL`** for animated water and **`ENTITY.SCROLLMATERIAL`** for UV-scrolling surfaces instead.

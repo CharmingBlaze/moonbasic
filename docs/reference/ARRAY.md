@@ -150,3 +150,56 @@ FOR i = 0 TO ARRAY.LEN(a) - 1
 NEXT
 ARRAY.FREE(a)
 ```
+
+---
+
+## Extended Command Reference
+
+### Creation
+
+| Command | Description |
+|--------|-------------|
+| `ARRAY.CREATE(size)` | Create array of `size` elements (canonical). |
+
+### Stack / queue
+
+| Command | Description |
+|--------|-------------|
+| `ARRAY.PUSH(a, value)` | Append value to end. |
+| `ARRAY.POP(a)` | Remove and return last element. |
+| `ARRAY.SHIFT(a)` | Remove and return first element. |
+| `ARRAY.UNSHIFT(a, value)` | Prepend value to front. |
+
+### Slicing & mutation
+
+| Command | Description |
+|--------|-------------|
+| `ARRAY.SLICE(a, start, end)` | Returns new array from `start` to `end` (exclusive). |
+| `ARRAY.SPLICE(a, index, count)` | Remove `count` elements at `index` in place. |
+| `ARRAY.COPY(a)` | Returns a shallow copy. |
+| `ARRAY.REVERSE(a)` | Reverse in place. |
+
+### Search
+
+| Command | Description |
+|--------|-------------|
+| `ARRAY.CONTAINS(a, value)` | Returns `TRUE` if `value` is in array. |
+| `ARRAY.FIND(a, value)` | Returns index of first match, or -1. |
+
+### Size
+
+| Command | Description |
+|--------|-------------|
+| `ARRAY.GETLEN(a)` | Alias of `ARRAY.LEN`. |
+| `ARRAY.GETSIZE(a)` | Alias of `ARRAY.LEN`. |
+
+### String join
+
+| Command | Description |
+|--------|-------------|
+| `ARRAY.JOINS(a, sep)` | Join string elements with separator (returns String). |
+
+## See also
+
+- [TABLE.md](TABLE.md) — key/value maps
+- [JSON.md](JSON.md) — `JSON.GETARRAY`

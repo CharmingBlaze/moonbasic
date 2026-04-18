@@ -65,6 +65,15 @@ BIOME.FREE(jungle)
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `BIOME.GETTEMP(b, x, z)` | Returns temperature value at world XZ for biome `b`. |
+| `BIOME.GETHUMIDITY(b, x, z)` | Returns humidity value at world XZ for biome `b`. |
+
+---
+
 ## See also
 
 - [WEATHER.md](WEATHER.md)

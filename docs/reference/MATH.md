@@ -149,6 +149,70 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Trig (degree variants)
+
+| Command | Description |
+|--------|-------------|
+| `MATH.SIND(deg)` | Sine of degrees. |
+| `MATH.COSD(deg)` | Cosine of degrees. |
+| `MATH.TAND(deg)` | Tangent of degrees. |
+| `MATH.ASIN(v)` | Arc-sine in radians. |
+| `MATH.ACOS(v)` | Arc-cosine in radians. |
+| `MATH.ATAN(v)` | Arc-tangent in radians. |
+| `MATH.ATAN2(y, x)` | Two-argument arc-tangent. |
+| `MATH.ATN(v)` | Alias of `MATH.ATAN`. |
+
+### Rounding & signs
+
+| Command | Description |
+|--------|-------------|
+| `MATH.FLOOR(v)` | Round down to nearest integer. |
+| `MATH.CEIL(v)` | Round up to nearest integer. |
+| `MATH.ROUND(v)` | Round to nearest integer. |
+| `MATH.FIX(v)` | Truncate toward zero. |
+| `MATH.SIGN(v)` / `MATH.SGN(v)` | Returns -1, 0, or 1. |
+| `MATH.SATURATE(v)` | Clamp to 0.0–1.0. |
+
+### Logarithms & misc
+
+| Command | Description |
+|--------|-------------|
+| `MATH.LOG(v)` | Natural logarithm. |
+| `MATH.LOG10(v)` | Base-10 logarithm. |
+| `MATH.LOG2(v)` | Base-2 logarithm. |
+| `MATH.CHANCE(p)` | Returns `TRUE` with probability `p` (0.0–1.0). |
+| `MATH.RNDSEED(seed)` | Seed the global RNG. |
+
+### Interpolation helpers
+
+| Command | Description |
+|--------|-------------|
+| `MATH.APPROACH(cur, target, step)` | Move `cur` toward `target` by at most `step`. |
+| `MATH.CURVE(cur, target, factor)` | Exponential approach: `cur + (target-cur) * factor`. |
+| `MATH.INVERSE_LERP(a, b, v)` | Returns `t` such that `LERP(a,b,t) == v`. |
+| `MATH.LERPANGLE(a, b, t)` | Lerp between two angles (shortest path). |
+| `MATH.PINGPONG(t, length)` | Bounce `t` back and forth 0..`length`. |
+| `MATH.REMAP(v, s0, s1, d0, d1)` | Remap value from source range to destination range. |
+| `MATH.SATURATE(v)` | Clamp 0–1 (also listed above). |
+| `MATH.SMOOTHSTEP(edge0, edge1, x)` | Hermite smooth step. |
+| `MATH.WRAP(v, min, max)` | Wrap value within `[min, max)`. |
+| `MATH.WRAPANGLE(a)` | Wrap angle to 0..2π. |
+| `MATH.WRAPANGLE180(a)` | Wrap angle to -π..π. |
+
+### Heading helpers
+
+| Command | Description |
+|--------|-------------|
+| `MATH.NEWX(yaw, dist)` | X offset for heading `yaw` (radians) and `dist`. |
+| `MATH.NEWZ(yaw, dist)` | Z offset for heading `yaw` (radians) and `dist`. |
+| `MATH.ANGLETO(x1, z1, x2, z2)` | Yaw angle (radians) from point 1 to point 2. |
+| `MATH.DEGPERSEC(deg, dt)` | Converts degrees/second to this-frame radians: `deg * dt * π/180`. |
+| `MATH.CIRCLEPOINT(cx, cz, r, i, n)` | Returns `[x, z]` of point `i` on a circle of `n` equally-spaced points. |
+
+---
+
 ## See also (gameplay-oriented)
 
 - [GAME_MATH_HELPERS.md](GAME_MATH_HELPERS.md) — **`HDIST` / `HDISTSQ`** (XZ distance), **`DIST2D` / `DISTSQ2D`**, **`YAWFROMXZ`**, **`ANGLEDIFFRAD`**, **`SMOOTHERSTEP`**

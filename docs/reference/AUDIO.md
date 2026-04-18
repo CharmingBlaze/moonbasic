@@ -150,6 +150,33 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Queries
+
+| Command | Description |
+|--------|-------------|
+| `AUDIO.ISSOUNDPLAYING(sound)` | Returns `TRUE` if sound is currently playing. |
+| `AUDIO.ISMUSICPLAYING(music)` | Returns `TRUE` if music stream is playing. |
+| `AUDIO.GETSOUNDVOLUME(sound)` | Returns current sound volume 0.0–1.0. |
+| `AUDIO.GETSOUNDPITCH(sound)` | Returns current sound pitch multiplier. |
+| `AUDIO.GETSOUNDPAN(sound)` | Returns current stereo pan -1.0–1.0. |
+| `AUDIO.GETMUSICVOLUME(music)` | Returns music volume. |
+| `AUDIO.GETMUSICPITCH(music)` | Returns music pitch multiplier. |
+| `AUDIO.GETMUSICLENGTH(music)` | Returns total duration in seconds. |
+| `AUDIO.GETMUSICTIME(music)` | Returns current playback position in seconds. |
+
+### Playback helpers
+
+| Command | Description |
+|--------|-------------|
+| `AUDIO.SEEKMUSIC(music, t)` | Seek music playback to position `t` seconds. |
+| `AUDIO.PLAYRNDSOUND(sound1, sound2, ...)` | Play one of the supplied sounds at random. |
+| `AUDIO.PLAYVARYSOUND(sound, pitchMin, pitchMax)` | Play sound with randomised pitch in range. |
+| `AUDIO.SETMASTERVOLUME(v)` | Set global master volume 0.0–1.0. |
+
+---
+
 ## See also
 
 - [WAVE.md](WAVE.md) — raw **`WAVE.*`** samples → **`SOUND.FROMWAVE`**

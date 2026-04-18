@@ -4,6 +4,12 @@ moonBASIC **interns** dynamic string results on the VM heap (similar in spirit t
 
 This page maps a practical split: **numeric / boolean string APIs** vs **string-producing APIs**, aligned with how teams budget work in engines.
 
+## Core Workflow
+
+- **Hot path (numeric result):** use `LEN`, `INSTR`, `VAL`, `CONTAINS`, `STARTSWITH` — no string allocation.
+- **Cold path (display/logging):** use `STR`, `INTERP`, `FORMAT`, string `+` — fine for HUD updates and one-off prints.
+- **Color tuples:** `COLOR.TOHSV(col)` returns a 3-float tuple; use `COLOR.TOHSVX/Y/Z` in physics loops.
+
 ---
 
 ## 1–10 — Prefer in hot paths (no new string *result*)
@@ -33,14 +39,39 @@ These **produce new string or tuple handles** intended for **HUD, labels, logs, 
 
 | # | Commands | Notes |
 |---|----------|--------|
-| 11 | `INTERP` / `STRING.INTERP` | Fill `"{0}"` … `"{9}"` placeholders — see [STRING.md](STRING.md). |
+| 11 | `INTERP` / `STRING.INTERP` / `STRING.INTERP$` | Fill `"{0}"` … `"{9}"` placeholders (1–10 arg overloads). `STRING.INTERP$` is the string-returning alias. See [STRING.md](STRING.md). |
 | 12 | `COLOR.TOHSV(color)` | Returns **`(h, s, v)`** tuple (three floats) in one call — pairs with `COLOR.FROMHSV` / `COLOR.HSV`; see [COLOR.md](COLOR.md). |
 
 Also treat as “cold path”: `STR`, string `+`, `FORMAT`, `LEFT` / `MID` / `REPLACE`, `SPLIT` / `JOIN`, `COLOR.TOHEX`, etc.
 
 ---
 
-## Related
+## Full Example
+
+String handling with hot-path and cold-path split.
+
+```basic
+; --- COLD path: build display strings once per event ---
+score   = 0
+scoreStr = "Score: 0"
+
+IF KEYPRESSED(KEY_SPACE) THEN
+    score    = score + 10
+    scoreStr = "Score: " + STR(score)   ; string concat fine here (event, not every frame)
+END IF
+
+; --- HOT path: numeric only ---
+hp = 100.0
+IF hp < 0.01 THEN PRINT "dead"         ; no string built in physics tick
+
+; --- INTERP for formatted output ---
+msg = INTERP("Player {0} scored {1} points!", "Alice", STR(score))
+PRINT msg
+```
+
+---
+
+## See also
 
 - [STRING.md](STRING.md) — full string API including **`INTERP`**
 - [COLOR.md](COLOR.md) — **`COLOR.FROMHSV`** and **`COLOR.TOHSV`**

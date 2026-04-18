@@ -88,3 +88,20 @@ FOR i = 0 TO 9
     COLOR.FREE(c)
 NEXT
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `COLOR.FROMHSV(h, s, v)` | Create color from hue (0–360), saturation and value (0–1). |
+| `COLOR.TOHSV(color)` | Returns `[h, s, v]` array. |
+| `COLOR.TOHSVX(color)` / `TOHSVY` / `TOHSVZ` | Individual H / S / V component. |
+| `COLOR.BRIGHTNESS(color, factor)` | Returns color brightened/darkened by `factor`. |
+| `COLOR.CLAMP(color)` | Clamp all channels to 0–255 and return result. |
+
+## See also
+
+- [DRAW2D.md](DRAW2D.md) — `DRAW.RECTANGLE(x,y,w,h, r,g,b,a)`
+- [IMAGE.md](IMAGE.md) — `IMAGE.COLORTINT`, `IMAGE.COLORREPLACE`

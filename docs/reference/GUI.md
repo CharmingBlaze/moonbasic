@@ -317,7 +317,38 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Additional controls
+
+| Command | Description |
+|--------|-------------|
+| `GUI.LABELBUTTON(rec, label)` | Invisible-background button styled as a label. Returns `TRUE` on click. |
+| `GUI.TOGGLEGROUP(rec, text, active)` | Group of toggle buttons from semicolon-delimited `text`. Returns active index. |
+| `GUI.TOGGLEGROUPAT(rec, text, active, columns)` | `TOGGLEGROUP` with explicit column count. |
+| `GUI.TOGGLESLIDER(rec, text, active)` | Slider-style toggle between two states. |
+| `GUI.SLIDERBAR(rec, textLeft, textRight, value, min, max)` | Filled slider bar (no thumb). Returns new value. |
+| `GUI.SPINNER(rec, text, value, min, max, editMode)` | Integer spinner with +/− buttons. Returns new value. |
+| `GUI.VALUEBOXFLOAT(rec, text, value, editMode)` | Float value input box. Returns new value. |
+| `GUI.VALUEBOXFLOATTEXT(rec, text, value, editMode)` | Float input box with label. Returns `TRUE` when confirmed. |
+| `GUI.VALUEBOXFLOATTEXT$(rec, text, value, editMode)` | String-returning alias of above. |
+| `GUI.DUMMYREC(rec, text)` | Placeholder rectangle; useful for layout spacing. |
+
+### Queries
+
+| Command | Description |
+|--------|-------------|
+| `GUI.TEXTINPUTLAST$()` | Returns the last committed text-box input string. |
+| `GUI.THEMENAMES$()` | Returns semicolon-delimited list of available theme names. |
+
+---
+
 ## Design notes
 
 - **No `GUI.GETFONT`** — see introduction; use `GUI.GETTEXTSIZE` / `GUI.GETTEXTWIDTH` / `GUI.GETSTYLE` for metrics.
 - **Raygui C API extras** not wrapped by raylib-go (e.g. raw icon pointer access) are unavailable until added upstream.
+
+## See also
+
+- [DRAW2D.md](DRAW2D.md) — `DRAW.RECTANGLE`, `DRAW.TEXT` for custom UI
+- [FONT.md](FONT.md) — custom fonts for GUI labels

@@ -113,3 +113,25 @@ WRITEALLTEXT(log_file, current_log + new_entry)
 PRINT "--- Final Log Content ---"
 PRINT READALLTEXT(log_file)
 ```
+
+---
+
+## Extended Command Reference
+
+### Stream I/O
+
+| Command | Description |
+|--------|-------------|
+| `FILE.OPENREAD(path)` | Open file for reading; returns file handle. |
+| `FILE.OPENWRITE(path)` | Open file for writing; returns file handle. |
+| `FILE.READLINE(f)` | Read and return next line as string. |
+| `FILE.WRITELN(f, text)` | Write `text` followed by newline. |
+| `FILE.EOF(f)` / `FILE.GETEOF(f)` | Returns `TRUE` if at end-of-file. |
+| `FILE.SEEK(f, pos)` | Seek to byte offset `pos`. |
+| `FILE.TELL(f)` / `FILE.GETPOS(f)` | Returns current byte offset. |
+| `FILE.SIZE(f)` / `FILE.GETSIZE(f)` | Returns file size in bytes. |
+
+## See also
+
+- [UTIL.md](UTIL.md) — `UTIL.LOADTEXT`, `UTIL.SAVETEXT`, directory helpers
+- [JSON.md](JSON.md) — structured file I/O

@@ -114,6 +114,45 @@ TERRAIN.FREE(terrain)
 
 ---
 
+## Extended Command Reference
+
+### Transform
+
+| Command | Description |
+|--------|-------------|
+| `TERRAIN.SETPOSITION(t, x,y,z)` | Alias of `TERRAIN.SETPOS`. |
+| `TERRAIN.SETROT(t, p,y,r)` | Set terrain rotation. |
+| `TERRAIN.SETSCALE(t, sx,sy,sz)` | Set terrain scale. |
+| `TERRAIN.GETPOS(t)` | Returns `[x,y,z]` position array. |
+| `TERRAIN.GETROT(t)` | Returns `[p,y,r]` rotation array. |
+| `TERRAIN.GETSCALE(t)` | Returns `[sx,sy,sz]` scale array. |
+
+### Surface queries
+
+| Command | Description |
+|--------|-------------|
+| `TERRAIN.GETNORMAL(t, x, z)` | Returns `[nx,ny,nz]` surface normal at XZ. |
+| `TERRAIN.GETSPLAT(t, x, z)` | Returns splatmap weight array at XZ. |
+| `TERRAIN.GETDETAIL(t, x, z)` | Returns detail layer value at XZ. |
+| `TERRAIN.RAYCAST(t, ox,oy,oz, dx,dy,dz)` | Returns `[x,y,z]` hit point of ray on terrain. |
+
+### Painting
+
+| Command | Description |
+|--------|-------------|
+| `TERRAIN.APPLYMAP(t, image, channel)` | Apply heightmap/splatmap from image to channel. |
+| `TERRAIN.APPLYTILES(t, tileArray)` | Apply tile assignments from array. |
+| `TERRAIN.SETDETAIL(t, x, z, value)` | Set detail layer value at cell. |
+
+### Mesh build tuning
+
+| Command | Description |
+|--------|-------------|
+| `TERRAIN.SETASYNCMESHBUILD(t, bool)` | Enable async background chunk meshing. |
+| `TERRAIN.SETMESHBUILDBUDGET(t, ms)` | Max milliseconds per frame for mesh rebuilds. |
+
+---
+
 ## See also
 
 - [WORLD.md](WORLD.md) — **`WORLD.SETCENTER`**, **`WORLD.UPDATE`**, **`WORLD.PRELOAD`**

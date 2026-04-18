@@ -94,3 +94,29 @@ ENDIF
 
 PRINT("OS: " + SystemProperty("os") + "  arch: " + SystemProperty("arch"))
 ```
+
+---
+
+## Extended Command Reference
+
+### Process & environment
+
+| Command | Description |
+|--------|-------------|
+| `SYSTEM.EXECUTE(cmd)` | Run a shell command string; returns exit code. |
+| `SYSTEM.USERNAME()` | Returns the OS user name string. |
+| `SYSTEM.LOCALE()` | Returns the OS locale string (e.g. `"en-AU"`). |
+| `SYSTEM.MONITOR(id)` | Returns monitor info array `[w, h, refreshRate]` for monitor `id`. |
+| `SYSTEM.ISDEBUGBUILD()` | Returns `TRUE` if running a debug build. |
+
+### Memory
+
+| Command | Description |
+|--------|-------------|
+| `SYSTEM.TOTALMEMORY()` | Returns total system RAM in bytes. |
+| `SYSTEM.FREEMEMORY()` | Returns available system RAM in bytes. |
+
+## See also
+
+- [DEBUG.md](DEBUG.md) — `DEBUG.HEAPSTATS`, `DEBUG.GCSTATS`
+- [UTIL.md](UTIL.md) — file system helpers

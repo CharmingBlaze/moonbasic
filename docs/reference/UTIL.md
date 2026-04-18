@@ -75,3 +75,33 @@ IF UTIL.ISFILENAMEVALID("my_file.txt") THEN
     PRINT "Valid file name."
 ENDIF
 ```
+
+---
+
+## Extended Command Reference
+
+### File & directory operations
+
+| Command | Description |
+|--------|-------------|
+| `UTIL.COPYFILE(src, dst)` | Copy file from `src` to `dst`. |
+| `UTIL.MOVEFILE(src, dst)` | Move/rename a file. |
+| `UTIL.RENAMEFILE(src, dst)` | Alias of `UTIL.MOVEFILE`. |
+| `UTIL.DELETEFILE(path)` | Delete a file. |
+| `UTIL.CREATEDIRECTORY(path)` | Create directory (and parents). |
+| `UTIL.DELETEDIR(path)` | Delete an empty directory. |
+| `UTIL.GETDIRS(path)` | Returns array of subdirectory names in `path`. |
+
+### File metadata
+
+| Command | Description |
+|--------|-------------|
+| `UTIL.GETFILESIZE(path)` | Returns file size in bytes. |
+| `UTIL.GETFILEMODTIME(path)` | Returns last-modified timestamp (Unix seconds). |
+| `UTIL.GETFILEPATH(path)` | Returns directory part of a path. |
+| `UTIL.GETFILENAMENOEXT(path)` | Returns filename without extension. |
+
+## See also
+
+- [FILE.md](FILE.md) — low-level read/write streams
+- [JSON.md](JSON.md) — `JSON.LOADFILE` / `JSON.SAVEFILE`

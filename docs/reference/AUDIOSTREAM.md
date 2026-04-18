@@ -131,3 +131,18 @@ AUDIOSTREAM.FREE(stream)
 MEM.FREE(buf)
 AUDIO.CLOSE()
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `AUDIOSTREAM.GETVOLUME(stream)` | Returns current volume 0.0–1.0. |
+| `AUDIOSTREAM.GETPITCH(stream)` | Returns current pitch multiplier. |
+| `AUDIOSTREAM.GETPAN(stream)` | Returns current stereo pan -1.0–1.0. |
+
+## See also
+
+- [AUDIO.md](AUDIO.md) — `AUDIO.SEEKMUSIC`, `AUDIO.SETMASTERVOLUME`
+- [MEM.md](MEM.md) — raw buffer for PCM data

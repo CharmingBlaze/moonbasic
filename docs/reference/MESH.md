@@ -114,6 +114,77 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Creation aliases
+
+| Command | Description |
+|--------|-------------|
+| `MESH.CREATECUBE(size)` | Cube mesh. Alias: `MESH.CREATECUBE`. |
+| `MESH.CREATESPHERE(r, rings, slices)` | Sphere mesh. |
+| `MESH.CREATECYLINDER(r, h, slices)` | Cylinder mesh. |
+| `MESH.CREATECONE(r, h, slices)` | Cone mesh. |
+| `MESH.CREATECAPSULE(r, h, rings, slices)` | Capsule mesh. |
+| `MESH.CREATEPLANE(w, d, resX, resZ)` | Plane with resolution. |
+| `MESH.CREATETORUS(r, size, radSeg, sides)` | Torus mesh. |
+| `MESH.CREATEKNOT(r, size, radSeg, sides)` | Knot/trefoil mesh. |
+| `MESH.CREATEPOLY(sides, r)` | Regular polygon mesh. |
+| `MESH.CREATECUBICMAP(img, scale)` | Voxel terrain mesh from cubicmap image. |
+| `MESH.CREATEHEIGHTMAP(img, sx, sy, sz)` | Terrain mesh from heightmap image. |
+| `MESH.CREATECUSTOM(vertCount, triCount)` | Empty custom mesh for manual vertex fill. |
+| `MESH.MAKECAPSULE(r,h,rings,slices)` | Alias of `MESH.CREATECAPSULE`. |
+| `MESH.MAKECONE(r,h,slices)` | Alias of `MESH.CREATECONE`. |
+| `MESH.MAKECYLINDER(r,h,slices)` | Alias of `MESH.CREATECYLINDER`. |
+| `MESH.MAKECUBICMAP(img, scale)` | Alias of `MESH.CREATECUBICMAP`. |
+| `MESH.MAKEHEIGHTMAP(img, sx,sy,sz)` | Alias of `MESH.CREATEHEIGHTMAP`. |
+| `MESH.MAKECUSTOM(verts, tris)` | Alias of `MESH.CREATECUSTOM`. |
+| `MESH.MAKETORUS(r,size,radSeg,sides)` | Alias of `MESH.CREATETORUS`. |
+| `MESH.MAKEKNOT(r,size,radSeg,sides)` | Alias of `MESH.CREATEKNOT`. |
+| `MESH.MAKEPOLY(sides, r)` | Alias of `MESH.CREATEPOLY`. |
+
+### Bounds & LOD
+
+| Command | Description |
+|--------|-------------|
+| `MESH.GENERATEBOUNDS(mesh)` | Compute and store AABB/sphere bounds. |
+| `MESH.GETBBOXMINX(mesh)` / `MESH.GETBBOXMINY(mesh)` / `MESH.GETBBOXMINZ(mesh)` | Bounding box minimum per axis. |
+| `MESH.GETBBOXMAXX(mesh)` / `MESH.GETBBOXMAXY(mesh)` / `MESH.GETBBOXMAXZ(mesh)` | Bounding box maximum per axis. |
+| `MESH.GENERATELOD(mesh, ratio)` | Generate one LOD level at `ratio` poly reduction. |
+| `MESH.GENERATELODCHAIN(mesh, levels)` | Generate a multi-level LOD chain. |
+
+### Normals & tangents
+
+| Command | Description |
+|--------|-------------|
+| `MESH.GENERATENORMALS(mesh)` | Recompute smooth vertex normals. |
+| `MESH.GENTANGENTS(mesh)` | Compute tangent vectors for normal mapping. |
+
+### Vertex updates
+
+| Command | Description |
+|--------|-------------|
+| `MESH.UPDATEVERTEX(mesh, index, x, y, z)` | Set position of a single vertex. |
+| `MESH.UPDATEVERTICES(mesh, floatArray)` | Bulk-update all positions from a flat float array. |
+
+### Optimisation
+
+| Command | Description |
+|--------|-------------|
+| `MESH.OPTIMISEVERTEXCACHE(mesh)` / `MESH.OPTIMIZEVERTEXCACHE` | Reorder triangles for post-transform cache. |
+| `MESH.OPTIMISEOVERDRAW(mesh)` / `MESH.OPTIMIZEOVERDRAW` | Reorder to reduce overdraw. |
+| `MESH.OPTIMISEFETCH(mesh)` / `MESH.OPTIMIZEFETCH` | Reorder vertices for pre-transform cache. |
+| `MESH.OPTIMISEALL(mesh)` / `MESH.OPTIMIZEALL` | Apply all optimisations. |
+
+### Export & draw variants
+
+| Command | Description |
+|--------|-------------|
+| `MESH.EXPORT(mesh, path)` | Export mesh to file (OBJ/GLB). |
+| `MESH.DRAWAT(mesh, matHandle, x, y, z, sx, sy, sz)` | Draw mesh with explicit transform and material. |
+| `MESH.DRAWINSTANCED(mesh, matHandle, transforms)` | Draw mesh with a transform array for instancing. |
+
+---
+
 ## See also
 
 - [MODEL.md](MODEL.md) — full models and materials

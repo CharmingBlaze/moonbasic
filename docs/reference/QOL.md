@@ -7,6 +7,18 @@ The **`mbgame`** module registers **DarkBASIC-style** short names and helpers: *
 - **Registry keys** are **one per uppercase name** — implementations live only in **`runtime/mbgame`** (do not re-register the same dotted key elsewhere).
 - Source uses **dotted** or **namespace** style where applicable; names are **case-agnostic**, while **registry** keys remain the **uppercase** names registered in **`mbgame`**.
 
+## Core Workflow
+
+Use QOL shortcuts in short scripts and game-jam projects where brevity matters. For production code prefer the explicit `INPUT.*` / `GAME.*` / `TIME.*` forms.
+
+- `SCREENW()` / `SCREENH()` — window dimensions.
+- `DT()` — frame delta time (same as `TIME.DELTA()`).
+- `MX()` / `MY()` — mouse position.
+- `KEYPRESSED(key)` / `KEYDOWN(key)` — one-frame and held key tests.
+- `ENDGAME()` — terminate the VM.
+
+---
+
 ## Input / window / time shortcuts
 
 | Spec-style name | Registry / usage | Notes |
@@ -31,3 +43,37 @@ The **`mbgame`** module registers **DarkBASIC-style** short names and helpers: *
 - **[PROCEDURAL.md](PROCEDURAL.md)** — **`PERLIN`**, **`RNDRANGE`**, …  
 - **[CONFIG.md](CONFIG.md)** — **`CONFIG.LOAD`**, **`CONFIG.GET`**, …  
 - **[TIMER.md](TIMER.md)** — **`TIMER.NEW`** (wall) vs **`TIMER.CREATE`** / **`TIMER.MAKE`** (simulation).  
+
+---
+
+## Full Example
+
+Minimal game-jam loop using QOL short names.
+
+```basic
+WINDOW.OPEN(800, 600, "QOL Demo")
+WINDOW.SETFPS(60)
+
+score = 0
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = DT()    ; GAME.DT() shorthand
+
+    IF KEYPRESSED(KEY_SPACE) THEN score = score + 1
+
+    RENDER.CLEAR(20, 20, 40)
+    DRAW.TEXT("Score: " + STR(score), 10, 10, 22, 255, 255, 255, 255)
+    DRAW.TEXT("W=" + STR(SCREENW()) + " H=" + STR(SCREENH()), 10, 40, 18, 180, 180, 180, 255)
+    RENDER.FRAME()
+WEND
+
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [GAME.md](GAME.md) — `GAME.*` namespace (full list)
+- [INPUT.md](INPUT.md) — keyboard, mouse, gamepad
+- [MATH.md](MATH.md) — math helpers

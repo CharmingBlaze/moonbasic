@@ -8,6 +8,13 @@ See the refactored sample: [`examples/terrain_chase/main.mb`](../../examples/ter
 
 Project stance (**helpers + full `MATH.*`**): [Easy language](../EASY_LANGUAGE.md).
 
+## Core Workflow
+
+- Camera-relative WASD: `INPUT.MOVEDIR(camYaw)` → returns `[dx, dz]` ready for entity movement.
+- Terrain snap: `TERRAIN.SNAPY(terrain, x, z, offset)` → sets entity Y each frame.
+- World streaming: `WORLD.SETCENTERENTITY(entity)` → keeps chunks loaded around the player.
+- Facing a target: `ENTITY.FACETARGET(e, targetX, targetZ)` → smooth yaw rotation.
+
 ---
 
 ## `MATH.CIRCLEPOINT(cx, cz, radius, i, count)` → `(x, z)`
@@ -145,6 +152,49 @@ Sets streaming center from the entity’s world **XZ** (same role as **`World.Se
 ## More table helpers (XZ / 2D / easing)
 
 See **[GAME_MATH_HELPERS.md](GAME_MATH_HELPERS.md)** for **`HDIST` / `HDISTSQ`** (horizontal 3D distance), **`DIST2D` / `DISTSQ2D`**, **`YAWFROMXZ`**, **`ANGLEDIFFRAD`**, and **`SMOOTHERSTEP`**.
+
+---
+
+## Full Example
+
+Camera-relative movement with LERP approach.
+
+```basic
+WINDOW.OPEN(960, 540, "LessMath Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 8, -12)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+px = 0.0  pz = 0.0
+camYaw = 0.0
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    f  = INPUT.AXIS(KEY_S, KEY_W)
+    s  = INPUT.AXIS(KEY_A, KEY_D)
+
+    camYaw = camYaw + INPUT.ORBIT(KEY_Q, KEY_E, 90, dt)
+
+    dx = SIN(camYaw) * f + COS(camYaw) * s
+    dz = COS(camYaw) * f - SIN(camYaw) * s
+    px = LERP(px, px + dx * 4 * dt, 0.2)
+    pz = LERP(pz, pz + dz * 4 * dt, 0.2)
+
+    CAMERA.SETORBIT(cam, px, 0, pz, camYaw, 0.5, 10)
+
+    RENDER.CLEAR(30, 40, 60)
+    RENDER.BEGIN3D(cam)
+        DRAW.SPHERE(px, 0.5, pz, 0.4, 80, 200, 255, 255)
+        DRAW.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+CAMERA.FREE(cam)
+WINDOW.CLOSE()
+```
 
 ---
 

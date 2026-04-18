@@ -156,7 +156,52 @@ Instantly snaps the character to a new position and clears velocity.
 
 ---
 
-## Example (Linux)
+## Velocity & impulse
+
+| Command | Description |
+|--------|-------------|
+| **`PLAYER.SETVELOCITY(entity, vx, vy, vz)`** | Override the character's full velocity vector directly. |
+| **`PLAYER.ADDIMPULSE(entity, ix, iy, iz)`** | Add an instant impulse (world units/s) to the character velocity. |
+| **`PLAYER.GETVELOCITYX(entity)`** / **`GETVELOCITYY`** / **`GETVELOCITYZ`** | Per-axis world velocity. Aliases: **`GETVX`** / **`GETVY`** / **`GETVZ`**. |
+| **`PLAYER.GETGROUNDVELOCITYX(entity)`** / **`GETGROUNDVELOCITYY(entity)`** / **`GETGROUNDVELOCITYZ(entity)`** | Moving-platform velocity projected onto the ground plane per axis. |
+| **`PLAYER.GETSUBMERGEDFACTOR(entity)`** | **0.0** = fully above water; **1.0** = fully submerged (for swimming blend). |
+
+---
+
+## Ground & ceiling state
+
+| Command | Description |
+|--------|-------------|
+| **`PLAYER.GETGROUNDSTATE(entity)`** → **int** | Jolt `EGroundState`: 0=OnGround, 1=OnSteepGround, 2=NotSupported, 3=InAir. |
+| **`PLAYER.GETCEILING(entity)`** → **bool** | **True** when head contact is detected (ceiling collision). |
+| **`PLAYER.GETISSLIDING(entity)`** → **bool** | **True** when the character is sliding down a steep slope (`OnSteepGround`). |
+| **`PLAYER.ISSUBMERGED(entity)`** → **bool** | **True** when entity center is below water surface. |
+
+---
+
+## Tuning setters
+
+| Command | Description |
+|--------|-------------|
+| **`PLAYER.SETAIRCONTROL(entity, factor)`** | Scale (0–1) for XZ control while airborne (default 0.3). |
+| **`PLAYER.SETGROUNDCONTROL(entity, factor)`** | Scale for XZ movement response on ground (default 1.0). |
+| **`PLAYER.SETJUMPBUFFER(entity, seconds)`** | Coyote-time window after leaving ground where jump is still accepted. |
+| **`PLAYER.SETPADDING(entity, dist)`** | Skin-width padding around the capsule for penetration recovery. |
+| **`PLAYER.SETSLOPELIMIT(entity, degrees)`** | Maximum walkable slope angle; steeper ground = `OnSteepGround`. |
+| **`PLAYER.SETSTICKFLOOR(entity, dist)`** | Downward snap distance to stick to floors on ramps and steps. |
+
+---
+
+## Events & movement helpers
+
+| Command | Description |
+|--------|-------------|
+| **`PLAYER.ONTRIGGER(entity, callback)`** | Register a callback fired when the character overlaps a trigger volume. |
+| **`PLAYER.MOVERELATIVE(camYaw, fwd, strafe, speed, dt)`** | Returns `[dx, dz]` camera-relative delta — same as `MOVESTEPX` + `MOVESTEPZ` combined. |
+
+---
+
+## Full Example
 
 ```moonbasic
 WINDOW.OPEN(1280, 720, "Player")

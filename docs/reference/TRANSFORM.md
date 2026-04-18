@@ -86,3 +86,34 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Matrix operations
+
+| Command | Description |
+|--------|-------------|
+| `TRANSFORM.INVERSE(xform)` | Returns the inverse of the transform matrix. |
+| `TRANSFORM.TRANSPOSE(xform)` | Returns the transpose of the transform matrix. |
+| `TRANSFORM.GETELEMENT(xform, row, col)` | Returns a single matrix element at `[row, col]`. |
+
+### Build from parameters
+
+| Command | Description |
+|--------|-------------|
+| `TRANSFORM.PERSPECTIVE(fov, aspect, near, far)` | Build a perspective projection matrix. |
+| `TRANSFORM.ORTHO(left, right, bottom, top, near, far)` | Build an orthographic projection matrix. |
+| `TRANSFORM.LOOKAT(ex,ey,ez, tx,ty,tz, ux,uy,uz)` | Build a view (look-at) matrix. |
+
+### Apply to coordinates
+
+| Command | Description |
+|--------|-------------|
+| `TRANSFORM.APPLYX(xform, x, y, z)` | Returns X component after multiplying `[x,y,z]` by matrix. |
+| `TRANSFORM.APPLYY(xform, x, y, z)` | Returns Y component. |
+| `TRANSFORM.APPLYZ(xform, x, y, z)` | Returns Z component. |
+
+## See also
+
+- [MAT4.md](MAT4.md) — lower-level 4×4 matrix operations
+- [CAMERA.md](CAMERA.md) — `CAMERA.GETMATRIX`
+

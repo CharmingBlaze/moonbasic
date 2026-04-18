@@ -124,3 +124,16 @@ WEND
 
 TIMER.FREE(cd)
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `TIMER.GETLOOP(timer)` | Returns the loop count setting (-1 = infinite). |
+
+## See also
+
+- [TIME.md](TIME.md) — `TIME.DELTA`, `TIME.GETFPS`
+- [TWEEN.md](TWEEN.md) — value animation with callbacks

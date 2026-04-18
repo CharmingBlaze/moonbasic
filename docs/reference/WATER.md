@@ -108,6 +108,35 @@ WATER.FREE(water)
 
 ---
 
+## Extended Command Reference
+
+### Transform
+
+| Command | Description |
+|--------|-------------|
+| `WATER.SETHEIGHT(w, y)` | Set water surface Y. |
+| `WATER.SETROT(w, p, y, r)` | Set water plane rotation. |
+| `WATER.SETSCALE(w, sx, sy, sz)` | Set water plane scale. |
+
+### Queries
+
+| Command | Description |
+|--------|-------------|
+| `WATER.GETPOS(w)` | Returns `[x,y,z]` position. |
+| `WATER.GETROT(w)` | Returns `[p,y,r]` rotation. |
+| `WATER.GETSCALE(w)` | Returns `[sx,sy,sz]` scale. |
+| `WATER.GETCOLOR(w)` | Returns `[r,g,b,a]` tint. |
+| `WATER.GETWAVEHEIGHT(w)` | Returns current wave amplitude. |
+| `WATER.GETWAVESPEED(w)` | Returns current wave speed. |
+
+### Visibility
+
+| Command | Description |
+|--------|-------------|
+| `WATER.SHOW(w)` | Make water visible (paired with `WATER.HIDE`). |
+
+---
+
 ## See also
 
 - [DRAW3D.md](DRAW3D.md) — 3D pass + handle chaining

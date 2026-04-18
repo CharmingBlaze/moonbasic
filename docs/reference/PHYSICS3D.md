@@ -330,6 +330,45 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Gravity queries
+
+| Command | Description |
+|--------|-------------|
+| `PHYSICS3D.GETGRAVITYX()` / `GETGRAVITYY()` / `GETGRAVITYZ()` | Per-axis world gravity. |
+
+### Stepping tuning
+
+| Command | Description |
+|--------|-------------|
+| `PHYSICS3D.SETTIMESTEP(dt)` | Override fixed physics timestep. |
+| `PHYSICS3D.SETSUBSTEPS(n)` | Set number of sub-steps per frame. |
+
+### Debug
+
+| Command | Description |
+|--------|-------------|
+| `PHYSICS3D.DEBUGDRAW(bool)` | Enable/disable Jolt wireframe debug overlay. |
+
+### Collision callbacks
+
+| Command | Description |
+|--------|-------------|
+| `PHYSICS3D.ONCOLLISION(callback)` | Register global collision event handler. |
+| `PHYSICS3D.PROCESSCOLLISIONS()` | Flush and dispatch pending collision events. |
+| `PHYSICS3D.MOUSEHIT(cam, maxDist)` | Cast ray from mouse; returns the hit body handle, or 0. |
+
+### Low-level / internal
+
+| Command | Description |
+|--------|-------------|
+| `PHYSICS3D.GETMATRIXBUFFER()` | Returns pointer to internal transform matrix buffer (advanced). |
+| `PHYSICS3D.GETSCRATCHFLOAT(index)` | Read a scratch float register from the physics solver. |
+| `PHYSICS3D.SYNCWASMTOPHYSREGS()` | Sync WASM memory to physics registers (WASM builds only). |
+
+---
+
 ## See also
 
 - [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md) — Capsule character controller (KCC).

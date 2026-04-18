@@ -4,6 +4,16 @@ This document captures a **target architecture** for Blender → moonBASIC workf
 
 ---
 
+## Core Workflow
+
+1. `SCENE.LOAD(path)` — load a `.mbscene` file.
+2. `SCENE.UPDATE(scene, dt)` — tick animations, scripts, and entity transforms.
+3. `PHYSICS3D.UPDATE()` — step Jolt (separate call).
+4. `SCENE.DRAW(scene)` — batched render inside `RENDER.BEGIN3D` / `RENDER.END3D`.
+5. `SCENE.FREE(scene)` on scene change or exit.
+
+---
+
 ## 1. Three different “scene” concepts today
 
 | Name | Package / role | What it is **not** |
@@ -80,6 +90,40 @@ A glTF loader should **reserve buffer slots** when it creates colliders, and doc
 3. **Tags:** `Col_*` / `Lgt_*` conventions + optional **`KHR_lights_punctual`**.
 4. **Physics:** Custom properties → **`BODY3D`** templates + buffer slot reservation.
 5. **Draw path:** Batched draw with frustum test per node (or per group).
+
+---
+
+## Full Example
+
+Minimal scene load and update loop.
+
+```basic
+WINDOW.OPEN(960, 540, "Scene Engine Demo")
+WINDOW.SETFPS(60)
+
+PHYSICS3D.START()
+
+scene = SCENE.LOAD("assets/level1.mbscene")
+cam   = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 8, -14)
+CAMERA.SETTARGET(cam, 0, 0, 0)
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+    SCENE.UPDATE(scene, dt)
+    PHYSICS3D.UPDATE()
+
+    RENDER.CLEAR(60, 80, 110)
+    RENDER.BEGIN3D(cam)
+        SCENE.DRAW(scene)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+SCENE.FREE(scene)
+PHYSICS3D.STOP()
+WINDOW.CLOSE()
+```
 
 ---
 

@@ -131,6 +131,39 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Procedural generation
+
+| Command | Description |
+|--------|-------------|
+| `TEXTURE.GENCOLOR(w, h, r, g, b, a)` | Generate a solid-color texture. |
+| `TEXTURE.GENCHECKED(w, h, cx, cy, c1, c2)` | Generate a checkerboard texture. |
+| `TEXTURE.GENGRADIENTH(w, h, left, right)` | Horizontal gradient texture. |
+| `TEXTURE.GENGRADIENTV(w, h, top, bottom)` | Vertical gradient texture. |
+| `TEXTURE.GENWHITENOISE(w, h, factor)` | White noise texture. |
+
+### Queries
+
+| Command | Description |
+|--------|-------------|
+| `TEXTURE.GETWIDTH(tex)` | Width in pixels. |
+| `TEXTURE.GETHEIGHT(tex)` | Height in pixels. |
+| `TEXTURE.GETSIZE(tex)` | Returns `[w, h]` array. |
+| `TEXTURE.ISLOADED(tex)` | Returns `TRUE` if async load completed. |
+
+### Settings
+
+| Command | Description |
+|--------|-------------|
+| `TEXTURE.SETWRAP(tex, mode)` | Set UV wrap mode (`REPEAT`, `CLAMP`, `MIRROR`). |
+| `TEXTURE.SETDEFAULTFILTER(mode)` | Set global default filter (`POINT`, `BILINEAR`, `TRILINEAR`). |
+| `TEXTURE.UPDATE(tex, img)` | Upload updated CPU image to existing GPU texture. |
+| `TEXTURE.RELOAD(tex, path)` | Reload texture from file in-place. |
+| `TEXTURE.LOADASYNC(path, callback)` | Non-blocking load; fires `callback(handle)` when ready. |
+
+---
+
 ## See also
 
 - [IMAGE.md](IMAGE.md) — **`IMAGE.CREATE`** / deprecated **`IMAGE.MAKE`**, `IMAGE.COPY`, export.

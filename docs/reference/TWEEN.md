@@ -76,3 +76,19 @@ WEND
 
 TWEEN.STOP(t)
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `TWEEN.ISPLAYING(t)` | Returns `TRUE` if the tween is currently running. |
+| `TWEEN.ISFINISHED(t)` | Returns `TRUE` if the tween has completed. |
+| `TWEEN.GETLOOP(t)` | Returns the loop count setting (-1 = infinite). |
+| `TWEEN.GETYOYO(t)` | Returns `TRUE` if yoyo (ping-pong) mode is enabled. |
+
+## See also
+
+- [TIME.md](TIME.md) — `TIME.DELTA` for manual lerp
+- [MATH.md](MATH.md) — `MATH.LERP`, easing helpers

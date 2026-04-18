@@ -92,6 +92,14 @@ TERRAIN.FREE(terrain)
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `SCATTER.MAKE(...)` | Deprecated alias of `SCATTER.CREATE`. |
+
+---
+
 ## See also
 
 - [TERRAIN.md](TERRAIN.md) — height sampling / **`TERRAIN.LOAD`**

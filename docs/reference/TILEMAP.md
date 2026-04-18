@@ -116,3 +116,36 @@ WEND
 TILEMAP.FREE(map)
 WINDOW.CLOSE()
 ```
+
+---
+
+## Extended Command Reference
+
+### Map info
+
+| Command | Description |
+|--------|-------------|
+| `TILEMAP.WIDTH(map)` | Returns map width in tiles. |
+| `TILEMAP.HEIGHT(map)` | Returns map height in tiles. |
+| `TILEMAP.LAYERCOUNT(map)` | Returns number of tile layers. |
+| `TILEMAP.SETTILESIZE(map, w, h)` | Override displayed tile pixel size. |
+
+### Layer drawing
+
+| Command | Description |
+|--------|-------------|
+| `TILEMAP.DRAWLAYER(map, layer, ox, oy)` | Draw a specific layer by index. |
+
+### Collision
+
+| Command | Description |
+|--------|-------------|
+| `TILEMAP.SETCOLLISION(map, layer, bool)` | Enable/disable collision on a layer. |
+| `TILEMAP.COLLISIONAT(map, tileX, tileY)` | Returns `TRUE` if tile at grid position is solid. |
+| `TILEMAP.ISSOLIDCATEGORY(map, tileX, tileY, category)` | Returns `TRUE` if tile matches collision category. |
+| `TILEMAP.MERGECOLLISIONLAYER(map, layer)` | Merge a layer into the physics collision mesh. |
+
+## See also
+
+- [PHYSICS2D.md](PHYSICS2D.md) — 2D collision bodies
+- [SPRITE.md](SPRITE.md) — sprite animation

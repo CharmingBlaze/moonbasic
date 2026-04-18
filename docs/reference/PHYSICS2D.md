@@ -256,6 +256,19 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `PHYSICS2D.SETSTEP(dt)` | Override fixed 2D physics timestep. |
+| `PHYSICS2D.SETITERATIONS(n)` | Set velocity/position solver iterations. |
+| `PHYSICS2D.ONCOLLISION(callback)` | Register 2D collision event handler. |
+| `PHYSICS2D.PROCESSCOLLISIONS()` | Flush and dispatch pending 2D collision events. |
+| `PHYSICS2D.DEBUGDRAW(bool)` | Enable/disable Box2D debug wireframe overlay. |
+| `PHYSICS2D.GETDEBUGSEGMENTS()` | Returns array of debug line segments `[x0,y0,x1,y1,...]`. |
+
+---
+
 ## See also
 
 - [PHYSICS3D.md](PHYSICS3D.md) — Jolt 3D simulation

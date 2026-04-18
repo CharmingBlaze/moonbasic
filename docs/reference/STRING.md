@@ -59,6 +59,22 @@ Splits a string into a list handle.
 
 ---
 
+## Interpolation
+
+### `STRING.INTERP(template, arg0 [, arg1 … arg9])` / `STRING.INTERP$(…)`
+
+Fills `"{0}"` … `"{9}"` placeholders in `template` with the supplied arguments. Supports 1–10 argument overloads. `STRING.INTERP$` is the string-returning alias (same behaviour).
+
+- **Returns**: (String)
+- **Example**:
+    ```basic
+    msg = STRING.INTERP("Hello {0}, your score is {1}!", name, STR(score))
+    ```
+
+The global `INTERP(template, …)` is a shorthand alias — prefer `STRING.INTERP` in new code.
+
+---
+
 ## Full Example
 
 This example demonstrates how to parse a comma-separated string, process the parts, and display them.

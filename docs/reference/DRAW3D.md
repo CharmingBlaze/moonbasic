@@ -97,6 +97,16 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `DRAW3D.CYLINDER(x,y,z, rTop, rBot, h, slices, r,g,b,a)` | Draw a solid cylinder (or cone if one radius is 0). |
+| `DRAW3D.CYLINDERWIRES(x,y,z, rTop, rBot, h, slices, r,g,b,a)` | Draw cylinder wireframe. |
+| `DRAW3D.BILLBOARDREC(cam, tex, srcRec, pos, size, r,g,b,a)` | Draw a sub-region of a texture as a camera-facing billboard. |
+
+---
+
 ## See also
 
 - [DRAW_WRAPPERS.md](DRAW_WRAPPERS.md) — object-style **`DRAWCUBE()`**, **`DRAWSPHERE()`**, … (short methods instead of long **`DRAW3D.*`** argument lists).

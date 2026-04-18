@@ -64,6 +64,14 @@ JSON.FREE(j)
 CSV.FREE(h)
 ```
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `CSV.TOSTRING(csv)` | Serialize a CSV handle back to a string. |
+
+---
+
 ## See also
 
 - [JSON.md](JSON.md) — nested documents and **`JSON.TOCSV`**

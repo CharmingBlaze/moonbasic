@@ -192,3 +192,71 @@ WEND
 
 WINDOW.CLOSE()
 ```
+
+---
+
+## Extended Command Reference
+
+### Mouse deltas & speed
+
+| Command | Description |
+|--------|-------------|
+| `INPUT.MOUSEDELTAX()` / `INPUT.MOUSEDX()` | Mouse X movement this frame in pixels. |
+| `INPUT.MOUSEDELTAY()` / `INPUT.MOUSEDY()` | Mouse Y movement this frame in pixels. |
+| `INPUT.MOUSEXSPEED()` | Mouse X movement speed (px/s). |
+| `INPUT.MOUSEYSPEED()` | Mouse Y movement speed (px/s). |
+| `INPUT.SETMOUSEPOS(x, y)` | Warp mouse cursor to screen position. |
+| `INPUT.SETMOUSEOFFSET(dx, dy)` | Offset applied to reported mouse position. |
+| `INPUT.SETMOUSESCALE(sx, sy)` | Scale applied to mouse delta values. |
+| `INPUT.LOCKMOUSE(bool)` | Lock/unlock cursor to window centre. |
+| `INPUT.GETMOUSEWORLDPOS(cam)` | Returns `[x,y,z]` world position under mouse cursor. |
+
+### Additional key helpers
+
+| Command | Description |
+|--------|-------------|
+| `INPUT.KEYHIT(key)` | Alias of `INPUT.KEYPRESSED`. |
+| `INPUT.MOUSEHIT(btn)` | Returns `TRUE` on the first frame mouse `btn` is pressed. |
+| `INPUT.MOUSEPRESSED(btn)` | Alias of `INPUT.MOUSEHIT`. |
+| `INPUT.MOUSERELEASED(btn)` | Returns `TRUE` on the first frame `btn` is released. |
+| `INPUT.CHARPRESSED()` | Returns the Unicode code point of the last typed character. |
+| `INPUT.GETKEYNAME(key)` | Returns the human-readable name string for a key constant. |
+| `INPUT.GETINACTIVITY()` | Returns seconds since any input was received. |
+
+### Gamepad
+
+| Command | Description |
+|--------|-------------|
+| `INPUT.ISGAMEPADAVAILABLE(id)` | Returns `TRUE` if gamepad `id` is connected. |
+| `INPUT.JOYX(id)` / `INPUT.JOYY(id)` | Left stick X/Y for gamepad `id`. |
+| `INPUT.JOYBUTTON(id, btn)` | Returns `TRUE` if button `btn` is held on gamepad `id`. |
+| `INPUT.JOYDOWN(id, btn)` | Alias of `INPUT.JOYBUTTON`. |
+| `INPUT.GAMEPADAXISCOUNT(id)` | Number of axes on gamepad `id`. |
+| `INPUT.GAMEPADBUTTONCOUNT(id)` | Number of buttons on gamepad `id`. |
+| `INPUT.GETGAMEPADAXISVALUE(id, axis)` | Raw axis value -1.0..1.0. |
+| `INPUT.MAPGAMEPADAXIS(id, axis, action, deadzone)` | Map axis to named action. |
+| `INPUT.MAPGAMEPADBUTTON(id, btn, action)` | Map button to named action. |
+| `INPUT.SETGAMEPADMAPPINGS(csv)` | Set SDL-format gamepad mapping string. |
+| `INPUT.LOADMAPPINGS(path)` | Load action-to-input mappings from a file. |
+| `INPUT.SAVEMAPPINGS(path)` | Save current mappings to a file. |
+
+### Touch
+
+| Command | Description |
+|--------|-------------|
+| `INPUT.TOUCHCOUNT()` | Number of active touch points. |
+| `INPUT.TOUCHX(index)` / `INPUT.TOUCHY(index)` | Position of touch point `index`. |
+| `INPUT.TOUCHPRESSED(index)` | Returns `TRUE` on the first frame touch `index` is down. |
+| `INPUT.GETTOUCHPOINTID(index)` | Returns the OS touch point id. |
+
+### Camera-relative movement
+
+| Command | Description |
+|--------|-------------|
+| `INPUT.MOVEDIR(camYaw)` | Returns `[dx, dz]` camera-relative WASD direction vector (normalized). |
+
+## See also
+
+- [GAMEPAD.md](GAMEPAD.md) — `GAMEPAD.*` namespace
+- [CURSOR.md](CURSOR.md) — cursor visibility and lock
+- [KEY.md](KEY.md) — `KEY_*` constants

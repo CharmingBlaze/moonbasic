@@ -65,3 +65,21 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     SCENE.DRAW()
 WEND
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `SCENE.LOADSCENE(path)` | Load a scene file and replace the current scene. |
+| `SCENE.SAVESCENE(path)` | Serialize and save the current scene to file. |
+| `SCENE.SWITCH(name)` | Switch to a named scene (registered with `SCENE.REGISTER`). |
+| `SCENE.LOADWITHTRANSITION(name, transition)` | Switch scene with a named transition effect. |
+| `SCENE.CLEARSCENE()` | Remove all entities and reset the scene. |
+| `SCENE.APPLYPHYSICS(bool)` | Enable/disable automatic physics step during `SCENE.UPDATE`. |
+
+## See also
+
+- [ENTITY.md](ENTITY.md) — entity creation and management
+- [WORLD.md](WORLD.md) — `WORLD.SETCENTER`, `WORLD.UPDATE`

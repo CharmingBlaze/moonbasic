@@ -111,6 +111,14 @@ WEATHER.FREE(weather)
 
 ---
 
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `WEATHER.MAKE(...)` | Deprecated alias of `WEATHER.CREATE`. |
+
+---
+
 ## See also
 
 - [PARTICLES.md](PARTICLES.md)

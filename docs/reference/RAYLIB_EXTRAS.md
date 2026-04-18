@@ -76,6 +76,38 @@ Primitives, text, textures, billboards — see **[DRAW2D.md](DRAW2D.md)** and **
 
 ---
 
+## Full Example
+
+Querying window DPI and reading clipboard image.
+
+```basic
+WINDOW.OPEN(800, 600, "Raylib Extras Demo")
+WINDOW.SETFPS(60)
+
+dpi    = WINDOW.GETDPI()
+clipTex = 0
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    IF INPUT.KEYPRESSED(KEY_V) THEN
+        IF clipTex THEN TEXTURE.UNLOAD(clipTex)
+        clipTex = CLIPBOARD.GETIMAGE()
+    END IF
+
+    RENDER.CLEAR(20, 25, 35)
+    IF clipTex THEN
+        DRAW.TEXTURE(clipTex, 10, 10, 320, 240, 255, 255, 255, 255)
+    END IF
+    DRAW.TEXT("DPI: " + STR(dpi), 10, 260, 18, 200, 200, 200, 255)
+    DRAW.TEXT("Press V to paste clipboard image", 10, 285, 18, 160, 160, 160, 255)
+    RENDER.FRAME()
+WEND
+
+IF clipTex THEN TEXTURE.UNLOAD(clipTex)
+WINDOW.CLOSE()
+```
+
+---
+
 ## See also
 
 - [PROGRAMMING.md](../PROGRAMMING.md) — main loop, shutdown

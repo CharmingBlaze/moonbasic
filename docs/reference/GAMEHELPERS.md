@@ -139,3 +139,89 @@ KEEPPLAYERINBOUNDS(p)
 px = PLAYER2D.GETX(p)
 pz = PLAYER2D.GETZ(p)
 ```
+
+---
+
+## Full Example
+
+Third-person orbit with PLAYER2D ground movement and box-landing.
+
+```basic
+WINDOW.OPEN(960, 540, "GameHelpers Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 8, -12)
+
+CONST GRAVITY   = -26.0
+CONST MOVE_SPEED = 5.0
+CONST MOUSE_ORBIT_SENS = 0.005
+
+p   = PLAYER2D.CREATE()
+PLAYER2D.SETPOS(p, 0.0, 0.0)
+CLAMPENTITY2D(p, -18.0, 18.0, -18.0, 18.0)
+
+camYaw   = 0.0
+camPitch = 0.4
+camDist  = 10.0
+vel_y    = 0.0
+pos_y    = 0.5
+on_ground = FALSE
+
+; one platform box: centre, size
+bx = 0.0 : by = 0.0 : bz = 4.0
+bw = 4.0 : bh = 0.5 : bd = 4.0
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    dt = TIME.DELTA()
+
+    camYaw   = camYaw   + ORBITYAWDELTA(dt, MOUSE_ORBIT_SENS, KEY_Q, KEY_E, 72.0)
+    camPitch = camPitch + ORBITPITCHDELTA(MOUSE_ORBIT_SENS)
+    camDist  = camDist  + ORBITDISTDELTA(0.85)
+    camPitch = MAX(0.1, MIN(1.3, camPitch))
+    camDist  = MAX(3.0, MIN(20.0, camDist))
+
+    f = INPUT.AXIS(KEY_S, KEY_W)
+    s = INPUT.AXIS(KEY_A, KEY_D)
+    MOVEENTITY2D(p, camYaw, f, s, MOVE_SPEED, dt)
+    KEEPPLAYERINBOUNDS(p)
+
+    vel_y = vel_y + GRAVITY * dt
+    pos_y = pos_y + vel_y * dt
+    on_ground = FALSE
+
+    landY = BOXTOPLAND(PLAYER2D.GETX(p), pos_y, PLAYER2D.GETZ(p), vel_y, 0.4, bx, by, bz, bw, bh, bd)
+    IF landY > 0.0 THEN
+        pos_y = landY : vel_y = 0.0 : on_ground = TRUE
+    END IF
+    IF pos_y < 0.4 THEN
+        pos_y = 0.4 : vel_y = 0.0 : on_ground = TRUE
+    END IF
+
+    IF on_ground AND INPUT.KEYPRESSED(KEY_SPACE) THEN vel_y = 9.0
+
+    px = PLAYER2D.GETX(p)
+    pz = PLAYER2D.GETZ(p)
+    CAMERA.SETORBIT(cam, px, pos_y, pz, camYaw, camPitch, camDist)
+
+    RENDER.CLEAR(60, 80, 120)
+    RENDER.BEGIN3D(cam)
+        DRAW.SPHERE(px, pos_y, pz, 0.4, 80, 200, 255, 255)
+        DRAW.CUBE(bx, by, bz, bw, bh, bd, 0, 120, 80, 40, 255)
+        DRAW.GRID(20, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+PLAYER2D.FREE(p)
+WINDOW.CLOSE()
+```
+
+---
+
+## See also
+
+- [PLAYER2D.md](PLAYER2D.md) — `PLAYER2D.*` reference
+- [PLAYER.md](PLAYER.md) — 3D Jolt KCC
+- [CAMERA.md](CAMERA.md) — `CAMERA.SETORBIT`, `CAMERA.ORBITAROUND`
+- [GAME.md](GAME.md) — `GAME.ORBITPITCHDELTA`, `GAME.ORBITYAWDELTA`

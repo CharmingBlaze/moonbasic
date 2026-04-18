@@ -312,3 +312,22 @@ WINDOW.CLOSE()
 | [`testdata/noise_terrain.mb`](../../testdata/noise_terrain.mb) | Windowed greyscale preview |
 
 Run: `go run . --check testdata/noise_test.mb`
+
+---
+
+## Extended Command Reference
+
+### Creation aliases
+
+| Command | Description |
+|--------|-------------|
+| `NOISE.CREATEPERLIN()` | Create a Perlin noise generator. |
+| `NOISE.CREATESIMPLEX()` | Create a OpenSimplex2 noise generator. |
+| `NOISE.CREATECELLULAR()` | Create a Cellular (Voronoi) noise generator. |
+| `NOISE.CREATEFRACTAL(type)` | Create a fractal noise generator (FBm, Ridged, PingPong). |
+| `NOISE.CREATEDOMAINWARP(type)` | Create a domain-warp generator for distorted noise. |
+
+## See also
+
+- [TERRAIN.md](TERRAIN.md) — `TERRAIN.APPLYMAP` for heightmaps
+- [IMAGE.md](IMAGE.md) — `IMAGE.CREATEBLANK` for rendering noise to pixels

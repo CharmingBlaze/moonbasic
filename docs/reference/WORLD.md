@@ -84,6 +84,48 @@ TERRAIN.FREE(terrain)
 
 ---
 
+## Extended Command Reference
+
+### Mouse/screen projection
+
+| Command | Description |
+|--------|-------------|
+| `WORLD.MOUSEFLOOR(cam)` | Returns `[x,y,z]` world position where mouse ray hits Y=0 plane. |
+| `WORLD.MOUSEFLOOR3D(cam, y)` | Returns `[x,y,z]` where mouse ray hits the plane at height `y`. |
+| `WORLD.MOUSEPICK(cam, maxDist)` | Returns entity id hit by mouse ray, or 0. |
+| `WORLD.MOUSETOENTITY(cam)` | Alias of `WORLD.MOUSEPICK`. |
+| `WORLD.MOUSETOFLOOR(cam)` | Alias of `WORLD.MOUSEFLOOR`. |
+| `WORLD.MOUSE2D()` | Returns `[mx, my]` screen-space mouse position. |
+| `WORLD.GETRAY(cam, sx, sy)` | Returns ray `[ox,oy,oz, dx,dy,dz]` from screen point. |
+| `WORLD.TOSCREEN(cam, x,y,z)` | Returns `[sx, sy]` screen coords of world point. |
+| `WORLD.TOWORLD(cam, sx, sy, depth)` | Returns `[wx,wy,wz]` world point from screen coords. |
+
+### Environment
+
+| Command | Description |
+|--------|-------------|
+| `WORLD.FOGMODE(mode)` | Set fog mode: `LINEAR`, `EXP`, `EXP2`. |
+| `WORLD.FOGCOLOR(r,g,b)` | Set fog color. |
+| `WORLD.FOGDENSITY(d)` | Set exponential fog density. |
+| `WORLD.DAYNIGHTCYCLE(speed)` | Enable animated day/night sky with `speed` multiplier. |
+| `WORLD.SETAMBIENCE(r,g,b, intensity)` | Set ambient light color and intensity. |
+| `WORLD.SETREFLECTION(texHandle)` | Set environment reflection cubemap. |
+| `WORLD.SETREVERB(preset)` | Set global audio reverb preset. |
+| `WORLD.SETGRAVITY(gx,gy,gz)` | Set world gravity vector (also available via `PHYSICS3D.SETGRAVITY`). |
+| `WORLD.SETTIMESCALE(scale)` | Set global time scale (same as `TIME.SETSCALE`). |
+
+### Gameplay effects
+
+| Command | Description |
+|--------|-------------|
+| `WORLD.SHAKE(intensity, duration)` | Trigger global camera shake. |
+| `WORLD.SCREENSHAKE(intensity, duration)` | Alias of `WORLD.SHAKE`. |
+| `WORLD.HITSTOP(duration)` | Freeze game time for `duration` seconds (hit-stop effect). |
+| `WORLD.FLASH(r,g,b,a, duration)` | Screen color flash overlay. |
+| `WORLD.EXPLOSION(x,y,z, force, radius)` | Apply physics explosion impulse at world position. |
+
+---
+
 ## See also
 
 - [TERRAIN.md](TERRAIN.md) — heightfield and **`CHUNK.SETRANGE`**

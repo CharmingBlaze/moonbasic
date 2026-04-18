@@ -122,6 +122,32 @@ Page shape follows [DOC_STYLE_GUIDE.md](../DOC_STYLE_GUIDE.md) (**WAVE pattern**
 
 ---
 
+## Full Example
+
+Blitz-style 3D cube using classic naming (moonBASIC aliases).
+
+```basic
+Graphics3D(960, 540, 0, 1)
+SetFPS(60)
+
+cam  = CreateCamera()
+PositionEntity(cam, 0, 4, -8)
+CameraLookAt(cam, 0, 0, 0)
+
+cube = CreateCube(1.5)
+PositionEntity(cube, 0, 0.75, 0)
+EntityColor(cube, 80, 160, 255)
+
+t = 0.0
+While Not AppTerminate()
+    t = t + DeltaTime()
+    TurnEntity(cube, 0, 45 * DeltaTime(), 0)
+    RenderWorld()
+Wend
+```
+
+---
+
 ## See also
 
 - [API_CONSISTENCY.md](../API_CONSISTENCY.md) — Every registered command name

@@ -86,6 +86,49 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Logging & profiling
+
+| Command | Description |
+|--------|-------------|
+| `DEBUG.PRINTL(msg)` | Print with newline (alias of `DEBUG.PRINT`). |
+| `DEBUG.LOGFILE(path)` | Redirect debug output to a file. |
+| `DEBUG.STACKTRACE()` | Print current call stack to console. |
+| `DEBUG.BREAKPOINT()` | Trigger a VM debug break. |
+| `DEBUG.INSPECT(value)` | Pretty-print any value (handles, arrays, tables). |
+| `DEBUG.LISTCOMMANDS()` | Print all registered command keys to console. |
+| `DEBUG.PROFILESTART(label)` | Begin a named profiling region. |
+| `DEBUG.PROFILEEND(label)` | End a named profiling region. |
+| `DEBUG.PROFILEREPORT()` | Print accumulated profiling results. |
+| `DEBUG.SHOWFPSGRAPH(bool)` | Show/hide the FPS graph overlay. |
+
+### Memory
+
+| Command | Description |
+|--------|-------------|
+| `DEBUG.HEAPSTATS()` | Print heap allocation counts and sizes. |
+| `DEBUG.GCSTATS()` | Print GC statistics. |
+| `DEBUG.DUMPHEAP(path)` | Write heap dump to file. |
+
+### Physics visualisation
+
+| Command | Description |
+|--------|-------------|
+| `DEBUG.DRAWPHYSICS(bool)` | Enable Jolt debug wireframe overlay. |
+| `DEBUG.DRAWBODY(bodyHandle, r,g,b)` | Draw a single physics body wireframe. |
+| `DEBUG.DRAWCHARACTER(entity, r,g,b)` | Draw character controller capsule. |
+| `DEBUG.DRAWBOX(x,y,z, hw,hh,hd, r,g,b)` | Draw an AABB wireframe. |
+| `DEBUG.DRAWLINE(x0,y0,z0, x1,y1,z1, r,g,b)` | Draw a debug line in 3D space. |
+
+### Watch
+
+| Command | Description |
+|--------|-------------|
+| `DEBUG.WATCHCLEAR()` | Clear all watch variable entries. |
+
+---
+
 ## See also
 
 - [SYSTEM.md](SYSTEM.md) — `PRINT`, `PRINTERROR`, runtime info

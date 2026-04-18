@@ -76,6 +76,50 @@ PRINT(JSON.GETINT(j, "player.hp"))
 JSON.FREE(j)
 ```
 
+## Extended Command Reference
+
+### Creation
+
+| Command | Description |
+|--------|-------------|
+| `JSON.CREATE()` | Create an empty JSON object handle. |
+| `JSON.MAKEARRAY()` | Create an empty JSON array handle. |
+
+### Reading
+
+| Command | Description |
+|--------|-------------|
+| `JSON.GETFLOAT(j, key)` | Read a number value as float. |
+| `JSON.GETARRAY(j, key)` | Returns a JSON array handle for `key`. |
+| `JSON.GETOBJECT(j, key)` | Returns a JSON object handle for `key`. |
+| `JSON.HAS(j, key)` | Returns `TRUE` if `key` exists. |
+| `JSON.LEN(j)` | Returns number of keys (object) or elements (array). |
+| `JSON.TYPE(j, key)` | Returns type string: `"number"`, `"string"`, `"bool"`, `"array"`, `"object"`, `"null"`. |
+
+### Writing
+
+| Command | Description |
+|--------|-------------|
+| `JSON.SETINT(j, key, v)` | Set integer value. |
+| `JSON.SETFLOAT(j, key, v)` | Set float value. |
+| `JSON.SETBOOL(j, key, v)` | Set boolean value. |
+| `JSON.SETNULL(j, key)` | Set value to `null`. |
+| `JSON.APPEND(j, value)` | Append value to a JSON array. |
+| `JSON.DELETE(j, key)` | Delete a key from object. |
+| `JSON.CLEAR(j)` | Remove all keys/elements. |
+
+### File I/O
+
+| Command | Description |
+|--------|-------------|
+| `JSON.LOADFILE(path)` | Load and parse a JSON file, returns handle. |
+| `JSON.SAVEFILE(j, path)` | Serialise and write JSON to file (compact). |
+| `JSON.TOFILEPRETTY(j, path)` | Serialise and write JSON to file (pretty-printed). |
+| `JSON.MINIFY(j)` | Returns compact JSON string. |
+| `JSON.PRETTY(j)` | Returns pretty-printed JSON string. |
+
+---
+
 ## See also
 
 - [CSV.md](CSV.md), [TABLE.md](TABLE.md), [DATABASE.md](DATABASE.md)

@@ -73,3 +73,22 @@ MAT4.FREE(t)
 MAT4.FREE(r)
 MAT4.FREE(m)
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `MAT4.FROMSCALE(sx, sy, sz)` | Build a scale matrix. |
+| `MAT4.SETROTATION(m, p, y, r)` | Set the rotation part of matrix in place. |
+| `MAT4.GETELEMENT(m, row, col)` | Returns scalar at position `[row, col]`. |
+| `MAT4.INVERSE(m)` | Returns the matrix inverse. |
+| `MAT4.TRANSPOSE(m)` | Returns the transpose. |
+| `MAT4.LOOKAT(ex,ey,ez, tx,ty,tz, ux,uy,uz)` | Build a view (look-at) matrix. |
+| `MAT4.ORTHO(left, right, bottom, top, near, far)` | Build an orthographic projection matrix. |
+
+## See also
+
+- [TRANSFORM.md](TRANSFORM.md) — higher-level transform wrapper
+- [CAMERA.md](CAMERA.md) — `CAMERA.GETMATRIX`

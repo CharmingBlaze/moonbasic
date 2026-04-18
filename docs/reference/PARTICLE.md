@@ -130,6 +130,47 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Creation aliases
+
+| Command | Description |
+|--------|-------------|
+| `PARTICLE.MAKE(...)` | Deprecated alias of `PARTICLE.CREATE`. |
+
+### Emitter configuration
+
+| Command | Description |
+|--------|-------------|
+| `PARTICLE.SETRATE(emitter, n)` | Emit `n` particles per second. |
+| `PARTICLE.SETBURST(emitter, n)` | Emit `n` particles on each trigger. |
+| `PARTICLE.SETSPEED(emitter, min, max)` | Particle launch speed range. |
+| `PARTICLE.SETSPREAD(emitter, angle)` | Cone spread angle in degrees. |
+| `PARTICLE.SETDIRECTION(emitter, dx,dy,dz)` | Emitter direction vector. |
+| `PARTICLE.SETGRAVITY(emitter, g)` | Per-emitter gravity scale. |
+| `PARTICLE.SETSIZE(emitter, s)` | Particle size at birth. |
+| `PARTICLE.SETSTARTSIZE(emitter, s)` | Alias of `SETSIZE`. |
+| `PARTICLE.SETENDSIZE(emitter, s)` | Particle size at death. |
+| `PARTICLE.SETCOLOR(emitter, r,g,b,a)` | Birth color. |
+| `PARTICLE.SETCOLOREND(emitter, r,g,b,a)` | Death color. |
+| `PARTICLE.SETBILLBOARD(emitter, bool)` | Face particles toward camera. |
+| `PARTICLE.SETPOSITION(emitter, x,y,z)` | Set emitter world position. |
+| `PARTICLE.STOP(emitter)` | Stop emitting new particles. |
+
+### Per-particle queries
+
+| Command | Description |
+|--------|-------------|
+| `PARTICLE.COUNT(emitter)` | Returns number of live particles. |
+| `PARTICLE.ISALIVE(emitter, index)` | Returns `TRUE` if particle `index` is alive. |
+| `PARTICLE.GETPOS(emitter, index)` | Returns `[x,y,z]` of particle `index`. |
+| `PARTICLE.GETVELOCITY(emitter, index)` | Returns `[vx,vy,vz]` velocity. |
+| `PARTICLE.GETSIZE(emitter, index)` | Returns current size. |
+| `PARTICLE.GETCOLOR(emitter, index)` | Returns `[r,g,b,a]`. |
+| `PARTICLE.GETALPHA(emitter, index)` | Returns alpha 0.0–1.0. |
+
+---
+
 ## See also
 
 - [PARTICLES.md](PARTICLES.md) — longer examples and workflow

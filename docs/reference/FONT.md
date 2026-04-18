@@ -74,3 +74,18 @@ WEND
 FONT.FREE(myFont)
 WINDOW.CLOSE()
 ```
+
+---
+
+## Extended Command Reference
+
+| Command | Description |
+|--------|-------------|
+| `FONT.LOADBDF(path)` | Load a BDF bitmap font file. |
+| `FONT.SETDEFAULT(font)` | Set the default font used by `DRAW.TEXT`. |
+| `FONT.DRAWDEFAULT(text, x, y, size, r,g,b,a)` | Draw using the currently set default font. |
+
+## See also
+
+- [DRAW2D.md](DRAW2D.md) — `DRAW.TEXT`, `DRAW.TEXTEX`
+- [GUI.md](GUI.md) — `GUI.SETFONT` for raygui

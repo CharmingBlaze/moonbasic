@@ -216,6 +216,40 @@ WINDOW.CLOSE()
 
 ---
 
+## Extended Command Reference
+
+### Transform
+
+| Command | Description |
+|--------|-------------|
+| `SPRITE.SETPOSITION(spr, x, y)` | Alias of `SPRITE.SETPOS`. |
+| `SPRITE.GETPOS(spr)` | Returns `[x, y]` position. |
+| `SPRITE.ROT(spr, angle)` | Set rotation angle in degrees. |
+| `SPRITE.SETROT(spr, angle)` | Alias of `SPRITE.ROT`. |
+| `SPRITE.GETROT(spr)` | Returns current rotation angle. |
+| `SPRITE.SETSCALE(spr, sx, sy)` | Set XY scale. |
+| `SPRITE.GETSCALE(spr)` | Returns `[sx, sy]` scale. |
+| `SPRITE.SETORIGIN(spr, ox, oy)` | Set pivot/origin offset in pixels. |
+
+### Color & alpha
+
+| Command | Description |
+|--------|-------------|
+| `SPRITE.ALPHA(spr, a)` | Set alpha 0.0–1.0. |
+| `SPRITE.SETALPHA(spr, a)` | Alias of `SPRITE.ALPHA`. |
+| `SPRITE.GETALPHA(spr)` | Returns current alpha. |
+| `SPRITE.COLOR(spr, r,g,b,a)` | Set RGBA tint. |
+| `SPRITE.SETCOLOR(spr, r,g,b,a)` | Alias of `SPRITE.COLOR`. |
+| `SPRITE.GETCOLOR(spr)` | Returns `[r,g,b,a]` tint. |
+
+### Animation
+
+| Command | Description |
+|--------|-------------|
+| `SPRITE.SETFRAME(spr, frame)` | Set current animation frame index. |
+
+---
+
 ## See also
 
 - [ATLAS.md](ATLAS.md) — packed sheets + JSON

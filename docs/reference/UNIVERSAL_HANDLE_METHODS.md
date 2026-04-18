@@ -4,6 +4,13 @@
 
 moonBASIC maps **handle** method calls (`myHandle.pos(...)`, `myHandle.free()`, …) to **`NAMESPACE.COMMAND`** builtins. Normalization and dispatch live in [`vm/handlecall.go`](../../vm/handlecall.go) (`normalizeHandleMethod`, `handleCallDispatch`, `handleCallBuiltin`, `HandleCallSuggestions`). With **zero arguments**, universal pose names (e.g. `pos()`, `rot()`, `scale()`) resolve to **`GET*`** builtins where implemented (e.g. `MODEL.GETPOS`); with arguments they resolve to **`SET*`**.
 
+## Core Workflow
+
+- **Zero-arg getter:** `handle.pos()` → `NAMESPACE.GETPOS(handle)`.
+- **With-args setter:** `handle.pos(x, y, z)` → `NAMESPACE.SETPOS(handle, x, y, z)`.
+- **Free:** `handle.free()` → `NAMESPACE.FREE(handle)` for any heap type.
+- **Add new handle type:** Update `handleCallBuiltin` in `vm/handlecall.go`, register in `runtime/*/register*.go`, extend `commands.json`.
+
 ## Mapping rules
 
 - Method names are **case-insensitive** in source; dispatch uses uppercase **`TYPE.ACTION`** registry keys. Common method aliases are folded (for example `pos`, `position`, `setposition` → `SETPOS` for spatial types where registered). **`SPRITE.HIT`** and **`SPRITE.POINTHIT`** use the same **scaled** quad, **origin**, and **rotation** as **`SPRITE.DRAW`** (raylib **`DrawTexturePro`**), not a separate axis-aligned box. Handle calls **`spr.hit(other)`** / **`spr.collide(other)`** dispatch to **`SPRITE.HIT`**; **`spr.pointHit(x, y)`** → **`SPRITE.POINTHIT`**.
@@ -18,6 +25,42 @@ The API standardization directive requires **`.pos` / `.rot` / `.scale`** (where
 3. **Runtime** implementations backing those registry keys.
 
 When adding a new handle type, update **`handleCallBuiltin`** and **`HandleCallSuggestions`**, register the namespace commands in the appropriate **`runtime/*/register*.go`**, and extend **`compiler/builtinmanifest/commands.json`** so the compiler and LSP agree on arity and types.
+
+## Full Example
+
+Handle method chaining on entity, camera, and sprite.
+
+```basic
+WINDOW.OPEN(960, 540, "Handle Methods Demo")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE()
+cam.pos(0, 6, -10)        ; CAMERA.SETPOS
+cam.target(0, 0, 0)
+
+e = ENTITY.CREATECUBE(1.0)
+e.pos(0, 1, 0)            ; ENTITY.SETPOS
+e.col(80, 160, 255, 255)  ; ENTITY.SETCOLOR
+
+t = 0.0
+WHILE NOT WINDOW.SHOULDCLOSE()
+    t = t + TIME.DELTA()
+    e.rot(0, t * 45, 0)   ; ENTITY.SETROT
+
+    RENDER.CLEAR(20, 25, 35)
+    RENDER.BEGIN3D(cam)
+        ENTITY.DRAWALL()
+        DRAW.GRID(10, 1.0)
+    RENDER.END3D()
+    RENDER.FRAME()
+WEND
+
+e.free()                  ; ENTITY.FREE
+cam.free()                ; CAMERA.FREE
+WINDOW.CLOSE()
+```
+
+---
 
 ## See also
 
