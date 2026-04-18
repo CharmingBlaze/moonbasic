@@ -68,6 +68,22 @@ func (m *Module) wGetPos(args []value.Value) (value.Value, error) {
 	return value.Nil, fmt.Errorf("WATER.GETPOS requires CGO")
 }
 
+func (m *Module) wSetRot(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.SETROT requires CGO")
+}
+
+func (m *Module) wGetRot(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.GETROT requires CGO")
+}
+
+func (m *Module) wSetScale(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.SETSCALE requires CGO")
+}
+
+func (m *Module) wGetScale(args []value.Value) (value.Value, error) {
+	return value.Nil, fmt.Errorf("WATER.GETSCALE requires CGO")
+}
+
 func (m *Module) wGetColor(args []value.Value) (value.Value, error) {
 	return value.Nil, fmt.Errorf("WATER.GETCOLOR requires CGO")
 }

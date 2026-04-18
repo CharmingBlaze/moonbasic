@@ -111,6 +111,9 @@ func (m *Module) agentZ(args []value.Value) (value.Value, error) {
 func (m *Module) agentGetPos(args []value.Value) (value.Value, error) {
 	return navStub("NAVAGENT.GETPOS")(args)
 }
+func (m *Module) agentSetRot(args []value.Value) (value.Value, error) {
+	return navStub("NAVAGENT.SETROT")(args)
+}
 func (m *Module) agentGetRot(args []value.Value) (value.Value, error) {
 	return navStub("NAVAGENT.GETROT")(args)
 }
