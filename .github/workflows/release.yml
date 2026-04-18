@@ -169,14 +169,8 @@ jobs:
           & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
           & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
 
-      - name: Smoke run Pong (fullruntime)
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-          powershell -ExecutionPolicy Bypass -File scripts/smoke_moonrun_pong.ps1 `
-            -Exe dist/moonrun.exe `
-            -RepoRoot "${{ github.workspace }}" `
-            -Seconds 8
+      # Interactive Pong smoke is local-only (scripts/smoke_moonrun_pong.ps1): GitHub Windows
+      # runners often have no working OpenGL/WGL for GLFW, so moonrun exits immediately.
 
       - name: Package (zip)
         shell: pwsh

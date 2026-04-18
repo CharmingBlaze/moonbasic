@@ -82,7 +82,7 @@ This is the contract the **tagged release job** and the **`windows_fullruntime` 
 
 6. **Verification** — After linking, **[`scripts/verify_windows_pe_imports.ps1`](../scripts/verify_windows_pe_imports.ps1)** parses **`objdump -p`** and fails the job if the import table still lists **`raylib.dll`** or the usual MinGW runtime DLLs above. **Maintenance:** when you add a new **Windows CGO** dependency that legitimately requires a **non-system** companion DLL, update **`verify_windows_pe_imports.ps1`** (see the file header: allowlist / rationale) and extend this bullet — do not delete or weaken the check silently.
 
-7. **Interactive smoke (Pong)** — **[`scripts/smoke_moonrun_pong.ps1`](../scripts/smoke_moonrun_pong.ps1)** starts **`moonrun`** on **`examples/pong/main.mb`**, expects the process to **stay alive** for **`-Seconds`** (default 8), then kills it. That exercises **Raylib window creation**, **audio init**, and the **VM game loop** (release + **`windows_fullruntime`** CI run this after the PE check). Local: `powershell -File scripts/smoke_moonrun_pong.ps1 -Exe dist\moonrun.exe -RepoRoot $PWD`.
+7. **Interactive smoke (Pong)** — **[`scripts/smoke_moonrun_pong.ps1`](../scripts/smoke_moonrun_pong.ps1)** starts **`moonrun`** on **`examples/pong/main.mb`**, expects the process to **stay alive** for **`-Seconds`** (default 8), then kills it. Use on a **real Windows desktop with a GPU/OpenGL stack** (local QA). **GitHub-hosted Windows runners** typically **cannot** open a GLFW window (no usable WGL/OpenGL), so release/CI do **not** run this step — **PE import verification** is the automated check for static MinGW policy.
 
 ### Linux full-runtime shipping (authors)
 
