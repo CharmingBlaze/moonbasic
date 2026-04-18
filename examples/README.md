@@ -34,7 +34,7 @@ moonrun.exe examples\spin_cube\main.mb
 - **`moonbasic`** — compiles `.mb` → `.mbc` next to the source; use **`moonbasic path/to/main.mb`** if you only want bytecode.
 - **`moonrun`** — runs `.mb` or `.mbc` with the full engine. The **distribution** `moonrun` compiles in-process when needed.
 
-More: **[docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)**. OS/DLL notes: **`README-RELEASE.txt`** in the full-runtime archive.
+More: **[docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)** (including **Ship your game** for packaging your own `.mb` / `.mbc` for players). OS/DLL notes: **`README-RELEASE.txt`** in the full-runtime archive.
 
 ---
 
