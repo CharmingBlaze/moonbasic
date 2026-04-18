@@ -82,6 +82,8 @@ This is the contract the **tagged release job** and the **`windows_fullruntime` 
 
 6. **Verification** — After linking, **[`scripts/verify_windows_pe_imports.ps1`](../scripts/verify_windows_pe_imports.ps1)** parses **`objdump -p`** and fails the job if the import table still lists **`raylib.dll`** or the usual MinGW runtime DLLs above. If a **new** legitimate dependency appears (e.g. a future optional codec DLL), update the script and this paragraph with the rationale—do not delete the check silently.
 
+7. **Interactive smoke (Pong)** — **[`scripts/smoke_moonrun_pong.ps1`](../scripts/smoke_moonrun_pong.ps1)** starts **`moonrun`** on **`examples/pong/main.mb`**, expects the process to **stay alive** for **`-Seconds`** (default 8), then kills it. That exercises **Raylib window creation**, **audio init**, and the **VM game loop** (release + **`windows_fullruntime`** CI run this after the PE check). Local: `powershell -File scripts/smoke_moonrun_pong.ps1 -Exe dist\moonrun.exe -RepoRoot $PWD`.
+
 **Version string:** CLI tools read **`moonbasic/internal/version.Version`**. Local `go build` shows **`devel`** unless you set **`MOONBASIC_VERSION`** when running the release scripts or pass **`-ldflags="-X moonbasic/internal/version.Version=v1.2.18"`**. Git tag builds (`.github/workflows/release.yml`) inject the tag (e.g. **`v1.2.18`**).
 
 ---

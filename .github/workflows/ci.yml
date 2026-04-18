@@ -215,6 +215,15 @@ jobs:
           & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
           & .\dist\moonrun.exe -version
 
+      - name: Smoke run Pong (fullruntime window + game loop)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          powershell -ExecutionPolicy Bypass -File scripts/smoke_moonrun_pong.ps1 `
+            -Exe dist/moonrun.exe `
+            -RepoRoot "${{ github.workspace }}" `
+            -Seconds 8
+
   # Compile-only: core Raylib via raylib-go purego (no C compiler). raygui/DB/ENet still need CGO in full builds.
   windows_purego:
     runs-on: windows-latest
