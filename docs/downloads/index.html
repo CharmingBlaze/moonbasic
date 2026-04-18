@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>moonBASIC — Downloads</title>
+  <meta name="description" content="Download moonBASIC for Windows and Linux. Pre-built compiler and full runtime — no Go or compiler required to use releases." />
+  <style>
+    :root {
+      --bg: #0c0e14;
+      --panel: #141824;
+      --text: #e8eaf0;
+      --muted: #9aa3b5;
+      --accent: #6ee7b7;
+      --accent-dim: #34d399;
+      --border: #252a38;
+      --warn: #fcd34d;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f4f5f8;
+        --panel: #fff;
+        --text: #12151c;
+        --muted: #5c6578;
+        --accent: #047857;
+        --accent-dim: #059669;
+        --border: #dde1ea;
+        --warn: #b45309;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap {
+      max-width: 44rem;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+    }
+    .tagline {
+      color: var(--muted);
+      font-size: 0.98rem;
+      margin: 0 0 1.75rem;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+    .pill strong { color: var(--accent-dim); font-weight: 650; }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    section h2 {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+      font-weight: 650;
+    }
+    .grid {
+      display: grid;
+      gap: 0.65rem;
+    }
+    @media (min-width: 520px) {
+      .grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    }
+    a.btn {
+      display: block;
+      text-decoration: none;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.92rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    a.btn:hover {
+      border-color: var(--accent-dim);
+      background: rgba(110, 231, 183, 0.06);
+    }
+    a.btn .label { font-weight: 600; }
+    a.btn .sub {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+    a.text {
+      color: var(--accent-dim);
+      text-decoration: none;
+    }
+    a.text:hover { text-decoration: underline; }
+    .note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0.5rem 0 0;
+    }
+    .warn {
+      font-size: 0.82rem;
+      color: var(--warn);
+      margin-top: 0.75rem;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    footer p { margin: 0.4rem 0; }
+    code { font-size: 0.88em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>moonBASIC</h1>
+    <p class="tagline">Downloads only — pre-built <strong>compiler</strong> and <strong>full runtime</strong> for Windows and Linux (x64). No Go or C toolchain needed to use these zips.</p>
+
+    <p class="pill" id="version-pill">Latest release: <strong id="tag">…</strong></p>
+
+    <section>
+      <h2>Full runtime <span style="font-weight:400;opacity:.85">(games — window, graphics, physics)</span></h2>
+      <div class="grid cols-2">
+        <a class="btn" id="dl-win-full" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">Windows · .zip</span>
+          <span class="sub">moonbasic + moonrun</span>
+        </a>
+        <a class="btn" id="dl-lin-full" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">Linux · .tar.gz</span>
+          <span class="sub">moonbasic + moonrun</span>
+        </a>
+      </div>
+      <p class="note">After extract: <code>moonrun yourgame.mb</code> — release <code>moonrun</code> compiles in-process; read <code>README-RELEASE.txt</code> in the archive for OS notes.</p>
+    </section>
+
+    <section>
+      <h2>Compiler only <span style="font-weight:400;opacity:.85">(CI, --check, --lsp, .mb → .mbc)</span></h2>
+      <div class="grid cols-2">
+        <a class="btn" id="dl-win-c" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">Windows · compiler zip</span>
+          <span class="sub">moonbasic only (folder MoonBasic-compiler)</span>
+        </a>
+        <a class="btn" id="dl-lin-c" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">Linux · compiler .tar.gz</span>
+          <span class="sub">moonbasic only — no moonrun</span>
+        </a>
+      </div>
+    </section>
+
+    <p class="warn" id="fetch-err" hidden>Could not load the latest tag from GitHub. Use the <a class="text" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">latest release</a> page and pick the asset names matching your platform.</p>
+
+    <section>
+      <h2>Links</h2>
+      <p style="margin:0;font-size:0.92rem;">
+        <a class="text" href="https://github.com/CharmingBlaze/moonbasic/releases">All releases</a>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md">Getting started</a>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/blob/main/docs/COMMANDS.md">Command reference</a>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic">Source repository</a> <span style="color:var(--muted)">(for contributors)</span>
+      </p>
+    </section>
+
+    <footer>
+      <p>This page is static; it does not include the engine source tree.</p>
+      <p>Repository: <a class="text" href="https://github.com/CharmingBlaze/moonbasic">github.com/CharmingBlaze/moonbasic</a></p>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      const repo = "CharmingBlaze/moonbasic";
+      const tagEl = document.getElementById("tag");
+      const errEl = document.getElementById("fetch-err");
+      const ids = [
+        ["dl-win-full", "moonbasic-{tag}-windows-amd64.zip"],
+        ["dl-lin-full", "moonbasic-{tag}-linux-amd64.tar.gz"],
+        ["dl-win-c", "moonbasic-{tag}-compiler-windows-amd64.zip"],
+        ["dl-lin-c", "moonbasic-{tag}-compiler-linux-amd64.tar.gz"],
+      ];
+      fetch("https://api.github.com/repos/" + repo + "/releases/latest")
+        .then(function (r) {
+          if (!r.ok) throw new Error("bad status");
+          return r.json();
+        })
+        .then(function (rel) {
+          var tag = rel.tag_name;
+          tagEl.textContent = tag;
+          var base = "https://github.com/" + repo + "/releases/download/" + encodeURIComponent(tag) + "/";
+          ids.forEach(function (row) {
+            var a = document.getElementById(row[0]);
+            if (a) a.href = base + row[1].replace("{tag}", tag);
+          });
+        })
+        .catch(function () {
+          tagEl.textContent = "see releases";
+          errEl.hidden = false;
+        });
+    })();
+  </script>
+</body>
+</html>

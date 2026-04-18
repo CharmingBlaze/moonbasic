@@ -8,7 +8,7 @@
 
 ## Download and use (recommended)
 
-**Latest builds:** **[GitHub Releases — download here](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (Windows and Linux **x64**).
+**Latest builds:** **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (Windows and Linux **x64**). **Downloads-only page (no repo file tree):** **[charmingblaze.github.io/moonbasic](https://charmingblaze.github.io/moonbasic/)** — direct links to each archive after the page loads.
 
 | Your goal | Download (replace `<tag>` with the release, e.g. `v1.2.20`) |
 |-----------|-------------------------------------------------------------|

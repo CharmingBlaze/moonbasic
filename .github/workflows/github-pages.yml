@@ -1,0 +1,36 @@
+# Deploy docs/downloads/ as the GitHub Pages site root (downloads-only landing).
+#
+# Maintainer (once): Repository Settings → Pages → Build and deployment → Source: GitHub Actions.
+# Merge to main; the workflow publishes only docs/downloads/ (not the rest of docs/).
+name: GitHub Pages (downloads)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/downloads/**'
+      - '.github/workflows/github-pages.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-downloads
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/downloads
+      - id: deployment
+        uses: actions/deploy-pages@v4
