@@ -127,9 +127,35 @@ This provides the clarity of BASIC at the language level and the performance of 
 
 ## Getting started
 
-### Prebuilt binaries
+### What to download (prebuilt)
 
-**Windows x64** and **Linux x64** builds are on **[Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**. There are **two flavors**: **compiler-only** bundles (small, no native graphics DLLs—ideal for compiling and `--check`) and **full runtime** archives (**`moonbasic`** + **`moonrun`**, native deps possible). Every build uses the **same builtin manifest** for checks and the language server; you need the **full runtime** download to **run** games that call the engine. See **[`dist/README.md`](dist/README.md)** for which asset to download. Full-runtime archives also include a release guide (`README-RELEASE.txt`). After extraction, run `moonbasic --version` and try an example under [`examples/`](examples/).
+All builds are on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (Windows and Linux **x64**). Each version tag publishes **four** files. Pick one **compiler** archive and/or one **full runtime** archive depending on what you need:
+
+| Your goal | Download (replace `<tag>` with the release, e.g. `v1.2.0`) |
+|-----------|-------------------------------------------------------------|
+| **Compile** `.mb` → `.mbc`, run **`--check`**, use **`--lsp`** in an editor, no game window | **Compiler only:** `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
+| **Run** games (window, graphics, physics, audio) | **Full runtime:** `moonbasic-<tag>-windows-amd64.zip` or `moonbasic-<tag>-linux-amd64.tar.gz` |
+
+The compiler in **both** flavors uses the **same** builtin command list from the toolchain (`--check` and completions know every command name). Only the **full runtime** download includes **`moonrun`**, which executes those calls on screen.
+
+### What is inside each distribution file
+
+| Archive | After you extract | What it is for |
+|---------|-------------------|----------------|
+| **Full runtime** (`…-windows-amd64.zip` / `…-linux-amd64.tar.gz`) | **`moonbasic`** / **`moonbasic.exe`**, **`moonrun`** / **`moonrun.exe`**, **`README-RELEASE.txt`** | Full engine: compile, check, **and run** `.mb` / `.mbc` with graphics and physics. May need GPU drivers; on Windows you may need the [VC++ redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist) if a DLL is missing — details are in **`README-RELEASE.txt`** in the zip. |
+| **Compiler only** (`…-compiler-…`) | A folder **`MoonBasic-compiler/`** with **`moonbasic`** (or **`moonbasic.exe`**) and a short **`README-COMPILER.txt`** | Toolchain only: **no `moonrun`**, no Raylib next to the compiler. Ideal for authors, CI, and machines where you only compile or lint. |
+
+More detail: **[`dist/README.md`](dist/README.md)**.
+
+### How to use the compiler
+
+1. **Extract** the archive and open a terminal in the folder that contains **`moonbasic`** (on **compiler-only** builds, that is inside **`MoonBasic-compiler/`**).
+2. **Verify:** `moonbasic --version` (Windows: `moonbasic.exe --version`).
+3. **Check a program** without running it: `moonbasic --check path/to/game.mb` — reports parse/semantic errors.
+4. **Compile to bytecode:** `moonbasic path/to/game.mb` — writes **`game.mbc`** next to the source.
+5. **Editor support:** run **`moonbasic --lsp`** and point your editor’s MoonBASIC/LSP client at it (stdio).
+
+To **run** a game that opens a window, use a **full runtime** download and run **`moonrun path/to/game.mb`** or **`moonrun path/to/game.mbc`** (same folder as **`moonbasic`** after extract). If you only installed the **compiler-only** bundle, you do not have **`moonrun`** — compile on this machine and run on another that has the full runtime, or download the full archive.
 
 ### Build from source
 
