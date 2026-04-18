@@ -110,7 +110,6 @@ jobs:
         env:
           CGO_ENABLED: '1'
           CC: ${{ steps.msys2.outputs.msys2-location }}\mingw64\bin\gcc.exe
-          CGO_LDFLAGS: '-lraylib -lgdi32 -lwinmm -lws2_32'
 
       - name: Check integration samples (semantic only)
         run: |
@@ -141,7 +140,6 @@ jobs:
         env:
           CGO_ENABLED: '1'
           CC: ${{ steps.msys2.outputs.msys2-location }}\mingw64\bin\gcc.exe
-          CGO_LDFLAGS: '-lraylib -lgdi32 -lwinmm -lws2_32'
 
       - name: Test all packages
         run: go test ./...

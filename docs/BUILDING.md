@@ -64,7 +64,7 @@ To ship a **compiler-only** moonBASIC build so players of *your* release do **no
 
 That binary supports **compile**, **`--check`**, **`--lsp`**, **`--disasm`**. It does **not** bundle the full game runtime (**`moonrun`**, **`--run`** with graphics). For static or beta **game** bundles, see [`scripts/package_beta_zip.ps1`](../scripts/package_beta_zip.ps1) and [DEVELOPER.md](DEVELOPER.md).
 
-**Windows full-runtime releases** (GitHub Actions `release.yml`): the tagged **Windows amd64** zip links **libgcc** and **winpthread** into `moonbasic.exe` / `moonrun.exe` and ships **`libstdc++-6.dll`** and **`raylib.dll`** beside them (Jolt + C++ stay compatible with the shared `libstdc++`). For a fully static experimental `moonrun` (Zig / `-static`), see [`scripts/build_static.ps1`](../scripts/build_static.ps1).
+**Windows full-runtime releases** (GitHub Actions `release.yml`): the tagged **Windows amd64** zip links **libgcc**, **libstdc++**, and **winpthread** statically into `moonbasic.exe` / `moonrun.exe` (Raylib is compiled from sources — no **`raylib.dll`**). For an alternate local static **`moonrun`** (Zig / custom flags), see [`scripts/build_static.ps1`](../scripts/build_static.ps1).
 
 **Version string:** CLI tools read **`moonbasic/internal/version.Version`**. Local `go build` shows **`devel`** unless you set **`MOONBASIC_VERSION`** when running the release scripts or pass **`-ldflags="-X moonbasic/internal/version.Version=v1.2.18"`**. Git tag builds (`.github/workflows/release.yml`) inject the tag (e.g. **`v1.2.18`**).
 

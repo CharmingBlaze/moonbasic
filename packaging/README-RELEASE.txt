@@ -13,9 +13,9 @@ WHAT'S IN THIS FOLDER
   For “all commands” at RUN TIME (playing/running a game), you need moonrun in this folder.
   For “all commands” at CHECK/COMPILE time only, moonbasic alone is enough.
 
-  Windows (full runtime zip): keep **all** files together — `libstdc++-6.dll` and `raylib.dll`
-  must sit next to the `.exe` files. Newer releases link **libgcc** and **winpthread** into the
-  executables so you should not need separate `libgcc` / `libwinpthread` DLLs.
+  Windows (full runtime zip): the two executables and this README are enough — **libgcc**,
+  **libstdc++**, and **winpthread** are linked into the `.exe` files. Raylib is compiled from
+  sources (no `raylib.dll`). You should not need MinGW companion DLLs beside the binaries.
 
 FIRST STEPS
 -----------
@@ -50,10 +50,11 @@ Linux: if the app fails to start, ensure GPU drivers and a normal desktop OpenGL
        are installed (run-time libs, not compiler -dev packages). See docs/BUILDING.md
        only if you build from source.
 
-Windows: run from a normal folder; if Windows reports a missing DLL, install the
-          latest "Microsoft Visual C++ Redistributable" for x64, or use MSYS2 MinGW
-          runtimes if you built from source yourself.
+Windows: run from a normal folder. If Windows reports a missing **non-system** DLL, you may
+          have a partial copy, a mixed install, or an antivirus quarantine — re-extract the
+          **entire** full-runtime zip from the same release.
 
 Windows: "Entry Point Not Found" / nanosleep64 — usually from copying only `moonrun.exe`
-          or mixing DLLs from another PC. Re-extract the **entire** full-runtime zip so
-          `raylib.dll`, `libstdc++-6.dll`, and both `.exe` files match the same build.
+          without the matching `moonbasic.exe` from the **same** zip, or from PATH picking up
+          an older MinGW `libwinpthread` / `libgcc` DLL. Re-extract the full zip; do not drop
+          stray MinGW DLLs next to the exes unless you know you need them.

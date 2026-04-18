@@ -144,38 +144,23 @@ jobs:
           Set-Location "${{ github.workspace }}"
           powershell -ExecutionPolicy Bypass -File "third_party/jolt-go/scripts/build-libs-windows.ps1"
 
-      # Embed libgcc + winpthread into the .exe (avoids PATH picking up wrong libwinpthread).
-      # Keep libstdc++ shared — Jolt C++ static libs pair more reliably with the MSYS DLL.
+      # Fully static MinGW runtime in the PE: libgcc, libstdc++, winpthread are linked from .a
+      # (no libgcc/libstdc++/libwinpthread DLLs). Raylib is compiled from sources in raylib-go
+      # (do not set CGO_LDFLAGS=-lraylib — that would pull raylib.dll).
       - name: Build moonbasic + moonrun
         shell: bash
         env:
           CGO_ENABLED: '1'
           CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
-          CGO_LDFLAGS: '-lraylib -lgdi32 -lwinmm -lws2_32'
         run: |
           set -e
           mkdir -p dist
           VER="${GITHUB_REF_NAME}"
           LD="-s -w -X moonbasic/internal/version.Version=${VER}"
-          EX="${LD} -linkmode external -extldflags=-static-libgcc -extldflags=-Wl,-Bstatic -extldflags=-lwinpthread -extldflags=-Wl,-Bdynamic"
+          EX="${LD} -linkmode external -extldflags=-static-libgcc -extldflags=-static-libstdc++ -extldflags=-Wl,-Bstatic -extldflags=-lwinpthread -extldflags=-Wl,-Bdynamic"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
-
-      - name: Bundle remaining Windows DLLs next to exes
-        shell: pwsh
-        run: |
-          $mingwBin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
-          $dist = Join-Path "${{ github.workspace }}" "dist"
-          foreach ($dll in @("libstdc++-6.dll", "raylib.dll")) {
-            $src = Join-Path $mingwBin $dll
-            if (Test-Path -LiteralPath $src) {
-              Copy-Item -LiteralPath $src -Destination $dist -Force
-            } else {
-              Write-Error "Missing required DLL: $src"
-              exit 1
-            }
-          }
 
       - name: Package (zip)
         shell: pwsh

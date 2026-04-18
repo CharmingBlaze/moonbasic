@@ -33,7 +33,7 @@ If you came here from the repo: **you usually do not need this folder.**
 <summary><strong>Maintainers: building bundles locally &amp; other <code>dist/</code> paths</strong></summary>
 
 - Build the compiler bundle locally: `scripts/release_compiler_windows.ps1` / `scripts/release_compiler_linux.sh` (see **`docs/BUILDING.md`**).
-- **`windows/`** — NSIS script `moonbasic.nsi` builds an installer after staging `moonbasic.exe` and required MinGW DLLs (see CI release job).
+- **`windows/`** — NSIS script `moonbasic.nsi` builds an installer after staging `moonbasic.exe` (full-runtime GitHub zips ship static-linked Windows binaries — no MinGW DLLs beside the exes).
 - **`linux/`** — `build-appimage.sh` and `build-deb.sh` expect a staged tree under `dist/stage/` with `bin/moonbasic`, `share/moonbasic/{examples,assets}`.
 
 Release CI (`.github/workflows/release.yml`) uploads **both** full-runtime and compiler-only archives on version tags. NSIS/AppImage integration may need local paths adjusted for your Raylib/MinGW layout.
