@@ -159,6 +159,24 @@ jobs:
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      # CGO binaries may resolve pthread/GCC symbols via MinGW DLLs at load time. Ship the same
+      # runtime DLLs as the build toolchain so a lone moonrun.exe next to unrelated PATH DLLs
+      # does not pick up an older libwinpthread (e.g. "nanosleep64" entry point not found).
+      - name: Bundle MinGW runtime DLLs next to exes
+        shell: pwsh
+        run: |
+          $mingwBin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
+          $dist = Join-Path "${{ github.workspace }}" "dist"
+          foreach ($dll in @("libwinpthread-1.dll", "libgcc_s_seh-1.dll", "libstdc++-6.dll")) {
+            $src = Join-Path $mingwBin $dll
+            if (Test-Path -LiteralPath $src) {
+              Copy-Item -LiteralPath $src -Destination $dist -Force
+            } else {
+              Write-Error "Missing required DLL: $src"
+              exit 1
+            }
+          }
+
       - name: Package (zip)
         shell: pwsh
         run: |

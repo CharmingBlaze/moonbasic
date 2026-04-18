@@ -23,7 +23,7 @@ Pick the file that matches what you need (replace `<tag>` with the release versi
 
 **Full runtime** includes **`moonbasic`** and **`moonrun`** plus `README-RELEASE.txt`. **Compiler only** ships in a folder such as **`MoonBasic-compiler/`** with **`moonbasic`** (or **`moonbasic.exe`**) and a short readme — there is **no** `moonrun` in that bundle.
 
-Extract the archive somewhere permanent. On **Windows**, use `moonbasic.exe` in the examples below; on **Linux**, use `./moonbasic` if the binary is not on your `PATH`.
+Extract the archive somewhere permanent — on **Windows**, keep **every file** from the full-runtime zip in one folder (runtime DLLs sit next to `moonrun.exe`; copying only the `.exe` elsewhere can trigger **“Entry Point Not Found”** / `nanosleep64` errors). On **Windows**, use `moonbasic.exe` in the examples below; on **Linux**, use `./moonbasic` if the binary is not on your `PATH`.
 
 More detail on what each archive contains: **[`dist/README.md`](../dist/README.md)** (in the source tree) or the **[main README](https://github.com/CharmingBlaze/moonbasic#download-and-use-recommended)** on GitHub.
 

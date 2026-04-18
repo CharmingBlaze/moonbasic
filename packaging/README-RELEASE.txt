@@ -49,3 +49,9 @@ Linux: if the app fails to start, ensure GPU drivers and a normal desktop OpenGL
 Windows: run from a normal folder; if Windows reports a missing DLL, install the
           latest "Microsoft Visual C++ Redistributable" for x64, or use MSYS2 MinGW
           runtimes if you built from source yourself.
+
+Windows: "Entry Point Not Found" / nanosleep64 (or similar) on moonrun.exe
+          — Do not copy only moonrun.exe out of the zip. Keep every file from the
+          release archive in the same folder (MinGW runtime DLLs ship next to the
+          exes so Windows does not load an older libwinpthread-1.dll from PATH).
+          Re-extract the full-runtime zip to a clean folder and run from there.
