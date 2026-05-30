@@ -1,0 +1,403 @@
+# Build pre-built moonBASIC binaries from moonbasic-compiler source and publish here.
+# Trigger: push tag v* on this repository (CharmingBlaze/moonbasic).
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+# Prefer Node 24 for JS-based actions (deprecation of Node 20 runners).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  linux-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            gcc \
+            g++ \
+            libenet-dev \
+            libgl1-mesa-dev \
+            libxi-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libwayland-dev \
+            libxkbcommon-dev
+
+      # Rebuild Jolt + wrapper so moonrun links against symbols expected by vendored jolt-go (committed .a may lag).
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v5
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (Linux)
+        run: |
+          set -e
+          JOLT_SRC="${GITHUB_WORKSPACE}/JoltPhysics"
+          mkdir -p "$JOLT_SRC/Build/linux_amd64_release"
+          cd "$JOLT_SRC/Build/linux_amd64_release"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_CXX_FLAGS="-fno-lto" \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+            -DDISABLE_CUSTOM_ALLOCATOR=ON \
+            -DTARGET_UNIT_TESTS=OFF \
+            -DTARGET_HELLO_WORLD=OFF \
+            -DTARGET_PERFORMANCE_TEST=OFF \
+            -DTARGET_SAMPLES=OFF \
+            -DTARGET_VIEWER=OFF
+          cmake --build . -j"$(nproc)"
+          WRAPPER="${GITHUB_WORKSPACE}/third_party/jolt-go/jolt/wrapper"
+          OUT="${GITHUB_WORKSPACE}/third_party/jolt-go/jolt/lib/linux_amd64"
+          mkdir -p "$OUT"
+          cd "$WRAPPER"
+          for src in *.cpp; do
+            g++ -std=c++17 -I"$JOLT_SRC" -DNDEBUG -DJPH_DISABLE_CUSTOM_ALLOCATOR \
+              -DJPH_PROFILE_ENABLED -DJPH_DEBUG_RENDERER -DJPH_OBJECT_STREAM \
+              -fPIC -fno-lto -c "$src" -o "${src%.cpp}.o"
+          done
+          ar rcs libjolt_wrapper.a *.o
+          rm -f *.o
+          cp libjolt_wrapper.a "$OUT/"
+          cp "$JOLT_SRC/Build/linux_amd64_release/libJolt.a" "$OUT/"
+          ls -lh "$OUT/"
+
+      - name: Build moonbasic + moonrun
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          set -e
+          mkdir -p dist
+          VER="${GITHUB_REF_NAME}"
+          LD="-s -w -X moonbasic/internal/version.Version=${VER}"
+          go build -trimpath -ldflags="${LD}" -o dist/moonbasic .
+          go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
+          cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Package (tar.gz)
+        run: |
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
+            -C dist moonbasic moonrun README-RELEASE.txt
+
+      - name: Build AppImage (optional tooling)
+        continue-on-error: true
+        run: |
+          chmod +x scripts/build_appimage.sh
+          ./scripts/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-linux-amd64
+          path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
+
+  windows-amd64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - uses: msys2/setup-msys2@v2
+        id: msys2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-raylib
+
+      # moonrun (-tags fullruntime) links Jolt; build Windows .a from JoltPhysics v5.4.0 (CMake under Build/).
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v5
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (Windows)
+        shell: pwsh
+        env:
+          JPH_SRC: ${{ github.workspace }}/JoltPhysics
+        run: |
+          $msys = "${{ steps.msys2.outputs.msys2-location }}"
+          $mingwBin = Join-Path $msys "mingw64\bin"
+          $env:Path = "$mingwBin;$env:Path"
+          Set-Location "${{ github.workspace }}"
+          powershell -ExecutionPolicy Bypass -File "third_party/jolt-go/scripts/build-libs-windows.ps1"
+
+      # Fully static MinGW runtime in the PE: libgcc, libstdc++, winpthread are linked from .a
+      # (no libgcc/libstdc++/libwinpthread DLLs). Raylib is compiled from sources in raylib-go
+      # (do not set CGO_LDFLAGS=-lraylib — that would pull raylib.dll).
+      - name: Build moonbasic + moonrun
+        shell: bash
+        env:
+          CGO_ENABLED: '1'
+          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
+        run: |
+          set -e
+          mkdir -p dist
+          . scripts/windows_fullruntime_go_ldflags.sh
+          EX="$(moonbasic_windows_fullruntime_go_ldflags)"
+          go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
+          go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
+          cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Verify Windows PE imports (no MinGW/Raylib DLLs)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
+          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+
+      # Interactive Pong smoke is local-only (scripts/smoke_moonrun_pong.ps1): GitHub Windows
+      # runners often have no working OpenGL/WGL for GLFW, so moonrun exits immediately.
+
+      - name: Package (zip)
+        shell: pwsh
+        run: |
+          $name = "moonbasic-${{ github.ref_name }}-windows-amd64.zip"
+          Compress-Archive -Path dist/* -DestinationPath $name -Force
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-windows-amd64
+          path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
+
+  macos-arm64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Install system dependencies
+        run: brew install enet cmake
+
+      - name: Checkout Jolt Physics
+        uses: actions/checkout@v5
+        with:
+          repository: jrouwe/JoltPhysics
+          ref: v5.4.0
+          path: JoltPhysics
+
+      - name: Build Jolt static libraries (macOS arm64)
+        env:
+          JOLT_SRC: ${{ github.workspace }}/JoltPhysics
+        run: |
+          set -e
+          cd third_party/jolt-go
+          chmod +x scripts/build-libs.sh
+          ./scripts/build-libs.sh darwin_arm64
+
+      - name: Build moonbasic + moonrun
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          set -e
+          mkdir -p dist
+          VER="${GITHUB_REF_NAME}"
+          LD="-s -w -X moonbasic/internal/version.Version=${VER}"
+          go build -trimpath -ldflags="${LD}" -o dist/moonbasic .
+          go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
+          cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Package (tar.gz)
+        run: |
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" \
+            -C dist moonbasic moonrun README-RELEASE.txt
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-macos-arm64
+          path: moonbasic-${{ github.ref_name }}-macos-arm64.tar.gz
+
+  compiler-only-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Build compiler-only bundle (CGO off)
+        env:
+          MOONBASIC_VERSION: ${{ github.ref_name }}
+        run: |
+          chmod +x scripts/release_compiler_linux.sh
+          ./scripts/release_compiler_linux.sh
+          mv dist/MoonBasic-compiler-linux-amd64.tar.gz "moonbasic-${GITHUB_REF_NAME}-compiler-linux-amd64.tar.gz"
+
+      - name: Smoke test (unpack + --version + --check)
+        run: |
+          set -e
+          tar xzf "moonbasic-${GITHUB_REF_NAME}-compiler-linux-amd64.tar.gz"
+          ./MoonBasic-compiler/moonbasic --version
+          ./MoonBasic-compiler/moonbasic --check testdata/enet_smoke.mb
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-compiler-linux-amd64
+          path: moonbasic-${{ github.ref_name }}-compiler-linux-amd64.tar.gz
+
+  compiler-only-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Build compiler-only bundle (CGO off)
+        env:
+          MOONBASIC_VERSION: ${{ github.ref_name }}
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts/release_compiler_windows.ps1 -Version "${{ github.ref_name }}"
+          Move-Item -Path dist/MoonBasic-compiler-windows-amd64.zip -Destination "moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip"
+
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Expand-Archive -Path "moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip" -DestinationPath _compiler_smoke -Force
+          & ".\_compiler_smoke\MoonBasic-compiler\moonbasic.exe" --version
+          & ".\_compiler_smoke\MoonBasic-compiler\moonbasic.exe" --check testdata\enet_smoke.mb
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-compiler-windows-amd64
+          path: moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip
+
+  # Portable VS Code extension (syntax + LSP client). No Go required to install — only moonbasic on PATH or moonbasic.languageServerPath.
+  compiler-only-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.3'
+
+      - name: Build compiler-only bundle (CGO off)
+        run: |
+          set -e
+          VER="${GITHUB_REF_NAME}"
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE/MoonBasic-compiler"
+          CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X moonbasic/internal/version.Version=${VER}" \
+            -o "$STAGE/MoonBasic-compiler/moonbasic" ./cmd/moonbasic
+          tar -C "$STAGE" -czf "moonbasic-${VER}-compiler-macos-arm64.tar.gz" MoonBasic-compiler
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-compiler-macos-arm64
+          path: moonbasic-${{ github.ref_name }}-compiler-macos-arm64.tar.gz
+
+  vscode-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
+
+      - name: Build VSIX
+        run: |
+          set -e
+          cd editors/vscode-moonbasic
+          npm ci
+          npm run package
+          cp vscode-moonbasic-*.vsix "${GITHUB_WORKSPACE}/moonbasic-${GITHUB_REF_NAME}-vscode.vsix"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: moonbasic-${{ github.ref_name }}-vscode.vsix
+
+  github-release:
+    needs: [linux-amd64, windows-amd64, macos-arm64, compiler-only-linux, compiler-only-windows, compiler-only-macos, vscode-extension]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: release-assets
+          pattern: 'moonbasic-*'
+          merge-multiple: true
+
+      - name: Collect archives for upload
+        run: |
+          mkdir -p upload
+          find release-assets -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.vsix' \) -exec cp -v {} upload/ \;
+          ls -la upload/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: upload/*
+          generate_release_notes: true
+          body: |
+            Official pre-built moonBASIC binaries for **Windows**, **Linux**, and **macOS (Apple Silicon)**.
+
+            **Full runtime (games):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Run: **`moonrun game.mb`**.
+
+            **Compiler only** (`.mb` → `.mbc`, `--check`, `--lsp`): `moonbasic-<tag>-compiler-windows-amd64.zip`, `moonbasic-<tag>-compiler-linux-amd64.tar.gz`, `moonbasic-<tag>-compiler-macos-arm64.tar.gz`.
+
+            **VS Code:** `moonbasic-<tag>-vscode.vsix` — syntax, LSP, debugger (needs full-runtime **`moonrun`**).
+
+            **New project:** `moonbasic new MyGame` then `moonrun main.mb`.
+
+            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [RELEASES.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md) · [Examples](https://github.com/CharmingBlaze/moonbasic/tree/main/examples)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -28,6 +28,7 @@ Replace `<tag>` with the release version (e.g. `v1.2.26`).
 |-------|----------|----------|
 | `moonbasic-<tag>-compiler-windows-amd64.zip` | Windows x64 | `moonbasic.exe` (+ short readme in `MoonBasic-compiler/`) |
 | `moonbasic-<tag>-compiler-linux-amd64.tar.gz` | Linux x64 | `moonbasic` binary only |
+| `moonbasic-<tag>-compiler-macos-arm64.tar.gz` | macOS Apple Silicon | `moonbasic` binary only |
 
 **Use when:** CI linting, `--check`, `--lsp`, or compiling `.mb` → `.mbc` **without** linking the game engine.
 
