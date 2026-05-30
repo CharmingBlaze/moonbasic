@@ -1,0 +1,99 @@
+; MoonBASIC Vehicle Demo
+; 4-wheel vehicle + suspension + dynamic obstacles
+; WASD drive, ESC quit
+; Run: go run -tags fullruntime . --run examples/demo_vehicle.mb
+
+WINDOW.OPEN(1280, 720, "MoonBASIC Vehicle Demo")
+WINDOW.SETFPS(60)
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -9.81, 0)
+
+; --- Road ---
+bf = BODY3D.CREATE("STATIC")
+bf.ADDBOX(50, 0.5, 50)
+road = bf.COMMIT(0, 0, 0)
+road.SETFRICTION(0.9)
+
+; --- Ramp ---
+br = BODY3D.CREATE("STATIC")
+br.ADDBOX(4, 0.2, 8)
+ramp = br.COMMIT(15, 1, 0)
+
+; --- Wall ---
+bw = BODY3D.CREATE("STATIC")
+bw.ADDBOX(1, 1.5, 6)
+wall = bw.COMMIT(-10, 1.5, 0)
+
+; --- Car chassis ---
+bcar = BODY3D.CREATE("DYNAMIC")
+bcar.ADDBOX(1.0, 0.4, 2.2)
+car = bcar.COMMIT(0, 1.5, 0)
+car.SETFRICTION(0.3)
+car.SETDAMPING(0.05, 0.3)
+car.SETCCD(TRUE)
+
+; --- Wheels ---
+vid = VEHICLE.CREATE(car, 4)
+VEHICLE.SETWHEEL(vid, 0, -0.8, -0.3, 1.4, 0.3)   ; front-left
+VEHICLE.SETWHEEL(vid, 1,  0.8, -0.3, 1.4, 0.3)   ; front-right
+VEHICLE.SETWHEEL(vid, 2, -0.8, -0.3, -1.4, 0.3)  ; rear-left
+VEHICLE.SETWHEEL(vid, 3,  0.8, -0.3, -1.4, 0.3)  ; rear-right
+VEHICLE.SETTUNING(vid, 25.0, 1.2, 80.0, 3.0)
+
+; --- Barrel ---
+bb = BODY3D.CREATE("DYNAMIC")
+bb.ADDCAPSULE(0.3, 0.7)
+barrel = bb.COMMIT(5, 2, 5)
+barrel.SETRESTITUTION(0.5)
+
+cam = CAMERA.CREATE()
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = Time.Delta()
+
+    ; Input
+    throttle = 0 : steer = 0
+    IF INPUT.KEYDOWN(KEY_W) THEN throttle = 1.0
+    IF INPUT.KEYDOWN(KEY_S) THEN throttle = -0.6
+    IF INPUT.KEYDOWN(KEY_A) THEN steer = -1.0
+    IF INPUT.KEYDOWN(KEY_D) THEN steer = 1.0
+
+    VEHICLE.SETTHROTTLE(vid, throttle)
+    VEHICLE.SETSTEER(vid, steer)
+    VEHICLE.STEP(dt)
+    PHYSICS3D.STEP()
+    PHYSICS3D.PROCESSCOLLISIONS()
+
+    ; Camera on car (namespace getters — see STYLE_GUIDE.md)
+    cx, cy, cz = BODY3D.GETPOS(car)
+    CAMERA.SETORBIT(cam, cx, cy + 1, cz, 0.5, 0.3, 12.0)
+
+    ; --- Render ---
+    RENDER.CLEAR(30, 35, 50)
+    cam.Begin()
+        Draw3D.Cube(0, 0, 0,     100, 1, 100,  50, 55, 60, 255)   ; road
+        Draw3D.Cube(15, 1, 0,    8, 0.4, 16,   100, 80, 60, 255)  ; ramp
+        Draw3D.Cube(-10, 1.5, 0, 2, 3, 12,     120, 120, 130, 255); wall
+        Draw3D.Cube(cx, cy, cz,  2.0, 0.8, 4.4, 200, 60, 60, 255); car
+
+        FOR w = 0 TO 3
+            Draw3D.Sphere(VEHICLE.WHEELX(vid,w), VEHICLE.WHEELY(vid,w), VEHICLE.WHEELZ(vid,w), 0.3, 40, 40, 45, 255)
+        NEXT
+
+        bx, by, bz = BODY3D.GETPOS(barrel)
+        Draw3D.Sphere(bx, by, bz, 0.3, 180, 120, 60, 255)
+        Draw3D.Grid(30, 2.0)
+    cam.End()
+
+    Draw.Text("WASD Drive  ESC Quit", 10, 10, 20, 255, 255, 255, 255)
+    RENDER.FRAME()
+WEND
+
+barrel.FREE()
+car.FREE()
+wall.FREE()
+ramp.FREE()
+road.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

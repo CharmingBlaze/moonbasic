@@ -1,0 +1,39 @@
+; Minimal 3D: one entity cube spinning on Y (plus tilt). Orbit camera fixed on the origin.
+; No terrain, no post stack, no LIGHT2D — good GPU sanity check.
+; Run: go run -tags fullruntime . --run examples/spin_cube/main.mb
+
+SetMSAA(0)
+WINDOW.OPEN(800, 600, "moonBASIC — spinning cube")
+WINDOW.SETFPS(60)
+
+cam = CAMERA.CREATE().fov(55)
+
+cube = ENTITY.CREATECUBE(1, 1, 1).scale(1.4, 1.4, 1.4).pos(0.0, 1.0, 0.0).col(255, 150, 70)
+
+camYaw = 0.55
+camPitch = 0.32
+cdist = 6.5
+ang = 0.0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    RENDER.CLEAR(38, 42, 58)
+    dt = Time.Delta(0.0167, 0.05)
+    ang = ang + dt * 0.4
+    
+    ; Absolute euler radians: pitch, yaw, roll — spin mianly around Y
+    cube.rot(ang * 0.35, ang, ang * 0.2)
+
+    CAMERA.SETORBIT(cam, 0.0, 1.0, 0.0, camYaw, camPitch, cdist)
+
+    cam.Begin()
+        Draw3D.Grid(14, 1.0)
+        ENTITY.DRAWALL()
+    cam.End()
+
+    Draw.Text("Spinning cube   ESC quit", 12, 10, 18, 235, 240, 255, 255)
+    RENDER.FRAME()
+WEND
+
+cube.free()
+cam.free()
+WINDOW.CLOSE()

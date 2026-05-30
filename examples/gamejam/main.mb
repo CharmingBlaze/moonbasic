@@ -1,0 +1,39 @@
+; Game jam demo — no asset files required.
+; Uses built-in placeholder sprites and synthesized SFX.
+
+WINDOW.OPEN(640, 480, "Game Jam Demo")
+ASSET.PATH("")
+
+player = SPRITE.BUILTIN("player")
+coin = SPRITE.BUILTIN("coin")
+jumpSnd = SOUND.BUILTIN("jump")
+coinSnd = SOUND.BUILTIN("coin")
+
+px = 320
+py = 380
+score = 0
+coinX = 100
+coinY = 200
+
+WHILE NOT WINDOW.CLOSED()
+    IF INPUT.KEYHIT(KEY_SPACE) THEN
+        AUDIO.PLAY(jumpSnd)
+    ENDIF
+    IF INPUT.KEYDOWN(KEY_LEFT) THEN px = px - 200 * TIME.DELTA()
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN px = px + 200 * TIME.DELTA()
+
+    IF MATH.ABS(px - coinX) < 24 AND MATH.ABS(py - coinY) < 24 THEN
+        score = score + 1
+        coinX = 80 + RND(480)
+        coinY = 80 + RND(280)
+        AUDIO.PLAY(coinSnd)
+    ENDIF
+
+    RENDER.CLEAR()
+    SPRITE.DRAW(player, px, py)
+    SPRITE.DRAW(coin, coinX, coinY)
+    PRINT(score, 8, 8)
+    WINDOW.FLIP()
+WEND
+
+END

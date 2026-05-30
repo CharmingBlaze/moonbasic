@@ -1,0 +1,5 @@
+; KCC one-way platforms (Jolt + CGO)
+; Assign BODY3D bodies object layer 4 (ONE_WAY) so thin floors are pass-through when hit from below.
+; See docs/PHYSICS.md section 6 and physics_layers.h (ONE_WAY).
+; Requires fullruntime + native Jolt; rebuild libjolt_wrapper after wrapper changes.
+PRINT("See examples/kcc_tuning.mb for KCC setup; set Builder ObjectLayer=4 for one-way meshes.")

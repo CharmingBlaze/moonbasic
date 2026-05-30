@@ -1,0 +1,41 @@
+; Tiled map demo: load TMX, draw tiles, walk on collision layer.
+; Run from repo root: CGO_ENABLED=1 go run . examples/tilemap/main.mb
+
+WINDOW.OPEN(640, 480, "moonBASIC Tilemap")
+WINDOW.SETFPS(60)
+
+mapPath = "examples/tilemap/assets/level1.tmx"
+map = TILEMAP.LOAD(mapPath)
+TILEMAP.SETTILESIZE(map, 16, 16)
+
+px = 80
+py = 40
+pvx = 0
+pvy = 0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()
+    pvx = 0
+    IF INPUT.KEYDOWN(KEY_A) OR INPUT.KEYDOWN(KEY_LEFT) THEN pvx = pvx - 140
+    IF INPUT.KEYDOWN(KEY_D) OR INPUT.KEYDOWN(KEY_RIGHT) THEN pvx = pvx + 140
+    IF INPUT.KEYDOWN(KEY_W) OR INPUT.KEYDOWN(KEY_UP) THEN pvy = pvy - 140
+    IF INPUT.KEYDOWN(KEY_S) OR INPUT.KEYDOWN(KEY_DOWN) THEN pvy = pvy + 140
+
+    nx = px + pvx * dt
+    ny = py + pvy * dt
+    tileX = INT(nx / 16)
+    tileY = INT(ny / 16)
+    IF NOT TILEMAP.ISSOLID(map, tileX, tileY) THEN
+        px = nx
+        py = ny
+    ENDIF
+
+    RENDER.CLEAR(20, 24, 32)
+    TILEMAP.DRAW(map)
+    DRAW.RECTANGLE(INT(px) - 6, INT(py) - 6, 12, 12, 255, 220, 80, 255)
+    DRAW.TEXT("WASD move on solid tiles   ESC quit", 12, 8, 18, 230, 230, 240, 255)
+    RENDER.FRAME()
+WEND
+
+TILEMAP.FREE(map)
+WINDOW.CLOSE()

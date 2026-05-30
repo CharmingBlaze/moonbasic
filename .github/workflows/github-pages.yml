@@ -1,0 +1,40 @@
+# Deploy docs/downloads/ as the GitHub Pages site (download landing page).
+#
+# To go live at https://charmingblaze.github.io/moonbasic/ :
+#   Settings → Pages → Build and deployment → Source: GitHub Actions
+#   Optional: Settings → Variables → PUBLISH_DOWNLOADS_SITE = true (auto-deploy on push)
+#
+name: GitHub Pages (downloads)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/downloads/**'
+      - '.github/workflows/github-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-downloads
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.PUBLISH_DOWNLOADS_SITE == 'true' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/downloads
+      - id: deployment
+        uses: actions/deploy-pages@v4

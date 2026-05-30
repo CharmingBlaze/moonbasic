@@ -1,0 +1,66 @@
+; MoonBASIC Example: KCC Integrated Physics
+; This example uses the CHARACTER namespace for integrated character physics.
+; The engine handles gravity, slopes, and collision resolution in UPDATE().
+; Run: go run -tags fullruntime . --run examples/kcc_physics.mb
+
+WINDOW.OPEN(1280, 720, "KCC Integrated Physics")
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -20.0, 0)
+
+; Create character using handle-based API
+; CHARACTER.CREATE(radius, height, x, y, z)
+char = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
+
+cam = CAMERA.CREATE()
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = Time.Delta()
+    
+    ; Input: Horizontal velocity
+    vx = 0.0
+    vz = 0.0
+    speed = 10.0
+    
+    IF INPUT.KEYDOWN(KEY_W) THEN vz = -speed
+    IF INPUT.KEYDOWN(KEY_S) THEN vz = speed
+    IF INPUT.KEYDOWN(KEY_A) THEN vx = -speed
+    IF INPUT.KEYDOWN(KEY_D) THEN vx = speed
+    
+    ; Preserve gravity velocity
+    vArr = char.GETLINEARVEL()
+    char.SETVELOCITY(vx, vArr(2), vz)
+
+    ; Jump
+    IF char.ISGROUNDED() AND INPUT.KEYDOWN(KEY_SPACE) THEN
+        char.JUMP(12.0)
+    ENDIF
+    
+    ; Integrate one step
+    char.UPDATE()
+    
+    ; Position for camera
+    px, py, pz = char.pos()
+    
+    CAMERA.SETORBIT(cam, px, py, pz, 0.4, 0.3, 12.0)
+    
+    RENDER.CLEAR(50, 60, 80)
+    cam.Begin()
+        Draw3D.Plane(0, 0, 0, 100, 100, 40, 50, 60, 255)
+        Draw3D.Grid(50, 1.0)
+        
+        ; Character
+        Draw3D.Capsule(px, py - 0.9, pz, px, py + 0.9, pz, 0.4, 10, 16, 255, 230, 100, 255)
+        
+        ; Obstacle
+        Draw3D.Cube(0.0, 0.5, -10.0, 5.0, 1.0, 5.0, 150, 150, 150, 255)
+    cam.End()
+    
+    Draw.Text("WASD Move  SPACE Jump  ESC Quit", 10, 10, 20, 255, 255, 255, 255)
+    Draw.Text("Grounded: " + STR(char.ISGROUNDED()), 10, 40, 18, 200, 255, 200, 255)
+    
+    RENDER.FRAME()
+WEND
+
+char.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

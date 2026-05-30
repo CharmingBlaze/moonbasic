@@ -1,0 +1,140 @@
+; MoonBASIC Boat Demo
+; Physics body on water with buoyancy, AERO drag, thrust, and dynamic obstacles.
+; W/S for throttle, A/D to steer. ESC to quit.
+; Run: go run -tags fullruntime . --run examples/demo_boat.mb
+
+WINDOW.OPEN(1280, 720, "MoonBASIC Boat Demo")
+WINDOW.SETFPS(60)
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -9.81, 0)
+
+; Ocean floor
+bf = BODY3D.CREATE("STATIC")
+bf.ADDBOX(100, 1, 100)
+seabed = bf.COMMIT(0, -20, 0)
+
+; Dock
+bd = BODY3D.CREATE("STATIC")
+bd.ADDBOX(3, 0.5, 8)
+dock = bd.COMMIT(-15, 0.5, 0)
+dock.SETFRICTION(0.6)
+
+; Boat hull
+bh = BODY3D.CREATE("DYNAMIC")
+bh.ADDBOX(1.2, 0.4, 3.0)
+boat = bh.COMMIT(0, 1.0, 0)
+boat.SETDAMPING(0.3, 0.5)
+boat.SETGRAVITYFACTOR(0.4)
+boat.SETFRICTION(0.1)
+boat.SETCCD(TRUE)
+
+; Aero for water drag and forward thrust
+boat.SETDRAG(0.02)
+boat.SETTHRUST(0.0)
+
+; Floating crates
+bc1 = BODY3D.CREATE("DYNAMIC")
+bc1.ADDBOX(0.5, 0.5, 0.5)
+crate1 = bc1.COMMIT(8, 1, 5)
+crate1.SETGRAVITYFACTOR(0.3)
+crate1.SETDAMPING(0.5, 0.5)
+crate1.SETBOUNCE(0.3)
+
+bc2 = BODY3D.CREATE("DYNAMIC")
+bc2.ADDBOX(0.5, 0.5, 0.5)
+crate2 = bc2.COMMIT(-5, 1, 10)
+crate2.SETGRAVITYFACTOR(0.3)
+crate2.SETDAMPING(0.5, 0.5)
+crate2.SETBOUNCE(0.3)
+
+; Buoy
+bbuoy = BODY3D.CREATE("DYNAMIC")
+bbuoy.ADDSPHERE(0.5)
+buoy = bbuoy.COMMIT(12, 1, -8)
+buoy.SETGRAVITYFACTOR(0.2)
+buoy.SETDAMPING(0.4, 0.4)
+buoy.SETBOUNCE(0.6)
+
+cam = CAMERA.CREATE()
+
+thrustPower = 0.0
+maxThrust = 40.0
+waterLevel = 0.0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()
+
+    ; Throttle
+    IF INPUT.KEYDOWN(KEY_W) THEN thrustPower = MATH.MIN(maxThrust, thrustPower + 20 * dt)
+    IF INPUT.KEYDOWN(KEY_S) THEN thrustPower = MATH.MAX(-10, thrustPower - 30 * dt)
+    thrustPower = thrustPower * 0.98
+
+    boat.SETTHRUST(thrustPower)
+
+    ; Steering via torque
+    IF INPUT.KEYDOWN(KEY_A) THEN boat.APPLYTORQUE(0, 4, 0)
+    IF INPUT.KEYDOWN(KEY_D) THEN boat.APPLYTORQUE(0, -4, 0)
+
+    ; Simple buoyancy (namespace getters — STYLE_GUIDE.md)
+    boatPos = BODY3D.GETPOS(boat)
+    boatY = boatPos(2)
+    IF boatY < waterLevel THEN
+        depth = waterLevel - boatY
+        boat.APPLYFORCE(0, depth * 30.0, 0)
+    ENDIF
+
+    ; Buoyancy for floating objects
+    c1x, c1y, c1z = BODY3D.GETPOS(crate1)
+    IF c1y < waterLevel THEN crate1.APPLYFORCE(0, (waterLevel - c1y) * 15, 0)
+
+    c2x, c2y, c2z = BODY3D.GETPOS(crate2)
+    IF c2y < waterLevel THEN crate2.APPLYFORCE(0, (waterLevel - c2y) * 15, 0)
+
+    buoyX, buoyY, buoyZ = BODY3D.GETPOS(buoy)
+    IF buoyY < waterLevel THEN buoy.APPLYFORCE(0, (waterLevel - buoyY) * 20, 0)
+
+    ; Step physics
+    PHYSICS3D.STEP()
+
+    ; Boat position (post-step for camera / render)
+    bx, by, bz = BODY3D.GETPOS(boat)
+
+    ; Camera
+    cam.SETORBIT(bx, by + 2, bz, 0.4, 0.25, 18.0)
+
+    ; Render
+    RENDER.CLEAR(20, 40, 80)
+    cam.BEGIN()
+        ; Water plane
+        DRAW3D.PLANE(0, waterLevel, 0, 200, 200, 30, 80, 160, 180)
+        DRAW3D.CUBE(-15, 0.5, 0, 6, 1, 16, 120, 90, 60, 255)
+        DRAW3D.CUBE(bx, by, bz, 2.4, 0.8, 6.0, 180, 50, 50, 255)
+        
+        c1x, c1y, c1z = BODY3D.GETPOS(crate1)
+        DRAW3D.CUBE(c1x, c1y, c1z, 1, 1, 1, 160, 130, 60, 255)
+
+        c2x, c2y, c2z = BODY3D.GETPOS(crate2)
+        DRAW3D.CUBE(c2x, c2y, c2z, 1, 1, 1, 160, 130, 60, 255)
+
+        buoyX, buoyY, buoyZ = BODY3D.GETPOS(buoy)
+        DRAW3D.SPHERE(buoyX, buoyY, buoyZ, 0.5, 255, 60, 60, 255)
+
+        DRAW3D.GRID(40, 2.0)
+    cam.END()
+
+    DRAW.TEXT("W/S: Throttle  A/D: Steer  ESC: Quit", 10, 10, 20, 255, 255, 255, 255)
+    DRAW.TEXT("Thrust: " + STR(INT(thrustPower)), 10, 40, 18, 100, 200, 255, 255)
+    DRAW.TEXT("Depth: " + STR(INT((waterLevel - by) * 10) / 10.0) + "m", 10, 65, 18, 200, 255, 200, 255)
+
+    RENDER.FRAME()
+WEND
+
+buoy.FREE()
+crate2.FREE()
+crate1.FREE()
+boat.FREE()
+dock.FREE()
+seabed.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

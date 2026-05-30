@@ -1,0 +1,109 @@
+; MoonBASIC Platformer Demo
+; KCC character + physics bodies + collisions + CCD
+; WASD move, SPACE jump, ESC quit
+; Run: go run -tags fullruntime . --run examples/demo_platformer.mb
+
+WINDOW.OPEN(1280, 720, "MoonBASIC Platformer")
+WINDOW.SETFPS(60)
+
+PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -20.0, 0)
+PHYSICS3D.SETSUBSTEPS(4)
+
+; --- Floor ---
+bf = BODY3D.CREATE("STATIC")
+bf.ADDBOX(25, 0.5, 25)
+floor = bf.COMMIT(0, -0.5, 0)
+floor.SETFRICTION(0.8)
+
+; --- Platforms ---
+bp1 = BODY3D.CREATE("STATIC")
+bp1.ADDBOX(3, 0.3, 3)
+plat1 = bp1.COMMIT(6, 2, 0)
+
+bp2 = BODY3D.CREATE("STATIC")
+bp2.ADDBOX(3, 0.3, 3)
+plat2 = bp2.COMMIT(-4, 4, -5)
+
+bp3 = BODY3D.CREATE("STATIC")
+bp3.ADDBOX(2, 0.3, 2)
+plat3 = bp3.COMMIT(0, 6, -10)
+
+; --- Dynamic crate ---
+bc = BODY3D.CREATE("DYNAMIC")
+bc.ADDBOX(0.5, 0.5, 0.5)
+crate = bc.COMMIT(3, 5, 0)
+crate.SETRESTITUTION(0.4)
+crate.SETDAMPING(0.1, 0.2)
+
+; --- Bouncy ball ---
+bs = BODY3D.CREATE("DYNAMIC")
+bs.ADDSPHERE(0.4)
+ball = bs.COMMIT(-3, 8, 3)
+ball.SETRESTITUTION(0.9)
+ball.SETCCD(TRUE)
+
+; --- KCC Player ---
+player = CHARACTER.CREATE(0.35, 1.8, 0, 3, 0)
+cam = CAMERA.CREATE()
+speed = 8.0
+jumpPower = 14.0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = Time.Delta()
+
+    ; Movement input
+    vx = 0 : vz = 0
+    IF INPUT.KEYDOWN(KEY_W) THEN vz = -speed
+    IF INPUT.KEYDOWN(KEY_S) THEN vz = speed
+    IF INPUT.KEYDOWN(KEY_A) THEN vx = -speed
+    IF INPUT.KEYDOWN(KEY_D) THEN vx = speed
+
+    ; Preserve gravity velocity
+    vel = player.GETLINEARVEL()
+    vy = vel(2)
+
+    ; Jump
+    grounded = player.ISGROUNDED()
+    IF grounded AND INPUT.KEYDOWN(KEY_SPACE) THEN vy = jumpPower
+
+    player.MOVE(vx, vy, vz)
+    PHYSICS3D.STEP()
+    PHYSICS3D.PROCESSCOLLISIONS()
+
+    ; Player pos (CHARACTERREF — capsule center)
+    px, py, pz = player.pos()
+    CAMERA.SETORBIT(cam, px, py, pz, 0.4, 0.3, 14.0)
+
+    ; --- Render ---
+    RENDER.CLEAR(25, 30, 45)
+    cam.Begin()
+        Draw3D.Cube(0, -0.5, 0,  50, 1, 50,   60, 70, 85, 255)   ; floor
+        Draw3D.Cube(6, 2, 0,     6, 0.6, 6,    80, 180, 80, 255)  ; green plat
+        Draw3D.Cube(-4, 4, -5,   6, 0.6, 6,    180, 80, 80, 255)  ; red plat
+        Draw3D.Cube(0, 6, -10,   4, 0.6, 4,    80, 80, 180, 255)  ; blue plat
+
+        cx, cy, cz = BODY3D.GETPOS(crate)
+        Draw3D.Cube(cx, cy, cz, 1, 1, 1, 200, 160, 80, 255)
+        bx, by, bz = BODY3D.GETPOS(ball)
+        Draw3D.Sphere(bx, by, bz, 0.4, 255, 100, 100, 255)
+        ; player
+        Draw3D.Sphere(px, py, pz, 0.4, 255, 220, 80, 255)
+
+        Draw3D.Grid(20, 1.0)
+    cam.End()
+
+    Draw.Text("WASD Move  SPACE Jump  ESC Quit", 10, 10, 20, 255, 255, 255, 255)
+    Draw.Text("Grounded: " + STR(grounded), 10, 36, 18, 200, 255, 200, 255)
+    RENDER.FRAME()
+WEND
+
+player.FREE()
+ball.FREE()
+crate.FREE()
+plat3.FREE()
+plat2.FREE()
+plat1.FREE()
+floor.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

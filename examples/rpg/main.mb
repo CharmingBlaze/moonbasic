@@ -1,0 +1,60 @@
+; Walk with WASD in a room; step into the green patch once per visit for gold
+; Saves rpg_save.json in the current working directory on exit (JSON + FILE)
+; Run from repo root: CGO_ENABLED=1 go run . examples/rpg/main.mb
+
+WINDOW.OPEN(800, 600, "moonBASIC Mini RPG")
+WINDOW.SETFPS(60)
+
+save = "rpg_save.json"
+px = 5
+py = 5
+gold = 0
+wasInZone = FALSE
+
+IF FILE.EXISTS(save) THEN
+    raw = FILE.READALLTEXT(save)
+    jd = JSON.PARSESTRING(raw)
+    px = JSON.GETINT(jd, "px")
+    py = JSON.GETINT(jd, "py")
+    gold = JSON.GETINT(jd, "gold")
+    JSON.FREE(jd)
+ENDIF
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()
+    spd = INT(120 * dt)
+    IF spd < 1 THEN spd = 1
+    IF INPUT.KEYDOWN(KEY_W) THEN py = py - spd
+    IF INPUT.KEYDOWN(KEY_S) THEN py = py + spd
+    IF INPUT.KEYDOWN(KEY_A) THEN px = px - spd
+    IF INPUT.KEYDOWN(KEY_D) THEN px = px + spd
+
+    IF px < 0 THEN px = 0
+    IF py < 0 THEN py = 0
+    IF px > 760 THEN px = 760
+    IF py > 560 THEN py = 560
+
+    inZone = px > 300 AND px < 500 AND py > 200 AND py < 360
+    IF inZone AND NOT wasInZone THEN gold = gold + 1
+    wasInZone = inZone
+
+    RENDER.CLEAR(25, 30, 45)
+    DRAW.RECTANGLE(300, 200, 200, 160, 80, 120, 60, 255)
+    DRAW.RECTANGLE(px, py, 18, 18, 255, 210, 120, 255)
+    DRAW.TEXT("Gold " + STR(gold) + "   WASD   ESC quit", 220, 12, 20, 240, 240, 250, 255)
+    DRAW.TEXT("Green = treasure (once per visit)", 250, 570, 16, 180, 200, 180, 255)
+    RENDER.FRAME()
+WEND
+
+jl = JSON.CREATE()
+JSON.SETINT(jl, "px", px)
+JSON.SETINT(jl, "py", py)
+JSON.SETINT(jl, "gold", gold)
+out = JSON.TOSTRING(jl)
+JSON.FREE(jl)
+
+fh = FILE.OPEN(save, "w")
+FILE.WRITE(fh, out)
+FILE.CLOSE(fh)
+
+WINDOW.CLOSE()

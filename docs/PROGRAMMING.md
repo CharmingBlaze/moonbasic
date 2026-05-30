@@ -1,0 +1,217 @@
+# Programming in moonBASIC
+
+This guide explains how **built-in commands** fit together, how to structure programs, and where to look up APIs. Pair it with [Language Reference](LANGUAGE.md) (syntax), [Command Index](COMMANDS.md) (topic index), and [API_CONSISTENCY.md](API_CONSISTENCY.md) (every registered command name and arity, generated from the manifest). For **distance, spawn rings, WASD vs yaw, and terrain snap** without repeating `SQRT`/`SIN`/`COS`, see [Less math](reference/LESS_MATH.md). For the project’s stance on **powerful helpers alongside full `MATH.*`**, see [Easy language](EASY_LANGUAGE.md).
+
+---
+
+## 1. Commands are `NAMESPACE.NAME`
+
+Built-ins look like method calls. Prefer registry style: `WINDOW.OPEN(...)`, `DRAW.RECTANGLE(...)`, `TIME.DELTA()` — Easy Mode (`Window.Open`, …) is the same keys; see [EASY_MODE.md](EASY_MODE.md).
+
+---
+
+## 2. Method Chaining & Fluent API
+
+One of the most powerful features of modern MoonBASIC is **Method Chaining**. Most setters and creation commands return the object's handle, allowing you to chain multiple operations into a single, readable line.
+
+### Comparison: Legacy vs. Modern
+```basic
+; Legacy Style (One command per line)
+hero = ENTITY.CREATE(model)
+ENTITY.SETPOS(hero, 10, 0, 5)
+ENTITY.SETROT(hero, 0, 45, 0)
+ENTITY.SETCOLOR(hero, 255, 100, 100)
+
+; Modern Modern Style (Chaining)
+hero = ENTITY.CREATE(model).setPos(10, 0, 5).setRot(0, 45, 0).setColor(255, 100, 100)
+```
+
+### Why use it?
+- **Readability**: It's clear that all these operations are being performed on the `hero` object.
+- **Conciseness**: Less boilerplate and repeated variable names.
+- **DX**: Most commands in MoonBASIC are designed with this "Fluent API" in mind.
+
+### Case Insensitivity & Namespaces
+You can write **any mix of upper and lower case** in source — it does not matter for the language. (Internally the compiler picks a single spelling for names; built-in calls still match the manifest’s **uppercase** `NAMESPACE.NAME` keys.) These are the same call:
+- `Window.Open` → `WINDOW.OPEN`
+- `draw.rectangle` → `DRAW.RECTANGLE`
+
+Use whatever style reads best; examples in the repo often use **Mixed.Case** for namespaces.
+
+**Consistent verbs across types** (`Load` / `SetPos` / `Free`, `CREATE` vs deprecated `MAKE`, and how rotation differs for cameras vs models): see [API conventions](reference/API_CONVENTIONS.md) and the [API Standardization Directive](API_STANDARDIZATION_DIRECTIVE.md).
+
+---
+
+## 3. Arguments and types
+
+Commands are **type-checked** against the manifest (`compiler/builtinmanifest/commands.json`). Typical argument kinds:
+
+| Kind | In source | Example |
+|------|-----------|---------|
+| Integer | `score`, literal `10` | `ARRAYLEN(arr)` |
+| Float | `x`, `1.5` | `MATH.SIN(angle)` |
+| String | `msg`, `"hi"` | `FILE.OPEN(path, "r")` |
+| Boolean | `ok`, `TRUE` / `FALSE` | `INPUT.KEYDOWN(KEY_SPACE)` |
+| Handle | value from `Load`, `Make`, etc. | `Mesh.Draw(mesh, mat, transform)` |
+
+Numeric **widening** is allowed where the manifest marks alternatives (many APIs accept int or float for coordinates).
+
+Variable types are determined implicitly by assignment (e.g. `speed = 5.5` makes it a float). moonBASIC **does not** use Blitz-style **`#` / `$` / `?` / `%`** suffixes on names — use plain identifiers and `DIM` / `AS` where you need explicit typing; see [STYLE_GUIDE.md](../STYLE_GUIDE.md) and [LANGUAGE.md](LANGUAGE.md).
+
+---
+
+## 3. The usual game / app loop
+
+Almost all graphical programs follow this shape:
+
+```basic
+WINDOW.OPEN(960, 540, "Title")
+WINDOW.SETFPS(60)
+
+; setup handles, load assets, set variables
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = TIME.DELTA()
+
+    ; --- update (physics, input, AI) ---
+
+    ; --- draw ---
+    RENDER.CLEAR(r, g, b)
+    ; optional: Camera2D.Begin() / Camera2D.End() for screen-space 2D
+    ; optional: Camera.Begin(cam) / Camera.End() or RENDER.BEGIN3D(cam) / RENDER.END3D() for 3D
+    DRAW.RECTANGLE(...)
+    RENDER.FRAME()
+WEND
+
+; free heap handles (fonts, meshes, textures) if you loaded any
+WINDOW.CLOSE()
+```
+
+Rules of thumb:
+
+- **`RENDER.CLEAR`** — first drawing call each frame (or after `Camera2D.Begin` / `Camera.Begin`, depending on your pipeline).
+- **`RENDER.FRAME`** — last call each frame; swaps / presents the buffer.
+- **`TIME.DELTA()`** — seconds since last frame; multiply speeds by `dt` for **frame-rate-independent** motion.
+- **`WINDOW.SHOULDCLOSE()`** — true when the user closes the window.
+- **`INPUT.KEYDOWN(KEY_ESCAPE)`** — common explicit quit.
+
+moonBASIC does **not** provide a hidden **`Game.Loop()`** / **`Game.Begin()`** / **`Game.End()`** wrapper: the **`WHILE`** + **`dt`** pattern stays visible so you control ordering, pausing, and multi-pass rendering. Helpers like **`Input.Orbit`**, **`LANDBOXES`**, and **`MOVESTEPX`** shorten the *body*, not the loop shell. For Blitz-style entity graphs, **`UpdatePhysics()`** (alias **`UPDATEPHYSICS`**) bundles **`ENTITY.UPDATE(TIME.DELTA())`** with optional world / physics steps — see [GETTING_STARTED](GETTING_STARTED.md) (**Modern Blitz-style 3D**).
+
+---
+
+## 4. 2D vs 3D drawing
+
+- **Screen-space 2D** (pixels): **`Camera2D.Begin()`** … **`Camera2D.End()`** (identity camera) or pass a handle from **`Camera2D.Create()`** (deprecated **`Camera2D.MAKE`**) (see [RENDER](reference/RENDER.md), [CAMERA](reference/CAMERA.md)). **`RENDER.BEGINMODE2D`** / **`RENDER.ENDMODE2D`** are the Raylib mode pair when you need that stack (see [SPRITE](reference/SPRITE.md)).
+- **3D**: create `cam = CreateCamera()` (or **`CAMERA.CREATE()`**), configure position/target/FOV, then `cam.Begin()` … `cam.End()` around `Mesh.Draw`, `Draw.Grid`, etc., or use **`RENDER.BEGIN3D(cam)`** / **`RENDER.END3D()`** (see [CAMERA](reference/CAMERA.md), [MODEL](reference/MODEL.md)).
+
+Some 3D helpers are also registered under `DRAW.*` (e.g. `Draw.Grid` inside a camera block).
+
+---
+
+## 5. Text without shipping a font file
+
+`DRAW.TEXT(text, x, y, size, r, g, b, a)` uses Raylib’s **default font** — no `.ttf` path required. Use this in small demos and HUD.
+
+For a **custom** font, `Font.Load(path)` returns a handle; draw with **`DRAW.TEXTEX`** / font-aware APIs (see [FONT](reference/FONT.md)). The repo **does not** ship `.ttf` files under `assets/`; add your own or rely on **`DRAW.TEXT`**.
+
+---
+
+## 6. GUI (`GUI.*`)
+
+`GUI.*` wraps **raygui** when **CGO** is enabled. On **Windows** with **`CGO_ENABLED=0`**, a **minimal** Raylib-drawn `GUI.*` subset runs instead (not full raygui); see [GUI.md](reference/GUI.md).
+
+- The [GUI reference](reference/GUI.md) is the full catalog: **every `GUI.*` command**, **how to theme and restyle** (`GUI.THEMEAPPLY`, `SETCOLOR`, `SETSTYLE`, `GCTL_*` / `GPROP_*`), and **stateful array handles** (`SCROLLPANEL`, `LISTVIEW`, `DROPDOWNBOX`, …). Use **`GUI.THEMENAMES`** for the list of built-in / bundled theme names.
+- Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_theme/main.mb`, `examples/gui_form/main.mb`.
+
+---
+
+## 7. Platform and build flags
+
+| Area | Notes |
+|------|--------|
+| **Graphics, audio, window** | **Linux / macOS:** **CGO** + C toolchain (linked Raylib). **Windows:** either **CGO** + MinGW, or **`CGO_ENABLED=0`** + **`raylib.dll`** (purego; see [BUILDING.md](BUILDING.md)). **`GUI.*`**: full **raygui** needs **CGO**; **Windows + no CGO** uses the minimal GUI layer. |
+| **Physics 3D** (`Physics3D`, `Body3D`) | Implemented on **Linux x64/arm64** with Jolt; other OS builds use stubs until bindings exist. |
+| **Physics 2D** | Box2D path — see [PHYSICS2D](reference/PHYSICS2D.md). |
+| **gopls / IDE** | If the editor analyzes with `CGO_ENABLED=0`, Raylib symbols may look “missing”; set `buildFlags`: `["-tags=cgo"]` and enable CGO where possible. |
+
+---
+
+## 8. Arrays, `DIM`, and handles
+
+- **`DIM a(10)`** — numeric array; indices `1` … `10`.
+- **`enemies AS Enemy(100)`** (preferred) or **`DIM enemies AS Enemy(100)`** (compatible) — typed array from **`TYPE` … `ENDTYPE`** (see [LANGUAGE.md](LANGUAGE.md)).
+- **`FOR EACH e IN arr … NEXT`** — iterate array elements without a manual index (see [LANGUAGE.md](LANGUAGE.md)).
+- Some builtins return **handles** to heap arrays (e.g. `MEASURETEXTEX`, `GUI.GETCOLOR`). Index with the same `arr(i)` syntax as `DIM` arrays.
+- **`arr.length`** returns the first dimension size (for multidimensional arrays this is dimension 1).
+- **Destructuring**: `a, b = expr` and `x, y, z = expr` unpack multi-value returns from user **`FUNCTION`**s and tuple-like builtin results.
+- **Multi-return functions**: `RETURN x, y, z` inside a **`FUNCTION`**, then `a, b, c = MyFunc()` at the call site — see [LANGUAGE.md](LANGUAGE.md).
+- **String interpolation**: `$"Score: {score}"` and `$"{hp:.1f}"` for HUD text — see [STRING.md](reference/STRING.md).
+- **Enums**: `ENUM State … ENDENUM` and `State.IDLE` — see [LANGUAGE.md](LANGUAGE.md).
+- Convenience tuple-return helpers:
+  - **`VEC2.NORMALIZE(x, y)`** -> `(x, y)`
+  - **`VEC2.MOVE_TOWARD(fromX, fromY, toX, toY, maxDist)`** -> `(x, y)`
+  - **`ENTITY.GETPOS(entity)`** -> `(x, y, z)`
+  - **`COLOR.CLAMP(r, g, b)`** -> `(r, g, b)`
+- **`ERASE(name)`** — frees a `DIM` array or typed array and clears the variable when you no longer need it.
+- **`ERASE ALL`** / **`FREE.ALL`** — frees every VM heap object and nulls handle variables; see [MEMORY.md](MEMORY.md).
+- **`ARRAYFREE(handle)`** when you are done with a heap array you no longer need.
+
+---
+
+## 9. Where to look things up
+
+| Need | Document |
+|------|----------|
+| Syntax (`IF`, `FUNCTION`, …) | [LANGUAGE.md](LANGUAGE.md) |
+| Helpers vs raw math (design stance) | [EASY_LANGUAGE.md](EASY_LANGUAGE.md) |
+| String / color hot path vs UI strings | [reference/STRING_HEAP.md](reference/STRING_HEAP.md) |
+| Topic command index | [COMMANDS.md](COMMANDS.md) |
+| Every manifest name (arity, types) | [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`) |
+| Namespace → reference map (counts, blurbs) | [COMMAND_AUDIT.md](COMMAND_AUDIT.md) (`go run ./tools/cmdaudit`) |
+| Consistent verbs (`LOAD`, `SETPOS`, …) | [reference/API_CONVENTIONS.md](reference/API_CONVENTIONS.md) |
+| Copy-paste samples | [EXAMPLES.md](EXAMPLES.md) |
+| Install & first run | [GETTING_STARTED.md](GETTING_STARTED.md) |
+| Deep dive per topic | [reference/](reference/WINDOW.md) (module pages) |
+| Handles, leaks, `FreeAll` | [MEMORY.md](MEMORY.md) |
+| 2D physics tuning (`SetStep`, `SetIterations`) | [reference/PHYSICS2D.md](reference/PHYSICS2D.md) |
+| Purego `GUI.*` (stable rects, internal caps) | [reference/GUI.md](reference/GUI.md) |
+
+---
+
+## 10. Performance checklist
+
+Use this alongside the loop in **§3**:
+
+- **Motion and animation** — Multiply speeds by **`TIME.DELTA()`** so gameplay stays consistent when FPS changes.
+- **2D physics** — Call **`Physics2D.Step()`** once per frame in the common case; set **`Physics2D.SetStep(dt)`** to match that step (e.g. `1/60` with **`WINDOW.SETFPS(60)`**). Tune cost vs stability with **`Physics2D.SetIterations`** — see [PHYSICS2D.md](reference/PHYSICS2D.md).
+- **Heap handles** — Call **`*.Free`** for textures, fonts, sounds, and other handles when you are done, especially in long sessions or when reloading assets. **`WINDOW.CLOSE`** and process shutdown still run **`Heap.FreeAll`** as a safety net — see [MEMORY.md](MEMORY.md).
+- **Churn** — Avoid creating many new handles or large temporary work every frame when you can reuse values or keep allocations outside the inner loop.
+- **Assets** — Prefer texture sizes and counts appropriate for the target resolution; fewer draw state changes usually help.
+- **Platform** — On **Windows**, **`CGO_ENABLED=0`** builds need **`raylib.dll`** on the DLL search path. Full **`Physics3D`** (Jolt) is only on **Linux** with CGO today — see **§7**.
+
+---
+
+## 11. Running repository demos
+
+From the **repository root** (so relative paths behave as documented).
+
+**Compile only** (writes `main.mbc` next to the source — no window):
+
+```bash
+CGO_ENABLED=1 go run . examples/spin_cube/main.mb
+```
+
+**Run the game** (opens a window — use `moonrun` or fullruntime):
+
+```bash
+CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
+```
+
+On Windows (PowerShell):
+
+```powershell
+$env:CGO_ENABLED="1"
+go run -tags fullruntime ./cmd/moonrun examples\spin_cube\main.mb
+```
+
+See [examples/README.md](../examples/README.md) and [DEVELOPER.md](DEVELOPER.md) for the full list and build-tag details.

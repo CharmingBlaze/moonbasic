@@ -1,0 +1,60 @@
+; kcc_contacts.mb - KCC contacts-style demo (hazard volume + proximity flash)
+; Standardized for v1.0 API
+
+WINDOW.OPEN(1280, 720, "MoonBASIC KCC Contacts")
+PHYSICS3D.START()
+
+; Static hazard
+hazardDef = BODY3D.CREATE("STATIC")
+hazardDef.ADDBOX(2.5, 1, 2.5)
+hHazard = hazardDef.COMMIT(0, 0, 10)
+
+; Floor
+floorDef = BODY3D.CREATE("STATIC")
+floorDef.ADDBOX(50, 0.5, 50)
+floorBody = floorDef.COMMIT(0, -0.5, 0)
+
+; Initialize character: (radius, height, x, y, z)
+char = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
+
+cam = CAMERA.CREATE()
+cam.SETMODE(1)
+
+PRINT("KCC Contacts Demo")
+PRINT("The screen will flash red when you touch the hazard box.")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    ; Movement
+    vx = 0 : vz = 0
+    IF INPUT.KEYDOWN(KEY_UP) THEN vz = 5
+    IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -5
+    IF INPUT.KEYDOWN(KEY_LEFT) THEN vx = -5
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN vx = 5
+    
+    char.SETVELOCITY(vx, 0, vz)
+    char.UPDATE()
+    
+    ; Logic
+    px, py, pz = char.pos()
+    touchingHazard = FALSE
+    IF px >= -2.5 AND px <= 2.5 AND pz >= 7.5 AND pz <= 12.5 AND py >= -1.5 AND py <= 2.5 THEN
+        touchingHazard = TRUE
+    ENDIF
+
+    cam.SETPOS(px, py + 1.2, pz - 8)
+    cam.SETTARGET(px, py + 1.2, pz)
+    
+    RENDER.CLEAR(40, 44, 52)
+    cam.BEGIN()
+    ; PHYSICS3D.DEBUGDRAW unavailable in this release — omit debug overlay
+    IF touchingHazard THEN
+        DRAW.RECTANGLE(0, 0, 1280, 720, 255, 0, 0, 76)
+        DRAW.TEXT("HAZARD CONTACT!", 10, 10, 30, 255, 255, 0, 255)
+    ENDIF
+    cam.END()
+    RENDER.FRAME()
+WEND
+
+char.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

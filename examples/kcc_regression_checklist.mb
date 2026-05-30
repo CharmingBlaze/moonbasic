@@ -1,0 +1,14 @@
+; kcc_regression_checklist.mb — Manual QA notes (Industrial KCC / Final Mile)
+; Run with fullruntime + moonrun; not a self-test harness.
+;
+; Checklist:
+; - Stairs: step height 0.3 m (CHAR.SETSTEP / PLAYER.SETSTEPOFFSET) — climb without snagging.
+; - Slopes: max slope 30 deg vs 60 deg (CHAR.SETSLOPE) — 30 walkable, 60 should slide or block per tuning.
+; - Fixed step: PHYSICS3D.SETTIMESTEP(144) or 60 — KCC dt matches STEP; no foot jitter when grounded.
+; - Moving platform: kinematic body + PLAYER.MOVE — capsule should ride elevator (gv.Y + gv.XZ).
+; - Coyote: edge hop within ~0.1 s after leaving support (physics time).
+; - Crouch: stand under low ceiling — un-crouch denied when shape query hits geometry above.
+; - ONCOLLISION: PHYSICS3D.ONCOLLISION(heroRef, crateBody, "cb") — KCC contacts fan-in after STEP.
+; - One-way: cloud floor — pass through from below; solid from above (ONE_WAY layer).
+;
+PRINT "See comments in kcc_regression_checklist.mb for the checklist."

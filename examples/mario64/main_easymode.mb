@@ -1,0 +1,260 @@
+; star_road_easy.mb — Premium 'MoonBASIC' Game Engine Showcase
+; Featuring: Batch 6 Atmospheric Fog, Material Alpha, and Definitive Documentation.
+; --------------------------------------------------------------------------------
+
+WINDOW.OPEN(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
+WINDOW.SETFPS(60)
+; Hide the system mouse pointer while playing (orbit uses relative mouse). Show again before exit.
+CURSOR.HIDE()
+
+; 0. Professional Lead Engineer Diagnostics
+DEBUG.SHOWFPSGRAPH(TRUE)
+PHYSICS3D.SETTIMESTEP(90.0) ; High-fidelity decoupled physics
+PHYSICS3D.START()
+
+; 1. Batch 6: Environmental Atmosphere
+COLORPRINT(0, 180, 255, "System: Initializing Batch 6 Atmosphere (Fog & Materials)...")
+WORLD.FOGMODE(1)        ; Linear Fog
+; Slightly above black so distance fade reads against the clear / sky tint
+WORLD.FOGCOLOR(55, 65, 120)
+WORLD.FOGDENSITY(0.05)   ; Atmospheric thickness
+
+; 1b. Navigation System Initialization
+nav = NAV.CREATE()
+nav.SetGrid(60, 60, 0.5, -15, -15) ; 30x30 area
+nav.Build()                          ; Auto-scan static world
+
+; Create Guardian Agent
+guardianEnt = CUBE(1, 1, 1)
+guardianEnt = guardianEnt.Scale(0.6, 1.2, 0.6).Color(255, 100, 100, 255).Pos(8, 3, 8) ; Place on Step 1
+
+agent = NAVAGENT.CREATE(nav)
+agent.SetPos(8, 3, 8)
+agent.SetSpeed(3.0)
+
+patrolDir = 1
+navDebug = 0
+
+; Configuration
+CONST MOVE_SPEED = 12.0
+CONST JUMP_FORCE = 9.0
+CONST CAM_DIST = 9.5
+CONST MOUSE_SENSITIVITY = 0.005
+; Mouse adds radians to camYaw, but SIN/COS in MoonBASIC take degrees — multiply by this (180 / PI).
+CONST RAD_TO_DEG = 57.2957795
+
+; Initialize Camera
+cam = CAMERA.CREATE()
+cam.fov(60)
+
+; Initialize Player (standalone Character.Create → implicit KCC subject for Player.Get* with no args)
+playerEnt = CAPSULE(0.5, 2.0)
+hero = playerEnt.CreateCharacter(0.5, 2.0)
+hero.SetPos(0, 5, 0)
+hero.SetStepHeight(0.4)
+hero.SetMaxSlope(45.0)
+hero.SetSnapDistance(0.5)
+hero.SetGravity(1.0)
+; Visual capsule follows hero; position queries use Player.GetX/Y/Z() (same KCC as hero)
+
+; Initialize Particles (ambient trail + star pickup bursts)
+starEmit = CREATEEMITTER()
+PARTICLECOLOR(starEmit, 255, 255, 0, 255)
+starEmit.SetSpeed(5.0, 15.0)
+starEmit.SetLifetime(0.4, 0.8)
+starEmit.SetEmitRate(18.0)
+starEmit.SetDirection(0, 1, 0)
+starEmit.SetSpread(1.2)
+starEmit.Play()
+
+; 4. Physics Geometry Setup
+; We'll replace manual ENTTYPE with professional Jolt bodies in the loop
+
+; World Objects (Static Platforms)
+TYPE Platform
+    ent
+    r, g, b
+ENDTYPE
+
+DIM plats AS Platform(5)
+plats(1) = Platform(CUBE(1, 1, 1), 100, 200, 100) ; Floor
+p1 = plats(1).ent : p1 = p1.Scale(30, 1, 30).Pos(0, 0, 0)
+floorShape = SHAPE.CREATEBOX(15, 0.5, 15)
+floorBody = Static.Create(floorShape)
+floorBody.SetPos(0, 0, 0)
+
+plats(2) = Platform(CUBE(1, 1, 1), 150, 150, 255) ; Step 1
+p2 = plats(2).ent : p2 = p2.Scale(4, 1, 4).Pos(8, 2, 8)
+stepShape = SHAPE.CREATEBOX(2, 0.5, 2)
+step1Body = Static.Create(stepShape)
+step1Body.SetPos(8, 2, 8)
+
+plats(3) = Platform(CUBE(1, 1, 1), 255, 150, 150) ; Step 2
+p3 = plats(3).ent : p3 = p3.Scale(4, 1, 4).Pos(12, 4, 12)
+step2Body = Static.Create(stepShape)
+step2Body.SetPos(12, 4, 12)
+
+plats(4) = Platform(CUBE(1, 1, 1), 255, 255, 100) ; Goal
+p4 = plats(4).ent : p4 = p4.Scale(6, 1, 6).Pos(16, 6, 16).Alpha(0.6)
+goalShape = SHAPE.CREATEBOX(3, 0.5, 3)
+goalBody = Static.Create(goalShape)
+goalBody.SetPos(16, 6, 16)
+
+; Stars (Collection Goal)
+DIM starEnts AS HANDLE(5)
+DIM starActive(5)
+FOR i = 1 TO 5
+    s = SPHERE(0.5)
+    s = s.Scale(0.4, 0.4, 0.4).Pos(RAND(-15, 15), 2.5 + RND(0, 3), RAND(-15, 15)).Color(255, 255, 0, 255)
+    starEnts(i) = s
+    starActive(i) = 1
+NEXT
+
+score = 0
+camYaw = 0.0
+camPitch = 0.3
+cinematicMode = 0
+
+COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
+
+; Main Game Loop
+WHILE 1
+    ; --- 1. Loop Control ---
+    IF WINDOW.SHOULDCLOSE() THEN EXIT WHILE
+    IF KEYDOWN(KEY_ESCAPE) THEN EXIT WHILE
+    
+    ; Clear screen
+    RENDER.CLEAR()
+    SKYCOLOR(0, 0, 15)
+    
+    dt = TIME.DELTA()
+
+    ; 1. Input: Camera Orbiting
+    camYaw = camYaw + INPUT.MOUSEDX() * MOUSE_SENSITIVITY
+    camPitch = camPitch - INPUT.MOUSEDY() * MOUSE_SENSITIVITY
+    IF camPitch > 1.4 THEN camPitch = 1.4
+    IF camPitch < -0.1 THEN camPitch = -0.1
+
+    ; Player pos from last frame (for orbit + chase) — valid before this frame's physics
+    px0 = Player.GetX()
+    py0 = Player.GetY()
+    pz0 = Player.GetZ()
+
+    ; Orbit camera (same camYaw as below — walk direction stays locked to view).
+    cam.orbit(px0, py0 + 0.5, pz0, camYaw, camPitch, CAM_DIST)
+    
+    ; --- 2. Walk (beginner layout) ---
+    ; Keys: W = forward, S = back, A = left, D = right (relative to camera on the ground).
+    ; AXIS(negKey, posKey) gives -1 if neg held, +1 if pos held, 0 if neither / both.
+    moveForward = AXIS(KEY_S, KEY_W)
+    moveStrafe = AXIS(KEY_A, KEY_D)
+    ; Build direction from camera orbit yaw only (horizontal). Convert camYaw to degrees for SIN/COS.
+    yawDeg = camYaw * RAD_TO_DEG
+    ; "Forward" = where the camera looks on the floor (into the screen). "Right" = strafe.
+    fwdX = -SIN(yawDeg)
+    fwdZ = -COS(yawDeg)
+    rightX = -fwdZ
+    rightZ = fwdX
+    vx = (fwdX * moveForward + rightX * moveStrafe) * MOVE_SPEED
+    vz = (fwdZ * moveForward + rightZ * moveStrafe) * MOVE_SPEED
+    hero.SetVelocity(vx, Player.GetVelocityY(playerEnt), vz)
+
+    ; 2b. Debug Inspector Hooks
+    IF INPUT.KEYHIT(KEY_F1) THEN DEBUG.DUMPHEAP()
+    IF INPUT.KEYHIT(KEY_F2) THEN DEBUG.LISTCOMMANDS()
+    IF INPUT.KEYHIT(KEY_F3) THEN
+        cinematicMode = 1 - cinematicMode
+        IF cinematicMode = 1 THEN
+            POST.ADD("bloom")
+            POST.ADD("sharpen")
+            POST.SETTONEMAP(3) ; ACES Cinematic Curve
+        ELSE
+            POST.REMOVE("all")
+        ENDIF
+    ENDIF
+    IF INPUT.KEYHIT(KEY_F4) THEN navDebug = 1 - navDebug
+
+    ; 2c. AI — always step nav; cinematic = patrol, else chase player
+    IF cinematicMode = 1 THEN
+        IF agent.IsAtDestination() THEN
+            IF patrolDir = 1 THEN
+                agent.MoveTo(8, 3, 8)
+                patrolDir = 0
+            ELSE
+                agent.MoveTo(9.5, 3, 9.5)
+                patrolDir = 1
+            ENDIF
+        ENDIF
+    ELSE
+        agent.MoveTo(px0, py0, pz0)
+    ENDIF
+    agent.Update(dt)
+    ax = agent.X() : ay = agent.Y() : az = agent.Z()
+    guardianEnt.Pos(ax, ay, az)
+
+    ; 3. Automatic World Simulation
+    ENTITY.UPDATE(dt)
+    hero.Update(dt)
+    ; CHARACTERREF.UPDATE already syncs the bound entity position through the player bridge.
+
+    ; 4. Jumping — after hero.Update so GetGrounded reflects this frame's contact
+    IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN hero.Jump(JUMP_FORCE)
+
+    ; 5. Collectible Check (Player-centric world position)
+    px = Player.GetX()
+    py = Player.GetY()
+    pz = Player.GetZ()
+    ; Ambient spark trail (emitter follows player)
+    EMITTERPOS(starEmit, px, py + 1.2, pz)
+    
+    FOR i = 1 TO 5
+        IF starActive(i) = 1 THEN
+            s = starEnts(i)
+            ; Use starEnts(i).X/Y/Z here — bare s.X() can parse as namespace S.X instead of entity position.
+            dist = DIST3D(px, py, pz, starEnts(i).X(), starEnts(i).Y(), starEnts(i).Z())
+            IF dist < 1.1 THEN
+                starActive(i) = 0
+                score = score + 1
+                s.Hide()
+                EMITTERPOS(starEmit, starEnts(i).X(), starEnts(i).Y(), starEnts(i).Z())
+                EMITPARTICLE(starEmit, 30)
+            ENDIF
+        ENDIF
+    NEXT
+
+    ; Camera already updated at start of frame (see orbit before movement)
+
+    ; 7. Rendering
+    CAMERA.BEGIN(cam)
+        FOR i = 1 TO 4
+            p = plats(i).ent : p.Color(plats(i).r, plats(i).g, plats(i).b, 255)
+        NEXT
+        ENTITY.DRAWALL()
+        PARTICLES.DRAWEMITTER(starEmit)
+        
+        ; Batch 6: Professional debug primitives
+        DRAW.LINE3D(px, py, pz, px, py + 2.0, pz, 0, 255, 0, 255) ; Green Up-Vector
+        
+        IF navDebug = 1 THEN nav.DebugDraw()
+    CAMERA.END()
+
+    ; 8. HUD & UI Overlay
+    DRAW.TEXT("STARS: " + STR(score) + " / 5", 20, 20, 24, 255, 255, 100, 255)
+    DRAW.TEXT("Mouse: orbit cam  |  W/S forward back  |  A/D strafe  |  SPACE jump  |  Player.Get* KCC", 20, 540, 18, 255, 255, 255, 255)
+    DRAW.TEXT("SPEED: " + STR(Player.GetSpeed()), 20, 510, 16, 200, 255, 200, 255)
+
+    rh = SCREENWIDTH() - 250
+    DRAW.TEXT("FPS: " + STR(FPS()), rh, 20, 20, 0, 255, 0, 255)
+    DRAW.TEXT("TIME: " + STR(MILLISECS()), rh, 45, 20, 200, 200, 255, 255)
+    DRAW.TEXT("MIST ACTIVE: YES", rh, 70, 20, 150, 150, 255, 255)
+    IF cinematicMode = 1 THEN
+        DRAW.TEXT("CINEMATIC: ON (ACES)", rh, 95, 20, 255, 100, 100, 255)
+    ELSE
+        DRAW.TEXT("CINEMATIC: OFF", rh, 95, 20, 150, 150, 150, 255)
+    ENDIF
+
+    RENDER.FRAME()
+WEND
+
+CURSOR.SHOW()
+WINDOW.CLOSE()

@@ -1,0 +1,61 @@
+; MoonBASIC Example: KCC Direct Control
+; This example uses the CHARACTER namespace for raw kinematic control.
+; Movement is manual (dx, dy, dz) and ignores gravity integration.
+; Run: go run -tags fullruntime . --run examples/kcc_direct.mb
+
+WINDOW.OPEN(1280, 720, "KCC Direct Control")
+PHYSICS3D.START()
+
+; Create the character: (radius, height, x, y, z)
+char = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
+
+cam = CAMERA.CREATE()
+cam.SETORBIT(0, 1, 0, 0.4, 0.3, 10.0)
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+    dt = Time.Delta()
+    
+    ; Movement logic
+    dx = 0.0
+    dz = 0.0
+    dy = 0.0
+    speed = 8.0
+    
+    IF INPUT.KEYDOWN(KEY_W) THEN dz = -speed * dt
+    IF INPUT.KEYDOWN(KEY_S) THEN dz = speed * dt
+    IF INPUT.KEYDOWN(KEY_A) THEN dx = -speed * dt
+    IF INPUT.KEYDOWN(KEY_D) THEN dx = speed * dt
+    
+    ; Space/Q for manual vertical movement
+    IF INPUT.KEYDOWN(KEY_SPACE) THEN dy = speed * dt
+    IF INPUT.KEYDOWN(KEY_Q) THEN dy = -speed * dt
+    
+    ; Apply manual movement
+    char.MOVE(dx, dy, dz)
+    
+    ; Get current position (namespace form — STYLE_GUIDE.md)
+    px, py, pz = char.pos()
+    
+    ; Update camera to follow
+    cam.SETORBIT(px, py, pz, 0.4, 0.3, 10.0)
+    
+    RENDER.CLEAR(40, 44, 52)
+    cam.Begin()
+        Draw3D.Grid(20, 1.0)
+        ; Character visualization
+        Draw3D.Capsule(px, py - 0.9, pz, px, py + 0.9, pz, 0.4, 8, 12, 100, 200, 255, 255)
+        
+        ; Some obstacles to collide with
+        Draw3D.Cube(4, 1, 0, 2, 2, 10, 200, 100, 100, 255)
+        Draw3D.Cube(-4, 1, 0, 2, 2, 10, 100, 200, 100, 255)
+    cam.End()
+    
+    Draw.Text("WASD Move XZ  SPACE up / Q down  ESC Quit", 10, 10, 20, 255, 255, 255, 255)
+    Draw.Text("Pos: " + STR(px) + ", " + STR(py) + ", " + STR(pz), 10, 40, 18, 200, 255, 200, 255)
+    
+    RENDER.FRAME()
+WEND
+
+char.FREE()
+PHYSICS3D.STOP()
+WINDOW.CLOSE()

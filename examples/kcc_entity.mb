@@ -1,0 +1,58 @@
+; kcc_entity.mb - Professional KCC Entity Binding (Easy Mode)
+; Demonstrates attaching a KCC to a 3D model entity.
+; Run: go run -tags fullruntime . --run examples/kcc_entity.mb
+
+WINDOW.OPEN(1280, 720, "MoonBASIC KCC Easy Mode")
+PHYSICS3D.START()
+
+; Create ground
+floorDef = BODY3D.CREATE("STATIC")
+floorDef.ADDBOX(50, 0.5, 50)
+floorBody = floorDef.COMMIT(0, -0.5, 0)
+
+; Small obstacle
+obsDef = BODY3D.CREATE("STATIC")
+obsDef.ADDBOX(1, 0.2, 1)
+obsBody = obsDef.COMMIT(0, 0, 5)
+
+; Create a hero entity
+hero = ENTITY.CREATE()
+hero.SETPOS(0, 2, 0)
+
+; Attach Character Controller: CHARACTER.CREATE(entity)
+CHARACTER.CREATE(hero)
+hero.SETSTEPHEIGHT(0.5) 
+hero.SETMAXSLOPE(50)   
+
+cam = CAMERA.CREATE()
+cam.SETMODE(1)
+
+PRINT("KCC Easy Mode Demo")
+PRINT("Character is bound to the hero entity.")
+PRINT("Use Arrows to move hero.")
+
+WHILE NOT WINDOW.SHOULDCLOSE()
+    ; Modern handle methods
+    vx = 0 : vz = 0
+    IF INPUT.KEYDOWN(KEY_UP) THEN vz = 6
+    IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -6
+    IF INPUT.KEYDOWN(KEY_LEFT) THEN vx = -6
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN vx = 6
+    
+    PLAYER.MOVE(hero, vx, vz)
+    
+    ; Sync camera
+    px, py, pz = ENTITY.GETPOS(hero)
+    cam.SETPOS(px, py + 2, pz - 10)
+    cam.SETTARGET(px, py + 1.2, pz)
+    
+    RENDER.CLEAR(40, 44, 52)
+    cam.BEGIN()
+    ; PHYSICS3D.DEBUGDRAW unavailable in this release — omit debug overlay
+    hero.DRAW()
+    cam.END()
+    RENDER.FRAME()
+WEND
+
+PHYSICS3D.STOP()
+WINDOW.CLOSE()
