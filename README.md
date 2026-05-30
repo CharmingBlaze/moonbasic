@@ -1,56 +1,94 @@
 # moonBASIC
 
-**A modern BASIC for building 2D and 3D games** — write `.mb` source, run with pre-built binaries. No Go, no compiler toolchain, no engine source required.
+**A modern BASIC for building 2D and 3D games** — write `.mb` source, download pre-built binaries, and run. No Go, no C compiler, no build step required.
 
-This repository is the **official distribution**: documentation, examples, and **GitHub Releases** with compiled **`moonbasic`** and **`moonrun`** for **Windows**, **Linux**, and **macOS (Apple Silicon)**.
+The engine ships with **Raylib** (graphics, audio, input), **Box2D** (2D physics), and **Jolt** (3D physics) built in — one language, one toolchain, ready to make games.
 
-> **Engine developers:** compiler and runtime source live at [github.com/CharmingBlaze/moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler) — not here.
+This repository is the **official home** for documentation, examples, and **pre-compiled downloads** for **Windows**, **Linux**, and **macOS (Apple Silicon)**.
 
 ---
 
-## Download
+## Where to download
 
-**[GitHub Releases → latest](https://github.com/CharmingBlaze/moonbasic/releases/latest)**
+**Latest release (recommended):**  
+**https://github.com/CharmingBlaze/moonbasic/releases/latest**
 
-| What you need | Download |
-|---------------|----------|
-| **Play and build games** (window, graphics, physics, audio) | **Full runtime** — `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
-| **Compile / lint / LSP only** (CI, editors — no game window) | **Compiler only** — `moonbasic-<tag>-compiler-windows-amd64.zip` or `moonbasic-<tag>-compiler-linux-amd64.tar.gz` |
-| **VS Code** (syntax, LSP, debugger) | **`moonbasic-<tag>-vscode.vsix`** on the same release page |
+**Download landing page (direct links by platform):**  
+**https://charmingblaze.github.io/moonbasic/**
 
-**Browse downloads:** [charmingblaze.github.io/moonbasic](https://charmingblaze.github.io/moonbasic/) (static landing page with direct links)
+Every release is a tagged bundle on the **Releases** tab of this repository. You do **not** clone or compile anything to play — download the zip/tar for your OS, extract, and run.
 
-See **[RELEASES.md](RELEASES.md)** for what each archive contains and platform notes.
+---
+
+## How to download
+
+1. Open **[Releases → Latest](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (or use the [download page](https://charmingblaze.github.io/moonbasic/) for one-click links).
+2. Find the asset row for your platform (see table below).
+3. Click the file name to download.
+4. Extract the archive to a folder you keep (Desktop, `Projects`, etc.).
+5. Open a terminal **in that extracted folder**.
+6. Run `moonrun --version` (Windows: `moonrun.exe --version`) to confirm it works.
+
+Inside each **full runtime** archive you get **`moonbasic`**, **`moonrun`**, and **`README-RELEASE.txt`** with platform-specific notes.
+
+Full details on every file name: **[RELEASES.md](RELEASES.md)**
+
+---
+
+## Which file do I need?
+
+Replace `<tag>` with the release version shown on the page (e.g. `v1.2.26`).
+
+| Your goal | Download this asset |
+|-----------|---------------------|
+| **Play or make games** (window, 2D/3D graphics, physics, audio) | **Full runtime** — `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
+| **Compile / lint / LSP only** (CI, editors — no game window) | **Compiler only** — `moonbasic-<tag>-compiler-windows-amd64.zip`, `moonbasic-<tag>-compiler-linux-amd64.tar.gz`, or `moonbasic-<tag>-compiler-macos-arm64.tar.gz` |
+| **VS Code** (syntax highlighting, LSP, debugger) | **`moonbasic-<tag>-vscode.vsix`** on the same release page |
+
+- **Full runtime** includes **`moonrun`** (the game engine) and **`moonbasic`** (compiler, `--check`, `--lsp`).
+- **Compiler only** includes **`moonbasic`** only — no window, no `moonrun`.
 
 ---
 
 ## Quick start (full runtime)
 
-1. Download and extract the **full runtime** zip/tar for your OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest).
-2. Open a terminal in that folder.
-3. Check it works:
+After you extract the **full runtime** archive:
 
-   ```bash
-   moonrun --version
-   ```
+```bash
+moonrun --version
+moonbasic new MyGame
+cd MyGame
+moonrun main.mb
+```
 
-   Windows: `moonrun.exe --version`
+Windows:
 
-4. Start a new game:
+```bat
+moonrun.exe --version
+moonbasic.exe new MyGame
+cd MyGame
+moonrun.exe main.mb
+```
 
-   ```bash
-   moonbasic new MyGame
-   cd MyGame
-   moonrun main.mb
-   ```
+**Run an example** from this repo (clone or **Code → Download ZIP** — examples are not inside the release zips):
 
-5. Or run an example from this repo (clone or download ZIP):
+```bash
+moonrun examples/spin_cube/main.mb
+```
 
-   ```bash
-   moonrun examples/spin_cube/main.mb
-   ```
+---
 
-Read **`README-RELEASE.txt`** inside the archive for troubleshooting (Windows DLL notes, Linux GPU stack, etc.).
+## What's built in
+
+moonBASIC is a complete game stack in one download:
+
+| System | Role |
+|--------|------|
+| **Raylib** | Window, rendering, textures, sprites, audio, input |
+| **Box2D** | 2D rigid-body physics, joints, collisions |
+| **Jolt Physics** | 3D physics, character controllers, collision layers |
+
+You call them through moonBASIC commands (`WINDOW.*`, `RENDER.*`, `PHYSICS2D.*`, `PHYSICS3D.*`, etc.) — no separate installs.
 
 ---
 
@@ -80,7 +118,7 @@ WEND
 WINDOW.CLOSE()
 ```
 
-More samples: **[examples/README.md](examples/README.md)** · full 3D cube: **`examples/spin_cube/`**
+More samples: **[examples/README.md](examples/README.md)** · 3D cube: **`examples/spin_cube/`**
 
 ---
 
@@ -92,7 +130,7 @@ More samples: **[examples/README.md](examples/README.md)** · full 3D cube: **`e
 | **`moonbasic --check game.mb`** | Parse and type-check without running |
 | **`moonbasic game.mb`** | Compile to **`game.mbc`** bytecode |
 | **`moonbasic --lsp`** | Language server on stdio (for editors) |
-| **`moonbasic new Name`** | Scaffold a new project with `main.mb` and assets folder |
+| **`moonbasic new Name`** | Scaffold a new project with `main.mb` and an assets folder |
 
 ---
 
