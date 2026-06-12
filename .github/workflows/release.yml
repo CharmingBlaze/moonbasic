@@ -16,7 +16,35 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  vscode-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: CharmingBlaze/moonbasic-compiler
+          ref: main
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
+
+      - name: Build VSIX
+        run: |
+          set -e
+          cd editors/vscode-moonbasic
+          npm ci
+          npm run package
+          cp vscode-moonbasic-*.vsix "${GITHUB_WORKSPACE}/moonbasic-${GITHUB_REF_NAME}-vscode.vsix"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: moonbasic-${{ github.ref_name }}-vscode.vsix
+
   linux-amd64:
+    needs: [vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -97,10 +125,21 @@ jobs:
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: vsix-bundle
+
+      - name: Bundle VS Code extension + installer
+        run: |
+          cp vsix-bundle/*.vsix dist/
+          cp packaging/INSTALL-VSCODE.sh dist/
+          cp packaging/INSTALL-VSCODE.bat dist/
+          chmod +x dist/INSTALL-VSCODE.sh dist/moonbasic dist/moonrun
+
       - name: Package (tar.gz)
         run: |
-          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" \
-            -C dist moonbasic moonrun README-RELEASE.txt
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" -C dist .
 
       - name: Build AppImage (optional tooling)
         continue-on-error: true
@@ -114,6 +153,7 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
 
   windows-amd64:
+    needs: [vscode-extension]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -171,6 +211,18 @@ jobs:
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: vsix-bundle
+
+      - name: Bundle VS Code extension + installer
+        shell: pwsh
+        run: |
+          Copy-Item vsix-bundle/*.vsix dist/
+          Copy-Item packaging/INSTALL-VSCODE.bat dist/
+          Copy-Item packaging/INSTALL-VSCODE.sh dist/
+
       - name: Verify Windows PE imports (no MinGW/Raylib DLLs)
         shell: pwsh
         run: |
@@ -194,6 +246,7 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
 
   macos-arm64:
+    needs: [vscode-extension]
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -236,10 +289,21 @@ jobs:
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: moonbasic-vscode-vsix
+          path: vsix-bundle
+
+      - name: Bundle VS Code extension + installer
+        run: |
+          cp vsix-bundle/*.vsix dist/
+          cp packaging/INSTALL-VSCODE.sh dist/
+          cp packaging/INSTALL-VSCODE.bat dist/
+          chmod +x dist/INSTALL-VSCODE.sh dist/moonbasic dist/moonrun
+
       - name: Package (tar.gz)
         run: |
-          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" \
-            -C dist moonbasic moonrun README-RELEASE.txt
+          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" -C dist .
 
       - uses: actions/upload-artifact@v5
         with:
@@ -338,33 +402,6 @@ jobs:
           name: moonbasic-compiler-macos-arm64
           path: moonbasic-${{ github.ref_name }}-compiler-macos-arm64.tar.gz
 
-  vscode-extension:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          repository: CharmingBlaze/moonbasic-compiler
-          ref: main
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-          cache: npm
-          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
-
-      - name: Build VSIX
-        run: |
-          set -e
-          cd editors/vscode-moonbasic
-          npm ci
-          npm run package
-          cp vscode-moonbasic-*.vsix "${GITHUB_WORKSPACE}/moonbasic-${GITHUB_REF_NAME}-vscode.vsix"
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: moonbasic-vscode-vsix
-          path: moonbasic-${{ github.ref_name }}-vscode.vsix
-
   github-release:
     needs: [linux-amd64, windows-amd64, macos-arm64, compiler-only-linux, compiler-only-windows, compiler-only-macos, vscode-extension]
     runs-on: ubuntu-latest
@@ -394,7 +431,9 @@ jobs:
 
             **Compiler only** (`.mb` → `.mbc`, `--check`, `--lsp`): `moonbasic-<tag>-compiler-windows-amd64.zip`, `moonbasic-<tag>-compiler-linux-amd64.tar.gz`, `moonbasic-<tag>-compiler-macos-arm64.tar.gz`.
 
-            **VS Code:** `moonbasic-<tag>-vscode.vsix` — syntax, LSP, debugger (needs full-runtime **`moonrun`**).
+            **VS Code / Cursor:** `moonbasic-<tag>-vscode.vsix` included in full-runtime zips — run **`moonbasic install-vscode`** or **`INSTALL-VSCODE.bat`** / **`./INSTALL-VSCODE.sh`**.
+
+            **4,200+ built-in commands** · beginner docs: [BEGIN_HERE.md](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/BEGIN_HERE.md)
 
             **New project:** `moonbasic new MyGame` then `moonrun main.mb`.
 
