@@ -1,0 +1,40 @@
+; VEC2 normalize diagonal move + PUSHOUT from circle arena
+; Guide: docs/systems/guides/math/VEC2-MATH.md
+; Check: moonbasic --check examples/guides/math/vec2_arena.mb
+; Run:   moonrun examples/guides/math/vec2_arena.mb
+
+APP.OPEN(800, 600, "VEC2 arena")
+APP.SETFPS(60)
+
+px = 400
+py = 300
+cx = 400
+cy = 300
+arenaR = 180
+
+WHILE NOT APP.SHOULDCLOSE()
+    dx = 0
+    dy = 0
+    IF INPUT.KEYDOWN(KEY_D) THEN dx = 1
+    IF INPUT.KEYDOWN(KEY_A) THEN dx = -1
+    IF INPUT.KEYDOWN(KEY_S) THEN dy = 1
+    IF INPUT.KEYDOWN(KEY_W) THEN dy = -1
+
+    IF dx <> 0 OR dy <> 0 THEN
+        n = VEC2.NORMALIZE(dx, dy)
+        px = px + VEC2.X(n) * 200 * APP.DELTA()
+        py = py + VEC2.Y(n) * 200 * APP.DELTA()
+        VEC2.FREE(n)
+    ENDIF
+
+    out = VEC2.PUSHOUT(px, py, cx, cy, arenaR)
+    px = VEC2.X(out)
+    py = VEC2.Y(out)
+    VEC2.FREE(out)
+
+    DRAW.CIRCLELINES(cx, cy, arenaR, 60, 60, 100, 255)
+    DRAW.CIRCLE(INT(px), INT(py), 10, 100, 180, 255, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

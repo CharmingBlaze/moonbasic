@@ -2,7 +2,7 @@
 
 Grid-based pathfinding on the **XZ** plane, lightweight steering forces as **Vec3 handles**, moving agents, and a small **behavior-tree** runner that calls your own **`FUNCTION`**s.
 
-**Build:** These natives are registered only in **CGO** builds (`runtime/mbnav/register_cgo.go`). With **`CGO_ENABLED=0`**, every call fails with a stub error telling you to enable **CGO**.
+**Availability:** These natives require the **full runtime** on **Windows** or **Linux**. Unsupported builds return a stub error.
 
 **Related:** Model bounds for **`NAV.ADDTERRAIN`** / **`NAV.ADDOBSTACLE`** come from loaded models (**`MODEL.*`** handles).
 

@@ -8,13 +8,15 @@ This page explains what each **repository demo** teaches and shows **short excer
 
 ## How to run
 
-From the repo root, **open a window** with the full runtime (not plain `go run .`, which only compiles to `.mbc`):
+Install the **full runtime** from [GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest), then from the repo root:
 
 ```bash
-CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
+moonrun examples/spin_cube/main.mb
 ```
 
-See [examples/README.md](../examples/README.md) for compile vs run, Windows PowerShell, and the full table.
+Check without a window: **`moonbasic --check examples/spin_cube/main.mb`**.
+
+See [examples/README.md](../examples/README.md) for Windows paths and the full demo table.
 
 ---
 
@@ -31,7 +33,7 @@ See [examples/README.md](../examples/README.md) for compile vs run, Windows Powe
 
 Command names are **case-insensitive** at compile time (`Draw.Text` and **`DRAW.TEXT`** resolve to the same builtin).
 
-For **all commands by namespace**, naming conventions, and `SetPos` / `SetPosition` aliases, see [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`). For errors (did-you-mean, runtime line info) see [ERROR_MESSAGES.md](ERROR_MESSAGES.md). **Live HUD:** `DEBUG.WATCH(label, value)` each frame (on-screen overlay requires CGO; enable with `DEBUG.ENABLE` or host debug mode — see [DEBUG.md](reference/DEBUG.md)). Shortcuts and instant-game helpers (`SCREENW`, `DT`, collision math, timers, …) are documented under [QOL.md](reference/QOL.md).
+For **all commands by namespace**, naming conventions, and `SetPos` / `SetPosition` aliases, see [API_CONSISTENCY.md](API_CONSISTENCY.md). For errors (did-you-mean, runtime line info) see [ERROR_MESSAGES.md](ERROR_MESSAGES.md). **Live HUD:** `DEBUG.WATCH(label, value)` each frame (on-screen overlay needs **`moonrun`**; enable with `DEBUG.ENABLE` or host debug mode — see [DEBUG.md](reference/DEBUG.md)). Shortcuts and instant-game helpers (`SCREENW`, `DT`, collision math, timers, …) are documented under [QOL.md](reference/QOL.md).
 
 ---
 

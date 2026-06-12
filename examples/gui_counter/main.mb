@@ -1,16 +1,17 @@
-; raygui counter with Inter (variable TTF, SIL Open Font License).
-; Font file: examples/gui_counter/fonts/InterVariable.ttf (upstream: github.com/rsms/inter)
-; Run from repo root: CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/gui_counter/main.mb
+; raygui counter with Inter variable font (SIL Open Font License).
+; Font: examples/gui_counter/fonts/InterVariable.ttf
+; Check: moonbasic --check examples/gui_counter/main.mb
+; Run:   moonrun examples/gui_counter/main.mb  (from repo root)
 
-WINDOW.OPEN(800, 520, "GUI counter")
-WINDOW.SETFPS(60)
+APP.OPEN(800, 520, "GUI counter")
+APP.SETFPS(60)
 GUI.ENABLE()
 GUI.THEMEAPPLY("DARK")
 
 uiFont = FONT.LOAD("examples/gui_counter/fonts/InterVariable.ttf")
 IF uiFont = 0 THEN
-    PRINT("FONT.LOAD failed: run from repo root so fonts/ path resolves")
-    WINDOW.CLOSE()
+    PRINT("FONT.LOAD failed — run from repo root")
+    APP.CLOSE()
     SYSTEM.EXIT()
 ENDIF
 GUI.SETFONT(uiFont)
@@ -19,7 +20,7 @@ GUI.SETTEXTSPACING(1)
 
 count = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(28, 30, 38)
 
     IF GUI.WINDOWBOX(56, 48, 688, 360, "Counter") THEN
@@ -36,10 +37,9 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     ENDIF
 
     GUI.LABEL(72, 212, 640, 40, "Count = " + STR(count))
-
     GUI.LABEL(24, 472, 752, 32, "ESC to quit")
     RENDER.FRAME()
 WEND
 
 FONT.FREE(uiFont)
-WINDOW.CLOSE()
+APP.CLOSE()

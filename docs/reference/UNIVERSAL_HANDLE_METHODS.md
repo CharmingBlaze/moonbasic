@@ -66,4 +66,4 @@ WINDOW.CLOSE()
 
 - [API_CONVENTIONS.md](API_CONVENTIONS.md)
 - [STYLE_GUIDE.md](../../STYLE_GUIDE.md)
-- [API_CONSISTENCY.md](../API_CONSISTENCY.md) (regenerate with `go run ./tools/apidoc`)
+- [API_CONSISTENCY.md](../API_CONSISTENCY.md)

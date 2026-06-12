@@ -2,15 +2,16 @@
 
 This page is a **topic-oriented** index of moonBASIC built-ins (globals and `NAMESPACE.NAME` APIs). It does not name every overload; the compiler manifest is the source of truth.
 
-**How to use these commands in a real program:** see the [Programming Guide](PROGRAMMING.md) (game loop, types, CGO) and runnable projects under [`examples/`](../examples/README.md). Copy-paste snippets also live in [Examples](EXAMPLES.md).
+**How to use these commands in a real program:** start with the **[40-system beginner guide](systems/README.md)** (`APP`, `ENTITY`, physics, …), then the [Programming Guide](PROGRAMMING.md) and runnable projects under [`examples/`](../examples/README.md). Copy-paste snippets also live in [Examples](EXAMPLES.md).
 
 ## Complete registry (every command)
 
 | Resource | Purpose |
 |----------|---------|
 | [`compiler/builtinmanifest/commands.json`](../compiler/builtinmanifest/commands.json) | Machine-readable manifest: one row per overload for the compiler and tools (count changes as APIs evolve). |
-| [API_CONSISTENCY.md](API_CONSISTENCY.md) | Human-readable list: **every** registered name with argument kinds, grouped by namespace. Regenerate: `go run ./tools/apidoc`. Optional per-row `description` in the manifest appears here when set. |
-| [COMMAND_AUDIT.md](COMMAND_AUDIT.md) | **Namespace → doc map:** overload counts per namespace, primary reference page, one-line blurb, and file-exists checks. Regenerate: `go run ./tools/cmdaudit`. |
+| [API_CONSISTENCY.md](API_CONSISTENCY.md) | Human-readable list: **every** registered name with argument kinds, grouped by namespace. Optional per-row `description` in the manifest appears here when set. |
+| [systems/COMMAND_REGISTRY.md](systems/COMMAND_REGISTRY.md) | Same data grouped for **beginner systems** (window, entity, physics, …) with links to narrative guides |
+| [COMMAND_AUDIT.md](COMMAND_AUDIT.md) | **Namespace → doc map:** overload counts per namespace, primary reference page, one-line blurb, and file-exists checks. |
 | [API_CONVENTIONS.md](reference/API_CONVENTIONS.md) | **Cross-type naming:** `LOAD` vs `MAKE`, `SETPOS`, scale/rotate patterns, and aliases. |
 | [reference/BLITZ_COMMAND_INDEX.md](reference/BLITZ_COMMAND_INDEX.md) | **Blitz3D / BlitzPlus → moonBASIC:** familiar names (`Plot`, `CreateCube`, `CameraZoom`, …) mapped to dotted APIs and notes on parity. |
 | [reference/dbpro/README.md](reference/dbpro/README.md) | **DarkBASIC Professional (DBPro) → moonBASIC:** modular section files (`01-objects-3d.md`, …) mapping DBPro commands to namespaces. |

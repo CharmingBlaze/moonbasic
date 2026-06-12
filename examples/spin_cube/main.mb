@@ -1,10 +1,11 @@
 ; Minimal 3D: one entity cube spinning on Y (plus tilt). Orbit camera fixed on the origin.
 ; No terrain, no post stack, no LIGHT2D — good GPU sanity check.
-; Run: go run -tags fullruntime . --run examples/spin_cube/main.mb
+; Check: moonbasic --check examples/spin_cube/main.mb
+; Run:   moonrun examples/spin_cube/main.mb
 
 SetMSAA(0)
-WINDOW.OPEN(800, 600, "moonBASIC — spinning cube")
-WINDOW.SETFPS(60)
+APP.OPEN(800, 600, "moonBASIC — spinning cube")
+APP.SETFPS(60)
 
 cam = CAMERA.CREATE().fov(55)
 
@@ -15,9 +16,9 @@ camPitch = 0.32
 cdist = 6.5
 ang = 0.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(38, 42, 58)
-    dt = Time.Delta(0.0167, 0.05)
+    dt = APP.DELTA()
     ang = ang + dt * 0.4
     
     ; Absolute euler radians: pitch, yaw, roll — spin mianly around Y
@@ -36,4 +37,4 @@ WEND
 
 cube.free()
 cam.free()
-WINDOW.CLOSE()
+APP.CLOSE()

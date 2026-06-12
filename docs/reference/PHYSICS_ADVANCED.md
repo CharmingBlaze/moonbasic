@@ -84,7 +84,7 @@ When enabled, all physics-driven entities automatically receive buoyancy forces 
 
 ## Platform Parity
 
-Desktop **Windows and Linux** with **`CGO_ENABLED=1`** and linked Jolt use the **same** native physics path. **`!cgo`** or missing Jolt libs use **stubs** (limited or error-returning APIs).
+Desktop **Windows** and **Linux** full runtime use the **same** native Jolt physics path. Other builds use **stubs** (limited or error-returning APIs).
 
 | Feature | With native Jolt (desktop CGO) | Stub / no Jolt |
 | :--- | :--- | :--- |

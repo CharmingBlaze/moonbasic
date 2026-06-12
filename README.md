@@ -1,58 +1,53 @@
 # moonBASIC
 
-**A modern BASIC for building 2D and 3D games** — write `.mb` source, download pre-built binaries, and run. No Go, no C compiler, no build step required.
+**A modern BASIC for building 2D and 3D games** — write `.mb` source, download pre-built binaries, and run. **No Go, no C compiler, no build tools** on your machine.
 
-The engine ships with **Raylib** (graphics, audio, input), **Box2D** (2D physics), and **Jolt** (3D physics) built in — one language, one toolchain, ready to make games.
+One download gives you **`moonrun`** (play games) and **`moonbasic`** (check, compile to `.mbc`, language server). The engine bundles **Raylib**, **Box2D**, and **Jolt** — graphics, audio, 2D physics, 3D physics, networking, terrain, UI, particles, and more behind **4,200+ built-in commands** across 40+ namespaces (`WINDOW.*`, `ENTITY.*`, `PHYSICS3D.*`, `GUI.*`, `NET.*`, …).
 
 This repository is the **official home** for documentation, examples, and **pre-compiled downloads** for **Windows**, **Linux**, and **macOS (Apple Silicon)**.
 
 ---
 
-## Where to download
+## Download (nothing else required)
 
-**Latest release (recommended):**  
-**https://github.com/CharmingBlaze/moonbasic/releases/latest**
+**Latest release:** **[github.com/CharmingBlaze/moonbasic/releases/latest](https://github.com/CharmingBlaze/moonbasic/releases/latest)**
 
-**Download landing page (direct links by platform):**  
-**https://charmingblaze.github.io/moonbasic/**
+**Direct links by platform:** **[charmingblaze.github.io/moonbasic/](https://charmingblaze.github.io/moonbasic/)**
 
-Every release is a tagged bundle on the **Releases** tab of this repository. You do **not** clone or compile anything to play — download the zip/tar for your OS, extract, and run.
+1. Download the **full runtime** for your OS (table below).
+2. Extract anywhere permanent.
+3. `moonrun --version` (Windows: `moonrun.exe --version`).
+4. `moonrun main.mb` or `moonbasic new MyGame` → `moonrun main.mb`.
 
----
+You do **not** need to install Go, GCC, Node.js, or Raylib separately.
 
-## How to download
+| Your goal | Download |
+|-----------|----------|
+| **Play / make games** | **Full runtime** — `moonbasic-<tag>-windows-amd64.zip`, `linux-amd64.tar.gz`, or `macos-arm64.tar.gz` |
+| **Lint / compile / LSP only** (no game window) | **Compiler only** — `moonbasic-<tag>-compiler-…` |
+| **VS Code / Cursor** | Included in full-runtime zip + **`moonbasic-<tag>-vscode.vsix`** on Releases |
 
-1. Open **[Releases → Latest](https://github.com/CharmingBlaze/moonbasic/releases/latest)** (or use the [download page](https://charmingblaze.github.io/moonbasic/) for one-click links).
-2. Find the asset row for your platform (see table below).
-3. Click the file name to download.
-4. Extract the archive to a folder you keep (Desktop, `Projects`, etc.).
-5. Open a terminal **in that extracted folder**.
-6. Run `moonrun --version` (Windows: `moonrun.exe --version`) to confirm it works.
-
-Inside each **full runtime** archive you get **`moonbasic`**, **`moonrun`**, and **`README-RELEASE.txt`** with platform-specific notes.
-
-Full details on every file name: **[RELEASES.md](RELEASES.md)**
+Full-runtime archives include **`moonbasic`**, **`moonrun`**, **`README-RELEASE.txt`**, the **VS Code `.vsix`**, and **`INSTALL-VSCODE.bat`** / **`INSTALL-VSCODE.sh`**. Details: **[RELEASES.md](RELEASES.md)**
 
 ---
 
-## Which file do I need?
+## VS Code / Cursor (one command)
 
-Replace `<tag>` with the release version shown on the page (e.g. `v1.2.26`).
+After extracting the full runtime:
 
-| Your goal | Download this asset |
-|-----------|---------------------|
-| **Play or make games** (window, 2D/3D graphics, physics, audio) | **Full runtime** — `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` |
-| **Compile / lint / LSP only** (CI, editors — no game window) | **Compiler only** — `moonbasic-<tag>-compiler-windows-amd64.zip`, `moonbasic-<tag>-compiler-linux-amd64.tar.gz`, or `moonbasic-<tag>-compiler-macos-arm64.tar.gz` |
-| **VS Code** (syntax highlighting, LSP, debugger) | **`moonbasic-<tag>-vscode.vsix`** on the same release page |
+```bash
+moonbasic install-vscode
+```
 
-- **Full runtime** includes **`moonrun`** (the game engine) and **`moonbasic`** (compiler, `--check`, `--lsp`).
-- **Compiler only** includes **`moonbasic`** only — no window, no `moonrun`.
+Or double-click **`INSTALL-VSCODE.bat`** (Windows) / run **`./INSTALL-VSCODE.sh`**.
+
+That installs the extension and sets **`moonbasic.languageServerPath`** and **`moonbasic.moonrunPath`** automatically. Then open any `.mb` file — completions, hover help, **Ctrl+F5** run, **Ctrl+Shift+C** check, **Alt+H** help at cursor.
+
+Extension source: **[editors/vscode-moonbasic/](editors/vscode-moonbasic/)** · Guide: **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp)**
 
 ---
 
-## Quick start (full runtime)
-
-After you extract the **full runtime** archive:
+## Quick start
 
 ```bash
 moonrun --version
@@ -61,64 +56,52 @@ cd MyGame
 moonrun main.mb
 ```
 
-Windows:
-
-```bat
-moonrun.exe --version
-moonbasic.exe new MyGame
-cd MyGame
-moonrun.exe main.mb
-```
-
-**Run an example** from this repo (clone or **Code → Download ZIP** — examples are not inside the release zips):
+**Try an example** from this repo (clone or Download ZIP — examples ship here, not inside release zips):
 
 ```bash
 moonrun examples/spin_cube/main.mb
+moonrun examples/guides/game_loop.mb
 ```
+
+---
+
+## Documentation
+
+| Start here | |
+|------------|---|
+| **[docs/BEGIN_HERE.md](docs/BEGIN_HERE.md)** | Install, first 10 minutes, learning path |
+| **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** | Ship your game, VS Code, player installs |
+| **[docs/systems/GUIDES.md](docs/systems/GUIDES.md)** | Topic guides (physics, lighting, multiplayer, math, …) |
+| **[docs/COMMANDS.md](docs/COMMANDS.md)** | Command index |
+| **[docs/reference/](docs/reference/)** | Full API by namespace |
+| **[web/command-browser.html](web/command-browser.html)** | Searchable offline command browser |
+| **[examples/](examples/)** | Runnable demos + **`examples/guides/`** copies of doc examples |
 
 ---
 
 ## What's built in
 
-moonBASIC is a complete game stack in one download:
-
-| System | Role |
-|--------|------|
-| **Raylib** | Window, rendering, textures, sprites, audio, input |
-| **Box2D** | 2D rigid-body physics, joints, collisions |
-| **Jolt Physics** | 3D physics, character controllers, collision layers |
-
-You call them through moonBASIC commands (`WINDOW.*`, `RENDER.*`, `PHYSICS2D.*`, `PHYSICS3D.*`, etc.) — no separate installs.
-
----
-
-## What's in this repository
-
-| Path | Purpose |
-|------|---------|
-| [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | Install, first window, VS Code, ship your game |
-| [docs/LANGUAGE.md](docs/LANGUAGE.md) | Syntax, variables, control flow, functions |
-| [docs/PROGRAMMING.md](docs/PROGRAMMING.md) | Game loop, 2D/3D patterns |
-| [docs/COMMANDS.md](docs/COMMANDS.md) | Built-in command index |
-| [docs/reference/](docs/reference/) | Full API reference by namespace |
-| [examples/](examples/) | Runnable sample games and demos |
-| [web/command-browser.html](web/command-browser.html) | Searchable offline command browser (open in a browser) |
-| [RELEASES.md](RELEASES.md) | Release artifact guide |
+| Layer | Technology |
+|-------|------------|
+| Graphics & audio | **Raylib** |
+| 2D physics | **Box2D** |
+| 3D physics & KCC | **Jolt** |
+| Multiplayer | **ENet** (where enabled) |
 
 ---
 
 ## Example
 
 ```moonbasic
-WINDOW.OPEN(960, 540, "Hello moonBASIC")
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+APP.OPEN(960, 540, "Hello moonBASIC")
+WHILE NOT APP.SHOULDCLOSE()
     RENDER.CLEAR(20, 24, 32)
     RENDER.FRAME()
 WEND
-WINDOW.CLOSE()
+APP.CLOSE()
 ```
 
-More samples: **[examples/README.md](examples/README.md)** · 3D cube: **`examples/spin_cube/`**
+(`APP.*` aliases `WINDOW.*` — same engine, clearer tutorials.)
 
 ---
 
@@ -126,14 +109,17 @@ More samples: **[examples/README.md](examples/README.md)** · 3D cube: **`exampl
 
 | Command | What it does |
 |---------|----------------|
-| **`moonrun game.mb`** | Compile (if needed) and run with the full engine |
+| **`moonrun game.mb`** | Compile (if needed) and run — **primary entry point** |
 | **`moonbasic --check game.mb`** | Parse and type-check without running |
 | **`moonbasic game.mb`** | Compile to **`game.mbc`** bytecode |
-| **`moonbasic --lsp`** | Language server on stdio (for editors) |
-| **`moonbasic new Name`** | Scaffold a new project with `main.mb` and an assets folder |
+| **`moonbasic --lsp`** | Language server (stdio) for editors |
+| **`moonbasic new Name`** | New project: `main.mb`, `assets/`, `.vscode/` |
+| **`moonbasic install-vscode`** | Install VS Code / Cursor extension + configure paths |
 
 ---
 
 ## License
 
 **MIT** — see [LICENSE](LICENSE).
+
+**Engine source (contributors):** [github.com/CharmingBlaze/moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler)

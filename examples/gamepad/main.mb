@@ -1,9 +1,9 @@
 ; Gamepad demo: left stick moves a square; face buttons change color.
-; Run from repo root: CGO_ENABLED=1 go run . examples/gamepad/main.mb
-; Plug in a controller before or during the demo.
+; Check: moonbasic --check examples/gamepad/main.mb
+; Run:   moonrun examples/gamepad/main.mb
 
-WINDOW.OPEN(640, 480, "moonBASIC Gamepad")
-WINDOW.SETFPS(60)
+APP.OPEN(640, 480, "Gamepad demo")
+APP.SETFPS(60)
 
 pad = 0
 px = 320
@@ -12,8 +12,8 @@ r = 255
 g = 200
 b = 80
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = TIME.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     connected = INPUT.ISGAMEPADAVAILABLE(pad)
     IF connected THEN
         ax = INPUT.GETGAMEPADAXISVALUE(pad, GAMEPAD_AXIS_LEFT_X)
@@ -30,10 +30,10 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 
     RENDER.CLEAR(18, 20, 28)
     DRAW.RECTANGLE(INT(px) - 16, INT(py) - 16, 32, 32, r, g, b, 255)
-    status$ = "No gamepad — plug in pad 0"
-    IF connected THEN status$ = "Left stick move   A/B/X recolor channels   ESC quit"
-    DRAW.TEXT(status$, 40, 12, 18, 220, 220, 230, 255)
+    status = "No gamepad — plug in pad 0"
+    IF connected THEN status = "Stick move  A/B/X recolor  ESC quit"
+    DRAW.TEXT(status, 40, 12, 18, 220, 220, 230, 255)
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

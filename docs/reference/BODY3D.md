@@ -2,7 +2,7 @@
 
 3D rigid body creation and simulation using Jolt Physics. Build body definitions, add collision shapes, commit to the world, then read state each frame.
 
-Requires **`CGO_ENABLED=1`** and linked Jolt on Windows/Linux. See [PHYSICS3D.md](PHYSICS3D.md) and [PHYSICS_ADVANCED.md](PHYSICS_ADVANCED.md).
+Requires **full runtime** with 3D physics on **Windows** or **Linux**. See [PHYSICS3D.md](PHYSICS3D.md) and [PHYSICS_ADVANCED.md](PHYSICS_ADVANCED.md).
 
 ## Core Workflow
 

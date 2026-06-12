@@ -1,0 +1,35 @@
+; Point + directional lights on simple geometry
+; Guide: docs/systems/guides/LIGHTING.md
+; Check: moonbasic --check examples/guides/lighting.mb
+; Run:   moonrun examples/guides/lighting.mb
+
+APP.OPEN(800, 600, "Lighting demo")
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETACTIVE(cam)
+CAMERA.SETPOS(cam, 0, 3, -10)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+; Sun — parallel rays from above-left (dx,dy,dz, r,g,b, energy)
+sun = LIGHT.CREATEDIRECTIONAL(-0.5, -1, -0.3, 255, 240, 220, 1.2)
+
+; Warm point light near the pillar (x,y,z, r,g,b, energy)
+torch = LIGHT.CREATEPOINT(2, 2, 0, 255, 180, 80, 2.0)
+
+floor = ENTITY.CREATECUBE(20, 0.2, 20)
+floor.pos(0, -1, 0)
+pillar = ENTITY.CREATECUBE(1, 4, 1)
+pillar.pos(0, 1, 0)
+
+WHILE NOT APP.SHOULDCLOSE()
+    RENDER.CLEAR(15, 18, 25)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+LIGHT.FREE(torch)
+LIGHT.FREE(sun)
+APP.CLOSE()

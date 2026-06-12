@@ -2,7 +2,7 @@
 ; Orbit: hold RIGHT mouse and drag (same pattern as terrain_colored). Left click = spawn.
 ;
 ; Run from repo root (needs Jolt + CGO, fullruntime):
-;   go run -tags fullruntime . --run examples/sphere_drop/main.mb
+;   moonrun examples/sphere_drop/main.mb
 
 CONST MAX_BALLS = 48
 CONST BALL_R = 0.35
@@ -23,8 +23,8 @@ CONST DIST_MIN = 4.0
 CONST DIST_MAX = 28.0
 
 RENDER.SETMSAA(FALSE)
-WINDOW.OPEN(1280, 720, "moonBASIC — sphere drop (3D physics)")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "moonBASIC — sphere drop (3D physics)")
+APP.SETFPS(60)
 CURSOR.SHOW()
 
 PHYSICS3D.START()
@@ -59,9 +59,9 @@ orbitPy = 0.0
 lmbWasDown = 0
 colorIdx = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(32, 38, 52)
-    dt = TIME.DELTA(0.0167, 0.05)
+    dt = APP.DELTA()
 
     ; Orbit camera
     IF INPUT.MOUSEDOWN(ORBIT_BTN) THEN
@@ -180,5 +180,5 @@ floorEnt.FREE()
 PHYSICS3D.STOP()
 CURSOR.SHOW()
 cam.FREE()
-WINDOW.CLOSE()
+APP.CLOSE()
 

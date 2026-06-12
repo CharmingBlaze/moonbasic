@@ -2,7 +2,7 @@
 
 GPU compute shader dispatch: load GLSL compute programs, create GPU buffers, set uniforms, and dispatch parallel work groups.
 
-Requires **fullruntime** with compute shader support (OpenGL 4.3+ / Vulkan backend).
+Requires **full runtime** with compute shader support (OpenGL 4.3+ / Vulkan backend).
 
 ## Core Workflow
 

@@ -1,6 +1,7 @@
 ; Async terrain LOD swap: FLAT green floor + spinner until WORLD.ISREADY, then heightmap.
 ; Readiness is WORLD.ISREADY(terrain) — there is no TERRAIN.ISREADY; world streaming owns the check.
-; Run: CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/terrain_async/main.mb
+; Check: moonbasic --check examples/terrain_async/main.mb
+; Run:   moonrun examples/terrain_async/main.mb
 
 CONST TW = 320
 CONST TCX = 160.0
@@ -23,9 +24,9 @@ CONST GRID_SLICES = 36
 CONST GRID_STEP = 2.2
 
 SetMSAA(0)
-WINDOW.OPEN(1280, 720, "moonBASIC - async terrain (LOD swap)")
+APP.OPEN(1280, 720, "moonBASIC - async terrain (LOD swap)")
 WINDOW.SETLOADINGMODE(TRUE)
-WINDOW.SETFPS(60)
+APP.SETFPS(60)
 
 terrain = Terrain.Create(TW, TW)
 Terrain.FillPerlin(terrain, 0.032, 50.0)
@@ -50,9 +51,9 @@ cd = 12.0
 ready = 0
 spinTick = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(40, 58, 82)
-    dt = Time.Delta(0.0167, 0.05)
+    dt = APP.DELTA()
 
     dx = INPUT.MOUSEDELTAX()
     dy = INPUT.MOUSEDELTAY()
@@ -142,4 +143,4 @@ WEND
 ENTITY.FREE(player)
 Terrain.Free(terrain)
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

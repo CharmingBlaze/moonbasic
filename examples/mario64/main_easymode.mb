@@ -2,8 +2,8 @@
 ; Featuring: Batch 6 Atmospheric Fog, Material Alpha, and Definitive Documentation.
 ; --------------------------------------------------------------------------------
 
-WINDOW.OPEN(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
-WINDOW.SETFPS(60)
+APP.OPEN(1024, 576, "MoonBASIC — Misty Star Road [Batch 6]")
+APP.SETFPS(60)
 ; Hide the system mouse pointer while playing (orbit uses relative mouse). Show again before exit.
 CURSOR.HIDE()
 
@@ -120,14 +120,14 @@ COLORPRINT(100, 255, 100, "MoonBASIC — Star Road Engine Ready!")
 ; Main Game Loop
 WHILE 1
     ; --- 1. Loop Control ---
-    IF WINDOW.SHOULDCLOSE() THEN EXIT WHILE
+    IF APP.SHOULDCLOSE() THEN EXIT WHILE
     IF KEYDOWN(KEY_ESCAPE) THEN EXIT WHILE
     
     ; Clear screen
     RENDER.CLEAR()
     SKYCOLOR(0, 0, 15)
     
-    dt = TIME.DELTA()
+    dt = APP.DELTA()
 
     ; 1. Input: Camera Orbiting
     camYaw = camYaw + INPUT.MOUSEDX() * MOUSE_SENSITIVITY
@@ -257,4 +257,4 @@ WHILE 1
 WEND
 
 CURSOR.SHOW()
-WINDOW.CLOSE()
+APP.CLOSE()

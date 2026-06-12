@@ -1,0 +1,31 @@
+; Foundation sample — APP.* window loop, entity cube, point light.
+; Check: moonbasic --check examples/foundation/main.mb
+; Run:   moonrun examples/foundation/main.mb
+
+APP.OPEN(1280, 720, "MoonBasic Foundation")
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETACTIVE(cam)
+CAMERA.SETPOS(cam, 0, 2, -8)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+cube = ENTITY.CREATECUBE(2, 2, 2)
+ENTITY.SETNAME(cube, "Cube")
+cube.pos(0, 0, 5)
+
+lamp = LIGHT.CREATE("point")
+ENTITY.SETNAME(lamp, "Light")
+lamp.pos(0, 5, -3)
+
+WHILE NOT APP.SHOULDCLOSE()
+    cube.turn(0, 60 * APP.DELTA(), 0)
+
+    RENDER.CLEAR(20, 20, 30)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

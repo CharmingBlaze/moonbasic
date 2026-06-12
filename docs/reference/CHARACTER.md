@@ -2,7 +2,7 @@
 
 High-level **heap-backed character controller** API. **`CHARACTER.CREATE`** binds a **Jolt `CharacterVirtual`** capsule to a visual entity and returns a **`CHARACTERREF`** handle for all subsequent motion and query calls.
 
-**Platform:** Windows and Linux with **CGO + Jolt** (`fullruntime`). Same keys are registered as stubs on other builds. **Documentation order:** Windows-first ([DEVELOPER.md](../DEVELOPER.md#platform-priority-windows-then-linux)).
+**Platform:** **Windows** and **Linux** full runtime (with 3D physics). Other platforms may register stubs. **Documentation order:** Windows first, then Linux.
 
 For **`PLAYER.*`** high-level gameplay, see [PLAYER.md](PLAYER.md). For the standalone capsule API and KCC guide, see [CHARACTER_PHYSICS.md](CHARACTER_PHYSICS.md).
 

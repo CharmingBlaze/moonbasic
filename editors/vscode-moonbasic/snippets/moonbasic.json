@@ -1,0 +1,94 @@
+{
+  "Foundation game loop (APP)": {
+    "prefix": "mbfoundation",
+    "body": [
+      "APP.OPEN(${1:1280}, ${2:720}, \"${3:My Game}\")",
+      "APP.SETFPS(${4:60})",
+      "",
+      "${0:// setup}",
+      "",
+      "WHILE NOT APP.SHOULDCLOSE()",
+      "    RENDER.CLEAR(20, 24, 32)",
+      "    RENDER.FRAME()",
+      "WEND",
+      "",
+      "APP.CLOSE()"
+    ],
+    "description": "APP.OPEN → game loop → APP.CLOSE"
+  },
+  "3D frame (RENDER.BEGIN / END)": {
+    "prefix": "mbframe3d",
+    "body": [
+      "RENDER.CLEAR(${1:12}, ${2:14}, ${3:22})",
+      "RENDER.BEGIN(${4:cam})",
+      "    SCENE.DRAW()",
+      "RENDER.END()",
+      "RENDER.FRAME()"
+    ],
+    "description": "Clear → BEGIN(cam) → SCENE.DRAW → END → FRAME"
+  },
+  "Camera chain": {
+    "prefix": "mbcam",
+    "body": [
+      "${1:cam} = CAMERA.CREATE(\"${2:Main Camera}\")",
+      "CAMERA.SETACTIVE($1)",
+      "ENTITY.SETPOSITION($1, ${3:0}, ${4:2}, ${5:-8})",
+      "CAMERA.LOOKAT($1, ${6:0}, ${7:0}, ${8:0})"
+    ],
+    "description": "CAMERA.CREATE + SETACTIVE + position + LOOKAT"
+  },
+  "Namespace CREATE": {
+    "prefix": "mbcreate",
+    "body": "${1:NAMESPACE}.CREATE(${2:})",
+    "description": "NAMESPACE.CREATE(...)"
+  },
+  "ENTITY SETPOSITION": {
+    "prefix": "mbsetpos",
+    "body": "ENTITY.SETPOSITION(${1:handle}, ${2:x}, ${3:y}, ${4:z})",
+    "description": "ENTITY.SETPOSITION(handle, x, y, z)"
+  },
+  "Physics step": {
+    "prefix": "mbphys3d",
+    "body": "PHYSICS.STEP()",
+    "description": "PHYSICS.STEP() after PHYSICS.START"
+  },
+  "While … WEND": {
+    "prefix": "while",
+    "body": ["WHILE ${1:condition}", "\t$0", "WEND"],
+    "description": "WHILE / WEND loop"
+  },
+  "For … Next": {
+    "prefix": "for",
+    "body": [
+      "FOR ${1:i} = ${2:1} TO ${3:10}${4: STEP ${5:1}}",
+      "\t$0",
+      "NEXT ${1:i}"
+    ],
+    "description": "FOR / NEXT loop"
+  },
+  "Function … EndFunction": {
+    "prefix": "function",
+    "body": ["FUNCTION ${1:name}(${2:args})", "\t$0", "ENDFUNCTION"],
+    "description": "FUNCTION / ENDFUNCTION"
+  },
+  "Select … Case": {
+    "prefix": "select",
+    "body": [
+      "SELECT ${1:expr}",
+      "CASE ${2:value}",
+      "\t$0",
+      "ENDSELECT"
+    ],
+    "description": "SELECT / CASE"
+  },
+  "IF … ENDIF": {
+    "prefix": "if",
+    "body": ["IF ${1:condition} THEN", "\t$0", "ENDIF"],
+    "description": "IF / ENDIF block"
+  },
+  "PRINT": {
+    "prefix": "print",
+    "body": "PRINT ${0:}",
+    "description": "PRINT statement"
+  }
+}

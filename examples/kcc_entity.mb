@@ -1,8 +1,8 @@
 ; kcc_entity.mb - Professional KCC Entity Binding (Easy Mode)
 ; Demonstrates attaching a KCC to a 3D model entity.
-; Run: go run -tags fullruntime . --run examples/kcc_entity.mb
+; Run: moonrun examples/kcc_entity.mb
 
-WINDOW.OPEN(1280, 720, "MoonBASIC KCC Easy Mode")
+APP.OPEN(1280, 720, "MoonBASIC KCC Easy Mode")
 PHYSICS3D.START()
 
 ; Create ground
@@ -31,7 +31,7 @@ PRINT("KCC Easy Mode Demo")
 PRINT("Character is bound to the hero entity.")
 PRINT("Use Arrows to move hero.")
 
-WHILE NOT WINDOW.SHOULDCLOSE()
+WHILE NOT APP.SHOULDCLOSE()
     ; Modern handle methods
     vx = 0 : vz = 0
     IF INPUT.KEYDOWN(KEY_UP) THEN vz = 6
@@ -55,4 +55,4 @@ WHILE NOT WINDOW.SHOULDCLOSE()
 WEND
 
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

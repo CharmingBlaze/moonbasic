@@ -1,8 +1,8 @@
 ; kcc_buoyancy.mb - Professional KCC Buoyancy Example
 ; Demonstrates floating, drag, and swim mode.
-; Run: go run -tags fullruntime . --run examples/kcc_buoyancy.mb
+; Run: moonrun examples/kcc_buoyancy.mb
 
-WINDOW.OPEN(1280, 720, "MoonBASIC KCC Buoyancy")
+APP.OPEN(1280, 720, "MoonBASIC KCC Buoyancy")
 PHYSICS3D.START()
 
 ; Pool floor volume
@@ -11,7 +11,7 @@ poolDef.ADDBOX(25, 5, 25)
 poolBody = poolDef.COMMIT(0, -5, 0)
 
 ; Initialize character: (radius, height, x, y, z)
-char = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
+kccHero = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
 
 cam = CAMERA.CREATE()
 cam.SETMODE(1)
@@ -19,8 +19,8 @@ cam.SETMODE(1)
 PRINT("KCC Buoyancy Demo")
 PRINT("The character will enter the water at Y below 2")
 
-WHILE NOT WINDOW.SHOULDCLOSE()
-    dt = TIME.DELTA()
+WHILE NOT APP.SHOULDCLOSE()
+    dt = APP.DELTA()
     
     ; Movement
     vx = 0 : vz = 0
@@ -28,31 +28,31 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     IF INPUT.KEYDOWN(KEY_DOWN) THEN vz = -4
     
     ; Logic
-    px, py, pz = char.pos()
+    px, py, pz = kccHero.pos()
     
     IF py < 2 THEN
         ; Entering water
-        char.SETSETTING("SWIMMODE", 1)
-        char.SETSETTING("BUOYANCY", 0.8) ; 80 percent gravity cancelled
-        char.SETSETTING("DRAG", 2.0)     ; Slow down linear movement
+        kccHero.SETSETTING("SWIMMODE", 1)
+        kccHero.SETSETTING("BUOYANCY", 0.8) ; 80 percent gravity cancelled
+        kccHero.SETSETTING("DRAG", 2.0)     ; Slow down linear movement
         
         ; Swim up
         IF INPUT.KEYDOWN(KEY_SPACE) THEN 
-            v = char.GETLINEARVEL()
-            char.SETVELOCITY(v(1), v(2) + 0.5, v(3))
+            v = kccHero.GETLINEARVEL()
+            kccHero.SETVELOCITY(v(1), v(2) + 0.5, v(3))
         ENDIF
     ELSE
         ; Out of water
-        char.SETSETTING("SWIMMODE", 0)
+        kccHero.SETSETTING("SWIMMODE", 0)
         
         ; Regular jump
-        IF INPUT.KEYDOWN(KEY_SPACE) AND char.ISGROUNDED() THEN
-            char.JUMP(12.0)
+        IF INPUT.KEYDOWN(KEY_SPACE) AND kccHero.ISGROUNDED() THEN
+            kccHero.JUMP(12.0)
         ENDIF
     ENDIF
     
-    char.SETVELOCITY(vx, 0, vz)
-    char.UPDATE()
+    kccHero.SETVELOCITY(vx, 0, vz)
+    kccHero.UPDATE()
     
     ; Sync camera
     cam.SETPOS(px, py + 1.6, pz - 8)
@@ -70,6 +70,6 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     RENDER.FRAME()
 WEND
 
-char.FREE()
+kccHero.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

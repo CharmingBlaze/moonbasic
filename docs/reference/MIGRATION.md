@@ -37,4 +37,4 @@ Commands marked **`stub`** in `commands.json` are rejected at **compile time** w
 - **Namespace shadowing:** a variable named `time` shadows `TIME.*`. The compiler warns when a variable name matches a built-in namespace.
 - **Game loop condition:** `NOT a OR b` parses as `(NOT a) OR b`. Use `NOT (a OR b)` — the compiler warns on the common mistake.
 
-Regenerate stub annotations after manifest edits: `go run ./tools/annotate_stubs` (maintainers).
+Maintainers regenerate stub annotations after manifest edits — see [DEVELOPER.md](../DEVELOPER.md).

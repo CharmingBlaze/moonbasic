@@ -2,7 +2,7 @@
 
 Low-level Jolt Physics primitives. Prefer `BODY3D.*`, `PHYSICS3D.*`, and `SHAPE.*` for normal use — `JOLT.*` exposes the raw engine layer for advanced scenarios or when you need direct control.
 
-Requires **CGO + Jolt** (Windows/Linux fullruntime).
+Requires **full runtime** (Windows or Linux desktop, with 3D physics).
 
 ## Core Workflow
 

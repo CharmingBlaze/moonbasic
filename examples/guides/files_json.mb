@@ -1,0 +1,33 @@
+; Load or create options.json with volume key
+; Guide: docs/systems/guides/FILES-AND-JSON.md
+; Check: moonbasic --check examples/guides/files_json.mb
+; Run:   moonrun examples/guides/files_json.mb
+
+volume = 0.8
+IF FILE.EXISTS("options.json") THEN
+    rawJson = FILE.READTEXT("options.json")
+    doc = JSON.PARSESTRING(rawJson)
+    volume = JSON.GETFLOAT(doc, "audio.volume")
+    JSON.FREE(doc)
+ENDIF
+
+APP.OPEN(400, 200, "Files + JSON")
+APP.SETFPS(60)
+
+WHILE NOT APP.SHOULDCLOSE()
+    IF INPUT.KEYHIT(KEY_UP) THEN volume = volume + 0.1
+    IF INPUT.KEYHIT(KEY_DOWN) THEN volume = volume - 0.1
+    volume = MATH.CLAMP(volume, 0, 1)
+
+    IF INPUT.KEYHIT(KEY_S) THEN
+        doc = JSON.PARSESTRING("{\"audio\":{\"volume\":0}}")
+        JSON.SETFLOAT(doc, "audio.volume", volume)
+        FILE.WRITETEXT("options.json", JSON.STRINGIFY(doc))
+        JSON.FREE(doc)
+    ENDIF
+
+    DRAW.TEXT("Volume " + volume + "  (S save)", 10, 10, 16, 255, 255, 255, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

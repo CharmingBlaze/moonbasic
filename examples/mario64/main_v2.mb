@@ -3,10 +3,11 @@
 ;   • Move on the ground plane with WASD using INPUT.AXIS + MOVESTEPX/MOVESTEPZ
 ;   • Land on all platforms with LANDBOXES (best BOXTOPLAND Y) — or use BOXTOPLAND in a loop
 ;   • Parallel arrays for platforms (see main_v3.mb for TYPE + DIM AS version)
-; Run: CGO_ENABLED=1 go run . examples/mario64/main_v2.mb
+; Check: moonbasic --check examples/mario64/main_v2.mb
+; Run:   moonrun examples/mario64/main_v2.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC 3D Hop v2")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC 3D Hop v2")
+APP.SETFPS(60)
 
 CONST MOVE_SPEED = 11.0
 CONST PLAYER_R = 0.45
@@ -58,7 +59,7 @@ plx(3) = 0.0 : ply(3) = 4.0 : plz(3) = 18.0
 plw(3) = 3.0 : plh(3) = 0.35 : pld(3) = 3.0
 pr(3) = 255 : pg(3) = 210 : pb(3) = 60
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     dt = DT()
 
     ; Orbit: mouse X delta, then optional Q/E
@@ -112,4 +113,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 WEND
 
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

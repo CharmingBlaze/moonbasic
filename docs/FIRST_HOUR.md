@@ -10,7 +10,7 @@ MoonBASIC isn't your grandfather's BASIC. It's a high-performance, object-orient
 
 ### Your first project (30 seconds)
 
-After installing the **full runtime** from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest):
+Read [BEGIN_HERE.md](BEGIN_HERE.md) for install details and **why** each loop command exists. After installing the **full runtime** from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest):
 
 ```bash
 moonbasic new MyFirstGame

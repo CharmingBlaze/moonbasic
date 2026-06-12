@@ -10,9 +10,9 @@ Replace `<tag>` with the release version (e.g. `v1.2.26`).
 
 | Asset | Platform | Contents |
 |-------|----------|----------|
-| `moonbasic-<tag>-windows-amd64.zip` | Windows x64 | `moonbasic.exe`, `moonrun.exe`, `README-RELEASE.txt` |
-| `moonbasic-<tag>-linux-amd64.tar.gz` | Linux x64 | `moonbasic`, `moonrun`, `README-RELEASE.txt` |
-| `moonbasic-<tag>-macos-arm64.tar.gz` | macOS Apple Silicon | `moonbasic`, `moonrun`, `README-RELEASE.txt` |
+| `moonbasic-<tag>-windows-amd64.zip` | Windows x64 | `moonbasic.exe`, `moonrun.exe`, `README-RELEASE.txt`, `moonbasic-<tag>-vscode.vsix`, `INSTALL-VSCODE.bat` |
+| `moonbasic-<tag>-linux-amd64.tar.gz` | Linux x64 | `moonbasic`, `moonrun`, `README-RELEASE.txt`, `.vsix`, `INSTALL-VSCODE.sh` |
+| `moonbasic-<tag>-macos-arm64.tar.gz` | macOS Apple Silicon | `moonbasic`, `moonrun`, `README-RELEASE.txt`, `.vsix`, `INSTALL-VSCODE.sh` |
 
 **Use when:** you want to open a window, run graphics, physics, audio, and play or develop games.
 
@@ -38,20 +38,26 @@ The compiler uses the **same built-in command catalog** as the full runtime for 
 
 ---
 
-## VS Code extension
+## VS Code / Cursor extension
 
 | Asset | Contents |
 |-------|----------|
-| `moonbasic-<tag>-vscode.vsix` | Syntax highlighting, snippets, LSP client, debugger integration |
+| `moonbasic-<tag>-vscode.vsix` | Syntax, snippets, LSP, check/compile/run commands, debugger |
+| (in full-runtime zip) | Same `.vsix` + **`INSTALL-VSCODE.bat`** / **`INSTALL-VSCODE.sh`** |
 
-**Install:** VS Code → Extensions → **⋯** → **Install from VSIX…**
+**Easiest install (full runtime folder):**
 
-**Settings (if binaries are not on PATH):**
+```bash
+moonbasic install-vscode
+```
 
-- `moonbasic.languageServerPath` → path to `moonbasic` / `moonbasic.exe`
-- `moonbasic.moonrunPath` → path to `moonrun` / `moonrun.exe` (debugging requires **full runtime**)
+Or double-click **`INSTALL-VSCODE.bat`** (Windows) / **`./INSTALL-VSCODE.sh`**.
 
-See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
+**Manual:** VS Code → Extensions → **⋯** → **Install from VSIX…**
+
+The installer sets `moonbasic.languageServerPath` and `moonbasic.moonrunPath` when binaries sit beside the archive.
+
+See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) · source: [editors/vscode-moonbasic/](editors/vscode-moonbasic/).
 
 ---
 

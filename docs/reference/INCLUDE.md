@@ -59,7 +59,7 @@ FUNCTION NextCount()
 ENDFUNCTION
 ```
 
-Compile or type-check **`main.mb`** only: **`go run . --check main.mb`**. The merged program behaves as if both files were one source.
+Compile or type-check **`main.mb`** only: **`moonbasic --check main.mb`**. The merged program behaves as if both files were one source.
 
 ---
 

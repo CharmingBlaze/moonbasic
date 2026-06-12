@@ -1,10 +1,11 @@
 ; MoonBASIC Platformer Demo
 ; KCC character + physics bodies + collisions + CCD
 ; WASD move, SPACE jump, ESC quit
-; Run: go run -tags fullruntime . --run examples/demo_platformer.mb
+; Check: moonbasic --check examples/demo_platformer.mb
+; Run:   moonrun examples/demo_platformer.mb
 
-WINDOW.OPEN(1280, 720, "MoonBASIC Platformer")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "MoonBASIC Platformer")
+APP.SETFPS(60)
 
 PHYSICS3D.START()
 PHYSICS3D.SETGRAVITY(0, -20.0, 0)
@@ -44,13 +45,13 @@ ball.SETRESTITUTION(0.9)
 ball.SETCCD(TRUE)
 
 ; --- KCC Player ---
-player = CHARACTER.CREATE(0.35, 1.8, 0, 3, 0)
+kccPlayer = CHARACTER.CREATE(0.35, 1.8, 0, 3, 0)
 cam = CAMERA.CREATE()
 speed = 8.0
 jumpPower = 14.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
 
     ; Movement input
     vx = 0 : vz = 0
@@ -60,19 +61,19 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     IF INPUT.KEYDOWN(KEY_D) THEN vx = speed
 
     ; Preserve gravity velocity
-    vel = player.GETLINEARVEL()
+    vel = kccPlayer.GETLINEARVEL()
     vy = vel(2)
 
     ; Jump
-    grounded = player.ISGROUNDED()
+    grounded = kccPlayer.ISGROUNDED()
     IF grounded AND INPUT.KEYDOWN(KEY_SPACE) THEN vy = jumpPower
 
-    player.MOVE(vx, vy, vz)
+    kccPlayer.MOVE(vx, vy, vz)
     PHYSICS3D.STEP()
     PHYSICS3D.PROCESSCOLLISIONS()
 
     ; Player pos (CHARACTERREF — capsule center)
-    px, py, pz = player.pos()
+    px, py, pz = kccPlayer.pos()
     CAMERA.SETORBIT(cam, px, py, pz, 0.4, 0.3, 14.0)
 
     ; --- Render ---
@@ -98,7 +99,7 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-player.FREE()
+kccPlayer.FREE()
 ball.FREE()
 crate.FREE()
 plat3.FREE()
@@ -106,4 +107,4 @@ plat2.FREE()
 plat1.FREE()
 floor.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

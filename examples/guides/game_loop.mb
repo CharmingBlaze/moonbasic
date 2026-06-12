@@ -1,0 +1,30 @@
+; Game loop — window, clear, 3D draw, present
+; Guide: docs/systems/guides/GAME-LOOP-AND-RENDERING.md
+; Check: moonbasic --check examples/guides/game_loop.mb
+; Run:   moonrun examples/guides/game_loop.mb
+
+APP.OPEN(1280, 720, "Game loop demo")
+APP.SETFPS(60)
+
+; Camera looks at the origin from behind and above
+cam = CAMERA.CREATE()
+CAMERA.SETACTIVE(cam)
+CAMERA.SETPOS(cam, 0, 2, -8)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+cube = ENTITY.CREATECUBE(2, 2, 2)
+cube.pos(0, 0, 5)
+
+WHILE NOT APP.SHOULDCLOSE()
+    ; Spin cube — degrees per second scaled by frame time
+    cube.turn(0, 60 * APP.DELTA(), 0)
+
+    RENDER.CLEAR(20, 20, 30)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+ENTITY.FREE(cube)
+APP.CLOSE()

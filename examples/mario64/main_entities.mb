@@ -1,5 +1,5 @@
 ; Third-person hop: rule collisions, camera-relative walk (no forced player yaw), coyote jump, orbit camera.
-; Run: go run -tags fullruntime . --run examples/mario64/main_entities.mb
+; Run: moonrun examples/mario64/main_entities.mb
 ;
 ; Orbit camera (pure math, no collision): yaw/pitch/distance → spherical offset from target; camera looks at target.
 ; Mouse deltas: INPUT.MOUSEXSPEED / INPUT.MOUSEYSPEED (same frame as RENDER.CLEAR). Orbit only while orbit button held.
@@ -20,10 +20,10 @@ CONST DIST_MIN = 2.5
 CONST DIST_MAX = 24.0
 CONST ZOOM_WHEEL = 0.9
 
-; MSAA before OPEN (see WINDOW.SETMSAA) — smoother grid/edges; less harsh aliasing at the horizon.
+; MSAA before OPEN (see APP.SETMSAA) — smoother grid/edges; less harsh aliasing at the horizon.
 SetMSAA(4)
-WINDOW.OPEN(960, 540, "moonBASIC - entity hop (entities + collisions)")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC - entity hop (entities + collisions)")
+APP.SETFPS(60)
 
 cam = CAMERA.CREATE()
 cam.SetFOV(55)
@@ -84,10 +84,10 @@ camPitch = 0.22
 cd = 7.5
 moveSpd = 11.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     ; RENDER.CLEAR starts the frame (BeginDrawing + input poll). Read mouse speed after this.
     RENDER.CLEAR(72, 92, 140)
-    dt = Time.Delta()
+    dt = APP.DELTA()
     IF dt <= 0.0 THEN dt = 0.0167
     IF dt > 0.05 THEN dt = 0.05
 
@@ -144,4 +144,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 WEND
 
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

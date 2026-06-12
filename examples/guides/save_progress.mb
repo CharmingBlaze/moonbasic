@@ -1,0 +1,31 @@
+; In-memory SAVE table + WRITE to hiscore.json
+; Guide: docs/systems/guides/SAVE-AND-PROGRESS.md
+; Check: moonbasic --check examples/guides/save_progress.mb
+; Run:   moonrun examples/guides/save_progress.mb
+
+APP.OPEN(400, 300, "Save demo")
+APP.SETFPS(60)
+
+IF FILE.EXISTS("hiscore.json") THEN
+    SAVE.READ("hiscore.json")
+ENDIF
+
+best = SAVE.GET("best")
+IF best = 0 THEN best = 0
+
+score = 0
+
+WHILE NOT APP.SHOULDCLOSE()
+    IF INPUT.KEYHIT(KEY_SPACE) THEN score = score + MATH.RAND(1, 5)
+    IF score > best THEN
+        best = score
+        SAVE.SET("best", best)
+        SAVE.WRITE("hiscore.json")
+    ENDIF
+
+    DRAW.TEXT("Score " + score + "  Best " + best, 10, 10, 16, 255, 255, 255, 255)
+    DRAW.TEXT("SPACE = add points", 10, 30, 14, 200, 200, 200, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

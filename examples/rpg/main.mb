@@ -1,9 +1,9 @@
 ; Walk with WASD in a room; step into the green patch once per visit for gold
 ; Saves rpg_save.json in the current working directory on exit (JSON + FILE)
-; Run from repo root: CGO_ENABLED=1 go run . examples/rpg/main.mb
+; Run from repo root: moonrun examples/rpg/main.mb
 
-WINDOW.OPEN(800, 600, "moonBASIC Mini RPG")
-WINDOW.SETFPS(60)
+APP.OPEN(800, 600, "moonBASIC Mini RPG")
+APP.SETFPS(60)
 
 save = "rpg_save.json"
 px = 5
@@ -20,8 +20,8 @@ IF FILE.EXISTS(save) THEN
     JSON.FREE(jd)
 ENDIF
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = TIME.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     spd = INT(120 * dt)
     IF spd < 1 THEN spd = 1
     IF INPUT.KEYDOWN(KEY_W) THEN py = py - spd
@@ -57,4 +57,4 @@ fh = FILE.OPEN(save, "w")
 FILE.WRITE(fh, out)
 FILE.CLOSE(fh)
 
-WINDOW.CLOSE()
+APP.CLOSE()

@@ -1,8 +1,9 @@
 ; kcc_tuning.mb - Professional KCC Tuning Example
 ; Demonstrates stairs climbing, slope limits, and floor snapping.
-; Run: go run -tags fullruntime . --run examples/kcc_tuning.mb
+; Check: moonbasic --check examples/kcc_tuning.mb
+; Run:   moonrun examples/kcc_tuning.mb
 
-WINDOW.OPEN(1280, 720, "MoonBASIC KCC Tuning")
+APP.OPEN(1280, 720, "MoonBASIC KCC Tuning")
 PHYSICS3D.START()
 
 ; Ground
@@ -23,12 +24,12 @@ slopeDef.ADDBOX(5, 0.25, 5)
 hSlope1 = slopeDef.COMMIT(5, 1, 5)
 
 ; Initialize character: (radius, height, x, y, z)
-char = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
+kccHero = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
 
 ; Apply professional tuning via handle methods
-char.SETMAXSLOPE(50)     ; Cannot climb past 50 deg
-char.SETSTEPHEIGHT(0.45) ; Can climb 0.4m stairs
-char.SETSNAPDISTANCE(0.5) ; Stick to floor when going down
+kccHero.SETMAXSLOPE(50)     ; Cannot climb past 50 deg
+kccHero.SETSTEPHEIGHT(0.45) ; Can climb 0.4m stairs
+kccHero.SETSNAPDISTANCE(0.5) ; Stick to floor when going down
 
 cam = CAMERA.CREATE()
 cam.SETMODE(1)
@@ -37,7 +38,7 @@ PRINT("KCC Tuning Demo")
 PRINT("Stairs: 0.4m height (Walkable)")
 PRINT("Controls: Arrows to move, Space to Jump")
 
-WHILE NOT WINDOW.SHOULDCLOSE()
+WHILE NOT APP.SHOULDCLOSE()
     ; Movement logic
     vx = 0 : vz = 0
     IF INPUT.KEYDOWN(KEY_UP) THEN vz = 5
@@ -46,16 +47,16 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     IF INPUT.KEYDOWN(KEY_RIGHT) THEN vx = 5
     
     ; Jump
-    IF INPUT.KEYDOWN(KEY_SPACE) AND char.ISGROUNDED() THEN
-        char.JUMP(6)
+    IF INPUT.KEYDOWN(KEY_SPACE) AND kccHero.ISGROUNDED() THEN
+        kccHero.JUMP(6)
     ENDIF
     
     ; Update character
-    char.SETVELOCITY(vx, 0, vz)
-    char.UPDATE()
+    kccHero.SETVELOCITY(vx, 0, vz)
+    kccHero.UPDATE()
     
     ; Sync camera
-    px, py, pz = char.pos()
+    px, py, pz = kccHero.pos()
     cam.SETPOS(px, py + 1.6, pz - 5)
     cam.SETTARGET(px, py + 1.6, pz + 10)
     
@@ -63,7 +64,7 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     cam.BEGIN()
     ; PHYSICS3D.DEBUGDRAW unavailable in this release — omit debug overlay
     ; UI info
-    gnd = char.ISGROUNDED()
+    gnd = kccHero.ISGROUNDED()
     IF gnd THEN
         DRAW.TEXT("Grounded: yes", 10, 10, 20, 0, 255, 0, 255)
     ELSE
@@ -74,6 +75,6 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     RENDER.FRAME()
 WEND
 
-char.FREE()
+kccHero.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

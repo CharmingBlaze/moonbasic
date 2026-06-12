@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark light" />
   <title>moonBASIC — Downloads</title>
-  <meta name="description" content="Download moonBASIC for Windows, Linux, and macOS. Pre-built compiler and full runtime — no Go or build tools required." />
+  <meta name="description" content="Download moonBASIC for Windows and Linux. Pre-built compiler and full runtime — no Go or compiler required to use releases." />
   <style>
     :root {
       --bg: #0c0e14;
@@ -136,22 +136,22 @@
 <body>
   <div class="wrap">
     <h1>moonBASIC</h1>
-    <p class="tagline">Official downloads — pre-built <strong>compiler</strong> and <strong>full runtime</strong> for Windows, Linux (x64), and macOS (Apple Silicon). No Go or C toolchain needed.</p>
+    <p class="tagline">Downloads only — pre-built <strong>compiler</strong> and <strong>full runtime</strong> for Windows, Linux (x64), and macOS (Apple Silicon). No Go or C toolchain needed to use these archives.</p>
 
     <p class="pill" id="version-pill">Latest release: <strong id="tag">…</strong></p>
 
     <section>
       <h2>Full runtime <span style="font-weight:400;opacity:.85">(games — window, graphics, physics)</span></h2>
       <div class="grid cols-2">
-        <a class="btn" id="dl-win-full" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+        <a class="btn" id="dl-win-full" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">
           <span class="label">Windows · .zip</span>
           <span class="sub">moonbasic + moonrun</span>
         </a>
-        <a class="btn" id="dl-lin-full" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+        <a class="btn" id="dl-lin-full" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">
           <span class="label">Linux · .tar.gz</span>
           <span class="sub">moonbasic + moonrun</span>
         </a>
-        <a class="btn" id="dl-mac-full" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+        <a class="btn" id="dl-mac-full" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">
           <span class="label">macOS · Apple Silicon</span>
           <span class="sub">moonbasic + moonrun</span>
         </a>
@@ -162,11 +162,11 @@
     <section>
       <h2>Compiler only <span style="font-weight:400;opacity:.85">(CI, --check, --lsp, .mb → .mbc)</span></h2>
       <div class="grid cols-2">
-        <a class="btn" id="dl-win-c" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+        <a class="btn" id="dl-win-c" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">
           <span class="label">Windows · compiler zip</span>
-          <span class="sub">moonbasic only</span>
+          <span class="sub">moonbasic only (folder MoonBasic-compiler)</span>
         </a>
-        <a class="btn" id="dl-lin-c" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+        <a class="btn" id="dl-lin-c" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">
           <span class="label">Linux · compiler .tar.gz</span>
           <span class="sub">moonbasic only — no moonrun</span>
         </a>
@@ -176,34 +176,33 @@
     <section>
       <h2>VS Code extension</h2>
       <div class="grid">
-        <a class="btn" id="dl-vscode" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+        <a class="btn" id="dl-vscode" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">
           <span class="label">moonbasic-<span class="vsix-tag">…</span>-vscode.vsix</span>
           <span class="sub">Syntax, LSP, debugger (needs full-runtime moonrun)</span>
         </a>
       </div>
     </section>
 
-    <p class="warn" id="fetch-err" hidden>Could not load the latest tag from GitHub. Use the <a class="text" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">latest release</a> page and pick the asset for your platform.</p>
+    <p class="warn" id="fetch-err" hidden>Could not load the latest tag from GitHub. Use the <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest">latest release</a> page and pick the asset names matching your platform.</p>
 
     <section>
       <h2>Links</h2>
       <p style="margin:0;font-size:0.92rem;">
-        <a class="text" href="https://github.com/CharmingBlaze/moonbasic/releases">All releases</a>
-        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md">Getting started</a>
-        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/blob/main/docs/COMMANDS.md">Command reference</a>
-        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/tree/main/examples">Examples</a>
-        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler">Engine source</a> <span style="color:var(--muted)">(contributors)</span>
+        <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler/releases">All releases</a>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md">Getting started</a>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/COMMANDS.md">Command reference</a>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler">Source repository</a> <span style="color:var(--muted)">(for contributors)</span>
       </p>
     </section>
 
     <footer>
-      <p>This page lists official binaries only — no engine source code.</p>
-      <p>Repository: <a class="text" href="https://github.com/CharmingBlaze/moonbasic">github.com/CharmingBlaze/moonbasic</a></p>
+      <p>This page is static; it does not include the engine source tree.</p>
+      <p>Repository: <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler">github.com/CharmingBlaze/moonbasic-compiler</a></p>
     </footer>
   </div>
   <script>
     (function () {
-      const repo = "CharmingBlaze/moonbasic";
+      const repo = "CharmingBlaze/moonbasic-compiler";
       const tagEl = document.getElementById("tag");
       const errEl = document.getElementById("fetch-err");
       const ids = [

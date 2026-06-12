@@ -1,8 +1,8 @@
 ; Top-down arena: WASD move, shoot line toward mouse, moving target blocks
-; Run from repo root: CGO_ENABLED=1 go run . examples/fps/main.mb
+; Run from repo root: moonrun examples/fps/main.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC Arena (2D)")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC Arena (2D)")
+APP.SETFPS(60)
 
 px = 480
 py = 270
@@ -13,8 +13,8 @@ t2y = 400
 t3x = 520
 t3y = 320
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = TIME.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     mx = INPUT.MOUSEX()
     my = INPUT.MOUSEY()
 
@@ -40,4 +40,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

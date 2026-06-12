@@ -4,11 +4,11 @@
 ; Same controls as modern_blitz_hop.mb but uses ENTITY.PHYSICS on the hero instead of KCC.
 ; Useful when Jolt KCC is unavailable (e.g. Windows stub); behavior differs from CHAR.* sample.
 ;
-;   go run . --check examples/mario64/modern_blitz_hop_physics.mb
-;   go run -tags fullruntime ./cmd/moonrun examples/mario64/modern_blitz_hop_physics.mb
+;   moonbasic --check examples/mario64/modern_blitz_hop_physics.mb
+;   moonrun examples/mario64/modern_blitz_hop_physics.mb
 
-WINDOW.OPEN(1280, 720, "moonBASIC 64 (physics hop)")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "moonBASIC 64 (physics hop)")
+APP.SETFPS(60)
 
 PHYSICS3D.START()
 WORLD.Gravity(0, -40, 0)
@@ -29,7 +29,7 @@ ENTITY.PHYSICS(floor, "BOX", 0.0, 0.9, 0.0)
 cam.Orbit(player, 12.0)
 player.SetRot(0, cam.Yaw(), 0)
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
 
     fwd = INPUT.AXIS(KEY_S, KEY_W)
     side = INPUT.AXIS(KEY_A, KEY_D)
@@ -55,4 +55,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

@@ -74,4 +74,4 @@ When you add a new handle type to the manifest and runtime:
 3. If you add scale/rotation, prefer **`SETSCALE`** / **`SETROT`** (or document **`LOOKAT`**-style if it is camera-like).
 4. Register aliases by pointing at the **same** Go handler (see existing `SETPOS` / `SETPOSITION` pairs).
 
-Full arity and types: **[API_CONSISTENCY.md](../API_CONSISTENCY.md)** (`go run ./tools/apidoc`).
+Full arity and types: **[API_CONSISTENCY.md](../API_CONSISTENCY.md)**.

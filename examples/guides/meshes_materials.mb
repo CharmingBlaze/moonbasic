@@ -1,0 +1,30 @@
+; Colored cube via entity tint + directional light
+; Guide: docs/systems/guides/MESHES-MODELS-MATERIALS.md
+; Check: moonbasic --check examples/guides/meshes_materials.mb
+; Run:   moonrun examples/guides/meshes_materials.mb
+
+APP.OPEN(800, 600, "Materials demo")
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETACTIVE(cam)
+CAMERA.SETPOS(cam, 0, 2, -6)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+sun = LIGHT.CREATEDIRECTIONAL(-0.3, -1, -0.2, 255, 255, 255, 1.0)
+
+; Entity color tint (simple path); see guide for MATERIAL.CREATE + SETCOLOR
+box = ENTITY.CREATECUBE(2, 2, 2)
+box.col(120, 180, 240, 255)
+box.pos(0, 0, 3)
+
+WHILE NOT APP.SHOULDCLOSE()
+    box.turn(0, 45 * APP.DELTA(), 0)
+    RENDER.CLEAR(25, 28, 35)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

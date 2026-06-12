@@ -2,7 +2,7 @@
 
 Legacy **`ENET.*`** names map to the **same ENet implementation** as **`NET.*`**, **`PEER.*`**, **`EVENT.*`**, and **`PACKET.*`** ([`runtime/net/enet_legacy_cgo.go`](../../runtime/net/enet_legacy_cgo.go)). Prefer **`NET.START`** / **`NET.CREATESERVER`** for new code; use **`ENET.*`** when following older samples or tutorials.
 
-**Build:** Requires **CGO**, linked **libenet**, and a **full runtime** game host (`-tags fullruntime`, `CGO_ENABLED=1`). Without CGO, builtins return a clear error (see [NET_ZERO_CGO.md](../architecture/NET_ZERO_CGO.md)).
+**Availability:** Requires the **full runtime** release with networking enabled (official **Windows** and **Linux** downloads). Compiler-only installs return a clear error for these builtins.
 
 ---
 
@@ -110,7 +110,7 @@ Returns measured round-trip time in milliseconds (same as **`PEER.PING`** / **`N
 
 ## Full Example
 
-Minimal compile-time check (no window); run with **`go run . --check testdata/enet_smoke.mb`**.
+Minimal compile-time check (no window); run with **`moonbasic --check testdata/enet_smoke.mb`**.
 
 ```basic
 ; Initialize ENet and create a host on UDP 27777 (8 peers, 2 channels, unlimited bandwidth).

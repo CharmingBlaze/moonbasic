@@ -1,0 +1,37 @@
+; 3D direction chase using VEC3.DIST + NORMALIZE (HUD shows distance)
+; Guide: docs/systems/guides/math/VEC3-MATH.md
+; Check: moonbasic --check examples/guides/math/vec3_aim.mb
+; Run:   moonrun examples/guides/math/vec3_aim.mb
+
+APP.OPEN(640, 480, "VEC3 aim")
+APP.SETFPS(60)
+
+px = 0
+py = 1
+pz = 0
+tx = 5
+ty = 2
+tz = 4
+speed = 2
+
+WHILE NOT APP.SHOULDCLOSE()
+    dx = tx - px
+    dy = ty - py
+    dz = tz - pz
+    dist = VEC3.DIST(px, py, pz, tx, ty, tz)
+
+    IF dist > 0.05 THEN
+        d = VEC3.NORMALIZE(dx, dy, dz)
+        moveAmt = speed * APP.DELTA()
+        px = px + VEC3.X(d) * moveAmt
+        py = py + VEC3.Y(d) * moveAmt
+        pz = pz + VEC3.Z(d) * moveAmt
+        VEC3.FREE(d)
+    ENDIF
+
+    DRAW.TEXT("dist " + dist, 10, 10, 16, 255, 255, 255, 255)
+    DRAW.TEXT("px " + px + " py " + py + " pz " + pz, 10, 28, 14, 200, 200, 200, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

@@ -1,7 +1,8 @@
-; kcc_contacts.mb - KCC contacts-style demo (hazard volume + proximity flash)
-; Standardized for v1.0 API
+; KCC contacts demo — hazard volume flash overlay
+; Check: moonbasic --check examples/kcc_contacts.mb
+; Run:   moonrun examples/kcc_contacts.mb
 
-WINDOW.OPEN(1280, 720, "MoonBASIC KCC Contacts")
+APP.OPEN(1280, 720, "KCC contacts")
 PHYSICS3D.START()
 
 ; Static hazard
@@ -15,7 +16,7 @@ floorDef.ADDBOX(50, 0.5, 50)
 floorBody = floorDef.COMMIT(0, -0.5, 0)
 
 ; Initialize character: (radius, height, x, y, z)
-char = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
+kccHero = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
 
 cam = CAMERA.CREATE()
 cam.SETMODE(1)
@@ -23,7 +24,7 @@ cam.SETMODE(1)
 PRINT("KCC Contacts Demo")
 PRINT("The screen will flash red when you touch the hazard box.")
 
-WHILE NOT WINDOW.SHOULDCLOSE()
+WHILE NOT APP.SHOULDCLOSE()
     ; Movement
     vx = 0 : vz = 0
     IF INPUT.KEYDOWN(KEY_UP) THEN vz = 5
@@ -31,11 +32,11 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     IF INPUT.KEYDOWN(KEY_LEFT) THEN vx = -5
     IF INPUT.KEYDOWN(KEY_RIGHT) THEN vx = 5
     
-    char.SETVELOCITY(vx, 0, vz)
-    char.UPDATE()
+    kccHero.SETVELOCITY(vx, 0, vz)
+    kccHero.UPDATE()
     
     ; Logic
-    px, py, pz = char.pos()
+    px, py, pz = kccHero.pos()
     touchingHazard = FALSE
     IF px >= -2.5 AND px <= 2.5 AND pz >= 7.5 AND pz <= 12.5 AND py >= -1.5 AND py <= 2.5 THEN
         touchingHazard = TRUE
@@ -55,6 +56,6 @@ WHILE NOT WINDOW.SHOULDCLOSE()
     RENDER.FRAME()
 WEND
 
-char.FREE()
+kccHero.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

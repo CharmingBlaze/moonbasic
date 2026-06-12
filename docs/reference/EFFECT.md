@@ -2,7 +2,7 @@
 
 Toggle and tune post-process rendering effects: bloom, SSAO, SSR, motion blur, depth-of-field, tonemapping, FXAA, vignette, grain, sharpen, and chromatic aberration.
 
-Requires **fullruntime** (CGO + Raylib). See also [POST.md](POST.md) for shader-based post-process pipeline.
+Requires **full runtime** (graphics and audio). See also [POST.md](POST.md) for shader-based post-process pipeline.
 
 ## Core Workflow
 

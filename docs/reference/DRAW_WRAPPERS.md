@@ -115,8 +115,8 @@ First **`MOUSE()`** / **`KEY()`** / **`GAMEPAD()`** call allocates a handle; lat
 ## Parity checklist (tooling)
 
 - **`compiler/builtinmanifest/commands.json`** — includes representative wrapper keys; extend with more overload rows as needed.
-- **`go run ./tools/cmdaudit`** — namespace coverage audit.
-- **`go run ./tools/apidoc`** — refreshes **[API_CONSISTENCY.md](../API_CONSISTENCY.md)**.
+- **[COMMAND_AUDIT.md](../COMMAND_AUDIT.md)** — namespace coverage map.
+- **[API_CONSISTENCY.md](../API_CONSISTENCY.md)** — full manifest listing.
 
 ---
 

@@ -311,7 +311,7 @@ WINDOW.CLOSE()
 | [`testdata/noise_test.mb`](../../testdata/noise_test.mb) | Headless checks |
 | [`testdata/noise_terrain.mb`](../../testdata/noise_terrain.mb) | Windowed greyscale preview |
 
-Run: `go run . --check testdata/noise_test.mb`
+Run: `moonbasic --check testdata/noise_test.mb`
 
 ---
 

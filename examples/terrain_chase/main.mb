@@ -1,5 +1,5 @@
 ; Terrain + orbit camera + slow chasing enemies (no external assets).
-; Run from repo root: go run -tags fullruntime ./cmd/moonrun examples/terrain_chase/main.mb
+; Run from repo root: moonrun examples/terrain_chase/main.mb
 ;
 ; Uses "less math" helpers: CIRCLEPOINT, VEC2.PUSHOUT, INPUT.MOVEDIR / MOUSEDELTA,
 ; TERRAIN.SNAPY, WORLD.SETCENTERENTITY — see docs/reference/LESS_MATH.md.
@@ -24,8 +24,8 @@ CONST BEACON_RADIUS = 120.0
 CONST BEACON_SAFE_RADIUS = 36.0
 
 SetMSAA(4)
-WINDOW.OPEN(1280, 720, "moonBASIC - terrain chase")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "moonBASIC - terrain chase")
+APP.SETFPS(60)
 
 terrain = Terrain.Create(TW, TW)
 Terrain.FillPerlin(terrain, 0.028, 52.0)
@@ -83,9 +83,9 @@ camYaw = 0.0
 camPitch = 0.28
 cd = 9.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(55, 72, 98)
-    dt = Time.Delta(0.0167, 0.05)
+    dt = APP.DELTA()
 
     dx, dy = INPUT.MOUSEDELTA()
     IF INPUT.MOUSEDOWN(ORBIT_MOUSE_BTN) THEN
@@ -143,4 +143,4 @@ ENTITY.FREEENTITIES(beacon)
 ENTITY.FREE(player)
 Terrain.Free(terrain)
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

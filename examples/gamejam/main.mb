@@ -1,13 +1,9 @@
-; Game jam demo — no asset files required.
-; Uses built-in placeholder sprites and synthesized SFX.
+; Collect coins with arrow keys — no external assets.
+; Check: moonbasic --check examples/gamejam/main.mb
+; Run:   moonrun examples/gamejam/main.mb
 
-WINDOW.OPEN(640, 480, "Game Jam Demo")
-ASSET.PATH("")
-
-player = SPRITE.BUILTIN("player")
-coin = SPRITE.BUILTIN("coin")
-jumpSnd = SOUND.BUILTIN("jump")
-coinSnd = SOUND.BUILTIN("coin")
+APP.OPEN(640, 480, "Game jam demo")
+APP.SETFPS(60)
 
 px = 320
 py = 380
@@ -15,25 +11,23 @@ score = 0
 coinX = 100
 coinY = 200
 
-WHILE NOT WINDOW.CLOSED()
-    IF INPUT.KEYHIT(KEY_SPACE) THEN
-        AUDIO.PLAY(jumpSnd)
-    ENDIF
-    IF INPUT.KEYDOWN(KEY_LEFT) THEN px = px - 200 * TIME.DELTA()
-    IF INPUT.KEYDOWN(KEY_RIGHT) THEN px = px + 200 * TIME.DELTA()
+WHILE NOT APP.SHOULDCLOSE()
+    dt = APP.DELTA()
+    IF INPUT.KEYDOWN(KEY_LEFT) THEN px = px - 200 * dt
+    IF INPUT.KEYDOWN(KEY_RIGHT) THEN px = px + 200 * dt
+    px = MATH.CLAMP(px, 20, 620)
 
-    IF MATH.ABS(px - coinX) < 24 AND MATH.ABS(py - coinY) < 24 THEN
+    IF MATH.DIST2D(px, py, coinX, coinY) < 28 THEN
         score = score + 1
-        coinX = 80 + RND(480)
-        coinY = 80 + RND(280)
-        AUDIO.PLAY(coinSnd)
+        coinX = MATH.RAND(80, 560)
+        coinY = MATH.RAND(80, 360)
     ENDIF
 
-    RENDER.CLEAR()
-    SPRITE.DRAW(player, px, py)
-    SPRITE.DRAW(coin, coinX, coinY)
-    PRINT(score, 8, 8)
-    WINDOW.FLIP()
+    RENDER.CLEAR(20, 24, 36)
+    DRAW.RECTANGLE(px - 12, py - 12, 24, 24, 80, 180, 255, 255)
+    DRAW.CIRCLE(coinX, coinY, 10, 255, 220, 80, 255)
+    DRAW.TEXT("Score " + score, 10, 10, 18, 255, 255, 255, 255)
+    RENDER.FRAME()
 WEND
 
-END
+APP.CLOSE()

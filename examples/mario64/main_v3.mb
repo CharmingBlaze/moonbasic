@@ -1,8 +1,9 @@
 ; 3D Hop v3 — TYPE + DIM AS, mouse orbit, MOVESTEPX/Z, BOXTOPLAND Y, IIF
-; Run: CGO_ENABLED=1 go run . examples/mario64/main_v3.mb
+; Check: moonbasic --check examples/mario64/main_v3.mb
+; Run:   moonrun examples/mario64/main_v3.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC 3D Hop v3")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC 3D Hop v3")
+APP.SETFPS(60)
 
 CONST MOUSE_ORBIT_SENS = 0.0055
 CONST MOVE_SPEED = 11.0
@@ -35,7 +36,7 @@ plat(1) = Platform(-3.5, 2.5, 10.0, 2.5, 0.35, 2.5, 40, 255, 230)
 plat(2) = Platform(4.0, 3.2, 14.0, 2.0, 0.3, 2.0, 120, 255, 80)
 plat(3) = Platform(0.0, 4.0, 18.0, 3.0, 0.35, 3.0, 255, 210, 60)
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     dt = DT()
 
     ; Orbit: mouse X (pixels this frame) → yaw; optional Q/E for keyboard
@@ -89,4 +90,4 @@ WEND
 
 ERASE(plat)
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

@@ -1,6 +1,6 @@
 ; Third-person orbit + WASD + chasing enemies on a colored ground plane.
 ; Uses FLAT/GRID3 (immediate-mode) instead of TERRAIN.* — heightfield mesh build can hang the window on some GPUs.
-; Run: go run -tags fullruntime . --run examples/terrain_colored/main.mb
+; Run: moonrun examples/terrain_colored/main.mb
 
 CONST WORLD_HALF = 40.0
 CONST ORBIT_MOUSE_BTN = 1
@@ -34,8 +34,8 @@ CONST FLOOR_G = 124
 CONST FLOOR_B = 82
 
 SetMSAA(0)
-WINDOW.OPEN(1280, 720, "moonBASIC - colored terrain")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "moonBASIC - colored terrain")
+APP.SETFPS(60)
 
 cam = CAMERA.CREATE()
 cam.SetFOV(56)
@@ -63,9 +63,9 @@ orbitHavePrev = FALSE
 orbitPx = 0.0
 orbitPy = 0.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(SKY_R, SKY_G, SKY_B)
-    dt = Time.Delta(0.0167, 0.05)
+    dt = APP.DELTA()
 
     IF INPUT.MOUSEDOWN(ORBIT_MOUSE_BTN) THEN
         mx = FLOAT(INPUT.MOUSEX())
@@ -170,4 +170,4 @@ WEND
 ENTITY.FREEENTITIES(enemy)
 ENTITY.FREE(player)
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

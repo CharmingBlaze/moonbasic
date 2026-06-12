@@ -1,19 +1,19 @@
 ; MoonBASIC Example: KCC Direct Control
 ; This example uses the CHARACTER namespace for raw kinematic control.
 ; Movement is manual (dx, dy, dz) and ignores gravity integration.
-; Run: go run -tags fullruntime . --run examples/kcc_direct.mb
+; Run: moonrun examples/kcc_direct.mb
 
-WINDOW.OPEN(1280, 720, "KCC Direct Control")
+APP.OPEN(1280, 720, "KCC Direct Control")
 PHYSICS3D.START()
 
 ; Create the character: (radius, height, x, y, z)
-char = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
+kccHero = CHARACTER.CREATE(0.4, 1.8, 0, 2, 0)
 
 cam = CAMERA.CREATE()
 cam.SETORBIT(0, 1, 0, 0.4, 0.3, 10.0)
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     
     ; Movement logic
     dx = 0.0
@@ -31,10 +31,10 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     IF INPUT.KEYDOWN(KEY_Q) THEN dy = -speed * dt
     
     ; Apply manual movement
-    char.MOVE(dx, dy, dz)
+    kccHero.MOVE(dx, dy, dz)
     
     ; Get current position (namespace form — STYLE_GUIDE.md)
-    px, py, pz = char.pos()
+    px, py, pz = kccHero.pos()
     
     ; Update camera to follow
     cam.SETORBIT(px, py, pz, 0.4, 0.3, 10.0)
@@ -56,6 +56,6 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-char.FREE()
+kccHero.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

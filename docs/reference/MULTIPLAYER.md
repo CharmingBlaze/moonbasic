@@ -2,7 +2,7 @@
 
 moonBASIC exposes **UDP networking through ENet** (reliable and unreliable channels). You can build **listen servers**, **outgoing clients**, **remote procedure calls**, and **optional in-process lobby descriptors**—all documented here with **registry-first** names (`SERVER.START`, `NET.START`, …). **Easy Mode** dotted names (for example `Net.Start`) are compatibility aliases; see [STYLE_GUIDE.md](../STYLE_GUIDE.md).
 
-**Platform / build:** Interactive games that use the network stack need a **full runtime** build with **CGO** so ENet can link (`-tags fullruntime`, `CGO_ENABLED=1`). The default **headless** `go run .` compiler can still **`--check`** programs that call `NET.*` / `SERVER.*` when the net module is available in the toolchain. Details: [DEVELOPER.md](../DEVELOPER.md), [BUILDING.md](../BUILDING.md). Stub behaviour without a linked ENet stack is described in [architecture/NET_ZERO_CGO.md](../architecture/NET_ZERO_CGO.md).
+**Platform:** Interactive multiplayer needs the **full runtime** release from [GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest) (not the compiler-only archive). Use **`moonbasic --check`** to validate scripts that call `NET.*` / `SERVER.*` without starting **`moonrun`**. Unsupported builds return explicit errors instead of silent networking.
 
 ---
 
@@ -74,9 +74,9 @@ Step-by-step (two terminals, `127.0.0.1`, `moonrun`, firewall): **[FIRST_MULTIPL
 3. **Run a client** in another process that connects to `127.0.0.1` with the same port.
 4. **Loop** — Call `NET.UPDATE` + `NET.RECEIVE` (mid-level) or `SERVER.TICK` / `CLIENT.TICK` (high-level) every frame until you see connect / receive events.
 5. **Sanity check** — From the repo root, the checked-in samples compile cleanly:
-   - **High-level:** `go run . --check testdata/mp_host.mb` and `go run . --check testdata/mp_client.mb`
-   - **Mid-level:** `go run . --check testdata/net_server.mb` and `go run . --check testdata/net_client.mb`
-   - **Legacy `ENET.*`:** `go run . --check testdata/enet_smoke.mb`
+   - **High-level:** `moonbasic --check testdata/mp_host.mb` and `moonbasic --check testdata/mp_client.mb`
+   - **Mid-level:** `moonbasic --check testdata/net_server.mb` and `moonbasic --check testdata/net_client.mb`
+   - **Legacy `ENET.*`:** `moonbasic --check testdata/enet_smoke.mb`
 
 ---
 

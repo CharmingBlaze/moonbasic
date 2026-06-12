@@ -1,8 +1,8 @@
 ; Simple third-person hop: ground, floating blocks, orbit camera (no skybox, no entity graph).
-; Run (full runtime): go run -tags fullruntime . --run examples/mario64/main.mb
+; Run (full runtime): moonrun examples/mario64/main.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC — simple 3D hop")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC — simple 3D hop")
+APP.SETFPS(60)
 ; Hide the OS cursor during play; restore before close. See docs/reference/INPUT.md (Cursor).
 CURSOR.HIDE()
 
@@ -26,10 +26,10 @@ orbitHavePrev = FALSE
 orbitPx = 0.0
 orbitPy = 0.0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     ; Begin frame before sampling mouse — raylib polls input inside BeginDrawing (first RENDER.CLEAR).
     RENDER.CLEAR(72, 92, 140)
-    dt = Time.Delta()
+    dt = APP.DELTA()
     IF dt > 0.05 THEN dt = 0.05
 
     ; Orbit: drag with RMB/LMB/MMB — screen position delta (MOUSEDELTA is often 0 on Windows with visible cursor).
@@ -154,4 +154,4 @@ WEND
 
 CURSOR.SHOW()
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

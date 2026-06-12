@@ -1,0 +1,34 @@
+; Particle emitter — rate, lifetime, color fade (no external texture)
+; Guide: docs/systems/guides/PARTICLES.md
+; Check: moonbasic --check examples/guides/particles.mb
+; Run:   moonrun examples/guides/particles.mb
+
+APP.OPEN(800, 600, "Particles demo")
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETACTIVE(cam)
+CAMERA.SETPOS(cam, 0, 3, -10)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+fx = PARTICLE.CREATE()
+PARTICLE.SETRATE(fx, 60)
+PARTICLE.SETLIFETIME(fx, 0.4, 1.2)
+PARTICLE.SETSPEED(fx, 1, 3)
+PARTICLE.SETCOLOR(fx, 255, 200, 80, 255)
+PARTICLE.SETCOLOREND(fx, 255, 80, 20, 0)
+PARTICLE.SETPOS(fx, 0, 1, 0)
+PARTICLE.PLAY(fx)
+
+WHILE NOT APP.SHOULDCLOSE()
+    PARTICLE.UPDATE(fx, APP.DELTA())
+    RENDER.CLEAR(10, 12, 18)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    PARTICLE.DRAW(fx)
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+PARTICLE.FREE(fx)
+APP.CLOSE()

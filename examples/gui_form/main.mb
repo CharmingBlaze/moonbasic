@@ -1,8 +1,8 @@
 ; raygui form controls: TEXTBOX, SLIDER, CHECKBOX, TABBAR. Requires CGO
-; Run from repo root: CGO_ENABLED=1 go run . examples/gui_form/main.mb
+; Run from repo root: moonrun examples/gui_form/main.mb
 
-WINDOW.OPEN(880, 520, "GUI form demo")
-WINDOW.SETFPS(60)
+APP.OPEN(880, 520, "GUI form demo")
+APP.SETFPS(60)
 GUI.ENABLE()
 
 name = "player"
@@ -14,7 +14,7 @@ DIM tabs(1)
 tabs(0) = 0
 tabClose = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(24, 26, 32)
 
     GUI.LABEL(20, 16, 800, 22, "GUI.TEXTBOX / SLIDER / CHECKBOX / TABBAR")
@@ -38,4 +38,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

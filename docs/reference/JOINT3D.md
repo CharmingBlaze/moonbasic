@@ -2,7 +2,7 @@
 
 3D Jolt Physics constraints connecting two `BODY3D` bodies. Supports fixed, hinge, slider, and cone constraints.
 
-Requires **CGO + Jolt** (Windows/Linux fullruntime) and an active `PHYSICS3D` session.
+Requires **CGO + Jolt** (full runtime, Windows or Linux desktop) and an active `PHYSICS3D` session.
 
 ## Core Workflow
 

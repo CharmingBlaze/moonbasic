@@ -1,0 +1,38 @@
+; Mouse aim with ATAN2; hold G for LERPANGLE smooth turn
+; Guide: docs/systems/guides/math/ANGLES-AND-ROTATION.md
+; Check: moonbasic --check examples/guides/math/angles_turret.mb
+; Run:   moonrun examples/guides/math/angles_turret.mb
+
+APP.OPEN(400, 300, "Angles turret")
+APP.SETFPS(60)
+
+px = 200
+py = 150
+aimRad = 0
+smoothTurn = 0
+
+WHILE NOT APP.SHOULDCLOSE()
+    mx = INPUT.MOUSEX()
+    my = INPUT.MOUSEY()
+    targetRad = MATH.ATAN2(my - py, mx - px)
+
+    IF INPUT.KEYDOWN(KEY_G) THEN
+        smoothTurn = 1
+    ELSE
+        smoothTurn = 0
+    ENDIF
+
+    IF smoothTurn THEN
+        aimRad = MATH.LERPANGLE(aimRad, targetRad, 10 * APP.DELTA())
+    ELSE
+        aimRad = targetRad
+    ENDIF
+
+    ex = px + MATH.COS(aimRad) * 60
+    ey = py + MATH.SIN(aimRad) * 60
+    DRAW.LINE(px, py, ex, ey, 255, 200, 80, 255)
+    DRAW.CIRCLE(px, py, 8, 100, 180, 255, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

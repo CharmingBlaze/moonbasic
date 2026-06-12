@@ -1,8 +1,8 @@
 ; Top-down racing: steer A/D, throttle W, brake S. Gold tile = checkpoint, cyan = finish line
-; Run from repo root: CGO_ENABLED=1 go run . examples/racing/main.mb
+; Run from repo root: moonrun examples/racing/main.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC Racing")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC Racing")
+APP.SETFPS(60)
 
 cx = 480
 cy = 400
@@ -11,8 +11,8 @@ vspd = 0
 lap = 0
 checkpoint = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = TIME.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     IF INPUT.KEYDOWN(KEY_A) THEN ang = ang - 2.4 * dt
     IF INPUT.KEYDOWN(KEY_D) THEN ang = ang + 2.4 * dt
     IF INPUT.KEYDOWN(KEY_W) THEN vspd = MATH.MIN(420, vspd + 380 * dt)
@@ -49,4 +49,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

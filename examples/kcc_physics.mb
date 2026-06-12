@@ -1,20 +1,20 @@
 ; MoonBASIC Example: KCC Integrated Physics
 ; This example uses the CHARACTER namespace for integrated character physics.
 ; The engine handles gravity, slopes, and collision resolution in UPDATE().
-; Run: go run -tags fullruntime . --run examples/kcc_physics.mb
+; Run: moonrun examples/kcc_physics.mb
 
-WINDOW.OPEN(1280, 720, "KCC Integrated Physics")
+APP.OPEN(1280, 720, "KCC Integrated Physics")
 PHYSICS3D.START()
 PHYSICS3D.SETGRAVITY(0, -20.0, 0)
 
 ; Create character using handle-based API
 ; CHARACTER.CREATE(radius, height, x, y, z)
-char = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
+kccHero = CHARACTER.CREATE(0.4, 1.8, 0, 5, 0)
 
 cam = CAMERA.CREATE()
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     
     ; Input: Horizontal velocity
     vx = 0.0
@@ -27,19 +27,19 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     IF INPUT.KEYDOWN(KEY_D) THEN vx = speed
     
     ; Preserve gravity velocity
-    vArr = char.GETLINEARVEL()
-    char.SETVELOCITY(vx, vArr(2), vz)
+    vArr = kccHero.GETLINEARVEL()
+    kccHero.SETVELOCITY(vx, vArr(2), vz)
 
     ; Jump
-    IF char.ISGROUNDED() AND INPUT.KEYDOWN(KEY_SPACE) THEN
-        char.JUMP(12.0)
+    IF kccHero.ISGROUNDED() AND INPUT.KEYDOWN(KEY_SPACE) THEN
+        kccHero.JUMP(12.0)
     ENDIF
     
     ; Integrate one step
-    char.UPDATE()
+    kccHero.UPDATE()
     
     ; Position for camera
-    px, py, pz = char.pos()
+    px, py, pz = kccHero.pos()
     
     CAMERA.SETORBIT(cam, px, py, pz, 0.4, 0.3, 12.0)
     
@@ -56,11 +56,11 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     cam.End()
     
     Draw.Text("WASD Move  SPACE Jump  ESC Quit", 10, 10, 20, 255, 255, 255, 255)
-    Draw.Text("Grounded: " + STR(char.ISGROUNDED()), 10, 40, 18, 200, 255, 200, 255)
+    Draw.Text("Grounded: " + STR(kccHero.ISGROUNDED()), 10, 40, 18, 200, 255, 200, 255)
     
     RENDER.FRAME()
 WEND
 
-char.FREE()
+kccHero.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

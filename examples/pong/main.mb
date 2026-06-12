@@ -2,8 +2,8 @@
 ; From repo root (full runtime): moonrun examples/pong/main.mb
 ; No external fonts; HUD uses DRAW.TEXT
 
-WINDOW.OPEN(960, 540, "moonBASIC Pong")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC Pong")
+APP.SETFPS(60)
 
 pw = 16
 ph = 80
@@ -21,8 +21,8 @@ bCap = 480.0
 p1s = 0
 p2s = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = TIME.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     ps = 280.0 * dt
     IF INPUT.KEYDOWN(KEY_W) THEN py1 = py1 - ps
     IF INPUT.KEYDOWN(KEY_S) THEN py1 = py1 + ps
@@ -85,4 +85,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

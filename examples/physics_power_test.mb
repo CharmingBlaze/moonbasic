@@ -1,12 +1,8 @@
-; Physics Power Verification
-; This script tests the v1.0 standardized physics and vehicle API.
-; Run: go run -tags fullruntime . --run examples/physics_power_test.mb
+; Physics API syntax check (bodies, vehicle handles) — no game loop.
+; Check: moonbasic --check examples/physics_power_test.mb
 
-WINDOW.OPEN(640, 480, "Physics Power Test")
-CLS
-PRINT "Starting Physics Verification..."
+PRINT("Starting physics verification")
 
-; 1. Body and Aero Setup
 shape = SHAPE.CREATEBOX(1, 1, 1)
 bf = BODY3D.CREATE("DYNAMIC")
 bf.ADDBOX(1, 1, 1)
@@ -14,31 +10,25 @@ bh = bf.COMMIT(0, 10, 0)
 
 bh.SETLIFT(0.5)
 bh.SETTHRUST(10.0)
-PRINT "Aero configured via handle methods."
+PRINT("Aero configured via handle methods")
 
-; 2. Vehicle Setup
 hero = ENTITY.CREATE()
 vid = hero.CREATEVEHICLE(4)
-; Using the vehicle handle for configuration
 VEHICLE.SETWHEEL(vid, 0, -1, -0.5, 1, 0.4)
 VEHICLE.SETWHEEL(vid, 1, 1, -0.5, 1, 0.4)
 VEHICLE.SETWHEEL(vid, 2, -1, -0.5, -1, 0.4)
 VEHICLE.SETWHEEL(vid, 3, 1, -0.5, -1, 0.4)
 VEHICLE.SETTUNING(vid, 20.0, 1.0, 50.0, 2.0)
-PRINT "Vehicle configured: ", vid
+PRINT("Vehicle configured")
 
-; 3. Handle Method Check
 hero.SETTHROTTLE(1.0)
 hero.SETSTEER(0.5)
 bh.SETVELOCITY(0, 5, 0)
 
-; 4. Interrogation
 mass = bh.GETMASS()
-PRINT "Body Mass: ", mass
+PRINT("Body mass", mass)
 
 vel = bh.GETVELOCITY()
-PRINT "Body Velocity Array Handle: ", vel
+PRINT("Body velocity handle", vel)
 
-PRINT "Verification Complete (Syntax Check OK)."
-WINDOW.CLOSE()
-END
+PRINT("Verification complete")

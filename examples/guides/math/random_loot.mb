@@ -1,0 +1,39 @@
+; Dice roll on SPACE + weighted loot tiers + CHANCE crit flash
+; Guide: docs/systems/guides/math/RANDOMNESS-AND-PROCEDURE.md
+; Check: moonbasic --check examples/guides/math/random_loot.mb
+; Run:   moonrun examples/guides/math/random_loot.mb
+
+MATH.RNDSEED(42)
+
+lastRoll = 0
+lastItem = "none"
+crit = 0
+
+APP.OPEN(400, 280, "Random demo")
+APP.SETFPS(60)
+
+WHILE NOT APP.SHOULDCLOSE()
+    crit = 0
+    IF INPUT.KEYHIT(KEY_SPACE) THEN
+        lastRoll = MATH.RAND(1, 6)
+        r = MATH.RAND(1, 100)
+        IF r <= 60 THEN
+            lastItem = "herb"
+        ELSE
+            IF r <= 90 THEN
+                lastItem = "ore"
+            ELSE
+                lastItem = "relic"
+            ENDIF
+        ENDIF
+    ENDIF
+
+    IF MATH.CHANCE(0.1) THEN crit = 1
+
+    DRAW.TEXT("Roll " + lastRoll + "  Loot " + lastItem, 10, 10, 16, 255, 255, 255, 255)
+    DRAW.TEXT("SPACE = roll", 10, 28, 14, 200, 200, 200, 255)
+    IF crit THEN DRAW.TEXT("CRIT!", 10, 48, 16, 255, 80, 80, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

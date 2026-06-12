@@ -1,8 +1,8 @@
-; Stress test: WINDOW.SETLOADINGMODE + TERRAIN.SETMESHBUILDBUDGET + optional async prep.
+; Stress test: WINDOW.SETLOADINGMODE + terrain mesh budget + optional async prep.
 ; Shows DRAW.TEXT while terrain chunks build; flips off loading mode when WORLD.ISREADY.
 ; LOD0: FLAT/GRID3 ground until the heightfield is ready so the scene is never "empty" underfoot.
-; Run from repo root:
-;   CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/terrain_stress/main.mb
+; Check: moonbasic --check examples/terrain_stress/main.mb
+; Run:   moonrun examples/terrain_stress/main.mb
 
 CONST TW = 384
 CONST TCX = 192.0
@@ -25,9 +25,9 @@ CONST GRID_SLICES = 40
 CONST GRID_STEP = 2.0
 
 SetMSAA(0)
-WINDOW.OPEN(1280, 720, "moonBASIC - terrain stress (loading mode)")
+APP.OPEN(1280, 720, "moonBASIC - terrain stress (loading mode)")
 WINDOW.SETLOADINGMODE(TRUE)
-WINDOW.SETFPS(60)
+APP.SETFPS(60)
 
 terrain = Terrain.Create(TW, TW)
 Terrain.FillPerlin(terrain, 0.03, 52.0)
@@ -51,9 +51,9 @@ camPitch = 0.26
 cd = 14.0
 ready = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(32, 44, 62)
-    dt = Time.Delta(0.0167, 0.05)
+    dt = APP.DELTA()
 
     dx = INPUT.MOUSEDELTAX()
     dy = INPUT.MOUSEDELTAY()
@@ -137,4 +137,4 @@ WEND
 ENTITY.FREE(player)
 Terrain.Free(terrain)
 CAMERA.FREE(cam)
-WINDOW.CLOSE()
+APP.CLOSE()

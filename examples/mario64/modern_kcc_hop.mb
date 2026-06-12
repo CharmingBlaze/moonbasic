@@ -2,10 +2,10 @@
 ; moonBASIC 64 — Modern KCC Hop
 ; ==========================================
 ; Demonstrates the v1.0 standardized handle-based API.
-; Run: go run -tags fullruntime . --run examples/mario64/modern_kcc_hop.mb
+; Run: moonrun examples/mario64/modern_kcc_hop.mb
 
-WINDOW.OPEN(1280, 720, "moonBASIC 64 (Ultimate KCC)")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "moonBASIC 64 (Ultimate KCC)")
+APP.SETFPS(60)
 
 PHYSICS3D.START()
 PHYSICS3D.SETGRAVITY(0, -40, 0)
@@ -45,7 +45,7 @@ target.WOBBLE(0.2, 5.0)
 cam.SETORBIT(player, 12.0)
 player.SETROT(0, cam.YAW(), 0)
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     mz = INPUT.AXIS(KEY_S, KEY_W)
     mx = INPUT.AXIS(KEY_A, KEY_D)
 
@@ -86,4 +86,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

@@ -1,8 +1,8 @@
 ; raygui built-in themes + text styling (CGO + raylib + raygui)
-; Run from repo root: CGO_ENABLED=1 go run . examples/gui_theme/main.mb
+; Run from repo root: moonrun examples/gui_theme/main.mb
 
-WINDOW.OPEN(800, 600, "GUI theme")
-WINDOW.SETFPS(60)
+APP.OPEN(800, 600, "GUI theme")
+APP.SETFPS(60)
 GUI.ENABLE()
 
 ; DARK/CYBER/CANDY = official raygui .rgs; LIGHT/DEFAULT/BUILTIN_DARK = moonBASIC helpers
@@ -11,7 +11,7 @@ GUI.SETTEXTSIZE(14)
 GUI.SETTEXTSPACING(1)
 
 theme = "dark (raygui)"
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(20, 22, 28)
 
     IF GUI.WINDOWBOX(40, 40, 720, 520, "Theme demo") THEN
@@ -54,4 +54,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

@@ -1,0 +1,35 @@
+; Top-down chase using MATH.DIST2D and LERP on scalars
+; Guide: docs/systems/guides/math/MATH-2D-GAMEPLAY.md
+; Check: moonbasic --check examples/guides/math/math_2d_chase.mb
+; Run:   moonrun examples/guides/math/math_2d_chase.mb
+
+APP.OPEN(640, 480, "2D chase")
+APP.SETFPS(60)
+
+; Chaser (blue) follows target (red) with WASD
+px = 100
+py = 240
+tx = 500
+ty = 240
+speed = 180
+
+WHILE NOT APP.SHOULDCLOSE()
+    IF INPUT.KEYDOWN(KEY_W) THEN ty = ty - speed * APP.DELTA()
+    IF INPUT.KEYDOWN(KEY_S) THEN ty = ty + speed * APP.DELTA()
+    IF INPUT.KEYDOWN(KEY_A) THEN tx = tx - speed * APP.DELTA()
+    IF INPUT.KEYDOWN(KEY_D) THEN tx = tx + speed * APP.DELTA()
+
+    dist = MATH.DIST2D(px, py, tx, ty)
+    IF dist > 4 THEN
+        t = MATH.CLAMP(speed * APP.DELTA() / dist, 0, 1)
+        px = MATH.LERP(px, tx, t)
+        py = MATH.LERP(py, ty, t)
+    ENDIF
+
+    DRAW.RECTANGLE(tx - 6, ty - 6, 12, 12, 255, 80, 80, 255)
+    DRAW.RECTANGLE(px - 8, py - 8, 16, 16, 80, 200, 255, 255)
+    DRAW.TEXT("dist " + dist, 10, 10, 16, 255, 255, 255, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

@@ -6,11 +6,13 @@ No textures or downloads — only built-in drawing.
 
 ## Run
 
-From the repository root (full runtime + CGO):
+From the repository root (full runtime from [Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest)):
 
 ```bash
-CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/terrain_chase/main.mb
+moonrun examples/terrain_chase/main.mb
 ```
+
+Check only: `moonbasic --check examples/terrain_chase/main.mb`
 
 ## Docs
 

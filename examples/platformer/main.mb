@@ -1,8 +1,8 @@
 ; Minimal platformer: run, jump, one floating platform, ground
-; Run from repo root: CGO_ENABLED=1 go run . examples/platformer/main.mb
+; Run from repo root: moonrun examples/platformer/main.mb
 
-WINDOW.OPEN(960, 540, "moonBASIC Platformer")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "moonBASIC Platformer")
+APP.SETFPS(60)
 
 px = 120
 py = 360
@@ -10,8 +10,8 @@ pvx = 0
 pvy = 0
 ong = 0
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = TIME.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
     IF INPUT.KEYDOWN(KEY_A) THEN pvx = pvx - 520 * dt
     IF INPUT.KEYDOWN(KEY_D) THEN pvx = pvx + 520 * dt
     pvx = pvx * 0.88
@@ -45,4 +45,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

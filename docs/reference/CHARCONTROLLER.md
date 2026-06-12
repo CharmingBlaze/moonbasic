@@ -2,7 +2,7 @@
 
 Jolt `CharacterVirtual`-backed capsule character controller (integer entity-id API). Create one per player entity, then drive it each frame with move/jump, and poll ground state.
 
-Requires **CGO + Jolt** (Windows/Linux fullruntime).
+Requires **full runtime** (Windows or Linux desktop, with 3D physics).
 
 ## Core Workflow
 

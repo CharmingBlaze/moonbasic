@@ -2,7 +2,7 @@
 
 Staged ray-cast API for Jolt-backed entity picking. Stages a ray (origin, direction, options), casts it, then reads back hit data. Higher-level than `RAY.*` — works with entity collision layers.
 
-Requires **CGO + Jolt** (Windows/Linux fullruntime).
+Requires **full runtime** (Windows or Linux desktop, with 3D physics).
 
 ## Core Workflow
 

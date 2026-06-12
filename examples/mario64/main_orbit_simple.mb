@@ -37,12 +37,12 @@
 ;    ERASE ALL / FREE.ALL:        docs/MEMORY.md
 ;
 ;  Run (needs CGO + raylib)
-;    CGO_ENABLED=1 go run . examples/mario64/main_orbit_simple.mb
+;    moonrun examples/mario64/main_orbit_simple.mb
 ;
 ; =============================================================================
 
-WINDOW.OPEN(960, 540, "Blitz-style orbit hop")
-WINDOW.SETFPS(60)
+APP.OPEN(960, 540, "Blitz-style orbit hop")
+APP.SETFPS(60)
 
 ; --- physics & world ---------------------------------------------------------
 ; --- physics & world ---------------------------------------------------------
@@ -117,7 +117,7 @@ plx(0) = 0.0 : ply(0) = 1.2 : plz(0) = 5.0
 plw(0) = 3.0 : plh(0) = 0.35 : pld(0) = 3.0
 pr(0) = C_BOX_R : pg(0) = C_BOX_G : pb(0) = C_BOX_B
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     dt = DT()
 
     ; ----- orbit (GAME.* deltas are floats — no ERASE) ------------------------
@@ -173,4 +173,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
 WEND
 
 ERASE ALL
-WINDOW.CLOSE()
+APP.CLOSE()

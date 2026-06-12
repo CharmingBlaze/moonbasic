@@ -1,0 +1,29 @@
+; APPROACH health bar, SMOOTHERSTEP pulse, PINGPONG platform
+; Guide: docs/systems/guides/math/INTERPOLATION-AND-EASING.md
+; Check: moonbasic --check examples/guides/math/interpolation_ui.mb
+; Run:   moonrun examples/guides/math/interpolation_ui.mb
+
+APP.OPEN(500, 300, "Easing demo")
+APP.SETFPS(60)
+
+hpReal = 100
+hpShow = 100
+pulseT = 0
+
+WHILE NOT APP.SHOULDCLOSE()
+    IF INPUT.KEYHIT(KEY_SPACE) THEN hpReal = hpReal - MATH.RAND(5, 20)
+    hpReal = MATH.CLAMP(hpReal, 0, 100)
+
+    hpShow = MATH.APPROACH(hpShow, hpReal, 40 * APP.DELTA())
+    pulseT = pulseT + APP.DELTA()
+    pulse = MATH.SMOOTHERSTEP(0, 1, MATH.PINGPONG(pulseT, 1))
+    platX = 100 + MATH.PINGPONG(APP.TIME() * 80, 200)
+
+    barW = INT(MATH.REMAP(hpShow, 0, 100, 0, 300))
+    DRAW.RECTANGLE(50, 40, barW, 16, 80, 200, 80, 255)
+    DRAW.RECTANGLE(INT(platX), 200, 60, 12, INT(100 + 155 * pulse), 100, 200, 255)
+    DRAW.TEXT("SPACE = damage", 10, 10, 14, 220, 220, 220, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

@@ -1,0 +1,44 @@
+; XZ ground chase — HDIST, YAWFROMXZ, NEWX/NEWZ on floats
+; Guide: docs/systems/guides/math/MATH-3D-GAMEPLAY.md
+; Check: moonbasic --check examples/guides/math/math_3d_xz.mb
+; Run:   moonrun examples/guides/math/math_3d_xz.mb
+
+APP.OPEN(800, 600, "3D XZ math")
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETACTIVE(cam)
+CAMERA.SETPOS(cam, 0, 8, -12)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+hero = ENTITY.CREATECUBE(1, 1, 1)
+hero.pos(0, 0, 0)
+target = ENTITY.CREATECUBE(0.5, 0.5, 0.5)
+target.pos(6, 0, 4)
+
+WHILE NOT APP.SHOULDCLOSE()
+    hx, hz = ENTITY.GETXZ(hero)
+    tx, tz = ENTITY.GETXZ(target)
+
+    dx = tx - hx
+    dz = tz - hz
+    dist = MATH.HDIST(hx, hz, tx, tz)
+
+    IF dist > 0.5 THEN
+        yaw = MATH.YAWFROMXZ(dx, dz)
+        moveAmt = 3 * APP.DELTA()
+        nx = MATH.NEWX(hx, yaw, moveAmt)
+        nz = MATH.NEWZ(hz, yaw, moveAmt)
+        hero.pos(nx, hero.y(), nz)
+        ; Yaw in degrees for SETROTATION (pitch, yaw, roll)
+        ENTITY.SETROTATION(hero, 0, MATH.RAD2DEG(yaw), 0, 0)
+    ENDIF
+
+    RENDER.CLEAR(25, 28, 35)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()

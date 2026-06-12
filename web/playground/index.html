@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moonBASIC Playground</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif}
+body{margin:0;background:#0f1115;color:#e8eaed;min-height:100vh;display:flex;flex-direction:column}
+header{padding:1rem 1.25rem;border-bottom:1px solid #2a2f3a;background:#151922}
+h1{font-size:1.1rem;margin:0 0 .25rem}
+p.sub{margin:0;color:#9aa3b5;font-size:.9rem}
+main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:0}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.panel{display:flex;flex-direction:column;border-right:1px solid #2a2f3a;min-height:320px}
+.panel:last-child{border-right:none}
+.panel h2{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:#9aa3b5;margin:0;padding:.65rem 1rem;border-bottom:1px solid #252a35}
+textarea,pre{margin:0;padding:1rem;font-family:ui-monospace,Consolas,monospace;font-size:.9rem;line-height:1.45;border:none;resize:none;flex:1;background:#0f1115;color:inherit}
+pre{overflow:auto;white-space:pre-wrap}
+footer{padding:.75rem 1.25rem;border-top:1px solid #2a2f3a;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+button,select{background:#3d7dd6;color:#fff;border:none;padding:.55rem 1rem;border-radius:6px;font-size:.95rem;cursor:pointer}
+select{background:#252a35}
+button:hover{background:#4d8ee6}
+.ok{color:#6d6}
+.err{color:#f88}
+.hint{color:#9aa3b5;font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+<h1>moonBASIC Playground</h1>
+<p class="sub">Compile and run PRINT-style programs in the browser. Graphics and game APIs need <code>moonrun main.mb</code> locally.</p>
+</header>
+<main>
+<section class="panel">
+<h2>Source</h2>
+<textarea id="src" spellcheck="false">PRINT("Hello from moonBASIC!")
+FOR i = 1 TO 5
+    PRINT(i)
+NEXT
+</textarea>
+</section>
+<section class="panel">
+<h2>Result</h2>
+<pre id="out">Click Compile to check this program.</pre>
+</section>
+</main>
+<footer>
+<button id="run" type="button">Run</button>
+<button id="compile" type="button">Compile</button>
+<select id="examples" aria-label="Load example">
+<option value="">Examples…</option>
+<option value="hello">Hello loop</option>
+<option value="typed">Typed function</option>
+<option value="coroutine">Coroutine block</option>
+</select>
+<span class="hint">Ctrl+Enter to run · Shift+Ctrl+Enter to compile only</span>
+</footer>
+<script>
+const examples = {
+  hello: `PRINT("Hello from moonBASIC!")\nFOR i = 1 TO 5\n    PRINT(i)\nNEXT\n`,
+  typed: `FUNCTION Add(a AS FLOAT, b AS FLOAT) AS FLOAT\n    RETURN a + b\nENDFUNCTION\n\nPRINT(Add(1.5, 2.5))\n`,
+  coroutine: `COROUTINE blink\n    PRINT "tick"\n    YIELD\nENDCOROUTINE\n`
+};
+const src = document.getElementById('src');
+const out = document.getElementById('out');
+const btn = document.getElementById('compile');
+const runBtn = document.getElementById('run');
+const ex = document.getElementById('examples');
+ex.addEventListener('change', () => {
+  if (ex.value && examples[ex.value]) src.value = examples[ex.value];
+});
+async function compile() {
+  out.textContent = 'Compiling…';
+  out.className = '';
+  try {
+    const res = await fetch('/api/compile', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({source: src.value})
+    });
+    const data = await res.json();
+    if (data.ok) {
+      out.className = 'ok';
+      let text = 'OK — compiled successfully.\nFunctions: ' + (data.functions ?? 0);
+      if (data.disasm) text += '\n\n--- main bytecode (preview) ---\n' + data.disasm;
+      out.textContent = text;
+    } else {
+      out.className = 'err';
+      out.textContent = (data.errors || ['compile failed']).join('\n\n');
+    }
+  } catch (e) {
+    out.className = 'err';
+    out.textContent = 'Could not reach compile server.\nStart: moonbasic playground';
+  }
+}
+async function runProgram() {
+  out.textContent = 'Running…';
+  out.className = '';
+  try {
+    const res = await fetch('/api/run', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({source: src.value})
+    });
+    const data = await res.json();
+    if (data.ok) {
+      out.className = 'ok';
+      out.textContent = data.output || '(no output)';
+    } else {
+      out.className = 'err';
+      let text = (data.errors || ['run failed']).join('\n\n');
+      if (data.output) text = data.output + '\n\n---\n' + text;
+      out.textContent = text;
+    }
+  } catch (e) {
+    out.className = 'err';
+    out.textContent = 'Could not reach playground server.\nStart: moonbasic playground';
+  }
+}
+btn.addEventListener('click', compile);
+runBtn.addEventListener('click', runProgram);
+src.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    if (e.shiftKey) compile();
+    else runProgram();
+  }
+});
+</script>
+</body>
+</html>

@@ -118,21 +118,21 @@ For a **custom** font, `Font.Load(path)` returns a handle; draw with **`DRAW.TEX
 
 ## 6. GUI (`GUI.*`)
 
-`GUI.*` wraps **raygui** when **CGO** is enabled. On **Windows** with **`CGO_ENABLED=0`**, a **minimal** Raylib-drawn `GUI.*` subset runs instead (not full raygui); see [GUI.md](reference/GUI.md).
+`GUI.*` wraps **raygui** on the **full runtime** release. Some builds expose a smaller fallback subset; see [GUI.md](reference/GUI.md).
 
 - The [GUI reference](reference/GUI.md) is the full catalog: **every `GUI.*` command**, **how to theme and restyle** (`GUI.THEMEAPPLY`, `SETCOLOR`, `SETSTYLE`, `GCTL_*` / `GPROP_*`), and **stateful array handles** (`SCROLLPANEL`, `LISTVIEW`, `DROPDOWNBOX`, …). Use **`GUI.THEMENAMES`** for the list of built-in / bundled theme names.
 - Runnable demos: `examples/gui_basics/main.mb`, `examples/gui_theme/main.mb`, `examples/gui_form/main.mb`.
 
 ---
 
-## 7. Platform and build flags
+## 7. Platform notes
 
 | Area | Notes |
 |------|--------|
-| **Graphics, audio, window** | **Linux / macOS:** **CGO** + C toolchain (linked Raylib). **Windows:** either **CGO** + MinGW, or **`CGO_ENABLED=0`** + **`raylib.dll`** (purego; see [BUILDING.md](BUILDING.md)). **`GUI.*`**: full **raygui** needs **CGO**; **Windows + no CGO** uses the minimal GUI layer. |
-| **Physics 3D** (`Physics3D`, `Body3D`) | Implemented on **Linux x64/arm64** with Jolt; other OS builds use stubs until bindings exist. |
+| **Graphics, audio, window** | Use the **full runtime** archive from [GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest) (**`moonrun`** + **`moonbasic`**). **Compiler-only** downloads cannot open a game window. |
+| **Physics 3D** (`Physics3D`, `Body3D`) | **Windows** and **Linux** full runtime include Jolt; other platforms may return stubs until supported. |
 | **Physics 2D** | Box2D path — see [PHYSICS2D](reference/PHYSICS2D.md). |
-| **gopls / IDE** | If the editor analyzes with `CGO_ENABLED=0`, Raylib symbols may look “missing”; set `buildFlags`: `["-tags=cgo"]` and enable CGO where possible. |
+| **Editor** | Install **`moonbasic`** from Releases and the VSIX — see [GETTING_STARTED.md](GETTING_STARTED.md). |
 
 ---
 
@@ -166,8 +166,8 @@ For a **custom** font, `Font.Load(path)` returns a handle; draw with **`DRAW.TEX
 | Helpers vs raw math (design stance) | [EASY_LANGUAGE.md](EASY_LANGUAGE.md) |
 | String / color hot path vs UI strings | [reference/STRING_HEAP.md](reference/STRING_HEAP.md) |
 | Topic command index | [COMMANDS.md](COMMANDS.md) |
-| Every manifest name (arity, types) | [API_CONSISTENCY.md](API_CONSISTENCY.md) (`go run ./tools/apidoc`) |
-| Namespace → reference map (counts, blurbs) | [COMMAND_AUDIT.md](COMMAND_AUDIT.md) (`go run ./tools/cmdaudit`) |
+| Every manifest name (arity, types) | [API_CONSISTENCY.md](API_CONSISTENCY.md) |
+| Namespace → reference map (counts, blurbs) | [COMMAND_AUDIT.md](COMMAND_AUDIT.md) |
 | Consistent verbs (`LOAD`, `SETPOS`, …) | [reference/API_CONVENTIONS.md](reference/API_CONVENTIONS.md) |
 | Copy-paste samples | [EXAMPLES.md](EXAMPLES.md) |
 | Install & first run | [GETTING_STARTED.md](GETTING_STARTED.md) |
@@ -187,31 +187,31 @@ Use this alongside the loop in **§3**:
 - **Heap handles** — Call **`*.Free`** for textures, fonts, sounds, and other handles when you are done, especially in long sessions or when reloading assets. **`WINDOW.CLOSE`** and process shutdown still run **`Heap.FreeAll`** as a safety net — see [MEMORY.md](MEMORY.md).
 - **Churn** — Avoid creating many new handles or large temporary work every frame when you can reuse values or keep allocations outside the inner loop.
 - **Assets** — Prefer texture sizes and counts appropriate for the target resolution; fewer draw state changes usually help.
-- **Platform** — On **Windows**, **`CGO_ENABLED=0`** builds need **`raylib.dll`** on the DLL search path. Full **`Physics3D`** (Jolt) is only on **Linux** with CGO today — see **§7**.
+- **Platform** — Use the same **full runtime** release tag on dev and ship machines. **`Physics3D`** needs the desktop full runtime on **Windows** or **Linux** — see **§7**.
 
 ---
 
 ## 11. Running repository demos
 
-From the **repository root** (so relative paths behave as documented).
+Clone or download this repository for sample `.mb` files under `examples/`. Use your **full runtime** install ([GETTING_STARTED.md](GETTING_STARTED.md)) and run from the repo root so relative asset paths match the docs.
 
-**Compile only** (writes `main.mbc` next to the source — no window):
-
-```bash
-CGO_ENABLED=1 go run . examples/spin_cube/main.mb
-```
-
-**Run the game** (opens a window — use `moonrun` or fullruntime):
+**Check only** (no window):
 
 ```bash
-CGO_ENABLED=1 go run -tags fullruntime ./cmd/moonrun examples/spin_cube/main.mb
+moonbasic --check examples/spin_cube/main.mb
 ```
 
-On Windows (PowerShell):
+**Run the game** (opens a window):
 
-```powershell
-$env:CGO_ENABLED="1"
-go run -tags fullruntime ./cmd/moonrun examples\spin_cube\main.mb
+```bash
+moonrun examples/spin_cube/main.mb
 ```
 
-See [examples/README.md](../examples/README.md) and [DEVELOPER.md](DEVELOPER.md) for the full list and build-tag details.
+On Windows:
+
+```bat
+moonbasic.exe --check examples\spin_cube\main.mb
+moonrun.exe examples\spin_cube\main.mb
+```
+
+See [examples/README.md](../examples/README.md) for the full demo table.

@@ -2,7 +2,7 @@
 
 Non-solid sensor bodies (Jolt triggers) that fire events when other bodies enter or exit their volume. Use for pickups, checkpoints, damage zones, and area detection.
 
-Requires **CGO + Jolt** (Windows/Linux fullruntime).
+Requires **full runtime** (Windows or Linux desktop, with 3D physics).
 
 ## Core Workflow
 

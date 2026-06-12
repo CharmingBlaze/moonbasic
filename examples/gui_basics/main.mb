@@ -1,12 +1,12 @@
 ; raygui basics: WINDOWBOX, LABEL, BUTTON (requires CGO + raylib + raygui).
-; Run from repo root: CGO_ENABLED=1 go run . examples/gui_basics/main.mb
+; Run from repo root: moonrun examples/gui_basics/main.mb
 
-WINDOW.OPEN(800, 600, "GUI basics")
-WINDOW.SETFPS(60)
+APP.OPEN(800, 600, "GUI basics")
+APP.SETFPS(60)
 GUI.ENABLE()
 
 status = "Press OK or close the panel title bar"
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     RENDER.CLEAR(28, 28, 36)
 
     IF GUI.WINDOWBOX(40, 40, 520, 320, "GUI.WINDOWBOX") THEN
@@ -23,4 +23,4 @@ WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()

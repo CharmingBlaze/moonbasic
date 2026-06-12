@@ -2,7 +2,7 @@
 
 Create reusable Jolt Physics collision shape handles. Shapes can be queried for their dimensions and passed to `BODY3D.*` or `TRIGGER.*` instead of calling `BODY3D.ADDBOX` etc. inline.
 
-Requires **CGO + Jolt** (Windows/Linux fullruntime).
+Requires **full runtime** (Windows or Linux desktop, with 3D physics).
 
 ## Core Workflow
 

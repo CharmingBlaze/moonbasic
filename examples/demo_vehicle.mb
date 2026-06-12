@@ -1,10 +1,11 @@
 ; MoonBASIC Vehicle Demo
 ; 4-wheel vehicle + suspension + dynamic obstacles
 ; WASD drive, ESC quit
-; Run: go run -tags fullruntime . --run examples/demo_vehicle.mb
+; Check: moonbasic --check examples/demo_vehicle.mb
+; Run:   moonrun examples/demo_vehicle.mb
 
-WINDOW.OPEN(1280, 720, "MoonBASIC Vehicle Demo")
-WINDOW.SETFPS(60)
+APP.OPEN(1280, 720, "MoonBASIC Vehicle Demo")
+APP.SETFPS(60)
 
 PHYSICS3D.START()
 PHYSICS3D.SETGRAVITY(0, -9.81, 0)
@@ -49,8 +50,8 @@ barrel.SETRESTITUTION(0.5)
 
 cam = CAMERA.CREATE()
 
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    dt = Time.Delta()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
 
     ; Input
     throttle = 0 : steer = 0
@@ -96,4 +97,4 @@ wall.FREE()
 ramp.FREE()
 road.FREE()
 PHYSICS3D.STOP()
-WINDOW.CLOSE()
+APP.CLOSE()

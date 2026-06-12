@@ -1,45 +1,35 @@
-; Blitz-style 3D template (CGO Raylib + entity graph). Use any window size — not limited to 4K.
-; Requires asset files if you uncomment mesh loads; otherwise ENTITY.CREATECUBE smoke test.
-; See docs/GETTING_STARTED.md — "Modern Blitz-style 3D"
+; High-fidelity 3D template — SSAO, PBR helper, smooth camera follow.
+; Check: moonbasic --check examples/high_fidelity/modern_template.mb
+; Run:   moonrun examples/high_fidelity/modern_template.mb
 
-; Initialize world (1080p example; use 1280x720, 2560x1440, etc. as you like)
-WINDOW.OPEN(1920, 1080, "Project: High Fidelity")
-WINDOW.SETFPS(60)
-WINDOW.SETSIZE(1920, 1080)   ; optional resize if you opened at another size (was Graphics3D)
-WINDOW.SETMSAA(4)            ; MSAA sample hint
+SetMSAA(4)
+APP.OPEN(1280, 720, "High fidelity demo")
+APP.SETFPS(60)
 
-; Setup Scene
+EFFECT.SSAO(TRUE)
+
 cam = CAMERA.CREATE()
-EFFECT.SSAO(TRUE)            ; Modern shadows
+CAMERA.SETACTIVE(cam)
 
-; Minimal scene if glTF not present (replace with LoadMesh when you have assets):
-car = ENTITY.CREATECUBE(1, 1, 1)
+car = ENTITY.CREATECUBE(1.2, 0.6, 2.2)
 EntityPBR(car, 0.9, 0.1)
+car.pos(0, 0.5, 0)
 
-; Load a high-poly PBR model when file exists:
-; car = LoadMesh("supercar.gltf")
-; EntityNormalMap(car, LoadTexture("car_normals.png"))
+headLight = CreatePointLight(car, 255, 255, 200)
+ENTITY.TRANSLATE(headLight, -1, 0, 2)
 
-; Attach dynamic headlights (Easy Mode helper — parents light to entity; see LIGHT.CREATEPOINT for raw lights)
-L_Light = CreatePointLight(car, 255, 255, 200)
-ENTITY.TRANSLATE(L_Light, -1, 0, 2)
-
-WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR WINDOW.SHOULDCLOSE())
-    ; Modern Camera Follow logic
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
     CameraSmoothFollow(cam, car, 0.1)
 
-    ; Physics Impulse based on modern input
     IF INPUT.KEYDOWN(KEY_W) THEN ENTITY.ADDFORCE(car, 0, 0, 500)
 
-    ; Entity graph + optional WORLD / Physics2D / Physics3D
     UPDATEPHYSICS()
 
-    ; The Render Pass
     RENDER.CLEAR(12, 14, 22)
-    RENDER.Begin3D(cam)
-        ENTITY.DRAWALL()
-    RENDER.END3D()
+    RENDER.BEGIN(cam)
+    ENTITY.DRAWALL()
+    RENDER.END()
     RENDER.FRAME()
 WEND
 
-WINDOW.CLOSE()
+APP.CLOSE()
