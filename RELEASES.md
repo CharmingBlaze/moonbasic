@@ -2,7 +2,7 @@
 
 Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships pre-built binaries. You do **not** need Go, GCC, or this repository's source tree to use them.
 
-Replace `<tag>` with the release version (e.g. `v1.2.28`).
+Replace `<tag>` with the release version (e.g. `v1.2.29`).
 
 ---
 
@@ -110,3 +110,12 @@ Apple Silicon (arm64) full-runtime tarball. Make binaries executable: `chmod +x 
 ## Building from source
 
 Not supported from **this** repository. Engine contributors use **[moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler)**.
+
+---
+
+## Recent releases
+
+### v1.2.29
+
+- Fix chained entity/camera method calls (`ENTITY.CREATECUBE(…).scale(…).pos(…).col(…)`, `CAMERA.CREATE().fov(…)`).
+- Harden PBR material initialization on Windows purego builds so 3D examples (e.g. `examples/spin_cube`) render correctly.
