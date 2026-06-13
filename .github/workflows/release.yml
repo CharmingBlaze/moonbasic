@@ -1,5 +1,6 @@
 # Build pre-built moonBASIC binaries from moonbasic-compiler source and publish here.
 # Trigger: push tag v* on this repository (CharmingBlaze/moonbasic).
+# Artifacts include IDE bundles: moonbasic-<tag>-ide-{windows,linux,macos}
 
 name: Release
 
@@ -152,6 +153,40 @@ jobs:
           name: moonbasic-linux-amd64
           path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: moonbasic ide/package-lock.json
+
+      - name: Install Wails dependencies (Linux)
+        run: sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
+
+      - name: Build moonBASIC IDE (Linux)
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          set -e
+          go run ./tools/ideexport
+          go run ./tools/docsexport
+          cd "moonbasic ide"
+          npm ci
+          wails build
+          mkdir -p ../ide-dist
+          cp build/bin/moonbasic-ide ../ide-dist/
+          cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
+          cp ../packaging/README-IDE-RELEASE.txt ../packaging/START-IDE.sh ../ide-dist/
+          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun ../ide-dist/START-IDE.sh
+          tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-linux-amd64.tar.gz" -C ../ide-dist .
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-ide-linux-amd64
+          path: moonbasic-${{ github.ref_name }}-ide-linux-amd64.tar.gz
+
   windows-amd64:
     needs: [vscode-extension]
     runs-on: windows-latest
@@ -245,6 +280,41 @@ jobs:
           name: moonbasic-windows-amd64
           path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: moonbasic ide/package-lock.json
+
+      - name: Install Wails CLI
+        shell: pwsh
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
+
+      - name: Build moonBASIC IDE (Windows)
+        shell: pwsh
+        env:
+          CGO_ENABLED: '1'
+          CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
+        run: |
+          $ErrorActionPreference = "Stop"
+          go run ./tools/ideexport
+          go run ./tools/docsexport
+          Set-Location "moonbasic ide"
+          npm ci
+          wails build
+          Set-Location ..
+          New-Item -ItemType Directory -Force -Path ide-dist | Out-Null
+          Copy-Item "moonbasic ide\build\bin\moonbasic-ide.exe" ide-dist\
+          Copy-Item dist\moonbasic.exe, dist\moonrun.exe ide-dist\
+          Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh ide-dist\
+          $zip = "moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip"
+          Compress-Archive -Path ide-dist\* -DestinationPath $zip -Force
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-ide-windows-amd64
+          path: moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip
+
   macos-arm64:
     needs: [vscode-extension]
     runs-on: macos-14
@@ -309,6 +379,38 @@ jobs:
         with:
           name: moonbasic-macos-arm64
           path: moonbasic-${{ github.ref_name }}-macos-arm64.tar.gz
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: moonbasic ide/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
+
+      - name: Build moonBASIC IDE (macOS)
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          set -e
+          go run ./tools/ideexport
+          go run ./tools/docsexport
+          cd "moonbasic ide"
+          npm ci
+          wails build
+          mkdir -p ../ide-dist
+          cp build/bin/moonbasic-ide ../ide-dist/
+          cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
+          cp ../packaging/README-IDE-RELEASE.txt ../packaging/START-IDE.sh ../ide-dist/
+          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun ../ide-dist/START-IDE.sh
+          tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" -C ../ide-dist .
+          xattr -cr ../ide-dist/moonbasic-ide || true
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: moonbasic-ide-macos-arm64
+          path: moonbasic-${{ github.ref_name }}-ide-macos-arm64.tar.gz
 
   compiler-only-linux:
     runs-on: ubuntu-latest
@@ -426,6 +528,8 @@ jobs:
           generate_release_notes: true
           body: |
             Official pre-built moonBASIC binaries for **Windows**, **Linux**, and **macOS (Apple Silicon)**.
+
+            **moonBASIC IDE (easiest start):** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, `moonbasic-<tag>-ide-macos-arm64.tar.gz` — includes **`moonbasic-ide`**, **`moonbasic`**, **`moonrun`**, and built-in documentation. Extract and run **START-IDE.bat** (Windows) or **./START-IDE.sh** (Linux/macOS). Read **README-IDE-RELEASE.txt**.
 
             **Full runtime (games):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Run: **`moonrun game.mb`**.
 

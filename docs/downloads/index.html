@@ -136,9 +136,28 @@
 <body>
   <div class="wrap">
     <h1>moonBASIC</h1>
-    <p class="tagline">Downloads only — pre-built <strong>compiler</strong> and <strong>full runtime</strong> for Windows, Linux (x64), and macOS (Apple Silicon). No Go or C toolchain needed to use these archives.</p>
+    <p class="tagline">Downloads only — pre-built <strong>IDE</strong>, <strong>compiler</strong>, and <strong>full runtime</strong> for Windows, Linux (x64), and macOS (Apple Silicon). No Go or C toolchain needed to use these archives.</p>
 
     <p class="pill" id="version-pill">Latest release: <strong id="tag">…</strong></p>
+
+    <section>
+      <h2>moonBASIC IDE <span style="font-weight:400;opacity:.85">(editor + compiler + runtime + docs)</span></h2>
+      <div class="grid cols-2">
+        <a class="btn" id="dl-win-ide" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">Windows · IDE .zip</span>
+          <span class="sub">moonbasic-ide + moonbasic + moonrun</span>
+        </a>
+        <a class="btn" id="dl-lin-ide" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">Linux · IDE .tar.gz</span>
+          <span class="sub">extract → ./START-IDE.sh</span>
+        </a>
+        <a class="btn" id="dl-mac-ide" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
+          <span class="label">macOS · IDE .tar.gz</span>
+          <span class="sub">Apple Silicon — START-IDE.sh</span>
+        </a>
+      </div>
+      <p class="note">Easiest setup: extract, run <code>START-IDE</code>, start coding. Full documentation is inside the IDE. Read <code>README-IDE-RELEASE.txt</code> in the archive.</p>
+    </section>
 
     <section>
       <h2>Full runtime <span style="font-weight:400;opacity:.85">(games — window, graphics, physics)</span></h2>
@@ -195,7 +214,7 @@
         <a class="text" href="https://github.com/CharmingBlaze/moonbasic/releases">All releases</a>
         · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md">Getting started</a>
         · <a class="text" href="https://github.com/CharmingBlaze/moonbasic/blob/main/docs/COMMANDS.md">Command reference</a>
-        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic">Source repository</a> <span style="color:var(--muted)">(for contributors)</span>
+        · <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler">Engine source</a> <span style="color:var(--muted)">(contributors)</span>
       </p>
     </section>
 
@@ -210,6 +229,9 @@
       const tagEl = document.getElementById("tag");
       const errEl = document.getElementById("fetch-err");
       const ids = [
+        ["dl-win-ide", "moonbasic-{tag}-ide-windows-amd64.zip"],
+        ["dl-lin-ide", "moonbasic-{tag}-ide-linux-amd64.tar.gz"],
+        ["dl-mac-ide", "moonbasic-{tag}-ide-macos-arm64.tar.gz"],
         ["dl-win-full", "moonbasic-{tag}-windows-amd64.zip"],
         ["dl-lin-full", "moonbasic-{tag}-linux-amd64.tar.gz"],
         ["dl-mac-full", "moonbasic-{tag}-macos-arm64.tar.gz"],

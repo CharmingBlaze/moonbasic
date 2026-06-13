@@ -23,9 +23,12 @@ You do **not** need to install Go, GCC, Node.js, or Raylib separately.
 
 | Your goal | Download |
 |-----------|----------|
+| **moonBASIC IDE** (editor + compiler + runtime + docs — **easiest**) | **IDE bundle** — `moonbasic-<tag>-ide-windows-amd64.zip`, `linux-amd64.tar.gz`, or `macos-arm64.tar.gz` |
 | **Play / make games** | **Full runtime** — `moonbasic-<tag>-windows-amd64.zip`, `linux-amd64.tar.gz`, or `macos-arm64.tar.gz` |
 | **Lint / compile / LSP only** (no game window) | **Compiler only** — `moonbasic-<tag>-compiler-…` |
 | **VS Code / Cursor** | Included in full-runtime zip + **`moonbasic-<tag>-vscode.vsix`** on Releases |
+
+IDE archives include **`moonbasic-ide`**, **`moonbasic`**, **`moonrun`**, **`README-IDE-RELEASE.txt`**, and **`START-IDE`**. Documentation is built into the IDE — extract and run **START-IDE** to begin.
 
 Full-runtime archives include **`moonbasic`**, **`moonrun`**, **`README-RELEASE.txt`**, the **VS Code `.vsix`**, and **`INSTALL-VSCODE.bat`** / **`INSTALL-VSCODE.sh`**. Details: **[RELEASES.md](RELEASES.md)**
 

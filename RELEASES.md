@@ -2,7 +2,27 @@
 
 Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships pre-built binaries. You do **not** need Go, GCC, or this repository's source tree to use them.
 
-Replace `<tag>` with the release version (e.g. `v1.2.26`).
+Replace `<tag>` with the release version (e.g. `v1.2.28`).
+
+---
+
+## moonBASIC IDE (recommended)
+
+| Asset | Platform | Contents |
+|-------|----------|----------|
+| `moonbasic-<tag>-ide-windows-amd64.zip` | Windows x64 | `moonbasic-ide.exe`, `moonbasic.exe`, `moonrun.exe`, `README-IDE-RELEASE.txt`, `START-IDE.bat` |
+| `moonbasic-<tag>-ide-linux-amd64.tar.gz` | Linux x64 | `moonbasic-ide`, `moonbasic`, `moonrun`, `README-IDE-RELEASE.txt`, `START-IDE.sh` |
+| `moonbasic-<tag>-ide-macos-arm64.tar.gz` | macOS Apple Silicon | same as Linux layout |
+
+**Use when:** you want the easiest setup — desktop editor, full documentation inside the IDE, check, compile, and run games. **No other tools required.**
+
+1. Extract anywhere permanent.
+2. Run **START-IDE.bat** (Windows) or **`chmod +x` + `./START-IDE.sh`** (Linux/macOS).
+3. Status bar should show **Toolchain ready** — `moonbasic` and `moonrun` sit in the same folder.
+
+**Shortcuts:** F5 run · Ctrl+Shift+C check · Ctrl+Shift+B compile · Alt+H help at cursor · gear menu for themes/fonts.
+
+Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler) (`moonbasic ide/`).
 
 ---
 
