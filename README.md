@@ -35,6 +35,8 @@ All artifact names and platform notes: **[RELEASES.md](RELEASES.md)**
 
 The fastest way to start — one folder, no extra setup.
 
+![moonBASIC IDE — editor, documentation, check, compile, and run in one app](docs/images/moonbasic-ide.png)
+
 1. Download **`moonbasic-<tag>-ide-…`** for your OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest).
 2. Extract anywhere permanent.
 3. Run **START-IDE.bat** (Windows) or **`chmod +x START-IDE.sh moonbasic-ide moonbasic moonrun && ./START-IDE.sh`** (Linux/macOS).
