@@ -1,6 +1,6 @@
 # moonBASIC
 
-**A modern BASIC for building 2D and 3D games** — write `.mb` source, download pre-built binaries, and run. **No Go, no C compiler, no build tools** on your machine.
+**A modern BASIC for building 2D and 3D games** — write `.mb` source, download pre-built binaries, and run. **No Go, no C compiler, no build tools** on your machine. Download from here: (https://github.com/CharmingBlaze/moonbasic/releases/tag/v1.2.27)
 
 One download gives you **`moonrun`** (play games), **`moonbasic`** (check, compile to `.mbc`, language server), and optionally the **moonBASIC IDE** — a desktop editor with the full documentation built in. The engine bundles **Raylib**, **Box2D**, and **Jolt** — graphics, audio, 2D physics, 3D physics, networking, terrain, UI, particles, and more behind **4,200+ built-in commands** across 40+ namespaces (`WINDOW.*`, `ENTITY.*`, `PHYSICS3D.*`, `GUI.*`, `NET.*`, …).
 
