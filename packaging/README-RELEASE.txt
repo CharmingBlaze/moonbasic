@@ -32,9 +32,19 @@ WHAT'S IN THIS FOLDER
 
   Windows (full runtime zip): the two executables and this README are enough — **libgcc**,
 
-  **libstdc++**, and **winpthread** are linked into the `.exe` files. Raylib is compiled from
+  **libstdc++**, and **winpthread** are linked into the `.exe` files. Raylib, Jolt, and ENet
 
-  sources (no `raylib.dll`). You should not need MinGW companion DLLs beside the binaries.
+  are compiled/linked into the binaries (no `raylib.dll`, no `libenet`). You should not need
+
+  MinGW companion DLLs beside the binaries.
+
+
+
+  Linux / macOS: same idea — extract and run `./moonrun`. No `libenet` / Homebrew `enet`
+
+  package is required for networking. Linux `moonrun` also embeds `libstdc++` / `libgcc`
+
+  (Jolt) so you should not need matching g++ runtime packages from the build host.
 
 
 
@@ -122,15 +132,35 @@ TIPS
 
   • Porting from BlitzBASIC? See docs/reference/MIGRATION.md for commands not in this release.
 
-  • More help: https://github.com/CharmingBlaze/moonbasic-compiler/blob/main/docs/GETTING_STARTED.md
+  • More help: https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md
+
+  • Downloads / IDE: https://github.com/CharmingBlaze/moonbasic/releases/latest
 
 
 
-Linux: if the app fails to start, ensure GPU drivers and a normal desktop OpenGL stack
+Linux: if the app fails to start, ensure a normal desktop + GPU stack (runtime libs,
 
-       are installed (run-time libs, not compiler -dev packages). See docs/BUILDING.md
+       not compiler -dev packages). Typical packages:
 
-       only if you build from source.
+
+
+         Arch / CachyOS:  mesa  wayland  libxkbcommon  libglvnd
+
+         Debian / Ubuntu: libgl1  libwayland-client0  libxkbcommon0
+
+
+
+       You do **not** need `libenet`, `raylib`, or `jolt` packages — those are linked
+
+       into `moonrun`. See docs/BUILDING.md only if you build from source.
+
+
+
+  Older releases (before static ENet): if `ldd moonrun` shows `libenet.so.7 => not found`,
+
+       either upgrade to a newer full-runtime zip, or on Arch/CachyOS install the `enet`
+
+       package (`sudo pacman -S enet`).
 
 
 

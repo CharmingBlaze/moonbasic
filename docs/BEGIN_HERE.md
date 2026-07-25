@@ -34,10 +34,20 @@ Built-ins are grouped by **namespace** (`WINDOW.OPEN`, `ENTITY.SETPOS`, …) so 
 
 ## Install (5 minutes)
 
-1. Open [GitHub Releases](https://github.com/CharmingBlaze/moonbasic-compiler/releases/latest).
-2. Download the **full runtime** for your OS (`windows-amd64.zip` or `linux-amd64.tar.gz`).
-3. Extract somewhere permanent. You should see **`moonbasic`** and **`moonrun`** (or `.exe` on Windows).
-4. **VS Code / Cursor (one command):** run **`moonbasic install-vscode`** — or double-click **`INSTALL-VSCODE.bat`** (Windows) / **`./INSTALL-VSCODE.sh`** (Linux/macOS) inside the extracted folder. No manual VSIX install.
+**Recommended — moonBASIC IDE** (editor + compiler + runtime + **full documentation** built in):
+
+1. Open [GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest).
+2. Download the **IDE bundle** for your OS (`moonbasic-<tag>-ide-windows-amd64.zip`, `…-ide-linux-amd64.tar.gz`, or `…-ide-macos-arm64.tar.gz`).
+3. Extract somewhere permanent. Start with **`START-IDE.bat`** (Windows), **`START-IDE.command`** (macOS), or **`./START-IDE.sh`** (Linux).
+4. Open **Documentation** in the IDE sidebar, or open **`samples/hello.mb`** and press **F5**.
+
+**Terminal only — full runtime** (no IDE):
+
+1. From the same [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest) page, download the **full runtime** (`windows-amd64.zip`, `linux-amd64.tar.gz`, or `macos-arm64.tar.gz`).
+2. Extract somewhere permanent. You should see **`moonbasic`** and **`moonrun`** (or `.exe` on Windows).
+3. **VS Code / Cursor (one command):** run **`moonbasic install-vscode`** — or double-click **`INSTALL-VSCODE.bat`** / **`./INSTALL-VSCODE.sh`**. No manual VSIX install.
+
+Browse docs online in this download hub’s [`docs/`](https://github.com/CharmingBlaze/moonbasic/tree/main/docs) tree, or inside the IDE.
 
 Details: [GETTING_STARTED.md](GETTING_STARTED.md).
 

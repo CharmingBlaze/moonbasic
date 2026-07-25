@@ -1,0 +1,26 @@
+﻿CGO allocation grep — raylib Load/Gen/Init call sites (runtime/, *.go, excluding *_test.go and *stub*.go).
+
+Each line is a site that allocates native GPU/audio/physics resources. Pair every persistent resource with Unload/Free in the owning HeapObject.Free(), ENTITY entFree, or module shutdown — not only with Go losing references.
+
+Regenerate (Unix):
+  grep -rn "rl\.Load\|rl\.Gen\|rl\.Init" runtime/ --include="*.go" | grep -v "_test.go" | grep -v "stub.go" | sort
+
+Jolt / ENet / Box2D: audit physics3d/jolt_*.go, physics2d/box2d*.go, net/enet_*.go for Create/New/Init vs Remove/Destroy/Release.
+
+--- Raylib (representative; see source for full set) ---
+
+runtime/texture/load.go:33:	t := rl.LoadTexture(path)
+runtime/texture/load.go:52:	t := rl.LoadTextureFromImage(img)
+runtime/draw/advanced.go:66:	img := rl.LoadImageFromScreen()
+runtime/audio/master_cgo.go:20:	rl.InitAudioDevice()
+runtime/mbentity/entity_blitz_cgo.go:162-223: GenMeshCube, LoadModel, LoadModelAnimations, ...
+runtime/mbmodel3d/*.go: LoadModel, LoadModelFromMesh, LoadModelAnimations, GenMesh*, LoadMaterialDefault, LoadShader, LoadRenderTexture, ...
+runtime/window/raylib_cgo.go:83:	rl.InitWindow(...)
+runtime/window/post_process_cgo.go: LoadShaderFromMemory, LoadRenderTexture
+runtime/window/compute_cgo.go: LoadComputeShaderProgram, LoadShaderBuffer
+runtime/texture/gen_cgo.go: GenImage*, LoadTextureFromImage
+runtime/terrain/mesh_build.go: GenImageColor, GenMeshHeightmap, LoadMaterialDefault
+runtime/sprite/raylib_cgo.go: LoadTexture
+runtime/mbimage/load_cgo.go: LoadImage, LoadImageRaw, GenImageColor
+runtime/font/raylib_cgo.go: LoadFont, LoadFontEx
+runtime/audio/*.go: InitAudioDevice, LoadSound, LoadMusicStream, LoadWave, LoadAudioStream

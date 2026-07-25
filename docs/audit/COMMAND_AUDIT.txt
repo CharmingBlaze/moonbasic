@@ -1,0 +1,342 @@
+moonBASIC command audit — STEP 0 (complete inventory)
+=====================================================
+Authority: ARCHITECTURE.md §4 — compiler/builtinmanifest/commands.json
+Implementation: runtime Register() overrides manifest stubs (runtime/runtime.go RegisterFromManifest)
+Tests: testdata/*.mb, **/*_test.go
+Verified: 2026-04-04 (grep + file reads)
+Changelog (update this section whenever you change impl or tests)
+-----------------------------------------------------------------
+• 2026-04-04 — mathmod: CLAMP/LERP/WRAP use Raylib 5.5 raymath formulas (runtime/mathmod/raymath_rl55.go); trig still std math.
+• 2026-04-04 — file: FILE.WRITE/WRITEFILE raw; FILE.WRITELN/WRITEFILELN append newline (runtime/file/write.go); commands.json + FILE.WRITELN.
+• 2026-04-04 — strmod: removed runtime/strmod/strings.go bogus strmod.* keys; strmod module is a no-op register.
+• 2026-04-04 — control flow: DO/LOOP WHILE|UNTIL, DO WHILE…LOOP; EXIT/CONTINUE FOR|WHILE|REPEAT|DO; EXIT FUNCTION (compiler/token, parser_stmts, codegen_loopctx.go, codegen_do.go). testdata/do_loop_test.mb, exit_continue_test.mb; CI --check.
+• 2026-04-04 — parser: optional variable after NEXT only on same line as NEXT (no skipNewlines) — fixes swallowing next statement’s identifier.
+• 2026-04-04 — parser: WHILE/FOR/REPEAT/DO/EXIT/CONTINUE parsing moved to parser_stmts_loop.go (line-count seam).
+
+Legend
+------
+DONE    — commands.json row + real native (or parser/codegen construct) + ≥1 test exercises it
+PARTIAL — stub ("not yet implemented"), wrong/duplicate registry key, behavior mismatch vs spec, or no test
+MISSING — no language/parser/codegen support and no callable native (manifest stub alone counts as PARTIAL, not MISSING)
+
+--- OUTPUT / INPUT ---
+PRINT          DONE     runtime/core_console.go:41; testdata/print_test.mb
+PRINTLN        PARTIAL  runtime/core_console.go:45; identical to PRINT (both Fprintln); no distinct test
+WRITE          PARTIAL  runtime/core_console.go:49; no dedicated .mb test
+INPUT          PARTIAL  runtime/core_console.go:53; manifest 1-arg; impl optional 2nd default — no arity row
+CLS            PARTIAL  runtime/core_console.go:76; no dedicated test
+LOCATE         PARTIAL  runtime/core_console.go:80; ANSI cursor; no dedicated test
+TAB            PARTIAL  runtime/core_console.go:115; emits spaces to DiagOut; no dedicated test
+SPC            PARTIAL  runtime/core_console.go:116; same as TAB
+
+--- TYPE CONVERSION ---
+INT            DONE     runtime/strings_conv.go; testdata/string_test.mb / strings_test.mb
+FLOAT          DONE     runtime/strings_conv.go; testdata/string_test.mb
+STR$           DONE     runtime/strings_conv.go; testdata/string_test.mb
+VAL            DONE     runtime/strings_conv.go; testdata/string_test.mb
+ASC            DONE     runtime/strings_conv.go; testdata/string_test.mb
+CHR$           DONE     runtime/strings_conv.go; testdata/string_test.mb
+BOOL           PARTIAL  runtime/strings_conv.go; no direct .mb assertion
+FIX            PARTIAL  runtime/mathmod/basic.go; truncates toward zero but returns float kind — spec asked int
+TYPEOF         DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISNULL         DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISHANDLE       DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISTYPE         DONE     runtime/strings_check.go; testdata/strings_test.mb
+
+--- STRING ---
+LEN            DONE     runtime/strings_conv.go; testdata/string_test.mb
+LEFT$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
+RIGHT$         DONE     runtime/strings_slice.go; testdata/strings_test.mb
+MID$           DONE     runtime/strings_slice.go; testdata/strings_test.mb
+UPPER$         DONE     runtime/strings_slice.go; testdata/string_test.mb
+LOWER$         DONE     runtime/strings_slice.go; testdata/string_test.mb
+INSTR          DONE     runtime/strings_search.go; testdata/strings_test.mb
+TRIM$          DONE     runtime/strings_search.go; testdata/string_test.mb
+LTRIM$         DONE     runtime/strings_search.go; testdata/string_test.mb
+RTRIM$         DONE     runtime/strings_search.go; testdata/string_test.mb
+REPLACE$       DONE     runtime/strings_search.go; testdata/string_test.mb
+CONTAINS       DONE     runtime/strings_search.go; testdata/strings_test.mb
+STARTSWITH     DONE     runtime/strings_search.go; testdata/strings_test.mb
+ENDSWITH       DONE     runtime/strings_search.go; testdata/strings_test.mb
+SPLIT$         DONE     runtime/strings_split.go; testdata/strings_test.mb
+JOIN$          DONE     runtime/strings_split.go; testdata/strings_test.mb
+SPACE$         DONE     runtime/strings_slice.go; testdata/strings_test.mb
+STRING$        DONE     runtime/strings_slice.go; testdata/strings_test.mb
+REVERSE$       DONE     runtime/strings_slice.go; testdata/strings_test.mb
+REPEAT$        DONE     runtime/strings_slice.go; testdata/strings_test.mb
+COUNT$         DONE     runtime/strings_search.go; testdata/strings_test.mb
+LSET$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
+RSET$          DONE     runtime/strings_slice.go; testdata/strings_test.mb
+ISALPHA        DONE     runtime/strings_check.go; testdata/strings_test.mb
+ISNUMERIC      PARTIAL  runtime/strings_check.go (strconv.ParseFloat rules vs “digits only” BASIC dialects); no strmod duplicate (strmod strings.go removed)
+ISALPHANUM     DONE     runtime/strings_check.go; testdata/strings_test.mb
+FORMAT$        DONE     runtime/strings_format.go; testdata/strings_test.mb
+BIN$           DONE     runtime/strings_format.go; testdata/strings_test.mb
+HEX$           DONE     runtime/strings_format.go; testdata/strings_test.mb
+OCT$           DONE     runtime/strings_format.go; testdata/strings_test.mb
+MKSHORT$       DONE     runtime/strings_format.go; testdata/strings_test.mb
+MKINT$         DONE     runtime/strings_format.go; testdata/strings_test.mb
+MKLONG$        DONE     runtime/strings_format.go; testdata/strings_test.mb
+MKFLOAT$       DONE     runtime/strings_format.go; testdata/strings_test.mb
+MKDOUBLE$      DONE     runtime/strings_format.go; testdata/strings_test.mb
+CVSHORT        DONE     runtime/strings_format.go; testdata/strings_test.mb
+CVINT          DONE     runtime/strings_format.go; testdata/strings_test.mb
+CVLONG         DONE     runtime/strings_format.go; testdata/strings_test.mb
+CVFLOAT        DONE     runtime/strings_format.go; testdata/strings_test.mb
+CVDOUBLE       DONE     runtime/strings_format.go; testdata/strings_test.mb
+
+--- MATH ---
+SIN            DONE     runtime/mathmod/trig.go; testdata/math_test.mb
+COS            PARTIAL  runtime/mathmod/trig.go; no dedicated line in math_test.mb
+TAN            PARTIAL  runtime/mathmod/trig.go; no dedicated test
+ASIN           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ACOS           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ATAN           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ATAN2          PARTIAL  runtime/mathmod/vector.go; no .mb test
+SQR            PARTIAL  runtime/mathmod/basic.go; alias SQRT; no dedicated test
+SQRT           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+EXP            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+LOG            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+LOG2           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+LOG10          PARTIAL  runtime/mathmod/basic.go; no dedicated test
+POW            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+INT            DONE     runtime/strings_conv.go (conversion builtin; same name as MATH trunc — see DUPLICATES)
+FIX            PARTIAL  (see TYPE CONVERSION / mathmod)
+FLOOR          PARTIAL  runtime/mathmod/basic.go; no dedicated test
+CEIL           PARTIAL  runtime/mathmod/basic.go; no dedicated test
+ROUND          PARTIAL  runtime/mathmod/basic.go; verify manifest overload rows vs impl
+ABS            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+SGN            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+MIN            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+MAX            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+CLAMP          PARTIAL  runtime/mathmod/angle_interp.go + raymath_rl55.go (Raylib 5.5 rlClamp); no dedicated .mb test
+LERP           PARTIAL  runtime/mathmod; raymath_rl55.go (rlLerp); no dedicated .mb test
+SMOOTHSTEP     PARTIAL  runtime/mathmod/angle_interp.go; no dedicated .mb test
+PINGPONG       PARTIAL  runtime/mathmod/angle_interp.go; no dedicated .mb test
+WRAP           PARTIAL  runtime/mathmod; raymath_rl55.go (rlWrap); no dedicated .mb test
+DEG2RAD        PARTIAL  runtime/mathmod/angle_interp.go; no dedicated test
+RAD2DEG        PARTIAL  runtime/mathmod/angle_interp.go; no dedicated test
+WRAPANGLE      PARTIAL  runtime/mathmod; no dedicated test
+WRAPANGLE180   PARTIAL  runtime/mathmod; no dedicated test
+ANGLEDIFF      PARTIAL  runtime/mathmod; no dedicated test
+RND            PARTIAL  runtime/mathmod/random.go; manifest overloads vs tests
+RNDF           PARTIAL  runtime/mathmod/random.go; no dedicated test
+RNDSEED        PARTIAL  runtime/mathmod/random.go; no dedicated test
+RANDOMIZE      PARTIAL  runtime/mathmod/random.go; no dedicated test
+PI             PARTIAL  runtime/mathmod/basic.go; no dedicated test
+TAU            PARTIAL  runtime/mathmod/basic.go; no dedicated test
+E              PARTIAL  runtime/mathmod/basic.go; no dedicated test
+
+--- LOGIC ---
+IIF            PARTIAL  runtime/mathmod/logic.go; no dedicated test
+CHOOSE         PARTIAL  runtime/mathmod/logic.go; manifest variadic rows — verify coverage
+SWITCH         PARTIAL  runtime/mathmod/logic.go; manifest multi-arg rows — verify coverage
+
+--- ARRAY (builtins + DIM statement) ---
+DIM            DONE     compiler/parser + vm; testdata/array_test.mb
+REDIM          PARTIAL  compiler/parser + vm; weaker coverage than DIM
+ERASE          PARTIAL  runtime/mbarray/array_ops.go; testdata/strings_test.mb (SPLIT$ arr); array_test.mb does not ERASE numeric arr
+ARRAYLEN       DONE     runtime/mbarray/array_ops.go; testdata/strings_test.mb
+ARRAYFILL      PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYCOPY      PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYSORT      PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYREVERSE   PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYFIND      PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYCONTAINS  PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYPUSH      PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYPOP       PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYSHIFT     PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYUNSHIFT   PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYSPLICE    PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYSLICE     PARTIAL  runtime/mbarray/array_ops.go; no test
+ARRAYJOINS$    PARTIAL  runtime/mbarray/array_ops.go; no test
+
+--- VARIABLES (language) ---
+LOCAL          PARTIAL  compiler/parser; no single focused .mb
+GLOBAL         PARTIAL  compiler/parser; no single focused .mb
+CONST          PARTIAL  compiler/parser; no single focused .mb
+STATIC         PARTIAL  compiler/parser/parser_stmts.go; VM/static map — coverage unclear
+SWAP           PARTIAL  compiler/parser; coverage unclear
+
+--- CONTROL FLOW (parser + codegen) ---
+IF/THEN/ELSEIF/ELSE/ENDIF   DONE  compiler; multiple tests
+WHILE/WEND                  DONE  compiler
+FOR/TO/STEP/NEXT            DONE  testdata/for_test.mb, exit_continue_test.mb; optional NEXT var only same line as NEXT (parser_stmts.go)
+REPEAT/UNTIL                DONE  testdata/repeat_test.mb
+DO/LOOP WHILE               DONE  token DO/LOOP; parser_stmts parseDo; codegen_do.go; testdata/do_loop_test.mb
+DO WHILE/LOOP               DONE  same
+DO/LOOP UNTIL               DONE  same
+EXIT FOR                    DONE  codegen_loopctx + testdata/exit_continue_test.mb
+EXIT WHILE                  DONE  same
+EXIT REPEAT                 DONE  same
+EXIT DO                     DONE  same
+CONTINUE FOR                DONE  codegen_loopctx + exit_continue_test.mb
+CONTINUE WHILE              DONE  same
+CONTINUE REPEAT             DONE  same (no dedicated line in .mb)
+CONTINUE DO                 DONE  same
+SELECT/CASE/DEFAULT/ENDSELECT  PARTIAL  testdata/select_test.mb; single value per CASE only
+CASE val1, val2, val3       MISSING  multi-value CASE
+CASE val1 TO val2           MISSING  range CASE
+CASE IS > val               MISSING  conditional CASE
+GOTO                        PARTIAL  compiler/parser; label resolution — limited tests
+GOSUB                       PARTIAL  compiler/parser; limited tests
+RETURN                      PARTIAL  from GOSUB path — verify tests
+END                         DONE  OpHalt; control_quit/stop patterns
+QUIT                        DONE  runtime/core_program.go; testdata/control_quit.mb
+STOP                        DONE  same; testdata/control_stop.mb
+WAIT                        DONE  same as SLEEP; testdata/control_sleep_wait.mb
+SLEEP                       DONE  runtime/core_program.go; testdata/control_sleep_wait.mb
+
+--- FUNCTIONS ---
+FUNCTION/ENDFUNCTION/RETURN   DONE  testdata/func_test.mb
+Default parameter values      MISSING  parser — not supported
+Variadic PARAMS               MISSING  not supported
+Type hints AS                 MISSING  not supported
+EXIT FUNCTION                 DONE  codegen_loopctx emitExitStmt; testdata/exit_continue_test.mb (EarlyExit)
+
+--- USER TYPES ---
+TYPE/FIELD/ENDTYPE   PARTIAL  compiler/parser/parser_types.go; no focused testdata
+NEW                  PARTIAL  codegen OpNew; no focused testdata
+DELETE               PARTIAL  codegen; no focused testdata
+FOR EACH(Type)       PARTIAL  parser; no focused testdata
+
+--- FILE I/O (flat names + FILE.*) ---
+OPENFILE          PARTIAL  runtime/file/module.go (CGO); stub runtime/file/stub.go (!cgo); testdata/file_test.mb when CGO
+CLOSEFILE         PARTIAL  flat alias FILE.CLOSE; CGO/stub as above
+READFILE$         PARTIAL  flat → FILE.READLINE; line-based; CGO
+FILE.WRITE        DONE     runtime/file/write.go fileWriteRaw; raw bytes no newline; CGO
+FILE.WRITELN      DONE     runtime/file/write.go fileWriteLine; appends newline; commands.json; testdata/file_test.mb
+WRITEFILE         DONE     flat → FILE.WRITE; runtime/file/module.go Register; CGO
+WRITEFILELN       DONE     flat → FILE.WRITELN; runtime/file/module.go; CGO
+READALLTEXT$      DONE     runtime/mbutil/util.go; testdata/file_io_ops.mb / file_test.mb
+WRITEALLTEXT      DONE     runtime/mbutil; testdata/file_io_ops.mb
+READBYTE          PARTIAL  commands.json key; no native — manifest stub only
+WRITEBYTE         PARTIAL  commands.json key; manifest stub only
+READSHORT         PARTIAL  commands.json key; manifest stub only
+WRITESHORT        PARTIAL  commands.json key; manifest stub only
+READINT           PARTIAL  commands.json key; manifest stub only
+WRITEINT          PARTIAL  commands.json key; manifest stub only
+READFLOAT         PARTIAL  commands.json key; manifest stub only
+WRITEFLOAT        PARTIAL  commands.json key; manifest stub only
+READSTRING$       PARTIAL  commands.json key; manifest stub only
+WRITESTRING       PARTIAL  commands.json key; manifest stub only
+FILEPOS           PARTIAL  flat FILE.TELL; CGO
+SEEKFILE          PARTIAL  flat FILE.SEEK; CGO (offset only; spec asked modes)
+EOF               PARTIAL  flat FILE.EOF; CGO
+FILESIZE          PARTIAL  flat FILE.SIZE; CGO
+FILEEXISTS        DONE     runtime/mbutil; testdata/file_flat_aliases.mb
+DIREXISTS         DONE     runtime/mbutil; testdata/file_flat_aliases.mb
+DELETEFILE        DONE     runtime/mbutil; testdata/file_io_ops.mb
+COPYFILE          DONE     runtime/mbutil; testdata/file_io_ops.mb
+MOVEFILE          DONE     runtime/mbutil; testdata/file_io_ops.mb
+RENAMEFILE        DONE     runtime/mbutil; testdata/file_io_ops.mb
+MAKEDIR           DONE     runtime/mbutil; testdata/file_io_ops.mb
+MAKEDIRS          DONE     runtime/mbutil; testdata/file_io_ops.mb
+DELETEDIR         DONE     runtime/mbutil; testdata/file_io_ops.mb
+GETDIR$           DONE     runtime/mbutil; testdata/file_io_ops.mb
+SETDIR            DONE     runtime/mbutil; testdata/file_io_ops.mb
+GETFILES$         PARTIAL  runtime/mbutil; returns JSON string — spec asked array handle
+GETDIRS$          DONE     runtime/mbutil (JSON array string); testdata/file_io_ops.mb
+GETFILEEXT$       DONE     runtime/mbutil; testdata/file_flat_aliases.mb
+GETFILENAME$      DONE     runtime/mbutil; testdata/file_flat_aliases.mb
+GETFILENAMENOEXT$ DONE     runtime/mbutil; testdata/file_flat_aliases.mb
+GETFILEPATH$      DONE     runtime/mbutil; testdata/file_flat_aliases.mb
+GETFILESIZE       DONE     runtime/mbutil; testdata/file_io_ops.mb
+GETFILEMODTIME    DONE     runtime/mbutil; testdata/file_io_ops.mb
+ISFILEDROPPED     PARTIAL  runtime/mbutil drop_* ; CGO vs stub; limited test
+GETDROPPEDFILES   PARTIAL  CGO returns heap array? stub errors — verify vs spec array handle
+
+--- DATE / TIME ---
+YEAR            DONE     runtime/time/wallclock.go; testdata/calendar_hostargs.mb
+MONTH           DONE     same
+DAY             DONE     same
+HOUR            DONE     same
+MINUTE          DONE     same
+SECOND          DONE     same
+MILLISECOND     DONE     same
+TIMESTAMP       DONE     same
+DATE$           DONE     same
+TIME$           DONE     same
+DATETIME$       DONE     same
+TICKCOUNT       DONE     runtime/time/module.go; testdata/time_assert_env.mb
+TIMER           DONE     runtime/time/module.go; testdata/time_assert_env.mb
+
+--- BITWISE ---
+BAND            DONE     runtime/bitwise/bitwise.go; testdata/bitwise_test.mb
+BOR             DONE     same
+BXOR            DONE     same
+BNOT            DONE     same
+BLSHIFT         DONE     same
+BRSHIFT         DONE     same
+BTEST           DONE     same
+BSET            DONE     same
+BCLEAR          DONE     same
+BTOGGLE         DONE     same
+BCOUNT          DONE     same
+
+--- ERROR HANDLING ---
+ON ERROR GOTO        MISSING  parser/vm — not implemented
+ON ERROR CALL        MISSING  same
+ON ERROR RESUME      MISSING  same
+ON ERROR RESUME NEXT MISSING  same
+ON ERROR STOP        MISSING  same
+ERR                  PARTIAL  commands.json; manifest stub unless wired
+ERRMSG$              PARTIAL  commands.json; manifest stub unless wired
+ERRLINE              PARTIAL  commands.json; manifest stub unless wired
+ERRFILE$             PARTIAL  commands.json; manifest stub unless wired
+THROW                PARTIAL  commands.json; manifest stub unless wired
+TRY/CATCH/ENDTRY     MISSING  no lexer/parser tokens
+ASSERT               DONE     runtime/mbdebug/debug.go (ASSERT + DEBUG.ASSERT); testdata/time_assert_env.mb
+
+--- DEBUG ---
+DUMP           PARTIAL  runtime/strings_check.go; DiagOut; strings_test side-effect only
+TRACE          PARTIAL  commands.json key; no native wiring to vm.Trace flag
+PRINTAT        PARTIAL  commands.json key; manifest stub
+PRINTCOLOR     PARTIAL  commands.json key; manifest stub
+
+--- CLASSIC BASIC ---
+DATA           MISSING  compile-time DATA statement — not implemented
+READ           MISSING  paired with DATA
+RESTORE        MISSING  paired with DATA
+REM            MISSING  not a keyword (compiler/token/token.go); no REM-specific lexer rule
+LET            MISSING  not a keyword; assignment without LET only
+ENVIRON$       DONE     runtime/system/host.go; testdata/time_assert_env.mb
+COMMAND$       DONE     runtime/core_hostargv.go; testdata/calendar_hostargs.mb
+ARGC           DONE     runtime/core_hostargv.go; testdata/calendar_hostargs.mb
+
+--- BINARY PACK/UNPACK ---
+(covered under STRING — MK*$ / CV* in runtime/strings_format.go)
+
+================================================================================
+DUPLICATES (0-C) — consolidate to one canonical native + thin aliases where needed
+================================================================================
+1) PRINT / PRINTLN — both Fprintln; PRINTLN should differ or alias with comment.
+2) MATH.* mirrors (MATH.SIN vs SIN) — intentional aliases via mathmod/trig.go Register dual keys.
+3) ATN / ATAN — both registered; BASIC compat.
+4) SQR / SQRT — same implementation.
+5) ARRAYFREE / ERASE — same handler (intentional).
+6) ARRAYJOINS / ARRAYJOINS$ — same handler (intentional).
+7) INT conversion vs “integer division” naming — MATH may expose separate trunc; audit INT once only.
+8) UTIL.* vs flat FILE*/GET* — flat aliases in runtime/mbutil/util.go + file module (intentional).
+9) (resolved) WRITEFILE → FILE.WRITE (raw); WRITEFILELN → FILE.WRITELN (newline).
+10) (resolved) strmod dead strmod.* registrations removed; core owns flat string builtins.
+
+================================================================================
+MANIFEST / REGISTRY (0-D)
+================================================================================
+• Callable rows in commands.json: 914 "key" rows (non-unique keys include overloads); FILE.WRITELN added 2026-04-04.
+• Statement forms (DO/LOOP, EXIT, CONTINUE, TRY/CATCH, ON ERROR, DATA/READ/RESTORE, REM, LET) are not modeled as commands.json builtins; add parser/bytecode first, then manifest only if invoked as registered names.
+• ERR/ERRMSG$/ERRLINE/ERRFILE$/THROW/TRACE/PRINTAT/PRINTCOLOR: manifest present — need native wiring or remain PARTIAL stubs.
+• Next consolidation: binary FILE.* (READBYTE/WRITEINT/…) natives or document stub-only; GETFILES$ array handle vs JSON string; PRINT vs PRINTLN semantics.
+
+================================================================================
+TOTALS (one line per row in sections OUTPUT through CLASSIC; INT/FIX counted once in TYPE/MATH notes)
+================================================================================
+DONE:     105  (control flow DO/EXIT/CONTINUE/EXIT FUNCTION + prior recount)
+PARTIAL:  144  (EXIT FUNCTION moved to DONE)
+MISSING:   25  (DO/LOOP + EXIT/CONTINUE rows moved to DONE)
+TOTAL:    275
+
+Recount policy: after each substantive code change, edit Changelog, adjust affected rows, then re-tally DONE/PARTIAL/MISSING from sections OUTPUT through CLASSIC (INT counted once under TYPE CONVERSION).
+
+(MISSING = language/parser features without support: advanced SELECT cases, default/PARAMS/type hints, TRY/ON ERROR family, DATA/READ/RESTORE/REM/LET, plus grouped “same” items counted once per section.)

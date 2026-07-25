@@ -1,0 +1,29 @@
+moonBASIC HeapObject audit (runtime + vm/heap)
+Generated: 2026-04-06
+
+CONTRACT (see vm/heap/heap.go HeapObject)
+  - Free() must be idempotent. Implementations use either:
+      * heap.ReleaseOnce around native cleanup, OR
+      * an explicit `if freed { return }` + freed=true pattern.
+  - TypeTag() must return a unique value per class — tags are iota in vm/heap/heap_tags.go (append only, never reorder).
+  - CGo / native resources must be released in Free(); Store.FreeAll() walks every live slot and calls Free().
+
+PROPERTY MATRIX (representative types; full list follows heap_tags.go)
+
+  TextureObject       idempotent Free? YES (ReleaseOnce + UnloadTexture)  CGo? YES  Tag TagTexture
+  RenderTargetObject  idempotent Free? YES (UnloadRenderTexture once)      CGo? YES  Tag TagRenderTexture
+  Model / Mesh / Shader / Material / Instanced / LOD — mbmodel3d/*         CGo? YES  unload order documented per type
+  Physics3D body3dObj jolt_*_linux.go                                      CGo? YES  body remove → destroy → shape Release
+  Physics2D body2dObj box2d.go                                            CGo? YES  world destroys fixtures with body
+  Joint2D joint2dObj                                                     CGo? YES  joint before bodies (script contract)
+  Host / Peer / Event / Packet — net/*                                   CGo? YES  host destroy; packet destroy after copy
+  TerrainObject terrain/*                                                CGo? YES  chunk mesh + Jolt order in unload path
+  ENTITY paths (not VM heap tags for rl.Model) — see docs/MEMORY.md      Raylib order: animations before model
+
+DUPLICATE TypeTag CHECK: tags are single iota chain — no duplicate uint16 values by construction.
+
+NOT HEAP OBJECTS: entity integer IDs, raw globals — managed by ENTITY.* and docs/MEMORY.md entity table.
+
+NOTES
+  - Second Free(handle) on the same handle returns error (stale handle); object Free() remains idempotent.
+  - Handle 0 is always invalid; Get(0) returns (nil, false).

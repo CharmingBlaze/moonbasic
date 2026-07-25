@@ -1,0 +1,27 @@
+# Audit artifacts
+
+This directory groups **generated inventories**, **manual implementation logs**, and **baseline dumps** so the repository root stays readable on GitHub.
+
+## Layout
+
+| Subpath | Contents |
+|---------|----------|
+| *(this folder)* | **`MASTER_AUDIT*.txt`**, **`manifest_keys.txt`**, **`runtime_keys.txt`**, **`COMMAND_AUDIT.txt`** (hand-maintained implementation log), **`REFERENCE_KEY_COVERAGE.txt`**, QOL audit `QOL_AUDIT*.txt`, **`raylib_symbol_gap.txt`**. |
+| **`baselines/`** | Optional regression captures (race detector, gccheckmark, escape analysis, Valgrind/Dr. Memory placeholders, etc.) — see [`docs/MEMORY.md`](../MEMORY.md). |
+
+## Regeneration
+
+- **`python tools/diff_manifest_runtime.py --write`** — canonical refresh of **`manifest_keys.txt`**, **`runtime_keys.txt`**, and **`docs/MISSING_COMMANDS_AUDIT.md`** (CI runs **`--check`** on Linux).
+- **`python tools/manifest_gap_summary.py`** — same gap as the markdown report, summarized **by namespace**; **`--list PREFIX`** lists keys (e.g. **`--list JOLT`**, **`--list global`** for flat globals).
+- **`python tools/gen_master_audit.py`** (from repo root) — updates **`MASTER_AUDIT*.txt`** and **`REFERENCE_KEY_COVERAGE.txt`**.
+- **`go run ./tools/cmdaudit`** — updates **`docs/COMMAND_AUDIT.md`** (separate from **`COMMAND_AUDIT.txt`** here).
+
+## QOL / built-in audit
+
+Generated for DarkBASIC-style parity tracking. Regenerate when adding runtime commands.
+
+- **`QOL_AUDIT_REGISTERED.txt`** — sorted unique second arguments to `r.Register("KEY", …)` / `reg.Register` across `runtime/**/*.go` (excluding `*_test.go`).
+- **`QOL_AUDIT_DUPLICATES.txt`** — keys that appear more than once. **Expected:** stub vs `cgo` pairs (`//go:build !cgo` vs `cgo`) register the same key in mutually exclusive files; only one implementation is linked per build. True conflicts = same key in two files with the **same** build tag.
+- **`QOL_AUDIT.txt`** — human matrix: spec / common name → status (DONE / PARTIAL / MISSING / DOCONLY) and primary implementation path.
+
+Canonical **instant game / QOL** implementation lives in **`runtime/mbgame`** (registered from `compiler/pipeline/registry.go`). Do **not** add a second package that registers the same command keys.

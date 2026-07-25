@@ -12,7 +12,7 @@ moonBASIC registers each command as **`DRAW3D.*`** and also exposes the same beh
 
 ### Method chaining (handles in the 3D pass) 
 
-**`DRAW3D.*`** primitives are plain commands (no handle return). Objects you place in the same frame—**cameras**, **models**, **terrain**, **water**, **lights**, **particles**—are **handles**. Mutating handle methods return the handle on success so you can chain setters and draws, for example `cam.pos(...).look(...).fov(60)`, `model.setPos(...).draw()`, or `water.setPos(...).draw()` inside **`RENDER.BEGIN3D(cam)`** … **`RENDER.END3D()`**. See [CAMERA.md](CAMERA.md), [MODEL.md](MODEL.md), [WATER.md](WATER.md), and [Masterplan.md](../../Masterplan.md) (Handle method chaining).
+**`DRAW3D.*`** primitives are plain commands (no handle return). Objects you place in the same frame—**cameras**, **models**, **terrain**, **water**, **lights**, **particles**—are **handles**. Mutating handle methods return the handle on success so you can chain setters and draws, for example `cam.pos(...).look(...).fov(60)`, `model.setPos(...).draw()`, or `water.setPos(...).draw()` inside **`RENDER.BEGIN3D(cam)`** … **`RENDER.END3D()`**. See [CAMERA.md](CAMERA.md), [MODEL.md](MODEL.md), [WATER.md](WATER.md), and [Masterplan.md](../development/Masterplan.md) (Handle method chaining).
 
 ---
 

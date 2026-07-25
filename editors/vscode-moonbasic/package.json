@@ -2,7 +2,7 @@
   "name": "vscode-moonbasic",
   "displayName": "moonBASIC",
   "description": "Syntax highlighting, snippets, LSP, check/compile/run commands, and debugger for moonBASIC (.mb / .mbc).",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publisher": "moonbasic",
   "license": "MIT",
   "engines": {
@@ -96,6 +96,12 @@
         "title": "Open Documentation",
         "category": "moonBASIC",
         "icon": "$(book)"
+      },
+      {
+        "command": "moonbasic.searchApi",
+        "title": "Search API",
+        "category": "moonBASIC",
+        "icon": "$(search)"
       }
     ],
     "menus": {
@@ -147,10 +153,18 @@
         },
         {
           "command": "moonbasic.openDocs"
+        },
+        {
+          "command": "moonbasic.searchApi"
         }
       ]
     },
     "keybindings": [
+      {
+        "command": "moonbasic.searchApi",
+        "key": "ctrl+shift+space",
+        "when": "editorLangId == moonbasic"
+      },
       {
         "command": "moonbasic.check",
         "key": "ctrl+shift+c",

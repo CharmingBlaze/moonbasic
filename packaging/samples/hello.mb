@@ -1,0 +1,13 @@
+; moonBASIC — Hello (from the IDE samples folder)
+; Press F5 in the IDE, or: moonrun hello.mb
+
+APP.OPEN(640, 480, "Hello moonBASIC")
+APP.SETFPS(60)
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    RENDER.CLEAR(20, 24, 36)
+    DRAW.TEXT("Hello, moonBASIC!", 180, 220, 28, 255, 255, 255, 255)
+    DRAW.TEXT("Press ESC to quit", 220, 260, 18, 180, 190, 210, 255)
+    RENDER.FRAME()
+WEND
+APP.CLOSE()

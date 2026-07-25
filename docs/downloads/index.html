@@ -175,7 +175,7 @@
           <span class="sub">moonbasic + moonrun</span>
         </a>
       </div>
-      <p class="note">After extract: <code>moonrun yourgame.mb</code> — or <code>moonbasic new MyGame</code> then <code>cd MyGame &amp;&amp; moonrun main.mb</code>. Includes VS Code <code>.vsix</code> and <code>INSTALL-VSCODE</code> — run <code>moonbasic install-vscode</code>. Read <code>README-RELEASE.txt</code> in the archive.</p>
+      <p class="note">After extract: <code>moonrun yourgame.mb</code> — or <code>moonbasic new MyGame</code> then <code>cd MyGame &amp;&amp; moonrun main.mb</code>. Read <code>README-RELEASE.txt</code> in the archive.</p>
     </section>
 
     <section>
@@ -187,10 +187,6 @@
         </a>
         <a class="btn" id="dl-lin-c" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
           <span class="label">Linux · compiler .tar.gz</span>
-          <span class="sub">moonbasic only — no moonrun</span>
-        </a>
-        <a class="btn" id="dl-mac-c" href="https://github.com/CharmingBlaze/moonbasic/releases/latest">
-          <span class="label">macOS · compiler .tar.gz</span>
           <span class="sub">moonbasic only — no moonrun</span>
         </a>
       </div>
@@ -220,12 +216,14 @@
 
     <footer>
       <p>This page is static; it does not include the engine source tree.</p>
-      <p>Repository: <a class="text" href="https://github.com/CharmingBlaze/moonbasic">github.com/CharmingBlaze/moonbasic</a></p>
+      <p>User downloads: <a class="text" href="https://github.com/CharmingBlaze/moonbasic">github.com/CharmingBlaze/moonbasic</a></p>
+      <p>Engine source: <a class="text" href="https://github.com/CharmingBlaze/moonbasic-compiler">github.com/CharmingBlaze/moonbasic-compiler</a></p>
     </footer>
   </div>
   <script>
     (function () {
       const repo = "CharmingBlaze/moonbasic";
+      const compilerRepo = "CharmingBlaze/moonbasic-compiler";
       const tagEl = document.getElementById("tag");
       const errEl = document.getElementById("fetch-err");
       const ids = [
@@ -237,7 +235,6 @@
         ["dl-mac-full", "moonbasic-{tag}-macos-arm64.tar.gz"],
         ["dl-win-c", "moonbasic-{tag}-compiler-windows-amd64.zip"],
         ["dl-lin-c", "moonbasic-{tag}-compiler-linux-amd64.tar.gz"],
-        ["dl-mac-c", "moonbasic-{tag}-compiler-macos-arm64.tar.gz"],
         ["dl-vscode", "moonbasic-{tag}-vscode.vsix"],
       ];
       fetch("https://api.github.com/repos/" + repo + "/releases/latest")

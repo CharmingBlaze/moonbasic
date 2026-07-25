@@ -2,14 +2,14 @@
 
 **Policy:** [API Standardization Directive](../API_STANDARDIZATION_DIRECTIVE.md) (Part 2).
 
-moonBASIC maps **handle** method calls (`myHandle.pos(...)`, `myHandle.free()`, …) to **`NAMESPACE.COMMAND`** builtins. Normalization and dispatch live in [`vm/handlecall.go`](../../vm/handlecall.go) (`normalizeHandleMethod`, `handleCallDispatch`, `handleCallBuiltin`, `HandleCallSuggestions`). With **zero arguments**, universal pose names (e.g. `pos()`, `rot()`, `scale()`) resolve to **`GET*`** builtins where implemented (e.g. `MODEL.GETPOS`); with arguments they resolve to **`SET*`**.
+moonBASIC maps **handle** method calls (`myHandle.pos(...)`, `myHandle.free()`, …) to **`NAMESPACE.COMMAND`** builtins. Normalization and dispatch live in [`handlecall`](../../handlecall/) (`NormalizeMethod`, `Dispatch`, `Builtin`, `HandleCallSuggestions`), with thin VM wrappers in [`vm/handlecall.go`](../../vm/handlecall.go). The compiler semantic analyzer uses the same table so **`--check`** rejects unknown/wrong-arity methods when the receiver type is known. With **zero arguments**, universal pose names (e.g. `pos()`, `rot()`, `scale()`) resolve to **`GET*`** builtins where implemented (e.g. `MODEL.GETPOS`); with arguments they resolve to **`SET*`**.
 
 ## Core Workflow
 
 - **Zero-arg getter:** `handle.pos()` → `NAMESPACE.GETPOS(handle)`.
 - **With-args setter:** `handle.pos(x, y, z)` → `NAMESPACE.SETPOS(handle, x, y, z)`.
 - **Free:** `handle.free()` → `NAMESPACE.FREE(handle)` for any heap type.
-- **Add new handle type:** Update `handleCallBuiltin` in `vm/handlecall.go`, register in `runtime/*/register*.go`, extend `commands.json`.
+- **Add new handle type:** Update `Builtin` / `HandleCallSuggestions` in `handlecall/`, register in `runtime/*/register*.go`, extend `commands.json`.
 
 ## Mapping rules
 
@@ -21,10 +21,10 @@ moonBASIC maps **handle** method calls (`myHandle.pos(...)`, `myHandle.free()`, 
 The API standardization directive requires **`.pos` / `.rot` / `.scale`** (where applicable), **`.col` / `.alpha`** for renderables, and **`.free()`** for heap objects. Coverage depends on:
 
 1. **Manifest** entries for `NAMESPACE.SET*` / `GET*` / `FREE`.
-2. **`handleCallBuiltin`** entries for the handle tag so script `.method` resolves.
+2. **`handlecall.Builtin`** entries for the handle tag so script `.method` resolves.
 3. **Runtime** implementations backing those registry keys.
 
-When adding a new handle type, update **`handleCallBuiltin`** and **`HandleCallSuggestions`**, register the namespace commands in the appropriate **`runtime/*/register*.go`**, and extend **`compiler/builtinmanifest/commands.json`** so the compiler and LSP agree on arity and types.
+When adding a new handle type, update **`handlecall.Builtin`** and **`HandleCallSuggestions`**, register the namespace commands in the appropriate **`runtime/*/register*.go`**, and extend **`compiler/builtinmanifest/commands.json`** so the compiler and LSP agree on arity and types.
 
 ## Full Example
 

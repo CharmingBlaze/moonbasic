@@ -25,8 +25,8 @@ The release zip includes the `.vsix` and the installer configures **`moonbasic`*
 ### From this repository (developers)
 
 ```bash
-./scripts/install-vscode-extension.sh
-# or: powershell -File scripts/install-vscode-extension.ps1
+./scripts/development/install-vscode-extension.sh
+# or: powershell -File scripts/development/install-vscode-extension.ps1
 ```
 
 ## After install

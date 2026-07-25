@@ -1,4 +1,5 @@
 import * as cp from "child_process";
+import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
@@ -297,6 +298,127 @@ async function openDocs(): Promise<void> {
   );
 }
 
+interface LangCommandEntry {
+  description?: string;
+  args?: string[];
+  returns?: string;
+  example?: string;
+}
+
+interface LangDataFile {
+  commands: Record<string, LangCommandEntry>;
+}
+
+let cachedLangData: LangDataFile | undefined;
+
+function loadLangData(context: vscode.ExtensionContext): LangDataFile | undefined {
+  if (cachedLangData) {
+    return cachedLangData;
+  }
+  const p = path.join(context.extensionPath, "resources", "lang-data.json");
+  try {
+    const raw = fs.readFileSync(p, "utf8");
+    cachedLangData = JSON.parse(raw) as LangDataFile;
+    return cachedLangData;
+  } catch {
+    return undefined;
+  }
+}
+
+async function searchApi(context: vscode.ExtensionContext): Promise<void> {
+  const data = loadLangData(context);
+  if (!data?.commands) {
+    vscode.window.showWarningMessage(
+      "API index missing — run: go run ./tools/ideexport from the repo root."
+    );
+    return;
+  }
+  const pick = await vscode.window.showQuickPick(
+    Object.entries(data.commands)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, entry]) => ({
+        label: key,
+        description: entry.description?.slice(0, 100),
+        detail: entry.args?.length
+          ? `args: ${entry.args.join(", ")}` +
+            (entry.returns ? ` → ${entry.returns}` : "")
+          : entry.returns
+            ? `→ ${entry.returns}`
+            : undefined,
+        entry,
+      })),
+    {
+      matchOnDescription: true,
+      matchOnDetail: true,
+      placeHolder: "Search moonBASIC API (3600+ commands)",
+    }
+  );
+  if (!pick) {
+    return;
+  }
+  const e = pick.entry;
+  const lines = [`### \`${pick.label}\``, ""];
+  if (e.description) {
+    lines.push(e.description, "");
+  }
+  if (e.args?.length) {
+    lines.push(`**Arguments:** ${e.args.join(", ")}`, "");
+  }
+  if (e.returns) {
+    lines.push(`**Returns:** \`${e.returns}\``, "");
+  }
+  if (e.example) {
+    lines.push("**Example:**", "```basic", e.example, "```");
+  }
+  const doc = await vscode.workspace.openTextDocument({
+    language: "markdown",
+    content: lines.join("\n"),
+  });
+  await vscode.window.showTextDocument(doc, { preview: true });
+}
+
+class MoonbasicTaskProvider implements vscode.TaskProvider {
+  provideTasks(): vscode.Task[] {
+    return [
+      makeTask("check", "Check current file", ["--check", "${file}"]),
+      makeTask("compile", "Compile to .mbc", ["${file}"]),
+      makeTask("run", "Run with moonrun", [], "moonrun"),
+    ];
+  }
+
+  resolveTask(task: vscode.Task): vscode.Task | undefined {
+    const def = task.definition as { task?: string; file?: string };
+    if (def.task === "check") {
+      return makeTask("check", task.name, ["--check", def.file ?? "${file}"]);
+    }
+    if (def.task === "compile") {
+      return makeTask("compile", task.name, [def.file ?? "${file}"]);
+    }
+    if (def.task === "run") {
+      return makeTask("run", task.name, [def.file ?? "${file}"], "moonrun");
+    }
+    return undefined;
+  }
+}
+
+function makeTask(
+  kind: string,
+  label: string,
+  args: string[],
+  exe?: string
+): vscode.Task {
+  const cmd = exe ?? moonbasicPath();
+  const def: vscode.TaskDefinition = { type: "moonbasic", task: kind };
+  const exec = new vscode.ShellExecution(cmd, args, {
+    cwd: "${workspaceFolder}",
+  });
+  const t = new vscode.Task(def, vscode.TaskScope.Workspace, label, "moonbasic", exec);
+  if (kind === "check") {
+    t.problemMatchers = ["moonbasic"];
+  }
+  return t;
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   await ensureToolPaths();
 
@@ -368,7 +490,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       runDocument(doc);
     }),
     vscode.commands.registerCommand("moonbasic.help", () => showHelpAtCursor()),
-    vscode.commands.registerCommand("moonbasic.openDocs", () => openDocs())
+    vscode.commands.registerCommand("moonbasic.openDocs", () => openDocs()),
+    vscode.commands.registerCommand("moonbasic.searchApi", () => searchApi(context))
+  );
+
+  context.subscriptions.push(
+    vscode.tasks.registerTaskProvider("moonbasic", new MoonbasicTaskProvider())
   );
 
   if (config.get<boolean>("checkOnSave", false)) {

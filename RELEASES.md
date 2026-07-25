@@ -2,27 +2,29 @@
 
 Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships pre-built binaries. You do **not** need Go, GCC, or this repository's source tree to use them.
 
-Replace `<tag>` with the release version (e.g. `v1.2.29`).
+Replace `<tag>` with the release version (e.g. `v1.3.0`).
 
 ---
 
 ## moonBASIC IDE (recommended)
 
+Includes the desktop editor **and built-in documentation** (Begin Here, guides, full command reference), plus `moonbasic` and `moonrun`.
+
 | Asset | Platform | Contents |
 |-------|----------|----------|
-| `moonbasic-<tag>-ide-windows-amd64.zip` | Windows x64 | `moonbasic-ide.exe`, `moonbasic.exe`, `moonrun.exe`, `README-IDE-RELEASE.txt`, `START-IDE.bat` |
-| `moonbasic-<tag>-ide-linux-amd64.tar.gz` | Linux x64 | `moonbasic-ide`, `moonbasic`, `moonrun`, `README-IDE-RELEASE.txt`, `START-IDE.sh` |
-| `moonbasic-<tag>-ide-macos-arm64.tar.gz` | macOS Apple Silicon | same as Linux layout |
+| `moonbasic-<tag>-ide-windows-amd64.zip` | Windows x64 | `moonbasic-ide.exe`, `moonbasic.exe`, `moonrun.exe`, docs inside IDE, `samples/`, `START-IDE.bat`, `README-IDE-RELEASE.txt` |
+| `moonbasic-<tag>-ide-linux-amd64.tar.gz` | Linux x64 | `moonbasic-ide`, `moonbasic`, `moonrun`, docs inside IDE, `samples/`, `START-IDE.sh` |
+| `moonbasic-<tag>-ide-macos-arm64.tar.gz` | macOS Apple Silicon | same layout as Linux |
 
-**Use when:** you want the easiest setup — desktop editor, full documentation inside the IDE, check, compile, and run games. **No other tools required.**
+**Use when:** easiest setup — edit, read docs, check, compile, and run. **No other tools required.**
 
 1. Extract anywhere permanent.
-2. Run **START-IDE.bat** (Windows) or **`chmod +x` + `./START-IDE.sh`** (Linux/macOS).
-3. Status bar should show **Toolchain ready** — `moonbasic` and `moonrun` sit in the same folder.
+2. Run **START-IDE.bat** (Windows), **START-IDE.command** (macOS), or **`chmod +x` + `./START-IDE.sh`** (Linux).
+3. Status bar should show **Toolchain ready**.
 
-**Shortcuts:** F5 run · Ctrl+Shift+C check · Ctrl+Shift+B compile · Alt+H help at cursor · gear menu for themes/fonts.
+**Shortcuts:** F5 run · Ctrl+Shift+C check · Ctrl+Shift+B compile · Alt+H help at cursor.
 
-Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler) (`moonbasic ide/`).
+Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler) (`ide/`).
 
 ---
 
@@ -34,11 +36,9 @@ Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-c
 | `moonbasic-<tag>-linux-amd64.tar.gz` | Linux x64 | `moonbasic`, `moonrun`, `README-RELEASE.txt`, `.vsix`, `INSTALL-VSCODE.sh` |
 | `moonbasic-<tag>-macos-arm64.tar.gz` | macOS Apple Silicon | `moonbasic`, `moonrun`, `README-RELEASE.txt`, `.vsix`, `INSTALL-VSCODE.sh` |
 
-**Use when:** you want to open a window, run graphics, physics, audio, and play or develop games.
+**Primary command:** `moonrun yourgame.mb`
 
-**Primary command:** `moonrun yourgame.mb` — compiles `.mb` in-process when needed, then runs the engine.
-
-**Also includes `moonbasic`** for `--check`, `--lsp`, `moonbasic new`, and standalone `.mbc` output.
+Browse documentation in this repo’s [`docs/`](docs/) tree (same content the IDE ships).
 
 ---
 
@@ -46,15 +46,10 @@ Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-c
 
 | Asset | Platform | Contents |
 |-------|----------|----------|
-| `moonbasic-<tag>-compiler-windows-amd64.zip` | Windows x64 | `moonbasic.exe` (+ short readme in `MoonBasic-compiler/`) |
-| `moonbasic-<tag>-compiler-linux-amd64.tar.gz` | Linux x64 | `moonbasic` binary only |
-| `moonbasic-<tag>-compiler-macos-arm64.tar.gz` | macOS Apple Silicon | `moonbasic` binary only |
-
-**Use when:** CI linting, `--check`, `--lsp`, or compiling `.mb` → `.mbc` **without** linking the game engine.
+| `moonbasic-<tag>-compiler-windows-amd64.zip` | Windows x64 | `moonbasic.exe` |
+| `moonbasic-<tag>-compiler-linux-amd64.tar.gz` | Linux x64 | `moonbasic` |
 
 **Does not include `moonrun`** — cannot open a game window.
-
-The compiler uses the **same built-in command catalog** as the full runtime for `--check` and diagnostics.
 
 ---
 
@@ -62,30 +57,20 @@ The compiler uses the **same built-in command catalog** as the full runtime for 
 
 | Asset | Contents |
 |-------|----------|
-| `moonbasic-<tag>-vscode.vsix` | Syntax, snippets, LSP, check/compile/run commands, debugger |
+| `moonbasic-<tag>-vscode.vsix` | Syntax, snippets, LSP client |
 | (in full-runtime zip) | Same `.vsix` + **`INSTALL-VSCODE.bat`** / **`INSTALL-VSCODE.sh`** |
-
-**Easiest install (full runtime folder):**
 
 ```bash
 moonbasic install-vscode
 ```
 
-Or double-click **`INSTALL-VSCODE.bat`** (Windows) / **`./INSTALL-VSCODE.sh`**.
-
-**Manual:** VS Code → Extensions → **⋯** → **Install from VSIX…**
-
-The installer sets `moonbasic.languageServerPath` and `moonbasic.moonrunPath` when binaries sit beside the archive.
-
-See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) · source: [editors/vscode-moonbasic/](editors/vscode-moonbasic/).
-
 ---
 
 ## After extract
 
-1. Keep **full-runtime** executables from the **same** zip together — do not mix `moonrun` from one release with `moonbasic` from another.
-2. Read **`README-RELEASE.txt`** in the archive for platform-specific notes.
-3. Clone or download **this repository** for **`examples/`** and documentation — release zips do not bundle the example tree.
+1. Keep executables from the **same** release together.
+2. Read **`README-IDE-RELEASE.txt`** or **`README-RELEASE.txt`** in the archive.
+3. Clone or browse **this repository** for **`docs/`** and **`examples/`** online — IDE bundles also embed the docs.
 
 ---
 
@@ -93,17 +78,15 @@ See [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md#vs-code-syntax-and-lsp) ·
 
 ### Windows
 
-Official builds link Raylib and MinGW runtime pieces into the `.exe` files — you should **not** need companion DLLs beside the binaries. If Windows reports a missing DLL, re-extract the **entire** zip from one release; avoid dropping stray MinGW DLLs next to the exes.
-
-Some systems may need the [Microsoft VC++ x64 redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist).
+Official builds link Raylib and MinGW runtime pieces into the `.exe` files — you should **not** need companion DLLs. Some systems may need the [Microsoft VC++ x64 redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist).
 
 ### Linux
 
-Full-runtime binaries expect a normal desktop **OpenGL** stack and **glibc**-compatible distro (built on a current Ubuntu-style CI image). Install GPU drivers; no compiler `-dev` packages are required to **run** releases.
+Full-runtime / IDE binaries expect a normal desktop **OpenGL** stack and **glibc**-compatible distro.
 
 ### macOS
 
-Apple Silicon (arm64) full-runtime tarball. Make binaries executable: `chmod +x moonbasic moonrun`.
+Apple Silicon (arm64). Make binaries executable: `chmod +x moonbasic-ide moonbasic moonrun`.
 
 ---
 
@@ -114,6 +97,13 @@ Not supported from **this** repository. Engine contributors use **[moonbasic-com
 ---
 
 ## Recent releases
+
+### v1.3.0
+
+- Ship IDE bundles for **Windows**, **Linux**, and **macOS** (editor + compiler + runtime + **built-in documentation** + samples).
+- Full runtime, compiler-only, and VS Code `.vsix` for the same tag.
+- Repository cleanup: public download hub docs/examples synced from the engine; install guides point here.
+- Prior hardening: shared handle-call dispatch, multi-error LSP diagnostics, BOM/INCLUDE path fixes, offline IDE CodeMirror, CI smoke on Win/Linux/macOS.
 
 ### v1.2.29
 

@@ -1,0 +1,143 @@
+=== PLAYER2D ===
+PLAYER2D.CREATE() -> handle
+PLAYER2D.FREE(handle)
+PLAYER2D.MOVE(handle, float, float, float, float, float)
+PLAYER2D.CLAMP(handle, float, float, float, float)
+PLAYER2D.KEEPINBOUNDS(handle)
+PLAYER2D.GETX(handle) -> float
+PLAYER2D.GETZ(handle) -> float
+PLAYER2D.GETPOS(handle) -> handle  ; Player XZ position as Vec2 (handle-chain friendly with .pos()
+PLAYER2D.SETPOS(handle, float, float)
+PLAYER2D.SETPOSITION(handle, float, float)  ; DEPRECATED alias of PLAYER2D.SETPOS. Use PLAYER2D.SETPOS.
+PLAYER2D.MAKE() -> handle  ; DEPRECATED alias of PLAYER2D.CREATE. Use PLAYER2D.CREATE.
+
+=== DB ===
+DB.OPEN(string) -> handle
+DB.CLOSE(handle)
+DB.EXEC(handle, string)
+DB.QUERY(handle, string) -> handle
+DB.QUERYJSON(handle, string) -> handle
+DB.PREPARE(handle, string) -> handle
+DB.STMTEXEC(handle, any)
+DB.STMTCLOSE(handle)
+DB.LASTINSERTID(handle) -> int
+DB.CHANGES(handle) -> int
+DB.ISOPEN(handle) -> bool
+DB.BEGIN(handle)
+DB.COMMIT(handle)
+DB.ROLLBACK(handle)
+
+=== TEXTDRAW ===
+TEXTDRAW.DRAW(handle)
+TEXTDRAW.POS(handle, int, int)
+TEXTDRAW.SIZE(handle, int)
+TEXTDRAW.COLOR(handle, int, int, int, int)
+TEXTDRAW.COL(handle, int, int, int, int)
+TEXTDRAW.SETTEXT(handle, string)
+TEXTDRAW.FREE(handle)
+
+=== TEXTEXOBJ ===
+TEXTEXOBJ.POS(handle, float, float)
+TEXTEXOBJ.SIZE(handle, float)
+TEXTEXOBJ.SPACING(handle, float)
+TEXTEXOBJ.COLOR(handle, int, int, int, int)
+TEXTEXOBJ.SETTEXT(handle, string)
+TEXTEXOBJ.DRAW(handle)
+TEXTEXOBJ.FREE(handle)
+
+=== RAYLIB ===
+RAYLIB.INITWINDOW(int, int, string)
+RAYLIB.CLOSEWINDOW()
+RAYLIB.WINDOWSHOULDCLOSE()
+RAYLIB.BEGINFRAME()
+RAYLIB.ENDFRAME()
+RAYLIB.CLEARBACKGROUND(int, int, int)
+RAYLIB.DRAWFPS(int, int)
+RAYLIB.LOADTEXTURE(string)
+RAYLIB.UNLOADTEXTURE(handle)
+RAYLIB.DRAWTEXTURE(handle, int, int, int, int, int, int, int, int)
+RAYLIB.DRAWRECTANGLE(int, int, int, int, int, int, int, int)
+RAYLIB.DRAWCIRCLE(int, int, float, int, int, int, int)
+RAYLIB.DRAWLINE3D(float, float, float, float, float, float, int, int, int, int)
+RAYLIB.DRAWCUBE(float, float, float, float, float, float, int, int, int, int)
+RAYLIB.DRAWSPHERE(float, float, float, float, int, int, int, int)
+RAYLIB.LOADMODEL(string)
+RAYLIB.DRAWMODEL(handle, float, float, float, float, float, float, float)
+RAYLIB.LOADSHADER(string, string)
+RAYLIB.BEGINSHADERMODE(handle)
+RAYLIB.ENDSHADERMODE()
+RAYLIB.SETCAMERAMODE(handle, int)
+RAYLIB.UPDATECAMERA(handle, int)
+RAYLIB.GETFRAMEBUFFERWIDTH()
+RAYLIB.GETFRAMEBUFFERHEIGHT()
+RAYLIB.GETTIME()
+RAYLIB.GETFPS()
+RAYLIB.SETTARGETFPS(int)
+RAYLIB.ISKEYDOWN(int)
+RAYLIB.ISKEYPRESSED(int)
+RAYLIB.ISKEYRELEASED(int)
+RAYLIB.GETMOUSEX()
+RAYLIB.GETMOUSEY()
+RAYLIB.ISMOUSEBUTTONDOWN(int)
+
+=== SOUND ===
+SOUND.FROMWAVE(handle) -> handle
+SOUND.FREE(handle)
+SOUND.PLAY3D(handle, float, float, float, float)  ; Plays 3D spatialized audio.
+SOUND.ATTACH(handle, handle)  ; Pins a sound to an entity.
+
+=== KEY ===
+KEY.DOWN(handle, any) -> bool
+KEY.HIT(int) -> bool
+KEY.UP(int) -> bool
+
+=== ROWS ===
+ROWS.NEXT(handle) -> bool
+ROWS.GETINT(handle, int) -> int
+ROWS.GETFLOAT(handle, int) -> float
+ROWS.GETSTRING(handle, int) -> string
+ROWS.CLOSE(handle)
+
+=== MOVE ===
+MOVE.TOWARD(float, float, float) -> float  ; Alias of MATH.APPROACH â€” move current toward target by at m
+MOVE.LERP(float, float, float) -> float  ; Alias of MATH.LERP
+
+=== PROP ===
+PROP.PLACE(any, any, any, any) -> handle
+PROP.DRAWALL()
+PROP.FREE(handle)
+
+=== SPAWNER ===
+SPAWNER.MAKE(any, any, any, any) -> handle
+
+=== ENEMY ===
+ENEMY.FOLLOWPATH(int, handle, float)  ; Moves an entity along a PATH handle toward waypoints at speed
+
+=== SHAPEREF ===
+SHAPEREF.FREE(handle)  ; Destroy a collision shape.
+
+=== MATRIX ===
+MATRIX.FREE(handle)
+
+=== RES ===
+RES.PATH(string) -> string  ; Resolve localPath relative to the running executable director
+RES.EXISTS(string) -> bool  ; True if path exists on disk (same idea as UTIL.FILEEXISTS)
+
+=== CLIPBOARD ===
+CLIPBOARD.GETIMAGE() -> handle
+
+=== ANGLE ===
+ANGLE.DIFFERENCE(float, float) -> float  ; Shortest signed angle from a to b in degrees (alias of MATH.A
+
+=== AXIS ===
+AXIS.DPADY(int) -> float
+
+=== FREE ===
+FREE.ALL()
+
+=== CHECK ===
+CHECK.INVIEW(int) -> bool  ; Same frustum test as ENTITY.INFRUSTUM (active CAMERA.BEGIN)
+
+=== MUSIC ===
+MUSIC.FREE(handle)
+

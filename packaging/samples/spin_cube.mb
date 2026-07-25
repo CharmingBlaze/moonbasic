@@ -1,0 +1,32 @@
+; Minimal 3D spinning cube — GPU sanity check
+; Press F5 in the IDE, or: moonrun spin_cube.mb
+
+SetMSAA(0)
+APP.OPEN(800, 600, "moonBASIC — spinning cube")
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE().fov(55)
+cube = ENTITY.CREATECUBE(1, 1, 1).scale(1.4, 1.4, 1.4).pos(0.0, 1.0, 0.0).col(255, 150, 70)
+
+camYaw = 0.55
+camPitch = 0.32
+cdist = 6.5
+ang = 0.0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    RENDER.CLEAR(38, 42, 58)
+    dt = APP.DELTA()
+    ang = ang + dt * 0.4
+    cube.rot(ang * 0.35, ang, ang * 0.2)
+    CAMERA.SETORBIT(cam, 0.0, 1.0, 0.0, camYaw, camPitch, cdist)
+    cam.Begin()
+        Draw3D.Grid(14, 1.0)
+        ENTITY.DRAWALL()
+    cam.End()
+    Draw.Text("Spinning cube   ESC quit", 12, 10, 18, 235, 240, 255, 255)
+    RENDER.FRAME()
+WEND
+
+cube.free()
+cam.free()
+APP.CLOSE()
