@@ -28,6 +28,13 @@ START IN 30 SECONDS
 That's it. moonbasic and moonrun are already beside the IDE.
 
 
+
+WINDOWS NOTES
+-------------
+
+  Keep every file from this zip together (including any lib*.dll next to moonrun.exe).
+  Do not mix moonrun from an older release with a newer IDE folder.
+
 WHAT'S IN THIS FOLDER
 ---------------------
 

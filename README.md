@@ -8,16 +8,16 @@ This repository is the **official download and documentation hub** for **Windows
 
 ## Download (nothing else required)
 
-**Latest release:** **[v1.3.0 — Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**
+**Latest release:** **[v1.3.1 — Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**
 
 You do **not** need to install Go, GCC, Node.js, or Raylib separately.
 
 | Your goal | Download |
 |-----------|----------|
-| **moonBASIC IDE** (editor + compiler + runtime + **full docs** — **easiest**) | `moonbasic-v1.3.0-ide-windows-amd64.zip`, `moonbasic-v1.3.0-ide-linux-amd64.tar.gz`, or `moonbasic-v1.3.0-ide-macos-arm64.tar.gz` |
-| **Play / make games** (terminal only) | `moonbasic-v1.3.0-windows-amd64.zip`, `…-linux-amd64.tar.gz`, or `…-macos-arm64.tar.gz` |
-| **Lint / compile / LSP only** (no game window) | `moonbasic-v1.3.0-compiler-…` |
-| **VS Code / Cursor** | `moonbasic-v1.3.0-vscode.vsix` (also inside full-runtime zips) |
+| **moonBASIC IDE** (editor + compiler + runtime + **full docs** — **easiest**) | `moonbasic-v1.3.1-ide-windows-amd64.zip`, `moonbasic-v1.3.1-ide-linux-amd64.tar.gz`, or `moonbasic-v1.3.1-ide-macos-arm64.tar.gz` |
+| **Play / make games** (terminal only) | `moonbasic-v1.3.1-windows-amd64.zip`, `…-linux-amd64.tar.gz`, or `…-macos-arm64.tar.gz` |
+| **Lint / compile / LSP only** (no game window) | `moonbasic-v1.3.1-compiler-…` |
+| **VS Code / Cursor** | `moonbasic-v1.3.1-vscode.vsix` (also inside full-runtime zips) |
 
 Artifact naming for any tag: **[RELEASES.md](RELEASES.md)**
 
@@ -85,7 +85,7 @@ After extracting the **full runtime**:
 moonbasic install-vscode
 ```
 
-Or install **`moonbasic-v1.3.0-vscode.vsix`** from Releases (Extensions → Install from VSIX…).
+Or install **`moonbasic-v1.3.1-vscode.vsix`** from Releases (Extensions → Install from VSIX…).
 
 ---
 

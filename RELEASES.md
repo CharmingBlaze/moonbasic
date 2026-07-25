@@ -2,7 +2,7 @@
 
 Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships pre-built binaries. You do **not** need Go, GCC, or this repository's source tree to use them.
 
-Replace `<tag>` with the release version (e.g. `v1.3.0`).
+Replace `<tag>` with the release version (e.g. `v1.3.1`).
 
 ---
 
@@ -97,6 +97,11 @@ Not supported from **this** repository. Engine contributors use **[moonbasic-com
 ---
 
 ## Recent releases
+
+### v1.3.1
+
+- **Windows fix:** `moonrun` / IDE **F5** no longer exits immediately from missing MinGW DLLs. Release zips embed or ship `libstdc++` / `libwinpthread` so unzip-and-run works on clean PCs.
+- Prefer this tag over **v1.3.0** on Windows.
 
 ### v1.3.0
 
