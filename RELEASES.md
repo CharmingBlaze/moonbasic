@@ -2,7 +2,7 @@
 
 Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships pre-built binaries. You do **not** need Go, GCC, or this repository's source tree to use them.
 
-Replace `<tag>` with the release version (e.g. `v1.3.1`).
+Replace `<tag>` with the release version (e.g. `v1.3.2`).
 
 ---
 
@@ -97,6 +97,12 @@ Not supported from **this** repository. Engine contributors use **[moonbasic-com
 ---
 
 ## Recent releases
+
+### v1.3.2
+
+- **Physics stub fix:** `BODY3D.COMMIT` no longer returns `NULL` on non-CGO / soft-stub builds (fixes `SETLIFT` crash on `physics_power_test`).
+- **`moonrun -version`** reports `Jolt backend: native` vs `stub` so you can tell if real Jolt is linked.
+- Docs clarify **Windows or Linux + CGO** for native Jolt (official IDE / fullruntime zips ship native). See [docs/JOLT_WINDOWS_PARITY.md](docs/JOLT_WINDOWS_PARITY.md).
 
 ### v1.3.1
 

@@ -29,7 +29,7 @@ Spawns a projectile based on a prefab. Returns a new **entity handle**.
 1. **`Entity.Copy(prefab)`** — reloads mesh from disk path when needed; see [ENTITY.md](ENTITY.md).
 2. **`Entity.ClearPhysBuffer(id)`** on the clone — removes a duplicated **`physBufIndex`** from the copy.
 3. Align **position** and **rotation** to the **shooter**.
-4. **`Entity.AddPhysics(id)`** — builds a **new** Jolt dynamic body (shape from optional **`shape`**, default **`SPHERE`**) with **continuous collision detection (CCD)** enabled. **Requires Linux + CGO Jolt**.
+4. **`Entity.AddPhysics(id)`** — builds a **new** Jolt dynamic body (shape from optional **`shape`**, default **`SPHERE`**) with **continuous collision detection (CCD)** enabled. **Requires Windows or Linux + CGO Jolt**.
 5. **`Entity.SetLinearVel(id, vx, vy, vz)`** along shooter **pitch + yaw** facing.
 6. **`Entity.DestroyAfter(id, lifetime)`** — **mandatory** positive lifetime so stray bullets are purged.
 

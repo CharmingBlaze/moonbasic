@@ -2,7 +2,7 @@
 
 | Designed | moonBASIC | Memory / notes |
 |----------|------------|----------------|
-| **Physics3D.Start()** | **`PHYSICS3D.START`** | Initializes the 3D physics world. **Linux + CGO + jolt-go** only. |
+| **Physics3D.Start()** | **`PHYSICS3D.START`** | Initializes the 3D physics world. **Windows or Linux + CGO + jolt-go** for native Jolt; soft stubs otherwise. |
 | **Physics3D.Stop()** | **`PHYSICS3D.STOP`** | Shuts down the simulation and frees resources. |
 | **Physics3D.Step()** / **Physics3D.Update()** | **`PHYSICS3D.STEP`** / **`PHYSICS3D.UPDATE`** | Same implementation — advance simulation once per frame (optional **`dt`**). Prefer **`UPDATE`** in new scripts. |
 | **Physics3D.SetGravity(x, y, z)** | **`PHYSICS3D.SETGRAVITY`** | Sets the global gravity vector. |

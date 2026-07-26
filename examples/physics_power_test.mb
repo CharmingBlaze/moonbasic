@@ -1,9 +1,13 @@
 ; Physics API syntax check (bodies, vehicle handles) — no game loop.
 ; Check: moonbasic --check examples/physics_power_test.mb
+; Run:   moonrun examples/physics_power_test.mb
+; Prefer official fullruntime moonrun (moonrun -version → Jolt backend: native).
+; Stub builds still exercise handles via soft BODY3D; they are not full Jolt.
 
 PRINT("Starting physics verification")
 
-shape = SHAPE.CREATEBOX(1, 1, 1)
+boxShape = SHAPE.CREATEBOX(1, 1, 1)
+_ = boxShape
 bf = BODY3D.CREATE("DYNAMIC")
 bf.ADDBOX(1, 1, 1)
 bh = bf.COMMIT(0, 10, 0)
@@ -26,9 +30,10 @@ hero.SETSTEER(0.5)
 bh.SETVELOCITY(0, 5, 0)
 
 mass = bh.GETMASS()
-PRINT("Body mass", mass)
+PRINT("Body mass " + STR(mass))
 
 vel = bh.GETVELOCITY()
-PRINT("Body velocity handle", vel)
+PRINT("Body velocity handle ok")
+_ = vel
 
 PRINT("Verification complete")
