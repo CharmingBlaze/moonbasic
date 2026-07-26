@@ -39,9 +39,10 @@ WHAT'S IN THIS FOLDER
 ---------------------
 
   START-IDE.* / START-IDE.command   Launch the editor
-  moonbasic-ide (.exe / bare / .app) Desktop IDE (docs built in)
+  moonbasic-ide (.exe / bare / .app) Desktop IDE (docs also built into the app)
   moonbasic (.exe)                  Compiler + LSP (--check, .mb → .mbc)
   moonrun (.exe)                    Game runtime (F5)
+  docs/                             Full documentation (Begin Here, guides, API)
   samples/                          hello.mb, spin_cube.mb — try these first
   ADD-TO-PATH.*                     Optional: use moonbasic/moonrun in any terminal
   README-IDE-RELEASE.txt            This file

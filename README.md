@@ -8,29 +8,27 @@ This repository is the **official download and documentation hub** for **Windows
 
 ## Download (nothing else required)
 
-**Latest release:** **[v1.3.2 — Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**
+**Latest release:** **[v1.3.3 — Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest)**
 
-You do **not** need to install Go, GCC, Node.js, or Raylib separately.
+Every OS package is **complete** for users: **IDE** + **compiler (`moonbasic`)** + **runtime (`moonrun`)** + **`docs/`** + samples.
 
-| Your goal | Download |
-|-----------|----------|
-| **moonBASIC IDE** (editor + compiler + runtime + **full docs** — **easiest**) | `moonbasic-v1.3.2-ide-windows-amd64.zip`, `moonbasic-v1.3.2-ide-linux-amd64.tar.gz`, or `moonbasic-v1.3.2-ide-macos-arm64.tar.gz` |
-| **Play / make games** (terminal only) | `moonbasic-v1.3.2-windows-amd64.zip`, `…-linux-amd64.tar.gz`, or `…-macos-arm64.tar.gz` |
-| **Lint / compile / LSP only** (no game window) | `moonbasic-v1.3.2-compiler-…` |
-| **VS Code / Cursor** | `moonbasic-v1.3.2-vscode.vsix` (also inside full-runtime zips) |
+| Your OS | Download (either name — same contents) |
+|---------|----------------------------------------|
+| **Windows x64** | `moonbasic-v1.3.3-ide-windows-amd64.zip` or `moonbasic-v1.3.3-windows-amd64.zip` |
+| **Linux x64** | `moonbasic-v1.3.3-ide-linux-amd64.tar.gz` or `moonbasic-v1.3.3-linux-amd64.tar.gz` |
+| **macOS Apple Silicon** | `moonbasic-v1.3.3-ide-macos-arm64.tar.gz` or `moonbasic-v1.3.3-macos-arm64.tar.gz` |
+| **VS Code / Cursor** (optional) | `moonbasic-v1.3.3-vscode.vsix` |
 
-Artifact naming for any tag: **[RELEASES.md](RELEASES.md)**
+Artifact naming: **[RELEASES.md](RELEASES.md)**
 
 ---
 
-## moonBASIC IDE (recommended)
+## Start in 30 seconds
 
-One folder: desktop editor, **`moonbasic`**, **`moonrun`**, samples, and the **complete documentation** built into the IDE (Begin Here, guides, command reference).
-
-1. Download the **IDE bundle** for your OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest).
+1. Download the package for your OS from [Releases](https://github.com/CharmingBlaze/moonbasic/releases/latest).
 2. Extract anywhere permanent.
 3. Run **START-IDE.bat** (Windows), **START-IDE.command** (macOS), or **`./START-IDE.sh`** (Linux).
-4. Open **Documentation** in the sidebar, or open `samples/hello.mb` and press **F5**.
+4. Open **Documentation** in the sidebar (or browse the `docs/` folder), or open `samples/hello.mb` and press **F5**.
 
 | Shortcut | Action |
 |----------|--------|
@@ -39,18 +37,30 @@ One folder: desktop editor, **`moonbasic`**, **`moonrun`**, samples, and the **c
 | **Ctrl+Shift+B** | Compile to `.mbc` |
 | **Alt+H** | Help at cursor |
 
+---
+
+## What's in the folder
+
+| File | Role |
+|------|------|
+| `moonbasic-ide` / `.exe` / `.app` | Desktop IDE |
+| `moonbasic` / `.exe` | Compiler + LSP |
+| `moonrun` / `.exe` | Game runtime |
+| `docs/` | Full documentation offline |
+| `samples/` | Starter scripts |
+
 Engine / IDE source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler) (`ide/`).
 
 ---
 
 ## Documentation
 
-Browse online in this repo, or inside the IDE sidebar:
+Browse online in this repo, inside the IDE sidebar, or the `docs/` folder in your download:
 
 | Start here | |
 |------------|---|
 | **[docs/BEGIN_HERE.md](docs/BEGIN_HERE.md)** | Install, first 10 minutes, learning path |
-| **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** | IDE, full runtime, VS Code, shipping games |
+| **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** | IDE, shipping games, VS Code |
 | **[docs/FIRST_HOUR.md](docs/FIRST_HOUR.md)** | Friendly first hour |
 | **[docs/systems/GUIDES.md](docs/systems/GUIDES.md)** | Topic guides |
 | **[docs/COMMANDS.md](docs/COMMANDS.md)** | Command index |
@@ -61,31 +71,20 @@ Browse online in this repo, or inside the IDE sidebar:
 
 ## Quick start (terminal)
 
-If you downloaded the **full runtime** instead of the IDE:
+`moonbasic` and `moonrun` sit beside the IDE. Optional: run **ADD-TO-PATH** so any terminal can find them.
 
 ```bash
-moonrun --version          # Windows: moonrun.exe --version
+moonrun --version
 moonbasic new MyGame
 cd MyGame
 moonrun main.mb
-```
-
-```bash
-moonrun examples/spin_cube/main.mb
-moonrun examples/guides/game_loop.mb
 ```
 
 ---
 
 ## VS Code / Cursor
 
-After extracting the **full runtime**:
-
-```bash
-moonbasic install-vscode
-```
-
-Or install **`moonbasic-v1.3.2-vscode.vsix`** from Releases (Extensions → Install from VSIX…).
+Install **`moonbasic-v1.3.3-vscode.vsix`** from Releases (Extensions → Install from VSIX…), or use the IDE if you prefer an all-in-one editor.
 
 ---
 

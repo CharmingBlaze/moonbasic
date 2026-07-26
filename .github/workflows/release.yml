@@ -1,7 +1,7 @@
 # Build pre-built moonBASIC binaries from moonbasic-compiler source and publish here.
 # Trigger: push tag v* on this repository (CharmingBlaze/moonbasic).
-# Artifacts include IDE bundles: moonbasic-<tag>-ide-{windows,linux,macos}
-# Engine source is NOT in this repo — builds checkout CharmingBlaze/moonbasic-compiler@main.
+# Every OS package is complete: IDE + moonbasic + moonrun + docs (no engine source here).
+# Builds checkout CharmingBlaze/moonbasic-compiler@main.
 
 name: Release
 
@@ -127,20 +127,11 @@ jobs:
           cp packaging/INSTALL-VSCODE.bat dist/
           chmod +x dist/INSTALL-VSCODE.sh dist/moonbasic dist/moonrun
 
-      - name: Package (tar.gz)
-        run: |
-          tar czvf "moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz" -C dist .
-
       - name: Build AppImage (optional tooling)
         continue-on-error: true
         run: |
           chmod +x scripts/build/build_appimage.sh
           ./scripts/build/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: moonbasic-linux-amd64
-          path: moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
 
       - uses: actions/setup-node@v5
         with:
@@ -178,11 +169,15 @@ jobs:
           chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
           bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-linux-amd64.tar.gz" -C ../ide-dist .
+          # Short platform name = same complete user package (IDE + compiler + moonrun + docs).
+          cp "../moonbasic-${GITHUB_REF_NAME}-ide-linux-amd64.tar.gz" "../moonbasic-${GITHUB_REF_NAME}-linux-amd64.tar.gz"
 
       - uses: actions/upload-artifact@v5
         with:
           name: moonbasic-ide-linux-amd64
-          path: moonbasic-${{ github.ref_name }}-ide-linux-amd64.tar.gz
+          path: |
+            moonbasic-${{ github.ref_name }}-ide-linux-amd64.tar.gz
+            moonbasic-${{ github.ref_name }}-linux-amd64.tar.gz
 
   windows-amd64:
     needs: [vscode-extension]
@@ -308,17 +303,6 @@ jobs:
       # Interactive Pong smoke is local-only (scripts/verification/smoke_moonrun_pong.ps1): GitHub Windows
       # runners often have no working OpenGL/WGL for GLFW, so moonrun exits immediately.
 
-      - name: Package (zip)
-        shell: pwsh
-        run: |
-          $name = "moonbasic-${{ github.ref_name }}-windows-amd64.zip"
-          Compress-Archive -Path dist/* -DestinationPath $name -Force
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: moonbasic-windows-amd64
-          path: moonbasic-${{ github.ref_name }}-windows-amd64.zip
-
       - uses: actions/setup-node@v5
         with:
           node-version: '20'
@@ -353,13 +337,24 @@ jobs:
           Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh, packaging\START-IDE.command, packaging\ADD-TO-PATH.bat, packaging\ADD-TO-PATH.sh ide-dist\
           New-Item -ItemType Directory -Force -Path ide-dist\samples | Out-Null
           Copy-Item packaging\samples\* ide-dist\samples\
+          # Offline docs folder (also embedded in the IDE via docsexport).
+          New-Item -ItemType Directory -Force -Path ide-dist\docs | Out-Null
+          if (Test-Path "ide\bundled-docs") {
+            Copy-Item -Path "ide\bundled-docs\*" -Destination ide-dist\docs\ -Recurse -Force
+          } else {
+            Copy-Item -Path "docs\*" -Destination ide-dist\docs\ -Recurse -Force
+          }
           $zip = "moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip"
           Compress-Archive -Path ide-dist\* -DestinationPath $zip -Force
+          # Short platform name is the same complete user package (IDE + compiler + moonrun + docs).
+          Copy-Item $zip "moonbasic-${{ github.ref_name }}-windows-amd64.zip" -Force
 
       - uses: actions/upload-artifact@v5
         with:
           name: moonbasic-ide-windows-amd64
-          path: moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip
+          path: |
+            moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip
+            moonbasic-${{ github.ref_name }}-windows-amd64.zip
 
   macos-arm64:
     needs: [vscode-extension]
@@ -421,15 +416,6 @@ jobs:
           cp packaging/INSTALL-VSCODE.bat dist/
           chmod +x dist/INSTALL-VSCODE.sh dist/moonbasic dist/moonrun
 
-      - name: Package (tar.gz)
-        run: |
-          tar czvf "moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz" -C dist .
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: moonbasic-macos-arm64
-          path: moonbasic-${{ github.ref_name }}-macos-arm64.tar.gz
-
       - uses: actions/setup-node@v5
         with:
           node-version: '20'
@@ -465,11 +451,15 @@ jobs:
           bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
           xattr -cr ../ide-dist || true
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" -C ../ide-dist .
+          # Short platform name = same complete user package (IDE + compiler + moonrun + docs).
+          cp "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" "../moonbasic-${GITHUB_REF_NAME}-macos-arm64.tar.gz"
 
       - uses: actions/upload-artifact@v5
         with:
           name: moonbasic-ide-macos-arm64
-          path: moonbasic-${{ github.ref_name }}-ide-macos-arm64.tar.gz
+          path: |
+            moonbasic-${{ github.ref_name }}-ide-macos-arm64.tar.gz
+            moonbasic-${{ github.ref_name }}-macos-arm64.tar.gz
 
   compiler-only-linux:
     runs-on: ubuntu-latest
@@ -564,7 +554,7 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-vscode.vsix
 
   github-release:
-    needs: [linux-amd64, windows-amd64, macos-arm64, compiler-only-linux, compiler-only-windows, vscode-extension]
+    needs: [linux-amd64, windows-amd64, macos-arm64, vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -576,8 +566,26 @@ jobs:
 
       - name: Collect archives for upload
         run: |
+          set -e
           mkdir -p upload
-          find release-assets -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.vsix' \) -exec cp -v {} upload/ \;
+          # User packages only: complete IDE bundles (+ short platform aliases) and VS Code vsix.
+          # Do not publish compiler-only or thin runtime-only zips.
+          find release-assets -type f \( -name '*-ide-*' -o -name '*-vscode.vsix' -o -name 'moonbasic-*-windows-amd64.zip' -o -name 'moonbasic-*-linux-amd64.tar.gz' -o -name 'moonbasic-*-macos-arm64.tar.gz' \) \
+            ! -name '*-compiler-*' -exec cp -v {} upload/ \;
+          # Ensure short platform names are complete IDE packages when only -ide- was uploaded.
+          for ide in upload/moonbasic-*-ide-windows-amd64.zip; do
+            [ -f "$ide" ] || continue
+            cp -f "$ide" "${ide/-ide-/-}"
+          done
+          for ide in upload/moonbasic-*-ide-linux-amd64.tar.gz; do
+            [ -f "$ide" ] || continue
+            cp -f "$ide" "${ide/-ide-/-}"
+          done
+          for ide in upload/moonbasic-*-ide-macos-arm64.tar.gz; do
+            [ -f "$ide" ] || continue
+            cp -f "$ide" "${ide/-ide-/-}"
+          done
+          rm -f upload/*-compiler-*
           ls -la upload/
 
       - name: Create GitHub Release
@@ -586,28 +594,27 @@ jobs:
           files: upload/*
           generate_release_notes: true
           body: |
-            **Builtin catalog:** The compiler always uses the full `commands.json` manifest — every release has the **same command names** for `--check`, `--lsp`, and `.mbc` output. See [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md) (“All commands”).
+            **Every OS download is a complete user package:** **IDE** + **`moonbasic`** (compiler) + **`moonrun`** + **`docs/`** + samples.
 
-            **Easiest start — moonBASIC IDE:** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, or `moonbasic-<tag>-ide-macos-arm64.tar.gz` — editor + **`moonbasic`** + **`moonrun`** + **`samples/`** + docs. Extract → **START-IDE.bat** (Windows) / **START-IDE.command** (macOS) / **./START-IDE.sh** (Linux) → open `samples/hello.mb` → **F5**. No other tools required.
+            | Download | Platform |
+            |----------|----------|
+            | `moonbasic-<tag>-ide-windows-amd64.zip` or `moonbasic-<tag>-windows-amd64.zip` | Windows x64 |
+            | `moonbasic-<tag>-ide-linux-amd64.tar.gz` or `moonbasic-<tag>-linux-amd64.tar.gz` | Linux x64 |
+            | `moonbasic-<tag>-ide-macos-arm64.tar.gz` or `moonbasic-<tag>-macos-arm64.tar.gz` | macOS Apple Silicon |
 
-            **Full runtime (run games — graphics, physics, audio):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Use **`moonrun game.mb`** as the primary entry point.
-
-            **Compiler only** (tooling / CI — `.mb` → `.mbc`, `--check`, `--lsp`, no engine DLLs beside `moonbasic`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
-
-            **VS Code / Cursor** (optional): included in full-runtime archives — run **`moonbasic install-vscode`** or double-click **`INSTALL-VSCODE.bat`** (Windows) / **`./INSTALL-VSCODE.sh`**. Standalone: `moonbasic-<tag>-vscode.vsix`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
-
-            **Scaffold a game:** `moonbasic new MyGame` then `moonrun main.mb` (full runtime or compiler + moonrun on PATH).
+            Extract → **START-IDE.bat** (Windows) / **START-IDE.command** (macOS) / **./START-IDE.sh** (Linux) → open `samples/hello.mb` → **F5**.
 
             | File | Contents |
             |------|----------|
-            | `moonbasic-ide` / `moonbasic-ide.exe` | Desktop IDE — edit, docs, check, compile, run |
-            | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, compile to `.mbc`, `--lsp`) — full manifest |
-            | `moonrun` / `moonrun.exe` | Full runtime — run `.mb` / `.mbc` games |
-            | `moonbasic-<tag>-vscode.vsix` | VS Code extension (grammar + LSP client) — optional |
+            | `moonbasic-ide` / `moonbasic-ide.exe` | Desktop IDE (docs also in the sidebar) |
+            | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, `.mb` → `.mbc`, `--lsp`) |
+            | `moonrun` / `moonrun.exe` | Game runtime |
+            | `docs/` | Full documentation offline |
+            | `samples/` | Starter scripts |
 
-            User downloads page: [github.com/CharmingBlaze/moonbasic/releases](https://github.com/CharmingBlaze/moonbasic/releases)
+            **VS Code / Cursor (optional):** `moonbasic-<tag>-vscode.vsix`
 
-            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [RELEASES.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md) · Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler)
+            User downloads: [github.com/CharmingBlaze/moonbasic/releases](https://github.com/CharmingBlaze/moonbasic/releases) · Docs: [GETTING_STARTED](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

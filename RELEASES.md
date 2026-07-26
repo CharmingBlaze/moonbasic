@@ -1,25 +1,32 @@
 # moonBASIC release artifacts
 
-Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships pre-built binaries. You do **not** need Go, GCC, or this repository's source tree to use them.
+Every tagged release on **[GitHub Releases](https://github.com/CharmingBlaze/moonbasic/releases)** ships **complete user packages**. You do **not** need Go, GCC, or this repository's source tree.
 
-Replace `<tag>` with the release version (e.g. `v1.3.2`).
+Replace `<tag>` with the release version (e.g. `v1.3.3`).
 
 ---
 
-## moonBASIC IDE (recommended)
+## Complete package (all platforms)
 
-Includes the desktop editor **and built-in documentation** (Begin Here, guides, full command reference), plus `moonbasic` and `moonrun`.
+Each download includes:
 
-| Asset | Platform | Contents |
-|-------|----------|----------|
-| `moonbasic-<tag>-ide-windows-amd64.zip` | Windows x64 | `moonbasic-ide.exe`, `moonbasic.exe`, `moonrun.exe`, docs inside IDE, `samples/`, `START-IDE.bat`, `README-IDE-RELEASE.txt` |
-| `moonbasic-<tag>-ide-linux-amd64.tar.gz` | Linux x64 | `moonbasic-ide`, `moonbasic`, `moonrun`, docs inside IDE, `samples/`, `START-IDE.sh` |
-| `moonbasic-<tag>-ide-macos-arm64.tar.gz` | macOS Apple Silicon | same layout as Linux |
+- **`moonbasic-ide`** — desktop editor  
+- **`moonbasic`** — compiler / `--check` / LSP  
+- **`moonrun`** — game runtime  
+- **`docs/`** — full documentation offline (also in the IDE sidebar)  
+- **`samples/`** — starter scripts  
+- **START-IDE.*** launchers  
 
-**Use when:** easiest setup — edit, read docs, check, compile, and run. **No other tools required.**
+| Asset | Platform |
+|-------|----------|
+| `moonbasic-<tag>-ide-windows-amd64.zip` **or** `moonbasic-<tag>-windows-amd64.zip` | Windows x64 (same contents) |
+| `moonbasic-<tag>-ide-linux-amd64.tar.gz` **or** `moonbasic-<tag>-linux-amd64.tar.gz` | Linux x64 (same contents) |
+| `moonbasic-<tag>-ide-macos-arm64.tar.gz` **or** `moonbasic-<tag>-macos-arm64.tar.gz` | macOS Apple Silicon (same contents) |
 
-1. Extract anywhere permanent.
-2. Run **START-IDE.bat** (Windows), **START-IDE.command** (macOS), or **`chmod +x` + `./START-IDE.sh`** (Linux).
+**Use when:** you want to write and run moonBASIC games. **No other tools required.**
+
+1. Extract anywhere permanent.  
+2. Run **START-IDE.bat** (Windows), **START-IDE.command** (macOS), or **`chmod +x` + `./START-IDE.sh`** (Linux).  
 3. Status bar should show **Toolchain ready**.
 
 **Shortcuts:** F5 run · Ctrl+Shift+C check · Ctrl+Shift+B compile · Alt+H help at cursor.
@@ -28,49 +35,23 @@ Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-c
 
 ---
 
-## Full runtime (games)
-
-| Asset | Platform | Contents |
-|-------|----------|----------|
-| `moonbasic-<tag>-windows-amd64.zip` | Windows x64 | `moonbasic.exe`, `moonrun.exe`, `README-RELEASE.txt`, `moonbasic-<tag>-vscode.vsix`, `INSTALL-VSCODE.bat` |
-| `moonbasic-<tag>-linux-amd64.tar.gz` | Linux x64 | `moonbasic`, `moonrun`, `README-RELEASE.txt`, `.vsix`, `INSTALL-VSCODE.sh` |
-| `moonbasic-<tag>-macos-arm64.tar.gz` | macOS Apple Silicon | `moonbasic`, `moonrun`, `README-RELEASE.txt`, `.vsix`, `INSTALL-VSCODE.sh` |
-
-**Primary command:** `moonrun yourgame.mb`
-
-Browse documentation in this repo’s [`docs/`](docs/) tree (same content the IDE ships).
-
----
-
-## Compiler only (tooling)
-
-| Asset | Platform | Contents |
-|-------|----------|----------|
-| `moonbasic-<tag>-compiler-windows-amd64.zip` | Windows x64 | `moonbasic.exe` |
-| `moonbasic-<tag>-compiler-linux-amd64.tar.gz` | Linux x64 | `moonbasic` |
-
-**Does not include `moonrun`** — cannot open a game window.
-
----
-
-## VS Code / Cursor extension
+## VS Code / Cursor extension (optional)
 
 | Asset | Contents |
 |-------|----------|
 | `moonbasic-<tag>-vscode.vsix` | Syntax, snippets, LSP client |
-| (in full-runtime zip) | Same `.vsix` + **`INSTALL-VSCODE.bat`** / **`INSTALL-VSCODE.sh`** |
 
 ```bash
-moonbasic install-vscode
+# Or: Extensions → Install from VSIX…
 ```
 
 ---
 
 ## After extract
 
-1. Keep executables from the **same** release together.
-2. Read **`README-IDE-RELEASE.txt`** or **`README-RELEASE.txt`** in the archive.
-3. Clone or browse **this repository** for **`docs/`** and **`examples/`** online — IDE bundles also embed the docs.
+1. Keep every file from the archive together (including any `lib*.dll` on Windows).  
+2. Read **`README-IDE-RELEASE.txt`**.  
+3. Browse **`docs/`** offline or use the IDE Documentation sidebar.
 
 ---
 
@@ -78,15 +59,15 @@ moonbasic install-vscode
 
 ### Windows
 
-Official builds link Raylib and MinGW runtime pieces into the `.exe` files — you should **not** need companion DLLs. Some systems may need the [Microsoft VC++ x64 redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist).
+Official builds link Raylib and MinGW runtime pieces into the `.exe` files when possible; some zips also ship `libstdc++` / `libwinpthread` sidecars. Keep them next to `moonrun.exe`.
 
 ### Linux
 
-Full-runtime / IDE binaries expect a normal desktop **OpenGL** stack and **glibc**-compatible distro.
+Expect a normal desktop **OpenGL** stack and **glibc**-compatible distro.
 
 ### macOS
 
-Apple Silicon (arm64). Make binaries executable: `chmod +x moonbasic-ide moonbasic moonrun`.
+Apple Silicon (arm64). Make binaries executable if needed: `chmod +x START-IDE.sh moonbasic moonrun`.
 
 ---
 
@@ -98,25 +79,17 @@ Not supported from **this** repository. Engine contributors use **[moonbasic-com
 
 ## Recent releases
 
+### v1.3.3
+
+- **Every OS download is complete:** IDE + compiler + moonrun + `docs/` + samples (short platform names are aliases of the IDE packages).  
+- Offline **`docs/`** folder included beside the IDE.  
+- Compiler-only / thin runtime-only zips are no longer published to this hub.
+
 ### v1.3.2
 
-- **Physics stub fix:** `BODY3D.COMMIT` no longer returns `NULL` on non-CGO / soft-stub builds (fixes `SETLIFT` crash on `physics_power_test`).
-- **`moonrun -version`** reports `Jolt backend: native` vs `stub` so you can tell if real Jolt is linked.
-- Docs clarify **Windows or Linux + CGO** for native Jolt (official IDE / fullruntime zips ship native). See [docs/JOLT_WINDOWS_PARITY.md](docs/JOLT_WINDOWS_PARITY.md).
+- Physics stub fix for `BODY3D.COMMIT` / `SETLIFT`; `moonrun -version` reports Jolt backend.  
+- See [docs/JOLT_WINDOWS_PARITY.md](docs/JOLT_WINDOWS_PARITY.md).
 
 ### v1.3.1
 
-- **Windows fix:** `moonrun` / IDE **F5** no longer exits immediately from missing MinGW DLLs. Release zips embed or ship `libstdc++` / `libwinpthread` so unzip-and-run works on clean PCs.
-- Prefer this tag over **v1.3.0** on Windows.
-
-### v1.3.0
-
-- Ship IDE bundles for **Windows**, **Linux**, and **macOS** (editor + compiler + runtime + **built-in documentation** + samples).
-- Full runtime, compiler-only, and VS Code `.vsix` for the same tag.
-- Repository cleanup: public download hub docs/examples synced from the engine; install guides point here.
-- Prior hardening: shared handle-call dispatch, multi-error LSP diagnostics, BOM/INCLUDE path fixes, offline IDE CodeMirror, CI smoke on Win/Linux/macOS.
-
-### v1.2.29
-
-- Fix chained entity/camera method calls (`ENTITY.CREATECUBE(…).scale(…).pos(…).col(…)`, `CAMERA.CREATE().fov(…)`).
-- Harden PBR material initialization on Windows purego builds so 3D examples (e.g. `examples/spin_cube`) render correctly.
+- Windows MinGW DLL / unzip-and-run fix for `moonrun` and IDE F5.
