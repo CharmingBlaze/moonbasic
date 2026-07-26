@@ -1,6 +1,7 @@
 # Build pre-built moonBASIC binaries from moonbasic-compiler source and publish here.
 # Trigger: push tag v* on this repository (CharmingBlaze/moonbasic).
 # Artifacts include IDE bundles: moonbasic-<tag>-ide-{windows,linux,macos}
+# Engine source is NOT in this repo — builds checkout CharmingBlaze/moonbasic-compiler@main.
 
 name: Release
 
@@ -17,33 +18,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  vscode-extension:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          repository: CharmingBlaze/moonbasic-compiler
-          ref: main
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-          cache: npm
-          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
-
-      - name: Build VSIX
-        run: |
-          set -e
-          cd editors/vscode-moonbasic
-          npm ci
-          npm run package
-          cp vscode-moonbasic-*.vsix "${GITHUB_WORKSPACE}/moonbasic-${GITHUB_REF_NAME}-vscode.vsix"
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: moonbasic-vscode-vsix
-          path: moonbasic-${{ github.ref_name }}-vscode.vsix
-
   linux-amd64:
     needs: [vscode-extension]
     runs-on: ubuntu-latest
@@ -64,7 +38,6 @@ jobs:
             cmake \
             gcc \
             g++ \
-            libenet-dev \
             libgl1-mesa-dev \
             libxi-dev \
             libxcursor-dev \
@@ -120,11 +93,27 @@ jobs:
         run: |
           set -e
           mkdir -p dist
+          chmod +x scripts/build/linux_fullruntime_go_ldflags.sh
+          # shellcheck source=scripts/build/linux_fullruntime_go_ldflags.sh
+          source scripts/build/linux_fullruntime_go_ldflags.sh
+          LD="$(moonbasic_linux_fullruntime_go_ldflags)"
+          # Compiler binary: no fullruntime / no Jolt — keep normal ldflags.
           VER="${GITHUB_REF_NAME}"
-          LD="-s -w -X moonbasic/internal/version.Version=${VER}"
-          go build -trimpath -ldflags="${LD}" -o dist/moonbasic .
+          go build -trimpath -ldflags="-s -w -X moonbasic/internal/version.Version=${VER}" -o dist/moonbasic .
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
+
+      - name: Verify no engine shared libs (ldd)
+        run: |
+          # Invoke via bash so CRLF shebangs cannot break CI; moonrun must be free of engine + libstdc++ sidecars.
+          bash scripts/verification/verify_linux_shared_libs.sh dist/moonrun
+          # Soft check compiler: forbid engine libs only (allow libstdc++).
+          if ldd dist/moonbasic 2>/dev/null | grep -E 'libenet\.so|libraylib\.so|libjolt\.so'; then
+            echo "ERROR: dist/moonbasic unexpectedly links engine shared libs" >&2
+            ldd dist/moonbasic
+            exit 1
+          fi
+          echo "OK: dist/moonbasic — no engine shared libs"
 
       - uses: actions/download-artifact@v5
         with:
@@ -145,8 +134,8 @@ jobs:
       - name: Build AppImage (optional tooling)
         continue-on-error: true
         run: |
-          chmod +x scripts/build_appimage.sh
-          ./scripts/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
+          chmod +x scripts/build/build_appimage.sh
+          ./scripts/build/build_appimage.sh "${GITHUB_REF_NAME}" || echo "AppImage skipped (install linuxdeploy on runner to enable)"
 
       - uses: actions/upload-artifact@v5
         with:
@@ -157,10 +146,13 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: moonbasic ide/package-lock.json
+          cache-dependency-path: ide/package-lock.json
 
       - name: Install Wails dependencies (Linux)
-        run: sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+        run: |
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+          # Prefer 4.0 if the distro still provides it (older Wails defaults).
+          sudo apt-get install -y libwebkit2gtk-4.0-dev || true
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
@@ -172,14 +164,19 @@ jobs:
           set -e
           go run ./tools/ideexport
           go run ./tools/docsexport
-          cd "moonbasic ide"
+          cd "ide"
           npm ci
-          wails build
+          # Ubuntu runners ship webkit2gtk-4.1; Wails defaults to 4.0 without this tag.
+          if pkg-config --exists webkit2gtk-4.1 && ! pkg-config --exists webkit2gtk-4.0; then
+            wails build -tags webkit2_41
+          else
+            wails build
+          fi
           mkdir -p ../ide-dist
           cp build/bin/moonbasic-ide ../ide-dist/
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
-          cp ../packaging/README-IDE-RELEASE.txt ../packaging/START-IDE.sh ../ide-dist/
-          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun ../ide-dist/START-IDE.sh
+          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun
+          bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-linux-amd64.tar.gz" -C ../ide-dist .
 
       - uses: actions/upload-artifact@v5
@@ -236,12 +233,17 @@ jobs:
         shell: bash
         env:
           CGO_ENABLED: '1'
+          # Compile C with gcc; final link uses -extld=g++ (see windows_fullruntime_go_ldflags.sh).
           CC: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/gcc.exe
+          CXX: ${{ steps.msys2.outputs.msys2-location }}/mingw64/bin/g++.exe
         run: |
           set -e
           mkdir -p dist
-          . scripts/windows_fullruntime_go_ldflags.sh
+          MINGW_BIN="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin"
+          export PATH="${MINGW_BIN}:${PATH}"
+          . scripts/build/windows_fullruntime_go_ldflags.sh
           EX="$(moonbasic_windows_fullruntime_go_ldflags)"
+          echo "Windows fullruntime ldflags: ${EX}"
           go build -trimpath -ldflags="${EX}" -o dist/moonbasic.exe .
           go build -trimpath -ldflags="${EX}" -tags fullruntime -o dist/moonrun.exe ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
@@ -259,14 +261,51 @@ jobs:
           Copy-Item packaging/INSTALL-VSCODE.sh dist/
 
       - name: Verify Windows PE imports (no MinGW/Raylib DLLs)
+        id: pe_verify
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
+          & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
+          & powershell -ExecutionPolicy Bypass -File scripts/verification/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+
+      # If static MinGW link failed, ship the required DLLs beside the exes so unzip-and-run still works.
+      - name: Bundle MinGW sidecars if PE verify failed
+        if: steps.pe_verify.outcome == 'failure'
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           $bin = Join-Path "${{ steps.msys2.outputs.msys2-location }}" "mingw64\bin"
-          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonrun.exe -MingwBin $bin
-          & powershell -ExecutionPolicy Bypass -File scripts/verify_windows_pe_imports.ps1 -Exe dist/moonbasic.exe -MingwBin $bin
+          $need = @("libstdc++-6.dll", "libwinpthread-1.dll", "libgcc_s_seh-1.dll")
+          foreach ($dll in $need) {
+            $src = Join-Path $bin $dll
+            if (Test-Path -LiteralPath $src) {
+              Copy-Item -LiteralPath $src -Destination (Join-Path "dist" $dll) -Force
+              Write-Host "Bundled sidecar $dll"
+            } else {
+              Write-Warning "Missing $src — cannot bundle"
+            }
+          }
+          # IDE zip copies from dist/ later; keep sidecars there too.
+          Get-ChildItem dist -Filter "lib*.dll" | ForEach-Object { Write-Host "dist has $($_.Name)" }
 
-      # Interactive Pong smoke is local-only (scripts/smoke_moonrun_pong.ps1): GitHub Windows
+      - name: Fail if PE verify failed and sidecars missing
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ("${{ steps.pe_verify.outcome }}" -eq "success") {
+            Write-Host "PE verify OK — no MinGW sidecars required"
+            exit 0
+          }
+          foreach ($dll in @("libstdc++-6.dll", "libwinpthread-1.dll")) {
+            if (-not (Test-Path "dist/$dll")) {
+              Write-Error "PE verify failed and dist/$dll was not bundled"
+            }
+          }
+          Write-Host "PE verify failed but MinGW sidecars are present in dist/ — shipping with DLLs"
+
+      # Interactive Pong smoke is local-only (scripts/verification/smoke_moonrun_pong.ps1): GitHub Windows
       # runners often have no working OpenGL/WGL for GLFW, so moonrun exits immediately.
 
       - name: Package (zip)
@@ -284,7 +323,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: moonbasic ide/package-lock.json
+          cache-dependency-path: ide/package-lock.json
 
       - name: Install Wails CLI
         shell: pwsh
@@ -299,14 +338,21 @@ jobs:
           $ErrorActionPreference = "Stop"
           go run ./tools/ideexport
           go run ./tools/docsexport
-          Set-Location "moonbasic ide"
+          Set-Location "ide"
           npm ci
           wails build
           Set-Location ..
           New-Item -ItemType Directory -Force -Path ide-dist | Out-Null
-          Copy-Item "moonbasic ide\build\bin\moonbasic-ide.exe" ide-dist\
+          Copy-Item "ide\build\bin\moonbasic-ide.exe" ide-dist\
           Copy-Item dist\moonbasic.exe, dist\moonrun.exe ide-dist\
-          Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh ide-dist\
+          # Optional MinGW sidecars when static link did not embed them.
+          Get-ChildItem dist -Filter "lib*.dll" -ErrorAction SilentlyContinue | ForEach-Object {
+            Copy-Item $_.FullName ide-dist\ -Force
+            Write-Host "IDE bundle includes $($_.Name)"
+          }
+          Copy-Item packaging\README-IDE-RELEASE.txt, packaging\START-IDE.bat, packaging\START-IDE.sh, packaging\START-IDE.command, packaging\ADD-TO-PATH.bat, packaging\ADD-TO-PATH.sh ide-dist\
+          New-Item -ItemType Directory -Force -Path ide-dist\samples | Out-Null
+          Copy-Item packaging\samples\* ide-dist\samples\
           $zip = "moonbasic-${{ github.ref_name }}-ide-windows-amd64.zip"
           Compress-Archive -Path ide-dist\* -DestinationPath $zip -Force
 
@@ -329,7 +375,7 @@ jobs:
           go-version: '1.25.3'
 
       - name: Install system dependencies
-        run: brew install enet cmake
+        run: brew install cmake
 
       - name: Checkout Jolt Physics
         uses: actions/checkout@v5
@@ -359,6 +405,10 @@ jobs:
           go build -trimpath -ldflags="${LD}" -tags fullruntime -o dist/moonrun ./cmd/moonrun
           cp packaging/README-RELEASE.txt dist/README-RELEASE.txt
 
+      - name: Verify no engine dylibs (otool)
+        run: |
+          bash scripts/verification/verify_macos_shared_libs.sh dist/moonrun dist/moonbasic
+
       - uses: actions/download-artifact@v5
         with:
           name: moonbasic-vscode-vsix
@@ -384,7 +434,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: moonbasic ide/package-lock.json
+          cache-dependency-path: ide/package-lock.json
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
@@ -396,16 +446,25 @@ jobs:
           set -e
           go run ./tools/ideexport
           go run ./tools/docsexport
-          cd "moonbasic ide"
+          cd "ide"
           npm ci
           wails build
           mkdir -p ../ide-dist
-          cp build/bin/moonbasic-ide ../ide-dist/
+          # Wails on macOS produces a .app bundle (not a bare binary).
+          if [[ -d build/bin/moonbasic-ide.app ]]; then
+            cp -R build/bin/moonbasic-ide.app ../ide-dist/
+          elif [[ -f build/bin/moonbasic-ide ]]; then
+            cp build/bin/moonbasic-ide ../ide-dist/
+          else
+            echo "ERROR: moonbasic-ide binary/.app not found under ide/build/bin" >&2
+            ls -la build/bin || true
+            exit 1
+          fi
           cp ../dist/moonbasic ../dist/moonrun ../ide-dist/
-          cp ../packaging/README-IDE-RELEASE.txt ../packaging/START-IDE.sh ../ide-dist/
-          chmod +x ../ide-dist/moonbasic-ide ../ide-dist/moonbasic ../ide-dist/moonrun ../ide-dist/START-IDE.sh
+          chmod +x ../ide-dist/moonbasic ../ide-dist/moonrun
+          bash ../scripts/packaging/stage_ide_extras.sh ../ide-dist
+          xattr -cr ../ide-dist || true
           tar czvf "../moonbasic-${GITHUB_REF_NAME}-ide-macos-arm64.tar.gz" -C ../ide-dist .
-          xattr -cr ../ide-dist/moonbasic-ide || true
 
       - uses: actions/upload-artifact@v5
         with:
@@ -428,8 +487,8 @@ jobs:
         env:
           MOONBASIC_VERSION: ${{ github.ref_name }}
         run: |
-          chmod +x scripts/release_compiler_linux.sh
-          ./scripts/release_compiler_linux.sh
+          chmod +x scripts/release/release_compiler_linux.sh
+          ./scripts/release/release_compiler_linux.sh
           mv dist/MoonBasic-compiler-linux-amd64.tar.gz "moonbasic-${GITHUB_REF_NAME}-compiler-linux-amd64.tar.gz"
 
       - name: Smoke test (unpack + --version + --check)
@@ -460,7 +519,7 @@ jobs:
         env:
           MOONBASIC_VERSION: ${{ github.ref_name }}
         run: |
-          powershell -ExecutionPolicy Bypass -File scripts/release_compiler_windows.ps1 -Version "${{ github.ref_name }}"
+          powershell -ExecutionPolicy Bypass -File scripts/release/release_compiler_windows.ps1 -Version "${{ github.ref_name }}"
           Move-Item -Path dist/MoonBasic-compiler-windows-amd64.zip -Destination "moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip"
 
       - name: Smoke test
@@ -477,35 +536,35 @@ jobs:
           path: moonbasic-${{ github.ref_name }}-compiler-windows-amd64.zip
 
   # Portable VS Code extension (syntax + LSP client). No Go required to install — only moonbasic on PATH or moonbasic.languageServerPath.
-  compiler-only-macos:
-    runs-on: macos-14
+  vscode-extension:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
           repository: CharmingBlaze/moonbasic-compiler
           ref: main
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-node@v5
         with:
-          go-version: '1.25.3'
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: editors/vscode-moonbasic/package-lock.json
 
-      - name: Build compiler-only bundle (CGO off)
+      - name: Build VSIX
         run: |
           set -e
-          VER="${GITHUB_REF_NAME}"
-          STAGE="$(mktemp -d)"
-          mkdir -p "$STAGE/MoonBasic-compiler"
-          CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -X moonbasic/internal/version.Version=${VER}" \
-            -o "$STAGE/MoonBasic-compiler/moonbasic" ./cmd/moonbasic
-          tar -C "$STAGE" -czf "moonbasic-${VER}-compiler-macos-arm64.tar.gz" MoonBasic-compiler
+          cd editors/vscode-moonbasic
+          npm ci
+          npm run package
+          cp vscode-moonbasic-*.vsix "${GITHUB_WORKSPACE}/moonbasic-${GITHUB_REF_NAME}-vscode.vsix"
 
       - uses: actions/upload-artifact@v5
         with:
-          name: moonbasic-compiler-macos-arm64
-          path: moonbasic-${{ github.ref_name }}-compiler-macos-arm64.tar.gz
+          name: moonbasic-vscode-vsix
+          path: moonbasic-${{ github.ref_name }}-vscode.vsix
 
   github-release:
-    needs: [linux-amd64, windows-amd64, macos-arm64, compiler-only-linux, compiler-only-windows, compiler-only-macos, vscode-extension]
+    needs: [linux-amd64, windows-amd64, macos-arm64, compiler-only-linux, compiler-only-windows, vscode-extension]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -527,20 +586,28 @@ jobs:
           files: upload/*
           generate_release_notes: true
           body: |
-            Official pre-built moonBASIC binaries for **Windows**, **Linux**, and **macOS (Apple Silicon)**.
+            **Builtin catalog:** The compiler always uses the full `commands.json` manifest — every release has the **same command names** for `--check`, `--lsp`, and `.mbc` output. See [dist/README.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md) (“All commands”).
 
-            **moonBASIC IDE (easiest start):** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, `moonbasic-<tag>-ide-macos-arm64.tar.gz` — includes **`moonbasic-ide`**, **`moonbasic`**, **`moonrun`**, and built-in documentation. Extract and run **START-IDE.bat** (Windows) or **./START-IDE.sh** (Linux/macOS). Read **README-IDE-RELEASE.txt**.
+            **Easiest start — moonBASIC IDE:** `moonbasic-<tag>-ide-windows-amd64.zip`, `moonbasic-<tag>-ide-linux-amd64.tar.gz`, or `moonbasic-<tag>-ide-macos-arm64.tar.gz` — editor + **`moonbasic`** + **`moonrun`** + **`samples/`** + docs. Extract → **START-IDE.bat** (Windows) / **START-IDE.command** (macOS) / **./START-IDE.sh** (Linux) → open `samples/hello.mb` → **F5**. No other tools required.
 
-            **Full runtime (games):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Run: **`moonrun game.mb`**.
+            **Full runtime (run games — graphics, physics, audio):** `moonbasic-<tag>-windows-amd64.zip`, `moonbasic-<tag>-linux-amd64.tar.gz`, or `moonbasic-<tag>-macos-arm64.tar.gz` — includes **`moonrun`**. Extract and read **README-RELEASE.txt**. Use **`moonrun game.mb`** as the primary entry point.
 
-            **Compiler only** (`.mb` → `.mbc`, `--check`, `--lsp`): `moonbasic-<tag>-compiler-windows-amd64.zip`, `moonbasic-<tag>-compiler-linux-amd64.tar.gz`, `moonbasic-<tag>-compiler-macos-arm64.tar.gz`.
+            **Compiler only** (tooling / CI — `.mb` → `.mbc`, `--check`, `--lsp`, no engine DLLs beside `moonbasic`): `moonbasic-<tag>-compiler-windows-amd64.zip` / `moonbasic-<tag>-compiler-linux-amd64.tar.gz`.
 
-            **VS Code / Cursor:** `moonbasic-<tag>-vscode.vsix` included in full-runtime zips — run **`moonbasic install-vscode`** or **`INSTALL-VSCODE.bat`** / **`./INSTALL-VSCODE.sh`**.
+            **VS Code / Cursor** (optional): included in full-runtime archives — run **`moonbasic install-vscode`** or double-click **`INSTALL-VSCODE.bat`** (Windows) / **`./INSTALL-VSCODE.sh`**. Standalone: `moonbasic-<tag>-vscode.vsix`. See [Getting started — VS Code](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md#vs-code-syntax-and-lsp).
 
-            **4,200+ built-in commands** · beginner docs: [BEGIN_HERE.md](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/BEGIN_HERE.md)
+            **Scaffold a game:** `moonbasic new MyGame` then `moonrun main.mb` (full runtime or compiler + moonrun on PATH).
 
-            **New project:** `moonbasic new MyGame` then `moonrun main.mb`.
+            | File | Contents |
+            |------|----------|
+            | `moonbasic-ide` / `moonbasic-ide.exe` | Desktop IDE — edit, docs, check, compile, run |
+            | `moonbasic` / `moonbasic.exe` | Compiler (`--check`, compile to `.mbc`, `--lsp`) — full manifest |
+            | `moonrun` / `moonrun.exe` | Full runtime — run `.mb` / `.mbc` games |
+            | `moonbasic-<tag>-vscode.vsix` | VS Code extension (grammar + LSP client) — optional |
 
-            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [RELEASES.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md) · [Examples](https://github.com/CharmingBlaze/moonbasic/tree/main/examples)
+            User downloads page: [github.com/CharmingBlaze/moonbasic/releases](https://github.com/CharmingBlaze/moonbasic/releases)
+
+            Docs: [Getting started](https://github.com/CharmingBlaze/moonbasic/blob/main/docs/GETTING_STARTED.md) · [RELEASES.md](https://github.com/CharmingBlaze/moonbasic/blob/main/RELEASES.md) · Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-compiler)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
