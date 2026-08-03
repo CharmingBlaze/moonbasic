@@ -18,8 +18,9 @@ Every OS package is **complete** for users: **IDE** + **compiler (`moonbasic`)**
 | **Linux x64** | `moonbasic-v1.3.3-ide-linux-amd64.tar.gz` or `moonbasic-v1.3.3-linux-amd64.tar.gz` |
 | **macOS Apple Silicon** | `moonbasic-v1.3.3-ide-macos-arm64.tar.gz` or `moonbasic-v1.3.3-macos-arm64.tar.gz` |
 | **VS Code / Cursor** (optional) | `moonbasic-v1.3.3-vscode.vsix` |
+| **The Book** (optional) | `moonBASIC-The-Book.zip` — Markdown + Word + PDF |
 
-Artifact naming: **[RELEASES.md](RELEASES.md)**
+Artifact naming: **[RELEASES.md](RELEASES.md)** · Book online: **[docs/THE_MOONBASIC_BOOK.md](docs/THE_MOONBASIC_BOOK.md)**
 
 ---
 
@@ -59,6 +60,7 @@ Browse online in this repo, inside the IDE sidebar, or the `docs/` folder in you
 
 | Start here | |
 |------------|---|
+| **[docs/THE_MOONBASIC_BOOK.md](docs/THE_MOONBASIC_BOOK.md)** | **The Book** — funny full guide ([Word/PDF](docs/book/)) |
 | **[docs/BEGIN_HERE.md](docs/BEGIN_HERE.md)** | Install, first 10 minutes, learning path |
 | **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** | IDE, shipping games, VS Code |
 | **[docs/FIRST_HOUR.md](docs/FIRST_HOUR.md)** | Friendly first hour |

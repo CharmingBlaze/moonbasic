@@ -8,6 +8,7 @@ Welcome to the moonBASIC documentation. Start here whether you browse on [GitHub
 
 | I want to… | Read |
 |------------|------|
+| **Read the fun full book** | [THE_MOONBASIC_BOOK.md](THE_MOONBASIC_BOOK.md) · [Word / PDF](book/) |
 | **Start from zero (install + why each command)** | [BEGIN_HERE.md](BEGIN_HERE.md) |
 | **Deep guides (all 40 systems + net)** | [systems/GUIDES.md](systems/GUIDES.md) — 24 topic guides |
 | Install and run a game | [GETTING_STARTED.md](GETTING_STARTED.md) |

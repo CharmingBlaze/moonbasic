@@ -35,6 +35,20 @@ Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-c
 
 ---
 
+## The moonBASIC Book (optional download)
+
+Funny full-length guide to the language and making games — Markdown, Word, and PDF.
+
+| Asset | Contents |
+|-------|----------|
+| `moonBASIC-The-Book.zip` | **Markdown + Word (.docx) + PDF** (recommended) |
+| `moonBASIC-The-Book.docx` | Word edition alone |
+| `moonBASIC-The-Book.pdf` | PDF edition alone |
+
+Also in the repo: [`docs/THE_MOONBASIC_BOOK.md`](docs/THE_MOONBASIC_BOOK.md) and [`docs/book/`](docs/book/).
+
+---
+
 ## VS Code / Cursor extension (optional)
 
 | Asset | Contents |

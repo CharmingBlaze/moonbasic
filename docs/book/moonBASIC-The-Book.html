@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>The Completely Unofficial, Mildly Sweary, Actually Useful Guide to moonBASIC</title>
+<style>
+@page {
+  size: A4;
+  margin: 2cm 2.2cm 2.2cm 2.2cm;
+  @frame footer {
+    -pdf-frame-content: footerContent;
+    bottom: 0.6cm;
+    margin-left: 2.2cm;
+    margin-right: 2.2cm;
+    height: 1cm;
+  }
+}
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #1a1f2e;
+  font-size: 11pt;
+  line-height: 1.45;
+  background: #faf7f0;
+}
+.cover {
+  text-align: center;
+  padding-top: 4cm;
+  page-break-after: always;
+}
+.cover .moon {
+  color: #c48a2a;
+  letter-spacing: 2pt;
+  font-size: 13pt;
+  font-weight: bold;
+}
+.cover h1 {
+  font-size: 26pt;
+  color: #1a1f2e;
+  margin: 0.6em 0 0.3em;
+  border: none;
+}
+.cover .sub {
+  color: #5a6374;
+  font-style: italic;
+  font-size: 12pt;
+}
+.cover .rule {
+  width: 40%;
+  margin: 1.5em auto;
+  border: none;
+  border-top: 2px solid #c48a2a;
+}
+.cover .blurb {
+  color: #5a6374;
+  max-width: 28em;
+  margin: 0 auto;
+}
+.cover .ed {
+  margin-top: 3em;
+  color: #c48a2a;
+  font-size: 10pt;
+}
+h1 {
+  color: #c48a2a;
+  font-size: 20pt;
+  page-break-before: always;
+  border-bottom: 2px solid #c48a2a;
+  padding-bottom: 0.25em;
+  margin-top: 0.4em;
+}
+h1.part {
+  page-break-before: always;
+  background: #1a1f2e;
+  color: #faf7f0;
+  padding: 0.6em 0.8em;
+  border: none;
+}
+h2 {
+  color: #1a1f2e;
+  font-size: 14pt;
+  margin-top: 1.4em;
+  border-bottom: 1px solid #e2dccf;
+  padding-bottom: 0.2em;
+}
+h3 {
+  color: #5a6374;
+  font-size: 12pt;
+  margin-top: 1.1em;
+}
+a { color: #c48a2a; text-decoration: none; }
+code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 9.5pt;
+  background: #f0ebe0;
+  padding: 0 0.25em;
+  color: #3d2e14;
+}
+pre {
+  background: #f0ebe0;
+  border-left: 4px solid #c48a2a;
+  padding: 0.75em 1em;
+  font-size: 8.5pt;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+pre code { background: transparent; padding: 0; }
+blockquote {
+  border-left: 3px solid #c48a2a;
+  margin: 1em 0;
+  padding: 0.4em 1em;
+  color: #5a6374;
+  font-style: italic;
+  background: #f4f1ea;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 9pt;
+}
+th {
+  background: #1a1f2e;
+  color: #faf7f0;
+  padding: 0.45em 0.55em;
+  text-align: left;
+}
+td {
+  border: 1px solid #d9d2c3;
+  padding: 0.4em 0.55em;
+  vertical-align: top;
+}
+tr:nth-child(even) td { background: #f4f1ea; }
+hr {
+  border: none;
+  border-top: 1px solid #c48a2a;
+  margin: 1.5em 0;
+}
+ul, ol { margin: 0.4em 0 0.8em 1.2em; }
+li { margin: 0.2em 0; }
+#footerContent {
+  text-align: center;
+  font-size: 8pt;
+  color: #5a6374;
+  font-family: Georgia, serif;
+}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="moon">*  moonBASIC  *</div>
+  <h1>The Completely Unofficial, Mildly Sweary, Actually Useful Guide to moonBASIC</h1>
+  <p class="sub">Or: How to Make Games Without Selling Your Soul<br/>to a 47-Button Inspector Panel</p>
+  <hr class="rule"/>
+  <p class="blurb">A fun, mildly sweary guide to the language, the engine,
+  and shipping vibes — validated against real moonBASIC docs and samples.</p>
+  <p class="ed">Expanded edition · CharmingBlaze · github.com/CharmingBlaze/moonbasic</p>
+</div>
+
+<h3><em>Or: How to Make Games Without Selling Your Soul to a 47-Button Inspector Panel</em></h3>
+<p><strong>Expanded edition (v2 — chunky).</strong> 50 chapters, deep-dive walkthroughs, genre recipes, a week-long curriculum, contributor appendix, and more ways to open a window and accidentally invent a genre.</p>
+<hr />
+<blockquote>
+<p><strong>Disclaimer:</strong> Loud friendly voice. Occasional swearing. Language facts match this engine. Official dry docs still live under <code>docs/</code> if you need the courtroom transcript.</p>
+<p><strong>Audience:</strong> Absolute beginners, Blitz refugees, Unity survivors, and anyone who typed <code>Graphics 640,480</code> once in 2004 and never emotionally recovered.</p>
+<p><strong>How to use this book:</strong> Top to bottom, or panic-skip. Samples point at real files (<code>examples/...</code>). Steal those. Stealing sample code is a sacred tradition.</p>
+<p><strong>Edition note:</strong> When this book and a reference page disagree on a parameter, trust <a href="API_CONSISTENCY.md"><code>docs/API_CONSISTENCY.md</code></a> / <code>compiler/builtinmanifest/commands.json</code>. This book is vibes + velocity.</p>
+</blockquote>
+<hr />
+<h2>Table of Contents</h2>
+<p><strong>Part I — Welcome to the Moon</strong><br />
+1. <a href="#chapter-1--what-the-hell-is-moonbasic">What the hell is moonBASIC?</a><br />
+2. <a href="#chapter-2--install-without-losing-your-mind">Install without losing your mind</a><br />
+3. <a href="#chapter-3--moonbasic-vs-moonrun-the-1-footgun">moonbasic vs moonrun (the #1 footgun)</a><br />
+4. <a href="#chapter-4--your-first-hour-a-guided-panic">Your first hour (a guided panic)</a><br />
+5. <a href="#chapter-5--projects-folders-and-moonbasic-new">Projects, folders, and <code>moonbasic new</code></a></p>
+<p><strong>Part II — Speak the Language</strong><br />
+6. <a href="#chapter-6--variables-types-and-why--is-dead">Variables, types, and why <code>#</code> is dead</a><br />
+7. <a href="#chapter-7--arrays-type-new-delete">Arrays, TYPE, NEW, DELETE</a><br />
+8. <a href="#chapter-8--control-flow-that-doesnt-hate-you">Control flow that doesn't hate you</a><br />
+9. <a href="#chapter-9--functions-callbacks-coroutines">Functions, callbacks, coroutines</a><br />
+10. <a href="#chapter-10--include-import-and-splitting-your-brain">INCLUDE, IMPORT, and splitting your brain</a><br />
+11. <a href="#chapter-11--style-how-cool-kids-write-moonbasic">Style: how cool kids write moonBASIC</a></p>
+<p><strong>Part III — The Sacred Game Loop</strong><br />
+12. <a href="#chapter-12--open-a-window-or-go-home">Open a window or go home</a><br />
+13. <a href="#chapter-13--input-keys-mouse-pads-actions">Input: keys, mouse, pads, ACTIONS</a><br />
+14. <a href="#chapter-14--delta-time-cameras-2d-and-not-teleporting">Delta time, cameras 2D, and not teleporting</a><br />
+15. <a href="#chapter-15--draw--rectangles-text-hud-glory">DRAW.* — rectangles, text, HUD glory</a><br />
+16. <a href="#chapter-16--your-first-2d-game-pong-energy">Your first 2D game: Pong energy</a></p>
+<p><strong>Part IV — Into the Third Dimension</strong><br />
+17. <a href="#chapter-17--cameras-cubes-and-existential-dread">Cameras, cubes, and existential dread</a><br />
+18. <a href="#chapter-18--entities-your-toys-with-handles">Entities: your toys with handles</a><br />
+19. <a href="#chapter-19--draw3d-grids-and-debug-geometry">DRAW3D, grids, and debug geometry</a><br />
+20. <a href="#chapter-20--models-meshes-materials-textures">Models, meshes, materials, textures</a><br />
+21. <a href="#chapter-21--lights-fog-and-why-is-everything-black">Lights, fog, and "why is everything black"</a></p>
+<p><strong>Part V — Physics: Newton's Revenge</strong><br />
+22. <a href="#chapter-22--jolt-gravity-and-respectful-bouncing">Jolt, gravity, and respectful bouncing</a><br />
+23. <a href="#chapter-23--characters-that-walk-like-humans-mostly">Characters that walk like humans (mostly)</a><br />
+24. <a href="#chapter-24--collision-without-a-full-physics-world">Collision without a full physics world</a><br />
+25. <a href="#chapter-25--2d-physics-with-box2d">2D physics with Box2D</a></p>
+<p><strong>Part VI — Make an Actual Game</strong><br />
+26. <a href="#chapter-26--platformers-hoppers-mario-ish-vibes">Platformers, hoppers, Mario-ish vibes</a><br />
+27. <a href="#chapter-27--annotated-tour-star-road-showcase">Annotated tour: Star Road showcase</a><br />
+28. <a href="#chapter-28--sprites-tilemaps-and-the-2d-renaissance">Sprites, tilemaps, and the 2D renaissance</a><br />
+29. <a href="#chapter-29--audio-that-doesnt-ghost-you">Audio that doesn't ghost you</a><br />
+30. <a href="#chapter-30--gui-menus-that-dont-softlock">GUI menus that don't softlock</a><br />
+31. <a href="#chapter-31--particles-and-juice">Particles and juice</a><br />
+32. <a href="#chapter-32--math-helpers-so-you-stop-reinventingsqrt">Math helpers so you stop reinventing SQRT</a><br />
+33. <a href="#chapter-33--saves-files-json">Saves, files, JSON</a></p>
+<p><strong>Part VII — Bigger Than Your Bedroom</strong><br />
+34. <a href="#chapter-34--assets-pipeline-and-packs">Assets pipeline and packs</a><br />
+35. <a href="#chapter-35--terrain-open-worlds-atmosphere">Terrain, open worlds, atmosphere</a><br />
+36. <a href="#chapter-36--multiplayer-when-friends-become-lag">Multiplayer: when friends become lag</a><br />
+37. <a href="#chapter-37--easy-mode-for-blitz-dinosaurs">Easy Mode for Blitz dinosaurs</a><br />
+38. <a href="#chapter-38--memory-free-and-not-leaking-the-moon">Memory, FREE, and not leaking the moon</a></p>
+<p><strong>Part VIII — Shipping &amp; Surviving</strong><br />
+39. <a href="#chapter-39--debug-like-a-detective">Debug like a detective</a><br />
+40. <a href="#chapter-40--performance-without-becoming-a-monk">Performance without becoming a monk</a><br />
+41. <a href="#chapter-41--ship-it-to-other-humans">Ship it to other humans</a><br />
+42. <a href="#chapter-42--where-to-go-next">Where to go next</a></p>
+<p><strong>Part IX — Deep Cuts (the "I want more" section)</strong><br />
+43. <a href="#chapter-43--full-walkthrough-build-pong-in-your-head">Full walkthrough: build Pong in your head</a><br />
+44. <a href="#chapter-44--full-walkthrough-manual-2d-platformer">Full walkthrough: manual 2D platformer</a><br />
+45. <a href="#chapter-45--game-recipes-copy-paste-genres">Game recipes (copy-paste genres)</a><br />
+46. <a href="#chapter-46--strings-printing-and-talking-to-humans">Strings, printing, and talking to humans</a><br />
+47. <a href="#chapter-47--a-week-long-curriculum">A week-long curriculum</a><br />
+48. <a href="#chapter-48--faq-from-the-trenches">FAQ from the trenches</a><br />
+49. <a href="#chapter-49--for-engine-contributors-optional-pain">For engine contributors (optional pain)</a><br />
+50. <a href="#chapter-50--porting-from-blitz--dbpro-without-crying">Porting from Blitz / DBPro without crying</a></p>
+<p><strong>Appendices</strong><br />
+- <a href="#appendix-a--mega-cheat-sheet">A. Mega cheat sheet</a><br />
+- <a href="#appendix-b--namespace-phone-book">B. Namespace phone book</a><br />
+- <a href="#appendix-c--common-why-is-it-broken-list">C. Common "why is it broken" list</a><br />
+- <a href="#appendix-d--map-of-the-official-docs">D. Map of the official docs</a><br />
+- <a href="#appendix-e--glossary">E. Glossary</a><br />
+- <a href="#appendix-f--sample-catalog-steal-these">F. Sample catalog (steal these)</a><br />
+- <a href="#appendix-g--key-constants-youll-actually-use">G. Key constants you'll actually use</a><br />
+- <a href="#appendix-h--add-systems-in-this-order-poster">H. "Add systems in this order" poster</a></p>
+<hr />
+<h1>Part I — Welcome to the Moon</h1>
+<h2>Chapter 1 — What the hell is moonBASIC?</h2>
+<p>moonBASIC is a <strong>modern BASIC for games</strong>.</p>
+<p>Not "BASIC" like your uncle's calculator homework from 1987. More like: <em>BlitzBASIC had a baby with a real compiler, then that baby stole Raylib's graphics wallet, Jolt's physics gym membership, Box2D's 2D side hustle, and ENet's networking Rolodex.</em></p>
+<p>You write <strong><code>.mb</code></strong> files. A compiler turns them into <strong><code>.mbc</code></strong> bytecode. A VM runs that bytecode. The runtime opens windows, draws stuff, simulates physics, plays audio, and occasionally makes you feel like a genius.</p>
+<h3>The pitch, without the marketing cologne</h3>
+<ul>
+<li><strong>One language</strong> for 2D and 3D</li>
+<li><strong>Readable as hell</strong> — <code>IF hp &lt; 20 THEN</code> still means what you think</li>
+<li><strong>Real engine guts</strong> — not a toy REPL with dreams</li>
+<li><strong>Same Path</strong> — write once, run on Windows and Linux without rewriting your soul every Tuesday</li>
+<li><strong>Namespaces</strong> — <code>WINDOW.OPEN</code>, <code>ENTITY.SETPOS</code>, <code>AUDIO.PLAY</code> — find shit by <em>what you're trying to do</em></li>
+<li><strong>Vertical stack</strong> — compiler + VM + engine in one toolchain</li>
+</ul>
+<h3>What it is <em>not</em></h3>
+<ul>
+<li>Not Unity with a BASIC cosplay</li>
+<li>Not "learn 14 design patterns before your first rectangle"</li>
+<li>Not Blitz with the <code>#</code> / <code>$</code> / <code>%</code> punctuation parade (those suffixes are <strong>gone</strong> — celebrate)</li>
+<li>Not a hidden <code>Game.Loop()</code> that steals control — <strong>your <code>WHILE</code> stays visible on purpose</strong></li>
+</ul>
+<h3>The mental model in one breath</h3>
+<pre><code>.mb source  →  compiler  →  .mbc bytecode  →  VM  →  HAL (Null or Raylib)  →  pixels / audio / physics
+</code></pre>
+<p>End users live on the left: edit <code>.mb</code>, hit <code>moonrun</code>, smile or scream, repeat.<br />
+Contributors also care about <strong><code>fullruntime</code></strong>, CGO, and Jolt build tags. Beginners: ignore that until chapter 41's cousin (the appendix of pain).</p>
+<h3>Architecture for curious cats</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lexer / parser / semantic / codegen</td>
+<td>Turn <code>.mb</code> into IR / bytecode</td>
+</tr>
+<tr>
+<td>VM</td>
+<td>Execute <code>.mbc</code></td>
+</tr>
+<tr>
+<td>Runtime modules</td>
+<td><code>ENTITY</code>, <code>PHYSICS3D</code>, <code>AUDIO</code>, …</td>
+</tr>
+<tr>
+<td>HAL (<code>rt.Driver</code>)</td>
+<td>Null (headless) or Raylib (windowed)</td>
+</tr>
+</tbody>
+</table>
+<p>Headless exists so <code>--check</code> and CI don't need a GPU. Your game does.</p>
+<h3>A tiny taste</h3>
+<pre><code class="language-basic">APP.OPEN(800, 600, &quot;Hello damn moon&quot;)
+APP.SETFPS(60)
+
+WHILE NOT APP.SHOULDCLOSE()
+    RENDER.CLEAR(20, 24, 40)
+    DRAW.TEXT(&quot;I made a window. I am unstoppable.&quot;, 40, 40, 22, 255, 255, 255, 255)
+    RENDER.FRAME()
+WEND
+
+APP.CLOSE()
+</code></pre>
+<p>Complete interactive program. No <code>MonoBehaviour</code>. No ManagerManager. You're already dangerous.</p>
+<hr />
+<h2>Chapter 2 — Install without losing your mind</h2>
+<p><strong>Windows first.</strong> Linux second. That's the house rule — this book follows it.</p>
+<h3>Path A: IDE bundle (recommended)</h3>
+<ol>
+<li><a href="https://github.com/CharmingBlaze/moonbasic/releases/latest">GitHub Releases</a></li>
+<li>Download <strong>IDE bundle</strong><br />
+   - Windows: <code>moonbasic-&lt;tag&gt;-ide-windows-amd64.zip</code><br />
+   - Linux: <code>moonbasic-&lt;tag&gt;-ide-linux-amd64.tar.gz</code><br />
+   - macOS Apple Silicon: <code>…-ide-macos-arm64.tar.gz</code></li>
+<li>Extract somewhere <strong>permanent</strong> (not Downloads)</li>
+<li><strong><code>START-IDE.bat</code></strong> / <strong><code>START-IDE.command</code></strong> / <strong><code>./START-IDE.sh</code></strong></li>
+<li>Open <code>samples/hello.mb</code> → <strong>F5</strong></li>
+</ol>
+<p>Docs are built into the IDE. Optional: <strong>ADD-TO-PATH</strong> so terminals find <code>moonbasic</code> / <code>moonrun</code>.</p>
+<h3>Path B: Full runtime (terminal)</h3>
+<p>Same Releases page → <strong>full runtime</strong> zip/tarball. You need both:</p>
+<ul>
+<li><code>moonbasic</code> — check, compile, LSP, <code>new</code></li>
+<li><code>moonrun</code> — <strong>opens a window and plays</strong></li>
+</ul>
+<pre><code class="language-bash">moonbasic new MyFirstGame
+cd MyFirstGame
+moonrun main.mb
+</code></pre>
+<p>Windows: <code>moonrun.exe</code> if not on PATH. Linux: may need Mesa / Wayland / X11 packages (OS graphics stack — not Raylib sidecars).</p>
+<h3>Path C: Compiler-only (wrong bag of holding for games)</h3>
+<p>Has <code>moonbasic</code>, <strong>no <code>moonrun</code></strong>. CI loves it. Cubes hate it.</p>
+<h3>VS Code / Cursor</h3>
+<pre><code class="language-bash">moonbasic install-vscode
+</code></pre>
+<p>Or double-click <code>INSTALL-VSCODE.bat</code> / run <code>./INSTALL-VSCODE.sh</code>. Gets syntax, LSP, tasks, and debug via <code>moonrun --dap</code> when full runtime is present.</p>
+<p>Debug tip: open a <code>.mb</code>, set breakpoints, <strong>Run and Debug → Debug moonBASIC</strong>. Globals scope shows live variables. Feels illegal. Is legal.</p>
+<h3>You do <strong>not</strong> need Go to make games</h3>
+<p>Building from source is a contributor hobby (<code>go build -tags fullruntime …</code>). Players use releases. If someone demands MinGW before your first <code>PRINT</code>, they're contributing to the engine — or trolling.</p>
+<h3>Keep release tags married</h3>
+<p>Ship <code>.mbc</code> with a <strong>matching</strong> full-runtime version. Mixing random tags is how you invent mysterious crashes.</p>
+<hr />
+<h2>Chapter 3 — moonbasic vs moonrun (the #1 footgun)</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it does</th>
+<th>Window?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>moonrun game.mb</code></strong></td>
+<td>Compile (if needed) + <strong>play</strong></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong><code>moonbasic --check game.mb</code></strong></td>
+<td>Lint / validate</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong><code>moonbasic game.mb</code></strong></td>
+<td>Write <code>game.mbc</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong><code>moonbasic new Name</code></strong></td>
+<td>Scaffold project</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong><code>moonbasic --lsp</code></strong></td>
+<td>Language server</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong><code>moonbasic package windows</code></strong></td>
+<td>Packaging helper (see ship chapter)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong><code>HELP("WINDOW.OPEN")</code></strong></td>
+<td>In-game / script help text</td>
+<td>Depends</td>
+</tr>
+</tbody>
+</table>
+<h3>The tragedy</h3>
+<pre><code class="language-bash"># Does NOT play:
+moonbasic main.mb
+
+# DOES:
+moonrun main.mb
+</code></pre>
+<p>Also fine: <code>moonrun game.mbc</code> after you've compiled.</p>
+<h3>Contributor footgun</h3>
+<pre><code class="language-bash">go run -tags fullruntime ./cmd/moonrun path/to/game.mb
+</code></pre>
+<p>Without <code>fullruntime</code> you're in Null-driver land. Cool for tests. Useless for vibes.</p>
+<h3>File extensions</h3>
+<table>
+<thead>
+<tr>
+<th>Ext</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.mb</code></td>
+<td>Source</td>
+</tr>
+<tr>
+<td><code>.mbc</code></td>
+<td>Bytecode (magic <code>MOON</code>, see <code>ARCHITECTURE.md</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Day-to-day: edit <code>.mb</code>, run with <code>moonrun</code>.</p>
+<hr />
+<h2>Chapter 4 — Your first hour (a guided panic)</h2>
+<p>Official cousin: <a href="FIRST_HOUR.md"><code>docs/FIRST_HOUR.md</code></a> and <a href="BEGIN_HERE.md"><code>docs/BEGIN_HERE.md</code></a>.</p>
+<h3>Minute 0–5: exist</h3>
+<pre><code class="language-bash">moonbasic new MyFirstGame
+cd MyFirstGame
+moonrun main.mb
+</code></pre>
+<p>A window appears. Change the title string. Run again. Dopamine.</p>
+<h3>Minute 5–15: move something in 2D</h3>
+<pre><code class="language-basic">APP.OPEN(800, 450, &quot;Mover&quot;)
+APP.SETFPS(60)
+x = 400.0
+y = 225.0
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
+    x = x + INPUT.AXIS(KEY_A, KEY_D) * 220 * dt
+    y = y + INPUT.AXIS(KEY_W, KEY_S) * 220 * dt
+    RENDER.CLEAR(18, 20, 28)
+    DRAW.CIRCLE(INT(x), INT(y), 18, 255, 180, 80, 255)
+    DRAW.TEXT(&quot;WASD move  ESC quit&quot;, 16, 12, 18, 230, 230, 240, 255)
+    RENDER.FRAME()
+WEND
+APP.CLOSE()
+</code></pre>
+<h3>Minute 15–40: spin a cube</h3>
+<pre><code class="language-bash">moonrun examples/spin_cube/main.mb
+</code></pre>
+<p>Then open that file and change <code>.col(255, 150, 70)</code> to something hideous. Taste is optional. Learning is not.</p>
+<h3>Minute 40–60: hop</h3>
+<pre><code class="language-bash">moonrun examples/mario64/modern_blitz_hop.mb
+</code></pre>
+<p>WASD, orbit camera, space jump. If physics feels stubby on your build, read Part V — Jolt wants full runtime + CGO on Windows/Linux.</p>
+<h3>Suggested add-on order (from <code>docs/systems/00-START.md</code>)</h3>
+<ol>
+<li>Loop that presents frames  </li>
+<li><code>DEBUG</code> / HUD numbers  </li>
+<li><code>INPUT</code> / <code>ACTION</code>  </li>
+<li>Assets  </li>
+<li>Physics  </li>
+<li>Audio  </li>
+<li>Save  </li>
+<li>Network (later — much later)</li>
+</ol>
+<hr />
+<h2>Chapter 5 — Projects, folders, and <code>moonbasic new</code></h2>
+<pre><code class="language-bash">moonbasic new MyGame
+# optional templates (when available):
+# moonbasic new MyGame --template 3d
+# moonbasic new MyGame --template platformer
+</code></pre>
+<p>Typical scaffold:</p>
+<pre><code>MyGame/
+  main.mb
+  assets/
+  .vscode/          ; launch, tasks, extensions
+  README.md
+</code></pre>
+<h3>Habits that scale</h3>
+<ul>
+<li>Put art/audio under <code>assets/</code> and load relative paths from the project root</li>
+<li><code>INCLUDE "player.mb"</code> when <code>main.mb</code> becomes a novel</li>
+<li><code>moonbasic --check main.mb</code> before you blame the GPU</li>
+<li>Keep a <code>notes.txt</code> of controls — future you is an idiot who forgot the jump key</li>
+</ul>
+<h3>Workflow loop</h3>
+<pre><code>edit → moonbasic --check → moonrun → swear → edit
+</code></pre>
+<p>That's the whole job.</p>
+<hr />
+<h1>Part II — Speak the Language</h1>
+<h2>Chapter 6 — Variables, types, and why <code>#</code> is dead</h2>
+<h3>Assign and chill</h3>
+<pre><code class="language-basic">name = &quot;Hero&quot;
+hp = 100
+speed = 5.5
+alive = TRUE
+</code></pre>
+<p>Dynamically typed. Inferred on assignment. You <em>can</em> put a string where a number lived — the compiler may shrug; your game may not.</p>
+<h3>No Blitz suffixes</h3>
+<table>
+<thead>
+<tr>
+<th>Blitz</th>
+<th>moonBASIC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>speed#</code></td>
+<td><code>speed</code></td>
+</tr>
+<tr>
+<td><code>msg$</code></td>
+<td><code>msg</code></td>
+</tr>
+<tr>
+<td><code>ok?</code></td>
+<td><code>ok</code></td>
+</tr>
+<tr>
+<td><code>x%</code></td>
+<td><code>x</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Case doesn't care (you should)</h3>
+<p><code>score</code> = <code>SCORE</code>. <code>Window.Open</code> = <code>WINDOW.OPEN</code>.<br />
+Style: <code>camelCase</code> vars, <code>SCREAMING_SNAKE</code> consts, <code>PascalCase</code> types, uppercase namespaces in docs.</p>
+<h3>Scope</h3>
+<pre><code class="language-basic">FUNCTION Boom()
+    LOCAL message = &quot;local only&quot;
+    STATIC callCount = 0
+    callCount = callCount + 1
+ENDFUNCTION
+</code></pre>
+<p>Globals by default. <code>LOCAL</code> / <code>STATIC</code> / <code>GLOBAL</code> inside functions.</p>
+<h3>Constants and enums</h3>
+<pre><code class="language-basic">CONST MAX_HP = 100
+
+ENUM State
+    IDLE
+    WALK
+    RUN
+    JUMP
+ENDENUM
+
+IF playerState = State.IDLE THEN PRINT &quot;vibing&quot;
+; also: STATE_IDLE
+</code></pre>
+<h3>String interpolation</h3>
+<pre><code class="language-basic">PRINT($&quot;Score: {score}  Health: {hp}&quot;)
+PRINT($&quot;Yaw: {yaw:.2f}&quot;)
+</code></pre>
+<p><code>{expr}</code> → <code>STR</code>. <code>{expr:fmt}</code> → <code>FORMAT</code>. Also <code>STRING.INTERP("Hi {0}", name)</code> for positional style.</p>
+<h3>Don't shadow namespaces</h3>
+<pre><code class="language-basic">time = 3      ; may punch TIME.*
+input = 1     ; may punch INPUT.*
+window = 0    ; you see where this is going
+</code></pre>
+<p>Name clocks <code>elapsed</code>, pads <code>pad0</code>, windows <code>winW</code>. Stay friends with the standard library.</p>
+<hr />
+<h2>Chapter 7 — Arrays, TYPE, NEW, DELETE</h2>
+<h3>DIM arrays</h3>
+<pre><code class="language-basic">DIM enemies(10)          ; often 1..n style in demos
+DIM scores(5)
+scores(1) = 100
+</code></pre>
+<p><code>arr.length</code> is handy. <code>ERASE scores</code> frees that array.</p>
+<h3>Typed records</h3>
+<pre><code class="language-basic">TYPE Platform
+    x, y, z
+    w, h, d
+    r, g, b
+ENDTYPE
+
+; FIELD spelling also works (Blitz comfort food):
+TYPE Enemy
+    FIELD mesh
+    FIELD body
+    FIELD hp
+ENDTYPE
+
+CONST N = 4
+DIM plat AS Platform(N)          ; indices 0 .. N-1 in LANGUAGE.md examples
+plat(0) = Platform(0.0, 1.5, 6.0, 4.0, 0.4, 4.0, 255, 60, 200)
+PRINT plat(0).x
+plat(0).r = 200
+</code></pre>
+<p><strong>Heads-up:</strong> some samples use <strong>1-based</strong> typed arrays by habit (<code>plats(1)</code> in Star Road). Know which index world you're in before you invent an off-by-one religion.</p>
+<h3>FOR EACH vs EACH(Type)</h3>
+<pre><code class="language-basic">; Walk a DIM array
+FOR EACH e IN enemies
+    IF e.hp &lt;= 0 THEN ENTITY.FREE(e.mesh)
+NEXT
+
+; Walk live NEW instances
+e = NEW(Enemy)
+e.hp = 100
+
+FOR e = EACH(Enemy)
+    IF e.hp &lt;= 0 THEN DELETE e
+NEXT
+</code></pre>
+<p><code>NEW</code> / <code>DELETE</code> manage heap instances the VM tracks. Typed <code>DIM</code> is a fixed slot array. Different tools.</p>
+<h3>Nuclear option</h3>
+<pre><code class="language-basic">ERASE ALL
+; or FREE.ALL
+</code></pre>
+<p>Frees <strong>VM heap objects</strong> and nulls handle-holding globals. Does <strong>not</strong> replace <code>ENTITY.CLEARSCENE</code> / <code>ENTITY.FREE</code> for numeric entity IDs. Don't use mid-expression. Don't name a variable <code>ALL</code>.</p>
+<hr />
+<h2>Chapter 8 — Control flow that doesn't hate you</h2>
+<h3>IF / SELECT</h3>
+<pre><code class="language-basic">IF score &gt; 1000 THEN
+    PRINT &quot;High score!&quot;
+ELSEIF score &gt; 500 THEN
+    PRINT &quot;Respectable&quot;
+ELSE
+    PRINT &quot;Touch grass&quot;
+ENDIF
+
+SELECT fruit
+    CASE &quot;apple&quot;
+        PRINT &quot;Doctor deferred&quot;
+    CASE &quot;banana&quot;
+        PRINT &quot;Potassium&quot;
+    DEFAULT
+        PRINT &quot;Mysterious produce&quot;
+ENDSELECT
+</code></pre>
+<h3>Loop buffet</h3>
+<pre><code class="language-basic">FOR i = 1 TO 10
+    PRINT i
+NEXT
+
+FOR i = 10 TO 1 STEP -2
+    PRINT i
+NEXT
+
+x = 0
+WHILE x &lt; 5
+    x = x + 1
+WEND
+
+REPEAT
+    PRINT &quot;at least once&quot;
+UNTIL TRUE
+
+DO WHILE x &lt; 10
+    x = x + 1
+LOOP
+
+DO
+    x = x - 1
+LOOP UNTIL x = 0
+</code></pre>
+<p>Early out: <code>EXIT FOR</code> / <code>EXIT WHILE</code> / <code>EXIT REPEAT</code> / <code>EXIT DO</code>.</p>
+<h3>The <code>NOT</code> trap (tattoo #2)</h3>
+<pre><code class="language-basic">; WRONG — NOT binds tight:
+WHILE NOT INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE()
+
+; RIGHT:
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+</code></pre>
+<p>Parentheses: cheaper than therapy.</p>
+<hr />
+<h2>Chapter 9 — Functions, callbacks, coroutines</h2>
+<h3>Basics + multi-return</h3>
+<pre><code class="language-basic">FUNCTION Add(a, b)
+    RETURN a + b
+ENDFUNCTION
+
+FUNCTION GetPlayerPos()
+    RETURN px, py, pz
+ENDFUNCTION
+
+x, y, z = GetPlayerPos()
+</code></pre>
+<p>Optional types:</p>
+<pre><code class="language-basic">FUNCTION Add(a AS FLOAT, b AS FLOAT) AS FLOAT
+    RETURN a + b
+ENDFUNCTION
+</code></pre>
+<p><code>EXIT FUNCTION</code> for early bail.</p>
+<h3>Function references &amp; anonymous funcs</h3>
+<pre><code class="language-basic">FUNCTION OnHit(a, b)
+    PRINT &quot;hit!&quot;
+ENDFUNCTION
+
+PHYSICS3D.ONCOLLISION(bodyA, bodyB, @OnHit)
+
+onHit = FUNCTION(a, b)
+    PRINT &quot;hit!&quot;
+ENDFUNCTION
+
+cb = @OnHit
+cb(bodyA, bodyB)
+</code></pre>
+<p>Legacy string callback names still exist on some APIs. Prefer <code>@Name</code> so typos fail earlier.</p>
+<h3>Coroutines (cutscenes, patrols, drama)</h3>
+<pre><code class="language-basic">COROUTINE patrol
+    WHILE TRUE
+        PRINT &quot;step&quot;
+        COROUTINE.WAIT(1.0)
+        YIELD
+    WEND
+ENDCOROUTINE
+
+; or explicit:
+FUNCTION Patrol()
+    WHILE TRUE
+        COROUTINE.WAIT(1.0)
+        YIELD
+    WEND
+ENDFUNCTION
+co = COROUTINE.START(@Patrol)
+</code></pre>
+<p>Block form auto-starts. Great for "walk to A, wait, say line, walk to B" without state-machine spaghetti — until you make spaghetti anyway.</p>
+<hr />
+<h2>Chapter 10 — INCLUDE, IMPORT, and splitting your brain</h2>
+<pre><code class="language-basic">INCLUDE &quot;helpers.mb&quot;
+INCLUDE &quot;player.mb&quot;
+IMPORT &quot;physics_helper&quot;
+</code></pre>
+<h3>INCLUDE facts (from <code>docs/reference/INCLUDE.md</code>)</h3>
+<ul>
+<li>Compile-time merge of <strong><code>.mb</code></strong> files (not Markdown docs)</li>
+<li>Path relative to the <strong>including</strong> file, then optional <code>MOONBASIC_PATH</code></li>
+<li>Include-once (duplicates skipped)</li>
+<li>Circular includes → compile error</li>
+<li><strong>Zero</strong> per-frame cost — it's paste-with-rules, not a runtime <code>require</code></li>
+</ul>
+<h3>IMPORT</h3>
+<p>Loads package entry files from package roots (<code>MOONBASIC_PKG</code> / configured roots). Use for reusable libs. Use <code>INCLUDE</code> for "files next to my game."</p>
+<h3>Practical split</h3>
+<pre><code>main.mb          ; loop + scene wiring
+player.mb        ; movement + jump
+enemies.mb       ; AI that cheats
+ui.mb            ; menus
+</code></pre>
+<p>When three people edit one 3,000-line <code>main.mb</code>, friendships die.</p>
+<hr />
+<h2>Chapter 11 — Style: how cool kids write moonBASIC</h2>
+<h3>Canonical: <code>Namespace.Method</code> + chaining</h3>
+<pre><code class="language-basic">cam = CAMERA.CREATE().pos(0, 10, 20).look(0, 0, 0).fov(60)
+cube = ENTITY.CREATECUBE(1, 1, 1).scale(1.4, 1.4, 1.4).pos(0, 1, 0).col(255, 150, 70)
+</code></pre>
+<p>House rules:</p>
+<ol>
+<li><strong><code>CREATE</code></strong> not deprecated <code>MAKE</code></li>
+<li><strong><code>SETPOS</code> / <code>.pos</code></strong> not dusty <code>SETPOSITION</code></li>
+<li>Chain setters that return self</li>
+<li><strong><code>.free()</code></strong> / <code>*.FREE</code> when done</li>
+<li>Showcase path: <strong>handle methods</strong> — <code>hero.SetGravity(1.0)</code> over cafeteria-shouting <code>CHARACTERREF.SETGRAVITY(hero, 1.0)</code></li>
+</ol>
+<h3>Easy Mode is a jacket, not a personality</h3>
+<pre><code class="language-basic">cam = CreateCamera()
+PositionEntity(cam, 0, 5, -10)
+
+; preferred for new work:
+cam = CAMERA.CREATE().pos(0, 5, -10)
+</code></pre>
+<p>Full style bible: <a href="../STYLE_GUIDE.md"><code>STYLE_GUIDE.md</code></a>. Constitution: <a href="API_STANDARDIZATION_DIRECTIVE.md"><code>API_STANDARDIZATION_DIRECTIVE.md</code></a>.</p>
+<hr />
+<h1>Part III — The Sacred Game Loop</h1>
+<h2>Chapter 12 — Open a window or go home</h2>
+<pre><code>setup once → WHILE running → update → clear → draw → FRAME → WEND → cleanup
+</code></pre>
+<h3>Annotated foundation (<code>examples/guides/game_loop.mb</code>)</h3>
+<pre><code class="language-basic">APP.OPEN(1280, 720, &quot;Game loop demo&quot;)
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE()
+CAMERA.SETPOS(cam, 0, 2, -8)
+CAMERA.LOOKAT(cam, 0, 0, 0)
+
+cube = ENTITY.CREATECUBE(2, 2, 2)
+cube.pos(0, 0, 5)
+
+WHILE NOT APP.SHOULDCLOSE()
+    cube.turn(0, 60 * APP.DELTA(), 0)
+
+    RENDER.CLEAR(20, 20, 30)
+    RENDER.BEGIN(cam)
+    SCENE.DRAW()
+    RENDER.END()
+    RENDER.FRAME()
+WEND
+
+ENTITY.FREE(cube)
+APP.CLOSE()
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>APP.OPEN</code> / <code>WINDOW.OPEN</code></td>
+<td>Creates OS window + gfx context</td>
+</tr>
+<tr>
+<td><code>SETFPS</code></td>
+<td>Stable timing</td>
+</tr>
+<tr>
+<td>Create world</td>
+<td>Cameras, entities, lights</td>
+</tr>
+<tr>
+<td><code>WHILE NOT …SHOULDCLOSE</code></td>
+<td>Until quit</td>
+</tr>
+<tr>
+<td>Update with <code>DELTA</code></td>
+<td>Frame-independent motion</td>
+</tr>
+<tr>
+<td><code>RENDER.CLEAR</code></td>
+<td>Wipe previous frame</td>
+</tr>
+<tr>
+<td>Begin / draw / end</td>
+<td>3D (or 2D) pass</td>
+</tr>
+<tr>
+<td><strong><code>RENDER.FRAME()</code></strong></td>
+<td><strong>Present. Skip this → blank/frozen hell.</strong></td>
+</tr>
+<tr>
+<td>Free + <code>CLOSE</code></td>
+<td>Don't haunt the next run</td>
+</tr>
+</tbody>
+</table>
+<p><code>APP.*</code> often aliases <code>WINDOW.*</code> / <code>TIME.*</code>. Pick a dialect per project and stick to it.</p>
+<p>There is <strong>no</strong> hidden <code>Game.Loop()</code>. The <code>WHILE</code> is the product.</p>
+<hr />
+<h2>Chapter 13 — Input: keys, mouse, pads, ACTIONS</h2>
+<h3>Raw keys</h3>
+<pre><code class="language-basic">IF INPUT.KEYDOWN(KEY_W) THEN ...
+IF INPUT.KEYPRESSED(KEY_SPACE) THEN ...   ; Easy: KeyHit / INPUT.KEYHIT on some paths
+</code></pre>
+<h3>Axes &amp; movement helpers</h3>
+<pre><code class="language-basic">fwd = INPUT.AXIS(KEY_S, KEY_W)
+side = INPUT.AXIS(KEY_A, KEY_D)
+move = INPUT.MOVEMENT2D(KEY_W, KEY_S, KEY_A, KEY_D)  ; [forward, strafe] style handle/tuple
+dir = INPUT.MOVEDIR(camYaw)                          ; camera-relative XZ
+</code></pre>
+<h3>ACTION maps (remap without rewriting IF trees)</h3>
+<pre><code class="language-basic">ACTION.MAPKEY(&quot;Jump&quot;, KEY_SPACE)
+ACTION.MAPKEY(&quot;Forward&quot;, KEY_W)
+ACTION.BINDGAMEPAD(&quot;Jump&quot;, PAD_A)
+
+IF ACTION.DOWN(&quot;Forward&quot;) THEN
+    ; move
+ENDIF
+IF ACTION.HIT(&quot;Jump&quot;) THEN
+    ; jump once
+ENDIF
+</code></pre>
+<p>Also: <code>INPUT.MAPKEY</code> / <code>INPUT.ACTIONDOWN</code> aliases depending on doc era — same idea.</p>
+<h3>Mouse</h3>
+<pre><code class="language-basic">mx = INPUT.MOUSEX()
+my = INPUT.MOUSEY()
+IF INPUT.MOUSEPRESSED(MOUSE_LEFT) THEN ...
+dx = INPUT.MOUSEDELTAX()   ; or MOUSEDX
+dy = INPUT.MOUSEDELTAY()
+</code></pre>
+<h3>Cursor lock (FPS vibes)</h3>
+<pre><code class="language-basic">CURSOR.HIDE()
+CURSOR.DISABLE()           ; relative / lock style
+; or INPUT.LOCKMOUSE(TRUE)
+
+; ... read deltas each frame ...
+
+CURSOR.SHOW()
+CURSOR.ENABLE()
+</code></pre>
+<p>Star Road (<code>main_easymode.mb</code>) hides the cursor at start and shows it on exit. Copy that politeness.</p>
+<h3>Gamepad</h3>
+<pre><code class="language-basic">IF INPUT.GAMEPADCONNECTED(0) THEN
+    lx = INPUT.GAMEPADAXIS(0, PAD_LEFT_X)
+ENDIF
+</code></pre>
+<p>See <code>examples/gamepad/main.mb</code>. Mapping save/load exists for people who bind jump to "mic mute" by accident.</p>
+<p>Guide: <a href="systems/04-INPUT.md"><code>docs/systems/04-INPUT.md</code></a>, <a href="systems/guides/CAMERA-AND-INPUT.md"><code>CAMERA-AND-INPUT.md</code></a>.</p>
+<hr />
+<h2>Chapter 14 — Delta time, cameras 2D, and not teleporting</h2>
+<h3>Delta or die</h3>
+<pre><code class="language-basic">dt = APP.DELTA()   ; aka TIME.DELTA()
+x = x + speed * dt
+</code></pre>
+<p>Without <code>dt</code>, 144 Hz players become speedrunners and 30 Hz laptops become molasses.</p>
+<h3>CAMERA2D</h3>
+<pre><code class="language-basic">cam2d = CAMERA2D.CREATE()
+CAMERA2D.SETTARGET(cam2d, playerX, playerY)
+CAMERA2D.SETZOOM(cam2d, 2.0)
+CAMERA2D.SETROTATION(cam2d, 0)
+
+CAMERA2D.BEGIN(cam2d)
+    ; world draw: tilemap, sprites in world space
+CAMERA2D.END()
+
+; HUD in screen space AFTER End
+DRAW.TEXT($&quot;HP {hp}&quot;, 12, 12, 18, 255, 255, 255, 255)
+</code></pre>
+<p>Also: <code>SETOFFSET</code>, identity begin/end for pure screen space.</p>
+<hr />
+<h2>Chapter 15 — DRAW.* — rectangles, text, HUD glory</h2>
+<p>Default font via <code>DRAW.TEXT</code> — <strong>no TTF required</strong> for demos. Custom fonts: <code>FONT.LOAD</code> + font-aware draw APIs.</p>
+<h3>Greatest hits</h3>
+<pre><code class="language-basic">RENDER.CLEAR(14, 22, 33)
+DRAW.RECTANGLE(0, 500, 800, 100, 40, 50, 60, 255)
+DRAW.RECTLINES(10, 10, 100, 40, 255, 255, 255, 255)
+DRAW.CIRCLE(400, 300, 20, 255, 180, 80, 255)
+DRAW.LINE(0, 0, 100, 100, 255, 0, 0, 255)
+DRAW.TEXT(&quot;HEALTH&quot;, 15, 12, 16, 255, 255, 255, 255)
+DRAW.TEXTURE(tex, INT(px), INT(py), 255, 255, 255, 255)
+DRAW.PIXEL(x, y, r, g, b, a)
+DRAW.GRID2D(...)   ; when available — handy for layout
+RENDER.DRAWFPS(10, 10)
+RENDER.FRAME()
+</code></pre>
+<p><code>DEBUG.PRINT</code> style HUD stacks exist for quick overlays — see DRAW2D / DEBUG refs.</p>
+<p>Pong uses nothing but rectangles + text and still starts arguments at parties.</p>
+<hr />
+<h2>Chapter 16 — Your first 2D game: Pong energy</h2>
+<p>Real sample: <a href="../examples/pong/main.mb"><code>examples/pong/main.mb</code></a></p>
+<pre><code class="language-bash">moonrun examples/pong/main.mb
+</code></pre>
+<h3>What it teaches</h3>
+<ol>
+<li>Input → integrate with <code>dt</code> → collide → score → draw → <code>FRAME</code></li>
+<li><code>MATH.CLAMP</code> keeps paddles from fleeing to the astral plane</li>
+<li>HUD is just text</li>
+<li>Two humans + one ball = infinite drama</li>
+</ol>
+<h3>Skeleton (condensed)</h3>
+<pre><code class="language-basic">APP.OPEN(960, 540, &quot;moonBASIC Pong&quot;)
+APP.SETFPS(60)
+; py1, py2, bx, by, bvx, bvy, scores...
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    dt = APP.DELTA()
+    ; W/S and I/K paddles
+    ; bounce ball; score on miss
+    RENDER.CLEAR(12, 14, 22)
+    DRAW.RECTANGLE(...)
+    DRAW.TEXT($&quot;P1 {p1s}   P2 {p2s}&quot;, ...)
+    RENDER.FRAME()
+WEND
+</code></pre>
+<h3>After Pong</h3>
+<table>
+<thead>
+<tr>
+<th>Next</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gravity spite</td>
+<td><code>examples/platformer/</code></td>
+</tr>
+<tr>
+<td>Levels as data</td>
+<td><code>examples/tilemap/</code></td>
+</tr>
+<tr>
+<td>GUI pause menu</td>
+<td><code>examples/gui_*</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Part IV — Into the Third Dimension</h1>
+<h2>Chapter 17 — Cameras, cubes, and existential dread</h2>
+<h3>Spinning cube rite (<a href="../examples/spin_cube/main.mb"><code>examples/spin_cube/main.mb</code></a>)</h3>
+<pre><code class="language-basic">SetMSAA(0)
+APP.OPEN(800, 600, &quot;moonBASIC — spinning cube&quot;)
+APP.SETFPS(60)
+
+cam = CAMERA.CREATE().fov(55)
+cube = ENTITY.CREATECUBE(1, 1, 1).scale(1.4, 1.4, 1.4).pos(0.0, 1.0, 0.0).col(255, 150, 70)
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    RENDER.CLEAR(38, 42, 58)
+    dt = APP.DELTA()
+    cube.rot(...spin...)
+    CAMERA.SETORBIT(cam, 0.0, 1.0, 0.0, camYaw, camPitch, cdist)
+
+    cam.Begin()
+        Draw3D.Grid(14, 1.0)
+        ENTITY.DRAWALL()
+    cam.End()
+
+    Draw.Text(&quot;Spinning cube   ESC quit&quot;, 12, 10, 18, 235, 240, 255, 255)
+    RENDER.FRAME()
+WEND
+
+cube.free()
+cam.free()
+APP.CLOSE()
+</code></pre>
+<h3>Camera API buffet (learn as needed)</h3>
+<table>
+<thead>
+<tr>
+<th>Trick</th>
+<th>APIs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Look-at demo</td>
+<td><code>SETPOS</code>, <code>LOOKAT</code> / <code>.look</code></td>
+</tr>
+<tr>
+<td>Orbit third person</td>
+<td><code>SETORBIT</code>, <code>ORBIT</code>, <code>ORBITENTITY</code>, <code>USEMOUSEORBIT</code></td>
+</tr>
+<tr>
+<td>Follow</td>
+<td><code>FOLLOW</code>, <code>LOOKATENTITY</code>, <code>LERPTO</code>, <code>SMOOTHEXP</code></td>
+</tr>
+<tr>
+<td>FPS</td>
+<td><code>SETFPSMODE</code>, <code>UPDATEFPS</code>, <code>LOCKMOUSE</code>, mouse deltas</td>
+</tr>
+<tr>
+<td>Juice</td>
+<td><code>SHAKE</code></td>
+</tr>
+<tr>
+<td>Picking</td>
+<td><code>GETRAY</code>, <code>MOUSERAY</code>, <code>RAYCASTMOUSE</code>, <code>PICK</code>, <code>WORLDTOSCREEN</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-basic">CAMERA.ORBIT(cam, hero, 8.0)
+CAMERA.USEMOUSEORBIT(cam, true)
+CAMERA.FOLLOW(cam, hero, 0, 3, -8)
+INPUT.LOCKMOUSE(true)
+</code></pre>
+<p>Degrees vs radians: Star Road literally ships <code>CONST RAD_TO_DEG = 57.2957795</code> because mouse deltas are radians-ish and <code>SIN</code>/<code>COS</code> want degrees. Read comments in samples. Math is a prank.</p>
+<hr />
+<h2>Chapter 18 — Entities: your toys with handles</h2>
+<p><code>ENTITY</code> is the big 3D toolbox (~hundreds of overloads — largest neighborhood in the audit).</p>
+<pre><code class="language-basic">cube = ENTITY.CREATECUBE(2, 2, 2)
+cube.pos(0, 1, 0)
+cube.col(255, 80, 80)
+
+cube = ENTITY.CREATECUBE(1, 1, 1).scale(2, 2, 2).pos(0, 1, 0).col(80, 200, 255)
+</code></pre>
+<p>Universal vibes across spatial handles:</p>
+<ul>
+<li><code>.pos</code> / <code>.rot</code> / <code>.scale</code> (get/set patterns)</li>
+<li><code>.free()</code></li>
+<li>Color / alpha helpers on many types</li>
+</ul>
+<p>Drawing:</p>
+<pre><code class="language-basic">ENTITY.DRAWALL()
+; or SCENE.DRAW() depending on sample era
+</code></pre>
+<p>Physics hooks:</p>
+<pre><code class="language-basic">ENTITY.PHYSICS(floor, &quot;BOX&quot;, 0.0, 0.9, 0.0)
+ENTITY.ADDPHYSICS(ent)          ; paths vary by sample
+ENTITY.LINKPHYSBUFFER(...)      ; advanced sync
+</code></pre>
+<p>Free your crap. Scene reset: <code>ENTITY.CLEARSCENE</code>, <code>ERASE ALL</code> (with the caveats from ch. 7/38).</p>
+<p>Guides: <a href="systems/guides/ENTITY-SYSTEM.md"><code>ENTITY-SYSTEM.md</code></a>, <a href="reference/ENTITY.md"><code>reference/ENTITY.md</code></a>.</p>
+<hr />
+<h2>Chapter 19 — DRAW3D, grids, and debug geometry</h2>
+<p>Inside a 3D begin/end:</p>
+<pre><code class="language-basic">RENDER.BEGIN3D(cam)
+    DRAW3D.GRID(20, 1.0)
+    DRAW3D.CUBE(0, 0.5, 0, 1, 1, 1, 100, 180, 255, 255)
+    DRAW3D.SPHERE(2, 1, 0, 0.5, 255, 100, 100, 255)
+    DRAW3D.LINE(0, 0, 0, 0, 3, 0, 255, 255, 0, 255)
+    DRAW3D.RAY(...)
+    DRAW3D.BILLBOARD(...)
+RENDER.END3D()
+</code></pre>
+<p>Short aliases in some builds: <code>BOX</code>, <code>BALL</code>, <code>GRID3</code>, <code>FLAT</code>, <code>CAP</code> — great for jams, easy to confuse with entity ownership. Prefer entities when the thing must persist, collide, or wear a material.</p>
+<p>Debug lines: <code>DEBUG.DRAWLINE(...)</code> for "where the hell is my raycast."</p>
+<hr />
+<h2>Chapter 20 — Models, meshes, materials, textures</h2>
+<p>From <a href="systems/guides/MESHES-MODELS-MATERIALS.md"><code>MESHES-MODELS-MATERIALS.md</code></a>:</p>
+<pre><code class="language-basic">tex = TEXTURE.LOAD(&quot;assets/brick.png&quot;)
+mat = MATERIAL.CREATE()
+MATERIAL.SETTEXTURE(mat, tex)
+MATERIAL.SETCOLOR(mat, 200, 200, 200)
+
+wall = ENTITY.CREATECUBE(4, 3, 0.2)
+ENTITY.SETMATERIAL(wall, mat)
+
+heroModel = MODEL.LOAD(&quot;assets/hero.glb&quot;)
+hero = ENTITY.CREATE(&quot;Hero&quot;)
+ENTITY.SETMODEL(hero, heroModel)
+</code></pre>
+<p>Also: <code>MESH.CUBE</code> / <code>SPHERE</code> / <code>PLANE</code>, animation queries (<code>MODEL.ANIMCOUNT</code>, <code>GETANIMNAME</code>), pack loading via <code>ASSET.*</code>.</p>
+<p>Free with <code>TEXTURE.FREE</code> / <code>MODEL.FREE</code> / entity free. Unload animations before yeeting models in long sessions.</p>
+<p>Set roots:</p>
+<pre><code class="language-basic">ASSET.PATH(&quot;assets/&quot;)
+model = MODEL.LOAD(&quot;player.glb&quot;)
+</code></pre>
+<hr />
+<h2>Chapter 21 — Lights, fog, and "why is everything black"</h2>
+<p>Black scene checklist:</p>
+<ol>
+<li>Clear color + no lights + dark materials = coal mine  </li>
+<li>Camera inside mesh / under floor  </li>
+<li>Forgot <code>ENTITY.DRAWALL</code> / <code>SCENE.DRAW</code>  </li>
+<li>Drawing outside Begin/End  </li>
+<li>Fog density set to "milk"</li>
+</ol>
+<h3>Fog (Star Road style)</h3>
+<pre><code class="language-basic">WORLD.FOGMODE(1)          ; linear
+WORLD.FOGCOLOR(55, 65, 120)
+WORLD.FOGDENSITY(0.05)
+</code></pre>
+<h3>Lights</h3>
+<p>Explore <code>LIGHT.*</code> / <code>LIGHT2D.*</code>. Start with bright vertex colors on primitives before you invent a studio lighting thesis.</p>
+<h3>Post (optional flex)</h3>
+<p>Showcase toggles bloom / tonemap via <code>POST.ADD("bloom")</code>, <code>POST.SETTONEMAP(3)</code> (ACES-ish). Cool for trailers. Not required for fun.</p>
+<p>Guides: <a href="systems/guides/LIGHTING.md"><code>LIGHTING.md</code></a>, <code>examples/guides/lighting.mb</code>.</p>
+<hr />
+<h1>Part V — Physics: Newton's Revenge</h1>
+<h2>Chapter 22 — Jolt, gravity, and respectful bouncing</h2>
+<p>Desktop <strong>Windows/Linux + CGO</strong> full runtime → real Jolt. Stubs elsewhere still <strong>compile</strong> the same <code>.mb</code> (Same Path), but balls may not bounce like your dreams.</p>
+<h3>Start + step</h3>
+<pre><code class="language-basic">PHYSICS3D.START()
+PHYSICS3D.SETGRAVITY(0, -9.81, 0)
+; showcase sometimes:
+PHYSICS3D.SETTIMESTEP(90.0)
+
+; each frame:
+PHYSICS3D.UPDATE()
+; or burrito:
+UPDATEPHYSICS()   ; entity update + physics step convenience
+</code></pre>
+<h3>Bodies</h3>
+<pre><code class="language-basic">ballDef = BODY3D.CREATE(&quot;DYNAMIC&quot;)
+BODY3D.ADDSPHERE(ballDef, 1.0)
+ball = BODY3D.COMMIT(ballDef, 0, 10, 0)
+</code></pre>
+<p>Entity macros:</p>
+<pre><code class="language-basic">ENTITY.PHYSICS(floor, &quot;BOX&quot;, 0.0, 0.9, 0.0)
+</code></pre>
+<p>Static shape path (Star Road):</p>
+<pre><code class="language-basic">floorShape = SHAPE.CREATEBOX(15, 0.5, 15)
+floorBody = Static.Create(floorShape)
+floorBody.SetPos(0, 0, 0)
+</code></pre>
+<h3>Bounce / friction must reach Jolt</h3>
+<p>Setting only a visual field while the physics buffer keeps old restitution = flea-hop forever. Use APIs that update the body (<code>ENTITY.SETBOUNCE</code>, <code>ENTITY.SETFRICTION</code>, physics setters). See <a href="PHYSICS.md"><code>PHYSICS.md</code></a> for dual-path sync, visual Y snap, and tiny vertical velocity kill when grounded.</p>
+<p>Try: <code>examples/sphere_drop/main.mb</code>.</p>
+<hr />
+<h2>Chapter 23 — Characters that walk like humans (mostly)</h2>
+<p>KCC &gt; ragdoll potato for platformers.</p>
+<h3>Hop sample (<a href="../examples/mario64/modern_blitz_hop.mb"><code>modern_blitz_hop.mb</code></a>)</h3>
+<pre><code class="language-basic">PHYSICS3D.START()
+WORLD.Gravity(0, -40, 0)
+
+hero = MODEL.CREATECAPSULE(0.4, 1.0)
+hero.Pos(0, 5, 0)
+CHAR.CREATE(hero, 0.4, 1.0)
+CHAR.SETSTEP(hero, 0.3)
+CHAR.SETSLOPE(hero, 45.0)
+CHAR.STICK(hero, 0.5)
+
+floor = MODEL.CREATEBOX(100, 2, 100)
+ENTITY.PHYSICS(floor, &quot;BOX&quot;, 0.0, 0.9, 0.0)
+
+cam.Orbit(hero, 12.0)
+
+; loop:
+CHAR.MOVEWITHCAMERA(hero, cam, fwd, side, 10.0)
+IF KEYPRESSED(KEY_SPACE) AND Player.GetGrounded() THEN
+    CHAR.JUMP(hero, 12.0)
+    hero.Squash(0.5, 0.3)
+ENDIF
+UPDATEPHYSICS()
+</code></pre>
+<h3>Handle-method premium path</h3>
+<pre><code class="language-basic">hero = playerEnt.CreateCharacter(0.5, 2.0)
+hero.SetPos(0, 5, 0)
+hero.SetGravity(1.0)
+hero.SetStepHeight(0.4)
+hero.SetMaxSlope(45.0)
+hero.SetSnapDistance(0.5)
+IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN
+    hero.Jump(JUMP_FORCE)
+ENDIF
+</code></pre>
+<p>Refs: <a href="reference/CHARACTER.md"><code>CHARACTER.md</code></a>, <a href="systems/guides/CHARACTER-3D-WALKING.md"><code>CHARACTER-3D-WALKING.md</code></a>, more under <code>examples/kcc_*.mb</code>.</p>
+<hr />
+<h2>Chapter 24 — Collision without a full physics world</h2>
+<h3>2D — three paths (<a href="systems/guides/COLLISION-2D.md"><code>COLLISION-2D.md</code></a>)</h3>
+<p><strong>A. Manual rects</strong> (Pong / simple platformer):</p>
+<pre><code class="language-basic">IF py &gt;= 398 THEN
+    py = 400
+    pvy = 0
+    onGround = 1
+ENDIF
+</code></pre>
+<p><strong>B. Stateless helpers:</strong></p>
+<pre><code class="language-basic">IF COLLISION.BOXOVERLAP2D(pa, sa, bp, bs) THEN ...
+; CIRCLEOVERLAP2D, POINTINBOX2D, CIRCLEBOX2D, LINESEGINTERSECT2D
+</code></pre>
+<p><strong>C. Box2D</strong> — next chapter.</p>
+<h3>3D helpers</h3>
+<pre><code class="language-basic">IF COLLISION.SPHEREOVERLAP3D(...) THEN ...
+IF COLLISION.BOXOVERLAP3D(...) THEN ...
+
+PICK.SCREENCAST(cam)
+IF PICK.HIT() THEN hitEnt = PICK.ENTITY()
+</code></pre>
+<p>Use math overlap for triggers/pickups; use Jolt when you need stacking crates and regret.</p>
+<hr />
+<h2>Chapter 25 — 2D physics with Box2D</h2>
+<pre><code class="language-basic">PHYSICS2D.START()
+PHYSICS2D.SETGRAVITY(0, 500)
+
+def = BODY2D.CREATE(&quot;dynamic&quot;)
+BODY2D.ADDRECT(def, 28, 28)
+player = BODY2D.COMMIT(def, 120, 360)
+
+; loop:
+PHYSICS2D.STEP()
+px = BODY2D.X(player)
+py = BODY2D.Y(player)
+</code></pre>
+<p>Tune with iterations / step settings for stability vs cost (<a href="PROGRAMMING.md"><code>PROGRAMMING.md</code></a> perf notes). Guide: <a href="systems/guides/PHYSICS-2D-PLATFORMER.md"><code>PHYSICS-2D-PLATFORMER.md</code></a>.</p>
+<hr />
+<h1>Part VI — Make an Actual Game</h1>
+<h2>Chapter 26 — Platformers, hoppers, Mario-ish vibes</h2>
+<p>A game is:</p>
+<ol>
+<li>Loop that never forgets <code>FRAME</code></li>
+<li>A verb (jump, shoot, talk)</li>
+<li>Feedback (sound, squash, shake)</li>
+<li>Failure</li>
+<li>A reason to retry</li>
+</ol>
+<h3>Third-person hop recipe</h3>
+<ol>
+<li><code>PHYSICS3D.START</code>  </li>
+<li>Static floor physics  </li>
+<li>Capsule + <code>CHAR.CREATE</code> / <code>CreateCharacter</code>  </li>
+<li><code>cam.Orbit</code> / mouse look  </li>
+<li>Move in camera space  </li>
+<li>Jump when grounded  </li>
+<li><code>UPDATEPHYSICS</code>  </li>
+<li>Draw + HUD + juice  </li>
+</ol>
+<h3>Design tips</h3>
+<ul>
+<li>One verb first  </li>
+<li>Snappy camera &gt; cinematic nausea  </li>
+<li>Juice early (squash on jump is free dopamine)  </li>
+<li>Kill micro-bounce via bounce/friction + grounding, not by rewriting gravity 40 times  </li>
+</ul>
+<p>Folder of truth: <code>examples/mario64/</code>.</p>
+<hr />
+<h2>Chapter 27 — Annotated tour: Star Road showcase</h2>
+<p>File: <a href="../examples/mario64/main_easymode.mb"><code>examples/mario64/main_easymode.mb</code></a></p>
+<p>This is the "premium Easy Mode + handles" flex. Steal ideas, not necessarily every API spelling.</p>
+<h3>What it stacks</h3>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Trick</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cursor</td>
+<td><code>CURSOR.HIDE</code> / <code>SHOW</code></td>
+</tr>
+<tr>
+<td>Physics</td>
+<td><code>PHYSICS3D.SETTIMESTEP(90)</code> + <code>START</code></td>
+</tr>
+<tr>
+<td>Atmosphere</td>
+<td>Fog mode/color/density</td>
+</tr>
+<tr>
+<td>Nav</td>
+<td><code>NAV.CREATE</code> → grid → <code>Build</code> + <code>NAVAGENT</code></td>
+</tr>
+<tr>
+<td>Player</td>
+<td>Capsule → <code>CreateCharacter</code> → gravity/slope/snap</td>
+</tr>
+<tr>
+<td>Particles</td>
+<td><code>CREATEEMITTER</code> trail + bursts on stars</td>
+</tr>
+<tr>
+<td>Platforms</td>
+<td><code>TYPE Platform</code> + <code>DIM</code> + <code>SHAPE</code>/<code>Static.Create</code></td>
+</tr>
+<tr>
+<td>Camera</td>
+<td>Manual yaw/pitch from mouse deltas + <code>cam.orbit</code></td>
+</tr>
+<tr>
+<td>Collectibles</td>
+<td><code>DIST3D</code>, hide star, score++, burst</td>
+</tr>
+<tr>
+<td>Cinema</td>
+<td>F3 post stack bloom/tonemap</td>
+</tr>
+<tr>
+<td>Debug</td>
+<td>FPS graph, F1 heap dump, F4 nav debug</td>
+</tr>
+</tbody>
+</table>
+<h3>Movement sketch</h3>
+<pre><code class="language-basic">hero = playerEnt.CreateCharacter(0.5, 2.0)
+hero.SetGravity(1.0)
+; ...
+IF Player.GetGrounded() AND INPUT.KEYHIT(KEY_SPACE) THEN
+    hero.Jump(JUMP_FORCE)
+ENDIF
+cam.orbit(px0, py0 + 0.5, pz0, camYaw, camPitch, CAM_DIST)
+</code></pre>
+<h3>Why this chapter exists</h3>
+<p>Because tutorials that only show one cube lie to you about how systems compose. Star Road is composition with taste (and comments about radians).</p>
+<p>Run:</p>
+<pre><code class="language-bash">moonbasic --check examples/mario64/main_easymode.mb
+moonrun examples/mario64/main_easymode.mb
+</code></pre>
+<hr />
+<h2>Chapter 28 — Sprites, tilemaps, and the 2D renaissance</h2>
+<p>Guide: <a href="systems/guides/SPRITES-TILEMAPS-2D.md"><code>SPRITES-TILEMAPS-2D.md</code></a>. Sample: <code>examples/tilemap/</code>.</p>
+<h3>Sprite loop</h3>
+<pre><code class="language-basic">hero = SPRITE.LOAD(&quot;assets/hero.png&quot;)
+WHILE NOT APP.SHOULDCLOSE()
+    SPRITE.SETPOSITION(hero, px, py)
+    RENDER.CLEAR(40, 44, 52)
+    SPRITE.DRAW(hero)
+    RENDER.FRAME()
+WEND
+SPRITE.FREE(hero)
+</code></pre>
+<p>Jam hack: <code>SPRITE.BUILTIN("player")</code> style placeholders when art isn't ready (when available in your build).</p>
+<h3>Tilemap loop</h3>
+<pre><code class="language-basic">map = TILEMAP.LOAD(&quot;levels/arena.tmx&quot;)
+; each frame:
+TILEMAP.DRAW(map)
+; solid checks via TILEMAP.GETTILE / collision helpers
+; on level change:
+TILEMAP.FREE(map)
+</code></pre>
+<p>Draw order: map → entities/sprites → HUD.</p>
+<p>2D is not baby mode. 2D is where design skill can't hide behind bloom.</p>
+<hr />
+<h2>Chapter 29 — Audio that doesn't ghost you</h2>
+<p>Guide: <a href="systems/guides/AUDIO-FEEDBACK.md"><code>AUDIO-FEEDBACK.md</code></a>. Prefer <strong><code>AUDIO.*</code></strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SFX</td>
+<td><code>LOADSOUND</code> → <code>PLAYSOUND</code> → <code>FREESOUND</code></td>
+</tr>
+<tr>
+<td>Music</td>
+<td><code>LOADMUSIC</code> → <code>PLAYMUSIC</code> → <strong><code>UPDATEMUSIC</code> every frame</strong> → <code>STOPMUSIC</code></td>
+</tr>
+<tr>
+<td>3D</td>
+<td><code>LISTENERCAMERA(cam)</code> + positional play</td>
+</tr>
+<tr>
+<td>Pack</td>
+<td><code>ASSET.LOADPACK</code> → <code>ASSET.SOUND("jump")</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-basic">jump = AUDIO.LOADSOUND(&quot;audio/jump.wav&quot;)
+IF ACTION.HIT(&quot;Jump&quot;) THEN AUDIO.PLAYSOUND(jump)
+
+theme = AUDIO.LOADMUSIC(&quot;audio/theme.ogg&quot;)
+AUDIO.PLAYMUSIC(theme)
+; EACH FRAME:
+AUDIO.UPDATEMUSIC(theme)
+</code></pre>
+<h3>How to silence yourself by accident</h3>
+<table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Never <code>UPDATEMUSIC</code></td>
+<td>Theme is a ghost</td>
+</tr>
+<tr>
+<td><code>LOADSOUND</code> every jump</td>
+<td>Leak city</td>
+</tr>
+<tr>
+<td>3D SFX, no listener</td>
+<td>Wrong / silent pan</td>
+</tr>
+<tr>
+<td>Path typo</td>
+<td>Perfect quiet</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Chapter 30 — GUI menus that don't softlock</h2>
+<p>Immediate-mode raygui wrappers. Widgets return state <strong>every frame</strong>.</p>
+<h3>Counter (<a href="../examples/gui_counter/main.mb"><code>examples/gui_counter/main.mb</code></a>)</h3>
+<pre><code class="language-basic">APP.OPEN(800, 520, &quot;GUI counter&quot;)
+GUI.ENABLE()
+GUI.THEMEAPPLY(&quot;DARK&quot;)
+uiFont = FONT.LOAD(&quot;examples/gui_counter/fonts/InterVariable.ttf&quot;)
+GUI.SETFONT(uiFont)
+count = 0
+
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    RENDER.CLEAR(28, 30, 38)
+    IF GUI.WINDOWBOX(56, 48, 688, 360, &quot;Counter&quot;) THEN count = 0
+    IF GUI.BUTTON(72, 144, 168, 44, &quot;+1&quot;) THEN count = count + 1
+    IF GUI.BUTTON(256, 144, 168, 44, &quot;Reset&quot;) THEN count = 0
+    GUI.LABEL(72, 212, 640, 40, &quot;Count = &quot; + STR(count))
+    RENDER.FRAME()
+WEND
+</code></pre>
+<h3>Form junkfood</h3>
+<pre><code class="language-basic">name = GUI.TEXTBOX(20, 48, 320, 28, name, 64, editName)
+volume = GUI.SLIDER(20, 92, 360, 24, &quot;Volume&quot;, &quot;&quot;, volume, 0.0, 100.0)
+muted = GUI.CHECKBOX(400, 92, 120, 24, &quot;Mute&quot;, muted)
+tabClose = GUI.TABBAR(20, 152, 420, 28, &quot;Stats;Audio;Debug&quot;, tabs)
+</code></pre>
+<p>Themes: <code>GUI.THEMEAPPLY("DARK"|"LIGHT"|"CYBER"|"CANDY"|"TERMINAL"|…)</code> — see <code>examples/gui_theme/</code>.</p>
+<p><strong>Softlock prevention:</strong> always have ESC / window close / a Resume button that actually sets <code>paused = 0</code>. Menus without exits are how demos become hostage situations.</p>
+<hr />
+<h2>Chapter 31 — Particles and juice</h2>
+<h3>Canonical emitter (<a href="../examples/guides/particles.mb"><code>examples/guides/particles.mb</code></a>)</h3>
+<pre><code class="language-basic">fx = PARTICLE.CREATE()
+PARTICLE.SETRATE(fx, 60)
+PARTICLE.SETLIFETIME(fx, 0.4, 1.2)
+PARTICLE.SETSPEED(fx, 1, 3)
+PARTICLE.SETCOLOR(fx, 255, 200, 80, 255)
+PARTICLE.SETCOLOREND(fx, 255, 80, 20, 0)
+PARTICLE.SETPOS(fx, 0, 1, 0)
+PARTICLE.PLAY(fx)
+
+; loop:
+PARTICLE.UPDATE(fx, APP.DELTA())
+; inside 3D pass:
+PARTICLE.DRAW(fx)
+
+PARTICLE.FREE(fx)
+</code></pre>
+<p>Also: <code>SETTEXTURE</code>, <code>SETGRAVITY</code>, <code>SETSPREAD</code>, <code>SETBURST</code>, <code>STOP</code>. Easy Mode aliases in Mario samples: <code>CREATEEMITTER</code>, <code>EMITPARTICLE</code>, etc.</p>
+<h3>Juice checklist</h3>
+<ul>
+<li>[ ] Shake on big hits  </li>
+<li>[ ] SFX on every verb  </li>
+<li>[ ] Damage flash  </li>
+<li>[ ] Jump/land squash  </li>
+<li>[ ] Score popups  </li>
+<li>[ ] Pause that unpauses  </li>
+</ul>
+<p>Juice is not "polish later." Juice is how a cube becomes a character.</p>
+<hr />
+<h2>Chapter 32 — Math helpers so you stop reinventingSQRT</h2>
+<p>Guides under <code>docs/systems/guides/math/</code>. Samples: <code>examples/guides/math/*.mb</code>.</p>
+<h3>VEC2</h3>
+<pre><code class="language-basic">vel = VEC2.CREATE(dx, dy)
+nrm = VEC2.NORMALIZE(vel)
+px = px + VEC2.X(nrm) * speed * APP.DELTA()
+VEC2.FREE(nrm)
+VEC2.FREE(vel)
+</code></pre>
+<p>Helpers: <code>ROTATE</code>, <code>LERP</code>, <code>MOVE_TOWARD</code>, <code>PUSHOUT</code>, <code>LENGTH</code>, <code>DIST</code>, <code>DISTSQ</code>. Scalar overloads often return multi-values without a handle — prefer those when you can to avoid churn.</p>
+<h3>VEC3</h3>
+<p><code>DOT</code>, <code>CROSS</code>, <code>REFLECT</code>, <code>PROJECT</code>, <code>NORMALIZE</code>, rotate/transform helpers.</p>
+<pre><code class="language-basic">dir = VEC3.NORMALIZE(dx, dy, dz)
+px = px + VEC3.X(dir) * speed * APP.DELTA()
+</code></pre>
+<h3>Prefer scalars when hot</h3>
+<p><code>MATH.DIST2D</code>, <code>MATH.HDISTSQ</code>, clamp/lerp/angle helpers — less handle traffic in tight loops. See also <a href="reference/LESS_MATH.md"><code>LESS_MATH.md</code></a> for gameplay shortcuts (spawn rings, land snaps, etc.).</p>
+<hr />
+<h2>Chapter 33 — Saves, files, JSON</h2>
+<p>Guides: <a href="systems/guides/FILES-AND-JSON.md"><code>FILES-AND-JSON.md</code></a>, <a href="systems/guides/SAVE-AND-PROGRESS.md"><code>SAVE-AND-PROGRESS.md</code></a>. Samples: <code>examples/guides/files_json.mb</code>, <code>save_progress.mb</code>.</p>
+<h3>JSON config</h3>
+<pre><code class="language-basic">IF FILE.EXISTS(&quot;options.json&quot;) THEN
+    rawJson = FILE.READTEXT(&quot;options.json&quot;)
+    doc = JSON.PARSESTRING(rawJson)
+    volume = JSON.GETFLOAT(doc, &quot;audio.volume&quot;)
+    JSON.FREE(doc)
+ENDIF
+
+doc = JSON.PARSESTRING(&quot;{\&quot;audio\&quot;:{\&quot;volume\&quot;:0}}&quot;)
+JSON.SETFLOAT(doc, &quot;audio.volume&quot;, volume)
+FILE.WRITETEXT(&quot;options.json&quot;, JSON.STRINGIFY(doc))
+JSON.FREE(doc)
+</code></pre>
+<p>Path syntax like <code>"player.health"</code> on get/set is a thing — see JSON reference.</p>
+<h3>SAVE table</h3>
+<pre><code class="language-basic">IF FILE.EXISTS(&quot;save1.json&quot;) THEN SAVE.READ(&quot;save1.json&quot;)
+level = SAVE.GET(&quot;level&quot;)
+SAVE.SET(&quot;best&quot;, score)
+SAVE.WRITE(&quot;hiscore.json&quot;)
+</code></pre>
+<p>Also: <code>FILE.DELETE</code>, <code>DB</code> / <code>CSV</code> when your game becomes a spreadsheet with trauma.</p>
+<p>Don't store secrets in the zip. Future-you is watching.</p>
+<hr />
+<h1>Part VII — Bigger Than Your Bedroom</h1>
+<h2>Chapter 34 — Assets pipeline and packs</h2>
+<pre><code class="language-basic">ASSET.PATH(&quot;assets/&quot;)
+ASSET.LOADPACK(&quot;assets/assets.json&quot;)
+tex = ASSET.TEXTURE(&quot;player&quot;)
+mdl = ASSET.MODEL(&quot;hero&quot;)
+sfx = ASSET.SOUND(&quot;jump&quot;)
+</code></pre>
+<p>Example manifest shape:</p>
+<pre><code class="language-json">{
+  &quot;textures&quot;: { &quot;player&quot;: &quot;textures/player.png&quot; },
+  &quot;models&quot;: { &quot;hero&quot;: &quot;models/hero.glb&quot; },
+  &quot;sounds&quot;: { &quot;jump&quot;: &quot;audio/jump.wav&quot; }
+}
+</code></pre>
+<p>Guides: <a href="systems/guides/ASSETS-PIPELINE.md"><code>ASSETS-PIPELINE.md</code></a>, <a href="systems/guides/PROJECT-WORKFLOW.md"><code>PROJECT-WORKFLOW.md</code></a>.</p>
+<p>Benefits: one load path, named lookups, fewer stringly-typed typos sprinkled through combat code.</p>
+<hr />
+<h2>Chapter 35 — Terrain, open worlds, atmosphere</h2>
+<p>When a floor box isn't enough: <code>TERRAIN.*</code>, streaming, scatter, <code>WATER</code>, <code>SKY</code>, <code>WEATHER</code>, <code>WORLD.*</code>.</p>
+<p>Samples:</p>
+<ul>
+<li><code>examples/terrain_chase/</code></li>
+<li><code>examples/terrain_colored/</code></li>
+<li><code>examples/terrain_async/</code></li>
+</ul>
+<p>Guide: <a href="systems/guides/TERRAIN-OPEN-WORLD.md"><code>TERRAIN-OPEN-WORLD.md</code></a>.</p>
+<h3>Hard-knock advice</h3>
+<ol>
+<li>Prototype the verb on a flat box  </li>
+<li>Add terrain when jumping already feels good  </li>
+<li>Profile before inventing Engine 2 inside Engine 1  </li>
+<li>Fog + sky tint hide a lot of sins (use wisely)</li>
+</ol>
+<p>Nav mesh (from Star Road):</p>
+<pre><code class="language-basic">nav = NAV.CREATE()
+nav.SetGrid(60, 60, 0.5, -15, -15)
+nav.Build()
+agent = NAVAGENT.CREATE(nav)
+agent.SetSpeed(3.0)
+</code></pre>
+<p>AI namespaces also include <code>STEER</code>, <code>BTREE</code> — for when enemies need hobbies.</p>
+<hr />
+<h2>Chapter 36 — Multiplayer: when friends become lag</h2>
+<p>Tutorial: <a href="tutorials/FIRST_MULTIPLAYER_GAME.md"><code>FIRST_MULTIPLAYER_GAME.md</code></a>. Guides: <a href="systems/guides/MULTIPLAYER.md"><code>MULTIPLAYER.md</code></a>.</p>
+<h3>Layers</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Namespaces</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High</td>
+<td><code>SERVER</code>, <code>CLIENT</code>, <code>RPC</code></td>
+<td>Gameplay messages</td>
+</tr>
+<tr>
+<td>Mid</td>
+<td><code>NET</code>, packets</td>
+<td>Custom protocols</td>
+</tr>
+<tr>
+<td>Low</td>
+<td><code>ENET</code></td>
+<td>You enjoy pain</td>
+</tr>
+<tr>
+<td>Social-ish</td>
+<td><code>LOBBY</code></td>
+<td>In-process lobby helpers — not Steam</td>
+</tr>
+</tbody>
+</table>
+<h3>Critical rule</h3>
+<p><strong>You must <code>TICK</code> every frame.</strong> There is no magical background game thread babysitting the network while you nap.</p>
+<h3>Host / client sketch (<code>testdata/mp_host.mb</code> / <code>mp_client.mb</code>)</h3>
+<pre><code class="language-basic">; Host
+SERVER.START(27777, 8)
+WHILE done = 0
+    SERVER.TICK(0.016)
+WEND
+SERVER.STOP()
+
+FUNCTION PING(msg, peerH)
+    done = 1
+ENDFUNCTION
+</code></pre>
+<pre><code class="language-basic">; Client
+CLIENT.CONNECT(&quot;127.0.0.1&quot;, 27777)
+CLIENT.ONCONNECT(&quot;ONCONNECTED&quot;)
+FUNCTION ONCONNECTED()
+    RPC.CALLSERVER(&quot;PING&quot;, &quot;hello&quot;)
+ENDFUNCTION
+WHILE i &lt; 2000
+    CLIENT.TICK(0.016)
+    i = i + 1
+WEND
+CLIENT.STOP()
+</code></pre>
+<p>Two terminals, same machine, firewall may still yell about ports. Start local before inviting Discord.</p>
+<p>Brutal truths: pick sync model; don't trust clients with gold; latency is real; multiplayer is a second game bolted onto the first.</p>
+<hr />
+<h2>Chapter 37 — Easy Mode for Blitz dinosaurs</h2>
+<p>Full map: <a href="EASY_MODE.md"><code>EASY_MODE.md</code></a>. Migration: <a href="reference/MIGRATION.md"><code>MIGRATION.md</code></a>. Index: <a href="reference/BLITZ_COMMAND_INDEX.md"><code>BLITZ_COMMAND_INDEX.md</code></a>.</p>
+<table>
+<thead>
+<tr>
+<th>Easy Mode</th>
+<th>Canonical</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Graphics(w,h,title)</code></td>
+<td><code>WINDOW.OPEN</code> / <code>APP.OPEN</code></td>
+</tr>
+<tr>
+<td><code>CreateCamera()</code></td>
+<td><code>CAMERA.CREATE</code></td>
+</tr>
+<tr>
+<td><code>KeyDown</code> / <code>KeyHit</code></td>
+<td><code>INPUT.KEYDOWN</code> / <code>KEYPRESSED</code></td>
+</tr>
+<tr>
+<td><code>UpdatePhysics()</code></td>
+<td><code>UPDATEPHYSICS</code></td>
+</tr>
+<tr>
+<td><code>PositionEntity</code></td>
+<td><code>ENTITY.SETPOS</code></td>
+</tr>
+<tr>
+<td><code>Millisecs()</code></td>
+<td><code>TIME.MILLIS</code></td>
+</tr>
+<tr>
+<td><code>CreateCamera2D</code></td>
+<td><code>CAMERA2D.CREATE</code></td>
+</tr>
+</tbody>
+</table>
+<p>Policy: learn <code>Namespace.Method</code> + handles first. Use Easy Mode to port, not to hide forever. <strong>No <code>#</code> <code>$</code> <code>?</code> <code>%</code> suffixes.</strong></p>
+<hr />
+<h2>Chapter 38 — Memory, FREE, and not leaking the moon</h2>
+<p>Doc: <a href="MEMORY.md"><code>MEMORY.md</code></a>.</p>
+<h3>Three layers of "memory"</h3>
+<ol>
+<li>Go GC (engine internals — not your problem daily)  </li>
+<li>Native Raylib / Jolt allocations  </li>
+<li>VM handle table (textures, arrays, cameras, …)</li>
+</ol>
+<h3>Habits</h3>
+<pre><code class="language-basic">cube.free()
+cam.free()
+TEXTURE.FREE(tex)
+PARTICLE.FREE(fx)
+ERASE enemies
+
+; scene teardown / shutdown:
+ERASE ALL
+APP.CLOSE()
+</code></pre>
+<ul>
+<li>Per-resource free during long sessions  </li>
+<li><code>FreeAll</code> / <code>ERASE ALL</code> as safety net at shutdown  </li>
+<li>Entity numeric IDs need entity APIs, not only <code>ERASE ALL</code>  </li>
+<li>Shared / borrowed textures: free the owner, not every view  </li>
+<li>Don't free mid-expression while still using the handle</li>
+</ul>
+<p>Leaks feel like "my game gets slower after 20 minutes." That's not vibes. That's you.</p>
+<hr />
+<h1>Part VIII — Shipping &amp; Surviving</h1>
+<h2>Chapter 39 — Debug like a detective</h2>
+<pre><code class="language-basic">ASSERT(playerTex &lt;&gt; 0, &quot;Failed to load player texture!&quot;)
+DEBUG.ASSERT(health &gt;= 0, &quot;Health went negative!&quot;)
+
+DEBUG.ENABLE()
+DEBUG.WATCH(&quot;fps&quot;, APP.GETFPS())
+DEBUG.WATCH(&quot;hp&quot;, hp)
+DEBUG.LOG(&quot;Spawn wave &quot; + STR(wave))
+DEBUG.DRAWLINE(0, 0, 0, 5, 0, 0)
+
+HELP(&quot;ENTITY.SETPOS&quot;)
+HELP(&quot;CAMERA&quot;)
+</code></pre>
+<p>CLI:</p>
+<pre><code class="language-bash">moonbasic --check main.mb
+</code></pre>
+<p>Showcase hooks: <code>DEBUG.SHOWFPSGRAPH</code>, <code>DEBUG.DUMPHEAP</code>, <code>DEBUG.LISTCOMMANDS</code>.</p>
+<p>Guide: <a href="systems/guides/DEBUG-AND-TESTING.md"><code>DEBUG-AND-TESTING.md</code></a>.</p>
+<h3>Greatest hits bugs</h3>
+<ol>
+<li>Forgot <code>RENDER.FRAME()</code>  </li>
+<li><code>moonbasic</code> instead of <code>moonrun</code>  </li>
+<li><code>NOT a OR b</code>  </li>
+<li>Shadowed namespace variable  </li>
+<li>Stub physics / no CGO expectations  </li>
+<li>Camera inside floor  </li>
+<li>HUD drawn with wrong depth / inside 3D pass unexpectedly  </li>
+<li>Music never <code>UPDATEMUSIC</code>  </li>
+<li>Asset path wrong because you launched from the wrong cwd  </li>
+</ol>
+<hr />
+<h2>Chapter 40 — Performance without becoming a monk</h2>
+<p>From <a href="PROGRAMMING.md"><code>PROGRAMMING.md</code></a> and lived trauma:</p>
+<ul>
+<li>Multiply motion by <code>DELTA</code>  </li>
+<li>One physics step strategy — don't step three times "for smoothness" unless you know why  </li>
+<li>Free handles; avoid per-frame <code>LOAD</code>  </li>
+<li>Prefer scalar math helpers over allocate-normalize-free every entity  </li>
+<li>Match iterations to need (<code>Physics2D.SetIterations</code> etc.)  </li>
+<li>Don't draw the whole universe when a chunk system exists  </li>
+<li>Profile before rewriting — feelings aren't metrics  </li>
+</ul>
+<p>Good enough at 60 FPS ships. Perfect at 0 FPS doesn't.</p>
+<hr />
+<h2>Chapter 41 — Ship it to other humans</h2>
+<p>Official: <a href="GETTING_STARTED.md"><code>GETTING_STARTED.md</code></a> § Ship your game.</p>
+<h3>Option A — players install runtime</h3>
+<p>Ship your <code>.mb</code> / <code>.mbc</code> + <code>assets/</code>. They install the <strong>same-tag full runtime</strong> (not compiler-only). Run: <code>moonrun main.mb</code>.</p>
+<h3>Option B — zip the runtime with the game</h3>
+<p>Folder containing <code>moonrun</code> + game + assets. Double-click / <code>Play.bat</code>:</p>
+<pre><code class="language-bat">@echo off
+moonrun main.mb
+</code></pre>
+<p><code>moonbasic package windows</code> / <code>linux</code> helps when available in your release.</p>
+<h3>Checklist</h3>
+<ul>
+<li>[ ] Same release tag for engine + bytecode  </li>
+<li>[ ] Assets paths work from the shipped cwd  </li>
+<li>[ ] README with controls  </li>
+<li>[ ] No secrets in the zip  </li>
+<li>[ ] You actually tested the zip on a clean folder  </li>
+</ul>
+<hr />
+<h2>Chapter 42 — Where to go next</h2>
+<h3>Learning path</h3>
+<ol>
+<li>Window + text  </li>
+<li>Pong  </li>
+<li>Spin cube  </li>
+<li>Orbit hop  </li>
+<li>Juice pass  </li>
+<li>Content pass (tilemap / second level)  </li>
+<li>Only then: net / open world / shader rabbit holes  </li>
+</ol>
+<h3>Official trails</h3>
+<table>
+<thead>
+<tr>
+<th>Want</th>
+<th>Go</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install</td>
+<td><code>BEGIN_HERE.md</code></td>
+</tr>
+<tr>
+<td>Language law</td>
+<td><code>LANGUAGE.md</code></td>
+</tr>
+<tr>
+<td>Programming</td>
+<td><code>PROGRAMMING.md</code></td>
+</tr>
+<tr>
+<td>Every command</td>
+<td><code>API_CONSISTENCY.md</code></td>
+</tr>
+<tr>
+<td>Topic index</td>
+<td><code>COMMANDS.md</code></td>
+</tr>
+<tr>
+<td>40 systems</td>
+<td><code>systems/README.md</code></td>
+</tr>
+<tr>
+<td>Guides</td>
+<td><code>systems/GUIDES.md</code></td>
+</tr>
+<tr>
+<td>Physics</td>
+<td><code>PHYSICS.md</code></td>
+</tr>
+<tr>
+<td>Status</td>
+<td><code>STATE_OF_THE_UNION.md</code></td>
+</tr>
+<tr>
+<td>Examples</td>
+<td><code>examples/README.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Burnout protocol</h3>
+<p>Ship tiny. Limit scope. When stuck &gt;30 minutes: <code>--check</code>, simplify to a cube. Touch grass. The moon will wait.</p>
+<hr />
+<h1>Appendices</h1>
+<h2>Appendix A — Mega cheat sheet</h2>
+<pre><code class="language-basic">; --- Window / loop ---
+APP.OPEN(w, h, &quot;title&quot;)
+APP.SETFPS(60)
+dt = APP.DELTA()
+WHILE NOT (INPUT.KEYDOWN(KEY_ESCAPE) OR APP.SHOULDCLOSE())
+    RENDER.CLEAR(r, g, b)
+    RENDER.FRAME()
+WEND
+APP.CLOSE()
+
+; --- 2D ---
+DRAW.RECTANGLE(x, y, w, h, r, g, b, a)
+DRAW.CIRCLE(x, y, rad, r, g, b, a)
+DRAW.TEXT(msg, x, y, size, r, g, b, a)
+CAMERA2D.BEGIN(cam2d) ... CAMERA2D.END()
+
+; --- 3D ---
+cam = CAMERA.CREATE().fov(60)
+cube = ENTITY.CREATECUBE(1, 1, 1).pos(0, 1, 0).col(255, 200, 50)
+cam.Begin()
+    DRAW3D.GRID(20, 1)
+    ENTITY.DRAWALL()
+cam.End()
+
+; --- Input ---
+INPUT.KEYDOWN(KEY_W)
+INPUT.KEYPRESSED(KEY_SPACE)
+INPUT.AXIS(KEY_S, KEY_W)
+ACTION.MAPKEY(&quot;Jump&quot;, KEY_SPACE)
+ACTION.HIT(&quot;Jump&quot;)
+CURSOR.HIDE() : CURSOR.DISABLE()
+
+; --- Physics ---
+PHYSICS3D.START()
+UPDATEPHYSICS()
+ENTITY.PHYSICS(floor, &quot;BOX&quot;, 0, 0.9, 0)
+hero = ent.CreateCharacter(0.5, 2.0)
+hero.Jump(9)
+
+; --- Audio ---
+sfx = AUDIO.LOADSOUND(&quot;a.wav&quot;)
+AUDIO.PLAYSOUND(sfx)
+AUDIO.UPDATEMUSIC(theme)
+
+; --- Particles ---
+fx = PARTICLE.CREATE()
+PARTICLE.PLAY(fx)
+PARTICLE.UPDATE(fx, dt)
+PARTICLE.DRAW(fx)
+
+; --- Data ---
+PRINT($&quot;hp={hp}&quot;)
+FILE.WRITETEXT(&quot;o.json&quot;, JSON.STRINGIFY(doc))
+SAVE.SET(&quot;best&quot;, score) : SAVE.WRITE(&quot;s.json&quot;)
+
+; --- Debug ---
+ASSERT(ok &lt;&gt; 0, &quot;nope&quot;)
+DEBUG.WATCH(&quot;hp&quot;, hp)
+HELP(&quot;CAMERA.CREATE&quot;)
+
+; --- Cleanup ---
+cube.free() : cam.free() : ERASE ALL
+</code></pre>
+<pre><code class="language-bash">moonbasic new MyGame
+moonrun main.mb
+moonbasic --check main.mb
+moonbasic main.mb
+moonbasic install-vscode
+</code></pre>
+<hr />
+<h2>Appendix B — Namespace phone book</h2>
+<p>Curated from <a href="COMMAND_AUDIT.md"><code>COMMAND_AUDIT.md</code></a> (~160 namespaces exist — this is the party list):</p>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>One-liner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(global)</code></td>
+<td>PRINT, math, strings, arrays, misc builtins</td>
+</tr>
+<tr>
+<td><code>ACTION</code></td>
+<td>Named input actions</td>
+</tr>
+<tr>
+<td><code>AUDIO</code> / <code>SOUND</code> / <code>MUSIC</code></td>
+<td>Playback</td>
+</tr>
+<tr>
+<td><code>BODY2D</code> / <code>PHYSICS2D</code> / <code>BOX2D</code></td>
+<td>2D physics</td>
+</tr>
+<tr>
+<td><code>BODY3D</code> / <code>PHYSICS3D</code> / <code>JOLT</code> / <code>JOINT3D</code></td>
+<td>3D physics</td>
+</tr>
+<tr>
+<td><code>CAMERA</code> / <code>CAMERA2D</code></td>
+<td>Views</td>
+</tr>
+<tr>
+<td><code>CHAR</code> / <code>CHARACTER</code> / <code>CHARACTERREF</code> / <code>CHARCONTROLLER</code> / <code>PLAYER</code></td>
+<td>Characters / KCC</td>
+</tr>
+<tr>
+<td><code>COLLISION</code></td>
+<td>Overlap tests</td>
+</tr>
+<tr>
+<td><code>CURSOR</code></td>
+<td>Mouse cursor / lock</td>
+</tr>
+<tr>
+<td><code>DEBUG</code></td>
+<td>Watches, asserts, overlays</td>
+</tr>
+<tr>
+<td><code>DRAW</code> / <code>DRAW3D</code></td>
+<td>Immediate mode drawing</td>
+</tr>
+<tr>
+<td><code>ENTITY</code> / <code>SCENE</code></td>
+<td>Scene objects</td>
+</tr>
+<tr>
+<td><code>FILE</code> / <code>JSON</code> / <code>SAVE</code> / <code>DB</code> / <code>CSV</code> / <code>CONFIG</code></td>
+<td>Data on disk</td>
+</tr>
+<tr>
+<td><code>GUI</code> / <code>UI</code> / <code>FONT</code></td>
+<td>Menus &amp; text</td>
+</tr>
+<tr>
+<td><code>INPUT</code> / <code>GAMEPAD</code> / <code>KEY</code> / <code>MOUSE</code></td>
+<td>Devices</td>
+</tr>
+<tr>
+<td><code>LIGHT</code> / <code>LIGHT2D</code></td>
+<td>Lighting</td>
+</tr>
+<tr>
+<td><code>MATERIAL</code> / <code>MESH</code> / <code>MODEL</code> / <code>TEXTURE</code> / <code>IMAGE</code></td>
+<td>Art</td>
+</tr>
+<tr>
+<td><code>MATH</code> / <code>VEC2</code> / <code>VEC3</code> / <code>QUAT</code> / <code>MAT4</code> / <code>RAND</code></td>
+<td>Math</td>
+</tr>
+<tr>
+<td><code>NET</code> / <code>SERVER</code> / <code>CLIENT</code> / <code>RPC</code> / <code>ENET</code> / <code>LOBBY</code></td>
+<td>Multiplayer</td>
+</tr>
+<tr>
+<td><code>PARTICLE</code> / <code>PARTICLE2D</code> / <code>PARTICLE3D</code></td>
+<td>Juice</td>
+</tr>
+<tr>
+<td><code>PICK</code> / <code>RAY</code> / <code>RAY2D</code></td>
+<td>Picking</td>
+</tr>
+<tr>
+<td><code>RENDER</code> / <code>POST</code> / <code>SHADER</code> / <code>EFFECT</code></td>
+<td>Frame &amp; post</td>
+</tr>
+<tr>
+<td><code>SPRITE*</code> / <code>TILEMAP</code> / <code>ATLAS</code></td>
+<td>2D world</td>
+</tr>
+<tr>
+<td><code>TERRAIN</code> / <code>WORLD</code> / <code>WATER</code> / <code>SKY</code> / <code>WEATHER</code></td>
+<td>Outdoors</td>
+</tr>
+<tr>
+<td><code>TIME</code> / <code>TIMER</code> / <code>STOPWATCH</code></td>
+<td>Clocks</td>
+</tr>
+<tr>
+<td><code>TWEEN</code> / <code>TRANSITION</code></td>
+<td>Motion / fades</td>
+</tr>
+<tr>
+<td><code>WINDOW</code> / <code>APP</code> / <code>GAME</code> / <code>SYSTEM</code></td>
+<td>Platform</td>
+</tr>
+<tr>
+<td><code>NAV</code> / <code>NAVAGENT</code> / <code>STEER</code> / <code>BTREE</code></td>
+<td>AI</td>
+</tr>
+<tr>
+<td><code>ASSET</code></td>
+<td>Packs &amp; roots</td>
+</tr>
+<tr>
+<td><code>COROUTINE</code></td>
+<td>Async-ish scripts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Appendix C — Common "why is it broken" list</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No window</td>
+<td><code>moonbasic</code> not <code>moonrun</code>; compiler-only zip</td>
+</tr>
+<tr>
+<td>Blank / frozen</td>
+<td>Missing <code>RENDER.FRAME()</code></td>
+</tr>
+<tr>
+<td>Weird quit loop</td>
+<td><code>NOT a OR b</code></td>
+</tr>
+<tr>
+<td>Speed changes with FPS</td>
+<td>Forgot <code>* DELTA()</code></td>
+</tr>
+<tr>
+<td>Black 3D</td>
+<td>Camera / lights / not drawing</td>
+</tr>
+<tr>
+<td>Physics meh</td>
+<td>Stub/no CGO; never <code>UPDATE</code></td>
+</tr>
+<tr>
+<td>Unknown command</td>
+<td>Typo; shadowed namespace</td>
+</tr>
+<tr>
+<td>Silent music</td>
+<td>No <code>UPDATEMUSIC</code></td>
+</tr>
+<tr>
+<td>Works only on your PC</td>
+<td>Paths, cwd, GPU, tag mismatch</td>
+</tr>
+<tr>
+<td>Slow over time</td>
+<td>Leaking loads / never <code>FREE</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Appendix D — Map of the official docs</h2>
+<table>
+<thead>
+<tr>
+<th>Doc</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BEGIN_HERE.md</code></td>
+<td>Start</td>
+</tr>
+<tr>
+<td><code>GETTING_STARTED.md</code></td>
+<td>Install + ship</td>
+</tr>
+<tr>
+<td><code>FIRST_HOUR.md</code></td>
+<td>Beginner philosophy</td>
+</tr>
+<tr>
+<td><code>LANGUAGE.md</code></td>
+<td>Language law</td>
+</tr>
+<tr>
+<td><code>PROGRAMMING.md</code></td>
+<td>Structure + perf</td>
+</tr>
+<tr>
+<td><code>STYLE_GUIDE.md</code></td>
+<td>Taste</td>
+</tr>
+<tr>
+<td><code>EASY_MODE.md</code></td>
+<td>Blitz jacket</td>
+</tr>
+<tr>
+<td><code>API_STANDARDIZATION_DIRECTIVE.md</code></td>
+<td>Constitution</td>
+</tr>
+<tr>
+<td><code>API_CONSISTENCY.md</code></td>
+<td>Every command</td>
+</tr>
+<tr>
+<td><code>COMMAND_AUDIT.md</code></td>
+<td>Namespace map</td>
+</tr>
+<tr>
+<td><code>COMMANDS.md</code></td>
+<td>Topic index</td>
+</tr>
+<tr>
+<td><code>PHYSICS.md</code></td>
+<td>Jolt truth</td>
+</tr>
+<tr>
+<td><code>MEMORY.md</code></td>
+<td>Handles &amp; FreeAll</td>
+</tr>
+<tr>
+<td><code>systems/README.md</code></td>
+<td>40 systems</td>
+</tr>
+<tr>
+<td><code>systems/GUIDES.md</code></td>
+<td>Quests</td>
+</tr>
+<tr>
+<td><code>architecture/HAL_AND_RENDERING.md</code></td>
+<td>Pixels escape plan</td>
+</tr>
+<tr>
+<td><code>ARCHITECTURE.md</code></td>
+<td>Compiler/VM</td>
+</tr>
+<tr>
+<td><code>STATE_OF_THE_UNION.md</code></td>
+<td>Current goals</td>
+</tr>
+<tr>
+<td><code>examples/README.md</code></td>
+<td>Runnable catalog</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Appendix E — Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.mb</code> / <code>.mbc</code></td>
+<td>Source / bytecode</td>
+</tr>
+<tr>
+<td><code>moonrun</code></td>
+<td>Play the damn game</td>
+</tr>
+<tr>
+<td><code>moonbasic</code></td>
+<td>Check / compile / LSP / scaffold</td>
+</tr>
+<tr>
+<td>Namespace</td>
+<td><code>ENTITY</code>, <code>CAMERA</code>, …</td>
+</tr>
+<tr>
+<td>Handle</td>
+<td>Live engine object reference</td>
+</tr>
+<tr>
+<td>Easy Mode</td>
+<td>Blitz-style wrappers; secondary</td>
+</tr>
+<tr>
+<td>fullruntime</td>
+<td>Build tag with graphical engine</td>
+</tr>
+<tr>
+<td>HAL</td>
+<td>Null vs Raylib drivers</td>
+</tr>
+<tr>
+<td>Jolt / Box2D</td>
+<td>3D / 2D physics</td>
+</tr>
+<tr>
+<td>KCC</td>
+<td>Kinematic character controller</td>
+</tr>
+<tr>
+<td>Same Path</td>
+<td>One <code>.mb</code> on Win/Linux</td>
+</tr>
+<tr>
+<td>Juice</td>
+<td>Feedback that feels good</td>
+</tr>
+<tr>
+<td>ACTION</td>
+<td>Named remappable input</td>
+</tr>
+<tr>
+<td>INCLUDE</td>
+<td>Compile-time file merge</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Appendix F — Sample catalog (steal these)</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Steal for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>examples/guides/game_loop.mb</code></td>
+<td>Minimal loop</td>
+</tr>
+<tr>
+<td><code>examples/pong/main.mb</code></td>
+<td>2D + input + HUD</td>
+</tr>
+<tr>
+<td><code>examples/platformer/main.mb</code></td>
+<td>2D jump spite</td>
+</tr>
+<tr>
+<td><code>examples/tilemap/</code></td>
+<td>Tiled levels</td>
+</tr>
+<tr>
+<td><code>examples/spin_cube/main.mb</code></td>
+<td>First 3D</td>
+</tr>
+<tr>
+<td><code>examples/sphere_drop/main.mb</code></td>
+<td>Jolt drop</td>
+</tr>
+<tr>
+<td><code>examples/mario64/modern_blitz_hop.mb</code></td>
+<td>Orbit + KCC intro</td>
+</tr>
+<tr>
+<td><code>examples/mario64/main_easymode.mb</code></td>
+<td>Showcase composition</td>
+</tr>
+<tr>
+<td><code>examples/mario64/main_entities.mb</code></td>
+<td>Entity graph / CI check</td>
+</tr>
+<tr>
+<td><code>examples/guides/particles.mb</code></td>
+<td>Emitters</td>
+</tr>
+<tr>
+<td><code>examples/guides/lighting.mb</code></td>
+<td>Lights</td>
+</tr>
+<tr>
+<td><code>examples/guides/files_json.mb</code></td>
+<td>JSON</td>
+</tr>
+<tr>
+<td><code>examples/guides/save_progress.mb</code></td>
+<td>Saves</td>
+</tr>
+<tr>
+<td><code>examples/guides/math/*</code></td>
+<td>Vectors &amp; angles</td>
+</tr>
+<tr>
+<td><code>examples/gui_counter/</code></td>
+<td>Buttons</td>
+</tr>
+<tr>
+<td><code>examples/gui_form/</code></td>
+<td>Forms</td>
+</tr>
+<tr>
+<td><code>examples/gui_theme/</code></td>
+<td>Themes</td>
+</tr>
+<tr>
+<td><code>examples/gamepad/</code></td>
+<td>Pads</td>
+</tr>
+<tr>
+<td><code>examples/terrain_chase/</code></td>
+<td>Terrain chase</td>
+</tr>
+<tr>
+<td><code>examples/fps/</code></td>
+<td>Mouse look energy</td>
+</tr>
+<tr>
+<td><code>testdata/mp_host.mb</code> + <code>mp_client.mb</code></td>
+<td>Tiny RPC</td>
+</tr>
+</tbody>
+</table>
+<p>Index: <a href="../examples/README.md"><code>examples/README.md</code></a>.</p>
+<hr />
+<h2>Appendix G — Key constants you'll actually use</h2>
+<p>Exact names live in the input/key references — these are the greatest hits demos use constantly:</p>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KEY_ESCAPE</code></td>
+<td>Quit</td>
+</tr>
+<tr>
+<td><code>KEY_W</code> <code>KEY_A</code> <code>KEY_S</code> <code>KEY_D</code></td>
+<td>Move</td>
+</tr>
+<tr>
+<td><code>KEY_SPACE</code></td>
+<td>Jump / confirm</td>
+</tr>
+<tr>
+<td><code>KEY_LEFT</code> <code>KEY_RIGHT</code> <code>KEY_UP</code> <code>KEY_DOWN</code></td>
+<td>Menus / pong right paddle vibes</td>
+</tr>
+<tr>
+<td><code>KEY_ENTER</code></td>
+<td>Confirm</td>
+</tr>
+<tr>
+<td><code>KEY_F1</code>…<code>KEY_F4</code></td>
+<td>Debug toggles in showcases</td>
+</tr>
+<tr>
+<td><code>MOUSE_LEFT</code> <code>MOUSE_RIGHT</code></td>
+<td>Click / orbit</td>
+</tr>
+<tr>
+<td><code>PAD_A</code> <code>PAD_B</code> <code>PAD_LEFT_X</code> …</td>
+<td>Gamepad</td>
+</tr>
+</tbody>
+</table>
+<p>If a key name fails <code>--check</code>, open <code>HELP("INPUT")</code> or the INPUT reference — don't invent <code>KEY_JUMP</code> unless you mapped an ACTION called Jump.</p>
+<hr />
+<h2>Appendix H — "Add systems in this order" poster</h2>
+<p>From the spirit of <a href="systems/00-START.md"><code>systems/00-START.md</code></a>:</p>
+<pre><code>1. Window + loop + RENDER.FRAME
+2. DRAW text / rectangles (prove you're alive)
+3. INPUT / ACTION
+4. DELTA-based movement
+5. Camera (2D or 3D)
+6. Assets (textures / models / sounds)
+7. Collision or physics
+8. Audio feedback
+9. GUI / pause
+10. SAVE
+11. Particles / post / juice
+12. AI / nav
+13. Multiplayer (seriously, last)
+</code></pre>
+<p>Skip ahead at your own risk. Skipping audio until the end is fine. Skipping <code>FRAME</code> is not.</p>
+<hr />
+<h1>Part IX — Deep Cuts (the "I want more" section)</h1>
+<h2>Chapter 43 — Full walkthrough: build Pong in your head</h2>
+<p>We're going to narrate <a href="../examples/pong/main.mb"><code>examples/pong/main.mb</code></a> like a sports commentator who knows how to code.</p>
+<h3>Act 1 — Stage</h3>
+<pre><code class="language-basic">APP.OPEN(960, 540, &quot;moonBASIC Pong&quot;)
+APP.SETFPS(60)
+</code></pre>
+<p>960×540 is "retro HD." Not sacred. Change it. Live a little.</p>
+<h3>Act 2 — Cast</h3>
+<p>Paddle size, clamp bounds, ball start, velocities, scores — plain variables. No ECS. No <code>PaddleComponent</code>. Just numbers with jobs:</p>
+<pre><code class="language-basic">pw = 16
+ph = 80
+py1 = 200.0
+py2 = 200.0
+bx = 480.0
+by = 270.0
+bvx = 280.0
+bvy = 140.0
+p1s = 0
+p2s = 0
+</code></pre>
+<h3>Act 3 — Loop religion</h3>
+<p>Every frame:</p>
+<ol>
+<li>Read <code>dt</code></li>
+<li>Move paddles (<code>W/S</code>, <code>I/K</code>) × <code>dt</code>, clamp</li>
+<li>Integrate ball</li>
+<li>Bounce on top/bottom</li>
+<li>Paddle hit → reverse X, tweak Y from hit offset, maybe speed up</li>
+<li>Miss → other player scores, reset ball</li>
+<li>Clear, draw center dashed line, paddles, ball, score text</li>
+<li><strong><code>RENDER.FRAME()</code></strong></li>
+</ol>
+<h3>Act 4 — Why the hit code looks spicy</h3>
+<p>When the ball hits a paddle, demos often:</p>
+<ul>
+<li>Flip <code>bvx</code></li>
+<li>Nudge speed so rallies escalate</li>
+<li>Add spin from <code>(ballY - paddleCenter)</code> so edge hits aren't boring</li>
+</ul>
+<p>That's game feel. That's not "advanced engine." That's arithmetic with attitude.</p>
+<h3>Homework</h3>
+<ol>
+<li>Add a win screen at 11 points  </li>
+<li>Add <code>AUDIO.PLAYSOUND</code> on paddle hit  </li>
+<li>Remap controls with <code>ACTION.MAPKEY</code>  </li>
+<li>Add a third "chaos ball" and regret it  </li>
+</ol>
+<hr />
+<h2>Chapter 44 — Full walkthrough: manual 2D platformer</h2>
+<p>File: <a href="../examples/platformer/main.mb"><code>examples/platformer/main.mb</code></a></p>
+<p>No Box2D. No tilemap. Just you, gravity, and rectangles. Perfect for learning <em>why</em> physics engines exist — and when you don't need one yet.</p>
+<h3>State</h3>
+<pre><code class="language-basic">px = 120
+py = 360
+pvx = 0
+pvy = 0
+ong = 0
+</code></pre>
+<h3>Forces of nature (homemade)</h3>
+<pre><code class="language-basic">; accelerate left/right
+IF INPUT.KEYDOWN(KEY_A) THEN pvx = pvx - 520 * dt
+IF INPUT.KEYDOWN(KEY_D) THEN pvx = pvx + 520 * dt
+pvx = pvx * 0.88                    ; friction-ish
+IF ong = 1 AND INPUT.KEYDOWN(KEY_SPACE) THEN pvy = -420
+
+px = px + pvx * dt
+py = py + pvy * dt
+pvy = pvy + 980 * dt                ; gravity
+</code></pre>
+<h3>Collision: the honest lie</h3>
+<pre><code class="language-basic">ong = 0
+IF py &gt; 400 THEN py = 400
+IF py &gt;= 398 THEN pvy = 0
+IF py &gt;= 398 THEN ong = 1
+
+; floating platform AABB (simplified)
+IF px &gt; 200 AND px &lt; 520 AND py &gt; 300 THEN
+    py = 300
+    pvy = 0
+    ong = 1
+ENDIF
+</code></pre>
+<p>This is <strong>not</strong> a general collider. It assumes you mostly fall onto platforms from above. Side-hitting a platform may feel cursed. That's the lesson: manual AABB is great until levels get clever — then <code>TILEMAP</code> / <code>PHYSICS2D</code> / <code>COLLISION.*</code> earn their keep.</p>
+<h3>Draw</h3>
+<p>Ground, two platforms, player rect, help text, <code>FRAME</code>. Done.</p>
+<h3>Upgrade path</h3>
+<ol>
+<li>Camera follow (<code>CAMERA2D</code>) when the level grows  </li>
+<li><code>TILEMAP.LOAD</code> instead of hard-coded platforms  </li>
+<li>Swap to Box2D when you want slopes and moving platforms that aren't made of tears  </li>
+<li>Add coyote time + jump buffer (feel upgrades — still just timers)</li>
+</ol>
+<hr />
+<h2>Chapter 45 — Game recipes (copy-paste genres)</h2>
+<p>Use these as shopping lists, not prisons.</p>
+<h3>Recipe: Top-down crawler</h3>
+<ul>
+<li><code>APP.OPEN</code> + loop  </li>
+<li><code>CAMERA2D</code> follow  </li>
+<li><code>TILEMAP</code> or draw grid  </li>
+<li><code>INPUT.MOVEMENT2D</code> or WASD axes  </li>
+<li><code>COLLISION.BOXOVERLAP2D</code> for walls/enemies  </li>
+<li><code>AUDIO.PLAYSOUND</code> on hit  </li>
+<li><code>SAVE</code> for deepest floor  </li>
+</ul>
+<h3>Recipe: Score attack arcade</h3>
+<ul>
+<li>Spawner timer (<code>STATIC</code> or global <code>t = t + dt</code>)  </li>
+<li>Object pool via <code>DIM</code> + active flags  </li>
+<li>Escalating speed  </li>
+<li>Particles on death  </li>
+<li>Local hiscore via <code>SAVE</code> / JSON  </li>
+</ul>
+<h3>Recipe: Third-person collectathon</h3>
+<ul>
+<li>Star Road lite: KCC + orbit cam + <code>DIST3D</code> pickups + fog + one enemy <code>NAVAGENT</code>  </li>
+<li>Don't start with nav mesh — start with 3 stars and a floor  </li>
+</ul>
+<h3>Recipe: Racing (flat)</h3>
+<ul>
+<li>Car = entity/model  </li>
+<li>Acceleration along facing  </li>
+<li><code>cam.Follow</code> behind  </li>
+<li>Lap trigger volumes (<code>COLLISION</code> or distance to points)  </li>
+<li>See <code>examples/racing/</code> for inspiration  </li>
+</ul>
+<h3>Recipe: FPS peek</h3>
+<ul>
+<li><code>CURSOR.DISABLE</code> + mouse deltas  </li>
+<li>Camera yaw/pitch  </li>
+<li>WASD on XZ basis (<code>INPUT.MOVEDIR</code> / camera basis helpers)  </li>
+<li>Hitscan: <code>CAMERA.MOUSERAY</code> / <code>PICK</code>  </li>
+<li>See <code>examples/fps/</code>  </li>
+</ul>
+<h3>Recipe: Visual novel (yes, really)</h3>
+<ul>
+<li><code>GUI</code> or <code>DRAW.TEXT</code> + portraits as <code>DRAW.TEXTURE</code>  </li>
+<li><code>INCLUDE</code> script files or JSON dialogue  </li>
+<li>Coroutines for "typewriter wait → next line"  </li>
+<li>Save slot for route flags  </li>
+</ul>
+<p>moonBASIC isn't only cubes. Cubes are just honest.</p>
+<hr />
+<h2>Chapter 46 — Strings, printing, and talking to humans</h2>
+<pre><code class="language-basic">PRINT &quot;hello&quot;
+PRINT(&quot;hello&quot;)
+COLORPRINT(100, 255, 100, &quot;fancy console line&quot;)
+
+name = &quot;Ash&quot;
+msg = &quot;Hi &quot; + name
+msg2 = $&quot;Hi {name}, score={score}&quot;
+msg3 = STRING.INTERP(&quot;Hi {0}, score={1}&quot;, name, score)
+
+s = STR(42)
+n = VAL(&quot;3.14&quot;)
+u = UPPER(name)
+f = FORMAT(yaw, &quot;%.2f&quot;)
+</code></pre>
+<p>HUD:</p>
+<pre><code class="language-basic">DRAW.TEXT($&quot;HP {hp}/{MAX_HP}&quot;, 12, 12, 18, 255, 220, 220, 255)
+</code></pre>
+<p>Console <code>PRINT</code> is for debug. Players look at the window. Don't put the plot exclusively in the terminal unless you're making <em>Terminal Quest III</em>.</p>
+<p>String reference: <a href="reference/STRING.md"><code>reference/STRING.md</code></a>.</p>
+<hr />
+<h2>Chapter 47 — A week-long curriculum</h2>
+<h3>Day 1 — Alive</h3>
+<ul>
+<li>Install IDE or full runtime  </li>
+<li><code>moonbasic new</code>  </li>
+<li>Change clear color daily until it hurts  </li>
+<li>Read Chapters 1–5  </li>
+</ul>
+<h3>Day 2 — Language</h3>
+<ul>
+<li>Variables, IF, FOR, FUNCTION  </li>
+<li>Write a guessing game in the console (<code>PRINT</code> + <code>INPUT</code> if available, or keys)  </li>
+<li>Chapters 6–11  </li>
+</ul>
+<h3>Day 3 — 2D game</h3>
+<ul>
+<li>Clone Pong ideas into your project  </li>
+<li>Add score win state  </li>
+<li>Chapters 12–16, 43  </li>
+</ul>
+<h3>Day 4 — 3D</h3>
+<ul>
+<li>Spin cube → orbit camera → your own colored platforms  </li>
+<li>Chapters 17–21  </li>
+</ul>
+<h3>Day 5 — Physics body</h3>
+<ul>
+<li>Sphere drop or hop sample  </li>
+<li>Tune gravity/jump until it feels like <em>your</em> game  </li>
+<li>Chapters 22–27  </li>
+</ul>
+<h3>Day 6 — Juice + data</h3>
+<ul>
+<li>Sound on jump, particles on land, save hiscore  </li>
+<li>Chapters 29–33  </li>
+</ul>
+<h3>Day 7 — Ship a zip</h3>
+<ul>
+<li>Package Option B from Chapter 41  </li>
+<li>Give it to a friend with zero context  </li>
+<li>Watch them press the wrong keys  </li>
+<li>Fix the README  </li>
+<li>Celebrate with snacks  </li>
+</ul>
+<hr />
+<h2>Chapter 48 — FAQ from the trenches</h2>
+<p><strong>Q: Why does nothing appear?</strong><br />
+A: <code>RENDER.FRAME()</code> missing, or you ran <code>moonbasic</code> instead of <code>moonrun</code>.</p>
+<p><strong>Q: Why is my window instantly closed?</strong><br />
+A: Loop condition wrong — check the <code>NOT (a OR b)</code> parentheses.</p>
+<p><strong>Q: Can I use Blitz <code>#</code> suffixes?</strong><br />
+A: No. Plain names. Welcome to the future / present.</p>
+<p><strong>Q: APP vs WINDOW?</strong><br />
+A: Often aliases. Pick one per project.</p>
+<p><strong>Q: CREATE vs MAKE?</strong><br />
+A: <code>CREATE</code>. <code>MAKE</code> is deprecated comfort food.</p>
+<p><strong>Q: Why won't 3D physics bounce on my machine?</strong><br />
+A: Need full runtime with Jolt (Windows/Linux + CGO builds). Stubs still compile.</p>
+<p><strong>Q: How do I pause?</strong><br />
+A: <code>paused</code> flag — skip gameplay update when true; still draw + <code>FRAME</code>; GUI Resume sets flag false.</p>
+<p><strong>Q: How do I do scenes/levels?</strong><br />
+A: Functions or INCLUDEd files + <code>ERASE ALL</code> / entity clear between scenes. Or one big state enum: <code>MENU</code>, <code>PLAY</code>, <code>PAUSE</code>, <code>GAMEOVER</code>.</p>
+<p><strong>Q: Is moonBASIC object-oriented?</strong><br />
+A: Handles + methods + namespaces. Not Java. Thank the moon.</p>
+<p><strong>Q: Can it make mobile games?</strong><br />
+A: Desktop-first story (Windows then Linux). Don't assume phone packaging is a first-class button today — check current <code>STATE_OF_THE_UNION</code> / releases.</p>
+<p><strong>Q: Where is the entire command list?</strong><br />
+A: <a href="API_CONSISTENCY.md"><code>API_CONSISTENCY.md</code></a>. Bring coffee.</p>
+<p><strong>Q: My coworker writes <code>Window.Open</code> and I write <code>WINDOW.OPEN</code>.</strong><br />
+A: Both fine. Case insensitive. Agree on a style guide before the duel.</p>
+<hr />
+<h2>Chapter 49 — For engine contributors (optional pain)</h2>
+<p>Only if you're hacking <strong>this repo</strong>, not just making games.</p>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Headless compiler</td>
+<td><code>go build -o moonbasic .</code></td>
+</tr>
+<tr>
+<td>Play from source</td>
+<td><code>go build -tags fullruntime -o moonrun ./cmd/moonrun</code></td>
+</tr>
+<tr>
+<td>Check sample</td>
+<td><code>go run . --check examples/mario64/main_entities.mb</code></td>
+</tr>
+<tr>
+<td>Tag matrix</td>
+<td><code>scripts/build/check_builds.ps1</code> / <code>.sh</code></td>
+</tr>
+</tbody>
+</table>
+<p>Remember:</p>
+<ul>
+<li>Default <code>go run . file.mb</code> <strong>compiles</strong>, doesn't play  </li>
+<li>Physics sync files use Windows+Linux tags — don't linux-only fork entity sync  </li>
+<li>Manifest changes: edit <code>compiler/builtinmanifest/commands.json</code>, then <code>--check</code> samples; regen API docs with <code>go run ./tools/apidoc</code> when the public surface changes  </li>
+<li>HAL: prefer <code>rt.Driver</code> for new window/input work; migration is incremental  </li>
+<li>Read <a href="DEVELOPER.md"><code>DEVELOPER.md</code></a>, <a href="../CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>, <a href="PHYSICS.md"><code>PHYSICS.md</code></a>, <a href="../AGENTS.md"><code>AGENTS.md</code></a></li>
+</ul>
+<p>Beginners: you can ignore this chapter forever and still ship bangers.</p>
+<hr />
+<h2>Chapter 50 — Porting from Blitz / DBPro without crying</h2>
+<ol>
+<li><strong>Delete suffix punctuation</strong> from names (<code>#</code> <code>$</code> <code>%</code> <code>?</code>)  </li>
+<li>Map <code>Graphics</code> → <code>APP.OPEN</code> / <code>WINDOW.OPEN</code>  </li>
+<li>Map entity transforms → <code>ENTITY.SETPOS</code> / handle <code>.pos</code>  </li>
+<li>Prefer canonical namespaces; keep Easy Mode wrappers only where they save time  </li>
+<li>Replace <code>Include</code> habits with moonBASIC <code>INCLUDE "file.mb"</code>  </li>
+<li>Test with <code>--check</code> often — port in slices, not one 8,000-line prayer  </li>
+<li>Use <a href="reference/MIGRATION.md"><code>MIGRATION.md</code></a>, <a href="reference/BLITZ_COMMAND_INDEX.md"><code>BLITZ_COMMAND_INDEX.md</code></a>, <a href="reference/dbpro/"><code>reference/dbpro/</code></a>  </li>
+</ol>
+<p>Emotional advice: your old game will not port in a weekend if it was a career. Port one room. Celebrate. Port the player. Celebrate harder.</p>
+<hr />
+<h1>Epilogue — Go make a mess</h1>
+<p>You don't need permission.</p>
+<p>Open a window. Draw a rectangle. Spin a cube. Make a capsule jump on a green box until it feels good. Add a <em>bwip</em>. Show a friend. Watch them miss the jump and blame the game. Fix the jump. Ship a zip.</p>
+<p>moonBASIC won't write your game for you — thank god — but it will get out of the way long enough for you to hear your own ideas.</p>
+<p>Now stop reading books about making games and go make a stupid little game that only you love.</p>
+<p>Then make another one.</p>
+<p><strong>— end of expanded book —</strong></p>
+<p><em>Written for humans. Validated against moonBASIC docs and samples in this repository. Occasional swearing included at no extra charge. If something here drifts from <code>commands.json</code>, the manifest wins — file a fix, don't start a cult.</em></p>
+<div id="footerContent">moonBASIC · The Book · CharmingBlaze</div>
+</body>
+</html>
