@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://github.com/CharmingBlaze/moonbasic/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/CharmingBlaze/moonbasic?style=flat-square&label=latest&color=c48a2a"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-1a1f2e?style=flat-square"></a>
-  <a href="https://github.com/CharmingBlaze/moonbasic/releases/tag/book"><img alt="The Book" src="https://img.shields.io/badge/the%20book-PDF%20%2B%20Word-5a6374?style=flat-square"></a>
+  <a href="https://github.com/CharmingBlaze/moonbasic/releases/latest"><img alt="The Book included" src="https://img.shields.io/badge/the%20book-in%20latest%20release-5a6374?style=flat-square"></a>
 </p>
 
 <p align="center">
@@ -81,15 +81,16 @@ Every OS package is a **complete user kit**:
 | **`docs/`** | Full documentation offline |
 | **`samples/`** | Starter scripts |
 
-Optional extras on the same Releases page:
+Same **latest** release also includes:
 
 | Download | For |
 |----------|-----|
 | `moonbasic-*-vscode.vsix` | VS Code / Cursor syntax + LSP |
 | **`moonBASIC-The-Book.zip`** | The Book — Markdown + Word + PDF |
-| [Book release](https://github.com/CharmingBlaze/moonbasic/releases/tag/book) | Book-only assets, easy to find |
+| `moonBASIC-The-Book.docx` / `.pdf` | Word or PDF alone |
 
-> **Tip:** Day-to-day play = **`moonrun game.mb`**. Plain `moonbasic game.mb` only writes bytecode — it does **not** open a window.
+> **Latest = the complete kit.** IDE + compiler + `moonrun` + docs + samples + The Book.  
+> Day-to-day play = **`moonrun game.mb`**. Plain `moonbasic game.mb` only writes bytecode — it does **not** open a window.
 
 ---
 

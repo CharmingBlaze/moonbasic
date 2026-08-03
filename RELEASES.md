@@ -35,9 +35,9 @@ Engine source: [moonbasic-compiler](https://github.com/CharmingBlaze/moonbasic-c
 
 ---
 
-## The moonBASIC Book (optional download)
+## The moonBASIC Book (on the same complete release)
 
-Funny full-length guide to the language and making games — Markdown, Word, and PDF.
+Funny full-length guide — shipped as **extra assets on the latest complete release** (alongside IDE / compiler / runtime). Not a separate “latest” package.
 
 | Asset | Contents |
 |-------|----------|
